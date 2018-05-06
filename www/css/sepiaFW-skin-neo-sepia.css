@@ -1,0 +1,178 @@
+html {
+	background-image: url(../img/SEPIA_back.png);
+	background-size: auto 50%;
+}
+
+#sepiaFW-pC 	 { background-color: #000000; }
+#sepiaFW-sC 	 { background-color: #16ABC3; }
+#sepiaFW-sC2 { background-color: rgba(225, 225, 245, 0.96); 	}
+#sepiaFW-aC 	 { background-color: rgb(186, 42, 42); 	}
+#sepiaFW-aC2 { background-color: #4ec48f; }
+#sepiaFW-asC { background-color: #c4ff3e;	}	/*#69d177;*/
+#sepiaFW-adC { background-color: #ffeb3b; 	}
+
+#sepiaFW-main-window {
+	color: #000000;
+}
+#sepiaFW-login-box, #sepiaFW-nav-bar, #sepiaFW-chat-controls-form, #sepiaFW-chat-controls-right {
+	background: #000000;
+	color: #fff;
+}
+
+#sepiaFW-nav-bar-page-indicator {
+	background: linear-gradient(to right, #CEFF1A 0%, #16ABC3 100%);
+}
+#sepiaFW-nav-menu-go-left {
+	color: #8be158 !important;
+}
+#sepiaFW-nav-menu-go-right {
+	color: #58c987 !important;
+}
+
+#sepiaFW-login-box button {
+	background: linear-gradient(to right, #CEFF1A 0%, #16ABC3 100%);
+	color: #000;
+}
+.sepiaFW-notouch-device #sepiaFW-login-box button:hover {
+	background: linear-gradient(to right, #fff 0%, #bbb 100%);
+	color: #000;
+}
+
+#sepiaFW-main-window button {
+	background: #000000;
+	color: #fff;
+}
+.sepiaFW-notouch-device #sepiaFW-main-window button:hover {
+	background: #fff;
+	color: #000000;
+}
+#sepiaFW-assist-btn-area {
+	border-color: #000000;
+}
+#sepiaFW-assist-btn {
+	background: linear-gradient(to right, #CEFF1A 0%, #16ABC3 100%) !important;
+}
+.sepiaFW-notouch-device #sepiaFW-assist-btn:hover {
+	background: linear-gradient(to right, #fff 0%, #bbb 100%) !important;
+}
+#sepiaFW-assist-btn i {
+	display: none !important;
+}
+
+.sepiaFW-menu {
+	/*background: rgba(206, 255, 26, 0.95);*/
+	background: rgba(225, 225, 245, 0.96);
+	color: #000;
+}
+#sepiaFW-chat-menu {
+	background: rgba(225, 225, 245, 1.00);
+	color: #000;
+}
+#sepiaFW-chat-menu button {
+	background: #000;
+	color: #c4ff3e;
+}
+#sepiaFW-chat-menu li {
+	background: rgba(255, 255, 255, 0.15);
+}
+
+#sepiaFW-myEvents-buttons button,
+#sepiaFW-myEvents-buttons-replaced button {
+    background: #c4ff3e !important;
+	color: #333 !important;
+}
+.sepiaFW-notouch-device #sepiaFW-myEvents-buttons button:hover {
+	background-color: rgba(225, 225, 245, 0.96) !important;
+	color: #000000 !important;
+}
+#sepiaFW-main-window .chat-buttons-area button {
+	background: rgba(225, 225, 245, 0.96);
+	color: #000000;
+}
+.sepiaFW-notouch-device #sepiaFW-main-window .chat-buttons-area button:hover {
+	background: #c4ff3e;
+	color: #333;
+}
+
+#sepiaFW-nav-label-note{
+    border: 1px solid #16ABC3;
+}
+
+#sepiaFW-chat-output article {
+    background: #4ec48f;
+	color: #fff;
+}
+#sepiaFW-chat-output article.chatMe{
+	background: #16ABC3;
+	color: #fff;
+}
+#sepiaFW-chat-output article.chatMe b{
+	color: #fff;
+}
+#sepiaFW-chat-output article.chatMe span{
+	color: #fff;
+}
+#sepiaFW-chat-output article.chatAssistant {
+	background: #c4ff3e;
+	color: #333;
+}
+#sepiaFW-chat-output article.chatAssistant b{
+	color: #000000;
+}
+#sepiaFW-chat-output article.chatAssistant.chatPm{
+	border-left-color: rgba(255, 255, 255, 0.40);
+}
+#sepiaFW-chat-output article.chatMe.chatPm{
+	border-left-color: rgba(255, 255, 255, 0.40);
+}
+#sepiaFW-chat-output article.chatOther.chatPm{
+	border-left-color: rgba(255, 255,255, 0.40);
+}
+
+.sepiaFW-button {
+	background-color: #333;
+	color: #c4ff3e;
+}
+.sepiaFW-notouch-device .sepiaFW-button:hover {
+	background-color: #c4ff3e;
+	color: #333;
+}
+
+#sepiaFW-chat-controls-swipe-area .sepiaFW-swipeBar-switchable {
+	background: #16ABC3;
+	color: #fff;
+}
+
+/*----- Popup ------*/
+
+#sepiaFW-popup-message  {
+	background: #000;
+}
+#sepiaFW-popup-message button {
+	background-color: #c4ff3e;
+}
+
+/*----- cards ------*/
+
+.sepiaFW-cards-list-title {
+	background: rgba(225, 225, 245, 1.00);
+	color: #000;
+}
+
+/*----- teachUI -----*/
+
+#sepiaFW-teachUI-nav-bar {
+    background: #16ABC3;
+    color: #fff;
+}
+#sepiaFW-teachUI-view {
+    background: #000;
+}
+#sepiaFW-teachUI-view label {
+    color: rgba(225, 225, 245, 0.96);
+}
+#sepiaFW-teachUI-editor button, 
+#sepiaFW-teachUI-manager button {
+    background: #c4ff3e !important;
+    color: #333 !important;
+}

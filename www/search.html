@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+	<!-- web app settings -->
+	<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=0">
+	<title>SepiaFW Search</title>
+	<meta name="application-name" content="SepiaFW Search"/>
+	<meta name="description" content="SepiaFW plain search page">
+	<meta name="theme-color" content="#007AFF">
+	<!--<link rel="icon" sizes="192x192" href="img/icon.png">
+	<link rel="apple-touch-icon" href="img/icon.png">
+	<meta property="og:image" content="img/icon.png"/>-->
+	<!-- imports -->
+	<!--<link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,600" rel="stylesheet"> -->
+	<!--<link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro&effect=wallpaper" rel="stylesheet">-->
+    <!--<link rel="stylesheet" href="css/sepiaFW-style.css" title='main'>-->
+	<!--<script src="scripts/jquery-3.1.1.min.js"></script>-->
+</head>
+<style>
+	* {
+		box-sizing: border-box;
+		-webkit-tap-highlight-color: transparent;
+	}
+	input:focus,
+	select:focus,
+	textarea:focus,
+	button:focus {
+		outline: none;
+	}
+	::-moz-focus-inner {
+		border:0;
+	}
+	html {
+		font-family: 'Source Sans Pro', 'Roboto', sans-serif;
+		width: 100%;
+		height: 100%;
+		margin: 0;
+		padding: 0;
+		background-color: #000;
+		color: #fff;
+		/*background-image: url(../img/blocks.png);*/
+		/*background-size: 818px;*/
+		/*background-repeat: no-repeat;*/
+		/*background-position: center center;*/
+	}
+	body {
+		width: 100%;
+		height: 100%;
+		margin: 0;
+		padding: 0;
+	}
+	section {
+		width: 100%;
+		max-width: 736px;
+		text-align: center;
+		padding: 16px;
+		margin: auto;
+	}
+	.labelBlock {
+	}
+	.labelBlock label {
+		font-size: 32px;
+		font-weight: 300;
+		/*color: #ceff1a;*/
+		/*color: #15abc3;*/
+		color: #007AFF;
+	}
+	.inputBlock {
+		background: #fff;
+		border: 1px solid #007AFF;
+		border-radius: 3px;
+		overflow: hidden
+	}
+	.inputBlock input {
+		background: #fff;
+		border: 0;
+		-moz-appearance: none;
+		-webkit-appearance: none;
+		appearance: none;
+		width: 100%;
+		height: 36px;
+		padding-left: 8px;
+		font-size: 18px;
+	}
+	.buttonBlock {
+	}
+	.buttonBlock button {
+		border: 0;
+		border-radius: 3px;
+		/*background: #ceff1a;*/
+		/*background: #15abc3;*/
+		background: #007AFF;
+		color: #fff;
+		/*color: #000;*/
+		font-size: 16px;
+		padding: 5px 12px;
+		margin: 4px 2px;
+	}
+	.buttonBlock button:hover {
+		color: #000;
+		background: #fff;
+	}
+</style>
+<body>
+	<!-- Main -->
+	<section style="display:flex;justify-content:center;align-items:flex-end;width:100%;height:33%;">
+		<div class='labelBlock'>
+			<label class='font-effect-wallpaper'>Search</label>
+		</div>
+	</section>
+	<section>
+		<div class='inputBlock'>
+			<input id="q">
+		</div>
+	</section>
+	<section>
+		<div class='buttonBlock'>
+			<button id="google">Google</button>
+			<button id="bing">Bing</button>
+			<button id="yahoo">Yahoo</button>
+			<button id="duckduck">DuckDuck</button>
+		</div>
+	</section>
+<!-- START JS -->
+<script type="text/javascript">
+function ready(){
+	document.getElementById('google').addEventListener("click", function(){
+		var q = document.getElementById('q');
+		if(q){
+			location.href = "https://www.google.com/search?q=" + encodeURI(q.value);
+		}else{
+			location.href = "https://www.google.com";
+		}
+	});
+	document.getElementById('bing').addEventListener("click", function(){
+		var q = document.getElementById('q');
+		if(q){
+			location.href = "https://www.bing.com/search?q=" + encodeURI(q.value);
+		}else{
+			location.href = "https://www.bing.com";
+		}
+	});
+	document.getElementById('yahoo').addEventListener("click", function(){
+		var q = document.getElementById('q');
+		if(q){
+			location.href = "https://search.yahoo.com/search;?p=" + encodeURI(q.value);
+		}else{
+			location.href = "https://www.yahoo.com";
+		}
+	});
+	document.getElementById('duckduck').addEventListener("click", function(){
+		var q = document.getElementById('q');
+		if(q){
+			location.href = "https://duckduckgo.com/?kae=d&k7=%23000000&k9=007AFF&k1=-1&q=" + encodeURI(q.value);
+		}else{
+			location.href = "https://duckduckgo.com";
+		}
+	});
+	document.getElementById('q').addEventListener("keypress", function(e){
+		if (e.keyCode === 13){
+			//Return-Key
+			document.getElementById('duckduck').dispatchEvent(new CustomEvent("click"));
+		}
+	});
+}
+ready();
+</script>
+</body>
+</html>

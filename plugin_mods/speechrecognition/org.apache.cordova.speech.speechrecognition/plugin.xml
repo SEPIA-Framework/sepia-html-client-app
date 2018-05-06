@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plugin xmlns="http://www.phonegap.com/ns/plugins/1.0"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    id="org.apache.cordova.speech.speechrecognition"
+    version="0.1.2">
+    <name>SpeechRecognition</name>
+    <description>Cordova Speech Recognition Plugin</description>
+    <license>Apache</license>
+    <keywords>cordova,speech,recognition</keywords>
+    
+    <dependency id="cordova-plugin-compat" version="^1.0.0" />
+
+    <js-module src="www/SpeechRecognition.js" name="SpeechRecognition">
+        <clobbers target="SpeechRecognition" />
+    </js-module>
+
+    <js-module src="www/SpeechRecognitionError.js" name="SpeechRecognitionError">
+        <clobbers target="SpeechRecognitionError" />
+    </js-module>
+
+    <js-module src="www/SpeechRecognitionAlternative.js" name="SpeechRecognitionAlternative">
+        <clobbers target="SpeechRecognitionAlternative" />
+    </js-module>
+
+    <js-module src="www/SpeechRecognitionResult.js" name="SpeechRecognitionResult">
+        <clobbers target="SpeechRecognitionResult" />
+    </js-module>
+
+    <js-module src="www/SpeechRecognitionResultList.js" name="SpeechRecognitionResultList">
+        <clobbers target="SpeechRecognitionResultList" />
+    </js-module>
+
+    <js-module src="www/SpeechRecognitionEvent.js" name="SpeechRecognitionEvent">
+        <clobbers target="SpeechRecognitionEvent" />
+    </js-module>
+
+    <js-module src="www/SpeechGrammar.js" name="SpeechGrammar">
+        <clobbers target="SpeechGrammar" />
+    </js-module>
+
+    <js-module src="www/SpeechGrammarList.js" name="SpeechGrammarList">
+        <clobbers target="SpeechGrammarList" />
+    </js-module>
+
+    <!-- android -->
+    <platform name="android">
+        <config-file target="res/xml/config.xml" parent="/*">
+            <feature name="SpeechRecognition">
+                <param name="android-package" value="org.apache.cordova.speech.SpeechRecognition"/>
+            </feature>
+        </config-file>
+        <config-file target="AndroidManifest.xml" parent="/*">
+            <uses-permission android:name="android.permission.RECORD_AUDIO" />
+        </config-file>
+
+        <source-file src="src/android/SpeechRecognition.java" target-dir="src/org/apache/cordova/speech" />      
+    </platform>
+    <!-- ios -->
+    <platform name="ios">
+        <config-file target="config.xml" parent="/*">
+            <feature name="SpeechRecognition">
+                <param name="ios-package" value="CDVSpeechRecognition"/>
+            </feature>
+        </config-file>
+        <source-file src="src/ios/CDVSpeechRecognition.swift" />
+        <source-file src="src/ios/CDVSpeechRecognitionViewController.swift" />
+        <preference name="MICROPHONE_USAGE_DESCRIPTION" default="Your microphone will be used to record your speech." />
+        <config-file target="*-Info.plist" parent="NSMicrophoneUsageDescription">
+            <string>$MICROPHONE_USAGE_DESCRIPTION</string>
+        </config-file>
+        <preference name="SPEECHRECOGNITION_USAGE_DESCRIPTION" default="Speech recognition will be used to transcribe your spoken words to text." />
+        <config-file target="*-Info.plist" parent="NSSpeechRecognitionUsageDescription">
+            <string>$SPEECHRECOGNITION_USAGE_DESCRIPTION</string>
+        </config-file>
+    </platform>
+</plugin>
