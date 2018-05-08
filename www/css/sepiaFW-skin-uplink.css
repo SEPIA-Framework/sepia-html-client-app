@@ -18,6 +18,10 @@ html {
 	color: #fff;
 }
 
+#sepiaFW-nav-bar-page-indicator {
+	background: linear-gradient(to right, #1bffe6 0%, #4470ae 100%);
+}
+
 #sepiaFW-main-window button,
 .sepiaFW-touch-device #sepiaFW-main-window button:hover {
 	background: #283059;
@@ -35,9 +39,10 @@ html {
 	border-color: #283059;
 }
 #sepiaFW-assist-btn-area button {
-	background: #1BFFE6;
+	/*background: #1BFFE6;*/
+	background: linear-gradient(to right, #1bffe6 0%, #4470ae 100%);
     color: #fff;
-	border-color: #rgba(255, 255, 255, 0.67);
+	/*border-color: rgba(255, 255, 255, 0.67);*/
 }
 
 .sepiaFW-menu {
@@ -128,6 +133,12 @@ html {
 #sepiaFW-chat-controls-swipe-area .sepiaFW-swipeBar-switchable {
 	background-color: #283059;
 	color: #fff;
+}
+
+/*----- common UI elements -----*/
+
+.sepiaFW-toggle-btn .on {
+    background: rgb(27, 255, 230);
 }
 
 /*----- cards ------*/

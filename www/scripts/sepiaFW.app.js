@@ -112,7 +112,10 @@ function sepiaFW_build_config(){
 		
 	//set base URLs to end-points
 	Config.setEndPoints = function(apiURLs){
-		if (apiURLs.assistAPI) Config.assistAPI = apiURLs.assistAPI;
+		if (apiURLs.assistAPI){
+			Config.assistAPI = apiURLs.assistAPI;
+			SepiaFW.debug.log('Config: assistAPI=' + apiURLs.assistAPI);
+		}
 		if (apiURLs.teachAPI) Config.teachAPI = apiURLs.teachAPI;
 		if (apiURLs.webSocketURI) Config.webSocketURI = apiURLs.webSocketURI;
 		if (apiURLs.webSocketAPI) Config.webSocketAPI = apiURLs.webSocketAPI;

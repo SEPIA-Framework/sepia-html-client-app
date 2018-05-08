@@ -1,8 +1,6 @@
 html {
-	background-image: url(../img/infiniBandAlphaUD.png);
-	/*background-image: url(../img/inkSplash.png);*/
-	background-size: auto 75%;;
-	background-position: center 40%;
+	background-image: url(../img/SEPIA_back.png);
+	background-size: auto 50%;
 }
 
 #sepiaFW-pC 	 { background-color: #fff; }
@@ -27,7 +25,7 @@ html {
 
 #sepiaFW-main-window button,
 .sepiaFW-touch-device #sepiaFW-main-window button:hover {
-	background: rgba(255, 255, 255, 0.0);
+	background: transparent;
 	color: #000;
 }
 .sepiaFW-notouch-device #sepiaFW-main-window button:hover {

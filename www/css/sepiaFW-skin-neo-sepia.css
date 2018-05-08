@@ -39,7 +39,7 @@ html {
 }
 
 #sepiaFW-main-window button {
-	background: #000000;
+	background: transparent;
 	color: #fff;
 }
 .sepiaFW-notouch-device #sepiaFW-main-window button:hover {
@@ -63,6 +63,10 @@ html {
 	/*background: rgba(206, 255, 26, 0.95);*/
 	background: rgba(225, 225, 245, 0.96);
 	color: #000;
+}
+#sepiaFW-chat-controls-more-menu button {
+	background: #000;
+	color: #fff;
 }
 #sepiaFW-chat-menu {
 	background: rgba(225, 225, 245, 1.00);
@@ -112,6 +116,12 @@ html {
 #sepiaFW-chat-output article.chatMe span{
 	color: #fff;
 }
+#sepiaFW-chat-output article.chatMe.chatPm{
+	border-left-color: rgba(255, 255, 255, 0.40);
+}
+#sepiaFW-chat-output article.chatOther.chatPm{
+	border-left-color: rgba(255, 255,255, 0.40);
+}
 #sepiaFW-chat-output article.chatAssistant {
 	background: #c4ff3e;
 	color: #333;
@@ -121,12 +131,6 @@ html {
 }
 #sepiaFW-chat-output article.chatAssistant.chatPm{
 	border-left-color: rgba(255, 255, 255, 0.40);
-}
-#sepiaFW-chat-output article.chatMe.chatPm{
-	border-left-color: rgba(255, 255, 255, 0.40);
-}
-#sepiaFW-chat-output article.chatOther.chatPm{
-	border-left-color: rgba(255, 255,255, 0.40);
 }
 
 .sepiaFW-button {

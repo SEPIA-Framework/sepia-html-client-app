@@ -253,9 +253,10 @@ body {
 	height:15px;
 	width:15px;
 	border-radius:100%;
+	/*border: 1px solid rgba(255, 255, 255, 0.33);*/
 	background:rgba(0, 0, 0, 0.33);
 	position:absolute;
-	margin-top: 50%;
+	/*margin-top: 50%;*/
 	left:50%;
 	transform: translate(-50%, -50%);
 	animation: sepiaFW-loader-ani-center 2s linear infinite;
@@ -270,17 +271,19 @@ body {
 }
 #sepiaFW-loader:before{
 	left:-20px;
+	/*border: 1px solid rgba(255, 255, 255, 0.22);*/
 	background:rgba(0, 0, 0, 0.22);
 }
 #sepiaFW-loader:after{
 	left:20px;
+	/*border: 1px solid rgba(255, 255, 255, 0.18);*/
 	background:rgba(0, 0, 0, 0.11);
 }
 @keyframes sepiaFW-loader-ani-center {
-	from{	top:0;		transform:rotate(0deg);		}
-	25%{	top:-8px;	transform:rotate(-120deg);	}
-	75%{	top:8px;	transform:rotate(-240deg);	}
-	to{		top:0;		transform:rotate(-360deg);	}
+	from{	top:45%;	transform:rotate(0deg);		}
+	25%{	top:42%;	transform:rotate(-120deg);	}
+	75%{	top:48%;	transform:rotate(-240deg);	}
+	to{		top:45%;	transform:rotate(-360deg);	}
 }
 @keyframes sepiaFW-loader-ani {
 	from{	top:0;		transform:rotate(0deg);		}
@@ -1362,11 +1365,11 @@ body {
 }
 .sepiaFW-results-container .statusUpdate b.assistant,
 #sepiaFW-chat-output article.statusUpdate b.assistant{
-	color: rgba(166, 58, 80, 1.0);
+	color: rgba(255, 0, 0, 1.0);
 }
 .sepiaFW-results-container .statusUpdate b.client,
 #sepiaFW-chat-output article.statusUpdate b.client{
-	color: rgba(166, 58, 80, 1.0);
+	color: rgba(255, 0, 0, 1.0);
 }
 .sepiaFW-results-container .chatMsg,
 #sepiaFW-chat-output .chatMsg {
