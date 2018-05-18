@@ -1,6 +1,10 @@
 html {
 	background-image: url(../img/inkSplash.png);
 }
+#sepiaFW-main-window {
+	color: #2f3035;
+	border: 0px;
+}
 
 #sepiaFW-pC 	 { background-color: #2F3035; }
 #sepiaFW-sC 	 { background-color: #44c8be; }
@@ -10,9 +14,6 @@ html {
 #sepiaFW-asC { background-color: #44c8be;	}
 #sepiaFW-adC { background-color: gold; 	}
 
-#sepiaFW-main-window {
-	color: #2f3035;
-}
 #sepiaFW-login-box, #sepiaFW-nav-bar, #sepiaFW-chat-controls-form, #sepiaFW-chat-controls-right {
 	background: #2f3035;
 	color: #fff;

@@ -314,6 +314,21 @@ body {
 
 /* -------------------- MAIN ------------------------- */
 
+@media (min-width: 480px) and (min-height: 481px) {
+	body {
+		display: flex;
+		align-items: center;
+	}
+	#sepiaFW-main-window {
+		border: 6px solid #CEFF1A;
+		border-bottom-width: 0;
+		border-top-width: 4px;
+		border-radius: 8px;
+		box-shadow: 0 0px 10px 0 rgba(0, 0, 0, 0.66);
+		max-height: 820px;
+	}
+}
+
 #sepiaFW-main-window input, #sepiaFW-login-box input {
 	-moz-appearance: none;
 	-webkit-appearance: none;
@@ -438,14 +453,15 @@ body {
 
 #sepiaFW-nav-bar, #sepiaFW-chat-controls-form, #sepiaFW-chat-controls-right {
 	background-color: #ceff1a;
-	border-radius: 3px;
+	border-radius: 0px;
 }
 #sepiaFW-chat-controls-form {
-	border-radius: 28px 3px 3px 28px;
+	border-radius: 28px 0px 0px 28px;
 }
 #sepiaFW-chat-controls-right {
-	border-radius: 3px 28px 28px 3px;
+	border-radius: 0px 28px 28px 0px;
 }
+/*
 @media (max-width: 768px), (max-height: 768px) {
 	#sepiaFW-nav-bar {
 		border-radius: 0px 0px 3px 3px;
@@ -457,6 +473,7 @@ body {
 		border-radius: 3px 28px 28px 0px;
 	}
 }
+*/
 
 #sepiaFW-main-window {
 	position: relative;
@@ -526,7 +543,7 @@ body {
 }
 
 .sepiaFW-menu {
-	border-radius: 3px;
+	border-radius: 0px;
 	background: rgba(33, 33, 33, 0.98); /*rgba(166, 58, 80, 0.95);*/
 	color: #fff;
 	list-style: none;
@@ -928,7 +945,9 @@ body {
     font-size: 14px;
 }
 #sepiaFW-chat-channel-controls button {
-	height: 27px;
+	height: 28px;
+    width: 28px;
+    padding: 0;
 	margin-left: 0;
 }
 #sepiaFW-chat-userlist {

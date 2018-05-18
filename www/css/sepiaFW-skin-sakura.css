@@ -1,6 +1,9 @@
 html {
 	background-image: url(../img/cherryBlossomInk.png);
 }
+#sepiaFW-main-window {
+	border-color: #503040;
+}
 
 #sepiaFW-pC 	 { background-color: #503040; }
 #sepiaFW-sC 	 { background-color: #883446; }

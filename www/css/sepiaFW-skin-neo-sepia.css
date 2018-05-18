@@ -2,18 +2,20 @@ html {
 	background-image: url(../img/SEPIA_back.png);
 	background-size: auto 50%;
 }
-
-#sepiaFW-pC 	 { background-color: #000000; }
-#sepiaFW-sC 	 { background-color: #16ABC3; }
-#sepiaFW-sC2 { background-color: rgba(225, 225, 245, 0.96); 	}
-#sepiaFW-aC 	 { background-color: rgb(186, 42, 42); 	}
-#sepiaFW-aC2 { background-color: #4ec48f; }
-#sepiaFW-asC { background-color: #c4ff3e;	}	/*#69d177;*/
-#sepiaFW-adC { background-color: #ffeb3b; 	}
-
 #sepiaFW-main-window {
 	color: #000000;
+	border: 0px;
 }
+
+#sepiaFW-pC 	 { background-color: #000000; } 						/* Primary color - used for status bar and browser theme as well */
+#sepiaFW-sC 	 { background-color: #16ABC3; }						/* Secondary color - should be in contrast to primary */
+#sepiaFW-sC2 { background-color: rgba(225, 225, 245, 0.96); }	/* Secondary color 2 - should be in contrast to 1 and 2 */
+#sepiaFW-aC 	 { background-color: rgb(186, 42, 42); }				/* Accent color 1 - e.g. used during listening in assistant button */
+#sepiaFW-aC2 { background-color: #4ec48f; }						/* Accent color 2 - e.g. used during speaking in assistant button */
+#sepiaFW-asC { background-color: #c4ff3e; }	/*#69d177;*/		/* Assistant color - the signature color of the assistant */
+#sepiaFW-adC { background-color: #ffeb3b; }						/* Await-dialog color - used during "wait for interaction" in assistant button */
+#sepiaFW-lC 	 { background-color: rgba(30, 30, 30, 0.50); }		/* Loading color - used during loading in assistant button */
+
 #sepiaFW-login-box, #sepiaFW-nav-bar, #sepiaFW-chat-controls-form, #sepiaFW-chat-controls-right {
 	background: #000000;
 	color: #fff;
@@ -43,8 +45,8 @@ html {
 	color: #fff;
 }
 .sepiaFW-notouch-device #sepiaFW-main-window button:hover {
-	background: #fff;
-	color: #000000;
+	background: transparent;
+	color: #CEFF1A;
 }
 #sepiaFW-assist-btn-area {
 	border-color: #000000;
@@ -76,8 +78,16 @@ html {
 	background: #000;
 	color: #c4ff3e;
 }
+.sepiaFW-notouch-device #sepiaFW-chat-menu button:hover {
+    background-color: #fff !important;
+    color: #000 !important;
+}
 #sepiaFW-chat-menu li {
 	background: rgba(255, 255, 255, 0.15);
+}
+.sepiaFW-notouch-device #sepiaFW-chat-controls-more-menu button:hover {
+	background-color: #fff !important;
+	color: #000 !important;
 }
 
 #sepiaFW-myEvents-buttons button,

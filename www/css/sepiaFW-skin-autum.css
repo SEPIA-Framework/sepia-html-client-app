@@ -1,6 +1,9 @@
 html {
 	background-image: url(../img/birds.png);
 }
+#sepiaFW-main-window {
+	border-color: #44451F;
+}
 
 #sepiaFW-pC 	 { background-color: #44451F; }
 #sepiaFW-sC 	 { background-color: #BE3E2C; }

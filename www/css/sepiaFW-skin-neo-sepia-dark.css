@@ -3,9 +3,20 @@ html {
 	background-size: auto 50%;
 	background-color: #000;
 }
+#sepiaFW-main-window {
+	color: #fff;
+}
+@media (min-width: 480px) and (min-height: 481px) {
+	#sepiaFW-main-window {
+		border-color: #1d1d1d;
+		border-width: 6px;
+		border-radius: 16px;
+		overflow: hidden;
+	}
+}
 
-#sepiaFW-pC 	 { background-color: #1499ae; }
-#sepiaFW-sC 	 { background-color: #dfdff2; }
+#sepiaFW-pC 	 { background-color: #dfdff2; }
+#sepiaFW-sC 	 { background-color: #1499ae; }
 #sepiaFW-sC2 { background-color: #07333a; 	}
 #sepiaFW-aC 	 { background-color: rgb(186, 42, 42); 	}
 #sepiaFW-aC2 { background-color: #ceff1a; 	}
@@ -37,17 +48,14 @@ html {
 	border-bottom-color: #000;
 }
 
-#sepiaFW-main-window {
-	color: #fff;
-}
 #sepiaFW-main-window button,
 .sepiaFW-touch-device #sepiaFW-main-window button:hover {
 	background: transparent;
 	color: #fff;
 }
 .sepiaFW-notouch-device #sepiaFW-main-window button:hover {
-	background: #fff;
-	color: #000;
+	background: transparent;
+	color: #CEFF1A;
 }
 
 #sepiaFW-assist-btn-area {

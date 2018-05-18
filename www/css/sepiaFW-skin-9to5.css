@@ -1,6 +1,9 @@
 html {
 	background-image: url(../img/cycling.png);
 }
+#sepiaFW-main-window {
+	border-color: #4B6688;
+}
 
 #sepiaFW-pC 	 { background-color: #4B6688; }
 #sepiaFW-sC 	 { background-color: #312F3F; }

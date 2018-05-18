@@ -1,7 +1,11 @@
 html {
 	background-image: url(../img/infiniBandAlpha.png);
-	background-size: 50%;
+	background-size: 280px;
 	background-position: center 40%;
+}
+#sepiaFW-main-window {
+	color: #2f3035;
+	border-color: #61E69D;
 }
 
 #sepiaFW-pC 	 { background-color: #61E69D; 	}
@@ -12,9 +16,6 @@ html {
 #sepiaFW-asC { background-color: #FE5652;	}
 #sepiaFW-adC { background-color: gold; 		}
 
-#sepiaFW-main-window {
-	color: #2f3035;
-}
 #sepiaFW-nav-bar, #sepiaFW-chat-controls-form, #sepiaFW-chat-controls-right {
 	background: #61E69D;
 	color: #fff;

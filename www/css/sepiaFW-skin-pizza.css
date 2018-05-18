@@ -1,6 +1,9 @@
 html {
 	background-image: url(../img/pizza.png);
 }
+#sepiaFW-main-window {
+	border-color: #E3BB6A;
+}
 
 #sepiaFW-pC 	 { background-color: #E3BB6A; }
 #sepiaFW-sC 	 { background-color: #59372E; }

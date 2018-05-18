@@ -1,6 +1,9 @@
 html {
 	background-image: url(../img/nippon.png);
 }
+#sepiaFW-main-window {
+	border-color: #000;
+}
 
 #sepiaFW-pC 	 { background-color: #000; }
 #sepiaFW-sC 	 { background-color: #F3D713; }

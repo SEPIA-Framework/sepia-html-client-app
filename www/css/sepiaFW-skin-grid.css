@@ -1,8 +1,12 @@
 html {
 	background-image: url(../img/infiniBandAlpha.png);
 	background-color: #051525;
-	background-size: 50%;
+	background-size: 280px;
 	background-position: center 40%;
+}
+#sepiaFW-main-window {
+	border: 0;
+	box-shadow: inset 0px 0px 6px 1px #15abc3;
 }
 
 #sepiaFW-pC 	 { background-color: #102030; }

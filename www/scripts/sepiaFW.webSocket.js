@@ -438,7 +438,7 @@ function sepiaFW_build_webSocket_client(){
 						$inputBar.fadeOut(300);
 					}
 					setTimeout(function(){
-						$(window).trigger('resize');
+						$(window).trigger('resize'); 	//this might not work on IE
 					}, 500);
 					SepiaFW.ui.closeAllMenus();
 				});
