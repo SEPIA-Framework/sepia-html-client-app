@@ -195,6 +195,7 @@
 <link rel="stylesheet alternate" href="css/sepiaFW-skin-neo-sepia.css" class='sepiaFW-style-skin' title='main' data-name='NeoSepia'> 	<!-- main -->
 <link rel="stylesheet alternate" href="css/sepiaFW-skin-neo-sepia-dark.css" class='sepiaFW-style-skin' title='' data-name='NeoSepiaDark'>
 <link rel="stylesheet alternate" href="css/sepiaFW-skin-legacy.css" class='sepiaFW-style-skin' title='' data-name='Legacy'>
+<link rel="stylesheet alternate" href="css/sepiaFW-skin-dark-sepia.css" class='sepiaFW-style-skin' title='' data-name='LegacyDark'>
 <link rel="stylesheet alternate" href="css/sepiaFW-skin-bytemind.css" class='sepiaFW-style-skin' title='' data-name='ByteMind'>
 <link rel="stylesheet alternate" href="css/sepiaFW-skin-street.css" class='sepiaFW-style-skin' title='' data-name='Street'>
 <link rel="stylesheet alternate" href="css/sepiaFW-skin-sakura.css" class='sepiaFW-style-skin' title='' data-name='Sakura'>
@@ -207,7 +208,6 @@
 <link rel="stylesheet alternate" href="css/sepiaFW-skin-uplink.css" class='sepiaFW-style-skin' title='' data-name='UpLink'>
 <link rel="stylesheet alternate" href="css/sepiaFW-skin-pizza.css" class='sepiaFW-style-skin' title='' data-name='Tasty'>
 <link rel="stylesheet alternate" href="css/sepiaFW-skin-grid.css" class='sepiaFW-style-skin' title='' data-name='TheGrid'>
-<link rel="stylesheet alternate" href="css/sepiaFW-skin-dark-sepia.css" class='sepiaFW-style-skin' title='' data-name='DarkSepia'>
 <link rel="stylesheet alternate" href="css/sepiaFW-skin-canny.css" class='sepiaFW-style-skin' title='' data-name='Canny'>
 <!-- START JS -->
 <script src="scripts/jquery-3.1.1.min.js"></script>
@@ -239,7 +239,7 @@
 	
 		//set enpoints
 		var config = new Object();
-		SepiaFW.config.host = localStorage.getItem('sepiaFW-host'); 	//this has to be outside of sepiaFW-data to stay alive after log-out
+		SepiaFW.config.host = SepiaFW.data.getPermanent("host-name");	//this has to be outside of volatile data to stay alive after log-out
 		//try to load host, e.g.:
 		//- "localhost" (direct links),
 		//- "192.168.0.99" or "api.example.com" (direct links),
@@ -260,7 +260,7 @@
 		//custom server config with proxy (uses SSL)
 		}else{
 			if (!SepiaFW.config.host){
-				SepiaFW.config.host = "api.b07z.net";
+				SepiaFW.config.host = "api.b07z.net/sepia";
 			}
 			//set default
 			config.assistAPI = "https://" + SepiaFW.config.host + "/assist/";

@@ -52,13 +52,7 @@ function sepiaFW_build_account(){
 		//delete all other data we can find
 		SepiaFW.debug.log("Logout: Deleting all cached app data.");
 		if (SepiaFW.ui.isCordova && window.CacheClear){
-			if (window.localStorage){
-				var backupHost = window.localStorage.getItem('sepiaFW-host');
-				window.localStorage.clear();
-				if (backupHost){
-					window.localStorage.setItem("sepiaFW-host", backupHost);
-				}
-			}
+			SepiaFW.data.clearAll();		//clear all data except permanent (e.g. host-name)
 			window.CacheClear(function(status) {
 				//Success
 				SepiaFW.debug.log("Logout: App cache and local storage cleared.");
@@ -69,11 +63,7 @@ function sepiaFW_build_account(){
 				Account.finishedLogoutActionSection('App-data', false);
 			});
 		}else if (window.localStorage){
-			var backupHost = window.localStorage.getItem('sepiaFW-host');
-			window.localStorage.clear();
-			if (backupHost){
-				window.localStorage.setItem("sepiaFW-host", backupHost);
-			}
+			SepiaFW.data.clearAll();		//clear all data except permanent (e.g. host-name)
 			Account.finishedLogoutActionSection('App-data', true);
 		}else{
 			Account.finishedLogoutActionSection('App-data', true);

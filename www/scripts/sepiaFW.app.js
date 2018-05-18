@@ -33,20 +33,33 @@ SepiaFW.buildSepiaFwPlugins = function(){
 function sepiaFW_build_dataService(){
 	var DataService = {};
 	
-	var data = load();
+	var data = load();					//deleted after log-out
+	var dataPermanent = load(true);		//remains after log-out, e.g. host-name
 
-	function save(){
+	function save(permanent){
 		try{
-			localStorage.setItem('sepiaFW-data', JSON.stringify(data));
+			if (permanent){
+				localStorage.setItem('sepiaFW-data-permanent', JSON.stringify(dataPermanent));
+			}else{
+				localStorage.setItem('sepiaFW-data', JSON.stringify(data));
+			}
 		}catch (e){
 			SepiaFW.debug.err('Data: localStorage write error! Not available?');
 		}
 	}
-	function load(){
+	function load(permanent){
 		try{
-			data = JSON.parse(localStorage.getItem('sepiaFW-data')) || {};
+			if (permanent){
+				dataPermanent = JSON.parse(localStorage.getItem('sepiaFW-data-permanent')) || {};
+			}else{
+				data = JSON.parse(localStorage.getItem('sepiaFW-data')) || {};
+			}
 		}catch (e){
-			data = {};
+			if (permanent){
+				dataPermanent = {};
+			}else{
+				data = {};
+			}
 		}
 		return data;
 	}
@@ -57,6 +70,14 @@ function sepiaFW_build_dataService(){
 	DataService.set = function(key, value){
 		data[key] = value;
 		save();
+	}
+	DataService.getPermanent = function(key){
+		load(true);
+		return (dataPermanent && (key in dataPermanent)) ? dataPermanent[key] : undefined;
+	}
+	DataService.setPermanent = function(key, value){
+		dataPermanent[key] = value;
+		save(true);
 	}
 	DataService.updateAccount = function(key, value){
 		var account = DataService.get('account');
@@ -73,8 +94,10 @@ function sepiaFW_build_dataService(){
 		save();
 	}
 	DataService.clearAll = function(){
+		window.localStorage.clear();
 		data = {};
-		localStorage.removeItem('sepiaFW-data');
+		//restore permanent data
+		save(true);
 	}
 	
 	return DataService;
@@ -124,8 +147,7 @@ function sepiaFW_build_config(){
 	//add everything here that needs to be refreshed after host change
 	Config.broadcastHostName = function(hostName){
 		if (hostName){
-			window.localStorage.setItem('sepiaFW-host', hostName); //this has to be outside of sepiaFW-data to stay alive after log-out
-			//see also: sepiaFW.account::broadcastLogoutTry and sepiaFW.ui "delete app cache" for host backup before cache clear - TODO: improve
+			SepiaFW.data.setPermanent("host-name", hostName);
 			setTimeout(function(){
 				var config = {
 					buttonOneName : SepiaFW.local.g('doit'),

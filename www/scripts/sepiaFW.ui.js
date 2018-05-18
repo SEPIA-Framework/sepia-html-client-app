@@ -29,6 +29,9 @@ function sepiaFW_build_ui(){
 		},100);
 	});
 	window.addEventListener('resize', function(){
+		UI.resizeEvent();
+	});
+	UI.resizeEvent = function(){
 		//document.getElementById('sepiaFW-chat-output').innerHTML += ('<br>resize, new size: ' + window.innerHeight);
 		windowSizeDifference = (window.innerHeight - UI.windowExpectedSize);
 		UI.windowExpectedSize = window.innerHeight;
@@ -48,7 +51,7 @@ function sepiaFW_build_ui(){
 				}
 			},100);
 		}
-	});
+	}
 	
 	UI.primaryColor = '#ceff1a';
 	UI.secondaryColor = '#2f3035';
@@ -124,7 +127,11 @@ function sepiaFW_build_ui(){
 			}
 		});
 		UI.refreshSkinColors();
-		setTimeout(UI.refreshSkinColors, 2500);		//safety refresh for slow connection, TODO: will still fail on very slow connection
+		$(window).trigger('resize'); 	//this might not work on IE
+		setTimeout(function(){
+			UI.refreshSkinColors();
+			$(window).trigger('resize'); 	//this might not work on IE
+		}, 2500);		//safety refresh for slow connection, TODO: will still fail on very slow connection
 	}
 	UI.getSkin = function(){
 		return activeSkin;
@@ -1778,24 +1785,14 @@ function sepiaFW_build_ui_build(){
 						buttonOneAction : function(){ location.reload(); }
 					};
 					if (SepiaFW.ui.isCordova && window.CacheClear){
-						if (window.localStorage){
-							var backupHost = window.localStorage.getItem('sepiaFW-host');
-							window.localStorage.clear();
-							if (backupHost){
-								window.localStorage.setItem("sepiaFW-host", backupHost);
-							}
-						}
+						SepiaFW.data.clearAll();		//clear all data except permanent (e.g. host-name)
 						window.CacheClear(function(status){
 							SepiaFW.ui.showPopup(status, config);
 						}, function(status) {
 							SepiaFW.ui.showPopup(status, config);
 						});
 					}else if (window.localStorage){
-						var backupHost = window.localStorage.getItem('sepiaFW-host');
-						window.localStorage.clear();
-						if (backupHost){
-							window.localStorage.setItem("sepiaFW-host", backupHost);
-						}
+						SepiaFW.data.clearAll();		//clear all data except permanent (e.g. host-name)
 						SepiaFW.ui.showPopup('App data has been cleared.', config); 		//TODO: translate
 					}
 				}
