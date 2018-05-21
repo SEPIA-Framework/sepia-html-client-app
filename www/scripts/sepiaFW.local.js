@@ -69,6 +69,7 @@ function sepiaFW_build_strings(){
 	StringsDE.city = 'Stadt';
 	StringsDE.zip_code = 'PLZ';
 	StringsDE.country = 'Land';
+	StringsDE.teach_ui_btn = 'Teach it';
 	
 	//ENGLISH
 	StringsEN.welcome = 'Welcome';
@@ -133,6 +134,7 @@ function sepiaFW_build_strings(){
 	StringsEN.city = 'City';
 	StringsEN.zip_code = 'Zip';
 	StringsEN.country = 'Country';
+	StringsEN.teach_ui_btn = 'Teach it';
 	
 	var StringsLocale = {};
 	if (SepiaFW.config.appLanguage.toLowerCase() === "de"){

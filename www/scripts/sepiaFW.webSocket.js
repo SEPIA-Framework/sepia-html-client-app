@@ -1074,7 +1074,7 @@ function sepiaFW_build_webSocket_client(){
 	Client.getActiveChatPartner = function(){
 		return activeChatPartner;
 	}
-
+	
 	//Update the chat-panel, and the list of connected users
 	Client.handleMessage = function(msg) {
 		var message = JSON.parse(msg.data);
@@ -1223,14 +1223,9 @@ function sepiaFW_build_webSocket_client(){
 	//-- publish a status message
 	function publishStatusMessage(message, username, isErrorMessage){
 		var sEntry = SepiaFW.ui.build.statusMessage(message, username, isErrorMessage);
-		SepiaFW.ui.insertEle("sepiaFW-chat-output", sEntry);
-		SepiaFW.ui.scrollToBottom("sepiaFW-chat-output");
-		//check if we should show the missed message note bubble
-		if (isErrorMessage){
-			if (!SepiaFW.ui.isVisible() || (SepiaFW.ui.moc && SepiaFW.ui.moc.getCurrentPane() !== 1)){
-				SepiaFW.ui.addMissedMessage();
-			}
-		}
+		var resultView = SepiaFW.ui.getResultViewByName("chat");
+		var beSilent = !isErrorMessage;
+		SepiaFW.ui.addDataToResultView(resultView, sEntry, beSilent);
 	}
 	
 	//-- publish message to user with chat-entry, notification and TTS --
@@ -1257,38 +1252,19 @@ function sepiaFW_build_webSocket_client(){
 		}
 		
 		//Chat, actions and cards
-		var cEntry = SepiaFW.ui.build.chatEntry(message, username, options);
-		var target = "sepiaFW-chat-output";
-		var paneNbr = 1;
 		
-		if (!options.targetView || options.targetView === "chat"){
-			target = "sepiaFW-chat-output";
-			paneNbr = 1;
-		}else if (options.targetView === "myView"){
-			target = "sepiaFW-my-view";
-			paneNbr = 0;
-		}else if (options.targetView === "bigResults"){
-			target = "sepiaFW-result-view";
-			paneNbr = 2;
-		}
+		//build entry
+		var cEntry = SepiaFW.ui.build.chatEntry(message, username, options);
+		
+		//get right view
+		var resultView = SepiaFW.ui.getResultViewByName(options.targetView);
+		
+		//add to view
 		if (!options.skipInsert){
-			if (paneNbr == 1){
-				SepiaFW.ui.insertEle(target, cEntry);
-				SepiaFW.ui.scrollToBottom(target);
-				//check if we should show the missed message note bubble
-				if (!SepiaFW.ui.isVisible() || (SepiaFW.ui.moc && SepiaFW.ui.moc.getCurrentPane() !== 1)){
-					SepiaFW.ui.addMissedMessage();
-				}
-			}else if (paneNbr == 0){
-				$('#' + target).prepend(cEntry);
-				SepiaFW.ui.scrollToTop(target);
-			}else{
-				$('#' + target).html('');
-				$('#' + target).prepend(cEntry);
-				SepiaFW.ui.scrollToTop(target);
-			}
+			SepiaFW.ui.addDataToResultView(resultView, cEntry);
 		}
 		//auto-change pane?
+		var paneNbr = resultView.paneNumber;
 		if (options.showView || (options.targetView && options.targetView === "bigResults")){
 			if (SepiaFW.ui.moc) SepiaFW.ui.moc.showPane(paneNbr);
 		}

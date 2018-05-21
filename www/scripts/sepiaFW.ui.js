@@ -1100,7 +1100,7 @@ function sepiaFW_build_ui(){
 			}
 		}, 15);
 	}
-	//get all pen menus as elemets
+	//get all open menus as elemets
 	UI.getOpenMenus = function(){
 		var openMenus = [];
 		$('.sepiaFW-menu').each(function(){
@@ -1109,6 +1109,54 @@ function sepiaFW_build_ui(){
 			}
 		});
 		return openMenus;
+	}
+	
+	//Get the target and pane number that belongs to a results view name (e.g. chat, myView, bigResults)
+	UI.getResultViewByName = function(viewName){
+		var target = "sepiaFW-chat-output";
+		var paneNbr = 1;
+		
+		if (!viewName || viewName === "chat"){
+			target = "sepiaFW-chat-output";
+			paneNbr = 1;
+		}else if (viewName === "myView"){
+			target = "sepiaFW-my-view";
+			paneNbr = 0;
+		}else if (viewName === "bigResults"){
+			target = "sepiaFW-result-view";
+			paneNbr = 2;
+		}
+		return ({
+			"target": target,
+			"paneNumber": paneNbr
+		});
+	}
+	//Add elements to certain result view
+	UI.addDataToResultView = function(resultView, entryData, beSilent, autoSwitchView, switchDelay){
+		var target = resultView.target;
+		var paneNbr = resultView.paneNumber;
+		
+		if (paneNbr == 1){
+			UI.insertEle(target, entryData);
+			UI.scrollToBottom(target);
+			//check if we should show the missed message note bubble
+			if (!beSilent && (!UI.isVisible() || (UI.moc && UI.moc.getCurrentPane() !== 1))){
+				UI.addMissedMessage();
+			}
+		}else if (paneNbr == 0){
+			$('#' + target).prepend(entryData);
+			UI.scrollToTop(target);
+		}else{
+			$('#' + target).html('');
+			$('#' + target).prepend(entryData);
+			UI.scrollToTop(target);
+		}
+		
+		if (autoSwitchView && UI.moc && (UI.moc.getCurrentPane() != paneNbr)){
+			setTimeout(function(){
+				UI.moc.showPane(paneNbr);
+			}, switchDelay);
+		}
 	}
 	
 	return UI;
@@ -2170,9 +2218,10 @@ function sepiaFW_build_ui_build(){
 		//Actions
 		if (isAssistAnswer && SepiaFW.ui.actions){
 			if (!options.skipActions){
-				SepiaFW.ui.actions.handle(msg.data.assistAnswer, block, sender);
+				SepiaFW.ui.actions.handle(msg.data.assistAnswer, block, sender, options);
 			}else if (options.skipNoneButtonActions){
-				SepiaFW.ui.actions.handle(msg.data.assistAnswer, block, sender, true);
+				options.doButtonsOnly = true;
+				SepiaFW.ui.actions.handle(msg.data.assistAnswer, block, sender, options);
 			}
 		}
 		

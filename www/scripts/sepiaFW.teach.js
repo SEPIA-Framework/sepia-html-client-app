@@ -10,7 +10,7 @@ function sepiaFW_build_teach(){
 	var nextStartingFrom = 0;
 	var services;
 	
-	Teach.openUI = function(){
+	Teach.openUI = function(info){
 		if (!wasLoaded){
 			Teach.setup(Teach.openUI);
 			wasLoaded = true;
@@ -20,6 +20,11 @@ function sepiaFW_build_teach(){
 			});
 			Teach.isOpen = true;
 			SepiaFW.ui.switchSwipeBars('teach');
+		}
+		if (info){
+			if (info.input){
+				$('#sepiaFW-teach-input').val(info.input);
+			}
 		}
 	}
 	Teach.closeUI = function(){

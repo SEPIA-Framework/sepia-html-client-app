@@ -746,6 +746,21 @@ function sepiaFW_build_ui_actions(){
 		parentBlock.appendChild(urlBtn);
 	}
 	
+	//BUTTON TeachUI
+	Actions.addButtonTeachUI = function(action, parentBlock){
+		if (SepiaFW.teach){
+			var teachBtn = document.createElement('BUTTON');
+			teachBtn.className = 'chat-button-teach';
+			var info = action.info;
+			SepiaFW.ui.onclick(teachBtn, function(){
+				SepiaFW.ui.closeAllMenus();
+				SepiaFW.teach.openUI(info);
+			});
+			teachBtn.innerHTML = action.title || SepiaFW.local.g('teach_ui_btn');
+			parentBlock.appendChild(teachBtn);
+		}
+	}
+	
 	//BUTTON URLs
 	Actions.addButtonURL = function(action, parentBlock){
 		var urlBtn = document.createElement('BUTTON');
@@ -821,14 +836,26 @@ function sepiaFW_build_ui_actions(){
 	}
 	
 	//HTML RESULT ACTION
-	Actions.buildHtmlResultAction = function(action, parentBlock){
+	Actions.buildHtmlResultAction = function(action, parentBlock, handleOptions){
 		if (SepiaFW.ui.cards){
+			//build card from html data
 			var card = SepiaFW.ui.cards.buildCustomHtmlCardFromAction(action);
-			if (parentBlock){
+			var resultView;
+			
+			//check options for target view
+			if (handleOptions.targetView && parentBlock){
+				//this has highest prio since the handler is waiting for data in parentBlock
 				parentBlock.appendChild(card);
+			}else if (action.options && action.options.targetView){
+				//get right view
+				resultView = SepiaFW.ui.getResultViewByName(action.options.targetView);
+				SepiaFW.ui.addDataToResultView(resultView, card, false, true, 500);
+			}else if (!parentBlock){
+				//get default view
+				resultView = SepiaFW.ui.getResultViewByName("chat");
+				SepiaFW.ui.addDataToResultView(resultView, card, false, true, 500);
 			}else{
-				SepiaFW.ui.insertEle("sepiaFW-chat-output", card);
-				SepiaFW.ui.scrollToBottom("sepiaFW-chat-output");
+				parentBlock.appendChild(card);
 			}
 		}else{
 			SepiaFW.debug.info("Action: type 'show_html_result' is not supported yet.");
@@ -960,8 +987,12 @@ function sepiaFW_build_ui_actions(){
 	}
 	
 	//-----Handler-----
-	Actions.handle = function(data, parentBlock, sender, doButtonsOnly){
+	Actions.handle = function(data, parentBlock, sender, handleOptions){
 		if (data.actionInfo){
+			//handle options
+			if (!handleOptions) handleOptions = {};
+			var doButtonsOnly = handleOptions.doButtonsOnly;
+			
 			//buttons will be collected here:
 			var aButtonsArea = document.createElement('DIV');
 			aButtonsArea.className = 'chat-buttons-area';
@@ -984,11 +1015,15 @@ function sepiaFW_build_ui_actions(){
 					
 					//HTML result
 					}else if (type === 'show_html_result'){
-						Actions.buildHtmlResultAction(data.actionInfo[i], parentBlock);
+						Actions.buildHtmlResultAction(data.actionInfo[i], parentBlock, handleOptions);
 					
 					//BUTTON - help
 					}else if (type === 'button_help'){
 						Actions.addButtonHelp(data.actionInfo[i], aButtonsArea);
+						
+					//BUTTON - teach UI
+					}else if (type === 'button_teach_ui'){
+						Actions.addButtonTeachUI(data.actionInfo[i], aButtonsArea);
 					
 					//BUTTON - url
 					}else if (type === 'button_url' || type === 'button_in_app_browser'){
