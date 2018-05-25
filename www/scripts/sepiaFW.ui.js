@@ -1602,8 +1602,8 @@ function sepiaFW_build_ui_build(){
 			}
 			//fade audio
 			SepiaFW.audio.fadeOutMain();
-			//playing a sound only makes sense on Chrome desktop right now ...
-			if (useConfirmationSound && !SepiaFW.speech.isRecognizing() && SepiaFW.audio && (SepiaFW.config.clientInfo.indexOf('chrome_browser')>-1)){
+			//play a sound before activating mic?
+			if (useConfirmationSound && !SepiaFW.speech.isRecognizing() && SepiaFW.audio){ 		//&& (SepiaFW.config.clientInfo.indexOf('chrome_')>-1)
 				SepiaFW.audio.playURL('sounds/coin.mp3', '2', '', function(){
 					SepiaFW.speech.toggleRecognition(SepiaFW.client.asrCallbackFinal, SepiaFW.client.asrCallbackInterim, SepiaFW.client.asrErrorCallback, SepiaFW.client.asrLogCallback);
 				}, SepiaFW.client.asrErrorCallback);

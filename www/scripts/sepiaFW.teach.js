@@ -12,19 +12,25 @@ function sepiaFW_build_teach(){
 	
 	Teach.openUI = function(info){
 		if (!wasLoaded){
-			Teach.setup(Teach.openUI);
+			Teach.setup(function(){
+				Teach.openUI(info);
+			});
 			wasLoaded = true;
+			return;
+		
 		}else{
 			$('#sepiaFW-teachUI-view').slideDown(300, function(){
 				Teach.uic.refresh();
+				
+				//add stuff
+				if (info){
+					if (info.input){
+						$('#sepiaFW-teach-input').val(info.input);
+					}
+				}
 			});
 			Teach.isOpen = true;
 			SepiaFW.ui.switchSwipeBars('teach');
-		}
-		if (info){
-			if (info.input){
-				$('#sepiaFW-teach-input').val(info.input);
-			}
 		}
 	}
 	Teach.closeUI = function(){
@@ -345,7 +351,8 @@ function sepiaFW_build_teach(){
 		
 		var state = SepiaFW.assistant.getState();
 		var language = state.lang;
-		var userLocation = (state.user_location? state.user_location.replace(/.*<latitude>/,'').replace(/<longitude>/,', ') : "").trim();
+		var userLocation = (state.user_location && state.user_location.latitude)? 
+					(state.user_location.latitude + ', ' + state.user_location.longitude).trim() : "";
 		
 		//build
 		submit.environment = env;
