@@ -8,8 +8,8 @@ function sepiaFW_build_speechWebSocket(){
 	//Parameters and states
 	
 	Speech.socketURI = SepiaFW.data.get('speech-websocket-uri') || '';		//add your ASR WebSocket server here
-	Speech.setSocketURI = function(socketUri){
-		SepiaFW.data.set('speech-websocket-uri', socketUri);
+	Speech.setSocketURI = function(socketURI){
+		SepiaFW.data.set('speech-websocket-uri', socketURI);
 		Speech.socketURI = socketURI;
 		Speech.isAsrSupported = testWebSocketAsrSupport();
 		//refresh speech info
@@ -160,6 +160,10 @@ function sepiaFW_build_speechWebSocket(){
 					broadcastAsrFinished();
 				}else{
 					broadcastRequestedAsrStop();
+				}
+			}else if (partialTranscript){
+				if (!abortRecognition){
+					broadcastAsrFinished();
 				}
 			}else{
 				error_callback('E01 - no speech detected!');
