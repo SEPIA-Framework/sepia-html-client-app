@@ -11,11 +11,20 @@ html {
 		border-color: #1d1d1d;
 		border-width: 6px;
 		border-radius: 16px;
-		overflow: hidden;
+		/*overflow: hidden;*/ 	/* we can't use this with position fixed children, its buggy */
+	}
+	#sepiaFW-nav-bar {
+		border-radius: 9px 9px 0 0;
+	}
+	#sepiaFW-chat-controls {
+		border-radius: 0 0 9px 9px;
+	}
+	.sepiaFW-top-layer-view {
+		border-radius: 7px;
 	}
 }
 
-#sepiaFW-pC 	 { background-color: #dfdff2; }
+#sepiaFW-pC 	 { background-color: #000; }
 #sepiaFW-sC 	 { background-color: #1499ae; }
 #sepiaFW-sC2 { background-color: #07333a; 	}
 #sepiaFW-aC 	 { background-color: rgb(186, 42, 42); 	}
@@ -93,7 +102,7 @@ html {
 	color: #000;
 }
 #sepiaFW-chat-menu {
-	background: #1499ae; 
+	background: #07333a; 
 	color: #fff;
 }
 #sepiaFW-chat-menu-head-border {
@@ -196,4 +205,22 @@ html {
 
 .sepiaFW-cards-list-body .weatherNowSmall .weatherNowSmallImage {
 	background: rgba(21, 171, 195, 0.97);
+}
+
+/*----- teachUI -----*/
+
+#sepiaFW-teachUI-nav-bar {
+    background: #07333a;
+    color: #fff;
+}
+#sepiaFW-teachUI-view {
+    background: #1f1f23;
+}
+#sepiaFW-teachUI-view label {
+    color: #ceff1a;
+}
+#sepiaFW-teachUI-editor button, 
+#sepiaFW-teachUI-manager button {
+    background: #c4ff3e !important;
+    color: #333 !important;
 }

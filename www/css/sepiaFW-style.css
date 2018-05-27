@@ -814,6 +814,7 @@ body {
 #sepiaFW-chat-controls-more-menu {
 	display: none;
 	position: absolute;
+	border-radius: 3px 3px 3px 0;
 	bottom: 57px;
 	left: 2px;
 	width: auto;
@@ -900,6 +901,7 @@ body {
 
 #sepiaFW-chat-channel-view {
 	/*border: 1px solid #fff;*/
+	border-radius: 3px 3px 3px 3px;
 	position: fixed;
     left: 8px;
 	top: 60px;
@@ -925,6 +927,7 @@ body {
 }
 @media screen and (max-width: 1100px) {
 	#sepiaFW-chat-channel-view {
+		border-radius: 0px 0px 3px 3px;
 		position: absolute;
 		left: 2px;
 		top: 52px;
@@ -1085,7 +1088,7 @@ body {
 	display: -webkit-flex;
 	display: -ms-flexbox;
 	display: flex;
-	overflow: visible;
+	overflow: hidden;		/* better dont use position fixed inside */
 }
 #sepiaFW-chat-controls-more-btn {
 	padding-left: 8px !important;
@@ -1592,10 +1595,16 @@ body {
 	width: calc(100% - 0px);
 	height: 100%;
 	z-index: 10;
+	overflow: hidden;		/* better dont use position fixed inside */
 }
 @media (max-width: 768px), (max-height: 768px) {
 	.sepiaFW-top-layer-view {
 		left: 0px;
 		width: calc(100% - 0px);
+	}
+}
+@media (min-width: 480px) and (min-height: 481px) {
+	.sepiaFW-top-layer-view {
+		border-radius: 7px;
 	}
 }

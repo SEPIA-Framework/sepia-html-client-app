@@ -5,6 +5,11 @@ html {
 	color: #283059;
 	border: 0px;
 }
+@media (min-width: 480px) and (min-height: 481px) {
+	.sepiaFW-top-layer-view {
+		border-radius: 0px;
+	}
+}
 
 #sepiaFW-pC 	 { background-color: #283059; }
 #sepiaFW-sC 	 { background-color: #1BFFE6; }
@@ -151,4 +156,19 @@ html {
 
 .sepiaFW-cards-list-body .weatherNowSmall .weatherNowSmallImage {
 	background: #283059;
+}
+
+/*----- teachUI -----*/
+
+#sepiaFW-teachUI-nav-bar {
+    background: #283059;
+    color: #fff;
+}
+#sepiaFW-teachUI-view label {
+    color: #1BFFE6;
+}
+#sepiaFW-teachUI-editor button, 
+#sepiaFW-teachUI-manager button {
+    background: #1BFFE6 !important;
+    color: #333 !important;
 }

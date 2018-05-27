@@ -8,6 +8,11 @@ html {
 	border: 0;
 	box-shadow: inset 0px 0px 6px 1px #15abc3;
 }
+@media (min-width: 480px) and (min-height: 481px) {
+	.sepiaFW-top-layer-view {
+		border-radius: 0px;
+	}
+}
 
 #sepiaFW-pC 	 { background-color: #102030; }
 #sepiaFW-sC 	 { background-color: #15abc3; }

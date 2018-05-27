@@ -5,6 +5,11 @@ html {
 	color: #2f3035;
 	border: 0px;
 }
+@media (min-width: 480px) and (min-height: 481px) {
+	.sepiaFW-top-layer-view {
+		border-radius: 0px;
+	}
+}
 
 #sepiaFW-pC 	 { background-color: #2F3035; }
 #sepiaFW-sC 	 { background-color: #44c8be; }
@@ -152,7 +157,7 @@ html {
     color: #fff;
 }
 #sepiaFW-teachUI-view label {
-    color: rgba(225, 225, 245, 0.96);
+    color: rgb(225, 225, 245);
 }
 #sepiaFW-teachUI-editor button, 
 #sepiaFW-teachUI-manager button {

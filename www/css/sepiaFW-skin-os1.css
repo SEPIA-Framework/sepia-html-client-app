@@ -168,6 +168,10 @@ html {
     background: #C74927;
     color: #fff;
 }
+#sepiaFW-teachUI-view {
+    background: #2f3035;
+	/*border-bottom: 6px solid #C74927;*/
+}
 #sepiaFW-teachUI-view label {
     color: #f0cbad;
 }
