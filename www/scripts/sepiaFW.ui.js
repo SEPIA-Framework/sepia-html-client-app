@@ -1520,6 +1520,7 @@ function sepiaFW_build_ui_build(){
 				if (SepiaFW.speech && SepiaFW.speech.isRecognizing()){
 					SepiaFW.speech.stopRecognition();
 				}else{
+					SepiaFW.animate.assistant.idle('closeSpeechBubble');
 					SepiaFW.client.sendInputText();
 				}
 			},function(){

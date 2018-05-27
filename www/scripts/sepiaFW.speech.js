@@ -24,8 +24,9 @@ function sepiaFW_build_speech(){
 	if (Speech.isWebKitAsrSupported){
 		recognition = (SepiaFW.ui.isCordova)? (new SpeechRecognition()) : (new webkitSpeechRecognition());
 	}
-	var	isRecognizing = false;					Speech.Interface.isRecognizing = function(is){	isRecognizing = is; }
+	var	isRecognizing = false;					
 	var recognizerWaitingForResult = false;
+	Speech.Interface.isRecognizing = function(is){	isRecognizing = is; } 		//poor workaround to set isRecognizing from e.g. webSocket ASR
 	
 	Speech.isRecognizing = function(){
 		return isRecognizing;

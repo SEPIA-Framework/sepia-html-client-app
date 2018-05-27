@@ -30,6 +30,7 @@ function sepiaFW_build_speechWebSocket(){
 	var websocket = null;
 	var finalTranscript = "";
 	var partialTranscript = "";
+	var partialPersistentTranscript = ""; 	//same as partialTranscript but only reset on mic activation
 	var isRecording = false;
 	var isWaitingToRecord = false;
 	
@@ -159,11 +160,15 @@ function sepiaFW_build_speechWebSocket(){
 				if (!abortRecognition){
 					broadcastAsrFinished();
 				}else{
-					broadcastRequestedAsrStop();
+					//all good
 				}
-			}else if (partialTranscript){
+			}else if (partialTranscript || partialPersistentTranscript){
 				if (!abortRecognition){
 					broadcastAsrFinished();
+					callback_final(partialPersistentTranscript);
+				}else{
+					//error_callback('E0? - unknown error!');
+					//all good I guess
 				}
 			}else{
 				error_callback('E01 - no speech detected!');
@@ -212,6 +217,7 @@ function sepiaFW_build_speechWebSocket(){
 			//console.log('ASR WebSocket: onopen'); 											//DEBUG
 			finalTranscript = '';
 			partialTranscript = '';
+			partialPersistentTranscript = '';
 			audioRecorder.sendHeader(websocket);
 			//check audio context state
 			if(audioContext.state === 'suspended') {
@@ -258,6 +264,7 @@ function sepiaFW_build_speechWebSocket(){
 				return;
 			
 			}else{
+				partialPersistentTranscript = partialTranscript;
 				partialTranscript = '';
 				//reCaptchaSdk.RemoveReCaptcha();
 			}
@@ -282,7 +289,7 @@ function sepiaFW_build_speechWebSocket(){
 						if (!abortRecognition){
 							callback_final(finalTranscript);
 						}else{
-							callback_interim(finalTranscript)
+							callback_interim(finalTranscript);
 						}
 					}
 				}
