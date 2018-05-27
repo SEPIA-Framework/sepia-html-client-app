@@ -129,11 +129,6 @@
 				<button id="sepiaFW-assist-btn"><i class="material-icons md-mic">&#xE029;</i></button>
 				<div id="sepiaFW-assist-btn-orbiters" class="sepiaFW-animation-rotate1 sepiaFW-animation-pause"><div id="sepiaFW-assist-btn-orbiter1"></div></div>
 			</div>
-			<div id="sepiaFW-chat-controls-speech-box" style="display:none;">
-				<div id="sepiaFW-chat-controls-speech-box-edit"><i class="material-icons md-24">&#xE14C;</i></div><!-- &#xE3C9; -->
-				<div id="sepiaFW-chat-controls-speech-box-bubble"></div>
-				<div id="sepiaFW-chat-controls-speech-box-finish"><i class="material-icons md-24">&#xE409;</i></div><!-- &#xE163; -->
-			</div>
 			<div id="sepiaFW-chat-controls-form">
 				<button id="sepiaFW-chat-send" class="sButton"><i class="material-icons md-btn">&#xE163;</i></button>
 				<input id="sepiaFW-chat-input" placeholder="" aria-label="Message">
@@ -142,6 +137,11 @@
 					<div id="sepiaFW-swipeBar-menu-controls" class='sepiaFW-swipeBar-switchable'><span>MENUE-BAR</span></div>
 				</div>
 			</div>
+		</div>
+		<div id="sepiaFW-chat-controls-speech-box" style="display:none;">
+			<div id="sepiaFW-chat-controls-speech-box-edit"><i class="material-icons md-24">&#xE14C;</i></div><!-- &#xE3C9; -->
+			<div id="sepiaFW-chat-controls-speech-box-bubble"></div>
+			<div id="sepiaFW-chat-controls-speech-box-finish"><i class="material-icons md-24">&#xE409;</i></div><!-- &#xE163; -->
 		</div>
 		<!-- TeachUI layer -->
 		<div id="sepiaFW-teachUI-view" class="sepiaFW-top-layer-view" style="display: none;">
@@ -194,7 +194,7 @@
 <link rel="stylesheet" href="css/sepiaFW-teachUI.css">
 <link rel="stylesheet alternate" href="css/sepiaFW-skin-neo-sepia.css" class='sepiaFW-style-skin' title='main' data-name='NeoSepia'> 	<!-- main -->
 <link rel="stylesheet alternate" href="css/sepiaFW-skin-neo-sepia-dark.css" class='sepiaFW-style-skin' title='' data-name='NeoSepiaDark'>
-<link rel="stylesheet alternate" href="css/sepiaFW-skin-legacy.css" class='sepiaFW-style-skin' title='' data-name='Legacy'>
+<link rel="stylesheet alternate" href="css/sepiaFW-skin-legacy.css" class='sepiaFW-style-skin' title='' data-name='Legacy'> 			<!-- no skin -->
 <link rel="stylesheet alternate" href="css/sepiaFW-skin-dark-sepia.css" class='sepiaFW-style-skin' title='' data-name='LegacyDark'>
 <link rel="stylesheet alternate" href="css/sepiaFW-skin-bytemind.css" class='sepiaFW-style-skin' title='' data-name='ByteMind'>
 <link rel="stylesheet alternate" href="css/sepiaFW-skin-street.css" class='sepiaFW-style-skin' title='' data-name='Street'>
@@ -212,6 +212,7 @@
 <!-- START JS -->
 <script src="scripts/jquery-3.1.1.min.js"></script>
 <script src="scripts/sjcl.js"></script>
+<script src="scripts/recorder.js"></script>
 <script src="scripts/hammer.min.js"></script>
 <script src="scripts/hammer-time.min.js"></script>
 <script src="scripts/sepiaFW.ui.js"></script>
@@ -222,7 +223,7 @@
 <script src="scripts/sepiaFW.assistant.js"></script>
 <script src="scripts/sepiaFW.geocoder.js"></script>
 <script src="scripts/sepiaFW.audio.js"></script>
-<script src="scripts/sepiaFW.speechMicrosoft.js"></script>
+<script src="scripts/sepiaFW.speechWebSocket.js"></script>
 <script src="scripts/sepiaFW.speech.js"></script>
 <script src="scripts/sepiaFW.webSocket.js"></script>
 <script src="scripts/sepiaFW.teach.js"></script>

@@ -1076,13 +1076,13 @@ body {
 #sepiaFW-chat-controls {
 	background: linear-gradient(rgba(255,255,255,0), #fff);
 	position: absolute;
-    bottom: 0px;
+    bottom: 0px;			/* note that 'sepiaFW-chat-controls-speech-box' depends on that as well */
     z-index: 5;
 	border: 0px;
 	padding: 0px; 
     margin: 0px 0 0px 0;
 	min-height: 55px;
-	max-height: 57px;
+	max-height: 57px; 		/* note that 'sepiaFW-chat-controls-speech-box' depends on that as well */
 	/*border-bottom: 2px solid #fff;*/ /*if you change this, check: #sepiaFW-chat-controls-more-menu (bottom), #sepiaFW-chat-menu (height)*/
 	width: calc(100% - 0px);
 	display: -webkit-flex;
@@ -1235,13 +1235,13 @@ body {
 #sepiaFW-chat-controls-speech-box {
     display: flex;
 	position: absolute;
-	background: rgba(255, 255, 255, 0.50);
+	background: rgba(155, 155, 155, 0.50);
 	border-radius: 3px;
-    bottom: 100%;
+    bottom: 57px;
     left: 0;
-	width: 100%;
+	width: calc(100% - 4px);
 	min-height: 35px;
-	margin: 2px 0;
+	margin: 2px;
 	padding: 2px;
 }
 #sepiaFW-chat-controls-speech-box-edit {
@@ -1307,8 +1307,13 @@ body {
 	width: 100%;
 	overflow: auto;
 	-webkit-overflow-scrolling: touch;
-	padding: 8px 2px;
-	padding-bottom: 62px;
+	padding: 8px 2px 2px 2px;
+	/*padding-bottom: 62px;*/
+}
+#sepiaFW-chat-output:after {
+    content: "";
+    height: 60px;
+    display: block;
 }
 #sepiaFW-chat-output  > :last-child {
 	/*margin-bottom: 68px !important;*/
@@ -1317,9 +1322,14 @@ body {
 	/*display: flex;
     flex-direction: column;*/
 	padding: 2px 2px;
-	padding-bottom: 62px;
+	/*padding-bottom: 62px;*/
     overflow: auto;
 	-webkit-overflow-scrolling: touch;
+}
+.sepiaFW-results-container:after {
+    content: "";
+    height: 60px;
+    display: block;
 }
 .sepiaFW-results-container  > :last-child {
 	/*margin-bottom: 68px !important;*/

@@ -139,6 +139,7 @@
 }
 .sepiaFW-cards-list-body .listElement {
 	display: flex;
+	min-height: 33px;
 }
 .sepiaFW-cards-list-body .listElement div {
 	background: rgba(255, 255, 255, 0.90);

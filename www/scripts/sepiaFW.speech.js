@@ -9,9 +9,16 @@ function sepiaFW_build_speech(){
 	Speech.language = SepiaFW.config.appLanguage; 
 	
 	//ASR
-	Speech.isWebKitAsrSupported = (SepiaFW.ui.isCordova)? ('SpeechRecognition' in window) : ('webkitSpeechRecognition' in window);
-	Speech.isMicrosoftAsrSupported = (SepiaFW.speechMicrosoft && SepiaFW.speechMicrosoft.isAsrSupported);
-	Speech.isAsrSupported = Speech.isWebKitAsrSupported || Speech.isMicrosoftAsrSupported;
+	Speech.testAsrSupport = function(){
+		var hasCordovaWebSpeechKitSupport = SepiaFW.ui.isCordova && ('SpeechRecognition' in window);
+		var hasGeneralWebSpeechKitSupport = ('webkitSpeechRecognition' in window);
+		Speech.isWebKitAsrSupported = (hasCordovaWebSpeechKitSupport || hasGeneralWebSpeechKitSupport);
+		Speech.isWebSocketAsrSupported = (SepiaFW.speechWebSocket && SepiaFW.speechWebSocket.isAsrSupported);
+		Speech.isAsrSupported = (Speech.isWebKitAsrSupported || Speech.isWebSocketAsrSupported);
+		SepiaFW.debug.log("ASR: Supported interfaces: webSpeechKit=" + Speech.isWebKitAsrSupported 
+			+ " (cordova=" + hasCordovaWebSpeechKitSupport + "), webSocketAsr=" + Speech.isWebSocketAsrSupported + ".");
+	}
+	Speech.testAsrSupport();
 	
 	var recognition = null;
 	if (Speech.isWebKitAsrSupported){
@@ -96,6 +103,7 @@ function sepiaFW_build_speech(){
 	function broadcastNoAsrSupport(){
 		//EXAMPLE: 
 		SepiaFW.animate.assistant.idle('asrNoSupport');
+		SepiaFW.ui.showInfo(SepiaFW.local.g('noAsrSupport'));
 	}
 	
 	//TTS
@@ -119,7 +127,7 @@ function sepiaFW_build_speech(){
 		SepiaFW.animate.assistant.idle('ttsError');
 	}
 	
-	//---------exposed methods-----------
+	//--------- ASR INTERFACE -----------
 	//note: use only these methods in the UI
 
 	//setup ASR - not in use 
@@ -167,9 +175,9 @@ function sepiaFW_build_speech(){
 				var quit_on_final_result = true;
 				recognizeSpeech(callback_final, callback_interim, error_callback, log_callback, quit_on_final_result);
 			
-			}else if (Speech.isMicrosoftAsrSupported){
-				//MICROSOFT WEBSOCKET
-				SepiaFW.speechMicrosoft.startRecording(callback_final, callback_interim, error_callback, log_callback, quit_on_final_result);
+			}else if (Speech.isWebSocketAsrSupported){
+				//WEBSOCKET ASR
+				SepiaFW.speechWebSocket.startRecording(callback_final, callback_interim, error_callback, log_callback, quit_on_final_result);
 			}
 		}
 	}
@@ -181,9 +189,9 @@ function sepiaFW_build_speech(){
 			asrAutoStop = false;
 			stopSpeechRecognition();
 		
-		}else if (Speech.isMicrosoftAsrSupported){
-			//MICROSOFT WEBSOCKET
-			SepiaFW.speechMicrosoft.stopRecording();
+		}else if (Speech.isWebSocketAsrSupported){
+			//WEBSOCKET ASR
+			SepiaFW.speechWebSocket.stopRecording();
 		}
 	}
 	//abort speech recognition
@@ -195,9 +203,9 @@ function sepiaFW_build_speech(){
 			asrAutoStop = false;
 			stopSpeechRecognition();
 		
-		}else if (Speech.isMicrosoftAsrSupported){
-			//MICROSOFT WEBSOCKET
-			SepiaFW.speechMicrosoft.abortRecording();
+		}else if (Speech.isWebSocketAsrSupported){
+			//WEBSOCKET ASR
+			SepiaFW.speechWebSocket.abortRecording();
 		}
 	}
 	
