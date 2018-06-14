@@ -151,14 +151,15 @@ function sepiaFW_build_ui(){
 	});
 	
 	//make an info message
-	UI.showInfo = function(text){
+	UI.showInfo = function(text, isErrorMessage){
 		if (UI.build){
 			var message = UI.build.makeMessageObject(text, 'UI', 'client', '');
-			var sEntry = UI.build.statusMessage(message);
+			var sEntry = UI.build.statusMessage(message, 'username', true);		//we handle UI messages as errors for now
 			UI.insertEle("sepiaFW-chat-output", sEntry);
 			UI.scrollToBottom("sepiaFW-chat-output");
 			//check if we should show the missed message note bubble
 			if (!UI.isVisible() || (UI.moc && UI.moc.getCurrentPane() !== 1)){
+				//if (SepiaFW.ui.showChannelStatusMessages || isErrorMessage){
 				UI.addMissedMessage();
 			}
 					
