@@ -182,6 +182,9 @@ function sepiaFW_build_ui(){
 		}else if (setName === "teach"){
 			$('#sepiaFW-swipeBar-teach-left').show();
 			$('#sepiaFW-swipeBar-teach-right').show();
+		}else if (setName === "frames"){
+			$('#sepiaFW-swipeBar-frames-left').show();
+			$('#sepiaFW-swipeBar-frames-right').show();
 		}
 	}
 	
@@ -1683,6 +1686,11 @@ function sepiaFW_build_ui_build(){
 					//TODO: this depends on the OS, maybe use only for Android?
 					+ "<li id='sepiaFW-menu-toggle-runBackgroundConnection-li' title='Try to keep connected in background?'><span>Allow background activity: </span></li>"
 					+ "<li id='sepiaFW-menu-assistant-host-li' title='Assistant host name'><span>Host name: </span><input id='sepiaFW-menu-assistant-host' type='text'></li>"
+					+ "<li id='sepiaFW-menu-administration-li'>"
+						+ "<button id='sepiaFW-menu-ui-dataprivacy-btn'>" + SepiaFW.local.g('data_privacy') + "</button>"
+						+ "<button id='sepiaFW-menu-ui-license-btn'>" + SepiaFW.local.g('license') + "</button>"
+						+ "<button id='sepiaFW-menu-ui-credits-btn'>" + SepiaFW.local.g('credits') + "</button>"
+					+ "</li>"
 					+ "<p id='sepiaFW-chat-menu-info'>"
 						+ "client: " + SepiaFW.config.clientInfo.replace(/_/g, " ") + " - " + SepiaFW.config.appLanguage + " - " + (SepiaFW.ui.isMobile? "m" : "d") + (SepiaFW.ui.isCordova? "-c" : "")
 					+ "</p>"
@@ -1967,6 +1975,28 @@ function sepiaFW_build_ui_build(){
 						$("#sepiaFW-menu-adr-work-city").val(),
 						$("#sepiaFW-menu-adr-work-zip_code").val(),
 						$("#sepiaFW-menu-adr-work-country").val());
+			});
+			
+			//Data privacy
+			document.getElementById("sepiaFW-menu-ui-dataprivacy-btn").addEventListener("click", function(){
+				SepiaFW.ui.closeAllMenus();
+				SepiaFW.frames.open({
+					pageUrl: "data-policy.html"
+				});
+			});
+			//License
+			document.getElementById("sepiaFW-menu-ui-license-btn").addEventListener("click", function(){
+				SepiaFW.ui.closeAllMenus();
+				SepiaFW.frames.open({
+					pageUrl: "license.html"
+				});
+			});
+			//Credits
+			document.getElementById("sepiaFW-menu-ui-credits-btn").addEventListener("click", function(){
+				SepiaFW.ui.closeAllMenus();
+				SepiaFW.frames.open({
+					pageUrl: "credits.html"
+				});
 			});
 			
 			//---FOOT---

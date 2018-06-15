@@ -70,6 +70,9 @@ function sepiaFW_build_strings(){
 	StringsDE.zip_code = 'PLZ';
 	StringsDE.country = 'Land';
 	StringsDE.teach_ui_btn = 'Teach it';
+	StringsDE.license = 'Lizenz';
+	StringsDE.credits = 'Credits';
+	StringsDE.data_privacy = 'Datenschutz';
 	
 	//ENGLISH
 	StringsEN.welcome = 'Welcome';
@@ -135,6 +138,9 @@ function sepiaFW_build_strings(){
 	StringsEN.zip_code = 'Zip';
 	StringsEN.country = 'Country';
 	StringsEN.teach_ui_btn = 'Teach it';
+	StringsEN.license = 'License';
+	StringsEN.credits = 'Credits';
+	StringsEN.data_privacy = 'Data privacy';
 	
 	var StringsLocale = {};
 	if (SepiaFW.config.appLanguage.toLowerCase() === "de"){

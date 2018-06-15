@@ -1,4 +1,4 @@
-//ASR and TTS
+//Teach UI
 function sepiaFW_build_teach(){
 	var Teach = {};
 	
