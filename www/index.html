@@ -291,6 +291,10 @@
 				//fail: no connection to chat-server
 				function(data){
 					SepiaFW.ui.showPopup(SepiaFW.local.g('noConnectionToServer'));
+					if (SepiaFW.client){
+						//get offline welcome help anyway
+						SepiaFW.client.welcomeActions(true);
+					}
 				}
 			);
 		}

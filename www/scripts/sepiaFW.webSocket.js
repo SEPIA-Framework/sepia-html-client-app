@@ -11,6 +11,7 @@ function sepiaFW_build_client_interface(){
 	ClientInterface.ping = SepiaFW.webSocket.client.ping;
 	ClientInterface.checkNetwork = SepiaFW.webSocket.client.checkNetwork;
 	ClientInterface.startClient = SepiaFW.webSocket.client.startClient;
+	ClientInterface.welcomeActions = SepiaFW.webSocket.client.welcomeActions;
 	
 	ClientInterface.pauseClient = SepiaFW.webSocket.client.closeConnection;
 	ClientInterface.resumeClient = SepiaFW.webSocket.client.instaReconnect;
