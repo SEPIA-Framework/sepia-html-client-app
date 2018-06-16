@@ -371,9 +371,30 @@ function sepiaFW_build_webSocket_client(){
 		
 		//BUILD UI
 		Client.buildUI();	//we could call this once inside ui.setup(), but without log-in ...
+		
+		//ADD welcome stuff? - TODO: what if this is offline mode or unreachable server?
+		Client.welcomeActions(true);
 	}
 	
-	//BUILD UI METHOD
+	//when client started add some info like first-visit messages or buttons
+	Client.welcomeActions = function(onlyOffline){
+		var sender = "UI";
+		var options = { 
+			autoSwitchView: true,
+			switchDelay: 1000
+		}
+		var actionsArray = [];
+		actionsArray.push({type: "fist_visit_info_start"});
+		actionsArray.push(SepiaFW.offline.getFrameViewButtonAction("license.html", SepiaFW.local.g("license")));
+		actionsArray.push(SepiaFW.offline.getFrameViewButtonAction("tutorial.html", SepiaFW.local.g("tutorial")));
+		actionsArray.push(SepiaFW.offline.getUrlButtonAction("https://github.com/SEPIA-Framework/sepia-docs/wiki", "S.E.P.I.A. Wiki"));
+		if (!onlyOffline){
+			actionsArray.push(SepiaFW.offline.getHelpButtonAction()); 		//TODO: this will only onActive
+		}
+		publishMyViewActions(actionsArray, sender, options)
+	}
+	
+	//BUILD UI METHOD - TODO: move this method to own file and put all client-specific functions in the client interface
 	Client.buildUI = function(){
 		
 		//NAV-BAR
@@ -427,21 +448,18 @@ function sepiaFW_build_webSocket_client(){
 			var screenBtn = document.getElementById("sepiaFW-fullsize-btn");
 			if (screenBtn){
 				$(screenBtn).off();
-				$(screenBtn).on("click", function () {
-					$navBar = $('#sepiaFW-nav-bar');
-					$inputBar = $('#sepiaFW-chat-controls-form');
-					if ($navBar.css('display') == 'none'){
-						$navBar.fadeIn(300);
-						$inputBar.fadeIn(300);
-					}else{
-						$navBar.fadeOut(300);
-						$inputBar.fadeOut(300);
-					}
-					setTimeout(function(){
-						$(window).trigger('resize'); 	//this might not work on IE
-					}, 500);
-					SepiaFW.ui.closeAllMenus();
-				});
+				/*$(screenBtn).on("click", function () {
+					SepiaFW.ui.toggleInterfaceFullscreen();
+				});*/
+				SepiaFW.ui.longPressShortPressDoubleTap(screenBtn, function(){
+					//long-press
+				},'',function(){
+					//short press
+					SepiaFW.ui.toggleInterfaceFullscreen();
+				},function(){
+					//double-tab
+					SepiaFW.ui.toggleFullscreen();
+				}, true, true);
 			}
 			//-back
 			var backBtn = document.getElementById("sepiaFW-back-btn");
@@ -926,6 +944,8 @@ function sepiaFW_build_webSocket_client(){
 				return;
 			
 			}else if (!activeChannelId){
+				//TODO: we can add offline modus here
+				
 				//check auth. status, but only if this message itselve is not an auth. or join channel request
 				if (!message.data || !(message.data.dataType === "authenticate" || message.data.dataType === "joinChannel")){
 					handleSendMessageFail(message, retryNumber, SepiaFW.local.g('noConnectionOrNoCredentials'), true, true);
@@ -1226,6 +1246,18 @@ function sepiaFW_build_webSocket_client(){
 		var resultView = SepiaFW.ui.getResultViewByName("chat");
 		var beSilent = !isErrorMessage;
 		SepiaFW.ui.addDataToResultView(resultView, sEntry, beSilent);
+	}
+	
+	//-- publish my-view actions
+	function publishMyViewActions(actionsArray, sender, options){
+		if (!options) options = {};
+		if (options.autoSwitchView == undefined) options.autoSwitchView = true;
+		if (options.switchDelay == undefined) options.switchDelay = 1000;
+		if (options.beSilent == undefined) options.beSilent = false;
+
+		var aEntry = SepiaFW.ui.build.myViewActionsBlock(actionsArray, sender, options);
+		var resultView = SepiaFW.ui.getResultViewByName("myView");
+		SepiaFW.ui.addDataToResultView(resultView, aEntry, options.beSilent, options.autoSwitchView, options.switchDelay);
 	}
 	
 	//-- publish message to user with chat-entry, notification and TTS --

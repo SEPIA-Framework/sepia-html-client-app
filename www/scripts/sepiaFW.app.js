@@ -28,6 +28,7 @@ SepiaFW.buildSepiaFwPlugins = function(){
 	SepiaFW.client = sepiaFW_build_client_interface();
 	SepiaFW.frames = sepiaFW_build_frames();
 	SepiaFW.teach = sepiaFW_build_teach();
+	SepiaFW.offline = sepiaFW_build_offline();
 }
 
 //DATA STORAGE
@@ -118,7 +119,7 @@ function sepiaFW_build_config(){
 	SepiaFW.debug.log('Config: clientInfo=' + Config.clientInfo);
 	
 	//language
-	var lang = SepiaFW.tools.getURLParameter("lang") || navigator.language || navigator.userLanguage;
+	var lang = SepiaFW.tools.getURLParameter("lang") || SepiaFW.data.get('app-language') || navigator.language || navigator.userLanguage;
 	if (lang && lang.toLowerCase().indexOf('de') === 0){
 		lang = 'de';
 	}else{
@@ -178,6 +179,7 @@ function sepiaFW_build_config(){
 		$('#sepiaFW-menu-account-language-li').find('select').val(language);
 		//log and save
 		SepiaFW.data.updateAccount('language', language);
+		SepiaFW.data.set('app-language', language);
 		SepiaFW.debug.log('Config: broadcasted language=' + language);
 	}
 	//broadcast-event when userName (really the name not the id) is changed

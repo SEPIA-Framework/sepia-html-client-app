@@ -62,6 +62,7 @@ function sepiaFW_build_strings(){
 	StringsDE.refreshUI = 'Interface neu laden';
 	StringsDE.refreshUI_info = 'Um Änderungen, die hier gemacht wurden zu <u>sehen</u> muss das Interface neu geladen werden';
 	StringsDE.recommendationsFor = 'Empfehlungen für';
+	StringsDE.forNewcomers = 'Für Neuankömmlinge';
 	StringsDE.adrHome = 'Zu Hause';
 	StringsDE.adrWork = 'Arbeit';
 	StringsDE.street = 'Straße';
@@ -70,9 +71,11 @@ function sepiaFW_build_strings(){
 	StringsDE.zip_code = 'PLZ';
 	StringsDE.country = 'Land';
 	StringsDE.teach_ui_btn = 'Teach it';
+	StringsDE.frames_view_btn = 'Frame öffnen';
 	StringsDE.license = 'Lizenz';
 	StringsDE.credits = 'Credits';
 	StringsDE.data_privacy = 'Datenschutz';
+	StringsDE.tutorial = 'Tutorial';
 	
 	//ENGLISH
 	StringsEN.welcome = 'Welcome';
@@ -130,6 +133,7 @@ function sepiaFW_build_strings(){
 	StringsEN.refreshUI = 'Refresh interface';
 	StringsEN.refreshUI_info = 'To <u>see</u> changes you made here you need to refresh the interface';
 	StringsEN.recommendationsFor = 'Recommendations for';
+	StringsEN.forNewcomers = 'For newcomers';
 	StringsEN.adrHome = 'Home';
 	StringsEN.adrWork = 'Work';
 	StringsEN.street = 'Street';
@@ -138,9 +142,11 @@ function sepiaFW_build_strings(){
 	StringsEN.zip_code = 'Zip';
 	StringsEN.country = 'Country';
 	StringsEN.teach_ui_btn = 'Teach it';
+	StringsEN.frames_view_btn = 'Open frame';
 	StringsEN.license = 'License';
 	StringsEN.credits = 'Credits';
 	StringsEN.data_privacy = 'Data privacy';
+	StringsEN.tutorial = 'Tutorial';
 	
 	var StringsLocale = {};
 	if (SepiaFW.config.appLanguage.toLowerCase() === "de"){

@@ -1511,7 +1511,9 @@ body {
 }
 
 #sepiaFW-myEvents-buttons,
-#sepiaFW-myEvents-buttons-replaced {
+#sepiaFW-myEvents-buttons-replaced,
+#sepiaFW-myFirstStart-buttons,
+#sepiaFW-myFirstStart-buttons-replaced {
 	display: flex;
     flex-direction: row;
     flex-wrap: wrap;
@@ -1520,7 +1522,9 @@ body {
 	padding: 2px;
 }
 #sepiaFW-myEvents-buttons button,
-#sepiaFW-myEvents-buttons-replaced button {
+#sepiaFW-myEvents-buttons-replaced button,
+#sepiaFW-myFirstStart-buttons button,
+#sepiaFW-myFirstStart-buttons-replaced button {
 	padding: 10px 15px;
     background-color: rgba(235, 235, 255, 0.95);
 	flex: 1 0 auto;
@@ -1530,11 +1534,13 @@ body {
     margin: 4px 0;
 	min-width: 100%;
 }
-.sepiaFW-myEvents-titleNote {
+.sepiaFW-myEvents-titleNote,
+.sepiaFW-myFirstStart-titleNote {
 	text-align: left !important;
 	font-size: 16px !important;
     font-weight: bold !important;
     margin: 4px 5px 12px 5px !important;
+	min-width: 100%;
 }
 
 /* Animations */

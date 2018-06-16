@@ -222,7 +222,11 @@
 <script src="scripts/hammer.min.js"></script>
 <script src="scripts/hammer-time.min.js"></script>
 <script src="scripts/sepiaFW.ui.js"></script>
+<script src="scripts/sepiaFW.ui.build.js"></script>
+<script src="scripts/sepiaFW.ui.animate.js"></script>
+<script src="scripts/sepiaFW.ui.notify.js"></script>
 <script src="scripts/sepiaFW.ui.carousel.js"></script>
+<script src="scripts/sepiaFW.ui.events.js"></script>
 <script src="scripts/sepiaFW.ui.actions.js"></script>
 <script src="scripts/sepiaFW.ui.cards.js"></script>
 <script src="scripts/sepiaFW.account.js"></script>
@@ -234,6 +238,7 @@
 <script src="scripts/sepiaFW.webSocket.js"></script>
 <script src="scripts/sepiaFW.frames.js"></script>
 <script src="scripts/sepiaFW.teach.js"></script>
+<script src="scripts/sepiaFW.offline.js"></script>
 <script type="text/javascript">
 
 	//get some settings via URL parameters
@@ -247,7 +252,7 @@
 	
 		//set enpoints
 		var config = new Object();
-		SepiaFW.config.host = SepiaFW.data.getPermanent("host-name");	//this has to be outside of volatile data to stay alive after log-out
+		SepiaFW.config.host = SepiaFW.data.getPermanent("host-name") || "localhost";	//or e.g. "my-server.example.org/sepia"
 		//try to load host, e.g.:
 		//- "localhost" (direct links),
 		//- "192.168.0.99" or "api.example.com" (direct links),
@@ -267,9 +272,6 @@
 			config.webSocketAPI = "http://" + SepiaFW.config.host + ":20723/";
 		//custom server config with proxy (uses SSL)
 		}else{
-			if (!SepiaFW.config.host){
-				SepiaFW.config.host = "my-server.example.com/sepia";
-			}
 			//set default
 			config.assistAPI = "https://" + SepiaFW.config.host + "/assist/";
 			config.teachAPI = "https://" + SepiaFW.config.host + "/teach/";
@@ -281,10 +283,12 @@
 		//what happens after login?
 		SepiaFW.account.afterLogin = function(){
 			SepiaFW.client.ping(
+				//success
 				function(data){
 					//TODO: startClient is a required method, maybe move it to core and replace it with 'client.onActive'?
 					SepiaFW.client.startClient();
 				},
+				//fail: no connection to chat-server
 				function(data){
 					SepiaFW.ui.showPopup(SepiaFW.local.g('noConnectionToServer'));
 				}

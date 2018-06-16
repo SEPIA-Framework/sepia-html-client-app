@@ -6,6 +6,7 @@ function sepiaFW_build_account(){
 	var userToken = "";
 	var userName = "Boss";
 	var language = SepiaFW.config.appLanguage;
+	var clientFirstVisit = true;
 	
 	var pwdIsToken = false;
 	
@@ -26,7 +27,18 @@ function sepiaFW_build_account(){
 	
 	//---- broadcasting ----
 	
+	function broadcastEnterWithoutLogin(){
+		//TODO: this should prepare demo-mode ...
+	}
+	
+	function broadcastLoginRestored(){
+		//first app visit of this user?
+		checkClientFirstVisit();
+	}
+	
 	function broadcastLoginSuccess(){
+		//first app visit of this user?
+		checkClientFirstVisit();
 	}
 	function broadcastLoginFail(){
 	}
@@ -85,6 +97,16 @@ function sepiaFW_build_account(){
 	
 	//----------------------
 	
+	//track first visit status
+	function checkClientFirstVisit(){
+		//check if this is the users first visit
+		var clientFirstVisit = SepiaFW.data.get('first-app-start-' + userId);
+		if (clientFirstVisit == undefined) clientFirstVisit = true;
+		SepiaFW.debug.info('Is first recorded visit of this client for "' + userId + '"? ' + clientFirstVisit);
+	}
+	
+	//----------------------
+	
 	//get user id
 	Account.getUserId = function(){
 		return userId;
@@ -104,6 +126,10 @@ function sepiaFW_build_account(){
 	//get language
 	Account.getLanguage = function(){
 		return language;
+	}
+	//get client first visit
+	Account.getClientFirstVisit = function(){
+		return clientFirstVisit;
 	}
 	
 	//load data from account
@@ -332,6 +358,7 @@ function sepiaFW_build_account(){
 			if (lBox && lBox.style.display != 'none'){
 				Account.toggleLoginBox();
 			}
+			broadcastLoginRestored();
 			Account.afterLogin();
 
 		//try refresh
@@ -384,6 +411,7 @@ function sepiaFW_build_account(){
 			$(clsBtn).off();
 			$(clsBtn).on("click", function () {
 				Account.toggleLoginBox();
+				broadcastEnterWithoutLogin();
 				Account.afterLogin();
 			});
 		}
