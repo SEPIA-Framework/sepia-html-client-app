@@ -629,7 +629,9 @@ function sepiaFW_build_ui(){
 		
 		//update myView (is automatically skipped if called too early)
 		if (!isFirstMyViewShow){
-			UI.updateMyView();
+			if (SepiaFW.client.isActive()){
+				UI.updateMyView();
+			}
 		}
 		isFirstMyViewShow = false;
 	}

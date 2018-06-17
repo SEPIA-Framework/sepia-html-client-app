@@ -379,20 +379,27 @@ function sepiaFW_build_webSocket_client(){
 	
 	//when client started add some info like first-visit messages or buttons
 	Client.welcomeActions = function(onlyOffline){
-		var sender = "UI";
-		var options = { 
-			autoSwitchView: true,
-			switchDelay: 1000
+		if (SepiaFW.account.getClientFirstVisit()){
+			var sender = "UI";
+			var options = { 
+				autoSwitchView: true,
+				switchDelay: 1000
+			}
+			var actionsArray = [];
+			actionsArray.push({type: "fist_visit_info_start"});
+			actionsArray.push(SepiaFW.offline.getFrameViewButtonAction("license.html", SepiaFW.local.g("license")));
+			actionsArray.push(SepiaFW.offline.getFrameViewButtonAction("tutorial.html", SepiaFW.local.g("tutorial")));
+			actionsArray.push(SepiaFW.offline.getUrlButtonAction("https://github.com/SEPIA-Framework/sepia-docs/wiki", "S.E.P.I.A. Wiki"));
+			if (!onlyOffline){
+				actionsArray.push(SepiaFW.offline.getHelpButtonAction()); 		//TODO: this will only onActive
+			}
+			if (SepiaFW.account.getUserId()){
+				actionsArray.push({type: "button_custom_fun", title: SepiaFW.local.g('dontShowAgain'), fun: function(){
+					SepiaFW.account.setClientFirstVisit(false);
+				}});
+			}
+			publishMyViewActions(actionsArray, sender, options);
 		}
-		var actionsArray = [];
-		actionsArray.push({type: "fist_visit_info_start"});
-		actionsArray.push(SepiaFW.offline.getFrameViewButtonAction("license.html", SepiaFW.local.g("license")));
-		actionsArray.push(SepiaFW.offline.getFrameViewButtonAction("tutorial.html", SepiaFW.local.g("tutorial")));
-		actionsArray.push(SepiaFW.offline.getUrlButtonAction("https://github.com/SEPIA-Framework/sepia-docs/wiki", "S.E.P.I.A. Wiki"));
-		if (!onlyOffline){
-			actionsArray.push(SepiaFW.offline.getHelpButtonAction()); 		//TODO: this will only onActive
-		}
-		publishMyViewActions(actionsArray, sender, options)
 	}
 	
 	//BUILD UI METHOD - TODO: move this method to own file and put all client-specific functions in the client interface

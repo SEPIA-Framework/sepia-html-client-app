@@ -14,7 +14,7 @@ function sepiaFW_build_ui_actions(){
 			newAction.info = "direct_cmd";
 			newAction.cmd = "chat;;type=help;;";
 			newAction.options = { skipTTS : true, skipText : true, targetView : "bigResults" };
-			SepiaFW.ui.actions.openCMD(newAction);
+			Actions.openCMD(newAction);
 		});
 		urlBtn.innerHTML = action.title || SepiaFW.local.g('help');
 		parentBlock.appendChild(urlBtn);
@@ -49,6 +49,19 @@ function sepiaFW_build_ui_actions(){
 		}
 	}
 	
+	//BUTTON Custom function
+	Actions.addButtonCustomFunction = function(action, sender, parentBlock){
+		var funBtn = document.createElement('BUTTON');
+		funBtn.className = 'chat-button-custom-fun';
+		if (sender) action.sender = sender;
+		funBtn.setAttribute("data-sender", action.sender);
+		SepiaFW.ui.onclick(funBtn, function(){
+			action.fun();
+		});
+		funBtn.innerHTML = action.title;
+		parentBlock.appendChild(funBtn);
+	}
+	
 	//BUTTON URLs
 	Actions.addButtonURL = function(action, parentBlock){
 		var urlBtn = document.createElement('BUTTON');
@@ -56,7 +69,7 @@ function sepiaFW_build_ui_actions(){
 		urlBtn.setAttribute("data-url", action.url);
 		SepiaFW.ui.onclick(urlBtn, function(){
 		//urlBtn.addEventListener("click", function(){ 
-			SepiaFW.ui.actions.openURL(action);
+			Actions.openURL(action);
 		});
 		urlBtn.innerHTML = action.title;
 		parentBlock.appendChild(urlBtn);
@@ -91,7 +104,7 @@ function sepiaFW_build_ui_actions(){
 		cmdBtn.setAttribute("data-cmd", action.cmd);
 		SepiaFW.ui.onclick(cmdBtn, function(){
 		//cmdBtn.addEventListener("click", function(){ 
-			SepiaFW.ui.actions.openCMD(action);
+			Actions.openCMD(action);
 			SepiaFW.debug.info("Action - sending button-cmd: " + action.cmd); 
 		});
 		cmdBtn.innerHTML = action.title;
@@ -358,6 +371,10 @@ function sepiaFW_build_ui_actions(){
 					//BUTTON - cmd
 					}else if (type === 'button_cmd'){
 						Actions.addButtonCMD(data.actionInfo[i], sender, aButtonsArea);
+						
+					//BUTTON - custom function
+					}else if (type === 'button_custom_fun'){	
+						Actions.addButtonCustomFunction(data.actionInfo[i], sender, aButtonsArea);
 						
 					//Open URL
 					}else if (type === 'open_in_app_browser'){
