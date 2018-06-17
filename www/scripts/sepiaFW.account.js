@@ -100,7 +100,7 @@ function sepiaFW_build_account(){
 	//track first visit status
 	function checkClientFirstVisit(){
 		//check if this is the users first visit
-		var clientFirstVisit = SepiaFW.data.getPermanent('first-app-start-' + userId);
+		clientFirstVisit = SepiaFW.data.getPermanent('first-app-start-' + userId);
 		if (clientFirstVisit == undefined) clientFirstVisit = true;
 		SepiaFW.debug.info('Is first recorded visit of this client for "' + userId + '"? ' + clientFirstVisit);
 	}
