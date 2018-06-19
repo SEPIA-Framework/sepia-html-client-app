@@ -1,0 +1,182 @@
+html {
+	background-image: url(../img/infiniBandAlpha.png);
+	background-color: #232323;
+	/*background-size: 50%;*/
+	background-size: 280px;
+	background-position: center 40%;
+}
+#sepiaFW-main-window {
+	border-color: #C74927;
+}
+
+#sepiaFW-pC 	 { background-color: #C74927; }
+#sepiaFW-sC 	 { background-color: #fcf9ee; }
+#sepiaFW-sC2 { background-color: rgba(82, 67, 53, 1.0); 	}
+#sepiaFW-aC 	 { background-color: rgba(180, 120, 223, 0.92); 	}
+#sepiaFW-aC2 { background-color: #85807e; }
+#sepiaFW-asC { background-color: #C74927; 	}
+#sepiaFW-adC { background-color: gold; 		}
+#sepiaFW-lC 	 { background-color: rgba(200, 200, 200, 0.50); 	}
+
+#sepiaFW-login-box, #sepiaFW-nav-bar, #sepiaFW-chat-controls-form, #sepiaFW-chat-controls-right {
+	background: #C74927;
+	color: #fcf9ee;
+}
+#sepiaFW-login-box button {
+	background: #685238;
+	color: #fcf9ee;
+}
+#sepiaFW-login-box p {
+	color: #fff;
+}
+#sepiaFW-chat-controls {
+	background: linear-gradient(rgba(45,45,45,0), #232323, #232323);
+	border-bottom-color: #232323;
+}
+
+#sepiaFW-main-window {
+	color: #fcf9ee;
+}
+#sepiaFW-main-window input, #sepiaFW-login-box input {
+	background: #f0cbad;
+}
+
+#sepiaFW-main-window button,
+.sepiaFW-touch-device #sepiaFW-main-window button:hover {
+	background: #C74927;
+	color: #fcf9ee;
+}
+.sepiaFW-notouch-device #sepiaFW-main-window button:hover {
+	background: #fcf9ee;
+	color: #C74927;
+}
+
+#sepiaFW-main-window .chat-buttons-area button {
+    border: 1px solid #cb7b65;
+	margin: 4px;
+}
+.sepiaFW-notouch-device #sepiaFW-main-window .chat-buttons-area button:hover {
+    border: 0px solid #cb7b65;
+	margin: 5px;
+}
+
+#sepiaFW-assist-btn-area {
+	border-color: #C74927;
+	background-color: #f0cbad;
+}
+#sepiaFW-assist-btn-orbiter1 {
+	border-color: #C74927;
+	background-color: #fcf9ee;
+}
+
+.sepiaFW-menu {
+	background: rgba(82, 67, 53, 1.0);
+	color: #fcf9ee;
+}
+.sepiaFW-menu input {
+	background: transparent !important;
+}
+#sepiaFW-chat-menu {
+	background: rgba(82, 67, 53, 1.0); 
+	color: #fcf9ee;
+}
+#sepiaFW-chat-menu button {
+	background: #C74927;
+	color: #fcf9ee;
+}
+#sepiaFW-chat-menu li {
+	background: rgba(255, 255, 255, 0.10);
+}
+
+#sepiaFW-chat-output .statusUpdate {
+    background: rgba(255, 255, 255, 0.10);
+    color: #fcf9ee;
+}
+#sepiaFW-chat-output article {
+    background: #f0cbad;
+	color: #2f3035;
+}
+#sepiaFW-chat-output article.chatMe{
+	background: #85807e;
+	color: #fcf9ee;
+}
+#sepiaFW-chat-output article.chatMe b{
+	color: #fcf9ee;
+}
+#sepiaFW-chat-output article.chatMe span{
+	color: #fcf9ee;
+}
+#sepiaFW-chat-output article.chatAssistant {
+	background: rgba(199, 73, 39, 0.96); /*this is #C74927 with alpha*/
+	color: #fcf9ee;
+}
+#sepiaFW-chat-output article.chatAssistant b{
+	color: #fcf9ee;
+}
+#sepiaFW-chat-output article.chatAssistant.chatPm{
+	border-left-color: rgba(243, 214, 104, 0.92);
+}
+#sepiaFW-chat-output article.chatMe.chatPm{
+	border-left-color: rgba(243, 214, 104, 0.92);
+}
+#sepiaFW-chat-output article.chatOther.chatPm{
+	border-left-color: rgba(243, 214, 104, 0.92);
+}
+
+.sepiaFW-button {
+	background-color: #C74927;
+	color: #fcf9ee;
+}
+.sepiaFW-button:hover {
+	background-color: #fcf9ee;
+	color: #C74927;
+}
+
+#sepiaFW-chat-controls-swipe-area .sepiaFW-swipeBar-switchable {
+	background: #c74927;
+	color: #fcf9ee;
+}
+
+/*----- cards ------*/
+
+.sepiaFW-cards-flexSize-container {
+    background: rgba(255, 255, 255, 0.07);
+}
+
+.sepiaFW-help-view {
+    background: rgba(33, 33, 33, 0.75);
+}
+
+.sepiaFW-cards-list-title {
+	background: #85807e;
+	color: #fcf9ee;
+}
+.sepiaFW-cards-list-title.newsHeader button {
+	color: #C74927 !important;
+}
+.sepiaFW-cards-list-body {
+    color: #232323;
+}
+
+.sepiaFW-cards-list-body .weatherNowSmall .weatherNowSmallImage {
+	background: #C74927;
+}
+
+/*----- teachUI -----*/
+
+#sepiaFW-teachUI-nav-bar {
+    background: #C74927;
+    color: #fff;
+}
+#sepiaFW-teachUI-view {
+    background: #2f3035;
+	/*border-bottom: 6px solid #C74927;*/
+}
+#sepiaFW-teachUI-view label {
+    color: #f0cbad;
+}
+#sepiaFW-teachUI-editor button, 
+#sepiaFW-teachUI-manager button {
+    background: #C74927 !important;
+    color: #fff !important;
+}

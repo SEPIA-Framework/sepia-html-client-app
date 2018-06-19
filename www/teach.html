@@ -1,0 +1,53 @@
+<div id='sepiaFW-teachUI-carousel' class="sepiaFW-inner-container sepiaFW-carousel">
+	<div class='sepiaFW-carousel-pane-container'>
+	
+		<!-- Editor -->
+		<div id="sepiaFW-teachUI-editor" class='sepiaFW-carousel-pane'>
+			<div class="sepiaFW-teachUI-menu-group center">
+				<h2>Teach personal commands</h2>
+			</div>
+			<div class="sepiaFW-teachUI-menu-group center">
+				<label>When I say ...</label>
+				<input type="text" id="sepiaFW-teach-input">
+			</div>
+			<div class="sepiaFW-teachUI-menu-group center">
+				<div class=""><label>the assistant does ...</label></div>
+				<select id="sepiaFW-teach-commands"> 
+					<option selected disabled>Choose please</option>
+					<!-- dynamic -->
+				</select>
+				<div id='sepiaFW-teachUI-command-help'><i class="material-icons md-btn2">&#xE887;</i></div>
+			</div>
+			<div id="sepiaFW-teach-parameters" class="sepiaFW-teachUI-menu-group center">
+				<!-- dynamic -->
+			</div>
+			<div class="sepiaFW-teachUI-menu-group center">
+				<button id="sepiaFW-teachUI-show-optionals" style="display:none;">MORE OPTIONS</button>
+				<button id="sepiaFW-teachUI-submit" style="display:none;">TEACH</button>
+			</div>
+		</div>
+		
+		<!-- Command manager -->
+		<div id="sepiaFW-teachUI-manager" class='sepiaFW-carousel-pane'>
+			<div class="sepiaFW-teachUI-menu-group center">
+				<h2>Your personal commands</h2>
+			</div>
+			<div class="sepiaFW-command-cards-container">
+				<!-- dynamic content -->
+			</div>
+			<div class="sepiaFW-teachUI-menu-group center">
+				<button id="sepiaFW-teachUI-load-commands">RELOAD</button>
+			</div>
+			<div id="sepiaFW-teachUI-manager-bottom-buttons" class="sepiaFW-teachUI-menu-group center" style="display:none;">
+				<button id="sepiaFW-teachUI-load-more-commands">LOAD MORE</button>
+			</div>
+		</div>
+		
+	</div>
+</div>
+<div id="sepiaFW-teachUI-nav-bar" class='sepiaFW-layer-header'>
+	<button id="sepiaFW-teachUI-close" class='entry'><i class="material-icons md-btn2">&#xE5CD;</i></button>
+	<button id="sepiaFW-teachUI-show-editor" class='entry'><i class="material-icons md-btn2">&#xE80C;</i><span>Maker</span></button>
+	<button id="sepiaFW-teachUI-show-manager" class='entry'><i class="material-icons md-btn2">&#xE896;</i><span>Manager</span></button>
+	<div id="sepiaFW-teachUI-nav-bar-page-indicator"><div>&nbsp;</div><div>&nbsp;</div></div>
+</div>

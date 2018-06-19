@@ -1,0 +1,166 @@
+html {
+	background-image: url(../img/inkSplash.png);
+}
+#sepiaFW-main-window {
+	color: #2f3035;
+	border: 0px;
+}
+@media (min-width: 480px) and (min-height: 481px) {
+	.sepiaFW-top-layer-view {
+		border-radius: 0px;
+	}
+}
+
+#sepiaFW-pC 	 { background-color: #2F3035; }
+#sepiaFW-sC 	 { background-color: #44c8be; }
+#sepiaFW-sC2 { background-color: rgba(225, 225, 245, 0.96); 	}
+#sepiaFW-aC 	 { background-color: rgba(166, 58, 80, 1.0); 	}
+#sepiaFW-aC2 { background-color: #6b4d9f; }
+#sepiaFW-asC { background-color: #44c8be;	}
+#sepiaFW-adC { background-color: gold; 	}
+
+#sepiaFW-login-box, #sepiaFW-nav-bar, #sepiaFW-chat-controls-form, #sepiaFW-chat-controls-right {
+	background: #2f3035;
+	color: #fff;
+}
+
+#sepiaFW-nav-bar-page-indicator {
+	background: linear-gradient(to right, #44c8be 7%, #5683c4 33%, #7a2b87 66%, #1e245a 93%);
+}
+#sepiaFW-nav-menu-go-left {
+	color: #44c8be !important;
+}
+#sepiaFW-nav-menu-go-right {
+	color: #44c8be !important;
+}
+
+#sepiaFW-login-box button {
+	background: #44c8be;
+	color: #fff;
+}
+
+#sepiaFW-main-window button {
+	background: #2f3035;
+	color: #fff;
+}
+.sepiaFW-notouch-device #sepiaFW-main-window button:hover {
+	background: #fff;
+	color: #2f3035;
+}
+#sepiaFW-assist-btn-area {
+	border-color: #2f3035;
+}
+#sepiaFW-assist-btn {
+	background: #44c8be !important;
+}
+
+.sepiaFW-menu {
+	/*background: rgba(206, 255, 26, 0.95);*/
+	background: rgba(225, 225, 245, 0.96);
+	color: #000;
+}
+#sepiaFW-chat-menu {
+	background: rgba(225, 225, 245, 1.00);
+	color: #000;
+}
+#sepiaFW-chat-menu button {
+	background: #2f3035;
+	color: #44c8be;
+}
+#sepiaFW-chat-menu li {
+	background: rgba(255, 255, 255, 0.15);
+}
+
+#sepiaFW-myEvents-buttons button,
+#sepiaFW-myEvents-buttons-replaced button {
+    background: #44c8be !important;
+	color: #fff !important;
+}
+.sepiaFW-notouch-device #sepiaFW-myEvents-buttons button:hover {
+	background-color: rgba(225, 225, 245, 0.96) !important;
+	color: #2f3035 !important;
+}
+#sepiaFW-main-window .chat-buttons-area button {
+	background: rgba(225, 225, 245, 0.96);
+	color: #2f3035;
+}
+.sepiaFW-notouch-device #sepiaFW-main-window .chat-buttons-area button:hover {
+	background: #44c8be;
+	color: #fff;
+}
+
+#sepiaFW-nav-label-note{
+    border: 1px solid #44c8be;
+}
+
+#sepiaFW-chat-output article {
+    background: #6b4d9f;
+}
+#sepiaFW-chat-output article.chatMe{
+	background: #5683c4;
+	color: #fff;
+}
+#sepiaFW-chat-output article.chatMe b{
+	color: #fff;
+}
+#sepiaFW-chat-output article.chatMe span{
+	color: #fff;
+}
+#sepiaFW-chat-output article.chatAssistant {
+	background: #44c8be;
+	color: #fff;
+}
+#sepiaFW-chat-output article.chatAssistant b{
+	color: #2f3035;
+}
+#sepiaFW-chat-output article.chatAssistant.chatPm{
+	border-left-color: rgba(255, 255, 255, 0.40);
+}
+#sepiaFW-chat-output article.chatMe.chatPm{
+	border-left-color: rgba(255, 255, 255, 0.40);
+}
+#sepiaFW-chat-output article.chatOther.chatPm{
+	border-left-color: rgba(255, 255,255, 0.40);
+}
+
+.sepiaFW-button {
+	background-color: #2f3035;
+	color: #44c8be;
+}
+.sepiaFW-notouch-device .sepiaFW-button:hover {
+	background-color: #44c8be;
+	color: #fff;
+}
+
+#sepiaFW-chat-controls-swipe-area .sepiaFW-swipeBar-switchable {
+	background: #44c8be;
+	color: #fff;
+}
+
+/*----- Popup ------*/
+
+#sepiaFW-popup-message button {
+	background-color: #44c8be;
+}
+
+/*----- cards ------*/
+
+.sepiaFW-cards-list-title {
+	background: #6b4d9f;
+	color: #fff;
+}
+
+/*----- teachUI -----*/
+
+#sepiaFW-teachUI-nav-bar {
+    background: #44c8be;
+    color: #fff;
+}
+#sepiaFW-teachUI-view label {
+    color: rgb(225, 225, 245);
+}
+#sepiaFW-teachUI-editor button, 
+#sepiaFW-teachUI-manager button {
+    background: #44c8be !important;
+    color: #fff !important;
+}

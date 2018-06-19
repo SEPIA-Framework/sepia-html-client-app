@@ -1,0 +1,22 @@
+{
+  "name": "speechrecognition",
+  "version": "0.1.2",
+  "description": "Cordova Speech Recognition Plugin (modified for net.b07z.sepia)",
+  "cordova": {
+    "id": "org.apache.cordova.speech.speechrecognition",
+    "platforms": [
+      "android",
+      "ios"
+    ]
+  },
+  "keywords": [
+    "cordova",
+    "speech",
+    "recognition",
+    "ecosystem:cordova",
+    "cordova-android",
+    "cordova-ios"
+  ],
+  "author": "",
+  "license": "Apache"
+}

@@ -1,0 +1,518 @@
+.sepiaFW-cards-flexSize-container {
+    background: rgba(0, 0, 0, 0.10);
+	position: relative;
+	margin: 5px 0px;
+	border-radius: 3px;
+	transition: min-height 0.3s;
+	padding: 5px 0px 0px 0px;
+	overflow: hidden;
+}
+.sepiaFW-cards-flexSize-container.oneElement {
+	margin: 0px 0px;
+	padding: 0px 0px;
+}
+.sepiaFW-cards-flexSize-container.oneElement.addSpacer{
+	margin-top: 5px;
+}
+.sepiaFW-cards-flexSize-container p {
+	margin: 5px 0;
+    font-weight: 300;
+}
+
+/* --- Help view --- */
+
+.sepiaFW-help-view {
+	padding: 14px;
+    margin: 6px;
+    background: rgba(255, 255, 255, 0.75);
+}
+.sepiaFW-help-view h2 {
+	margin: 8px 0;
+	font-size: 16px;
+}
+.sepiaFW-help-view h3 {
+	margin: 0;
+	font-size: 15px;
+}
+.sepiaFW-help-view ul {
+	margin: 8px 0;
+}
+.sepiaFW-help-view li {
+	font-size: 15px;
+}
+
+/* --- HTML RESULT --- */
+
+.sepiaFW-cards-flexSize-container .card-box {
+    display: block;
+    position: relative;
+    color: #1f2236;
+    padding: 5px;
+	padding-bottom: 0px;
+    text-align: left;
+    font-style: normal;
+    text-align: center;
+}
+.sepiaFW-cards-flexSize-container .card-box:last-child {
+	padding-bottom: 5px;
+}
+
+/* ------ Lists ------ */
+
+/* header */
+.sepiaFW-cards-list-title {
+	display: flex;
+	justify-content: space-between;
+	position: relative;
+	/*background: rgba(205, 235, 205, 0.90);*/
+	background: rgba(235, 235, 255, 0.95);
+	/*color: #fff;*/
+	border-radius: 3px 3px 0 0;
+	margin: 0px 5px 0px 5px;
+	width: calc(100% - 10px);
+	min-height: 38px;
+	padding: 1px;
+    text-align: center;
+	font-weight: bold;
+	line-height: 27px;
+}
+.sepiaFW-cards-list-title span {
+	/*position: absolute;
+	left: 50%;
+	top: 50%;
+	transform: translate(-50%, -50%);*/
+	display: inline-block;
+	flex: 0 1 auto;
+	order: 2;
+    padding-top: 3px;
+}
+.sepiaFW-cards-list-title button {
+	flex: 0 1 auto;
+	background: transparent !important;
+	margin: 0px !important;
+	padding: 4px 12px !important;
+}
+.sepiaFW-cards-list-contextMenu {
+	position: absolute;
+	top: 39px;
+	right: 0px;
+	line-height: 17px;
+    font-size: 13px;
+	display: none;
+}
+.sepiaFW-cards-list-contextMenu li:first-of-type{
+	margin-top: 0px;
+}
+.sepiaFW-cards-list-contextMenu li:last-of-type{
+	margin-bottom: 0px;
+}
+.sepiaFW-cards-list-saveBtn {
+	/*float: left;*/
+	opacity: 0.10;
+	order: 1;
+	/*color: #fff !important;*/
+}
+.sepiaFW-cards-list-saveBtn.active {
+	opacity: 0.92;
+	/*color: #fff !important;*/
+}
+.sepiaFW-cards-list-dummyBtn {
+	flex: 0 1 auto;
+	width: 28px;
+	height: 28px;
+	margin: 4px 12px;
+	order: 1;
+}
+.sepiaFW-cards-list-menuBtn {
+	/*float: right;*/
+	order: 3;
+	opacity: 0.92;
+	/*color: #fff !important;*/
+}
+
+/* body */
+.sepiaFW-cards-list-body {
+	margin: 0px;
+	padding: 0px;
+	min-height: 5px;
+	padding-bottom: 5px;
+}
+.sepiaFW-cards-list-body .listElement {
+	display: flex;
+	min-height: 33px;
+}
+.sepiaFW-cards-list-body .listElement div {
+	background: rgba(255, 255, 255, 0.90);
+	border-radius: 3px;
+	display: inline-block;
+	vertical-align: top;
+	min-height: 20px;
+}
+.sepiaFW-cards-list-body .listElement .listLeft {
+	width: 50px;
+	margin: 5px 0px 0px 5px;
+	user-select: none;
+}
+.sepiaFW-cards-list-body .listElement .listCenter {
+	width: calc(100% - 120px);
+	margin: 5px 5px 0px 5px;
+	padding: 5px;
+}
+.sepiaFW-cards-list-body .listElement .listRight {
+	width: 50px;
+	margin: 5px 5px 0px 0px;
+	user-select: none;
+}
+.sepiaFW-notouch-device .sepiaFW-cards-list-body .listElement .listRight:hover {	background: rgba(255, 0, 0, 0.50);		}
+
+.sepiaFW-cards-list-body .listElement .checked {
+	background: rgba(0, 255, 0, 0.50);
+}
+.sepiaFW-notouch-device .sepiaFW-cards-list-body .listElement .checked:hover {	background: rgba(0, 255, 255, 0.50);	}
+
+.sepiaFW-cards-list-body .listElement .unchecked {
+	background: rgba(255, 255, 255, 0.90);
+}
+.sepiaFW-notouch-device .sepiaFW-cards-list-body .listElement .unchecked:hover {	background: rgba(0, 255, 0, 0.50);		}
+
+/* hidden and visible */
+.sepiaFW-cards-list-body .itemHidden {
+	display: none !important;
+}
+.sepiaFW-cards-list-body .itemVisible {
+	-webkit-animation: sepiaFW-animation-enter_fade .5s 1 linear;
+            animation: sepiaFW-animation-enter_fade .5s 1 linear;
+}
+
+/* footer */
+.sepiaFW-cards-list-footer {
+	display: inline-block;
+    /*background: rgba(235, 235, 255, 0.33);*/
+	background: rgba(170, 170, 180, 0.33);
+    margin: 0px 5px 5px 5px;
+    text-align: center;
+    padding: 5px;
+    width: calc(100% - 10px);
+	cursor: pointer;
+}
+
+/* --- Radio --- */
+
+.sepiaFW-cards-list-radioStations {
+	padding-bottom: 0px;
+}
+.sepiaFW-cards-list-body .radioStation {
+	display: flex;
+}
+.sepiaFW-cards-list-body .radioStation div {
+	background: rgba(255, 255, 255, 0.90);
+	border-radius: 3px;
+	display: inline-block;
+	vertical-align: top;
+	min-height: 20px;
+}
+.sepiaFW-cards-list-body .radioStation .radioLeft {
+	display: flex;
+    align-items: center;
+    justify-content: center;
+	width: 50px;
+	margin: 5px 0px 0px 5px;
+	user-select: none;
+	cursor: pointer;
+	padding: 5px;
+}
+.sepiaFW-cards-list-body .radioStation .radioCenter {
+	display: flex;
+    align-items: center;
+    justify-content: center;
+	width: calc(100% - 120px);
+	margin: 5px 5px 0px 5px;
+	padding: 5px;
+}
+.sepiaFW-cards-list-body .radioStation .radioRight {
+	display: flex;
+    align-items: center;
+    justify-content: center;
+	width: 50px;
+	margin: 5px 5px 0px 0px;
+	user-select: none;
+	cursor: pointer;
+	padding: 5px;
+}
+
+/* --- Time events --- */
+
+.sepiaFW-cards-list-body .timeEvent {
+	display: flex;
+}
+.sepiaFW-cards-list-body .timeEvent div {
+	background: rgba(255, 255, 255, 0.90);
+	border-radius: 3px;
+	display: inline-block;
+	vertical-align: top;
+	min-height: 20px;
+}
+.sepiaFW-cards-list-body .timeEvent .timeEventLeft {
+	display: flex;
+    align-items: center;
+    justify-content: center;
+	width: 50px;
+	margin: 5px 0px 0px 5px;
+	user-select: none;
+	cursor: pointer;
+	padding: 5px;
+}
+.sepiaFW-cards-list-body .timeEvent .timeEventCenter {
+	display: flex;
+	flex-direction: column;
+    align-items: center;
+    justify-content: center;
+	width: calc(100% - 120px);
+	margin: 5px 5px 0px 5px;
+	padding: 5px;
+	text-align: center;
+	font-size: 115%;
+}
+.sepiaFW-cards-list-body .timeEvent .timeEventCenter.inThePast {
+	/*background: rgba(255, 0, 0, 0.50);*/
+	/*color: #fff;*/
+	-webkit-animation: sepiaFW-timeEvent-card-signal 3s linear infinite;
+            animation: sepiaFW-timeEvent-card-signal 3s linear infinite;
+}
+@keyframes sepiaFW-timeEvent-card-signal {
+    from {background: rgba(255, 255, 255, 0.90); color: #000;}
+	75% {background: rgba(255, 0, 0, 0.50); color: #fff;}
+    to {background: rgba(255, 255, 255, 0.90); color: #000;}
+}
+.sepiaFW-cards-list-body .timeEvent .timeEventCenter .sepiaFW-timer-name {
+	font-weight: bold;
+	font-size: 15px;
+	background: transparent;
+	padding-top: 2px;
+}
+.sepiaFW-cards-list-body .timeEvent .timeEventCenter .sepiaFW-timer-indicator {
+	font-size: 15px;
+	background: transparent;
+}
+.sepiaFW-cards-list-body .timeEvent .timeEventRight {
+	display: flex;
+    align-items: center;
+    justify-content: center;
+	width: 50px;
+	margin: 5px 5px 0px 0px;
+	user-select: none;
+	cursor: pointer;
+	padding: 5px;
+}
+.sepiaFW-notouch-device .sepiaFW-cards-list-body .timeEvent .timeEventRight:hover {	background: rgba(255, 0, 0, 0.50);		}
+
+/* ---- News ---- */
+
+.sepiaFW-cards-list-title.newsHeader {
+	background: rgba(255, 255, 255, 0.95);
+	color: #000;
+}
+.sepiaFW-cards-list-title.newsHeader span {
+	padding-left: 0px;
+	padding-right: 0px;
+}
+.sepiaFW-cards-list-body .newsArticle {
+	display: flex;
+}
+.sepiaFW-cards-list-body .newsArticle .newsCenter {
+	background: rgba(255, 255, 255, 0.90);
+	border-radius: 0px;
+	display: inline-block;
+	vertical-align: top;
+	min-height: 20px;
+	width: calc(100% - 10px);
+	margin: 5px 5px 0px 5px;
+	padding: 5px;
+	text-align: center;
+	cursor: pointer;
+}
+.sepiaFW-cards-list-body .newsArticle .newsCenter .newsArticleHeadline {
+	margin: 5px 2px;
+	font-size: 13px;
+}
+.sepiaFW-cards-list-body .newsArticle .newsCenter .newsArticleBody {
+	margin: 5px 2px;
+    font-weight: 300;
+	font-size: 12px;
+}
+.sepiaFW-cards-list-body .newsArticle .newsCenter .newsArticleBody > * {
+	margin: 0px;
+	padding: 0px;
+	font-size: 12px;
+}
+
+/* ---- Weather ---- */
+
+.sepiaFW-cards-list-body .weatherNowSmall {
+	display: flex;
+}
+.sepiaFW-cards-list-body .weatherNowSmall > div {
+	background: rgba(255, 255, 255, 0.90);
+	border-radius: 3px;
+	display: inline-block;
+	vertical-align: top;
+	min-height: 20px;
+}
+.sepiaFW-cards-list-body .weatherNowSmall .weatherNowSmallImage {
+	display: flex;
+	flex-direction: column;
+    align-items: center;
+    justify-content: center;
+	min-width: 65px;
+	max-width: 65px;
+	margin: 5px 0px 0px 5px;
+	padding: 5px;
+	user-select: none;
+	cursor: pointer;
+	text-align: center;
+	background: #2f3035;
+	color: #fff;
+}
+.sepiaFW-cards-list-body .weatherNowSmall .weatherNowSmallImage img{
+	max-width: 50px;
+}
+.sepiaFW-cards-list-body .weatherNowSmall .weatherNowSmallData {
+	/*width: calc(100% - 80px);*/
+	flex: 1 1 auto;
+	margin: 5px 5px 0px 5px;
+	padding: 5px;
+	display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.sepiaFW-cards-list-body .weatherNowSmall .weatherNowSmallIntro {
+	display: flex;
+    flex-direction: column;
+	/*width: calc(100% - 80px);*/
+	flex: 1 1 auto;
+	/*max-width: 120px;*/
+	margin: 5px 0px 0px 5px;
+	padding: 5px 8px 0 8px;
+	display: flex;
+    align-items: center;
+    justify-content: center;
+	font-size: 14px;
+	text-align: center;
+}
+@media screen and (max-width: 359px) {
+	.sepiaFW-cards-list-body .weatherNowSmall .weatherNowSmallIntro {
+		display: none;
+	}
+}
+.sepiaFW-cards-list-body .weatherNowSmall .weatherNowSmallData div {
+	width: 25%;
+	min-width: 45px;
+	text-align: center;
+}
+.sepiaFW-cards-list-body .weatherNowSmall .weatherNowSmallData h3 {
+	font-size: 20px;
+	margin: 5px;
+}
+.sepiaFW-cards-list-body .weatherNowSmall .weatherNowSmallData p {
+	font-size: 14px;
+}
+.sepiaFW-cards-list-body .weatherNowDetails ul {
+	background: transparent;
+	list-style: none;
+	margin: 5px 0px 0px 0px;
+	padding: 0px 5px;
+}
+.sepiaFW-cards-list-body .weatherNowDetails li {
+	background: rgba(255, 255, 255, 0.90);
+	margin: 2px 0px 0px 0px;
+	padding: 0px;
+	text-align: center;
+}
+.sepiaFW-cards-list-body .weatherNowDetails li:first-of-type {
+	border-radius: 3px 3px 0 0;
+}
+.sepiaFW-cards-list-body .weatherNowDetails li:last-of-type {
+	border-radius: 0 0 3px 3px;
+}
+.sepiaFW-cards-list-body .weatherNowDetails li div {
+	display: inline-block;
+    width: calc(33% - 10px);
+	padding: 5px;
+	margin: 0 5px 0 5px;
+	text-align: center;
+}
+.sepiaFW-cards-list-body .weatherNowDetails li div img.precipSymbol {
+    width: 20px;
+    vertical-align: bottom;
+	-webkit-filter: invert(1);
+    filter: invert(1);
+	margin-right: 5px;
+}
+.sepiaFW-cards-list-body .weatherNowDetails li div span {
+	min-width: 30px;
+    display: inline-block;
+}
+
+/* --- LINK CARDS --- */
+
+.sepiaFW-cards-list-body .linkCard {
+	display: flex;
+}
+.sepiaFW-cards-list-body .linkCard > div {
+	background: rgba(255, 255, 255, 0.90);
+	border-radius: 3px;
+	display: inline-block;
+	vertical-align: top;
+	min-height: 20px;
+}
+.sepiaFW-cards-list-body .linkCard .linkCardLogo {
+	display: flex;
+	flex-direction: column;
+    align-items: center;
+    justify-content: center;
+	border-radius: 3px;
+	min-width: 60px;
+	max-width: 60px;
+	margin: 5px 5px 0px 5px;
+	padding: 5px;
+	user-select: none;
+	cursor: pointer;
+	text-align: center;
+	/*background: transparent;*/
+	color: #fff;
+}
+.sepiaFW-cards-list-body .linkCard .linkCardLogo img{
+	max-width: 50px;
+}
+.sepiaFW-cards-list-body .linkCard .linkCardCenter {
+	display: flex;
+    flex-direction: column;
+	/*width: calc(100% - 80px);*/
+	flex: 1 1 auto;
+	/*max-width: 120px;*/
+	margin: 5px 0px 0px 0px;
+	padding: 0 8px 0 8px;
+	display: flex;
+    align-items: center;
+    justify-content: center;
+	font-size: 14px;
+	text-align: center;
+	cursor: pointer;
+}
+.sepiaFW-cards-list-body .linkCard .linkCardCenter h3 {
+	margin: 5px 0 0 0;
+}
+.sepiaFW-cards-list-body .linkCard .linkCardRight {
+	display: flex;
+    align-items: center;
+    justify-content: center;
+	max-width: 50px;
+	min-width: 50px;
+	margin: 5px 5px 0px 5px;
+	user-select: none;
+	cursor: pointer;
+}
+.sepiaFW-cards-list-body .linkCard .linkCardRight a {
+	color: inherit;
+	text-decoration: none;
+}

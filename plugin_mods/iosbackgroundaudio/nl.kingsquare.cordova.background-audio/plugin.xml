@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plugin xmlns="http://apache.org/cordova/ns/plugins/1.0"
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	id="nl.kingsquare.cordova.background-audio"
+	version="1.0.1">
+
+	<name>background-audio</name>
+
+	<description>
+		Background Audio for iOS
+
+		When included within a cordova/phonegap build then the application will support background audio for iOS
+		out of the box. No further action is necessary.
+
+		This negates having to use location/other solutions that may not be accepted by Apple.
+	</description>
+
+	<keywords>background-audio,background,audio,media,ios</keywords>
+
+	<license>MIT</license>
+
+	<author>source@kingsquare.nl</author>
+
+	<repo>https://github.com/AubreyHewes/cordova-background-audio.git</repo>
+	<issue>https://github.com/AubreyHewes/cordova-background-audio/issues</issue>
+
+	<engines>
+		<engine name="cordova" version=">=3.0.0" />
+	</engines>
+
+	 <!-- ios -->
+	 <platform name="ios">
+
+		 <config-file target="config.xml" parent="/*">
+			 <feature name="BackgroundAudio">
+				 <param name="ios-package" value="BackgroundAudio" onload="true" />
+				 <param name="onload" value="true" />
+			 </feature>
+		 </config-file>
+
+		 <!-- The app is able to run in background through audio background mode -->
+		 <config-file target="*-Info.plist" parent="UIBackgroundModes">
+			 <array>
+				 <string>audio</string>
+			 </array>
+		 </config-file>
+
+		 <source-file src="src/ios/BackgroundAudio.m" />
+
+	 </platform>
+
+</plugin>

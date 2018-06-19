@@ -1,0 +1,77 @@
+<div id='sepiaFW-frame-carousel' class="sepiaFW-inner-container sepiaFW-carousel">
+	<div class='sepiaFW-carousel-pane-container'>
+		<!-- Page 1 -->
+		<div id="sepiaFW-frame-page-1" class='sepiaFW-frames-page sepiaFW-carousel-pane'>
+			<h3>Tutorial - Controls 1 of 3</h3>
+			<p>
+			Welcome to the S.E.P.I.A. app for browser, iOS and Android! :-)
+			In this little tutorial you will learn the basics to get started with your personal assistant.
+			</p>
+			Here is an overview of the controls:
+			<div style="width:100%; text-align:center;">
+				<img src="img/tutorial/controls.png" alt="SEPIA basic controls" style="max-width:75%;">
+			</div>
+			<p>
+			If you want to ask S.E.P.I.A. a question just press the mic or type in the chat field, send and wait for your answer.
+			<p style="display: block; text-align: right;">
+				<span data-proceed-btn>Proceed to <b>next page</b></span>
+			</p>
+		</div>
+		<!-- Page 2 -->
+		<div id="sepiaFW-frame-page-2" class='sepiaFW-frames-page sepiaFW-carousel-pane'>
+			<h3>Tutorial - Controls 2 of 3</h3>
+			<p>
+			When you start S.E.P.I.A. you usually end up in your start-screen (sometimes called 'my-view').
+			This view will show you personal info like upcoming reminders or recommendations based on the time of day.
+			You can fill this screen with results you get from from chatting with S.E.P.I.A. (more about this later).
+			</p>
+			<div style="width:100%; text-align:center;">
+				<img src="img/tutorial/swipe-views.png" alt="SEPIA swipe control" style="max-width:40%;">
+			</div>
+			<p>
+			There are 2 more main views to interact with S.E.P.I.A., the chat view and the results view. 
+			You can reach them with the control on the top or by swiping from the edges of the screen (similar to iOS safari navigation).
+			</p>
+			<p style="display: block; text-align: right;">
+				<span data-proceed-btn>Proceed to <b>next page</b></span>
+			</p>
+		</div>
+		<!-- Page 3 -->
+		<div id="sepiaFW-frame-page-3" class='sepiaFW-frames-page sepiaFW-carousel-pane'>
+			<h3>Tutorial - Controls 3 of 3</h3>
+			<p>
+			Here you can see a typical chat with S.E.P.I.A.:
+			</p><br>
+			<div style="width:100%; text-align:center;">
+				<img src="img/tutorial/chat-sample.png" alt="SEPIA swipe control" style="max-width:75%; border:1px solid black; padding:8px;">
+			</div><br>
+			<p>
+			Some answers will be given as 'cards' directly inside the chat. If the results are bigger like a news overview they will instead be shown inside the extra results view.
+			As noted in the screenshot some of the cards (just try them ^^) can be added to your personal start-screen by pressing the icon.
+			</p>
+		</div>
+	</div>
+</div>
+<div id="sepiaFW-frames-nav-bar" class='sepiaFW-layer-header'>
+	<button id="sepiaFW-frames-close" class='entry'>
+		<i class="material-icons md-btn2">&#xE5CD;</i>
+	</button>
+	<button id="sepiaFW-frames-show-prev-page" class='entry'>
+		<i class="material-icons md-btn2">keyboard_arrow_left</i><span data-localize="back">back</span>
+	</button>
+	<button id="sepiaFW-frames-show-next-page" class='entry'>
+		<span data-localize="next">next</span><i class="material-icons md-btn2">keyboard_arrow_right</i>
+	</button>
+	<div id="sepiaFW-frames-nav-bar-page-indicator"><div>&nbsp;</div><div>&nbsp;</div><div>&nbsp;</div></div>
+</div>
+<script>
+	$('[data-localize]').each(function(){
+		$(this).html(SepiaFW.local.g(this.dataset.localize));
+	});
+	$('[data-proceed-btn]').each(function(){
+		$(this).css({"cursor":"pointer"});
+		$(this).off().on('click', function(){
+			SepiaFW.frames.uic.next();
+		});
+	});	
+</script>

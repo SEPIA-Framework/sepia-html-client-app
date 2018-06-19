@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+	<!-- web app settings -->
+	<meta name="apple-mobile-web-app-capable" content="yes">
+	<meta name="mobile-web-app-capable" content="yes">
+	<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=0">
+	<title>S.E.P.I.A.</title>
+	<meta name="application-name" content="S.E.P.I.A."/>
+	<meta name="apple-mobile-web-app-title" content="S.E.P.I.A.">
+	<meta name="description" content="S.E.P.I.A. is an app and framework for your own server-based, extendable, private, intelligent assistant.">
+	<meta name="theme-color" content="#000">
+	<link rel="icon" sizes="192x192" href="img/icon.png">
+	<link rel="apple-touch-icon" href="img/icon.png">
+	<meta property="og:image" content="img/icon.png"/>
+	<!-- imports -->
+	<!--<link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">-->
+	<!-- <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,600" rel="stylesheet"> -->
+    <link rel="stylesheet" href="css/sepiaFW-style.css" title='main'>
+	<!-- FOR MORE STYLESHEETS SEE END-OF-BODY -->
+	<!--<script src="https://code.jquery.com/jquery-3.1.1.min.js" integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8=" crossorigin="anonymous"></script>-->
+	<script src="scripts/sepiaFW.app.js"></script>
+	<script src="scripts/sepiaFW.local.js"></script>
+	<!-- FOR MORE JS SEE END-OF-BODY -->
+	<script type="application/ld+json">
+	{
+		"@context": "http://schema.org",
+		"@type": "WebSite",
+		"url": "http://www.b07z.net/",
+		"potentialAction": {
+			"@type": "SearchAction",
+			"target": "http://www.b07z.net?q={search_term}",
+			"query-input": "required name=search_term"
+		}
+	}
+	</script>
+</head>
+<body>
+	<!-- Login -->
+	<div id="sepiaFW-login-box" class="sepiaFW-translucent-10">
+		<div id="sepiaFW-language-selector"></div>
+		<h2><!--Welcome--><script>SepiaFW.local.w('welcome')</script></h2>
+		<div id="sepiaFW-login-form" style="display: none">
+			<input id="sepiaFW-login-id" type="email" placeholder="Username" aria-label="Username">
+			<input id="sepiaFW-login-pwd" type="password" placeholder="Password" aria-label="Password">
+			<button id="sepiaFW-login-send"><script>SepiaFW.local.w('sendLogin')</script></button><br>
+			<button id="sepiaFW-login-close"><script>SepiaFW.local.w('closeLogin')</script></button><br>
+		</div>
+		<div id="sepiaFW-login-wait">
+			<button><script>SepiaFW.local.w('connecting')</script></button>
+		</div>
+		<p id="sepiaFW-login-status"><br></p>
+	</div>
+	<!-- iOS minimal UI scroll area --><!--<div id="sepiaFW-minimal-ui-sa" style="min-height:100px; background-color:#000; color:#fff;">Scroll to hide</div>-->
+	<!-- Main -->
+	<div id="sepiaFW-main-window" class="sepiaFW-translucent-10">
+		<!-- Menues -->
+		<div id="sepiaFW-chat-menu" class="sepiaFW-menu" style="display:none;"><!-- Dynamic content --></div>
+		<div id="sepiaFW-chat-channel-view" class="sepiaFW-menu" style="display:none;">
+			<div class="left">
+				<h2>Channels</h2>
+				<ul id="sepiaFW-chat-channellist"><!-- Dynamic content --></ul>
+			</div>
+			<div class="right">
+				<h2>Active users</h2>
+				<ul id="sepiaFW-chat-userlist"><!-- Dynamic content --></ul>
+			</div>
+			<div id="sepiaFW-chat-channel-controls">
+				<input id="sepiaFW-custom-channel-input" placeholder="Add channel" aria-label="CustomChannel">
+				<button id="sepiaFW-custom-channel-connect">+</button>
+			</div>
+		</div>
+		<ul id="sepiaFW-chat-controls-more-menu" class="sepiaFW-menu">
+			<div id='sepiaFW-audio-ctrls'>
+				<div id='sepiaFW-audio-ctrls-title-container'>
+					<div id='sepiaFW-audio-ctrls-title'>SepiaFW audio player</div>
+					<canvas id='sepiaFW-audio-ctrls-canvas'></canvas>
+				</div>
+				<button id='sepiaFW-audio-ctrls-voldown'><i class="material-icons md-24">&#xE04D;</i><div id="sepiaFW-audio-ctrls-vol">10</div></button>
+				<button id='sepiaFW-audio-ctrls-volup'><i class="material-icons md-24">&#xE050;</i></button>
+				<button id='sepiaFW-audio-ctrls-start'><i class="material-icons md-24">&#xE037;</i></button>
+				<button id='sepiaFW-audio-ctrls-stop'><i class="material-icons md-24">&#xE034;</i></button>
+			</div>
+			<div id="sepiaFW-more-menu-shortcuts">
+				<button id='sepiaFW-shortcut-btn-shop'><i class="material-icons md-24">&#xE8CC;</i></button>
+				<button id='sepiaFW-shortcut-btn-todo'><i class="material-icons md-24">&#xE85D;</i></button>
+				<button id='sepiaFW-shortcut-btn-radio'><i class="material-icons md-24">&#xE03E;</i></button>
+				<button id='sepiaFW-shortcut-btn-alarm'><i class="material-icons md-24">&#xE855;</i></button>
+				<button id='sepiaFW-shortcut-btn-weather'><i class="material-icons md-24">&#xE430;</i></button>
+				<button id='sepiaFW-shortcut-btn-news'><i class="material-icons md-24">&#xE8B0;</i></button>
+				<button id='sepiaFW-shortcut-btn-myEvents'><i class="material-icons md-24">&#xE55A;</i></button>
+				<button id='sepiaFW-shortcut-btn-inAppBrowser'><i class="material-icons md-24">&#xE894;</i></button>
+			</div>
+			<li id='sepiaFW-history-btn'><script>SepiaFW.local.w('clearHistory')</script>&nbsp;<i class="material-icons md-txt">&#xE889;</i></li>
+			<li id='sepiaFW-saythis-btn'>Saythis&nbsp;<i class="material-icons md-txt">&#xE050;</i></li>
+			<li id='sepiaFW-teachUI-open'>Teach&nbsp;<i class="material-icons md-txt">&#xE87B;</i></li>
+			<li id='sepiaFW-fullsize-btn' style="display:inline-block;width:49%;text-align:left;"><i class="material-icons md-txt">&#xE56B;</i>&nbsp;Screen</li>
+			<li id='sepiaFW-back-btn' style="display:inline-block;width:49%;"><script>SepiaFW.local.w('back')</script>&nbsp;<i class="material-icons md-txt">&#xE408;</i></li>
+		</ul>
+		<!-- Nav-Bar -->
+		<div id="sepiaFW-nav-bar">
+			<button id="sepiaFW-nav-menu-btn"><i class="material-icons md-btn2">&#xE5D2;</i></button>
+			<button id="sepiaFW-nav-menu-go-left">•</button>
+			<div id="sepiaFW-nav-label-box">
+				<div id="sepiaFW-nav-label">S.E.P.I.A.</div><span id='sepiaFW-nav-label-note' style='display:none;'>...</span>
+				<div id="sepiaFW-nav-label-online-status">offline</div>
+			</div>
+			<button id="sepiaFW-nav-menu-go-right">•</button>
+			<button id="sepiaFW-nav-users-btn"><i class="material-icons md-btn2">&#xE7FB;</i></button>
+			<div id="sepiaFW-nav-bar-page-indicator"><div>&nbsp;</div><div>&nbsp;</div><div>&nbsp;</div></div>
+		</div>
+		<!-- Output views -->
+		<div id='sepiaFW-main-output-carousel' class="sepiaFW-inner-container sepiaFW-carousel">
+			<div class='sepiaFW-carousel-pane-container'>
+				<div id="sepiaFW-my-view" class='sepiaFW-carousel-pane sepiaFW-results-container'><!-- dynamic content --><h2 id='sepiaFW-my-view-intro'>My view</h2></div>
+				<div id="sepiaFW-chat-output-container" class='sepiaFW-inner-container sepiaFW-carousel-pane'>
+					<div id="sepiaFW-chat-output"><!-- dynamic content --></div>
+				</div>
+				<div id="sepiaFW-result-view" class='sepiaFW-carousel-pane sepiaFW-results-container'><!-- dynamic content --><h2>Big results view</h2></div>
+			</div>
+		</div>
+		<!-- Controls -->
+		<div id="sepiaFW-chat-controls">
+			<div id="sepiaFW-chat-controls-right">
+				<button id="sepiaFW-chat-controls-more-btn" class="eButton extraMarginToBo"><i class="material-icons md-btn">&#xE5D4;</i></button>
+			</div>
+			<div id="sepiaFW-assist-btn-area">
+				<button id="sepiaFW-assist-btn"><i class="material-icons md-mic">&#xE029;</i></button>
+				<div id="sepiaFW-assist-btn-orbiters" class="sepiaFW-animation-rotate1 sepiaFW-animation-pause"><div id="sepiaFW-assist-btn-orbiter1"></div></div>
+			</div>
+			<div id="sepiaFW-chat-controls-form">
+				<button id="sepiaFW-chat-send" class="sButton"><i class="material-icons md-btn">&#xE163;</i></button>
+				<input id="sepiaFW-chat-input" placeholder="" aria-label="Message">
+				<div id="sepiaFW-chat-controls-swipe-area">
+					<div id="sepiaFW-swipeBar-chat-controls" class='sepiaFW-swipeBar-switchable'><span>TOUCH-BAR</span></div>
+					<div id="sepiaFW-swipeBar-menu-controls" class='sepiaFW-swipeBar-switchable'><span>MENUE-BAR</span></div>
+				</div>
+			</div>
+		</div>
+		<div id="sepiaFW-chat-controls-speech-box" style="display:none;">
+			<div id="sepiaFW-chat-controls-speech-box-edit"><i class="material-icons md-24">&#xE14C;</i></div><!-- &#xE3C9; -->
+			<div id="sepiaFW-chat-controls-speech-box-bubble"></div>
+			<div id="sepiaFW-chat-controls-speech-box-finish"><i class="material-icons md-24">&#xE409;</i></div><!-- &#xE163; -->
+		</div>
+		<!-- TeachUI layer -->
+		<div id="sepiaFW-teachUI-view" class="sepiaFW-top-layer-view" style="display: none;">
+		</div>
+		<!-- Content frames layer -->
+		<div id="sepiaFW-frames-view" class="sepiaFW-top-layer-view" style="display: none;">
+		</div>
+		<!-- message popup -->
+		<div id='sepiaFW-cover-layer'></div>
+		<div id='sepiaFW-popup-message'>
+			<div id='sepiaFW-popup-message-content'></div>
+			<button id='sepiaFW-popup-message-btn-one'>OK</button>
+			<button id='sepiaFW-popup-message-btn-two'>ABORT</button>
+			<button id='sepiaFW-popup-message-btn-three'>RETRY</button>
+			<button id='sepiaFW-popup-message-btn-four'>IGNORE</button>
+		</div>
+	</div>
+	<!-- Swipe bars -->
+	<div id='sepiaFW-swipeBar-container-left' class='sepiaFW-swipeBar-container'>
+		<div id='sepiaFW-swipeBar-chat-left' class='sepiaFW-swipeBar-switchable'></div>
+		<div id='sepiaFW-swipeBar-menu-left' class='sepiaFW-swipeBar-switchable'></div>
+		<div id='sepiaFW-swipeBar-teach-left' class='sepiaFW-swipeBar-switchable'></div>
+		<div id='sepiaFW-swipeBar-frames-left' class='sepiaFW-swipeBar-switchable'></div>
+	</div>
+	<div id='sepiaFW-swipeBar-container-right' class='sepiaFW-swipeBar-container'>
+		<div id='sepiaFW-swipeBar-chat-right' class='sepiaFW-swipeBar-switchable'></div>
+		<div id='sepiaFW-swipeBar-menu-right' class='sepiaFW-swipeBar-switchable'></div>
+		<div id='sepiaFW-swipeBar-teach-right' class='sepiaFW-swipeBar-switchable'></div>
+		<div id='sepiaFW-swipeBar-frames-right' class='sepiaFW-swipeBar-switchable'></div>
+	</div>
+	<!-- top and bottom swipe bars are usually in conflict with OS
+	<div id="sepiaFW-swipeBar-container-top" class='sepiaFW-swipeBar-container'></div>
+	<div id="sepiaFW-swipeBar-container-bottom" class='sepiaFW-swipeBar-container'></div>
+	-->
+	<!-- Overlay elements -->
+	<div id='sepiaFW-overlay-elements'>
+		<!-- color refs -->
+		<div id='sepiaFW-colorRefBox'>
+			<b id='sepiaFW-pC'></b><b id='sepiaFW-sC'></b><b id='sepiaFW-sC2'></b><b id='sepiaFW-aC'></b><b id='sepiaFW-aC2'></b><b id='sepiaFW-asC'></b><b id='sepiaFW-adC'></b><b id='sepiaFW-lC'></b>
+		</div>
+		<!-- press indicators -->
+		<div id='sepiaFW-long-press-indicator-div' class='sepiaFW-long-press-indicator'></div>
+		<!-- loader -->
+		<div id='sepiaFW-loader'></div>
+	</div>
+	<!-- Audio players (invisible) -->
+	<div id='sepiaFW-audio-players-box'>
+		<audio id="sepiaFW-audio-player" src="sounds/empty.mp3" controls="controls" title="SepiaFW Sound"></audio>
+		<audio id="sepiaFW-audio-player2" src="sounds/empty.mp3" controls="controls" title="SepiaFW Sound2"></audio>
+		<audio id="sepiaFW-audio-speaker" src="sounds/empty.mp3" controls="controls" title="SepiaFW TTS"></audio>
+	</div>
+<!-- LOW PRIO STYLESHEETS -->
+<link rel="stylesheet" href="css/googleMaterialIcons.css">
+<link rel="stylesheet" href="css/sepiaFW-cards.css">
+<link rel="stylesheet" href="css/sepiaFW-teachUI.css">
+<link rel="stylesheet" href="css/sepiaFW-frames.css">
+<link rel="stylesheet alternate" href="css/sepiaFW-skin-neo-sepia.css" class='sepiaFW-style-skin' title='main' data-name='NeoSepia'> 	<!-- main -->
+<link rel="stylesheet alternate" href="css/sepiaFW-skin-neo-sepia-dark.css" class='sepiaFW-style-skin' title='' data-name='NeoSepiaDark'>
+<link rel="stylesheet alternate" href="css/sepiaFW-skin-legacy.css" class='sepiaFW-style-skin' title='' data-name='Legacy'> 			<!-- no skin -->
+<link rel="stylesheet alternate" href="css/sepiaFW-skin-dark-sepia.css" class='sepiaFW-style-skin' title='' data-name='LegacyDark'>
+<link rel="stylesheet alternate" href="css/sepiaFW-skin-bytemind.css" class='sepiaFW-style-skin' title='' data-name='ByteMind'>
+<link rel="stylesheet alternate" href="css/sepiaFW-skin-street.css" class='sepiaFW-style-skin' title='' data-name='Street'>
+<link rel="stylesheet alternate" href="css/sepiaFW-skin-sakura.css" class='sepiaFW-style-skin' title='' data-name='Sakura'>
+<link rel="stylesheet alternate" href="css/sepiaFW-skin-9to5.css" class='sepiaFW-style-skin' title='' data-name='9to5'>
+<link rel="stylesheet alternate" href="css/sepiaFW-skin-autum.css" class='sepiaFW-style-skin' title='' data-name='Autum'>
+<link rel="stylesheet alternate" href="css/sepiaFW-skin-nippon.css" class='sepiaFW-style-skin' title='' data-name='Nippon'>
+<link rel="stylesheet alternate" href="css/sepiaFW-skin-poppy.css" class='sepiaFW-style-skin' title='' data-name='Poppy'>
+<link rel="stylesheet alternate" href="css/sepiaFW-skin-os1.css" class='sepiaFW-style-skin' title='' data-name='OrangeStyle1'>
+<link rel="stylesheet alternate" href="css/sepiaFW-skin-myMessage.css" class='sepiaFW-style-skin' title='' data-name='MyMessage'>
+<link rel="stylesheet alternate" href="css/sepiaFW-skin-uplink.css" class='sepiaFW-style-skin' title='' data-name='UpLink'>
+<link rel="stylesheet alternate" href="css/sepiaFW-skin-pizza.css" class='sepiaFW-style-skin' title='' data-name='Tasty'>
+<link rel="stylesheet alternate" href="css/sepiaFW-skin-grid.css" class='sepiaFW-style-skin' title='' data-name='TheGrid'>
+<link rel="stylesheet alternate" href="css/sepiaFW-skin-canny.css" class='sepiaFW-style-skin' title='' data-name='Canny'>
+<!-- START JS -->
+<script src="scripts/jquery-3.1.1.min.js"></script>
+<script src="scripts/sjcl.js"></script>
+<script src="scripts/recorder.js"></script>
+<script src="scripts/hammer.min.js"></script>
+<script src="scripts/hammer-time.min.js"></script>
+<script src="scripts/sepiaFW.ui.js"></script>
+<script src="scripts/sepiaFW.ui.build.js"></script>
+<script src="scripts/sepiaFW.ui.animate.js"></script>
+<script src="scripts/sepiaFW.ui.notify.js"></script>
+<script src="scripts/sepiaFW.ui.carousel.js"></script>
+<script src="scripts/sepiaFW.ui.events.js"></script>
+<script src="scripts/sepiaFW.ui.actions.js"></script>
+<script src="scripts/sepiaFW.ui.cards.js"></script>
+<script src="scripts/sepiaFW.account.js"></script>
+<script src="scripts/sepiaFW.assistant.js"></script>
+<script src="scripts/sepiaFW.geocoder.js"></script>
+<script src="scripts/sepiaFW.audio.js"></script>
+<script src="scripts/sepiaFW.speechWebSocket.js"></script>
+<script src="scripts/sepiaFW.speech.js"></script>
+<script src="scripts/sepiaFW.webSocket.js"></script>
+<script src="scripts/sepiaFW.frames.js"></script>
+<script src="scripts/sepiaFW.teach.js"></script>
+<script src="scripts/sepiaFW.offline.js"></script>
+<script type="text/javascript">
+
+	//get some settings via URL parameters
+	var isCordova = SepiaFW.tools.getURLParameter('cordova') + '';
+	var isTest = SepiaFW.tools.getURLParameter('isTest');
+	
+	//define app setup (called either here (index.html) or in cordova device-ready (index.js)
+	function appSetup(){
+		//prepare plugins
+		SepiaFW.buildSepiaFwPlugins();
+	
+		//set enpoints
+		var config = new Object();
+		SepiaFW.config.host = SepiaFW.data.getPermanent("host-name") || "localhost";	//or e.g. "my-server.example.org/sepia"
+		//try to load host, e.g.:
+		//- "localhost" (direct links),
+		//- "192.168.0.99" or "api.example.com" (direct links),
+		//- "192.168.0.99/sepia" or "api.example.com/sepia" (with "/sepia" path -> proxy links)
+		
+		//test or localhost config
+		if (isTest || (SepiaFW.config.host && SepiaFW.config.host == "localhost")){
+			config.assistAPI = "http://" + "localhost" + ":20721/";
+			config.teachAPI = "http://" + "localhost" + ":20722/";
+			config.webSocketURI = "ws://" + "localhost" + ":20723/messages/";
+			config.webSocketAPI = "http://" + "localhost" + ":20723/";
+		//link to server with direct access to APIs (no SSL)
+		}else if (SepiaFW.config.host && !SepiaFW.tools.endsWith(SepiaFW.config.host, "/sepia")){
+			config.assistAPI = "http://" + SepiaFW.config.host + ":20721/";
+			config.teachAPI = "http://" + SepiaFW.config.host + ":20722/";
+			config.webSocketURI = "ws://" + SepiaFW.config.host + ":20723/messages/";
+			config.webSocketAPI = "http://" + SepiaFW.config.host + ":20723/";
+		//custom server config with proxy (uses SSL)
+		}else{
+			//set default
+			config.assistAPI = "https://" + SepiaFW.config.host + "/assist/";
+			config.teachAPI = "https://" + SepiaFW.config.host + "/teach/";
+			config.webSocketURI = "wss://" + SepiaFW.config.host + "/chat/messages/";
+			config.webSocketAPI = "https://" + SepiaFW.config.host + "/chat/";
+		}
+		SepiaFW.config.setEndPoints(config);
+		
+		//what happens after login?
+		SepiaFW.account.afterLogin = function(){
+			SepiaFW.client.ping(
+				//success
+				function(data){
+					//TODO: startClient is a required method, maybe move it to core and replace it with 'client.onActive'?
+					SepiaFW.client.startClient();
+				},
+				//fail: no connection to chat-server
+				function(data){
+					SepiaFW.ui.showPopup(SepiaFW.local.g('noConnectionToServer'));
+					if (SepiaFW.client){
+						//get offline welcome help anyway
+						SepiaFW.client.welcomeActions(true);
+					}
+				}
+			);
+		}
+		
+		//load UI
+		SepiaFW.ui.setup();
+		
+		//load login
+		SepiaFW.account.setupLoginBox();
+	}
+	
+	//SETUP via browser or cordova
+	if(isCordova === "true"){
+		document.write(unescape(
+			'%3Cscript src="cordova.js"%3E%3C/script%3E'+
+			'%3Cscript src="js/index.js"%3E%3C/script%3E'
+		));
+	}else{
+		appSetup();
+	}
+</script>
+</body>
+</html>

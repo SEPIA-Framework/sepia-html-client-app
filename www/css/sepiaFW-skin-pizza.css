@@ -1,0 +1,131 @@
+html {
+	background-image: url(../img/pizza.png);
+}
+#sepiaFW-main-window {
+	border-color: #E3BB6A;
+}
+
+#sepiaFW-pC 	 { background-color: #E3BB6A; }
+#sepiaFW-sC 	 { background-color: #59372E; }
+#sepiaFW-sC2 { background-color: #F2EAB9; }
+#sepiaFW-aC 	 { background-color: firebrick; }
+#sepiaFW-aC2 { background-color: #019829; }
+#sepiaFW-asC { background-color: #B84648; 	}
+#sepiaFW-adC { background-color: #f3e549;	}
+
+#sepiaFW-login-box, #sepiaFW-nav-bar, #sepiaFW-chat-controls-form, #sepiaFW-chat-controls-right {
+	background: #E3BB6A;
+	color: #fff;
+}
+#sepiaFW-login-box {
+	background: #59372E;
+}
+
+#sepiaFW-main-window button,
+.sepiaFW-touch-device #sepiaFW-main-window button:hover {
+	background: #E3BB6A;
+	color: #59372E;
+}
+.sepiaFW-notouch-device #sepiaFW-main-window button:hover {
+	background: #B84648;
+	color: #fff;
+}
+#sepiaFW-login-box button {
+	background: #B84648;
+	color: #fff;
+}
+#sepiaFW-assist-btn-area {
+	border-color: #B84648;
+}
+
+.sepiaFW-menu {
+	background: #B84648;
+	color: #fff;
+}
+#sepiaFW-chat-menu {
+	background: #59372E;
+	color: #fff;
+}
+#sepiaFW-chat-menu button,
+.sepiaFW-touch-device #sepiaFW-chat-menu button:hover {
+	background: #B84648;
+	color: #fff;
+}
+#sepiaFW-chat-menu button:hover {
+	background: #E3BB6A;
+	color: #fff;
+}
+
+#sepiaFW-myEvents-buttons button,
+#sepiaFW-myEvents-buttons-replaced button,
+.sepiaFW-touch-device #sepiaFW-myEvents-buttons button {
+    background: #B84648;
+	color: #fff;
+}
+#sepiaFW-myEvents-buttons button:hover {
+	background: #f3e549;
+	color: #59372E;
+}
+/*
+#sepiaFW-main-window .chat-buttons-area button,
+.sepiaFW-touch-device #sepiaFW-main-window .chat-buttons-area button {
+	background-color: rgba(235, 235, 255, 0.75);
+	color: #2f3035;
+}
+*/
+
+#sepiaFW-chat-output article {
+    background: #F2EAB9;
+	color: #59372E;
+}
+#sepiaFW-chat-output article.chatMe{
+	background: #59372E;
+	color: #F2EAB9;
+}
+#sepiaFW-chat-output article.chatMe b {
+	color: #fff;
+}
+#sepiaFW-chat-output article.chatMe span {
+	color: #F2EAB9;
+}
+#sepiaFW-chat-output article.chatAssistant {
+	background: #B84648;
+	color: #fff;
+}
+#sepiaFW-chat-output article.chatAssistant b{
+	color: #fff;
+}
+#sepiaFW-chat-output article.chatAssistant.chatPm{
+	border-left-color: #E3BB6A;
+}
+#sepiaFW-chat-output article.chatMe.chatPm{
+	border-left-color: #B84648;
+}
+#sepiaFW-chat-output article.chatOther.chatPm{
+	border-left-color: #59372E;
+}
+
+.sepiaFW-button {
+	background-color: #E3BB6A;
+	color: #B84648;
+}
+.sepiaFW-button:hover {
+	background-color: #B84648;
+	color: #E3BB6A;
+}
+
+#sepiaFW-chat-controls-swipe-area .sepiaFW-swipeBar-switchable {
+	background: #59372E;
+	color: #fff;
+}
+
+/*----- cards ------*/
+
+.sepiaFW-cards-list-title {
+	background: #f3e549;
+	color: #59372E;
+}
+
+.sepiaFW-cards-list-body .weatherNowSmall .weatherNowSmallImage {
+	background: #019829;
+}

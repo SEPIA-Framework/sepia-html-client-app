@@ -1,0 +1,38 @@
+<div id='sepiaFW-frame-carousel' class="sepiaFW-inner-container sepiaFW-carousel">
+	<div class='sepiaFW-carousel-pane-container'>
+		<!-- Page 1 -->
+		<div id="sepiaFW-frame-page-1" class='sepiaFW-frames-page sepiaFW-carousel-pane'>
+			<h3>Credits</h3>
+			<br>
+			<p><u>SEPIA Framework</u></p>
+			<p>Design and programming by Florian Quirin</p>
+			<p><u>JS Libraries</u></p>
+			<a href="https://jquery.com/">jQuery</a><br>
+			<a href="https://hammerjs.github.io/">Hammer.js</a><br>
+			<a href="https://bitwiseshiftleft.github.io/sjcl/" title="Stanford Javascript Crypto Library">SJCL</a><br>
+			<a href="https://github.com/mattdiamond/Recorderjs">Recorder.js</a><br>
+			<p><u>Icons</u></p>
+			<a href="https://material.io/tools/icons">Google Material Design</a><br>
+			<p><u>Sounds</u></p>
+			alarm.mp3 by <a href="https://freesound.org/people/B_Lamerichs/">B_Lamerichs - freesound.org</a><br>
+			coin.mp3 by <a href="https://freesound.org/people/soundnimja/">soundnimja - freesound.org</a><br>
+		</div>
+	</div>
+</div>
+<div id="sepiaFW-frames-nav-bar" class='sepiaFW-layer-header'>
+	<button id="sepiaFW-frames-close" class='entry'>
+		<i class="material-icons md-btn2">&#xE5CD;</i>
+	</button>
+	<button id="sepiaFW-frames-show-prev-page" class='entry'>
+		<i class="material-icons md-btn2">keyboard_arrow_left</i><span data-localize="back">back</span>
+	</button>
+	<button id="sepiaFW-frames-show-next-page" class='entry'>
+		<span data-localize="next">next</span><i class="material-icons md-btn2">keyboard_arrow_right</i>
+	</button>
+	<div id="sepiaFW-frames-nav-bar-page-indicator"><div>&nbsp;</div><div>&nbsp;</div></div>
+</div>
+<script>
+	$('[data-localize]').each(function(){
+		$(this).html(SepiaFW.local.g(this.dataset.localize));
+	});
+</script>
