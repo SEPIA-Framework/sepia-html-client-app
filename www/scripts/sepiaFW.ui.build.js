@@ -373,7 +373,8 @@ function sepiaFW_build_ui_build(){
 					+ "<li class='button' id='sepiaFW-menu-btn-general'><span>" + SepiaFW.local.g('general') + "</span><i class='material-icons md-mnu'>&#xE038;</i></li>"
 					+ "<li class='button' id='sepiaFW-menu-btn-account'><span>" + SepiaFW.local.g('account') + "</span><i class='material-icons md-mnu'>&#xE038;</i></li>"
 					+ "<li class='button' id='sepiaFW-menu-btn-addresses'><span>" + SepiaFW.local.g('addresses') + "</span><i class='material-icons md-mnu'>&#xE038;</i></li>"
-					+ "<li class='button' id='sepiaFW-menu-btn-logout'><span>" + SepiaFW.local.g('sign_out') + "</span><i class='material-icons md-mnu'>&#xE038;</i></li>"
+					+ "<li class='button' id='sepiaFW-menu-btn-tutorial'><span>" + SepiaFW.local.g('tutorial') + "</span><i class='material-icons md-mnu'>school</i></li>"
+					+ "<li class='button' id='sepiaFW-menu-btn-logout'><span>" + SepiaFW.local.g('sign_out') + "</span><i class='material-icons md-mnu'>person_outline</i></li>"
 				+ "</ul>";
 			centerCarouselPane.appendChild(centerPage1);
 			var centerPage2 = document.createElement('DIV');
@@ -467,6 +468,18 @@ function sepiaFW_build_ui_build(){
 					SepiaFW.ui.soc.showPane(SepiaFW.ui.MENU_ADDRESSES_PANE_NBR);
 				}
 			});
+			//Sign out button
+			var logoutBtn = document.getElementById("sepiaFW-menu-btn-logout");
+			logoutBtn.addEventListener("click", function(){
+				SepiaFW.account.logoutAction();
+			});
+			//Tutorial button
+			var tutorialBtn = document.getElementById("sepiaFW-menu-btn-tutorial");
+			tutorialBtn.addEventListener("click", function(){
+				//SepiaFW.ui.closeAllMenus();
+				SepiaFW.frames.open({pageUrl: "tutorial.html"});
+			});
+			
 			//add skins
 			var skins = $('.sepiaFW-style-skin');
 			skins.each(function(i, obj) {
@@ -478,11 +491,6 @@ function sepiaFW_build_ui_build(){
 			$('#sepiaFW-menu-select-skin').off();
 			$('#sepiaFW-menu-select-skin').on('change', function() {
 				SepiaFW.ui.setSkin($('#sepiaFW-menu-select-skin').val());
-			});
-			//Sign out button
-			var logoutBtn = document.getElementById("sepiaFW-menu-btn-logout");
-			logoutBtn.addEventListener("click", function(){
-				SepiaFW.account.logoutAction();
 			});
 			//Host name
 			var hostNameInput = document.getElementById("sepiaFW-menu-assistant-host");

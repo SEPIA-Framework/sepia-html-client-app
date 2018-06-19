@@ -57,4 +57,5 @@ xcopy "resources\themes\android\background_splash.xml" "platforms\android\res\dr
 xcopy "resources\themes\android\launch_screen.png" "platforms\android\res\drawable" |more
 xcopy "resources\themes\android\styles.xml" "platforms\android\res\values" |more
 echo "#DONE"
+echo "If everything worked out fine the next step would be to build the app from the %APP_NAME% folder: cordova build android"
 pause

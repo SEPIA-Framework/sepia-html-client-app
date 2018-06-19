@@ -396,6 +396,7 @@ function sepiaFW_build_webSocket_client(){
 			if (SepiaFW.account.getUserId()){
 				actionsArray.push({type: "button_custom_fun", title: SepiaFW.local.g('dontShowAgain'), fun: function(){
 					SepiaFW.account.setClientFirstVisit(false);
+					$('#sepiaFW-myFirstStart-buttons').closest('.chatMsg').fadeOut(300);
 				}});
 			}
 			publishMyViewActions(actionsArray, sender, options);
