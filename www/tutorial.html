@@ -2,7 +2,7 @@
 	<div class='sepiaFW-carousel-pane-container'>
 		<!-- Page 1 -->
 		<div id="sepiaFW-frame-page-1" class='sepiaFW-frames-page sepiaFW-carousel-pane'>
-			<h3>Tutorial - Controls 1 of 3</h3>
+			<h3>Tutorial - Page 1 of 3</h3>
 			<p>
 			Welcome to the S.E.P.I.A. app for browser, iOS and Android! :-)
 			In this little tutorial you will learn the basics to get started with your personal assistant.
@@ -19,7 +19,7 @@
 		</div>
 		<!-- Page 2 -->
 		<div id="sepiaFW-frame-page-2" class='sepiaFW-frames-page sepiaFW-carousel-pane'>
-			<h3>Tutorial - Controls 2 of 3</h3>
+			<h3>Tutorial - Page 2 of 3</h3>
 			<p>
 			When you start S.E.P.I.A. you usually end up in your start-screen (sometimes called 'my-view').
 			This view will show you personal info like upcoming reminders or recommendations based on the time of day.
@@ -38,7 +38,7 @@
 		</div>
 		<!-- Page 3 -->
 		<div id="sepiaFW-frame-page-3" class='sepiaFW-frames-page sepiaFW-carousel-pane'>
-			<h3>Tutorial - Controls 3 of 3</h3>
+			<h3>Tutorial - Page 3 of 3</h3>
 			<p>
 			Here you can see a typical chat with S.E.P.I.A.:
 			</p><br>
@@ -47,7 +47,19 @@
 			</div><br>
 			<p>
 			Some answers will be given as 'cards' directly inside the chat. If the results are bigger like a news overview they will instead be shown inside the extra results view.
-			As noted in the screenshot some of the cards (just try them ^^) can be added to your personal start-screen by pressing the icon.
+			As noted in the screen-shot some of the cards (just try them ^^) can be added to your personal start-screen by pressing the icon.
+			</p>
+			<p><u>Final steps:</u></p>
+			<p>If you are using the browser-version <b>please allow microphone access, pop-ups and notifications</b> to ensure everything is working as intended.
+			</p><p style="display: flex; justify-content: center;">
+				<button id="tutorial-test-mic">Test Mic</button>
+				<button id="tutorial-test-note">Test Note</button>
+				<button id="tutorial-test-popup">Test Pop-Up</button>
+			</p>
+			<p>
+			Before you log-in make sure you are using the <b>correct SEPIA server</b>. Go to:<br>
+			</p><p style="display: flex; justify-content: center;">
+				<span style="border:1px solid; padding:4px;">Menu &#8594; Page 2 &#8594; Host name</span>
 			</p>
 		</div>
 	</div>
@@ -73,5 +85,26 @@
 		$(this).off().on('click', function(){
 			SepiaFW.frames.uic.next();
 		});
-	});	
+	});
+	$('#tutorial-test-mic').off().on('click', function(){
+		if (SepiaFW.speech){
+			SepiaFW.speech.toggleRecognition(
+				function(msg){ SepiaFW.ui.showPopup('You said: <br>' + msg) }, 
+				function(msg){ /*interrim result*/ }, 
+				function(msg){ SepiaFW.ui.showPopup('Seems it did not work: <br>' + msg) }
+			);
+		}
+	});
+	$('#tutorial-test-note').off().on('click', function(){
+		//simulate 'untrusted' event
+		$.get('credits.html', function(){
+			if (SepiaFW.events) SepiaFW.events.showSimpleSilentNotification("S.E.P.I.A. says:", "Hello World", {});
+		});
+	});
+	$('#tutorial-test-popup').off().on('click', function(){
+		//simulate 'untrusted' event
+		$.get('credits.html', function(){
+			if (SepiaFW.ui.actions) SepiaFW.ui.actions.openUrlAutoTarget("https://sepia-framework.github.io", true);
+		});
+	});
 </script>

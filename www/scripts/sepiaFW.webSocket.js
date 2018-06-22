@@ -387,9 +387,10 @@ function sepiaFW_build_webSocket_client(){
 			}
 			var actionsArray = [];
 			actionsArray.push({type: "fist_visit_info_start"});
-			actionsArray.push(SepiaFW.offline.getFrameViewButtonAction("license.html", SepiaFW.local.g("license")));
 			actionsArray.push(SepiaFW.offline.getFrameViewButtonAction("tutorial.html", SepiaFW.local.g("tutorial")));
-			actionsArray.push(SepiaFW.offline.getUrlButtonAction("https://github.com/SEPIA-Framework/sepia-docs/wiki", "S.E.P.I.A. Wiki"));
+			actionsArray.push(SepiaFW.offline.getUrlButtonAction("https://github.com/SEPIA-Framework/sepia-docs", "S.E.P.I.A. Docs"));
+			actionsArray.push(SepiaFW.offline.getUrlButtonAction(SepiaFW.config.clientLicenseUrl, SepiaFW.local.g("license")));
+			actionsArray.push(SepiaFW.offline.getUrlButtonAction(SepiaFW.config.privacyPolicyUrl + "?host=" + encodeURI(SepiaFW.config.host), SepiaFW.local.g("data_privacy")));
 			if (!onlyOffline){
 				actionsArray.push(SepiaFW.offline.getHelpButtonAction()); 		//TODO: this will only onActive
 			}

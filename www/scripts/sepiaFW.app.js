@@ -115,8 +115,8 @@ function sepiaFW_build_config(){
 	//set client info
 	Config.setClientInfo = function(clientInfo){
 		Config.clientInfo = clientInfo;
+		SepiaFW.debug.log('Config: clientInfo=' + Config.clientInfo);
 	}
-	SepiaFW.debug.log('Config: clientInfo=' + Config.clientInfo);
 	
 	//language
 	var lang = SepiaFW.tools.getURLParameter("lang") || SepiaFW.data.get('app-language') || navigator.language || navigator.userLanguage;
@@ -145,6 +145,10 @@ function sepiaFW_build_config(){
 		if (apiURLs.webSocketURI) Config.webSocketURI = apiURLs.webSocketURI;
 		if (apiURLs.webSocketAPI) Config.webSocketAPI = apiURLs.webSocketAPI;
 	}
+	
+	//set policy and license links
+	Config.privacyPolicyUrl = "https://sepia-framework.github.io/privacy-policy.html";
+	Config.clientLicenseUrl = "license.html";
 	
 	//add everything here that needs to be refreshed after host change
 	Config.broadcastHostName = function(hostName){

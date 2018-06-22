@@ -696,23 +696,19 @@ function sepiaFW_build_ui_build(){
 			//Data privacy
 			document.getElementById("sepiaFW-menu-ui-dataprivacy-btn").addEventListener("click", function(){
 				SepiaFW.ui.closeAllMenus();
-				SepiaFW.frames.open({
-					pageUrl: "data-policy.html"
-				});
+				//SepiaFW.frames.open({ pageUrl: "data-policy.html" });
+				SepiaFW.ui.actions.openUrlAutoTarget(SepiaFW.config.privacyPolicyUrl + "?host=" + encodeURI(SepiaFW.config.host));
 			});
 			//License
 			document.getElementById("sepiaFW-menu-ui-license-btn").addEventListener("click", function(){
 				SepiaFW.ui.closeAllMenus();
-				SepiaFW.frames.open({
-					pageUrl: "license.html"
-				});
+				//SepiaFW.frames.open({ pageUrl: "license.html" });
+				SepiaFW.ui.actions.openUrlAutoTarget(SepiaFW.config.clientLicenseUrl);
 			});
 			//Credits
 			document.getElementById("sepiaFW-menu-ui-credits-btn").addEventListener("click", function(){
 				SepiaFW.ui.closeAllMenus();
-				SepiaFW.frames.open({
-					pageUrl: "credits.html"
-				});
+				SepiaFW.frames.open({ pageUrl: "credits.html" });
 			});
 			
 			//---FOOT---

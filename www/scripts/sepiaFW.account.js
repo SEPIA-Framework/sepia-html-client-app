@@ -389,37 +389,38 @@ function sepiaFW_build_account(){
 		}
 		
 		//login-button
-		var logSendBtn = document.getElementById("sepiaFW-login-send");
-		if (logSendBtn){
-			$(logSendBtn).off();
-			$(logSendBtn).on("click", function () {
-				sendLoginFromBox();
-			});
-		}
+		var logSendBtn = $("#sepiaFW-login-send").off().on("click", function(){
+			sendLoginFromBox();
+		});
 		//id placeholder
 		var idInput = document.getElementById("sepiaFW-login-id");
 		idInput.placeholder = SepiaFW.local.username;
-		$(idInput).off();
-		$(idInput).on("keypress", function (e) {
+		$(idInput).off().on("keypress", function(e){
 			if (e.keyCode === 13) { sendLoginFromBox(); }
 		});
 		//keypress on pwd
 		var pwdInput = document.getElementById("sepiaFW-login-pwd");
 		pwdInput.placeholder = SepiaFW.local.password;
-		$(pwdInput).off();
-		$(pwdInput).on("keypress", function (e) {
+		$(pwdInput).off().on("keypress", function (e) {
 			if (e.keyCode === 13) { sendLoginFromBox(); }
 		});
 		//close-button
-		var clsBtn = document.getElementById("sepiaFW-login-close");
-		if (clsBtn){
-			$(clsBtn).off();
-			$(clsBtn).on("click", function () {
-				Account.toggleLoginBox();
-				broadcastEnterWithoutLogin();
-				Account.afterLogin();
-			});
-		}
+		var clsBtn = $("#sepiaFW-login-close").off().on("click", function(){
+			Account.toggleLoginBox();
+			broadcastEnterWithoutLogin();
+			Account.afterLogin();
+		});
+		//license
+		var licBtn = $("#sepiaFW-login-license-btn").off().on("click", function(event){
+			event.preventDefault();
+			SepiaFW.ui.actions.openUrlAutoTarget(SepiaFW.config.clientLicenseUrl);
+		});
+		//data privacy policy
+		var policyBtn = $("#sepiaFW-login-policy-btn").off().on("click", function(event){
+			event.preventDefault();
+			var policyUrl = SepiaFW.config.privacyPolicyUrl + "?host=" + encodeURI(SepiaFW.config.host);
+			SepiaFW.ui.actions.openUrlAutoTarget(policyUrl);
+		});
 	}
 	function sendLoginFromBox(){
 		pwdIsToken = false;

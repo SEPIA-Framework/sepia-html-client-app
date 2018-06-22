@@ -1,47 +1,54 @@
-<div id='sepiaFW-frame-carousel' class="sepiaFW-inner-container sepiaFW-carousel">
-	<div class='sepiaFW-carousel-pane-container'>
-		<!-- Page 1 -->
-		<div id="sepiaFW-frame-page-1" class='sepiaFW-frames-page sepiaFW-carousel-pane'>
-			<h3>License</h3>
-			<br>
-			MIT License<br>
-			<br>
-			Copyright (c) 2018 Florian Quirin<br>
-			<br>
-			Permission is hereby granted, free of charge, to any person obtaining a copy
-			of this software and associated documentation files (the "Software"), to deal
-			in the Software without restriction, including without limitation the rights
-			to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-			copies of the Software, and to permit persons to whom the Software is
-			furnished to do so, subject to the following conditions:<br>
-			<br>
-			The above copyright notice and this permission notice shall be included in all
-			copies or substantial portions of the Software.<br>
-			<br>
-			THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-			IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-			FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-			AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-			LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-			OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-			SOFTWARE.
-		</div>
+<!DOCTYPE html>
+<html>
+<head>
+	<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+	<!-- web app settings -->
+	<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=0">
+	<!-- Title, icons and colors -->
+	<title>SEPIA Client License</title>
+	<meta name="application-name" content="SEPIA Client License"/>
+	<meta name="apple-mobile-web-app-title" content="SEPIA Client License">
+	<meta name="description" content="License for SEPIA cross-platform client.">
+	<meta name="theme-color" content="#000">
+	<!-- Icons
+	<link rel="icon" sizes="192x192" href="img/icon.png">
+	<link rel="apple-touch-icon" href="img/icon.png">
+	<meta property="og:image" content="img/icon.png"/>
+	-->
+	<style>
+	body {
+		font-family: sans-serif;
+	}
+	body div {
+		max-width: 730px;
+	}
+	</style>
+</head>
+<body>
+	<div>
+		<h1>License for S.E.P.I.A. Cross-Platform Client</h1>
+		<br>
+		<h2>MIT License</h2>
+		<br>
+		Copyright (c) 2018 Florian Quirin<br>
+		<br>
+		Permission is hereby granted, free of charge, to any person obtaining a copy
+		of this software and associated documentation files (the "Software"), to deal
+		in the Software without restriction, including without limitation the rights
+		to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+		copies of the Software, and to permit persons to whom the Software is
+		furnished to do so, subject to the following conditions:<br>
+		<br>
+		The above copyright notice and this permission notice shall be included in all
+		copies or substantial portions of the Software.<br>
+		<br>
+		THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+		IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+		FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+		AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+		LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+		OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+		SOFTWARE.
 	</div>
-</div>
-<div id="sepiaFW-frames-nav-bar" class='sepiaFW-layer-header'>
-	<button id="sepiaFW-frames-close" class='entry'>
-		<i class="material-icons md-btn2">&#xE5CD;</i>
-	</button>
-	<button id="sepiaFW-frames-show-prev-page" class='entry'>
-		<i class="material-icons md-btn2">keyboard_arrow_left</i><span data-localize="back">back</span>
-	</button>
-	<button id="sepiaFW-frames-show-next-page" class='entry'>
-		<span data-localize="next">next</span><i class="material-icons md-btn2">keyboard_arrow_right</i>
-	</button>
-	<div id="sepiaFW-frames-nav-bar-page-indicator"><div>&nbsp;</div></div>
-</div>
-<script>
-	$('[data-localize]').each(function(){
-		$(this).html(SepiaFW.local.g(this.dataset.localize));
-	});
-</script>
+</body>
+</html>

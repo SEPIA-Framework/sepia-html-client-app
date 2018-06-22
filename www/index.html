@@ -13,7 +13,27 @@
 	<meta name="theme-color" content="#000">
 	<link rel="icon" sizes="192x192" href="img/icon.png">
 	<link rel="apple-touch-icon" href="img/icon.png">
-	<meta property="og:image" content="img/icon.png"/>
+	
+	<!-- open graph settings -->
+	<meta property="og:title" content="S.E.P.I.A."/>
+	<meta property="og:determiner" content="the" />
+	<meta property="og:url" content="https://sepia-framework.github.io/app/"/>
+	<meta property="og:description" content="S.E.P.I.A. is an app and framework for your own server-based, extendable, private, intelligent assistant.">
+	<meta property="og:image" content="https://sepia-framework.github.io/img/logo.png"/>
+	<meta property="og:image:width" content="960"/>
+	<meta property="og:image:height" content="960"/>
+	<meta property="og:image:type" content="image/png"/>
+	<meta property="og:image:alt" content="SEPIA Logo"/>
+	<meta property="og:image" content="https://sepia-framework.github.io/app/img/icon.png"/>
+	<meta property="og:image:width" content="192"/>
+	<meta property="og:image:height" content="192"/>
+	<meta property="og:image:type" content="image/png"/>
+	<meta property="og:image:alt" content="SEPIA Icon"/>
+	<meta property="og:type" content="website"/>
+	<meta property="og:locale" content="en_GB"/>
+	<meta property="og:locale:alternate" content="en_US"/>
+	<meta property="og:locale:alternate" content="de_DE"/>
+	
 	<!-- imports -->
 	<!--<link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">-->
 	<!-- <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,600" rel="stylesheet"> -->
@@ -23,6 +43,7 @@
 	<script src="scripts/sepiaFW.app.js"></script>
 	<script src="scripts/sepiaFW.local.js"></script>
 	<!-- FOR MORE JS SEE END-OF-BODY -->
+	
 	<script type="application/ld+json">
 	{
 		"@context": "http://schema.org",
@@ -50,7 +71,11 @@
 		<div id="sepiaFW-login-wait">
 			<button><script>SepiaFW.local.w('connecting')</script></button>
 		</div>
-		<p id="sepiaFW-login-status"><br></p>
+		<p id="sepiaFW-login-status"></p>
+		<div id="sepiaFW-login-links">
+			<a id="sepiaFW-login-license-btn" href="license.html" target="_blank"><script>SepiaFW.local.w('license')</script></a>
+			<a id="sepiaFW-login-policy-btn" href="https://sepia-framework.github.io/privacy-policy.html" target="_blank"><script>SepiaFW.local.w('data_privacy')</script></a>
+		</div>
 	</div>
 	<!-- iOS minimal UI scroll area --><!--<div id="sepiaFW-minimal-ui-sa" style="min-height:100px; background-color:#000; color:#fff;">Scroll to hide</div>-->
 	<!-- Main -->
@@ -279,6 +304,9 @@
 			config.webSocketAPI = "https://" + SepiaFW.config.host + "/chat/";
 		}
 		SepiaFW.config.setEndPoints(config);
+		
+		//set privacy policy link
+		SepiaFW.config.privacyPolicyUrl = document.getElementById("sepiaFW-login-policy-btn").href;
 		
 		//what happens after login?
 		SepiaFW.account.afterLogin = function(){

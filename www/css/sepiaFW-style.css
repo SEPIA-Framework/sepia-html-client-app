@@ -405,7 +405,7 @@ body {
 	top: 10%;
 	left: 50%;
 	margin-left: -145px;
-	padding: 10px 35px 20px 35px;
+	padding: 16px 32px 22px 32px;
 	color: #fff;
 	text-align: center;
 	z-index: 10;
@@ -426,7 +426,7 @@ body {
 	border: 0px;
     float: right;
 	width: 100%;
-	margin: 10px 0px 15px 0px;
+	margin: 10px 0px 10px 0px;
 	padding: 7px 10px;
 	background-color: #ceff1a;
 	color: #2f3035;
@@ -439,8 +439,21 @@ body {
 	background-color: #fff;
 	color: #222;
 }
-#sepiaFW-login-box, #sepiaFW-login-close{
+#sepiaFW-login-box, #sepiaFW-login-close {
 	float: left;
+}
+#sepiaFW-login-form {
+	overflow: hidden;
+}
+#sepiaFW-login-links {
+	display: flex;
+	justify-content: space-around;
+	padding-top: 4px;
+}
+#sepiaFW-login-links a {
+	color: inherit;
+	text-decoration: none;
+	opacity: 0.25;
 }
 
 #sepiaFW-main-window input, #sepiaFW-main-window button, #sepiaFW-main-window article {
