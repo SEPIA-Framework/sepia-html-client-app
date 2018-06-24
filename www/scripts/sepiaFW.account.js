@@ -29,6 +29,7 @@ function sepiaFW_build_account(){
 	
 	function broadcastEnterWithoutLogin(){
 		//TODO: this should prepare demo-mode ...
+		SepiaFW.client.setDemoMode(true);
 	}
 	
 	function broadcastLoginRestored(){
@@ -410,6 +411,14 @@ function sepiaFW_build_account(){
 			broadcastEnterWithoutLogin();
 			Account.afterLogin();
 		});
+		//hostname input field
+		var $hostInput = $("#sepiaFW-login-host-name");
+		$hostInput.val(SepiaFW.config.host);
+		$hostInput.off().on("change", function(){
+			var newHost = this.value;
+			this.blur();
+			SepiaFW.config.broadcastHostName(newHost);
+		});
 		//license
 		var licBtn = $("#sepiaFW-login-license-btn").off().on("click", function(event){
 			event.preventDefault();
@@ -420,6 +429,26 @@ function sepiaFW_build_account(){
 			event.preventDefault();
 			var policyUrl = SepiaFW.config.privacyPolicyUrl + "?host=" + encodeURI(SepiaFW.config.host);
 			SepiaFW.ui.actions.openUrlAutoTarget(policyUrl);
+		});
+		
+		//extend button
+		var $extendBtn = $('#sepiaFW-login-extend-btn');
+		$extendBtn.find('i').html('arrow_drop_down');
+		$extendBtn.off().on("click", function(){
+			var isVisible = ($extendBtn.find('i').html() == 'arrow_drop_up');
+			$('#sepiaFW-login-box').find('.extended-controls').each(function(){
+				if (isVisible){
+					$(this).fadeOut(150);
+				}else{
+					$(this).fadeIn(300);
+				}
+			});
+			if (isVisible){
+				$extendBtn.find('i').html('arrow_drop_down');
+			}else{
+				$extendBtn.find('i').html('arrow_drop_up');
+			}
+			//$('#sepiaFW-login-extend-box').hide();
 		});
 	}
 	function sendLoginFromBox(){

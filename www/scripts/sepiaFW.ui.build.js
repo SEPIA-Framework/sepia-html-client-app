@@ -391,9 +391,9 @@ function sepiaFW_build_ui_build(){
 					+ "<li id='sepiaFW-menu-toggle-channelMessages-li' title='Show status messages in chat like someone joined the channel?'><span>Channel status messages: </span></li>"
 					//TODO: this depends on the OS, maybe use only for Android?
 					+ "<li id='sepiaFW-menu-toggle-runBackgroundConnection-li' title='Try to keep connected in background?'><span>Allow background activity: </span></li>"
-					+ "<li id='sepiaFW-menu-assistant-host-li' title='Assistant host name, e.g.: my-server.example.org/sepia, localhost or [IP]'>"
-						+ "<span>Host name: </span>"
-						+ "<input id='sepiaFW-menu-assistant-host' type='text' placeholder='my-server.example.org/sepia'>"
+					+ "<li id='sepiaFW-menu-assistant-host-li' title='Assistant hostname, e.g.: my.example.org/sepia, localhost or [IP]'>"
+						+ "<span>Hostname: </span>"
+						+ "<input id='sepiaFW-menu-assistant-host' type='text' placeholder='my.example.org/sepia'>"
 					+ "</li>"
 					+ "<li id='sepiaFW-menu-administration-li'>"
 						+ "<button id='sepiaFW-menu-ui-dataprivacy-btn'>" + SepiaFW.local.g('data_privacy') + "</button>"

@@ -58,6 +58,8 @@
 	</script>
 </head>
 <body>
+	<!-- Scroll-to-hide area for web-apps --><!--<div id="sepiaFW-minimal-ui-sa" style="min-height:100px; background-color:#000; color:#fff;">Scroll to hide</div>
+	-->
 	<!-- Login -->
 	<div id="sepiaFW-login-box" class="sepiaFW-translucent-10">
 		<div id="sepiaFW-language-selector"></div>
@@ -66,8 +68,14 @@
 			<input id="sepiaFW-login-id" type="email" placeholder="Username" aria-label="Username">
 			<input id="sepiaFW-login-pwd" type="password" placeholder="Password" aria-label="Password">
 			<button id="sepiaFW-login-send"><script>SepiaFW.local.w('sendLogin')</script></button><br>
-			<button id="sepiaFW-login-close"><script>SepiaFW.local.w('closeLogin')</script></button><br>
+			<button id="sepiaFW-login-close"  class="extended-controls" style="display:none;"><script>SepiaFW.local.w('closeLogin')</script></button><br>
 		</div>
+		<!-- Host-name pre-login box -->
+		<div id="sepiaFW-host-name-box" class="extended-controls" style="display:none;">
+			<label>Hostname:<//label>
+			<input id="sepiaFW-login-host-name" type="email" placeholder="my.example.org/sepia" aria-label="Hostname">
+		</div>
+		<!-- Status and info links -->
 		<div id="sepiaFW-login-wait">
 			<button><script>SepiaFW.local.w('connecting')</script></button>
 		</div>
@@ -76,8 +84,9 @@
 			<a id="sepiaFW-login-license-btn" href="license.html" target="_blank"><script>SepiaFW.local.w('license')</script></a>
 			<a id="sepiaFW-login-policy-btn" href="https://sepia-framework.github.io/privacy-policy.html" target="_blank"><script>SepiaFW.local.w('data_privacy')</script></a>
 		</div>
+		<!-- extend button -->
+		<div id="sepiaFW-login-extend-box"><button id="sepiaFW-login-extend-btn"><i class="material-icons md-btn2">arrow_drop_down</i></button></div>
 	</div>
-	<!-- iOS minimal UI scroll area --><!--<div id="sepiaFW-minimal-ui-sa" style="min-height:100px; background-color:#000; color:#fff;">Scroll to hide</div>-->
 	<!-- Main -->
 	<div id="sepiaFW-main-window" class="sepiaFW-translucent-10">
 		<!-- Menues -->
@@ -240,6 +249,7 @@
 <link rel="stylesheet alternate" href="css/sepiaFW-skin-pizza.css" class='sepiaFW-style-skin' title='' data-name='Tasty'>
 <link rel="stylesheet alternate" href="css/sepiaFW-skin-grid.css" class='sepiaFW-style-skin' title='' data-name='TheGrid'>
 <link rel="stylesheet alternate" href="css/sepiaFW-skin-canny.css" class='sepiaFW-style-skin' title='' data-name='Canny'>
+<link rel="stylesheet alternate" href="css/sepiaFW-skin-minimal.css" class='sepiaFW-style-skin' title='' data-name='Essential'>
 <!-- START JS -->
 <script src="scripts/jquery-3.1.1.min.js"></script>
 <script src="scripts/sjcl.js"></script>
@@ -310,21 +320,25 @@
 		
 		//what happens after login?
 		SepiaFW.account.afterLogin = function(){
-			SepiaFW.client.ping(
-				//success
-				function(data){
-					//TODO: startClient is a required method, maybe move it to core and replace it with 'client.onActive'?
-					SepiaFW.client.startClient();
-				},
-				//fail: no connection to chat-server
-				function(data){
-					SepiaFW.ui.showPopup(SepiaFW.local.g('noConnectionToServer'));
-					if (SepiaFW.client){
+			if (SepiaFW.client.isDemoMode()){
+				//SepiaFW.ui.showInfo(SepiaFW.local.g('demoMode'), true);
+				SepiaFW.ui.showCustomChatMessage(SepiaFW.local.g('demoMode'));
+				SepiaFW.client.welcomeActions(true);
+			}else{
+				SepiaFW.client.ping(
+					//success
+					function(data){
+						//TODO: startClient is a required method, maybe move it to core and replace it with 'client.onActive'?
+						SepiaFW.client.startClient();
+					},
+					//fail: no connection to chat-server
+					function(data){
+						SepiaFW.ui.showPopup(SepiaFW.local.g('noConnectionToServer'));
 						//get offline welcome help anyway
 						SepiaFW.client.welcomeActions(true);
 					}
-				}
-			);
+				);
+			}
 		}
 		
 		//load UI
