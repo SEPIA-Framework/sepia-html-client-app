@@ -17,6 +17,7 @@ function sepiaFW_build_strings(){
 	StringsDE.sendLogin = 'Login';
 	StringsDE.sign_out = 'Abmelden';
 	StringsDE.sign_out_all = 'Alle Apps abmelden';
+	StringsDE.apps_admin = 'Apps verwalten';
 	StringsDE.account = 'Account';
 	StringsDE.addresses = 'Adressen';
 	StringsDE.logout = 'Logout';
@@ -26,6 +27,7 @@ function sepiaFW_build_strings(){
 	StringsDE.loginFailedPlain = 'Login fehlgeschlagen!';
 	StringsDE.loginFailedServer = 'Login fehlgeschlagen! - Das Problem könnte der Server sein.';
 	StringsDE.loginFailedUser = 'Login fehlgeschlagen! - Username oder Password ist falsch.';
+	StringsDE.logoutAndReload = 'Diese Aktion erfordert einen Log-out und App Neustart.';
 	StringsDE.noConnectionToNetwork = 'Es tut mir leid, aber sieht so aus als wärest du offline :-(';
 	StringsDE.connecting = 'Verbindung wird hergestellt ...';
 	StringsDE.stillConnecting = 'Versuche immer noch die Verbindung herzustellen...';
@@ -90,6 +92,7 @@ function sepiaFW_build_strings(){
 	StringsEN.sendLogin = 'Login';
 	StringsEN.sign_out = 'Sign out';
 	StringsEN.sign_out_all = 'Sign out all apps';
+	StringsEN.apps_admin = 'Manage apps';
 	StringsEN.account = 'Account';
 	StringsEN.addresses = 'Addresses';
 	StringsEN.logout = 'Logout';
@@ -99,6 +102,7 @@ function sepiaFW_build_strings(){
 	StringsEN.loginFailedPlain = 'Login failed!';
 	StringsEN.loginFailedServer = 'Login failed! - Problem could be the server.';
 	StringsEN.loginFailedUser = 'Login failed! - Wrong username or password.';
+	StringsEN.logoutAndReload = 'This action requires a log-out and app reload.';
 	StringsEN.noConnectionToNetwork = 'I\'m sorry but it seems that you are offline :-(';
 	StringsEN.connecting = 'Connecting ...';
 	StringsEN.stillConnecting = 'Still trying to connect ...';

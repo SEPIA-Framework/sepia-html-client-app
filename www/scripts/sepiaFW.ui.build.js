@@ -412,7 +412,10 @@ function sepiaFW_build_ui_build(){
 				+ "<ul class='sepiaFW-menu-settings-list'>"
 					+ "<li id='sepiaFW-menu-account-language-li'><span>" + SepiaFW.local.g('language') + ": </span></li>"
 					+ "<li id='sepiaFW-menu-account-nickname-li'><span>" + SepiaFW.local.g('nickname') + ": </span><input id='sepiaFW-menu-account-nickname' type='text' maxlength='24'></li>"
-					+ "<li id='sepiaFW-menu-account-signoutall-li'><button id='sepiaFW-menu-ui-signoutall-btn'>" + SepiaFW.local.g('sign_out_all') + "</button></li>"
+					+ "<li id='sepiaFW-menu-account-signoutall-li'>"
+						+ "<button id='sepiaFW-menu-ui-signoutall-btn'>" + SepiaFW.local.g('sign_out_all') + "</button>"
+						+ "<button id='sepiaFW-menu-ui-admin-tools-btn'>" + SepiaFW.local.g('apps_admin') + "</button>"
+					+ "</li>"
 					+ "<div id='sepiaFW-menu-ui-refresh-box'>"
 						+ "<p id='sepiaFW-menu-ui-refresh-info'>" + SepiaFW.local.g('refreshUI_info') + ":</p>"
 						+ "<button id='sepiaFW-menu-ui-refresh-btn'>" + SepiaFW.local.g('refreshUI') + "</button>"
@@ -492,20 +495,20 @@ function sepiaFW_build_ui_build(){
 			$('#sepiaFW-menu-select-skin').on('change', function() {
 				SepiaFW.ui.setSkin($('#sepiaFW-menu-select-skin').val());
 			});
-			//Host name
+			//hostname
 			var hostNameInput = document.getElementById("sepiaFW-menu-assistant-host");
 			hostNameInput.value = SepiaFW.config.host;
 			hostNameInput.addEventListener("change", function(){
 				var newHost = this.value;
 				this.blur();
-				SepiaFW.config.broadcastHostName(newHost);
+				SepiaFW.config.setHostName(newHost);
 			});
-			//Device ID
+			//device ID
 			var deviceIdInput = document.getElementById("sepiaFW-menu-deviceId");
-			deviceIdInput.value = SepiaFW.client.getDeviceId();
+			deviceIdInput.value = SepiaFW.config.getDeviceId();
 			deviceIdInput.addEventListener("change", function(){
 				var newDeviceId = this.value;
-				SepiaFW.client.setDeviceId(newDeviceId);
+				SepiaFW.config.setDeviceId(newDeviceId);
 				this.blur();
 			});
 			//add voice toggle and select
@@ -631,6 +634,10 @@ function sepiaFW_build_ui_build(){
 			//Sign-out all clients
 			document.getElementById("sepiaFW-menu-ui-signoutall-btn").addEventListener("click", function(){
 				SepiaFW.account.logoutAction(true);
+			});
+			//Admin tools
+			document.getElementById("sepiaFW-menu-ui-admin-tools-btn").addEventListener("click", function(){
+				SepiaFW.frames.open({pageUrl: "admin.html"});
 			});
 			//Reload app
 			document.getElementById("sepiaFW-menu-ui-refresh-btn").addEventListener("click", function(){

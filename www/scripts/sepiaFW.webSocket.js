@@ -41,11 +41,8 @@ function sepiaFW_build_client_interface(){
 	
 	ClientInterface.setMessageIdOptions = SepiaFW.webSocket.client.setMessageIdOptions;
 	
-	ClientInterface.setDeviceId = SepiaFW.webSocket.client.setDeviceId;
-	ClientInterface.getDeviceId = SepiaFW.webSocket.client.getDeviceId;
-	
 	//states and settings
-	ClientInterface.allowBackgroundConnection = true;
+	ClientInterface.allowBackgroundConnection = false;
 	
 	//broadcast some events:
 	
@@ -151,14 +148,6 @@ function sepiaFW_build_webSocket_client(){
 		}else{
 			return false;
 		}
-	}
-	var deviceId = "";				//set in settings and freely chosen by user to address his devices directly
-	Client.setDeviceId = function(newDeviceId){
-		deviceId = newDeviceId;
-		SepiaFW.config.broadcastDeviceId(newDeviceId);
-	}
-	Client.getDeviceId = function(){
-		return deviceId;
 	}
 	//special input commands
 	var CMD_SAYTHIS = "saythis";
@@ -763,7 +752,7 @@ function sepiaFW_build_webSocket_client(){
 			data.credentials.pwd = SepiaFW.account.getToken();
 		}
 		data.parameters = SepiaFW.assistant.getState();
-		data.parameters.client = SepiaFW.config.clientInfo;
+		data.parameters.client = SepiaFW.config.getClientDeviceInfo(); //SepiaFW.config.clientInfo;
 		
 		return data;
 	}
@@ -1163,7 +1152,7 @@ function sepiaFW_build_webSocket_client(){
 				SepiaFW.debug.log("WebSocket: authenticating ...");
 				var data = new Object();
 				data.dataType = "authenticate";
-				data.deviceId = deviceId;
+				data.deviceId = SepiaFW.config.getDeviceId();
 				data = addCredentialsAndParametersToData(data);
 				var newId = ("auth" + "-" + ++msgId);
 				var msg = buildSocketMessage(username, serverName, "", "", data, "", newId, "");		//note: no channel during auth.

@@ -82,9 +82,13 @@ html {
 	border: 1px solid #fff;
 	padding: 8px;
 }
-#sepiaFW-assist-btn-area button {
+#sepiaFW-assist-btn-area button,
+.sepiaFW-touch-device  #sepiaFW-assist-btn-area button:hover {
 	border: 0px solid #fff;
-	background: #222226;
+	background: #222226 !important;
+}
+.sepiaFW-notouch-device #sepiaFW-assist-btn-area button:hover {
+	/*border: 1px solid #888;*/
 }
 #sepiaFW-assist-btn-orbiters {
     top: 2px;

@@ -399,7 +399,7 @@ function sepiaFW_build_teach(){
 		SepiaFW.ui.showLoader();
 		var apiUrl = SepiaFW.config.teachAPI + "submitPersonalCommand";
 		submitData.KEY = key;
-		submitData.client = SepiaFW.config.clientInfo;
+		submitData.client = SepiaFW.config.getClientDeviceInfo(); //SepiaFW.config.clientInfo;
 		$.ajax({
 			url: apiUrl,
 			timeout: 10000,
@@ -432,7 +432,7 @@ function sepiaFW_build_teach(){
 		var apiUrl = SepiaFW.config.teachAPI + "getAllPersonalCommands";
 		var submitData = new Object();
 		submitData.KEY = key;
-		submitData.client = SepiaFW.config.clientInfo;
+		submitData.client = SepiaFW.config.getClientDeviceInfo(); //SepiaFW.config.clientInfo;
 		submitData.from = startingFrom;
 		$.ajax({
 			url: apiUrl,
@@ -466,7 +466,7 @@ function sepiaFW_build_teach(){
 		var apiUrl = SepiaFW.config.teachAPI + "deletePersonalCommand";
 		var submitData = new Object();
 		submitData.KEY = key;
-		submitData.client = SepiaFW.config.clientInfo;
+		submitData.client = SepiaFW.config.getClientDeviceInfo(); //SepiaFW.config.clientInfo;
 		submitData.id = cmdId;
 		$.ajax({
 			url: apiUrl,

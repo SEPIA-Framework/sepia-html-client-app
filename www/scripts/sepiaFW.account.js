@@ -417,7 +417,10 @@ function sepiaFW_build_account(){
 		$hostInput.off().on("change", function(){
 			var newHost = this.value;
 			this.blur();
-			SepiaFW.config.broadcastHostName(newHost);
+			SepiaFW.config.setHostName(newHost);
+			setTimeout(function(){
+				Account.toggleLoginBox();
+			}, 750);
 		});
 		//license
 		var licBtn = $("#sepiaFW-login-license-btn").off().on("click", function(event){
@@ -650,7 +653,7 @@ function sepiaFW_build_account(){
 		dataBody.KEY = userid + ";" + pwd;
 		//dataBody.GUUID = userid;		//<-- DONT USE THAT IF ITS NOT ABSOLUTELY NECESSARY (its bad practice and a much heavier load for the server!)
 		//dataBody.PWD = pwd;
-		dataBody.client = SepiaFW.config.clientInfo;
+		dataBody.client = SepiaFW.config.getClientDeviceInfo(); //SepiaFW.config.clientInfo;
 		//SepiaFW.debug.info('URL: ' + api_url);
 		$.ajax({
 			url: api_url,
@@ -712,7 +715,7 @@ function sepiaFW_build_account(){
 		var dataBody = new Object();
 		dataBody.action = action;
 		dataBody.KEY = key;
-		dataBody.client = SepiaFW.config.clientInfo;
+		dataBody.client = SepiaFW.config.getClientDeviceInfo(); //SepiaFW.config.clientInfo;
 		$.ajax({
 			url: apiUrl,
 			timeout: 5000,
@@ -809,7 +812,7 @@ function sepiaFW_build_account(){
 			if (errorCallback) errorCallback("Data transfer failed! Not authorized or missing 'KEY'");
 			return;
 		}
-		data.client = SepiaFW.config.clientInfo;
+		data.client = SepiaFW.config.getClientDeviceInfo(); //SepiaFW.config.clientInfo;
 		//SepiaFW.debug.log('URL: ' + apiUrl);
 		//SepiaFW.debug.log('Body: ' + JSON.stringify(data));
 		$.ajax({

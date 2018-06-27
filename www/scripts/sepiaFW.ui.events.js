@@ -539,6 +539,7 @@ function sepiaFW_build_events(){
 				text: Timer.data.name,
 				at: (d),
 				sound: "file://sounds/alarm.mp3",
+				smallIcon: "res://ic_popup_reminder",
 				color: "303030",
 				data: {"type" : Timer.type, "action" : "triggered", "data" : Timer.data}
 			}]);
@@ -664,6 +665,7 @@ function sepiaFW_build_events(){
 				id: nid,
 				title: titleS,
 				text: textS,
+				smallIcon: "res://ic_popup_reminder",
 				color: "303030",
 				data: (data? data : {})
 			}

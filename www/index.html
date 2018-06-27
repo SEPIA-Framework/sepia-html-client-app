@@ -39,22 +39,21 @@
 	<!-- <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,600" rel="stylesheet"> -->
     <link rel="stylesheet" href="css/sepiaFW-style.css" title='main'>
 	<!-- FOR MORE STYLESHEETS SEE END-OF-BODY -->
-	<!--<script src="https://code.jquery.com/jquery-3.1.1.min.js" integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8=" crossorigin="anonymous"></script>-->
 	<script src="scripts/sepiaFW.app.js"></script>
 	<script src="scripts/sepiaFW.local.js"></script>
 	<!-- FOR MORE JS SEE END-OF-BODY -->
 	
 	<script type="application/ld+json">
-	{
+	/*{
 		"@context": "http://schema.org",
 		"@type": "WebSite",
-		"url": "http://www.b07z.net/",
+		"url": "https://sepia-framework.github.io",
 		"potentialAction": {
 			"@type": "SearchAction",
-			"target": "http://www.b07z.net?q={search_term}",
+			"target": "https://sepia-framework.github.io?q={search_term}",
 			"query-input": "required name=search_term"
 		}
-	}
+	}*/
 	</script>
 </head>
 <body>
@@ -252,6 +251,7 @@
 <link rel="stylesheet alternate" href="css/sepiaFW-skin-minimal.css" class='sepiaFW-style-skin' title='' data-name='Essential'>
 <!-- START JS -->
 <script src="scripts/jquery-3.1.1.min.js"></script>
+<!--<script src="https://code.jquery.com/jquery-3.1.1.min.js" integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8=" crossorigin="anonymous"></script>-->
 <script src="scripts/sjcl.js"></script>
 <script src="scripts/recorder.js"></script>
 <script src="scripts/hammer.min.js"></script>
@@ -271,6 +271,7 @@
 <script src="scripts/sepiaFW.speechWebSocket.js"></script>
 <script src="scripts/sepiaFW.speech.js"></script>
 <script src="scripts/sepiaFW.webSocket.js"></script>
+<script src="scripts/sepiaFW.files.js"></script>
 <script src="scripts/sepiaFW.frames.js"></script>
 <script src="scripts/sepiaFW.teach.js"></script>
 <script src="scripts/sepiaFW.offline.js"></script>
@@ -285,9 +286,10 @@
 		//prepare plugins
 		SepiaFW.buildSepiaFwPlugins();
 	
-		//set enpoints
+		//set endpoints
 		var config = new Object();
-		SepiaFW.config.host = SepiaFW.data.getPermanent("host-name") || "localhost";	//or e.g. "my-server.example.org/sepia"
+		var restoreHostOrDefault = SepiaFW.data.getPermanent("host-name") || "localhost";	//or e.g. "my-server.example.org/sepia"
+		SepiaFW.config.setHostName(restoreHostOrDefault, true);
 		//try to load host, e.g.:
 		//- "localhost" (direct links),
 		//- "192.168.0.99" or "api.example.com" (direct links),
@@ -315,6 +317,10 @@
 		}
 		SepiaFW.config.setEndPoints(config);
 		
+		//Device ID
+		var restoreDeviceIdOrDefault = SepiaFW.data.getPermanent('deviceId') || "";
+		SepiaFW.config.setDeviceId(restoreDeviceIdOrDefault, true);
+				
 		//set privacy policy link
 		SepiaFW.config.privacyPolicyUrl = document.getElementById("sepiaFW-login-policy-btn").href;
 		

@@ -3,7 +3,7 @@ function sepiaFW_build_ui(){
 	var UI = {};
 	
 	//some constants
-	UI.version = "v0.11.2";
+	UI.version = "v0.11.3";
 	UI.JQ_RES_VIEW_IDS = "#sepiaFW-result-view, #sepiaFW-chat-output, #sepiaFW-my-view";			//a selector to get all result views e.g. $(UI.JQ_RES_VIEW_IDS).find(...)
 	UI.JQ_ALL_MAIN_VIEWS = "#sepiaFW-result-view, #sepiaFW-chat-output, #sepiaFW-my-view, #sepiaFW-teachUI-editor, #sepiaFW-teachUI-manager, #sepiaFW-frame-page-1, #sepiaFW-frame-page-2"; 	//TODO: frames can have more ...
 	UI.JQ_ALL_MAIN_CONTAINERS = "#sepiaFW-my-view, #sepiaFW-chat-output-container, #sepiaFW-result-view";
@@ -255,6 +255,7 @@ function sepiaFW_build_ui(){
 		}
 	}
 	UI.showAndClearMissedMessages = function(){
+		UI.closeAllMenus();
 		UI.moc.showPane(1);
 		UI.clearMissedMessages();
 	}
@@ -351,11 +352,6 @@ function sepiaFW_build_ui(){
 		//LOAD other SETTINGS before building the UI:
 		//TODO: this shoule be simplified with a service!
 		
-		//Device ID
-		if (SepiaFW.client){
-			var storedValue = SepiaFW.data.get('deviceId');
-			if (typeof storedValue != 'undefined') SepiaFW.client.setDeviceId(storedValue);
-		}
 		//TTS
 		if (SepiaFW.speech){
 			var storedValue = SepiaFW.data.get('skipTTS');
@@ -381,7 +377,7 @@ function sepiaFW_build_ui(){
 		//Allow background connection
 		if (SepiaFW.client){
 			SepiaFW.client.allowBackgroundConnection = SepiaFW.data.get('allowBackgroundConnection');
-			if (typeof SepiaFW.client.allowBackgroundConnection == 'undefined') SepiaFW.client.allowBackgroundConnection = true;
+			if (typeof SepiaFW.client.allowBackgroundConnection == 'undefined') SepiaFW.client.allowBackgroundConnection = false;
 			SepiaFW.debug.info("Background connections are " + ((SepiaFW.client.allowBackgroundConnection)? "ALLOWED" : "NOT ALLOWED"));
 		}
 		

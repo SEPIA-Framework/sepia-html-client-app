@@ -98,13 +98,13 @@
 	});
 	$('#tutorial-test-note').off().on('click', function(){
 		//simulate 'untrusted' event
-		$.get('credits.html', function(){
-			if (SepiaFW.events) SepiaFW.events.showSimpleSilentNotification("S.E.P.I.A. says:", "Hello World", {});
+		SepiaFW.files.fetch('credits.html', function(){
+			if (SepiaFW.events) SepiaFW.events.showSimpleSilentNotification("S.E.P.I.A. says:", "Hello World! This is a local (offline) notification that can be used for things like messages and alarms.", {});
 		});
 	});
 	$('#tutorial-test-popup').off().on('click', function(){
 		//simulate 'untrusted' event
-		$.get('credits.html', function(){
+		SepiaFW.files.fetch('credits.html', function(){
 			if (SepiaFW.ui.actions) SepiaFW.ui.actions.openUrlAutoTarget("https://sepia-framework.github.io", true);
 		});
 	});

@@ -34,8 +34,9 @@ function sepiaFW_build_frames(){
 		
 	Frames.setup = function(framePage, finishCallback){
 		//get HTML
-		$.get(framePage, function(frameHtml){
-			$('#sepiaFW-frames-view').html(frameHtml);
+		//$.get(framePage, function(frameHtml){
+        SepiaFW.files.fetch(framePage, function(frameHtml){
+            $('#sepiaFW-frames-view').html(frameHtml);
 			
 			//nav-bar
 			$('#sepiaFW-frames-close').off().on('click', function(){
@@ -69,6 +70,10 @@ function sepiaFW_build_frames(){
 			}
 		
 			if (finishCallback) finishCallback();
+        
+		//Error
+		}, function(){
+			$('#sepiaFW-frames-view').html("Error - could not load page");
 		});
 	}
 	
