@@ -1,6 +1,10 @@
 # SEPIA Cross-Platform App
 Part of the [SEPIA Framework](https://sepia-framework.github.io/)  
 
+<p align="center">
+  <img src="https://github.com/SEPIA-Framework/SEPIA-Framework.github.io/blob/master/img/teach-ui.png" alt="S.E.P.I.A. Logo"/>
+</p>
+
 This is a HTML-based application (SEPIA client) to communicate with SEPIA via browser, iOS and Android.  
 Features of the app are:
 * Input via voice (Android, iOS and Chrome Browser) and text
