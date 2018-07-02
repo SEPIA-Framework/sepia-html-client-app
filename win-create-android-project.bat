@@ -30,7 +30,9 @@ cordova plugin add cordova-plugin-cache-clear |more
 cordova plugin add cordova-custom-config |more
 cordova plugin add plugin_mods/speechrecognition/org.apache.cordova.speech.speechrecognition |more
 REM cordova plugin add de.appplant.cordova.plugin.local-notification |more
-cordova plugin add plugin_mods/localnotifications/de.appplant.cordova.plugin.local-notification |more
+REM cordova plugin add plugin_mods/localnotifications/de.appplant.cordova.plugin.local-notification |more
+cordova plugin add cordova-plugin-local-notification |more
+cordova plugin add cordova-plugin-file |more
 cordova plugin add cordova-android-support-gradle-release |more
 REM
 REM overwrite plugin mods

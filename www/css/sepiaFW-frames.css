@@ -55,3 +55,7 @@
 	overflow-y: auto;
 	-webkit-overflow-scrolling: touch;
 }
+.sepiaFW-frames-page button {
+	background: #000 !important;
+	color: #ceff1a !important;
+}

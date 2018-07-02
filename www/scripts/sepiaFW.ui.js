@@ -3,7 +3,7 @@ function sepiaFW_build_ui(){
 	var UI = {};
 	
 	//some constants
-	UI.version = "v0.11.0";
+	UI.version = "v0.11.3";
 	UI.JQ_RES_VIEW_IDS = "#sepiaFW-result-view, #sepiaFW-chat-output, #sepiaFW-my-view";			//a selector to get all result views e.g. $(UI.JQ_RES_VIEW_IDS).find(...)
 	UI.JQ_ALL_MAIN_VIEWS = "#sepiaFW-result-view, #sepiaFW-chat-output, #sepiaFW-my-view, #sepiaFW-teachUI-editor, #sepiaFW-teachUI-manager, #sepiaFW-frame-page-1, #sepiaFW-frame-page-2"; 	//TODO: frames can have more ...
 	UI.JQ_ALL_MAIN_CONTAINERS = "#sepiaFW-my-view, #sepiaFW-chat-output-container, #sepiaFW-result-view";
@@ -155,17 +155,32 @@ function sepiaFW_build_ui(){
 		if (UI.build){
 			var message = UI.build.makeMessageObject(text, 'UI', 'client', '');
 			var sEntry = UI.build.statusMessage(message, 'username', true);		//we handle UI messages as errors for now
-			UI.insertEle("sepiaFW-chat-output", sEntry);
-			UI.scrollToBottom("sepiaFW-chat-output");
-			//check if we should show the missed message note bubble
-			if (!UI.isVisible() || (UI.moc && UI.moc.getCurrentPane() !== 1)){
-				//if (SepiaFW.ui.showChannelStatusMessages || isErrorMessage){
-				UI.addMissedMessage();
-			}
+			//get right view
+			var targetViewName = "chat";
+			var resultView = UI.getResultViewByName(targetViewName);
+			//add to view
+			UI.addDataToResultView(resultView, sEntry);
 					
 		}else{
 			alert(text);
 		}
+	}
+	//make a chat message - compared to the publish methods in 'Client' this only creates a simple chat-bubble (no note, no voice, etc.)
+	UI.showCustomChatMessage = function(text, data, options){
+		if (!options) options = {};
+		if (!data) data = {};
+		var sender = data.sender || 'UI';
+		var senderType = data.senderType || 'client';
+		var receiver = data.receiver || '';
+		var message = UI.build.makeMessageObject(text, sender, senderType, receiver);
+		var cOptions = options.buildOptions || {};
+		//build entry
+		var cEntry = UI.build.chatEntry(message, 'username', cOptions);
+		//get right view
+		var targetViewName = cOptions.targetView || "chat";
+		var resultView = UI.getResultViewByName(targetViewName);
+		//add to view
+		UI.addDataToResultView(resultView, cEntry);
 	}
 	
 	//switch active swipe-bars
@@ -240,6 +255,7 @@ function sepiaFW_build_ui(){
 		}
 	}
 	UI.showAndClearMissedMessages = function(){
+		UI.closeAllMenus();
 		UI.moc.showPane(1);
 		UI.clearMissedMessages();
 	}
@@ -336,11 +352,6 @@ function sepiaFW_build_ui(){
 		//LOAD other SETTINGS before building the UI:
 		//TODO: this shoule be simplified with a service!
 		
-		//Device ID
-		if (SepiaFW.client){
-			var storedValue = SepiaFW.data.get('deviceId');
-			if (typeof storedValue != 'undefined') SepiaFW.client.setDeviceId(storedValue);
-		}
 		//TTS
 		if (SepiaFW.speech){
 			var storedValue = SepiaFW.data.get('skipTTS');
@@ -366,7 +377,7 @@ function sepiaFW_build_ui(){
 		//Allow background connection
 		if (SepiaFW.client){
 			SepiaFW.client.allowBackgroundConnection = SepiaFW.data.get('allowBackgroundConnection');
-			if (typeof SepiaFW.client.allowBackgroundConnection == 'undefined') SepiaFW.client.allowBackgroundConnection = true;
+			if (typeof SepiaFW.client.allowBackgroundConnection == 'undefined') SepiaFW.client.allowBackgroundConnection = false;
 			SepiaFW.debug.info("Background connections are " + ((SepiaFW.client.allowBackgroundConnection)? "ALLOWED" : "NOT ALLOWED"));
 		}
 		

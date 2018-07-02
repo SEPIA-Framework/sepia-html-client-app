@@ -391,9 +391,9 @@ function sepiaFW_build_ui_build(){
 					+ "<li id='sepiaFW-menu-toggle-channelMessages-li' title='Show status messages in chat like someone joined the channel?'><span>Channel status messages: </span></li>"
 					//TODO: this depends on the OS, maybe use only for Android?
 					+ "<li id='sepiaFW-menu-toggle-runBackgroundConnection-li' title='Try to keep connected in background?'><span>Allow background activity: </span></li>"
-					+ "<li id='sepiaFW-menu-assistant-host-li' title='Assistant host name, e.g.: my-server.example.org/sepia, localhost or [IP]'>"
-						+ "<span>Host name: </span>"
-						+ "<input id='sepiaFW-menu-assistant-host' type='text' placeholder='my-server.example.org/sepia'>"
+					+ "<li id='sepiaFW-menu-assistant-host-li' title='Assistant hostname, e.g.: my.example.org/sepia, localhost or [IP]'>"
+						+ "<span>Hostname: </span>"
+						+ "<input id='sepiaFW-menu-assistant-host' type='text' placeholder='my.example.org/sepia'>"
 					+ "</li>"
 					+ "<li id='sepiaFW-menu-administration-li'>"
 						+ "<button id='sepiaFW-menu-ui-dataprivacy-btn'>" + SepiaFW.local.g('data_privacy') + "</button>"
@@ -412,7 +412,10 @@ function sepiaFW_build_ui_build(){
 				+ "<ul class='sepiaFW-menu-settings-list'>"
 					+ "<li id='sepiaFW-menu-account-language-li'><span>" + SepiaFW.local.g('language') + ": </span></li>"
 					+ "<li id='sepiaFW-menu-account-nickname-li'><span>" + SepiaFW.local.g('nickname') + ": </span><input id='sepiaFW-menu-account-nickname' type='text' maxlength='24'></li>"
-					+ "<li id='sepiaFW-menu-account-signoutall-li'><button id='sepiaFW-menu-ui-signoutall-btn'>" + SepiaFW.local.g('sign_out_all') + "</button></li>"
+					+ "<li id='sepiaFW-menu-account-signoutall-li'>"
+						+ "<button id='sepiaFW-menu-ui-signoutall-btn'>" + SepiaFW.local.g('sign_out_all') + "</button>"
+						+ "<button id='sepiaFW-menu-ui-admin-tools-btn'>" + SepiaFW.local.g('apps_admin') + "</button>"
+					+ "</li>"
 					+ "<div id='sepiaFW-menu-ui-refresh-box'>"
 						+ "<p id='sepiaFW-menu-ui-refresh-info'>" + SepiaFW.local.g('refreshUI_info') + ":</p>"
 						+ "<button id='sepiaFW-menu-ui-refresh-btn'>" + SepiaFW.local.g('refreshUI') + "</button>"
@@ -492,20 +495,20 @@ function sepiaFW_build_ui_build(){
 			$('#sepiaFW-menu-select-skin').on('change', function() {
 				SepiaFW.ui.setSkin($('#sepiaFW-menu-select-skin').val());
 			});
-			//Host name
+			//hostname
 			var hostNameInput = document.getElementById("sepiaFW-menu-assistant-host");
 			hostNameInput.value = SepiaFW.config.host;
 			hostNameInput.addEventListener("change", function(){
 				var newHost = this.value;
 				this.blur();
-				SepiaFW.config.broadcastHostName(newHost);
+				SepiaFW.config.setHostName(newHost);
 			});
-			//Device ID
+			//device ID
 			var deviceIdInput = document.getElementById("sepiaFW-menu-deviceId");
-			deviceIdInput.value = SepiaFW.client.getDeviceId();
+			deviceIdInput.value = SepiaFW.config.getDeviceId();
 			deviceIdInput.addEventListener("change", function(){
 				var newDeviceId = this.value;
-				SepiaFW.client.setDeviceId(newDeviceId);
+				SepiaFW.config.setDeviceId(newDeviceId);
 				this.blur();
 			});
 			//add voice toggle and select
@@ -632,6 +635,10 @@ function sepiaFW_build_ui_build(){
 			document.getElementById("sepiaFW-menu-ui-signoutall-btn").addEventListener("click", function(){
 				SepiaFW.account.logoutAction(true);
 			});
+			//Admin tools
+			document.getElementById("sepiaFW-menu-ui-admin-tools-btn").addEventListener("click", function(){
+				SepiaFW.frames.open({pageUrl: "admin.html"});
+			});
 			//Reload app
 			document.getElementById("sepiaFW-menu-ui-refresh-btn").addEventListener("click", function(){
 				window.location.reload(true);
@@ -696,23 +703,19 @@ function sepiaFW_build_ui_build(){
 			//Data privacy
 			document.getElementById("sepiaFW-menu-ui-dataprivacy-btn").addEventListener("click", function(){
 				SepiaFW.ui.closeAllMenus();
-				SepiaFW.frames.open({
-					pageUrl: "data-policy.html"
-				});
+				//SepiaFW.frames.open({ pageUrl: "data-policy.html" });
+				SepiaFW.ui.actions.openUrlAutoTarget(SepiaFW.config.privacyPolicyUrl + "?host=" + encodeURI(SepiaFW.config.host));
 			});
 			//License
 			document.getElementById("sepiaFW-menu-ui-license-btn").addEventListener("click", function(){
 				SepiaFW.ui.closeAllMenus();
-				SepiaFW.frames.open({
-					pageUrl: "license.html"
-				});
+				//SepiaFW.frames.open({ pageUrl: "license.html" });
+				SepiaFW.ui.actions.openUrlAutoTarget(SepiaFW.config.clientLicenseUrl);
 			});
 			//Credits
 			document.getElementById("sepiaFW-menu-ui-credits-btn").addEventListener("click", function(){
 				SepiaFW.ui.closeAllMenus();
-				SepiaFW.frames.open({
-					pageUrl: "credits.html"
-				});
+				SepiaFW.frames.open({ pageUrl: "credits.html" });
 			});
 			
 			//---FOOT---

@@ -26,6 +26,7 @@ SepiaFW.buildSepiaFwPlugins = function(){
 	SepiaFW.webSocket.common = sepiaFW_build_webSocket_common();
 	SepiaFW.webSocket.client = sepiaFW_build_webSocket_client();
 	SepiaFW.client = sepiaFW_build_client_interface();
+	SepiaFW.files = sepiaFW_build_files();
 	SepiaFW.frames = sepiaFW_build_frames();
 	SepiaFW.teach = sepiaFW_build_teach();
 	SepiaFW.offline = sepiaFW_build_offline();
@@ -109,14 +110,49 @@ function sepiaFW_build_dataService(){
 function sepiaFW_build_config(){
 	var Config = {};
 	
-	Config.clientInfo = "web_app_v1.0.0";
-	Config.environment = "default";
+	Config.clientInfo = "web_app_v1.0.0";	//defined by client properties
+	var deviceId = "";						//set in settings and freely chosen by user to address his devices directly
+	var deviceIdClean = "";					//clean version of device ID (no spaces, only alphanumeric, lower-case)
+	Config.environment = "default";			//tbd
 	
 	//set client info
 	Config.setClientInfo = function(clientInfo){
 		Config.clientInfo = clientInfo;
+		SepiaFW.debug.log('Config: clientInfo=' + Config.clientInfo);
 	}
-	SepiaFW.debug.log('Config: clientInfo=' + Config.clientInfo);
+	//get client-device info (for server communication etc.)
+	Config.getClientDeviceInfo = function(){
+		if (deviceIdClean){
+			return (deviceIdClean + "_" + Config.clientInfo);
+		}else{
+			return (Config.clientInfo);
+		}
+	}
+	//set device ID			
+	Config.setDeviceId = function(newDeviceId, skipReload){
+		deviceId = newDeviceId.replace(/[\W]+/g, " ").replace(/\s+/g, " ").trim();
+		deviceIdClean = deviceId.split(" ").join("_").toLowerCase();
+		SepiaFW.data.setPermanent('deviceId', deviceId);
+		Config.broadcastDeviceId(deviceId);
+		if (!skipReload){
+			logoutAndReload();
+		}
+	}
+	//get device ID
+	Config.getDeviceId = function(){
+		return deviceId;
+	}
+	//set hostname
+	Config.setHostName = function(hostName, skipReload){
+		if (hostName){
+			Config.host = hostName;
+			SepiaFW.data.setPermanent("host-name", Config.host);
+			Config.broadcastHostName(Config.host);
+			if (!skipReload){
+				logoutAndReload();
+			}
+		}
+	}
 	
 	//language
 	var lang = SepiaFW.tools.getURLParameter("lang") || SepiaFW.data.get('app-language') || navigator.language || navigator.userLanguage;
@@ -146,26 +182,36 @@ function sepiaFW_build_config(){
 		if (apiURLs.webSocketAPI) Config.webSocketAPI = apiURLs.webSocketAPI;
 	}
 	
+	//set policy and license links
+	Config.privacyPolicyUrl = "https://sepia-framework.github.io/privacy-policy.html";
+	Config.clientLicenseUrl = "license.html";
+	
+	//some settings require app-reload
+	function logoutAndReload() {
+		setTimeout(function(){
+			var config = {
+				buttonOneName : SepiaFW.local.g('doit'),
+				buttonOneAction : function(){ 
+					SepiaFW.account.afterLogout = function(){
+						location.reload();
+					}
+					SepiaFW.account.logoutAction();
+				},
+				buttonTwoName : SepiaFW.local.g('back'),
+				buttonTwoAction : function(){}
+			};
+			SepiaFW.ui.showPopup(SepiaFW.local.g("logoutAndReload"), config);
+		}, 500);
+	}
+	
+	//------------ broadcasting functions --------------
+	//TODO: they are sometimes called from other modules which makes them 
+	//kind of setter functions too, ... we should change that
+	
 	//add everything here that needs to be refreshed after host change
 	Config.broadcastHostName = function(hostName){
-		if (hostName){
-			SepiaFW.data.setPermanent("host-name", hostName);
-			setTimeout(function(){
-				var config = {
-					buttonOneName : SepiaFW.local.g('doit'),
-					buttonOneAction : function(){ 
-						SepiaFW.account.afterLogout = function(){
-							location.reload();
-						}
-						SepiaFW.account.logoutAction();
-					},
-					buttonTwoName : SepiaFW.local.g('back'),
-					buttonTwoAction : function(){}
-				};
-				SepiaFW.ui.showPopup("New host requires log-out and app reload.", config);
-			}, 500);
-			SepiaFW.debug.log('Config: broadcasted new host=' + hostName);
-		}
+		//log
+		SepiaFW.debug.log('Config: broadcasted host=' + hostName);
 	}
 	//add everything here that needs to be refreshed after language change
 	Config.broadcastLanguage = function(language){
@@ -194,10 +240,11 @@ function sepiaFW_build_config(){
 	Config.broadcastDeviceId = function(newDeviceId){
 		//menue
 		$('#sepiaFW-menu-deviceId').val(newDeviceId);
-		//log and save
-		SepiaFW.data.set('deviceId', newDeviceId);
+		//log
 		SepiaFW.debug.log('Config: broadcasted deviceId=' + newDeviceId);
 	}
+	
+	//------------------------------------------------
 
 	//link to URL parameter functions - TODO: can we remove this?
 	Config.getURLParameter = SepiaFW.tools.getURLParameter;

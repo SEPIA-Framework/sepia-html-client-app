@@ -194,7 +194,7 @@ function sepiaFW_build_assistant(){
 		var userId = SepiaFW.account.getUserId();
 		var pwd = SepiaFW.account.getToken();
 		parameters.KEY = userId + ";" + pwd;
-		parameters.client = SepiaFW.config.clientInfo;
+		parameters.client = SepiaFW.config.getClientDeviceInfo(); //SepiaFW.config.clientInfo;
 		
 		return parameters;
 	}

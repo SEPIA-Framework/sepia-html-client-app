@@ -17,6 +17,7 @@ function sepiaFW_build_strings(){
 	StringsDE.sendLogin = 'Login';
 	StringsDE.sign_out = 'Abmelden';
 	StringsDE.sign_out_all = 'Alle Apps abmelden';
+	StringsDE.apps_admin = 'Apps verwalten';
 	StringsDE.account = 'Account';
 	StringsDE.addresses = 'Adressen';
 	StringsDE.logout = 'Logout';
@@ -26,12 +27,14 @@ function sepiaFW_build_strings(){
 	StringsDE.loginFailedPlain = 'Login fehlgeschlagen!';
 	StringsDE.loginFailedServer = 'Login fehlgeschlagen! - Das Problem könnte der Server sein.';
 	StringsDE.loginFailedUser = 'Login fehlgeschlagen! - Username oder Password ist falsch.';
+	StringsDE.logoutAndReload = 'Diese Aktion erfordert einen Log-out und App Neustart.';
 	StringsDE.noConnectionToNetwork = 'Es tut mir leid, aber sieht so aus als wärest du offline :-(';
 	StringsDE.connecting = 'Verbindung wird hergestellt ...';
 	StringsDE.stillConnecting = 'Versuche immer noch die Verbindung herzustellen...';
 	StringsDE.noConnectionToServer = 'Es tut mir leid, aber ich konnte keine Verbindung zum Server herstellen :-(';
 	StringsDE.noConnectionToAssistant = 'Dein Assistent macht gerade Kaffeepause, ist sicher gleich zurück! (hoffentlich)';
 	StringsDE.noConnectionOrNoCredentials = 'Verbindung ist verloren gegangen oder die Login Daten sind abgelaufen. Du kannst warten und es noch einmal versuchen, die App neu laden oder dich erneut einloggen.';
+	StringsDE.demoMode = 'Du befindest dich im Demo-Modus! In diesem Modus kannst du die Einstellungen ändern (z.B. host-name) und das Tutorial anschauen. Um auf deinen Assistenten zuzugreifen melde dich bitte zuerst an.';
 	StringsDE.noAsrSupport = 'Es tut mir leid, aber dieser Client unterstütz die Spracherkennung leider nicht :-(';
 	StringsDE.asrSettingsProblem = 'Mikrofon nicht richtig erkannt oder Zugriff verweigert.';
 	StringsDE.nobodyThere = 'Uups, es scheint zur Zeit leider keiner hier zu sein, der dir antworten könnte :-(';
@@ -89,6 +92,7 @@ function sepiaFW_build_strings(){
 	StringsEN.sendLogin = 'Login';
 	StringsEN.sign_out = 'Sign out';
 	StringsEN.sign_out_all = 'Sign out all apps';
+	StringsEN.apps_admin = 'Manage apps';
 	StringsEN.account = 'Account';
 	StringsEN.addresses = 'Addresses';
 	StringsEN.logout = 'Logout';
@@ -98,12 +102,14 @@ function sepiaFW_build_strings(){
 	StringsEN.loginFailedPlain = 'Login failed!';
 	StringsEN.loginFailedServer = 'Login failed! - Problem could be the server.';
 	StringsEN.loginFailedUser = 'Login failed! - Wrong username or password.';
+	StringsEN.logoutAndReload = 'This action requires a log-out and app reload.';
 	StringsEN.noConnectionToNetwork = 'I\'m sorry but it seems that you are offline :-(';
 	StringsEN.connecting = 'Connecting ...';
 	StringsEN.stillConnecting = 'Still trying to connect ...';
 	StringsEN.noConnectionToServer = 'I\'m sorry but I could not establish a connection to the server :-(';
 	StringsEN.noConnectionToAssistant = 'Your assistant is taking a coffee break, will be right back! (hopefully)';
 	StringsEN.noConnectionOrNoCredentials = 'Connection was lost or credentials became invalid. You can wait and try it again, reload the app or login again.';
+	StringsEN.demoMode = 'You are in demo-mode! This mode only allows you to change settings (e.g. host-name) and check out the tutorial. To get access to your assistant please log-in first.';
 	StringsEN.noAsrSupport = 'I\'m sorry but this client does not support speech recognition :-(';
 	StringsEN.asrSettingsProblem = 'Microphone has not been recognized properly or access was denied.';
 	StringsEN.nobodyThere = 'Uups, sorry but it seems there is nobody here to answer your message :-(';

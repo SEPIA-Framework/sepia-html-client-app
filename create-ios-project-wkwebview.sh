@@ -31,7 +31,9 @@ cordova plugin add cordova-plugin-splashscreen
 cordova plugin add cordova-plugin-cache-clear
 cordova plugin add plugin_mods/speechrecognition/org.apache.cordova.speech.speechrecognition
 #cordova plugin add de.appplant.cordova.plugin.local-notification
-cordova plugin add plugin_mods/localnotifications/de.appplant.cordova.plugin.local-notification
+#cordova plugin add plugin_mods/localnotifications/de.appplant.cordova.plugin.local-notification
+cordova plugin add cordova-plugin-local-notification
+cordova plugin add cordova-plugin-file
 cordova plugin add plugin_mods/iosbackgroundaudio/nl.kingsquare.cordova.background-audio
 #
 # overwrite plugin mods

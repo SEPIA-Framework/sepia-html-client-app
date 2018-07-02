@@ -261,6 +261,8 @@ function sepiaFW_build_speech(){
 	//start speech recognition with callbacks
 	function recognizeSpeech(callback_final, callback_interim, error_callback, log_callback, quit_on_final_result)
 	{
+		if (!log_callback) log_callback = function(){};
+		
 		broadcastRequestedAsrStart();
 		
 		var before_error = function (error_callback, msg){

@@ -12,6 +12,8 @@ function sepiaFW_build_client_interface(){
 	ClientInterface.checkNetwork = SepiaFW.webSocket.client.checkNetwork;
 	ClientInterface.startClient = SepiaFW.webSocket.client.startClient;
 	ClientInterface.welcomeActions = SepiaFW.webSocket.client.welcomeActions;
+	ClientInterface.setDemoMode = SepiaFW.webSocket.client.setDemoMode;
+	ClientInterface.isDemoMode = SepiaFW.webSocket.client.isDemoMode;
 	
 	ClientInterface.pauseClient = SepiaFW.webSocket.client.closeConnection;
 	ClientInterface.resumeClient = SepiaFW.webSocket.client.instaReconnect;
@@ -39,11 +41,8 @@ function sepiaFW_build_client_interface(){
 	
 	ClientInterface.setMessageIdOptions = SepiaFW.webSocket.client.setMessageIdOptions;
 	
-	ClientInterface.setDeviceId = SepiaFW.webSocket.client.setDeviceId;
-	ClientInterface.getDeviceId = SepiaFW.webSocket.client.getDeviceId;
-	
 	//states and settings
-	ClientInterface.allowBackgroundConnection = true;
+	ClientInterface.allowBackgroundConnection = false;
 	
 	//broadcast some events:
 	
@@ -149,14 +148,6 @@ function sepiaFW_build_webSocket_client(){
 		}else{
 			return false;
 		}
-	}
-	var deviceId = "";				//set in settings and freely chosen by user to address his devices directly
-	Client.setDeviceId = function(newDeviceId){
-		deviceId = newDeviceId;
-		SepiaFW.config.broadcastDeviceId(newDeviceId);
-	}
-	Client.getDeviceId = function(){
-		return deviceId;
 	}
 	//special input commands
 	var CMD_SAYTHIS = "saythis";
@@ -387,9 +378,10 @@ function sepiaFW_build_webSocket_client(){
 			}
 			var actionsArray = [];
 			actionsArray.push({type: "fist_visit_info_start"});
-			actionsArray.push(SepiaFW.offline.getFrameViewButtonAction("license.html", SepiaFW.local.g("license")));
 			actionsArray.push(SepiaFW.offline.getFrameViewButtonAction("tutorial.html", SepiaFW.local.g("tutorial")));
-			actionsArray.push(SepiaFW.offline.getUrlButtonAction("https://github.com/SEPIA-Framework/sepia-docs/wiki", "S.E.P.I.A. Wiki"));
+			actionsArray.push(SepiaFW.offline.getUrlButtonAction("https://github.com/SEPIA-Framework/sepia-docs", "S.E.P.I.A. Docs"));
+			actionsArray.push(SepiaFW.offline.getUrlButtonAction(SepiaFW.config.clientLicenseUrl, SepiaFW.local.g("license")));
+			actionsArray.push(SepiaFW.offline.getUrlButtonAction(SepiaFW.config.privacyPolicyUrl + "?host=" + encodeURI(SepiaFW.config.host), SepiaFW.local.g("data_privacy")));
 			if (!onlyOffline){
 				actionsArray.push(SepiaFW.offline.getHelpButtonAction()); 		//TODO: this will only onActive
 			}
@@ -401,6 +393,15 @@ function sepiaFW_build_webSocket_client(){
 			}
 			publishMyViewActions(actionsArray, sender, options);
 		}
+	}
+	
+	//demo mode setup
+	var demoMode = false;
+	Client.setDemoMode = function(value){
+		demoMode = value;
+	}
+	Client.isDemoMode = function(){
+		return demoMode;
 	}
 	
 	//BUILD UI METHOD - TODO: move this method to own file and put all client-specific functions in the client interface
@@ -751,7 +752,7 @@ function sepiaFW_build_webSocket_client(){
 			data.credentials.pwd = SepiaFW.account.getToken();
 		}
 		data.parameters = SepiaFW.assistant.getState();
-		data.parameters.client = SepiaFW.config.clientInfo;
+		data.parameters.client = SepiaFW.config.getClientDeviceInfo(); //SepiaFW.config.clientInfo;
 		
 		return data;
 	}
@@ -805,7 +806,6 @@ function sepiaFW_build_webSocket_client(){
 
 		webSocket.onerror = function (error) { 
 			SepiaFW.debug.err("WebSocket: " + error);
-			console.log(error);
 			SepiaFW.client.broadcastConnectionStatus(SepiaFW.client.STATUS_ERROR);
 			//TODO: does error mean connection lost?
 		};
@@ -905,7 +905,9 @@ function sepiaFW_build_webSocket_client(){
 			
 			//check if there is actually someone to listen :-)
 			if (!userList || userList.length <= 1){
-				SepiaFW.ui.showInfo(SepiaFW.local.g('nobodyThere'));
+				if (!Client.isDemoMode()){
+					SepiaFW.ui.showInfo(SepiaFW.local.g('nobodyThere'));
+				}
 			}
 		}
 		//reset all possible text fields
@@ -948,13 +950,26 @@ function sepiaFW_build_webSocket_client(){
 	Client.sendMessage = function(message, retryNumber){
 		if (!retryNumber) retryNumber = 0;
 		if (message){
-			if (isConnecting || !connectionIsOpen){
+			//Offline mode
+			if (Client.isDemoMode()){
+				if (message.text){
+					var dataIn = { sender: 'username' };
+					SepiaFW.ui.showCustomChatMessage(message.text, dataIn);
+					setTimeout(function(){
+						var dataOut = { sender: 'parrot', senderType: 'assistant' };
+						SepiaFW.ui.showCustomChatMessage(message.text, dataOut);
+					}, 500);
+				}else{
+					//SepiaFW.ui.showInfo(SepiaFW.local.g('nobodyThere'));
+					SepiaFW.ui.showInfo("Demo-Mode", true);
+				}
+				return;
+			//Still connecting
+			}else if (isConnecting || !connectionIsOpen){
 				handleSendMessageFail(message, retryNumber, SepiaFW.local.g('stillConnecting'), (sendFailedInRow>3), false);
 				return;
-			
+			//User not active
 			}else if (!activeChannelId){
-				//TODO: we can add offline modus here
-				
 				//check auth. status, but only if this message itselve is not an auth. or join channel request
 				if (!message.data || !(message.data.dataType === "authenticate" || message.data.dataType === "joinChannel")){
 					handleSendMessageFail(message, retryNumber, SepiaFW.local.g('noConnectionOrNoCredentials'), true, true);
@@ -1137,7 +1152,7 @@ function sepiaFW_build_webSocket_client(){
 				SepiaFW.debug.log("WebSocket: authenticating ...");
 				var data = new Object();
 				data.dataType = "authenticate";
-				data.deviceId = deviceId;
+				data.deviceId = SepiaFW.config.getDeviceId();
 				data = addCredentialsAndParametersToData(data);
 				var newId = ("auth" + "-" + ++msgId);
 				var msg = buildSocketMessage(username, serverName, "", "", data, "", newId, "");		//note: no channel during auth.

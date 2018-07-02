@@ -31,7 +31,10 @@ cordova plugin add cordova-plugin-cache-clear
 cordova plugin add cordova-custom-config
 cordova plugin add plugin_mods/speechrecognition/org.apache.cordova.speech.speechrecognition
 #cordova plugin add de.appplant.cordova.plugin.local-notification
-cordova plugin add plugin_mods/localnotifications/de.appplant.cordova.plugin.local-notification
+#cordova plugin add plugin_mods/localnotifications/de.appplant.cordova.plugin.local-notification
+#cordova plugin add cordova-plugin-local-notification@0.9.0-beta.2
+cordova plugin add cordova-plugin-local-notification
+cordova plugin add cordova-plugin-file
 cordova plugin add cordova-android-support-gradle-release
 #
 # overwrite plugin mods
@@ -58,3 +61,4 @@ cp -r "resources/themes/android/background_splash.xml" "platforms/android/res/dr
 cp -r "resources/themes/android/launch_screen.png" "platforms/android/res/drawable/launch_screen.png"
 cp -r "resources/themes/android/styles.xml" "platforms/android/res/values/styles.xml"
 echo "#DONE"
+echo "If everything worked out fine the next step would be to build the app from the %APP_NAME% folder: cordova build android"

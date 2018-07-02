@@ -29,6 +29,7 @@ function sepiaFW_build_account(){
 	
 	function broadcastEnterWithoutLogin(){
 		//TODO: this should prepare demo-mode ...
+		SepiaFW.client.setDemoMode(true);
 	}
 	
 	function broadcastLoginRestored(){
@@ -389,37 +390,69 @@ function sepiaFW_build_account(){
 		}
 		
 		//login-button
-		var logSendBtn = document.getElementById("sepiaFW-login-send");
-		if (logSendBtn){
-			$(logSendBtn).off();
-			$(logSendBtn).on("click", function () {
-				sendLoginFromBox();
-			});
-		}
+		var logSendBtn = $("#sepiaFW-login-send").off().on("click", function(){
+			sendLoginFromBox();
+		});
 		//id placeholder
 		var idInput = document.getElementById("sepiaFW-login-id");
 		idInput.placeholder = SepiaFW.local.username;
-		$(idInput).off();
-		$(idInput).on("keypress", function (e) {
+		$(idInput).off().on("keypress", function(e){
 			if (e.keyCode === 13) { sendLoginFromBox(); }
 		});
 		//keypress on pwd
 		var pwdInput = document.getElementById("sepiaFW-login-pwd");
 		pwdInput.placeholder = SepiaFW.local.password;
-		$(pwdInput).off();
-		$(pwdInput).on("keypress", function (e) {
+		$(pwdInput).off().on("keypress", function (e) {
 			if (e.keyCode === 13) { sendLoginFromBox(); }
 		});
 		//close-button
-		var clsBtn = document.getElementById("sepiaFW-login-close");
-		if (clsBtn){
-			$(clsBtn).off();
-			$(clsBtn).on("click", function () {
+		var clsBtn = $("#sepiaFW-login-close").off().on("click", function(){
+			Account.toggleLoginBox();
+			broadcastEnterWithoutLogin();
+			Account.afterLogin();
+		});
+		//hostname input field
+		var $hostInput = $("#sepiaFW-login-host-name");
+		$hostInput.val(SepiaFW.config.host);
+		$hostInput.off().on("change", function(){
+			var newHost = this.value;
+			this.blur();
+			SepiaFW.config.setHostName(newHost);
+			setTimeout(function(){
 				Account.toggleLoginBox();
-				broadcastEnterWithoutLogin();
-				Account.afterLogin();
+			}, 750);
+		});
+		//license
+		var licBtn = $("#sepiaFW-login-license-btn").off().on("click", function(event){
+			event.preventDefault();
+			SepiaFW.ui.actions.openUrlAutoTarget(SepiaFW.config.clientLicenseUrl);
+		});
+		//data privacy policy
+		var policyBtn = $("#sepiaFW-login-policy-btn").off().on("click", function(event){
+			event.preventDefault();
+			var policyUrl = SepiaFW.config.privacyPolicyUrl + "?host=" + encodeURI(SepiaFW.config.host);
+			SepiaFW.ui.actions.openUrlAutoTarget(policyUrl);
+		});
+		
+		//extend button
+		var $extendBtn = $('#sepiaFW-login-extend-btn');
+		$extendBtn.find('i').html('arrow_drop_down');
+		$extendBtn.off().on("click", function(){
+			var isVisible = ($extendBtn.find('i').html() == 'arrow_drop_up');
+			$('#sepiaFW-login-box').find('.extended-controls').each(function(){
+				if (isVisible){
+					$(this).fadeOut(150);
+				}else{
+					$(this).fadeIn(300);
+				}
 			});
-		}
+			if (isVisible){
+				$extendBtn.find('i').html('arrow_drop_down');
+			}else{
+				$extendBtn.find('i').html('arrow_drop_up');
+			}
+			//$('#sepiaFW-login-extend-box').hide();
+		});
 	}
 	function sendLoginFromBox(){
 		pwdIsToken = false;
@@ -620,7 +653,7 @@ function sepiaFW_build_account(){
 		dataBody.KEY = userid + ";" + pwd;
 		//dataBody.GUUID = userid;		//<-- DONT USE THAT IF ITS NOT ABSOLUTELY NECESSARY (its bad practice and a much heavier load for the server!)
 		//dataBody.PWD = pwd;
-		dataBody.client = SepiaFW.config.clientInfo;
+		dataBody.client = SepiaFW.config.getClientDeviceInfo(); //SepiaFW.config.clientInfo;
 		//SepiaFW.debug.info('URL: ' + api_url);
 		$.ajax({
 			url: api_url,
@@ -682,7 +715,7 @@ function sepiaFW_build_account(){
 		var dataBody = new Object();
 		dataBody.action = action;
 		dataBody.KEY = key;
-		dataBody.client = SepiaFW.config.clientInfo;
+		dataBody.client = SepiaFW.config.getClientDeviceInfo(); //SepiaFW.config.clientInfo;
 		$.ajax({
 			url: apiUrl,
 			timeout: 5000,
@@ -779,7 +812,7 @@ function sepiaFW_build_account(){
 			if (errorCallback) errorCallback("Data transfer failed! Not authorized or missing 'KEY'");
 			return;
 		}
-		data.client = SepiaFW.config.clientInfo;
+		data.client = SepiaFW.config.getClientDeviceInfo(); //SepiaFW.config.clientInfo;
 		//SepiaFW.debug.log('URL: ' + apiUrl);
 		//SepiaFW.debug.log('Body: ' + JSON.stringify(data));
 		$.ajax({
