@@ -42,9 +42,13 @@ function sepiaFW_build_dataService(){
 	function save(permanent){
 		try{
 			if (permanent){
-				localStorage.setItem('sepiaFW-data-permanent', JSON.stringify(dataPermanent));
+				if (window.localStorage){
+					localStorage.setItem('sepiaFW-data-permanent', JSON.stringify(dataPermanent));
+				}
 			}else{
-				localStorage.setItem('sepiaFW-data', JSON.stringify(data));
+				if (window.localStorage){
+					localStorage.setItem('sepiaFW-data', JSON.stringify(data));
+				}
 			}
 		}catch (e){
 			SepiaFW.debug.err('Data: localStorage write error! Not available?');
@@ -53,9 +57,13 @@ function sepiaFW_build_dataService(){
 	function load(permanent){
 		try{
 			if (permanent){
-				dataPermanent = JSON.parse(localStorage.getItem('sepiaFW-data-permanent')) || {};
+				if (window.localStorage){
+					dataPermanent = JSON.parse(localStorage.getItem('sepiaFW-data-permanent')) || {};
+				}
 			}else{
-				data = JSON.parse(localStorage.getItem('sepiaFW-data')) || {};
+				if (window.localStorage){
+					data = JSON.parse(localStorage.getItem('sepiaFW-data')) || {};
+				}
 			}
 		}catch (e){
 			if (permanent){
@@ -82,6 +90,54 @@ function sepiaFW_build_dataService(){
 		dataPermanent[key] = value;
 		save(true);
 	}
+	DataService.del = function(key){
+		load();
+		delete data[key];
+		save();
+	}
+	DataService.delPermanent = function(key){
+		load(true);
+		delete dataPermanent[key];
+		save(true);
+	}
+	
+	//clear all stored data (optionally keeping 'permanent')
+	DataService.clearAll = function(keepPermanent){
+		var localDataStatus = "";
+		if (window.localStorage){
+			window.localStorage.clear();
+			localDataStatus = "LocalStorage has been cleared. Permanent data kept: " + keepPermanent + ".";
+			SepiaFW.debug.log("Data: " + localDataStatus);
+		}
+		data = {};
+		//restore permanent data
+		if (keepPermanent){
+			save(true);
+		}
+		return localDataStatus;
+	}
+	
+	//clear app cache if possible
+	DataService.clearAppCache = function(successCallback, errorCallback){
+		if (SepiaFW.ui.isCordova && window.CacheClear){
+			window.CacheClear(function(status) {
+				//Success
+				SepiaFW.debug.log("Data: App cache has been cleared.");
+				if (successCallback) successCallback(status);
+			},function(status) {
+				//Error
+				SepiaFW.debug.err("Data: Error in app cache plugin, deletion failed!");
+				if (errorCallback) errorCallback(status);
+			});
+		}else{
+			SepiaFW.debug.log("Data: No app cache found, deletion not required!?");
+			var status = 'No app cache found, deletion not required!?';
+			if (successCallback) successCallback(status);
+		}
+	}
+	
+	//--------- specific data ----------
+	
 	DataService.updateAccount = function(key, value){
 		var account = DataService.get('account');
 		if (!account){
@@ -90,17 +146,6 @@ function sepiaFW_build_dataService(){
 		account[key] = value;
 		account.lastRefresh = new Date().getTime();
 		DataService.set('account', account);
-	}
-	DataService.del = function(key){
-		load();
-		delete data[key];
-		save();
-	}
-	DataService.clearAll = function(){
-		window.localStorage.clear();
-		data = {};
-		//restore permanent data
-		save(true);
 	}
 	
 	return DataService;
@@ -318,6 +363,10 @@ function sepiaFW_build_tools(){
 		return false;
 	}
 	
+	//check if string starts with certain suffix
+	Tools.startsWith = function(str, prefix) {
+		return str.indexOf(prefix) === 0;
+	}
 	//check if string ends with certain suffix
 	Tools.endsWith = function(str, suffix) {
 		return str.indexOf(suffix, str.length - suffix.length) !== -1;

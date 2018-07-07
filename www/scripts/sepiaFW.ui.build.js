@@ -561,17 +561,15 @@ function sepiaFW_build_ui_build(){
 						buttonOneName : SepiaFW.local.g('reload'),
 						buttonOneAction : function(){ location.reload(); }
 					};
-					if (SepiaFW.ui.isCordova && window.CacheClear){
-						SepiaFW.data.clearAll();		//clear all data except permanent (e.g. host-name)
-						window.CacheClear(function(status){
-							SepiaFW.ui.showPopup(status, config);
-						}, function(status) {
-							SepiaFW.ui.showPopup(status, config);
-						});
-					}else if (window.localStorage){
-						SepiaFW.data.clearAll();		//clear all data except permanent (e.g. host-name)
-						SepiaFW.ui.showPopup('App data has been cleared.', config); 		//TODO: translate
-					}
+					var keepPermanent = true;
+					var localDataStatus = SepiaFW.data.clearAll(keepPermanent);		//clear all data except permanent (e.g. host-name)
+					SepiaFW.data.clearAppCache(function(status){
+						//Success
+						SepiaFW.ui.showPopup((localDataStatus + " " + status), config);
+					}, function(status) {
+						//Error
+						SepiaFW.ui.showPopup((localDataStatus + " " + status), config);
+					});
 				}
 			));
 			//toggle channel messages
