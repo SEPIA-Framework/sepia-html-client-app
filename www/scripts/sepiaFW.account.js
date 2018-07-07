@@ -64,24 +64,16 @@ function sepiaFW_build_account(){
 		
 		//delete all other data we can find
 		SepiaFW.debug.log("Logout: Deleting all cached app data.");
-		if (SepiaFW.ui.isCordova && window.CacheClear){
-			SepiaFW.data.clearAll();		//clear all data except permanent (e.g. host-name)
-			window.CacheClear(function(status) {
-				//Success
-				SepiaFW.debug.log("Logout: App cache and local storage cleared.");
-				Account.finishedLogoutActionSection('App-data', true);
-			},function(status) {
-				//Error
-				SepiaFW.debug.err("Logout: Local storage cleared but error in app cache plugin!");
-				Account.finishedLogoutActionSection('App-data', false);
-			});
-		}else if (window.localStorage){
-			SepiaFW.data.clearAll();		//clear all data except permanent (e.g. host-name)
+		var keepPermanent = true;
+		SepiaFW.data.clearAll(keepPermanent);		//clear all data except permanent (e.g. host-name and device ID)
+		SepiaFW.data.clearAppCache(function(status){
+			//Success
 			Account.finishedLogoutActionSection('App-data', true);
-		}else{
-			Account.finishedLogoutActionSection('App-data', true);
-		}
-		
+		}, function(status) {
+			//Error
+			Account.finishedLogoutActionSection('App-data', false);
+		});
+				
 		//close websocket connection
 		/*
 		if (SepiaFW.webSocket && SepiaFW.webSocket.client){
@@ -351,7 +343,7 @@ function sepiaFW_build_account(){
 		}, 500, function(){
 			$(this).removeClass('sepiaFW-translucent-10');
 		});
-		//try restore from localStorage to avoid login popup - refresh required after e.g. 1 day = 1000*60*60*24
+		//try restore from data-storage to avoid login popup - refresh required after e.g. 1 day = 1000*60*60*24
 		var account = SepiaFW.data.get('account');
 		if (account && account.userToken && account.lastRefresh && ((new Date().getTime() - account.lastRefresh) < (1000*60*60*12))){
 			userId = account.userId;

@@ -309,11 +309,22 @@
 			config.webSocketAPI = "http://" + SepiaFW.config.host + ":20723/";
 		//custom server config with proxy (uses SSL)
 		}else{
+			//get protocol
+			var http = "https://";
+			var ws = "wss://";
+			var cleanHost = SepiaFW.config.host;
+			if (SepiaFW.tools.startsWith(SepiaFW.config.host, "http://")){
+				cleanHost = cleanHost.replace(/^http:\/\//,'');
+				http = "http://";
+				ws = "ws://";
+			}else if (SepiaFW.tools.startsWith(SepiaFW.config.host, "https://")){
+				cleanHost = cleanHost.replace(/^https:\/\//,'');
+			}
 			//set default
-			config.assistAPI = "https://" + SepiaFW.config.host + "/assist/";
-			config.teachAPI = "https://" + SepiaFW.config.host + "/teach/";
-			config.webSocketURI = "wss://" + SepiaFW.config.host + "/chat/messages/";
-			config.webSocketAPI = "https://" + SepiaFW.config.host + "/chat/";
+			config.assistAPI = http + cleanHost + "/assist/";
+			config.teachAPI = http + cleanHost + "/teach/";
+			config.webSocketURI = ws + cleanHost + "/chat/messages/";
+			config.webSocketAPI = http + cleanHost + "/chat/";
 		}
 		SepiaFW.config.setEndPoints(config);
 		

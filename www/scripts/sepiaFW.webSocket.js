@@ -815,7 +815,9 @@ function sepiaFW_build_webSocket_client(){
 	Client.closeConnection = function(){
 		//TODO: consider tryReconnect here. When force close set it in the calling function.
 		tryReconnect = false;
-		webSocket.close();
+		if (webSocket){
+			webSocket.close();
+		}
 	}
 	
 	//reconnect on close

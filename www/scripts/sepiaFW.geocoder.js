@@ -339,13 +339,22 @@ function sepiaFW_build_geocoder(){
 	}
 	
 	//get location via IP address
+	Geocoder.ipServiceUrl = "https://extreme-ip-lookup.com/json"; //"https://freegeoip.net/json/" (deprecated, now: https://ipstack.com), "http://ip-api.com/json"
 	Geocoder.getLocationViaIP = function(successCallback, errorCallback){
 		//call service
 		$.ajax({
-			url: "https://freegeoip.net/json/",
+			url: Geocoder.ipServiceUrl,
 			timeout: 5000,
 			dataType: "json",
-			success: function(data) {
+			success: function(apiData) {
+				//wrap data from different APIs
+				var data = {};
+				if (apiData){
+					data.latitude = apiData.latitude || apiData.lat;
+					data.longitude = apiData.longitude || apiData.lon;
+					data.country_name = apiData.country_name || apiData.country;
+					data.city = apiData.city;
+				}
 				//console.info(JSON.stringify(res));
 				if (data.latitude && data.longitude){
 					lastAddressResult = (addressResult)? JSON.parse(JSON.stringify(addressResult)) : '';
