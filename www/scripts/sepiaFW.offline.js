@@ -31,6 +31,28 @@ function sepiaFW_build_offline(){
 		}
 		return action;
 	}
+	//Get a pro-active chat message action (action type: schedule_msg) 
+	//Use with: SepiaFW.events.setProActiveBackgroundNotification(action)
+	Offline.getProActiveChatAction = function(_eventId, _triggerIn, _text){
+		var action = {
+			eventId: _eventId,
+			triggerIn: _triggerIn,
+			text: _text,
+			type: "schedule_msg",
+			info: "entertainWhileIdle"
+		}
+		return action;
+	}
+
+	//Handle a message oflfine sent via Client.sendMessage - currently used for demo-mode
+	Offline.handleClientSendMessage = function(message){
+		var dataIn = { sender: 'username' };
+		SepiaFW.ui.showCustomChatMessage(message.text, dataIn);
+		setTimeout(function(){
+			var dataOut = { sender: 'parrot', senderType: 'assistant' };
+			SepiaFW.ui.showCustomChatMessage(message.text, dataOut);
+		}, 500);
+	}
 	
 	return Offline;
 }
