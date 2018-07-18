@@ -232,12 +232,14 @@ function sepiaFW_build_geocoder(){
 			var error = {};
 			error.message = 'got NO GPS coordinates!';
 			if (errorCallback) errorCallback(error);
+			return;
 		}
 		if (!needNewAddress(getDistance(latitude, longitude, lastLatitude, lastLongitude))){
 			isActive = false;
 			broadcastAddressFinished();
 			SepiaFW.debug.info('Geocoder getAddress: no update required, using old result');
 			if (successCallback) successCallback(lastAddressResult);
+			return;
 		}
 		
 		//build url
