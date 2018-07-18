@@ -12,6 +12,7 @@ function sepiaFW_build_client_interface(){
 	ClientInterface.checkNetwork = SepiaFW.webSocket.client.checkNetwork;
 	ClientInterface.startClient = SepiaFW.webSocket.client.startClient;
 	ClientInterface.welcomeActions = SepiaFW.webSocket.client.welcomeActions;
+	ClientInterface.handleRequestViaUrl = SepiaFW.webSocket.client.handleRequestViaUrl;
 	ClientInterface.setDemoMode = SepiaFW.webSocket.client.setDemoMode;
 	ClientInterface.isDemoMode = SepiaFW.webSocket.client.isDemoMode;
 	
@@ -365,7 +366,7 @@ function sepiaFW_build_webSocket_client(){
 		Client.buildUI();	//we could call this once inside ui.setup(), but without log-in ...
 		
 		//ADD welcome stuff? - TODO: what if this is offline mode or unreachable server?
-		Client.welcomeActions(true);
+		Client.welcomeActions(false);
 	}
 	
 	//when client started add some info like first-visit messages or buttons
@@ -383,7 +384,7 @@ function sepiaFW_build_webSocket_client(){
 			actionsArray.push(SepiaFW.offline.getUrlButtonAction(SepiaFW.config.clientLicenseUrl, SepiaFW.local.g("license")));
 			actionsArray.push(SepiaFW.offline.getUrlButtonAction(SepiaFW.config.privacyPolicyUrl + "?host=" + encodeURI(SepiaFW.config.host), SepiaFW.local.g("data_privacy")));
 			if (!onlyOffline){
-				actionsArray.push(SepiaFW.offline.getHelpButtonAction()); 		//TODO: this will only onActive
+				actionsArray.push(SepiaFW.offline.getHelpButtonAction()); 		//TODO: this will only work onActive
 			}
 			if (SepiaFW.account.getUserId()){
 				actionsArray.push({type: "button_custom_fun", title: SepiaFW.local.g('dontShowAgain'), fun: function(){
@@ -392,6 +393,26 @@ function sepiaFW_build_webSocket_client(){
 				}});
 			}
 			publishMyViewActions(actionsArray, sender, options);
+		}
+	}
+
+	//handle a message or command that was given via URL 'q=...' parameter
+	Client.handleRequestViaUrl = function(requestMsg){
+		//1st: remove it from URL to avoid repeat
+		var url = SepiaFW.tools.removeParameterFromURL(window.location.href, 'q');
+		if (window.history && window.history.replaceState){
+			window.history.replaceState(history.state, document.title, url);
+		}
+		
+		//2nd: check if it is a text message or a command
+		if (requestMsg.indexOf("cmd=") == 0){
+			//handle command:
+			//TODO: ask user if he wants to do this before actually doing it!, convert, execute, ...
+			console.log("Command via URL: " + requestMsg)
+		}else{
+			//handle msg:
+			//TODO: ask user if he wants to do this before actually doing it!, add to input, execute, ...
+			console.log("Request via URL: " + requestMsg)
 		}
 	}
 	

@@ -47,6 +47,8 @@ function sepiaFW_build_strings(){
 	StringsDE.tryAgain = 'Nochmal versuchen';
 	StringsDE.wait = 'Warten';
 	StringsDE.forget = 'Vergessen';
+	StringsDE.abort = 'Abbrechen';
+	StringsDE.continueOffline = 'Offline weitermachen';
 	StringsDE.locateMe = 'Standort bestimmen';
 	StringsDE.deviceId = 'Geräte ID';
 	StringsDE.copyList = 'Diese Liste gehört einem anderen User, möchtest du sie in deinen Account kopieren?';
@@ -122,6 +124,8 @@ function sepiaFW_build_strings(){
 	StringsEN.tryAgain = 'Try again';
 	StringsEN.wait = 'Wait';
 	StringsEN.forget = 'Forget';
+	StringsEN.abort = 'Abort';
+	StringsEN.continueOffline = 'Continue offline';
 	StringsEN.locateMe = 'Refresh my location';
 	StringsEN.deviceId = 'Device ID';
 	StringsEN.copyList = 'This list belongs to another user, do you want to copy it to your account?';

@@ -302,12 +302,6 @@ function sepiaFW_build_config(){
 function sepiaFW_build_tools(){
 	var Tools = {};
 	
-	//prepend a zero to a number if it is lower than 10
-	function addZero(i) {
-		return (i < 10)? "0" + i : i;
-	}
-	Tools.addZero = addZero;
-	
 	//get server default local date/timeout - TODO: note that this needs to be adjusted to server settings
 	Tools.getLocalDateTime = function(){
 		var d = new Date();
@@ -345,6 +339,15 @@ function sepiaFW_build_tools(){
 		}
 		return url;
 	}
+	//remove a parameter of a given URL (parameter has to contain a '=' e.g. x=1)
+	Tools.removeParameterFromURL = function(url, parameter){
+		if (!!url.match(new RegExp("(\\?)(" + parameter + "=.*?)(&)"))){
+			url = url.replace(new RegExp("(\\?)(" + parameter + "=.*?)(&)"), "?");
+		}else if (url.indexOf('&' + parameter + '=') > -1){
+			url = url.replace(new RegExp("(&)(" + parameter + "=.*?)(&|$)"), "$3");
+		}
+		return url;
+	}
 	
 	//check for IP
 	Tools.isIP = function(ip) {
@@ -371,7 +374,17 @@ function sepiaFW_build_tools(){
 	Tools.endsWith = function(str, suffix) {
 		return str.indexOf(suffix, str.length - suffix.length) !== -1;
 	}
-	
+	//Match regular expression - shortcut for boolean regExp matching
+	Tools.doesMatchRegExp = function(str, regEx, flags) {
+		return !!str.match(new RegExp(regEx, flags));
+	}
+		
+	//prepend a zero to a number if it is lower than 10
+	function addZero(i) {
+		return (i < 10)? "0" + i : i;
+	}
+	Tools.addZero = addZero;
+
 	//randomize array element
 	Tools.shuffleArray = function(array) {
 		for (var i = array.length - 1; i > 0; i--) {
