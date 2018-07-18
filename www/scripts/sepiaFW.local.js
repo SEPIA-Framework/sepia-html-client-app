@@ -41,6 +41,8 @@ function sepiaFW_build_strings(){
 	StringsDE.userNotFound = 'Uups, dieser User scheint gerade nicht hier zu sein :-(';
 	StringsDE.loading = 'Lädt';
 	StringsDE.doit = 'Tu es!';
+	StringsDE.looksGood = 'Sieht gut aus';
+	StringsDE.betterNot = 'Besser nicht';
 	StringsDE.back = 'Zurück';
 	StringsDE.next = 'Weiter';
 	StringsDE.save = 'Speichern';
@@ -51,6 +53,7 @@ function sepiaFW_build_strings(){
 	StringsDE.continueOffline = 'Offline weitermachen';
 	StringsDE.locateMe = 'Standort bestimmen';
 	StringsDE.deviceId = 'Geräte ID';
+	StringsDE.allowedToExecuteThisCommand = 'Darf ich diesen Befehl ausführen: ';
 	StringsDE.copyList = 'Diese Liste gehört einem anderen User, möchtest du sie in deinen Account kopieren?';
 	StringsDE.deleteItemConfirm = 'Bist du sicher, dass du das löschen möchtest?';
 	StringsDE.deleteItem = 'Löschen';
@@ -118,6 +121,8 @@ function sepiaFW_build_strings(){
 	StringsEN.userNotFound = 'Uups, this user seems to be not available right now :-(';
 	StringsEN.loading = 'Loading';
 	StringsEN.doit = 'Do it!';
+	StringsEN.looksGood = 'Looks good';
+	StringsEN.betterNot = 'Better not';
 	StringsEN.back = 'Back';
 	StringsEN.next = 'Next';
 	StringsEN.save = 'Save';
@@ -128,6 +133,7 @@ function sepiaFW_build_strings(){
 	StringsEN.continueOffline = 'Continue offline';
 	StringsEN.locateMe = 'Refresh my location';
 	StringsEN.deviceId = 'Device ID';
+	StringsEN.allowedToExecuteThisCommand = 'Am I allowed to send this request: ';
 	StringsEN.copyList = 'This list belongs to another user, do you want to copy it to your account?';
 	StringsEN.deleteItemConfirm = 'Are you sure you want to delete this?';
 	StringsEN.deleteItem = 'Delete';

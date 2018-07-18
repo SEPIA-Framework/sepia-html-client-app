@@ -403,17 +403,32 @@ function sepiaFW_build_webSocket_client(){
 		if (window.history && window.history.replaceState){
 			window.history.replaceState(history.state, document.title, url);
 		}
-		
-		//2nd: check if it is a text message or a command
+		//2nd: check if it is a text message or a command and handle accordingly
 		if (requestMsg.indexOf("cmd=") == 0){
 			//handle command:
-			//TODO: ask user if he wants to do this before actually doing it!, convert, execute, ...
-			console.log("Command via URL: " + requestMsg)
+			handleUrlCommandRequest(requestMsg);
 		}else{
 			//handle msg:
-			//TODO: ask user if he wants to do this before actually doing it!, add to input, execute, ...
-			console.log("Request via URL: " + requestMsg)
+			handleUrlMessageRequest(requestMsg);
 		}
+	}
+	function handleUrlMessageRequest(requestMsg){
+		//ask user if he wants to do this before actually doing it!
+		SepiaFW.ui.askForPermissionToExecute(requestMsg, function(){
+			//yes
+			SepiaFW.debug.log("Executing request via URL: " + requestMsg);
+			setTimeout(function(){
+				SepiaFW.client.sendInputText(requestMsg);
+			}, 750);
+		}, function(){
+			//no
+		});
+	}
+	function handleUrlCommandRequest(requestMsg){
+		SepiaFW.ui.askForPermissionToExecute(requestMsg, function(){
+			//yes
+			SepiaFW.debug.log("Executing command via URL: " + requestMsg);
+		});
 	}
 	
 	//demo mode setup
@@ -871,7 +886,7 @@ function sepiaFW_build_webSocket_client(){
 		if (SepiaFW.speech.isSpeaking()){
 			SepiaFW.speech.stopSpeech();
 			clearTimeout(sendInputTimeout);
-			sendInputTimeout = setTimeout(Client.sendInputText, 500);
+			sendInputTimeout = setTimeout(function(){ Client.sendInputText(inputText); }, 500);
 			return;
 		}
 		clearTimeout(sendInputTimeout);
@@ -975,13 +990,8 @@ function sepiaFW_build_webSocket_client(){
 		if (message){
 			//Offline mode
 			if (Client.isDemoMode()){
-				if (message.text){
-					var dataIn = { sender: 'username' };
-					SepiaFW.ui.showCustomChatMessage(message.text, dataIn);
-					setTimeout(function(){
-						var dataOut = { sender: 'parrot', senderType: 'assistant' };
-						SepiaFW.ui.showCustomChatMessage(message.text, dataOut);
-					}, 500);
+				if (SepiaFW.offline && message.text){
+					SepiaFW.offline.handleClientSendMessage(message);
 				}else{
 					//SepiaFW.ui.showInfo(SepiaFW.local.g('nobodyThere'));
 					SepiaFW.ui.showInfo("Demo-Mode", true);
@@ -1360,6 +1370,7 @@ function sepiaFW_build_webSocket_client(){
 			if ($(cEntry).children().not('.chatMe').hasClass('chatPm') && (!SepiaFW.ui.isVisible() || (SepiaFW.ui.getIdleTime() > (5*60*1000)))){
 				if (SepiaFW.events){
 					var noteData = {
+						type : "chat",
 						onClickType : "replySender",
 						sender : message.sender
 					}

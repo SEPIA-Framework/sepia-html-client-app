@@ -345,6 +345,8 @@ function sepiaFW_build_tools(){
 			url = url.replace(new RegExp("(\\?)(" + parameter + "=.*?)(&)"), "?");
 		}else if (url.indexOf('&' + parameter + '=') > -1){
 			url = url.replace(new RegExp("(&)(" + parameter + "=.*?)(&|$)"), "$3");
+		}else{
+			url = url.replace(new RegExp("(\\?)(" + parameter + "=.*?)($)"), "");
 		}
 		return url;
 	}

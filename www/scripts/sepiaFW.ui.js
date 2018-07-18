@@ -809,6 +809,23 @@ function sepiaFW_build_ui(){
 		$('#sepiaFW-popup-message').fadeOut(300);
 		$('#sepiaFW-cover-layer').fadeOut(300);
 	}
+
+	//Use pop-up to ask for permission
+	UI.askForPermissionToExecute = function(question, allowedCallback, refusedCallback){
+		var request = SepiaFW.local.g('allowedToExecuteThisCommand') + "<br><br>" + question;
+		UI.showPopup(request, {
+			buttonOneName : SepiaFW.local.g('looksGood'),
+			buttonOneAction : function(){
+				//yes
+				if (allowedCallback) allowedCallback();
+			},
+			buttonTwoName : SepiaFW.local.g('betterNot'),
+			buttonTwoAction : function(){
+				//no
+				if (refusedCallback) refusedCallback();
+			}
+		});
+	}
 	
 	//Simple double-tap
 	UI.simpleDoubleTab = function(ele, callback){

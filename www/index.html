@@ -343,6 +343,9 @@
 				//SepiaFW.ui.showInfo(SepiaFW.local.g('demoMode'), true);
 				SepiaFW.ui.showCustomChatMessage(SepiaFW.local.g('demoMode'));
 				SepiaFW.client.welcomeActions(true);
+				if (requestViaUrl){
+					SepiaFW.client.handleRequestViaUrl(requestViaUrl);
+				}
 			}else{
 				SepiaFW.client.ping(
 					//success
