@@ -36,9 +36,23 @@ var app = {
 		
 		//cordova info
 		document.getElementById('sepiaFW-cordova-starter').innerHTML += ("<p>" + device.platform + "</p>");
-		
-		//start 'real' app - TODO: transfer other URL parameters?
-        cordova.InAppBrowser.open("index.html?cordova=true", "_self");
+
+		//load data from nativeStorage to localStorage?
+		if (window.NativeStorage && window.localStorage){
+			NativeStorage.getItem("sepiaFW-data", function(data){
+				if(data)	localStorage.setItem("sepiaFW-data", JSON.stringify(data));
+				NativeStorage.getItem("sepiaFW-data-permanent", function(data){
+					if(data)	localStorage.setItem("sepiaFW-data-permanent", JSON.stringify(data));
+					redirect();
+				}, function(err){
+					redirect();
+				});
+			}, function(err){
+				redirect();
+			});
+		}else{
+			redirect();
+		}
     },
 	// openNewsListPage Event Handler
 	onUniversalLink: function(eventData) {
@@ -54,4 +68,11 @@ var app = {
 	}
 };
 
+//redirect to main page
+function redirect(){
+	//start 'real' app - TODO: transfer other URL parameters?
+	cordova.InAppBrowser.open("index.html?cordova=true", "_self");
+}
+
+//GO
 app.initialize();
