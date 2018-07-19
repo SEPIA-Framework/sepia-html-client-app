@@ -1,11 +1,11 @@
 <?xml version='1.0' encoding='utf-8'?>
-<widget id="org.example.sepia.app.web" version="0.11.3" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
+<widget id="org.example.sepia.app.web" version="0.12.0" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
     <name>S.E.P.I.A.</name>
     <description>
         Prototype of S.E.P.I.A. framework client
     </description>
     <author email="info@example.org" href="https://sepia.example.org">
-        Name - Company
+        Name - Organisation
     </author>
     
 	<content src="start.html" />
@@ -92,6 +92,13 @@
 		<preference name="deployment-target" value="10.0" /><!-- iOS 10+ -->
         <preference name="DisallowOverscroll" value="true" />
         <preference name="SuppressesLongPressGesture" value="true" />
+		
+		<edit-config target="NSLocationWhenInUseUsageDescription" file="*-Info.plist" mode="merge">
+			<string>If you activate GPS in the app and allow access SEPIA can help you navigate and show you location based events.</string>
+        </edit-config>
+        <edit-config target="NSLocationAlwaysAndWhenInUseUsageDescription" file="*-Info.plist" mode="merge">
+			<string>If you activate GPS in the app and allow access SEPIA can help you navigate and show you location based events.</string>
+        </edit-config>
 	
 		<!--intents-->
         <allow-intent href="itms:*" />
