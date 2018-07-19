@@ -40,6 +40,7 @@ function sepiaFW_build_strings(){
 	StringsDE.nobodyThere = 'Uups, es scheint zur Zeit leider keiner hier zu sein, der dir antworten könnte :-(';
 	StringsDE.userNotFound = 'Uups, dieser User scheint gerade nicht hier zu sein :-(';
 	StringsDE.loading = 'Lädt';
+	StringsDE.oneMoment = 'Einen Moment bitte ...';
 	StringsDE.doit = 'Tu es!';
 	StringsDE.looksGood = 'Sieht gut aus';
 	StringsDE.betterNot = 'Besser nicht';
@@ -120,6 +121,7 @@ function sepiaFW_build_strings(){
 	StringsEN.nobodyThere = 'Uups, sorry but it seems there is nobody here to answer your message :-(';
 	StringsEN.userNotFound = 'Uups, this user seems to be not available right now :-(';
 	StringsEN.loading = 'Loading';
+	StringsEN.oneMoment = 'One moment please ...';
 	StringsEN.doit = 'Do it!';
 	StringsEN.looksGood = 'Looks good';
 	StringsEN.betterNot = 'Better not';

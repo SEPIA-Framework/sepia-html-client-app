@@ -382,8 +382,13 @@ function sepiaFW_build_account(){
 		var langSelBox = document.getElementById("sepiaFW-language-selector");
 		if (langSelBox){
 			langSelBox.appendChild(SepiaFW.ui.build.languageSelector("sepiaFW-login-language-dropdown", function(selectedLanguage){
+				SepiaFW.data.set('app-language', selectedLanguage);
 				var url = SepiaFW.tools.setParameterInURL(window.location.href, 'lang', selectedLanguage);
-				window.location.href = url;
+				setTimeout(function(){
+				    window.location.href = url;
+				}, 2000);
+				Account.toggleLoginBox();
+				SepiaFW.ui.showPopup(SepiaFW.local.g('oneMoment'));
 			}));
 		}
 		
