@@ -304,7 +304,7 @@ function sepiaFW_build_webSocket_client(){
 	Client.checkNetwork = function(successCallback, failCallback){
 		SepiaFW.ui.showLoader(true);
 		$.ajax({
-			url: ("https://maps.googleapis.com/maps/api/geocode/json"),
+			url: ("https://sepia-framework.github.io"),
 			timeout: 1500,
 			method: "HEAD",
 			success: function(data) {
@@ -314,7 +314,8 @@ function sepiaFW_build_webSocket_client(){
 			},
 			error: function(data) {
 				SepiaFW.ui.hideLoader();
-				if (data && data.status >= 100){
+				//if (data && data.status >= 100){
+				if (data && data.status == 405){
 					//console.log('success');	console.log('status: ' + data.status);
 					if (successCallback) successCallback(data);
 				}else{
