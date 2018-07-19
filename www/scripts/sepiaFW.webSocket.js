@@ -12,6 +12,7 @@ function sepiaFW_build_client_interface(){
 	ClientInterface.checkNetwork = SepiaFW.webSocket.client.checkNetwork;
 	ClientInterface.startClient = SepiaFW.webSocket.client.startClient;
 	ClientInterface.welcomeActions = SepiaFW.webSocket.client.welcomeActions;
+	ClientInterface.handleRequestViaUrl = SepiaFW.webSocket.client.handleRequestViaUrl;
 	ClientInterface.setDemoMode = SepiaFW.webSocket.client.setDemoMode;
 	ClientInterface.isDemoMode = SepiaFW.webSocket.client.isDemoMode;
 	
@@ -303,7 +304,7 @@ function sepiaFW_build_webSocket_client(){
 	Client.checkNetwork = function(successCallback, failCallback){
 		SepiaFW.ui.showLoader(true);
 		$.ajax({
-			url: ("https://maps.googleapis.com/maps/api/geocode/json"),
+			url: ("https://sepia-framework.github.io"),
 			timeout: 1500,
 			method: "HEAD",
 			success: function(data) {
@@ -313,7 +314,8 @@ function sepiaFW_build_webSocket_client(){
 			},
 			error: function(data) {
 				SepiaFW.ui.hideLoader();
-				if (data && data.status >= 100){
+				//if (data && data.status >= 100){
+				if (data && data.status == 405){
 					//console.log('success');	console.log('status: ' + data.status);
 					if (successCallback) successCallback(data);
 				}else{
@@ -365,7 +367,7 @@ function sepiaFW_build_webSocket_client(){
 		Client.buildUI();	//we could call this once inside ui.setup(), but without log-in ...
 		
 		//ADD welcome stuff? - TODO: what if this is offline mode or unreachable server?
-		Client.welcomeActions(true);
+		Client.welcomeActions(false);
 	}
 	
 	//when client started add some info like first-visit messages or buttons
@@ -383,7 +385,7 @@ function sepiaFW_build_webSocket_client(){
 			actionsArray.push(SepiaFW.offline.getUrlButtonAction(SepiaFW.config.clientLicenseUrl, SepiaFW.local.g("license")));
 			actionsArray.push(SepiaFW.offline.getUrlButtonAction(SepiaFW.config.privacyPolicyUrl + "?host=" + encodeURI(SepiaFW.config.host), SepiaFW.local.g("data_privacy")));
 			if (!onlyOffline){
-				actionsArray.push(SepiaFW.offline.getHelpButtonAction()); 		//TODO: this will only onActive
+				actionsArray.push(SepiaFW.offline.getHelpButtonAction()); 		//TODO: this will only work onActive
 			}
 			if (SepiaFW.account.getUserId()){
 				actionsArray.push({type: "button_custom_fun", title: SepiaFW.local.g('dontShowAgain'), fun: function(){
@@ -393,6 +395,41 @@ function sepiaFW_build_webSocket_client(){
 			}
 			publishMyViewActions(actionsArray, sender, options);
 		}
+	}
+
+	//handle a message or command that was given via URL 'q=...' parameter
+	Client.handleRequestViaUrl = function(requestMsg){
+		//1st: remove it from URL to avoid repeat
+		var url = SepiaFW.tools.removeParameterFromURL(window.location.href, 'q');
+		if (window.history && window.history.replaceState){
+			window.history.replaceState(history.state, document.title, url);
+		}
+		//2nd: check if it is a text message or a command and handle accordingly
+		if (requestMsg.indexOf("cmd=") == 0){
+			//handle command:
+			handleUrlCommandRequest(requestMsg);
+		}else{
+			//handle msg:
+			handleUrlMessageRequest(requestMsg);
+		}
+	}
+	function handleUrlMessageRequest(requestMsg){
+		//ask user if he wants to do this before actually doing it!
+		SepiaFW.ui.askForPermissionToExecute(requestMsg, function(){
+			//yes
+			SepiaFW.debug.log("Executing request via URL: " + requestMsg);
+			setTimeout(function(){
+				SepiaFW.client.sendInputText(requestMsg);
+			}, 750);
+		}, function(){
+			//no
+		});
+	}
+	function handleUrlCommandRequest(requestMsg){
+		SepiaFW.ui.askForPermissionToExecute(requestMsg, function(){
+			//yes
+			SepiaFW.debug.log("Executing command via URL: " + requestMsg);
+		});
 	}
 	
 	//demo mode setup
@@ -850,7 +887,7 @@ function sepiaFW_build_webSocket_client(){
 		if (SepiaFW.speech.isSpeaking()){
 			SepiaFW.speech.stopSpeech();
 			clearTimeout(sendInputTimeout);
-			sendInputTimeout = setTimeout(Client.sendInputText, 500);
+			sendInputTimeout = setTimeout(function(){ Client.sendInputText(inputText); }, 500);
 			return;
 		}
 		clearTimeout(sendInputTimeout);
@@ -954,13 +991,8 @@ function sepiaFW_build_webSocket_client(){
 		if (message){
 			//Offline mode
 			if (Client.isDemoMode()){
-				if (message.text){
-					var dataIn = { sender: 'username' };
-					SepiaFW.ui.showCustomChatMessage(message.text, dataIn);
-					setTimeout(function(){
-						var dataOut = { sender: 'parrot', senderType: 'assistant' };
-						SepiaFW.ui.showCustomChatMessage(message.text, dataOut);
-					}, 500);
+				if (SepiaFW.offline && message.text){
+					SepiaFW.offline.handleClientSendMessage(message);
 				}else{
 					//SepiaFW.ui.showInfo(SepiaFW.local.g('nobodyThere'));
 					SepiaFW.ui.showInfo("Demo-Mode", true);
@@ -1339,6 +1371,7 @@ function sepiaFW_build_webSocket_client(){
 			if ($(cEntry).children().not('.chatMe').hasClass('chatPm') && (!SepiaFW.ui.isVisible() || (SepiaFW.ui.getIdleTime() > (5*60*1000)))){
 				if (SepiaFW.events){
 					var noteData = {
+						type : "chat",
 						onClickType : "replySender",
 						sender : message.sender
 					}

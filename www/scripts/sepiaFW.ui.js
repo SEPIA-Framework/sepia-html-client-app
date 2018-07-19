@@ -3,7 +3,7 @@ function sepiaFW_build_ui(){
 	var UI = {};
 	
 	//some constants
-	UI.version = "v0.11.4";
+	UI.version = "v0.12.0";
 	UI.JQ_RES_VIEW_IDS = "#sepiaFW-result-view, #sepiaFW-chat-output, #sepiaFW-my-view";			//a selector to get all result views e.g. $(UI.JQ_RES_VIEW_IDS).find(...)
 	UI.JQ_ALL_MAIN_VIEWS = "#sepiaFW-result-view, #sepiaFW-chat-output, #sepiaFW-my-view, #sepiaFW-teachUI-editor, #sepiaFW-teachUI-manager, #sepiaFW-frame-page-1, #sepiaFW-frame-page-2"; 	//TODO: frames can have more ...
 	UI.JQ_ALL_MAIN_CONTAINERS = "#sepiaFW-my-view, #sepiaFW-chat-output-container, #sepiaFW-result-view";
@@ -808,6 +808,23 @@ function sepiaFW_build_ui(){
 	UI.hidePopup = function(){
 		$('#sepiaFW-popup-message').fadeOut(300);
 		$('#sepiaFW-cover-layer').fadeOut(300);
+	}
+
+	//Use pop-up to ask for permission
+	UI.askForPermissionToExecute = function(question, allowedCallback, refusedCallback){
+		var request = SepiaFW.local.g('allowedToExecuteThisCommand') + "<br><br>" + question;
+		UI.showPopup(request, {
+			buttonOneName : SepiaFW.local.g('looksGood'),
+			buttonOneAction : function(){
+				//yes
+				if (allowedCallback) allowedCallback();
+			},
+			buttonTwoName : SepiaFW.local.g('betterNot'),
+			buttonTwoAction : function(){
+				//no
+				if (refusedCallback) refusedCallback();
+			}
+		});
 	}
 	
 	//Simple double-tap

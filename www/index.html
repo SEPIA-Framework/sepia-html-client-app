@@ -50,7 +50,7 @@
 		"url": "https://sepia-framework.github.io",
 		"potentialAction": {
 			"@type": "SearchAction",
-			"target": "https://sepia-framework.github.io?q={search_term}",
+			"target": "https://sepia-framework.github.io/app/index.html?q={search_term}",
 			"query-input": "required name=search_term"
 		}
 	}*/
@@ -71,7 +71,7 @@
 		</div>
 		<!-- Host-name pre-login box -->
 		<div id="sepiaFW-host-name-box" class="extended-controls" style="display:none;">
-			<label>Hostname:<//label>
+			<label>Hostname:</label>
 			<input id="sepiaFW-login-host-name" type="email" placeholder="my.example.org/sepia" aria-label="Hostname">
 		</div>
 		<!-- Status and info links -->
@@ -280,6 +280,8 @@
 	//get some settings via URL parameters
 	var isCordova = SepiaFW.tools.getURLParameter('cordova') + '';
 	var isTest = SepiaFW.tools.getURLParameter('isTest');
+	var hostParam = SepiaFW.tools.getURLParameter('host');
+	var requestViaUrl = SepiaFW.tools.getURLParameter('q');
 	
 	//define app setup (called either here (index.html) or in cordova device-ready (index.js)
 	function appSetup(){
@@ -288,7 +290,7 @@
 	
 		//set endpoints
 		var config = new Object();
-		var restoreHostOrDefault = SepiaFW.data.getPermanent("host-name") || "localhost";	//or e.g. "my-server.example.org/sepia"
+		var restoreHostOrDefault = hostParam || SepiaFW.data.getPermanent("host-name") || "localhost";	//or e.g. "my-server.example.org/sepia"
 		SepiaFW.config.setHostName(restoreHostOrDefault, true);
 		//try to load host, e.g.:
 		//- "localhost" (direct links),
@@ -341,21 +343,41 @@
 				//SepiaFW.ui.showInfo(SepiaFW.local.g('demoMode'), true);
 				SepiaFW.ui.showCustomChatMessage(SepiaFW.local.g('demoMode'));
 				SepiaFW.client.welcomeActions(true);
+				if (requestViaUrl){
+					SepiaFW.client.handleRequestViaUrl(requestViaUrl);
+				}
 			}else{
 				SepiaFW.client.ping(
 					//success
 					function(data){
 						//TODO: startClient is a required method, maybe move it to core and replace it with 'client.onActive'?
-						SepiaFW.client.startClient();
+						SepiaFW.client.startClient(); 		//includes: buildUI and welcomeActions
+						if (requestViaUrl){
+							SepiaFW.client.handleRequestViaUrl(requestViaUrl);
+						}
 					},
-					//fail: no connection to chat-server
-					function(data){
-						SepiaFW.ui.showPopup(SepiaFW.local.g('noConnectionToServer'));
-						//get offline welcome help anyway
-						SepiaFW.client.welcomeActions(true);
-					}
+					//fail: no connection to chat-server - note: on mobile this might trigger although network in general is down
+					function(data){ doThisOnConnectionFail(data) },
+					//fail: no connection at all (network problems) - optional, default: OK, TRY AGAIN
+					function(data){ doThisOnConnectionFail(data) }
 				);
 			}
+		}
+		function doThisOnConnectionFail(data){
+			SepiaFW.ui.showPopup(SepiaFW.local.g('noConnectionToServer'), {
+				buttonOneName : SepiaFW.local.g('tryAgain'),
+				buttonOneAction : function(){
+					//repeat this
+					SepiaFW.account.afterLogin();
+				},
+				buttonTwoName : SepiaFW.local.g('continueOffline'),
+				buttonTwoAction : function(){
+					//offline notice
+					SepiaFW.ui.showCustomChatMessage(SepiaFW.local.g('noConnectionToAssistant'));
+				}
+			});
+			//get offline welcome help anyway
+			SepiaFW.client.welcomeActions(true);
 		}
 		
 		//load UI

@@ -131,6 +131,8 @@ function sepiaFW_build_events(){
 		/* action:
 		{"eventId":"randomMotivationMorning","info":"entertainWhileIdle","triggerIn":-22800000,"text":"Ach, ich wollte noch sagen, du bist cool! :-)","type":"schedule_msg"}
 		*/
+		var noteData = {"type" : action.info, "action" : "triggered", "data" : {"message" : action.text, "eventId" : action.eventId}};
+
 		if (SepiaFW.ui.isCordova){
 			var d = new Date((new Date().getTime() + action.triggerIn) + 1500);		//note: the delay is to handle the foreground activity (see below, 2nd timer)
 			var nid = getAndIncreaseNotificationId();
@@ -143,7 +145,7 @@ function sepiaFW_build_events(){
 				smallIcon: "res://ic_popup_reminder",
 				icon: "res://icon",
 				color: "303030",
-				data: {"type" : action.info, "action" : "triggered", "data" : {"message" : action.text, "eventId" : action.eventId}}
+				data: noteData
 			}]);
 			addProActiveNotificationId(nid);
 			//prevent foreground execution
@@ -172,6 +174,7 @@ function sepiaFW_build_events(){
 					SepiaFW.ui.notification.send(action.text, SepiaFW.assistant.name, '', function(note){
 						window.focus();
 						note.close();
+						Events.handleLocalNotificationClick(noteData);
 						SepiaFW.ui.updateMyView(false, true);
 					});
 				}
@@ -530,6 +533,7 @@ function sepiaFW_build_events(){
 			//timers of the past are rejected
 			return;
 		}
+		var noteData = {"type" : Timer.type, "action" : "triggered", "data" : Timer.data};
 		if (SepiaFW.ui.isCordova){
 			var d = new Date(Timer.targetTime + 500);
 			var nid = getAndIncreaseNotificationId();
@@ -541,10 +545,12 @@ function sepiaFW_build_events(){
 				sound: "file://sounds/alarm.mp3",
 				smallIcon: "res://ic_popup_reminder",
 				color: "303030",
-				data: {"type" : Timer.type, "action" : "triggered", "data" : Timer.data}
+				data: noteData
 			}]);
 			//console.log('addTimeEventNotificationId: ' + nid); 		//DEBUG
 			addTimeEventNotificationId(nid);
+		}else{
+			//we don't have that yet because in-browser events are fired live with message when triggered
 		}
 	}
 	Events.clearAllTimeEventBackgroundNotifications = function(callbackDone){
@@ -717,6 +723,14 @@ function sepiaFW_build_events(){
 					chatInput.value = '@' + data.sender + " ";
 				}, 300);
 			}
+		
+		//pro-active chat message
+		}else if (data && data.type === "entertainWhileIdle" && data.data){
+			var msg = data.data.message;
+			setTimeout(function(){
+				var dataOut = { sender: SepiaFW.assistant.name, senderType: 'assistant' };
+				SepiaFW.ui.showCustomChatMessage(msg, dataOut);
+			}, 300);
 		}
 	}
 	

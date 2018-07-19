@@ -33,6 +33,7 @@ REM cordova plugin add de.appplant.cordova.plugin.local-notification |more
 REM cordova plugin add plugin_mods/localnotifications/de.appplant.cordova.plugin.local-notification |more
 cordova plugin add cordova-plugin-local-notification |more
 cordova plugin add cordova-plugin-file |more
+cordova plugin add cordova-plugin-nativestorage |more
 cordova plugin add cordova-android-support-gradle-release |more
 REM
 REM overwrite plugin mods

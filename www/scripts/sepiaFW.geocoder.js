@@ -11,7 +11,21 @@ function sepiaFW_build_geocoder(){
 		Geocoder.language = lang;
 	}
 	var lastLanguage = "";
-	var geocoder_url = "https://maps.googleapis.com/maps/api/geocode/json?latlng=";
+
+	Geocoder.service = "OSM"; 		//OSM: OpenStreetMaps, GM: GoogleMaps, ...tbd
+
+	//Get URL for reverse geo-coding
+	function getReverseUrl(lat, lng, service){
+		//Google Maps
+		if (service === "GM"){
+			return ("https://maps.googleapis.com/maps/api/geocode/json?latlng=" + encodeURIComponent(lat) + "," + encodeURIComponent(lng) 
+									+ "&region=" + encodeURIComponent(Geocoder.region) + "&language=" + encodeURIComponent(Geocoder.language));
+		//OpenStreetMaps
+		}else{
+			return ("https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=" + encodeURIComponent(lat) + "&lon=" + encodeURIComponent(lng) 
+									+ "&accept-language=" + encodeURIComponent(Geocoder.language));
+		}
+	}
 	
 	//states
 	var minRefreshWait = 5000; 			//wait at least this time before refresh
@@ -37,12 +51,18 @@ function sepiaFW_build_geocoder(){
 	//Address
 	var addressResult;
 	/*
-	var country = "";		
-	var city = "";			
-	var area_state = "";	
-	var code = "";		//postal code
-	var street = "";
-	var s_nbr = "";		//street number
+	{
+		"latitude": 52.5186,
+		"longitude": 13.3765,
+		"s_nbr": "1",
+		"street": "Platz der Republik",
+		"poi": "Bundestag",
+		"city": "Berlin",
+		"area_state": "Berlin",
+		"country": "Germany",
+		"code": "10557",
+		"summary": "Germany, Berlin, Berlin, Platz der Republik 1"
+	}
 	*/
 	
 	//------- broadcasting -------
@@ -127,6 +147,7 @@ function sepiaFW_build_geocoder(){
 	//default way of getting location
 	Geocoder.lastBestLocationUpdate = 0;
 	Geocoder.getBestLocation = function(successCallback, errorCallback){
+		var doBroadcast = true;
 		Geocoder.getGpsAndAddress(function(){
 			//success
 			Geocoder.lastBestLocationUpdate = new Date().getTime();
@@ -139,13 +160,13 @@ function sepiaFW_build_geocoder(){
 				//error - try IP then
 				SepiaFW.geocoder.getLocationViaIP(successCallback, errorCallback);
 			}
-		});
+		}, doBroadcast);
 	}
 	
 	//get GPS first then address
-	Geocoder.getGpsAndAddress = function(successCallback, errorCallback){
+	Geocoder.getGpsAndAddress = function(successCallback, errorCallback, doBroadcast){
 		Geocoder.getGPS(function(latitude, longitude){
-			Geocoder.getAddress(successCallback, errorCallback, latitude, longitude);
+			Geocoder.getAddress(successCallback, errorCallback, latitude, longitude, doBroadcast);
 		}, errorCallback);
 	}
 	
@@ -218,7 +239,7 @@ function sepiaFW_build_geocoder(){
 	}
 
 	//get Address
-	Geocoder.getAddress = function(successCallback, errorCallback, latitude, longitude){
+	Geocoder.getAddress = function(successCallback, errorCallback, latitude, longitude, doBroadcastNew){
 		broadcastAddressIsLocating();
 		isActive = true;
 		
@@ -232,27 +253,60 @@ function sepiaFW_build_geocoder(){
 			var error = {};
 			error.message = 'got NO GPS coordinates!';
 			if (errorCallback) errorCallback(error);
+			return;
 		}
 		if (!needNewAddress(getDistance(latitude, longitude, lastLatitude, lastLongitude))){
 			isActive = false;
 			broadcastAddressFinished();
 			SepiaFW.debug.info('Geocoder getAddress: no update required, using old result');
 			if (successCallback) successCallback(lastAddressResult);
+			return;
 		}
 		
 		//build url
-		var this_url = geocoder_url + encodeURIComponent(lat) + "," + encodeURIComponent(lng) + "&region=" 
-									+ encodeURIComponent(Geocoder.region) + "&language=" + encodeURIComponent(Geocoder.language);
+		var this_url = getReverseUrl(lat, lng, Geocoder.service);
 		//console.info('GEO - checking ' + lat + ", " + lng + " for address.");
 		
 		//call service
 		$.ajax({
 			url: this_url,
-			timeout: 5000,
+			timeout: 7500,
 			dataType: "json",
 			success: function(data) {
 				//console.info(JSON.stringify(res));
-				if (data.results && data.results[0] && data.results[0].address_components){
+				gotNewResult = false;
+
+				//OpenStreetMaps
+				if (Geocoder.service === "OSM" && data.address){
+					lastAddressResult = (addressResult)? JSON.parse(JSON.stringify(addressResult)) : '';
+					addressResult = new Object();
+					addressResult.latitude = SepiaFW.tools.round5(lat);
+					addressResult.longitude = SepiaFW.tools.round5(lng);
+					var sum = '';
+
+					//Mapping
+					addressResult.poi = data.address.attraction || "";
+					addressResult.s_nbr = data.address.house_number || "";
+					addressResult.street = data.address.road || data.address.footway || data.address.pedestrian || "";
+					addressResult.city = data.address.city || data.address.village || data.address.town || "";
+					addressResult.area_state = data.address.state || "";
+					addressResult.country = data.address.country || "";
+					addressResult.code = data.address.postcode || "";
+
+					sum = (addressResult.country)? (addressResult.country + ", ") : '';
+						sum += (addressResult.area_state)? (addressResult.area_state + ", ") : '';
+						sum += (addressResult.city)? (addressResult.city + ", ") : '';
+						sum += (addressResult.poi)? (addressResult.poi + ", ") : '';
+						sum += (addressResult.street)? (addressResult.street + " ") : '';
+						sum += (addressResult.s_nbr)? (addressResult.s_nbr + " ") : '';
+					sum = sum.trim().replace(/,$/,"");
+					if (sum){
+						addressResult.summary = sum;
+					}
+					gotNewResult = !!Object.keys(addressResult).length;
+
+				//Google Maps
+				}else if (Geocoder.service === "GM" && data.results && data.results[0] && data.results[0].address_components){
 					var components = data.results[0].address_components;
 					lastAddressResult = (addressResult)? JSON.parse(JSON.stringify(addressResult)) : '';
 					addressResult = new Object();
@@ -299,12 +353,15 @@ function sepiaFW_build_geocoder(){
 					if (sum){
 						addressResult.summary = sum;
 					}
+					gotNewResult = !!Object.keys(addressResult).length;
+				}
 					
+				if (gotNewResult){
 					if (addressResult){
 						lastLanguage = Geocoder.language;
 						isActive = false;
 						broadcastAddressFinished();
-						broadcastAddressIsNew(addressResult);
+						if (doBroadcastNew) broadcastAddressIsNew(addressResult);
 						SepiaFW.debug.info("Geocoder new address: '" + addressResult.summary + "'");
 						if (successCallback) successCallback(addressResult);
 						

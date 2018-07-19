@@ -34,6 +34,7 @@ cordova plugin add plugin_mods/speechrecognition/org.apache.cordova.speech.speec
 #cordova plugin add plugin_mods/localnotifications/de.appplant.cordova.plugin.local-notification
 cordova plugin add cordova-plugin-local-notification
 cordova plugin add cordova-plugin-file
+cordova plugin add cordova-plugin-nativestorage
 cordova plugin add plugin_mods/iosbackgroundaudio/nl.kingsquare.cordova.background-audio
 #
 # overwrite plugin mods

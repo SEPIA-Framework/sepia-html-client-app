@@ -1,4 +1,7 @@
 #!/bin/bash
+echo "NOTE: UIWebView is no longer actively supported. Please use the WkWebView script to install the iOS app."
+echo "If you require UIWebView at all cost feel free to continue ;-)"
+read -rsp $'Press enter to continue or CRTL+C to exit ...\n'
 #
 APP_NAME="SepiaFW-P4"
 # create project

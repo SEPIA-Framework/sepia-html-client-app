@@ -1,12 +1,12 @@
 var SepiaFW = new Object();
 
-//Core modules
+//Core modules - NOTE: this happens before cordova's deviceReady !!
 SepiaFW.debug = sepiaFW_build_debug();
 SepiaFW.data = sepiaFW_build_dataService();
 SepiaFW.tools = sepiaFW_build_tools();
 SepiaFW.config = sepiaFW_build_config();
 
-//"Interface" modules
+//"Interface" modules - NOTE: this happens after cordova's deviceReady
 SepiaFW.buildSepiaFwPlugins = function(){
 	SepiaFW.account = sepiaFW_build_account();
 	SepiaFW.assistant = sepiaFW_build_assistant();
@@ -39,23 +39,79 @@ function sepiaFW_build_dataService(){
 	var data = load();					//deleted after log-out
 	var dataPermanent = load(true);		//remains after log-out, e.g. host-name
 
+	if (!window.localStorage){
+		SepiaFW.debug.err("Data: localStorage not supported! Storing data will most likely fail.");
+	}
+	
+	//NativeStorage abstraction layer - we need to manage the async nature (compared to localStorage)
+
+	function nativeStorageClear(){
+		if (nativeStorageState != 0){
+			nativeStorageState++;
+			if (nativeStorageState > 25){
+				nativeStorageFail({exception: "Too many items in queue.", code: 10});
+			}else{
+				setTimeout(function(){
+					nativeStorageClear();				//repeat until queue is free
+				}, 300);
+			}
+		}else{
+			nativeStorageState = 1;	
+			NativeStorage.clear(nativeStorageSuccess, nativeStorageFail);
+		}
+	}
+	function nativeStorageSet(key, value){
+		if (nativeStorageState != 0){
+			nativeStorageState++;
+			if (nativeStorageState > 25){
+				nativeStorageFail({exception: "Too many items in queue.", code: 10});
+			}else{
+				setTimeout(function(){
+					nativeStorageSet(key, value);		//repeat until queue is free
+				}, 300);
+			}
+		}else{
+			nativeStorageState = 1;	
+			NativeStorage.setItem(key, value, nativeStorageSuccess, nativeStorageFail);
+		}
+	}
+	function nativeStorageSuccess(obj){
+		nativeStorageState = 0;
+	}
+	function nativeStorageFail(error){
+		nativeStorageState = 0;
+		alert("Data: NativeStorage ERROR! This should not happen! If you tried to clear your data please try again. Msg.: " + error.exception);
+	}
+	var nativeStorageState = 0;
+
+	//-------------------------------
+
 	function save(permanent){
 		try{
+			//Note: we duplicate the localStorage to NativeStorage if we can, in case the app closes.
 			if (permanent){
+				if (window.NativeStorage){
+					nativeStorageSet('sepiaFW-data-permanent', dataPermanent);
+				}
 				if (window.localStorage){
 					localStorage.setItem('sepiaFW-data-permanent', JSON.stringify(dataPermanent));
 				}
 			}else{
+				if (window.NativeStorage){
+					nativeStorageSet('sepiaFW-data', data);
+				}
 				if (window.localStorage){
 					localStorage.setItem('sepiaFW-data', JSON.stringify(data));
 				}
 			}
 		}catch (e){
-			SepiaFW.debug.err('Data: localStorage write error! Not available?');
+			SepiaFW.debug.err('Data: storage write error! Not available?');
 		}
 	}
 	function load(permanent){
 		try{
+			//Note: we can't load from NativeStorage on-the-fly due to it's async nature (it's not a drop-in replacement for LS).
+			//That's why we load NativeStorage only once to localStorage when the app loads.
 			if (permanent){
 				if (window.localStorage){
 					dataPermanent = JSON.parse(localStorage.getItem('sepiaFW-data-permanent')) || {};
@@ -72,7 +128,6 @@ function sepiaFW_build_dataService(){
 				data = {};
 			}
 		}
-		return data;
 	}
 	DataService.get = function(key){
 		load();
@@ -104,9 +159,16 @@ function sepiaFW_build_dataService(){
 	//clear all stored data (optionally keeping 'permanent')
 	DataService.clearAll = function(keepPermanent){
 		var localDataStatus = "";
+		if (window.NativeStorage){
+			nativeStorageClear();
+			storageClearRequested = true;
+		}
 		if (window.localStorage){
 			window.localStorage.clear();
-			localDataStatus = "LocalStorage has been cleared. Permanent data kept: " + keepPermanent + ".";
+			storageClearRequested = true;
+		}
+		if (storageClearRequested){
+			localDataStatus = "Storage has been cleared (request sent). Permanent data kept: " + keepPermanent + ".";
 			SepiaFW.debug.log("Data: " + localDataStatus);
 		}
 		data = {};
@@ -302,12 +364,6 @@ function sepiaFW_build_config(){
 function sepiaFW_build_tools(){
 	var Tools = {};
 	
-	//prepend a zero to a number if it is lower than 10
-	function addZero(i) {
-		return (i < 10)? "0" + i : i;
-	}
-	Tools.addZero = addZero;
-	
 	//get server default local date/timeout - TODO: note that this needs to be adjusted to server settings
 	Tools.getLocalDateTime = function(){
 		var d = new Date();
@@ -345,6 +401,17 @@ function sepiaFW_build_tools(){
 		}
 		return url;
 	}
+	//remove a parameter of a given URL (parameter has to contain a '=' e.g. x=1)
+	Tools.removeParameterFromURL = function(url, parameter){
+		if (!!url.match(new RegExp("(\\?)(" + parameter + "=.*?)(&)"))){
+			url = url.replace(new RegExp("(\\?)(" + parameter + "=.*?)(&)"), "?");
+		}else if (url.indexOf('&' + parameter + '=') > -1){
+			url = url.replace(new RegExp("(&)(" + parameter + "=.*?)(&|$)"), "$3");
+		}else{
+			url = url.replace(new RegExp("(\\?)(" + parameter + "=.*?)($)"), "");
+		}
+		return url;
+	}
 	
 	//check for IP
 	Tools.isIP = function(ip) {
@@ -371,7 +438,17 @@ function sepiaFW_build_tools(){
 	Tools.endsWith = function(str, suffix) {
 		return str.indexOf(suffix, str.length - suffix.length) !== -1;
 	}
-	
+	//Match regular expression - shortcut for boolean regExp matching
+	Tools.doesMatchRegExp = function(str, regEx, flags) {
+		return !!str.match(new RegExp(regEx, flags));
+	}
+		
+	//prepend a zero to a number if it is lower than 10
+	function addZero(i) {
+		return (i < 10)? "0" + i : i;
+	}
+	Tools.addZero = addZero;
+
 	//randomize array element
 	Tools.shuffleArray = function(array) {
 		for (var i = array.length - 1; i > 0; i--) {

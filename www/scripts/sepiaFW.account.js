@@ -345,7 +345,13 @@ function sepiaFW_build_account(){
 		});
 		//try restore from data-storage to avoid login popup - refresh required after e.g. 1 day = 1000*60*60*24
 		var account = SepiaFW.data.get('account');
-		if (account && account.userToken && account.lastRefresh && ((new Date().getTime() - account.lastRefresh) < (1000*60*60*12))){
+		var safe = false;
+		if (account && account.hostname && account.hostname == SepiaFW.config.host){
+			safe = true;		//login can be restored since we send data to the same host we got login in the first place
+		}else if (account && account.hostname){
+			SepiaFW.debug.log('Account: preventing auto-login due to changed hostname ... please login again if you trust the host!');
+		}
+		if (safe && account && account.userToken && account.lastRefresh && ((new Date().getTime() - account.lastRefresh) < (1000*60*60*12))){
 			userId = account.userId;
 			userToken = account.userToken;
 			userName = account.userName;	if (userName)	SepiaFW.config.broadcastUserName(userName);
@@ -360,7 +366,7 @@ function sepiaFW_build_account(){
 			Account.afterLogin();
 
 		//try refresh
-		}else if (account && account.userToken){
+		}else if (safe && account && account.userToken){
 			SepiaFW.debug.log('Account: trying login auto-refresh with token');
 			pwdIsToken = true;
 			Account.login(account.userId, account.userToken, onLoginSuccess, onLoginError, onLoginDebug);
@@ -376,8 +382,13 @@ function sepiaFW_build_account(){
 		var langSelBox = document.getElementById("sepiaFW-language-selector");
 		if (langSelBox){
 			langSelBox.appendChild(SepiaFW.ui.build.languageSelector("sepiaFW-login-language-dropdown", function(selectedLanguage){
+				SepiaFW.data.set('app-language', selectedLanguage);
 				var url = SepiaFW.tools.setParameterInURL(window.location.href, 'lang', selectedLanguage);
-				window.location.href = url;
+				setTimeout(function(){
+				    window.location.href = url;
+				}, 2000);
+				Account.toggleLoginBox();
+				SepiaFW.ui.showPopup(SepiaFW.local.g('oneMoment'));
 			}));
 		}
 		
@@ -501,6 +512,7 @@ function sepiaFW_build_account(){
 		account.userName = userName;
 		account.language = language;
 		account.lastRefresh = new Date().getTime();
+		account.hostname = SepiaFW.config.host;
 		SepiaFW.data.set('account', account);
 		
 		//what happens next? typically this is used by a client implementation to continue

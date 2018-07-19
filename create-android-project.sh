@@ -35,6 +35,7 @@ cordova plugin add plugin_mods/speechrecognition/org.apache.cordova.speech.speec
 #cordova plugin add cordova-plugin-local-notification@0.9.0-beta.2
 cordova plugin add cordova-plugin-local-notification
 cordova plugin add cordova-plugin-file
+cordova plugin add cordova-plugin-nativestorage
 cordova plugin add cordova-android-support-gradle-release
 #
 # overwrite plugin mods

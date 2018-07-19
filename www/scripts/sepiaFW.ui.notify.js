@@ -6,7 +6,7 @@ function sepiaFW_build_ui_notifications(){
 	
 	Notify.isSupported = ("Notification" in window);
 	if (!Notify.isSupported){
-		SepiaFW.debug.log("Notification: not supported!");
+		SepiaFW.debug.log("Browser notifications not supported! (Note: not related to e.g. iOS or Android notifications)");
 	}
 	
 	//send a note

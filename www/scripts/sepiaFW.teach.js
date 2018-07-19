@@ -93,8 +93,8 @@ function sepiaFW_build_teach(){
 		Teach.loadServices();
 		
 		//get HTML
-		$.get("teach.html", function(teachUiHtml){
-			document.getElementById('sepiaFW-teachUI-view').innerHTML = teachUiHtml;
+		SepiaFW.files.fetch("teach.html", function(teachUiHtml){
+            $('#sepiaFW-teachUI-view').html(teachUiHtml);
 			
 			//nav-bar
 			$('#sepiaFW-teachUI-close').on('click', function(){
