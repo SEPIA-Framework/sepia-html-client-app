@@ -16,3 +16,15 @@ Features of the app are:
 * Local notifications (e.g. for alarms - push-notifications under construction)
 * Language support for german and english
 * Completely open-source
+
+### Quick-start
+
+The latest release version is always online at: https://sepia-framework.github.io/app/index.html  
+If you don't operate a SEPIA server you can still look around a bit in "demo-mode" when skipping the log-in though most of the features will not be active in this mode.  
+Android and iOS apps are in beta-test phase and will be release "when they are done" :-p  
+  
+For experts only: Use the install-scripts in the repository to build your own version of the app.
+
+### Version history ...
+
+... can be found (here)[https://github.com/SEPIA-Framework/SEPIA-Framework.github.io/blob/master/app/README.md]
