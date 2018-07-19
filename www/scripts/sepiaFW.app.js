@@ -109,16 +109,27 @@ function sepiaFW_build_dataService(){
 		}
 	}
 	function load(permanent){
+		//TODO: load is called everytime a variable is retrived ... for safety reasons (not running out of sync) ... but could be smarter ^^
 		try{
 			//Note: we can't load from NativeStorage on-the-fly due to it's async nature (it's not a drop-in replacement for LS).
 			//That's why we load NativeStorage only once to localStorage when the app loads.
 			if (permanent){
 				if (window.localStorage){
-					dataPermanent = JSON.parse(localStorage.getItem('sepiaFW-data-permanent')) || {};
+					var entry = localStorage.getItem('sepiaFW-data-permanent');
+					if (entry){
+						dataPermanent = JSON.parse(entry);
+					}else{
+						dataPermanent = {};
+					}
 				}
 			}else{
 				if (window.localStorage){
-					data = JSON.parse(localStorage.getItem('sepiaFW-data')) || {};
+					var entry = localStorage.getItem('sepiaFW-data');
+					if (entry){
+						data = JSON.parse(entry);
+					}else{
+						data = {};
+					}
 				}
 			}
 		}catch (e){
@@ -134,6 +145,7 @@ function sepiaFW_build_dataService(){
 		return (data && (key in data)) ? data[key] : undefined;
 	}
 	DataService.set = function(key, value){
+		if (!data) data = {};
 		data[key] = value;
 		save();
 	}
@@ -142,6 +154,7 @@ function sepiaFW_build_dataService(){
 		return (dataPermanent && (key in dataPermanent)) ? dataPermanent[key] : undefined;
 	}
 	DataService.setPermanent = function(key, value){
+		if (!dataPermanent) dataPermanent = {};
 		dataPermanent[key] = value;
 		save(true);
 	}
