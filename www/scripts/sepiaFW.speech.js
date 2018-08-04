@@ -6,8 +6,8 @@ function sepiaFW_build_speech(){
 	//Parameters and states
 	
 	//Common
-	Speech.language = SepiaFW.config.appLanguage; 
-	
+	Speech.language = SepiaFW.config.appLanguage;
+		
 	//ASR
 	Speech.testAsrSupport = function(){
 		var hasCordovaWebSpeechKitSupport = SepiaFW.ui.isCordova && ('SpeechRecognition' in window);
@@ -19,6 +19,85 @@ function sepiaFW_build_speech(){
 			+ " (cordova=" + hasCordovaWebSpeechKitSupport + "), webSocketAsr=" + Speech.isWebSocketAsrSupported + ".");
 	}
 	Speech.testAsrSupport();
+
+	//ASR - engine - currently: native (webSpeechKit or Cordova), socket (SEPIA server or e.g. Microsoft)
+	Speech.asrEngine = SepiaFW.data.get('speech-asr-engine') || '';
+	Speech.getAsrEngine = function(){
+		return Speech.asrEngine;
+	}
+	Speech.setAsrEngine = function(asrEngine){
+		if (asrEngine == 'native'){
+			if (!Speech.isWebKitAsrSupported){
+				SepiaFW.debug.err("ASR: Tried to set native ASR but it is not supported by this client!");
+				asrEngine = "";
+			}
+		}else if (asrEngine == 'socket'){
+			if (!Speech.isWebSocketAsrSupported){
+				SepiaFW.debug.err("ASR: Tried to set (SEPIA compatible) socket ASR but it is not supported by this client!");
+				asrEngine = "";
+			}
+		}
+		if (!asrEngine){
+			//asrEngine not known or not given, set default
+			if (Speech.isWebKitAsrSupported){
+				asrEngine = 'native';
+			}else if (Speech.isWebSocketAsrSupported){
+				asrEngine = 'socket';
+			}
+		}
+		if (asrEngine){
+			SepiaFW.data.set('speech-asr-engine', asrEngine);
+			Speech.asrEngine = asrEngine;
+			SepiaFW.debug.log("ASR: Using '" + asrEngine + "' engine.");
+		}
+	} 
+	Speech.setAsrEngine(Speech.asrEngine);
+
+	//get ASR engines - load them and return a select element to show them somewhere
+	Speech.getSttEngines = function(){
+		var sttSelector = document.getElementById('sepiaFW-menu-select-stt') || document.createElement('select');
+		sttSelector.id = 'sepiaFW-menu-select-stt';
+		$(sttSelector).find('option').remove();
+		engines = [];
+		engineNames = {};
+		//first option is select
+		var headerOption = document.createElement('option');
+		headerOption.selected = true;
+		headerOption.disabled = true;
+		headerOption.innerHTML = "- select -";
+		sttSelector.appendChild(headerOption);
+		//check others
+		if (Speech.isWebKitAsrSupported){
+			engines.push("native");
+			engineNames["native"] = "Native";
+		}
+		if (Speech.isWebSocketAsrSupported){
+			engines.push("socket");
+			engineNames["socket"] = "Custom (WebSocket)";
+		}
+		engines.forEach(function(engine){
+			var option = document.createElement('option');
+			option.value = engine;
+			option.innerHTML = engineNames[engine];
+			sttSelector.appendChild(option);
+			if (Speech.asrEngine == engine){
+				option.selected = true;
+				headerOption.selected = false;
+			}
+		});
+		SepiaFW.debug.info('STT engines available: ' + engines.length);
+		//add button listener
+		$(sttSelector).off().on('change', function() {
+			Speech.setAsrEngine($('#sepiaFW-menu-select-stt').val());
+		});
+		if (engines.length === 0){
+			var option = document.createElement('option');
+			option.value = '';
+			option.innerHTML = 'not supported';
+			sttSelector.appendChild(option);
+		}
+		return sttSelector;
+	}
 	
 	var recognition = null;
 	if (Speech.isWebKitAsrSupported){
@@ -164,19 +243,18 @@ function sepiaFW_build_speech(){
 	//start speech recognition or do nothing
 	Speech.startRecognition = function(callback_final, callback_interim, error_callback, log_callback){
 		if (!Speech.isAsrSupported){
-			//Error: no webSpeechKit ASR service
+			//Error: no ASR service
 			broadcastNoAsrSupport();
 			broadcastAsrNoResult();
-			error_callback("E00 - Speech recognition not supported by your client :-( (Chrome usually works well).");
-			
+			error_callback("E00 - Speech recognition not supported by your client :-(");
 		}
 		if (!isRecognizing){
-			if (Speech.isWebKitAsrSupported){
+			if (Speech.asrEngine == "native"){
 				//WEB SPEECH KIT
 				var quit_on_final_result = true;
 				recognizeSpeech(callback_final, callback_interim, error_callback, log_callback, quit_on_final_result);
 			
-			}else if (Speech.isWebSocketAsrSupported){
+			}else if (Speech.asrEngine == "socket"){
 				//WEBSOCKET ASR
 				SepiaFW.speechWebSocket.startRecording(callback_final, callback_interim, error_callback, log_callback, quit_on_final_result);
 			}
@@ -184,27 +262,27 @@ function sepiaFW_build_speech(){
 	}
 	//stop speech recognition
 	Speech.stopRecognition = function(){
-		if (Speech.isWebKitAsrSupported){
+		if (Speech.asrEngine == "native"){
 			//WEB SPEECH KIT
 			broadcastRequestedAsrStop();
 			asrAutoStop = false;
 			stopSpeechRecognition();
 		
-		}else if (Speech.isWebSocketAsrSupported){
+		}else if (Speech.asrEngine == "socket"){
 			//WEBSOCKET ASR
 			SepiaFW.speechWebSocket.stopRecording();
 		}
 	}
 	//abort speech recognition
 	Speech.abortRecognition = function(){
-		if (Speech.isWebKitAsrSupported){
+		if (Speech.asrEngine == "native"){
 			//WEB SPEECH KIT
 			abortRecognition = true;
 			broadcastRequestedAsrStop();
 			asrAutoStop = false;
 			stopSpeechRecognition();
 		
-		}else if (Speech.isWebSocketAsrSupported){
+		}else if (Speech.asrEngine == "socket"){
 			//WEBSOCKET ASR
 			SepiaFW.speechWebSocket.abortRecording();
 		}
@@ -217,7 +295,7 @@ function sepiaFW_build_speech(){
 		isSpeaking = false;
 		recognizerWaitingForResult = false;
 		isRecognizing = false;
-		if (Speech.isWebKitAsrSupported){
+		if (Speech.asrEngine == "native"){
 			recognition = (SepiaFW.ui.isCordova)? (new SpeechRecognition()) : (new webkitSpeechRecognition());
 		}
 	}
@@ -542,9 +620,13 @@ function sepiaFW_build_speech(){
 		voiceSelector.id = 'sepiaFW-menu-select-voice';
 		$(voiceSelector).find('option').remove();
 		voices = [];
+		//first option is select
+		var headerOption = document.createElement('option');
+		headerOption.selected = true;
+		headerOption.disabled = true;
+		headerOption.innerHTML = "- select -";
+		voiceSelector.appendChild(headerOption);
 		if (Speech.isTtsSupported && !SepiaFW.ui.isCordova){
-			//first option is select
-			voiceSelector.innerHTML = '<option disabled selected value>- select -</option>';
 			//fill
 			voices = window.speechSynthesis.getVoices();
 			voices.forEach(function(voice){

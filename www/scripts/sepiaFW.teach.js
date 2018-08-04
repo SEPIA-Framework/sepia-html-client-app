@@ -36,7 +36,7 @@ function sepiaFW_build_teach(){
 	Teach.closeUI = function(){
 		$('#sepiaFW-teachUI-view').slideUp(300);
 		Teach.isOpen = false;
-		SepiaFW.ui.switchSwipeBars('chat');
+		SepiaFW.ui.switchSwipeBars();
 	}
 	
 	Teach.loadServices = function(){

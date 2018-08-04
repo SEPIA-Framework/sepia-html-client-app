@@ -4,6 +4,7 @@
 
 function sepiaFW_build_speechWebSocket(){
 	var Speech = {};
+	var isSocketAsrAllowed = true; 		//was before: !SepiaFW.ui.isCordova
 	
 	//Parameters and states
 	
@@ -17,11 +18,11 @@ function sepiaFW_build_speechWebSocket(){
 	} 		
 
 	function testWebSocketAsrSupport(){
-		var isSupported = !SepiaFW.ui.isCordova 
+		var isSupported = isSocketAsrAllowed 
 			&& ((navigator.mediaDevices && navigator.mediaDevices.getUserMedia) || navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia) 
-			&& (window.AudioContext || window.webkitAudioContext)
-			&& (!!Speech.socketURI);
-		return isSupported;
+			&& (window.AudioContext || window.webkitAudioContext);
+			//&& (!!Speech.socketURI);
+		return !!isSupported;
 	}
 	Speech.isAsrSupported = testWebSocketAsrSupport();
 	
@@ -86,8 +87,18 @@ function sepiaFW_build_speechWebSocket(){
 		SepiaFW.animate.assistant.idle('asrNoSupport');
 		SepiaFW.ui.showInfo(SepiaFW.local.g('noAsrSupport'));
 	}
+	function broadcastMissingServerInfo(){
+		//EXAMPLE: 
+		SepiaFW.animate.assistant.idle('asrMissingServer');
+		SepiaFW.ui.showInfo("ASR - " + SepiaFW.local.g('asrMissingServer'));
+	}
+	function broadcastConnectionError(){
+		//EXAMPLE: 
+		SepiaFW.animate.assistant.idle('noConnectionToServer');
+		SepiaFW.ui.showInfo("ASR - " + SepiaFW.local.g('noConnectionToServer'));
+	}
 	
-	//---------------- INTERFCE ------------------
+	//---------------- INTERFACE ------------------
 	
 	Speech.startRecording = function(callbackFinal, callbackInterim, errorCallback, logCallback, quitOnFinalResult){
 		broadcastRequestedAsrStart();
@@ -102,6 +113,11 @@ function sepiaFW_build_speechWebSocket(){
 		if (!Speech.isAsrSupported){
 			broadcastNoAsrSupport();
 			error_callback("E00 - Speech recognition not supported by your client :-(");
+			broadcastAsrNoResult();
+		}
+		if (!Speech.socketURI){
+			broadcastMissingServerInfo();
+			error_callback("E00 - Speech recognition not activated, please select an STT server for the 'socket' engine (settings).");
 			broadcastAsrNoResult();
 		}
 		
@@ -122,6 +138,7 @@ function sepiaFW_build_speechWebSocket(){
 			
 			navigator.getUserMedia({
 				"audio": true,
+				"video": false,
 			}, getAudioStream.bind(this), function(e){
 				broadcastWrongAsrSettings();
 				broadcastAsrNoResult();
@@ -250,6 +267,7 @@ function sepiaFW_build_speechWebSocket(){
 			//console.log('ASR WebSocket: onerror ' + ((event && event.error)? event.error : event)); 		//DEBUG
 			Speech.stopRecording();
 			websocket.close();
+			broadcastConnectionError();
 		};
 
 		websocket.onmessage = function(event){

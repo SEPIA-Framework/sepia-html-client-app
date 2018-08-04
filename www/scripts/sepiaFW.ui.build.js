@@ -395,6 +395,11 @@ function sepiaFW_build_ui_build(){
 						+ "<span>Hostname: </span>"
 						+ "<input id='sepiaFW-menu-assistant-host' type='text' placeholder='my.example.org/sepia'>"
 					+ "</li>"
+					+ "<li id='sepiaFW-menu-select-stt-li' title='Speech recognition engine.'><span>ASR engine: </span></li>"
+					+ "<li id='sepiaFW-menu-stt-socket-url-li' title='Server for custom (socket) speech recognition engine.'>"
+						+ "<span>" + "ASR server" + ": </span>"
+						+ "<input id='sepiaFW-menu-stt-socket-url' type='text'>"
+					+ "</li>"
 					+ "<li id='sepiaFW-menu-administration-li'>"
 						+ "<button id='sepiaFW-menu-ui-dataprivacy-btn'>" + SepiaFW.local.g('data_privacy') + "</button>"
 						+ "<button id='sepiaFW-menu-ui-license-btn'>" + SepiaFW.local.g('license') + "</button>"
@@ -511,8 +516,9 @@ function sepiaFW_build_ui_build(){
 				SepiaFW.config.setDeviceId(newDeviceId);
 				this.blur();
 			});
-			//add voice toggle and select
+			//Speech stuff
 			if (SepiaFW.speech){
+				//add voice toggle
 				document.getElementById('sepiaFW-menu-toggle-voice-li').appendChild(Build.toggleButton('sepiaFW-menu-toggle-voice', 
 					function(){
 						SepiaFW.speech.skipTTS = false;
@@ -524,7 +530,25 @@ function sepiaFW_build_ui_build(){
 						SepiaFW.debug.info("TTS is OFF");
 					}, !SepiaFW.speech.skipTTS)
 				);
+
+				//add voice select options
 				document.getElementById('sepiaFW-menu-select-voice-li').appendChild(SepiaFW.speech.getVoices());
+				
+				//add speech recognition engine select
+				document.getElementById('sepiaFW-menu-select-stt-li').appendChild(SepiaFW.speech.getSttEngines());
+				
+				//Socket STT server URL
+				var speechRecoServerInput = document.getElementById("sepiaFW-menu-stt-socket-url");
+				speechRecoServerInput.placeholder = "wss://my-sepia-asr/socket";
+				speechRecoServerInput.value = SepiaFW.speechWebSocket.socketURI || "";
+				speechRecoServerInput.addEventListener("change", function(){
+					var newHost = this.value;
+					this.blur();
+					SepiaFW.speechWebSocket.setSocketURI(newHost);
+				});
+				if (!SepiaFW.speechWebSocket || !SepiaFW.speechWebSocket.isAsrSupported){
+					$("#sepiaFW-menu-stt-socket-url-li").hide();
+				}
 			}
 			//add GPS on start button
 			if (SepiaFW.geocoder){

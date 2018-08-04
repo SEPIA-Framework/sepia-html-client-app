@@ -115,10 +115,12 @@ function sepiaFW_build_dataService(){
 			if (permanent){
 				if (window.localStorage){
 					dataPermanent = JSON.parse(localStorage.getItem('sepiaFW-data-permanent')) || {};
+					return dataPermanent;
 				}
 			}else{
 				if (window.localStorage){
 					data = JSON.parse(localStorage.getItem('sepiaFW-data')) || {};
+					return data;
 				}
 			}
 		}catch (e){
@@ -127,6 +129,7 @@ function sepiaFW_build_dataService(){
 			}else{
 				data = {};
 			}
+			return {};
 		}
 	}
 	DataService.get = function(key){

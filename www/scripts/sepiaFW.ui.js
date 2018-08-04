@@ -3,7 +3,7 @@ function sepiaFW_build_ui(){
 	var UI = {};
 	
 	//some constants
-	UI.version = "v0.12.0";
+	UI.version = "v0.12.1";
 	UI.JQ_RES_VIEW_IDS = "#sepiaFW-result-view, #sepiaFW-chat-output, #sepiaFW-my-view";			//a selector to get all result views e.g. $(UI.JQ_RES_VIEW_IDS).find(...)
 	UI.JQ_ALL_MAIN_VIEWS = "#sepiaFW-result-view, #sepiaFW-chat-output, #sepiaFW-my-view, #sepiaFW-teachUI-editor, #sepiaFW-teachUI-manager, #sepiaFW-frame-page-1, #sepiaFW-frame-page-2"; 	//TODO: frames can have more ...
 	UI.JQ_ALL_MAIN_CONTAINERS = "#sepiaFW-my-view, #sepiaFW-chat-output-container, #sepiaFW-result-view";
@@ -186,6 +186,11 @@ function sepiaFW_build_ui(){
 	//switch active swipe-bars
 	UI.switchSwipeBars = function(setName){
 		$('.sepiaFW-swipeBar-switchable').hide();
+		if (setName){
+			lastActiveSwipeBars = activeSwipeBars;
+		}else{
+			setName = lastActiveSwipeBars;
+		}
 		if (setName === "chat"){
 			$('#sepiaFW-swipeBar-chat-left').show();
 			$('#sepiaFW-swipeBar-chat-right').show();
@@ -201,7 +206,13 @@ function sepiaFW_build_ui(){
 			$('#sepiaFW-swipeBar-frames-left').show();
 			$('#sepiaFW-swipeBar-frames-right').show();
 		}
+		activeSwipeBars = setName;
 	}
+	UI.getActiveSwipeBars = function(){
+		return activeSwipeBars;
+	}
+	var activeSwipeBars = "chat";
+	var lastActiveSwipeBars = "chat";
 	
 	//clear all views
 	UI.clearAllOutputViews = function(){
