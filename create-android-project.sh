@@ -37,6 +37,7 @@ cordova plugin add cordova-plugin-local-notification
 cordova plugin add cordova-plugin-file
 cordova plugin add cordova-plugin-nativestorage
 cordova plugin add cordova-android-support-gradle-release
+cordova plugin add phonegap-plugin-media-stream
 #
 # overwrite plugin mods
 sleep 2

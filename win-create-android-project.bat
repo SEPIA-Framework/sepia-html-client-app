@@ -35,6 +35,7 @@ cordova plugin add cordova-plugin-local-notification |more
 cordova plugin add cordova-plugin-file |more
 cordova plugin add cordova-plugin-nativestorage |more
 cordova plugin add cordova-android-support-gradle-release |more
+cordova plugin add phonegap-plugin-media-stream |more
 REM
 REM overwrite plugin mods
 sleep 2
