@@ -18,12 +18,16 @@ function sepiaFW_build_speechWebSocket(){
 	} 		
 
 	function testWebSocketAsrSupport(){
-		var isSupported = isSocketAsrAllowed 
+		isMediaDevicesSupported = isSocketAsrAllowed 
 			&& ((navigator.mediaDevices && navigator.mediaDevices.getUserMedia) || navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia) 
 			&& (window.AudioContext || window.webkitAudioContext);
 			//&& (!!Speech.socketURI);
-		return !!isSupported;
+		isCordovaAudioinputSupported = (window.cordova && window.audioinput);
+		return !!isMediaDevicesSupported || isCordovaAudioinputSupported;
 	}
+	isMediaDevicesSupported = undefined;
+	isCordovaAudioinputSupported = undefined;
+	
 	Speech.isAsrSupported = testWebSocketAsrSupport();
 	
 	//--------------------------------
@@ -37,12 +41,15 @@ function sepiaFW_build_speechWebSocket(){
 	
 	var abortRecognition = false;		//TODO: test implementation
 
+	//MediaDevices interface stuff
 	var AudioContext = window.AudioContext || window.webkitAudioContext;
 	var audioContext = null;
-	if (AudioContext) {
+	if (AudioContext && !isCordovaAudioinputSupported) {
 		audioContext = new AudioContext();
 	}
 	var audioSource = null;
+	
+	//Recorder.js
 	var audioRecorder = null;
 	
 	var callback_final;
@@ -121,37 +128,38 @@ function sepiaFW_build_speechWebSocket(){
 			broadcastAsrNoResult();
 		}
 		
-		if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia){
+        //Audioinput plugin
+		if (isCordovaAudioinputSupported){
+            setTimeout(function(){
+                audioinputStartCapture();
+            }, 100);
+        
+		//Official MediaDevices interface
+        }else if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia){
 			navigator.mediaDevices.getUserMedia({ video : false, audio: true }).then(function(stream) {
 				getAudioStream(stream);
 			}).catch(function(err) {
-				//console.log(err.name + ": " + err.message);
+				SepiaFW.debug.err(err.name + ": " + err.message);
 				broadcastWrongAsrSettings();
 				broadcastAsrNoResult();
-				error_callback('E03 - Permission to use microphone was denied!');
+				error_callback('E03 - Permission to use microphone was denied or there was a problem with the audio interface!');
 			});
 		
+		//Older version of getUserMedia
 		}else{
 			if (!navigator.getUserMedia) {
 				navigator.getUserMedia = navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia;
 			}
-			
 			navigator.getUserMedia({
 				"audio": true,
 				"video": false,
 			}, getAudioStream.bind(this), function(e){
+				SepiaFW.debug.err(e.name + ": " + e.message);
 				broadcastWrongAsrSettings();
 				broadcastAsrNoResult();
-				error_callback('E03 - Permission to use microphone was denied!');
+				error_callback('E03 - Permission to use microphone was denied or there was a problem with the audio interface!');
 			});
 		}
-		/*
-		var constraints = { audio: true, video: false }; 
-		navigator.mediaDevices.getUserMedia(constraints).then(function(stream){
-			getAudioStream(stream);
-		})
-		.catch(function(err) { console.log(err.name + ": " + err.message); });
-		*/
 	}
 
 	Speech.stopRecording = function(){
@@ -160,13 +168,24 @@ function sepiaFW_build_speechWebSocket(){
 			isWaitingToRecord = false;
 			broadcastRequestedAsrStop();
 			
-			if (audioSource && (audioSource.getAudioTracks || audioSource.stop)){
-				if (audioSource.getAudioTracks){
-					audioSource.getAudioTracks()[0].stop();
-				}else{
-					audioSource.stop();
+			//Audioinput plugin
+            if (isCordovaAudioinputSupported){
+                setTimeout(function(){
+                    audioinputStopCapture();
+                }, 100);
+            
+			//MediaDevices interface
+			}else if (isMediaDevicesSupported){
+				if (audioSource && (audioSource.getAudioTracks || audioSource.stop)){
+					if (audioSource.getAudioTracks){
+						audioSource.getAudioTracks()[0].stop();
+					}else{
+						audioSource.stop();
+					}
 				}
 			}
+			
+			//Recorder.js
 			if (audioRecorder && audioRecorder.stop){
 				audioRecorder.stop();
 			}
@@ -200,8 +219,8 @@ function sepiaFW_build_speechWebSocket(){
 		Speech.stopRecording();
 	}
 
-	function stopWebSocket() {
-		if (websocket) {
+	function stopWebSocket(){
+		if (websocket){
 			websocket.onmessage = function(){};
 			websocket.onerror = function(){};
 			websocket.onclose = function(){};
@@ -209,7 +228,9 @@ function sepiaFW_build_speechWebSocket(){
 		}
 	}
 	
-	function getAudioStream(stream) {
+	// ---------------- MediaDevices interface stuff ----------------------
+	
+	function getAudioStream(stream){
 		audioSource = stream;
 		var inputPoint = audioContext.createGain();
 		audioContext.createMediaStreamSource(audioSource).connect(inputPoint);
@@ -217,9 +238,92 @@ function sepiaFW_build_speechWebSocket(){
 		startWebSocketForMic();
 	}
 
-	// --------------------------------------
+	// ---------------- Audioinput plugin stuff ----------------------
 
-	function startWebSocketForMic() {
+    var audioInputPluginIsSet = false;
+	var audioInputPluginHasPermission = false;
+	//Init
+    function initAudioinputPlugin(){
+        if (isCordovaAudioinputSupported){
+            window.addEventListener('audioinputerror', onAudioInputError, false);
+            audioInputPluginIsSet = true;
+        }
+    }
+	//Check permission
+	function checkAudioinputPermission(successCallback, errorCallback){
+		//First check whether we already have permission to access the microphone.
+		window.audioinput.checkMicrophonePermission(function(hasPermission) {
+			if (hasPermission){
+				audioInputPluginHasPermission = true;
+				if (successCallback) successCallback();
+			}else{
+				// Ask the user for permission to access the microphone
+				window.audioinput.getMicrophonePermission(function(hasPermission, message){
+					if (hasPermission) {
+						SepiaFW.debug.log("ASR (audioinput plugin): User granted access to microphone :-)");
+						audioInputPluginHasPermission = true;
+						if (successCallback) successCallback();
+					}else{
+						SepiaFW.debug.err("ASR error (audioinput plugin): User refused access to microphone :-(");
+						audioInputPluginHasPermission = false;
+						if (errorCallback) errorCallback({name: "ASR: permission denied", message: "User refused access to microphone :-("});
+					}
+				});
+			}
+		});
+	}
+	//Errors
+    function onAudioInputError(error){
+		SepiaFW.debug.err("ASR error (audioinput plugin): " + JSON.stringify(error));
+        broadcastWrongAsrSettings();
+        broadcastAsrNoResult();
+        error_callback('E03 - Permission to use microphone was denied or audio-input interface failed!');
+    }
+    //Start
+    var audioinputStartCapture = function(){
+        if (!audioInputPluginIsSet){
+            initAudioinputPlugin();
+			if (!audioInputPluginHasPermission){
+				checkAudioinputPermission(audioinputStartCapture, onAudioInputError);
+				return;
+			}
+        }
+		if (!audioInputPluginHasPermission){
+			onAudioInputError({name: "ASR: permission denied", message: "Not allowed to access microphone :-("});
+			return;
+		}
+        try {
+            if (!audioinput.isCapturing()){
+                //Start with default values and let the plugin handle conversion from raw data to web audio
+                window.audioinput.start({ streamToWebAudio: true });
+				//Get input for the recorder
+                var inputPoint = window.audioinput.getAudioContext().createGain();
+                window.audioinput.connect(inputPoint);
+                audioRecorder = new RecorderJS(inputPoint);
+                startWebSocketForMic();
+            }else{
+                SepiaFW.debug.err("ASR error (audioinput plugin): Tried to capture audio but was already running!");
+            }
+        }catch(error){
+            SepiaFW.debug.err("ASR error (audioinput plugin) unknown exception. The following error might be displayed twice.");
+			onAudioInputError(error);
+        }
+    };
+    //Stop
+    var audioinputStopCapture = function(){
+        if (window.audioinput && window.audioinput.isCapturing()){
+			window.audioinput.stop();
+			//we release the audioContext here to be sure
+			setTimeout(function(){
+				//window.audioinput.getAudioContext().close();
+				window.audioinput.getAudioContext().suspend();
+			},100);
+        }
+    };
+    
+    // --------------------------------------
+
+	function startWebSocketForMic(){
 		//stopWebSocket();
 		//Speech.stopRecording();
 		
@@ -236,10 +340,19 @@ function sepiaFW_build_speechWebSocket(){
 			partialTranscript = '';
 			partialPersistentTranscript = '';
 			audioRecorder.sendHeader(websocket);
+
+			//assign active audioContext
+			var activeAudioContext = undefined;
+			if (isCordovaAudioinputSupported){
+				activeAudioContext = window.audioinput.getAudioContext();
+			}else if (isMediaDevicesSupported){
+				activeAudioContext = audioContext;
+			}
+
 			//check audio context state
-			if(audioContext.state === 'suspended') {
-				//console.log('AudioContext suspended -> resume');								//DEBUG
-				audioContext.resume().then(function() {
+			if (activeAudioContext && (activeAudioContext.state == 'suspended' || activeAudioContext.state == 'interrupted')) {
+				//console.log('AudioContext suspended or interrupted -> resume');								//DEBUG
+				activeAudioContext.resume().then(function() {
 					if (isWaitingToRecord){
 						isRecording = true;		SepiaFW.speech.Interface.isRecognizing(true);
 						isWaitingToRecord = false;

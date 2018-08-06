@@ -538,16 +538,20 @@ function sepiaFW_build_debug(){
 			console.log('SepiaFW - ' + Debug.getLocalDateTime() + ' - LOG - ' + msg);
 		}
 	}
+	
 	Debug.err = function(msg){
 		if (Debug.doError){
 			console.error('SepiaFW - ' + Debug.getLocalDateTime() + ' - ERROR - ' + msg);
 		}
 	}
+	Debug.error = Debug.err;
+	
 	Debug.info = function(msg){
 		if (Debug.doInfo){
 			console.log('SepiaFW - ' + Debug.getLocalDateTime() + ' - INFO - ' + msg);
 		}
 	}
+	
 	Debug.object = function(obj, logType){
 		var output, property;
 		if (obj !== null && typeof obj === 'object'){
