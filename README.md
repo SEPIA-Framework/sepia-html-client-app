@@ -33,4 +33,4 @@ For experts only: Use the install-scripts in the repository to build your own ve
 
 ### Version history ...
 
-... can be found (here)[https://github.com/SEPIA-Framework/SEPIA-Framework.github.io/blob/master/app/README.md].
+... can be found [here](https://github.com/SEPIA-Framework/SEPIA-Framework.github.io/blob/master/app/README.md).
