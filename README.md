@@ -7,7 +7,8 @@ Part of the [SEPIA Framework](https://sepia-framework.github.io/)
 
 This is a HTML-based application (SEPIA client) to communicate with SEPIA via browser, iOS and Android.  
 Features of the app are:
-* Input via voice (Android, iOS and Chrome Browser) and text
+* Input via voice (Android, iOS, browser) and text
+* Native (Android, iOS, Chrome) and open-source ASR supported ([see STT-Server](https://github.com/SEPIA-Framework/sepia-stt-server))
 * Text-to-Speech voice output
 * WebSocket based chat with SEPIA and other users that are registered on your private or public server ([see Chat-Server](https://github.com/SEPIA-Framework/sepia-websocket-server-java))
 * Customizable start-screen with user-recommendations (created by the SEPIA server)

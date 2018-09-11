@@ -29,7 +29,7 @@ function sepiaFW_build_frames(){
 	Frames.close = function(){
 		$('#sepiaFW-frames-view').slideUp(300);
 		Frames.isOpen = false;
-		SepiaFW.ui.switchSwipeBars('chat');
+		SepiaFW.ui.switchSwipeBars();
 	}
 		
 	Frames.setup = function(framePage, finishCallback){

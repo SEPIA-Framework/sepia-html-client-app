@@ -36,6 +36,7 @@ function sepiaFW_build_strings(){
 	StringsDE.noConnectionOrNoCredentials = 'Verbindung ist verloren gegangen oder die Login Daten sind abgelaufen. Du kannst warten und es noch einmal versuchen, die App neu laden oder dich erneut einloggen.';
 	StringsDE.demoMode = 'Du befindest dich im Demo-Modus! In diesem Modus kannst du die Einstellungen ändern (z.B. host-name) und das Tutorial anschauen. Um auf deinen Assistenten zuzugreifen melde dich bitte zuerst an.';
 	StringsDE.noAsrSupport = 'Es tut mir leid, aber dieser Client unterstütz die Spracherkennung leider nicht :-(';
+	StringsDE.asrMissingServer = 'Mir fehlen noch Server Informationen um diese Spracherkennungsengine nutzen zu können, check noch mal die Settings bitte (ASR server).';
 	StringsDE.asrSettingsProblem = 'Mikrofon nicht richtig erkannt oder Zugriff verweigert.';
 	StringsDE.nobodyThere = 'Uups, es scheint zur Zeit leider keiner hier zu sein, der dir antworten könnte :-(';
 	StringsDE.userNotFound = 'Uups, dieser User scheint gerade nicht hier zu sein :-(';
@@ -117,6 +118,7 @@ function sepiaFW_build_strings(){
 	StringsEN.noConnectionOrNoCredentials = 'Connection was lost or credentials became invalid. You can wait and try it again, reload the app or login again.';
 	StringsEN.demoMode = 'You are in demo-mode! This mode only allows you to change settings (e.g. host-name) and check out the tutorial. To get access to your assistant please log-in first.';
 	StringsEN.noAsrSupport = 'I\'m sorry but this client does not support speech recognition :-(';
+	StringsEN.asrMissingServer = 'I\'m missing some server info to user this speech recognition engine, please check the settings again (ASR server).';
 	StringsEN.asrSettingsProblem = 'Microphone has not been recognized properly or access was denied.';
 	StringsEN.nobodyThere = 'Uups, sorry but it seems there is nobody here to answer your message :-(';
 	StringsEN.userNotFound = 'Uups, this user seems to be not available right now :-(';
