@@ -75,7 +75,7 @@ DEALINGS IN THE SOFTWARE.
         this.sendHeader = function (ws) {
             var sampleLength = 1000000;
             var mono = true;
-            var sampleRate = 16000;
+            var sampleRate = 16000;                 //TODO: this might not be true! We cannot guarantee that!
             var buffer = new ArrayBuffer(44);
             var view = new DataView(buffer);
 

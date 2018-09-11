@@ -121,6 +121,7 @@ function sepiaFW_build_dataService(){
 					}else{
 						dataPermanent = {};
 					}
+					return dataPermanent;
 				}
 			}else{
 				if (window.localStorage){
@@ -130,6 +131,7 @@ function sepiaFW_build_dataService(){
 					}else{
 						data = {};
 					}
+					return data;
 				}
 			}
 		}catch (e){
