@@ -111,7 +111,7 @@ function sepiaFW_build_geocoder(){
 		if (SepiaFW.ui){
 			var statusIndicator = document.getElementById("sepiaFW-menue-status-text");
 			if (statusIndicator && addressResult.summary){
-				statusIndicator.innerHTML = "GPS: " + addressResult.summary;
+				statusIndicator.innerHTML = addressResult.summary; // + " (GPS)"
 			}else if (statusIndicator && addressResult.longitude){
 				statusIndicator.innerHTML = "latitude: " + SepiaFW.tools.round3(addressResult.latitude) + ", longitude: " + SepiaFW.tools.round3(addressResult.longitude);
 			}
@@ -121,7 +121,7 @@ function sepiaFW_build_geocoder(){
 		//UPDATE
 		var statusIndicator = document.getElementById("sepiaFW-menue-status-text");
 		if (statusIndicator && addressResult.summary){
-			statusIndicator.innerHTML = "IP: " + addressResult.summary;
+			statusIndicator.innerHTML = addressResult.summary + " (IP)";
 		}
 	}
 	function broadcastAddressFailed(){

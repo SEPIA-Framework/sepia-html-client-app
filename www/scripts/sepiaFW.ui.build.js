@@ -334,9 +334,9 @@ function sepiaFW_build_ui_build(){
 			
 			//---HEAD---
 			headDiv.innerHTML = ""
-				+ "<button id='sepiaFW-geolocation-btn'>" + SepiaFW.local.g('locateMe') + "</button>"
-				//+ "<button>QuickButton2</button>"
-				+ "<p id='sepiaFW-menue-status-text'>Status text</p>"
+				//+ "<button>QuickButton1</button>"
+				//+ "<button id='sepiaFW-geolocation-btn'>" + SepiaFW.local.g('locateMe') + "</button>"
+				//+ "<p id='sepiaFW-menue-status-text'>Status text</p>"
 				+ "<div id='sepiaFW-chat-menu-head-border'></div>";
 			menuArea.appendChild(headDiv);
 			

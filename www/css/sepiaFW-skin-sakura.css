@@ -9,7 +9,7 @@ html {
 #sepiaFW-sC 	 { background-color: #883446; }
 #sepiaFW-sC2 { background-color: rgba(235, 235, 255, 0.95); 	}
 #sepiaFW-aC 	 { background-color: #eebcb4; 	}
-#sepiaFW-aC2 { background-color: rgba(160, 145, 153, 0.95); }
+#sepiaFW-aC2 { background-color: rgba(160, 145, 153, 1.00); }
 #sepiaFW-asC { background-color: #503040; 	}
 #sepiaFW-adC { background-color: gold; 	}
 
@@ -36,7 +36,7 @@ html {
 }
 
 .sepiaFW-menu {
-	background: rgba(160, 145, 153, 0.95);
+	background: rgba(160, 145, 153, 1.00);
 	color: #fff;
 }
 #sepiaFW-chat-menu {

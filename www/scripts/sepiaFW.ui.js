@@ -895,12 +895,15 @@ function sepiaFW_build_ui(){
 	}
 	//Simple tap with reduced delay for e.g. iOS' UIWebView (not needed anymore on WKWebview)
 	UI.useFastTouch = false;
-	UI.onclick = function(ele, callback){
+	UI.onclick = function(ele, callback, animatePress){
 		if (UI.useFastTouch){
 			UI.longPressShortPressDoubleTap(ele, '', '', callback);
 			//this prevents the ghost-click but leads to a more complicated trigger event, use: $(ele).trigger('click', {bm_force : true})
 			$(ele).on('click', function(ev, data){
 				if (data && data.bm_force){
+					if (animatePress){
+						SepiaFW.animate.flashObj(ele);
+					}
 					callback(ev);
 				}else{
 					ev.preventDefault();
@@ -909,6 +912,9 @@ function sepiaFW_build_ui(){
 			//PreventGhostClick(ele);
 		}else{
 			$(ele).on('click', function(ev){
+				if (animatePress){
+					SepiaFW.animate.flashObj(ele);
+				}
 				callback(ev);
 			});
 		}

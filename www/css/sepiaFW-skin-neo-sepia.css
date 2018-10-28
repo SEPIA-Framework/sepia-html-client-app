@@ -68,19 +68,24 @@ html {
 
 .sepiaFW-menu {
 	/*background: rgba(206, 255, 26, 0.95);*/
-	background: rgba(225, 225, 245, 0.96);
-	color: #000;
+	background:#000;
+	color: #fff;
 }
 #sepiaFW-chat-controls-more-menu button {
+	background: #fff;
+	color: #000;
+}
+.sepiaFW-notouch-device #sepiaFW-chat-controls-more-menu button:hover {
+	background-color: #c4ff3e !important;
+	color: #000 !important;
+}
+#sepiaFW-chat-menu {
 	background: #000;
 	color: #fff;
 }
-#sepiaFW-chat-menu {
-	background: rgba(225, 225, 245, 1.00);
-	color: #000;
-}
 #sepiaFW-chat-menu button {
-	background: #000;
+	/*background: rgba(255, 255, 255, 0.15);*/
+	background: #262626;
 	color: #c4ff3e;
 }
 .sepiaFW-notouch-device #sepiaFW-chat-menu button:hover {
@@ -89,10 +94,6 @@ html {
 }
 #sepiaFW-chat-menu li {
 	background: rgba(255, 255, 255, 0.15);
-}
-.sepiaFW-notouch-device #sepiaFW-chat-controls-more-menu button:hover {
-	background-color: #fff !important;
-	color: #000 !important;
 }
 
 #sepiaFW-myEvents-buttons button,
@@ -181,8 +182,13 @@ html {
 /*----- teachUI -----*/
 
 #sepiaFW-teachUI-nav-bar {
-    background: #16ABC3;
-    color: #fff;
+	/*color: #fff;
+	background: #16ABC3;*/
+	border-top: 1px solid #333;
+}
+#sepiaFW-teachUI-nav-bar button:hover {
+	color: #fff !important;
+    background-color: #000 !important;
 }
 #sepiaFW-teachUI-view {
     background: #000;

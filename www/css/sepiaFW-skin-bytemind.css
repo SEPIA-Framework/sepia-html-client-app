@@ -13,7 +13,7 @@ html {
 
 #sepiaFW-pC 	 { background-color: #2F3035; }
 #sepiaFW-sC 	 { background-color: #44c8be; }
-#sepiaFW-sC2 { background-color: rgba(225, 225, 245, 0.96); 	}
+#sepiaFW-sC2 { background-color: rgba(225, 225, 245, 1.00); 	}
 #sepiaFW-aC 	 { background-color: rgba(166, 58, 80, 1.0); 	}
 #sepiaFW-aC2 { background-color: #6b4d9f; }
 #sepiaFW-asC { background-color: #44c8be;	}
@@ -56,8 +56,8 @@ html {
 
 .sepiaFW-menu {
 	/*background: rgba(206, 255, 26, 0.95);*/
-	background: rgba(225, 225, 245, 0.96);
-	color: #000;
+	background: rgb(83, 143, 195);
+	color: #fff;
 }
 #sepiaFW-chat-menu {
 	background: rgba(225, 225, 245, 1.00);
@@ -66,6 +66,14 @@ html {
 #sepiaFW-chat-menu button {
 	background: #2f3035;
 	color: #44c8be;
+}
+#sepiaFW-chat-controls-more-menu button {
+	background: #2f3035;
+	color: #fff;
+}
+.sepiaFW-notouch-device #sepiaFW-chat-controls-more-menu button:hover {
+	background-color: #fff !important;
+	color: #2f3035 !important;
 }
 #sepiaFW-chat-menu li {
 	background: rgba(255, 255, 255, 0.15);

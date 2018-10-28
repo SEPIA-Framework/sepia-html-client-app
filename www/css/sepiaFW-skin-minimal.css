@@ -283,6 +283,9 @@ html {
 #sepiaFW-teachUI-view {
     background: #000;
 }
+/*#sepiaFW-teachUI-nav-bar {
+	border-top: 1px solid #333;
+}*/
 #sepiaFW-teachUI-editor button, 
 #sepiaFW-teachUI-manager button {
     background: #000 !important;

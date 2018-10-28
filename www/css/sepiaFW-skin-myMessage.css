@@ -57,7 +57,7 @@ html {
 	background: #fff;
 	color: #000;
 }
-#sepiaFW-main-window .chat-buttons-area button.chat-button-cmd {
+#sepiaFW-main-window .chat-buttons-area button {
     color: #000;
     background: rgba(255, 255, 255, 0.75);
 }
