@@ -17,6 +17,7 @@ SepiaFW.buildSepiaFwPlugins = function(){
 	SepiaFW.ui.build = sepiaFW_build_ui_build();
 	SepiaFW.ui.cards = sepiaFW_build_ui_cards();
 	SepiaFW.ui.actions = sepiaFW_build_ui_actions();
+	SepiaFW.ui.customButtons = sepiaFW_build_ui_custom_buttons();
 	SepiaFW.events = sepiaFW_build_events();
 	SepiaFW.geocoder = sepiaFW_build_geocoder();
 	SepiaFW.audio = sepiaFW_build_audio();

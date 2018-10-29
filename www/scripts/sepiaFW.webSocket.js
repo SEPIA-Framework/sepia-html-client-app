@@ -372,6 +372,7 @@ function sepiaFW_build_webSocket_client(){
 	
 	//when client started add some info like first-visit messages or buttons
 	Client.welcomeActions = function(onlyOffline){
+		//First visit info
 		if (SepiaFW.account.getClientFirstVisit()){
 			var sender = "UI";
 			var options = { 
@@ -394,6 +395,10 @@ function sepiaFW_build_webSocket_client(){
 				}});
 			}
 			publishMyViewActions(actionsArray, sender, options);
+		}
+		//Custom buttons
+		if (SepiaFW.ui.customButtons){
+			SepiaFW.ui.customButtons.load();
 		}
 	}
 
@@ -1072,6 +1077,8 @@ function sepiaFW_build_webSocket_client(){
 		if (dataset.info && dataset.info === "direct_cmd"){
 			data.dataType = 'directCmd';
 			isDirectCmd = true;
+		}else{
+			data.dataType = 'openText';
 		}
 		var cmd = dataset.cmd;
 		//the sender becomes the receiver - This workds because dataset is usually an 
@@ -1094,6 +1101,7 @@ function sepiaFW_build_webSocket_client(){
 		var msg = buildSocketMessage(username, receiver, cmd, "", data, "", newId, activeChannelId);
 		//console.log('CMD: ' + JSON.stringify(msg)); 		//DEBUG
 		if (options && Object.keys(options).length !== 0){
+			//console.log("msg-id: " + newId + " - options " + JSON.stringify(options)); 		//DEBUG
 			Client.setMessageIdOptions(newId, options);
 		}
 		Client.sendMessage(msg);

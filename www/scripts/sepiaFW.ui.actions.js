@@ -347,7 +347,7 @@ function sepiaFW_build_ui_actions(){
 					}else if (type === 'fist_visit_info_start'){
 						parentBlock.removeChild(aButtonsArea); 	//we will create a new one
 						aButtonsArea = Actions.buildClientFirstStartBox(data.actionInfo[i], parentBlock);
-					
+
 					//HTML result
 					}else if (type === 'show_html_result'){
 						Actions.buildHtmlResultAction(data.actionInfo[i], parentBlock, handleOptions);

@@ -73,6 +73,7 @@ function sepiaFW_build_strings(){
 	StringsDE.refreshUI_info = 'Um Änderungen, die hier gemacht wurden zu <u>sehen</u> muss das Interface neu geladen werden';
 	StringsDE.recommendationsFor = 'Empfehlungen für';
 	StringsDE.forNewcomers = 'Für Neuankömmlinge';
+	StringsDE.myCustomButtons = 'Meine Aktionen';
 	StringsDE.dontShowAgain = "Nicht mehr anzeigen";
 	StringsDE.adrHome = 'Zu Hause';
 	StringsDE.adrWork = 'Arbeit';
@@ -155,6 +156,7 @@ function sepiaFW_build_strings(){
 	StringsEN.refreshUI_info = 'To <u>see</u> changes you made here you need to refresh the interface';
 	StringsEN.recommendationsFor = 'Recommendations for';
 	StringsEN.forNewcomers = 'For newcomers';
+	StringsEN.myCustomButtons = 'My actions';
 	StringsEN.dontShowAgain = "Don't show again";
 	StringsEN.adrHome = 'Home';
 	StringsEN.adrWork = 'Work';

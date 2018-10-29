@@ -38,6 +38,9 @@ html {
 #sepiaFW-main-window h2 {
 	font-weight: 300;
 }
+#sepiaFW-main-window a {
+	color: #ceff1a;
+}
 #sepiaFW-main-window input, #sepiaFW-login-box input {
 	background: #000;
 	color: #fff;
@@ -60,7 +63,9 @@ html {
 	border: 1px solid #fff;
 	background: #222226;
 }
-.sepiaFW-myEvents-titleNote, .sepiaFW-myFirstStart-titleNote {
+.sepiaFW-myEvents-titleNote, 
+.sepiaFW-myFirstStart-titleNote,
+.sepiaFW-myCustomButtons-titleNote {
     font-weight: 300 !important;
 }
 

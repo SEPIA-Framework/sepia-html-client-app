@@ -566,6 +566,11 @@ function sepiaFW_build_ui(){
 						SepiaFW.ui.actions.timerAndAlarm(action, document.getElementById('sepiaFW-my-view'));
 					}
 				});
+
+				//trigger my custom buttons refresh
+				if (SepiaFW.ui.customButtons){
+					SepiaFW.ui.customButtons.onMyViewRefresh();
+				}
 			}
 		}
 	}
@@ -901,9 +906,7 @@ function sepiaFW_build_ui(){
 			//this prevents the ghost-click but leads to a more complicated trigger event, use: $(ele).trigger('click', {bm_force : true})
 			$(ele).on('click', function(ev, data){
 				if (data && data.bm_force){
-					if (animatePress){
-						SepiaFW.animate.flashObj(ele);
-					}
+					//if (animatePress){ SepiaFW.animate.flashObj(ele); }
 					callback(ev);
 				}else{
 					ev.preventDefault();
@@ -970,6 +973,14 @@ function sepiaFW_build_ui(){
 		/*mc.on("hammer.input", function(ev) {
 		   console.log(ev.pointers);
 		});*/
+		//add a normal event listener with data to enable trigger method
+		$(ele).on('click', function(ev, data){
+			if (data && data.bm_force){
+				if (callbackShort) callbackShort();
+			}else{
+				ev.preventDefault();
+			}
+		});
 	}
 	UI.longPressShortPressDoubleTab = UI.longPressShortPressDoubleTap;
 	//Shortcut for Short/Long combo with some default settings
@@ -981,6 +992,14 @@ function sepiaFW_build_ui(){
 			//Short press
 			if (shortCallback) shortCallback();
 		}, undefined, true, false, animateShort);
+		//add a normal event listener with data to enable trigger method
+		$(ele).on('click', function(ev, data){
+			if (data && data.bm_force){
+				if (shortCallback) shortCallback();
+			}else{
+				ev.preventDefault();
+			}
+		});
 	}
 	//Long-press indicator
 	var longPressIndicator = '';
@@ -1231,15 +1250,22 @@ function sepiaFW_build_ui(){
 		if ($navBar.css('display') == 'none'){
 			$navBar.fadeIn(300);
 			$inputBar.fadeIn(300);
+			$('.sepiaFW-carousel-pane').removeClass('full-screen');
+			$('#sepiaFW-chat-menu').removeClass('full-screen');
+			UI.isInterfaceFullscreen = false;
 		}else{
 			$navBar.fadeOut(300);
 			$inputBar.fadeOut(300);
+			$('.sepiaFW-carousel-pane').addClass('full-screen');
+			$('#sepiaFW-chat-menu').addClass('full-screen');
+			UI.isInterfaceFullscreen = true;
 		}
 		setTimeout(function(){
 			$(window).trigger('resize'); 	//this might not work on IE
 		}, 500);
 		UI.closeAllMenus();
 	}
+	UI.isInterfaceFullscreen = ($('#sepiaFW-nav-bar').css('display') == 'none');
 	
 	//Use fullscreen API
 	UI.toggleFullscreen = function(elem){
