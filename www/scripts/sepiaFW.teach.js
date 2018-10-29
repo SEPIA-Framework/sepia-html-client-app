@@ -7,8 +7,11 @@ function sepiaFW_build_teach(){
 	Teach.isOpen = false;
 	
 	//some statics
+	var selectedFirstTime = true;
 	var nextStartingFrom = 0;
 	var services;
+
+	var customButtonShowState = false;
 	
 	Teach.openUI = function(info){
 		if (!wasLoaded){
@@ -133,6 +136,17 @@ function sepiaFW_build_teach(){
 				option.innerHTML = value.name;
 				$('#sepiaFW-teach-commands').append(option);
 			});
+
+			//build rest of menu:
+
+			//-CUSTOM BUTTON TOGGLE SHOW
+			document.getElementById('sepiaFW-teach-cbutton-toggle-li').appendChild(SepiaFW.ui.build.toggleButton('sepiaFW-teach-cbutton-show', 
+				function(){
+					customButtonShowState = true;
+				},function(){
+					customButtonShowState = false;
+				}, customButtonShowState)
+			);
 			
 			//buttons:
 			
@@ -234,6 +248,11 @@ function sepiaFW_build_teach(){
 			}
 			$('#sepiaFW-teachUI-submit').fadeIn(300);
 			if (onFinishCallback) onFinishCallback(parameterBox[0]);
+			//if it's the first time show custom button field now
+			if (selectedFirstTime){
+				selectedFirstTime = false;
+				$('#sepiaFW-teach-button-config').fadeIn(300);
+			}
 		});
 	}
 	
@@ -244,6 +263,7 @@ function sepiaFW_build_teach(){
 		var cmd = data.cmd_summary.replace(/;;.*/,'').trim();
 		var params = data.params;
 		var service = services[cmd];
+		var cmdData = data.data;
 		//fill UI
 		$('#sepiaFW-teach-input').val(text);
 		$('#sepiaFW-teach-commands').val(cmd);
@@ -254,8 +274,30 @@ function sepiaFW_build_teach(){
 				});
 			});
 		});
+		//fill custom button
+		if (cmdData && cmdData.button){
+			var name = cmdData.button.name || "";
+			var icon = cmdData.button.icon || "";
+			var state = cmdData.show_button || false;
+			$('#sepiaFW-teach-custom-button-name').val(name);
+			$('#sepiaFW-teach-custom-button-icon').val(icon);
+			setCustomToggleButton(state);
+		}else{
+			$('#sepiaFW-teach-custom-button-name').val("");
+			$('#sepiaFW-teach-custom-button-icon').val("");
+			setCustomToggleButton(false);
+		}
+	}
+
+	function setCustomToggleButton(newStateTrueFalse){
+		if (customButtonShowState === newStateTrueFalse){
+			return;
+		}else{
+			$("#sepiaFW-teach-cbutton-show").trigger('click');
+		}
 	}
 	
+	//build result for command manager page
 	function buildPersonalCommandsResult(data, clearBox){
 		var cmdCardsBox = $('#sepiaFW-teachUI-manager').find('.sepiaFW-command-cards-container');
 		if (clearBox){
@@ -341,6 +383,16 @@ function sepiaFW_build_teach(){
 		$.each(parameters, function(p, v){
 			cmdSum += p.replace(/<|>/g,'').trim() + "=" + v + ";;";
 		});
+
+		//data - custom button
+		var customButton = {
+			"name" : $('#sepiaFW-teach-custom-button-name').val(),
+			"icon" : $('#sepiaFW-teach-custom-button-icon').val()
+		}
+		var data = {
+			"show_button" : customButtonShowState,
+			"button" : customButton
+		};
 		
 		//other stuff - TODO: make editable
 		var overwriteExisting = true; 		//check if a command exists and overwrite?
@@ -367,6 +419,7 @@ function sepiaFW_build_teach(){
 		submit.local = isLocal;
 		submit.explicit = explicit;
 		submit.overwriteExisting = overwriteExisting;
+		submit.data = JSON.stringify(data);
 		
 		//console.info("Submit: " + JSON.stringify(submit));		//DEBUG
 		return submit;
@@ -427,13 +480,16 @@ function sepiaFW_build_teach(){
 	}
 	
 	//load personal commands
-	Teach.loadPersonalCommands = function(key, startingFrom, successCallback, errorCallback, debugCallback){
+	Teach.loadPersonalCommands = function(key, startingFrom, successCallback, errorCallback, debugCallback, with_button_only){
 		SepiaFW.ui.showLoader();
 		var apiUrl = SepiaFW.config.teachAPI + "getAllPersonalCommands";
 		var submitData = new Object();
 		submitData.KEY = key;
 		submitData.client = SepiaFW.config.getClientDeviceInfo(); //SepiaFW.config.clientInfo;
 		submitData.from = startingFrom;
+		if (with_button_only){
+			submitData.button = true;
+		}
 		$.ajax({
 			url: apiUrl,
 			timeout: 10000,

@@ -54,6 +54,24 @@ function sepiaFW_build_ui_build(){
 		
 		return tglBtn;
 	}
+	//switch toggle button state without triggering callbacks
+	Build.toggleButtonSetState = function(btnId, newStateOnOrOff){
+		var tglBtn = document.getElementById(btnId);
+		if (tglBtn){
+			var state = tglBtn.getAttribute("data-toggle-state");
+			if (state == newStateOnOrOff.toLowerCase()){
+				return;
+			}else{
+				if (state === "on"){
+					tglBtn.setAttribute("data-toggle-state", "off");
+					tglBtn.firstChild.className = "off";
+				}else{
+					tglBtn.setAttribute("data-toggle-state", "on");
+					tglBtn.firstChild.className = "on";
+				}
+			}
+		}
+	}
 	
 	//simple action button
 	Build.inlineActionButton = function(btnId, btnName, callback){
@@ -261,8 +279,9 @@ function sepiaFW_build_ui_build(){
 		var chatMenuBtn = document.getElementById("sepiaFW-chat-controls-more-btn");
 		if (chatMenuBtn){
 			$(chatMenuBtn).off();
-			SepiaFW.ui.onclick(chatMenuBtn, function(){
-			//$(chatMenuBtn).on("click", function () {
+			var animateShortPress = false;
+			SepiaFW.ui.onShortLongPress(chatMenuBtn, function(){
+				//Short press
 				var menu = $("#sepiaFW-chat-controls-more-menu");
 				if (menu.css('display') == 'none'){
 					menu.fadeIn(300);
@@ -275,7 +294,10 @@ function sepiaFW_build_ui_build(){
 				if (SepiaFW.audio){
 					SepiaFW.audio.initAudio();
 				}
-			});
+			}, function(){
+				//Long press - open settings menu
+				$("#sepiaFW-nav-menu-btn").trigger('click', {bm_force : true});
+			}, animateShortPress);
 		}
 		//catch the shortcuts menue close/open event
 		$('#sepiaFW-main-window').on("sepiaFwOpen-sepiaFW-chat-controls-more-menu", function(){

@@ -3,7 +3,7 @@ function sepiaFW_build_ui(){
 	var UI = {};
 	
 	//some constants
-	UI.version = "v0.12.2";
+	UI.version = "v0.14.0";
 	UI.JQ_RES_VIEW_IDS = "#sepiaFW-result-view, #sepiaFW-chat-output, #sepiaFW-my-view";			//a selector to get all result views e.g. $(UI.JQ_RES_VIEW_IDS).find(...)
 	UI.JQ_ALL_MAIN_VIEWS = "#sepiaFW-result-view, #sepiaFW-chat-output, #sepiaFW-my-view, #sepiaFW-teachUI-editor, #sepiaFW-teachUI-manager, #sepiaFW-frame-page-1, #sepiaFW-frame-page-2"; 	//TODO: frames can have more ...
 	UI.JQ_ALL_MAIN_CONTAINERS = "#sepiaFW-my-view, #sepiaFW-chat-output-container, #sepiaFW-result-view";
@@ -860,7 +860,7 @@ function sepiaFW_build_ui(){
 			checkClicksAndTabs();
 		});
 	}
-	//Long-press / Short-press combo
+	//Long-press / Short-press combo - Version without Hammer.js - basically deprecated, use: onShortLongPress
 	UI.longPressShortPress = function(ele, callbackLong, callbackShort){
 		var pressTimer;
 		var delay = 750;
@@ -893,8 +893,8 @@ function sepiaFW_build_ui(){
 			return false;
 		});
 	}
-	//Simple tap with reduced delay for e.g. iOS' UIWebView (not needed anymore on WKWebview)
-	UI.useFastTouch = false;
+	//Default on-click method with optional haptik press-feedback
+	UI.useFastTouch = false; 	//reduced delay for e.g. iOS' UIWebView (basically deprecated, not needed anymore since use of WKWebview)
 	UI.onclick = function(ele, callback, animatePress){
 		if (UI.useFastTouch){
 			UI.longPressShortPressDoubleTap(ele, '', '', callback);
@@ -920,7 +920,8 @@ function sepiaFW_build_ui(){
 		}
 	}
 	//Long-press / Short-press / Double-Tab combo
-	UI.longPressShortPressDoubleTap = function(ele, callbackLong, callbackLongRelease, callbackShort, callbackDouble, useLongPressIndicator, preventTapOnDoubleTap){
+	UI.longPressShortPressDoubleTap = function(ele, callbackLong, callbackLongRelease, callbackShort, callbackDouble, 
+							useLongPressIndicator, preventTapOnDoubleTap, animateShortPress){
 		//Hammertime!
 		var pressTimer;
 		var delay = 625;
@@ -936,7 +937,10 @@ function sepiaFW_build_ui(){
 
 		//if (callbackShort) mc.on("tap", callbackShort);
 		if (callbackShort) mc.on("tap", function(ev){
-			if (useLongPressIndicator) UI.hidelongPressIndicator(); 
+			if (useLongPressIndicator) UI.hidelongPressIndicator();
+			if (animateShortPress){
+				SepiaFW.animate.flashObj(ele);
+			}
 			callbackShort(ev);
 			//console.log('tab');
 		});
@@ -968,6 +972,16 @@ function sepiaFW_build_ui(){
 		});*/
 	}
 	UI.longPressShortPressDoubleTab = UI.longPressShortPressDoubleTap;
+	//Shortcut for Short/Long combo with some default settings
+	UI.onShortLongPress = function(ele, shortCallback, longCallback, animateShort){
+		UI.longPressShortPressDoubleTap(ele, function(){
+			//Long press
+			if (longCallback) longCallback();
+		}, undefined, function(){
+			//Short press
+			if (shortCallback) shortCallback();
+		}, undefined, true, false, animateShort);
+	}
 	//Long-press indicator
 	var longPressIndicator = '';
 	UI.showlongPressIndicator = function(ev){
