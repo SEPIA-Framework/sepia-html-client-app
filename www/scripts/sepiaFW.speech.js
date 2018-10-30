@@ -668,9 +668,14 @@ function sepiaFW_build_speech(){
 				//TODO: implement
 			}else{
 				selectedVoice = newVoice;
-				selectedVoiceObject = speechSynthesis.getVoices().filter(function(voice){
-					return voice.name === selectedVoice;
-				})[0];
+				var selectedVoiceObjectArray = speechSynthesis.getVoices().filter(function(voice){
+					return (voice && voice.name && (voice.name === selectedVoice));
+				});
+				if (selectedVoiceObjectArray.length == 0){
+					selectedVoiceObject = {};	
+				}else{
+					selectedVoiceObject = selectedVoiceObjectArray[0];
+				}
 				SepiaFW.debug.log("TTS voice set: " + ((selectedVoiceObject.name)? selectedVoiceObject.name : "undefined"));
 			}
 		}

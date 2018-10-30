@@ -4,6 +4,8 @@ function sepiaFW_build_ui_custom_buttons(){
     var customButtonObjects = [];
     var lastCustomButtonsLoad = 0;
 
+    CustomButtons.isOutdated = false;       //set this to true to reload icons on next my-view refresh
+
     //Load first buttons via teach-API (max. 10 by default)
     CustomButtons.load = function(){
         if (!SepiaFW.teach){
@@ -49,6 +51,9 @@ function sepiaFW_build_ui_custom_buttons(){
     //My view refresh event
     CustomButtons.onMyViewRefresh = function(){
         //console.log('test my view refresh custom buttons');
+        if (CustomButtons.isOutdated){
+            CustomButtons.load();
+        }
     }
 
     //Build client-first-start box
@@ -57,9 +62,9 @@ function sepiaFW_build_ui_custom_buttons(){
 		var	aButtonsAreaReplaced = document.getElementById('sepiaFW-myCustom-buttons');
 		if (aButtonsAreaReplaced){
 			aButtonsAreaReplaced.id = 'sepiaFW-myCustom-buttons-replaced';
-			var oldFirstStartParent = $(aButtonsAreaReplaced).closest('.chatMsg');
-			oldFirstStartParent.fadeOut(300, function(){
-				oldFirstStartParent.remove();
+			//var oldFirstStartParent = $(aButtonsAreaReplaced).closest('.chatMsg');
+			$(aButtonsAreaReplaced).fadeOut(300, function(){
+				$(aButtonsAreaReplaced).remove();
 			});
 		}
 		//make new
@@ -108,7 +113,7 @@ function sepiaFW_build_ui_custom_buttons(){
         var animateShortPress = true;
         SepiaFW.ui.onShortLongPress(button, function(){
             //Short press
-            /*
+            /* --> THIS LEADS TO DOUBLE EXECUTION OF sentence-connect commands O_o, need to find bug! <--
             var isText = true;
             var cmd = buttonData.text;
             var newAction = SepiaFW.offline.getCmdButtonAction(cmd, buttonData.name, isText);

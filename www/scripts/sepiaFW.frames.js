@@ -6,14 +6,12 @@ function sepiaFW_build_frames(){
 	var isActive = "";
 	Frames.isOpen = false;
 	
-	//some statics
-	var nextStartingFrom = 0;
-	var services;
-	
 	Frames.open = function(info){
 		if (isActive != info.pageUrl){
-			Frames.setup(info.pageUrl, function(){
+			Frames.setup(info, function(){
 				Frames.open(info);
+				//on finish setup?
+				if(info.onFinishSetup) info.onFinishSetup();
 			});
 			isActive = info.pageUrl;
 			return;
@@ -24,6 +22,8 @@ function sepiaFW_build_frames(){
 			});
 			Frames.isOpen = true;
 			SepiaFW.ui.switchSwipeBars('frames');
+			//on open?
+			if(info.onOpen) info.onOpen();
 		}
 	}
 	Frames.close = function(){
@@ -32,8 +32,9 @@ function sepiaFW_build_frames(){
 		SepiaFW.ui.switchSwipeBars();
 	}
 		
-	Frames.setup = function(framePage, finishCallback){
+	Frames.setup = function(info, finishCallback){
 		//get HTML
+		var framePage = info.pageUrl;
 		//$.get(framePage, function(frameHtml){
         SepiaFW.files.fetch(framePage, function(frameHtml){
             $('#sepiaFW-frames-view').html(frameHtml);
@@ -41,6 +42,8 @@ function sepiaFW_build_frames(){
 			//nav-bar
 			$('#sepiaFW-frames-close').off().on('click', function(){
 				Frames.close();
+				//on open?
+				if(info.onClose) info.onClose();
 			});
 
 			$('#sepiaFW-frames-show-next-page').off().on('click', function(){

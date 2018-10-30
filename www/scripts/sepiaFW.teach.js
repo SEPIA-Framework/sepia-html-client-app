@@ -12,6 +12,18 @@ function sepiaFW_build_teach(){
 	var services;
 
 	var customButtonShowState = false;
+
+	//--------- broadcasting methods ----------
+
+	function broadcastPersonalCommandChange(){
+		//Reset custom buttons
+		if (SepiaFW.ui.customButtons){
+			SepiaFW.ui.customButtons.isOutdated = true;
+			SepiaFW.ui.customButtons.onMyViewRefresh();
+		}
+	}
+
+	//-----------------------------------------
 	
 	Teach.openUI = function(info){
 		if (!wasLoaded){
@@ -470,6 +482,10 @@ function sepiaFW_build_teach(){
 				}
 				//--callback--
 				if (successCallback) successCallback(data);
+				//broadcast (but wait a bit for DB changes)
+				setTimeout(function(){
+					broadcastPersonalCommandChange();
+				}, 3000);
 			},
 			error: function(data) {
 				SepiaFW.ui.hideLoader();

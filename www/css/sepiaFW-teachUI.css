@@ -24,6 +24,12 @@
 #sepiaFW-teachUI-view label.optional {
 	display: none;
 }
+#sepiaFW-teachUI-view a {
+	color: #ceff1a;
+}
+#sepiaFW-teachUI-view a:visited {
+	color: #ceff1a;
+}
 
 #sepiaFW-teachUI-nav-bar {
 	background: #ceff1a;

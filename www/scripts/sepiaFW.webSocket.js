@@ -521,6 +521,16 @@ function sepiaFW_build_webSocket_client(){
 					SepiaFW.ui.backButtonAction();
 				});
 			}
+			//-always on mode
+			var alwaysOnBtn = document.getElementById("sepiaFW-alwaysOn-btn");
+			if (alwaysOnBtn){
+				$(alwaysOnBtn).off().on("click", function () {
+					if (SepiaFW.alwaysOn){
+						SepiaFW.ui.closeAllMenus();
+						SepiaFW.alwaysOn.start();
+					}
+				});
+			}
 			//-teachUi
 			var teachUiBtn = document.getElementById("sepiaFW-teachUI-open");
 			if (teachUiBtn){
