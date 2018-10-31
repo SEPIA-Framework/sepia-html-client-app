@@ -73,6 +73,10 @@ html {
 	background: #ceff1a;
 	color: #000;
 }
+#sepiaFW-main-window .chat-buttons-area .my-view-custom-button {
+	background-color: rgb(255, 177, 80);
+	color: #fff;
+}
 
 #sepiaFW-nav-label-note{
     border: 1px solid #ceff1a;

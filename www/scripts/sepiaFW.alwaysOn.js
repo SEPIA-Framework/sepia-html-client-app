@@ -15,6 +15,7 @@ function sepiaFW_build_always_on(){
     //On finish setup (first open)
     AlwaysOn.onFinishSetup = function(){
         //console.log('finish setup');
+        //wake up
         $(".sepiaFW-alwaysOn-page, .sepiaFW-alwaysOn-navbar").on('click', function(){
             AlwaysOn.onWakeup();
         });
@@ -23,13 +24,33 @@ function sepiaFW_build_always_on(){
     //On open
     AlwaysOn.onOpen = function(){
         //console.log('open');
-        fadeOutNavbarControlsAfterDelay(5000);
-        fadeAvatarToRandomPosAfterDelay(60000);
+        //prevent screen sleep on mobile
+        AlwaysOn.preventSleep();
+        //make sure there are no frames
+        $('.sepiaFW-carousel-pane').addClass('full-screen');
+        $('#sepiaFW-chat-menu').addClass('full-screen');
+        //effects
+        if (openFadeTimer) clearTimeout(openFadeTimer);
+        openFadeTimer = setTimeout(function(){
+            $("#sepiaFW-alwaysOn-avatar").css({opacity:'0'}).show().animate({opacity:'1.0'}, {complete:function(){
+                fadeOutNavbarControlsAfterDelay(5000);
+                fadeAvatarToRandomPosAfterDelay(60000);
+            }, duration: 1000});
+        }, 1000);
     }
+    var openFadeTimer;
 
     //On close
     AlwaysOn.onClose = function(){
         //console.log('close');
+        //stop reposition script
+        if (fadeAvatarTimer) clearTimeout(fadeAvatarTimer);
+        $("#sepiaFW-alwaysOn-avatar").fadeOut(300);
+        //allow sleep again
+        AlwaysOn.allowSleep();
+        //restore designs
+        $('.sepiaFW-carousel-pane').removeClass('full-screen');
+		$('#sepiaFW-chat-menu').removeClass('full-screen');
     }
 
     //Wake controls
@@ -48,12 +69,40 @@ function sepiaFW_build_always_on(){
         $("#sepiaFW-alwaysOn-avatar").find(".avatar-eyelid").addClass('sleep');
     }
 
+    //Control screen sleep on mobile
+    AlwaysOn.preventSleep = function(){
+        if (SepiaFW.ui.isCordova){
+            //check for plugins
+            if (window.plugins.insomnia){
+                //console.log('----------- INSOMNIA TRIGGERED -----------');
+                window.plugins.insomnia.keepAwake();
+            }
+            if (StatusBar){
+                //console.log('----------- STATUSBAR TRIGGERED -----------');
+                StatusBar.hide();
+            }
+        }
+    }
+    AlwaysOn.allowSleep = function(){
+        if (SepiaFW.ui.isCordova){
+            //check for plugins
+            if (window.plugins.insomnia){
+                //console.log('----------- INSOMNIA TRIGGERED -----------');
+                window.plugins.insomnia.allowSleepAgain();
+            }
+            if (StatusBar){
+                //console.log('----------- STATUSBAR TRIGGERED -----------');
+                StatusBar.show();
+            }
+        }
+    }
+
     //Fade out navbar controls slowly after a certain delay
     function fadeOutNavbarControlsAfterDelay(delay){
         var $navBarEntries = $(".sepiaFW-alwaysOn-navbar-entry");
         //stop any running timers and animations and restore opacity
         if (fadeControlsTimer) clearTimeout(fadeControlsTimer);
-        $navBarEntries.stop().css({opacity:'100'});
+        $navBarEntries.stop().css({opacity:'1.0'});
         fadeControlsTimer = setTimeout(function(){
             $navBarEntries.stop().animate({opacity:'0'}, {duration: 3000});
         }, delay);
@@ -65,17 +114,18 @@ function sepiaFW_build_always_on(){
         var $avatar = $("#sepiaFW-alwaysOn-avatar");
         //stop any running timers and animations and restore opacity
         if (fadeAvatarTimer) clearTimeout(fadeAvatarTimer);
-        $avatar.stop().css({opacity:'100'});
+        $avatar.stop().css({opacity:'1.0'});
         fadeAvatarTimer = setTimeout(function(){
-            $avatar.stop().animate({opacity:'0'},{complete: function(){
+            $avatar.stop().animate({opacity:'0'}, {complete: function(){
                 //done, get new coordinates
                 setNewAvatarRandomPosition();
                 //fade in again
-                $avatar.stop().animate({opacity:'1000'},{duration: 1000});
+                $avatar.stop().animate({opacity:'1.0'},{complete: function(){
+                    //restart timer
+                    fadeAvatarToRandomPosAfterDelay(delay);
+                }, duration: 500});
                 //make avatar sleepy
                 makeAvatarSleepy();
-                //restart timer
-                fadeAvatarToRandomPosAfterDelay(delay);
             }, duration: 1000});
         }, delay);
     }

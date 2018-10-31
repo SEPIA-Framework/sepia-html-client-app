@@ -485,6 +485,12 @@ function sepiaFW_build_ui(){
 			backButtonPressed = 0;
 			return;
 		}
+		//close frames
+		if (SepiaFW.frames && SepiaFW.frames.isOpen){
+			SepiaFW.frames.close();
+			backButtonPressed = 0;
+			return;
+		}
 		//close open menus
 		if (UI.getOpenMenus().length > 0){
 			UI.closeAllMenus();

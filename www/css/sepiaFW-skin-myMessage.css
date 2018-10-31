@@ -61,13 +61,18 @@ html {
     color: #000;
     background: rgba(255, 255, 255, 0.75);
 }
+#sepiaFW-main-window .chat-buttons-area .my-view-custom-button {
+	background-color: rgba(255, 255, 255, 0.75);
+	color: #000;
+}
 
 #sepiaFW-chat-menu li {
-	background: rgba(255, 255, 255, 0.25);
+	background: rgba(235, 235, 235, 0.25);
 }
 .sepiaFW-menu {
-	background: rgba(235, 235, 255, 1.00) !important;
+	background: #fff !important;
 	color: #000 !important;
+	border: 1px solid #eee;
 }
 .sepiaFW-menu button{
 	background: #027BFF !important;

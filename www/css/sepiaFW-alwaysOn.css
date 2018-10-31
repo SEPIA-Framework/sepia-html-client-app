@@ -8,14 +8,17 @@
 .sepiaFW-alwaysOn-page {
 	padding: 0px !important;
 }
+.sepiaFW-alwaysOn-navbar {
+	border-color: #000 !important;
+}
 
 #sepiaFW-alwaysOn-avatar {
 	position: relative;
 	background: transparent;
-	width: 280px;
-	height: 280px;
-	left: calc(50% - 140px);
-    top: calc(50% - 140px);
+	width: 250px;
+	height: 250px;
+	left: calc(50% - 125px);
+    top: calc(50% - 125px);
 }
 
 #sepiaFW-alwaysOn-avatar .avatar-eye {
@@ -113,10 +116,10 @@
 	position: absolute;
     background: transparent;
     border: 0px solid #fff;
-    width: 26%;
+    width: 20%;
     height: 10%;
-    top: 50%;
-    left: 37%;
-    border-radius: 50%;
+    top: 45%;
+    left: 40%;
+    border-radius: 25%;
     box-shadow: 0 1px 0 0 #fff;
 }

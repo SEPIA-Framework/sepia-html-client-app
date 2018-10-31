@@ -36,6 +36,7 @@ cordova plugin add cordova-plugin-file |more
 cordova plugin add cordova-plugin-nativestorage |more
 cordova plugin add cordova-android-support-gradle-release |more
 cordova plugin add phonegap-plugin-media-stream |more
+cordova plugin add https://github.com/EddyVerbruggen/Insomnia-PhoneGap-Plugin.git |more
 REM
 REM overwrite plugin mods
 sleep 2

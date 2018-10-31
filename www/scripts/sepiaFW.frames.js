@@ -5,13 +5,21 @@ function sepiaFW_build_frames(){
 	//some states
 	var isActive = "";
 	Frames.isOpen = false;
+
+	//callbacks
+	var onFinishSetup = undefined;
+	var onOpen = undefined;
+	var onClose = undefined;
 	
 	Frames.open = function(info){
+		//callbacks?
+		onOpen = info.onOpen;
+		onClose = info.onClose;
+		onFinishSetup = info.onFinishSetup;
+
 		if (isActive != info.pageUrl){
 			Frames.setup(info, function(){
 				Frames.open(info);
-				//on finish setup?
-				if(info.onFinishSetup) info.onFinishSetup();
 			});
 			isActive = info.pageUrl;
 			return;
@@ -22,14 +30,20 @@ function sepiaFW_build_frames(){
 			});
 			Frames.isOpen = true;
 			SepiaFW.ui.switchSwipeBars('frames');
-			//on open?
-			if(info.onOpen) info.onOpen();
 		}
+		//on open
+		if(onOpen) onOpen();
 	}
 	Frames.close = function(){
 		$('#sepiaFW-frames-view').slideUp(300);
 		Frames.isOpen = false;
 		SepiaFW.ui.switchSwipeBars();
+		//on close
+		if(onClose) onClose();
+		//callbacks reset
+		onFinishSetup = undefined;
+		onOpen = undefined;
+		onClose = undefined;
 	}
 		
 	Frames.setup = function(info, finishCallback){
@@ -42,8 +56,6 @@ function sepiaFW_build_frames(){
 			//nav-bar
 			$('#sepiaFW-frames-close').off().on('click', function(){
 				Frames.close();
-				//on open?
-				if(info.onClose) info.onClose();
 			});
 
 			$('#sepiaFW-frames-show-next-page').off().on('click', function(){
@@ -71,7 +83,10 @@ function sepiaFW_build_frames(){
 				$('#sepiaFW-frames-show-next-page').hide();
 				$('#sepiaFW-frames-show-prev-page').hide();
 			}
-		
+
+			//on finish setup
+			if(onFinishSetup) onFinishSetup();
+
 			if (finishCallback) finishCallback();
         
 		//Error

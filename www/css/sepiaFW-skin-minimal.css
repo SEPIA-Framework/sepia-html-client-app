@@ -150,6 +150,9 @@ html {
 #sepiaFW-main-window .chat-buttons-area button {
 	border: 1px solid #fff;
 }
+#sepiaFW-main-window .chat-buttons-area .my-view-custom-button {
+	background: #000;
+}
 
 #sepiaFW-myEvents-buttons button,
 #sepiaFW-myEvents-buttons-replaced button,

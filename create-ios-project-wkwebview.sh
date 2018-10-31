@@ -37,6 +37,7 @@ cordova plugin add cordova-plugin-file
 cordova plugin add cordova-plugin-nativestorage
 cordova plugin add cordova-plugin-audioinput
 cordova plugin add plugin_mods/iosbackgroundaudio/nl.kingsquare.cordova.background-audio
+cordova plugin add https://github.com/EddyVerbruggen/Insomnia-PhoneGap-Plugin.git
 #
 # overwrite plugin mods
 sleep 2

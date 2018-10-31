@@ -59,6 +59,10 @@ html {
     border: 0px solid #cb7b65;
 	margin: 5px;
 }
+#sepiaFW-main-window .chat-buttons-area .my-view-custom-button {
+	background-color: #C74927;
+	color: #fcf9ee;
+}
 
 #sepiaFW-assist-btn-area {
 	border-color: #C74927;

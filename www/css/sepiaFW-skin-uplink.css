@@ -88,6 +88,10 @@ html {
 	background: #1BFFE6;
 	color: #283059;
 }
+#sepiaFW-main-window .chat-buttons-area .my-view-custom-button {
+	background: #4470ae; /*#ffff00*/;
+	color: #fff; /*#283059*/;
+}
 
 #sepiaFW-nav-label-note{
     border: 1px solid #1BFFE6;

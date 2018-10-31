@@ -88,11 +88,16 @@ html {
 
 .sepiaFW-button {
 	background-color: #4B6688;
-	color: #312F3F;
+	color: #fff;
 }
 .sepiaFW-button:hover {
 	background-color: #312F3F;
-	color: #4B6688;
+	color: #fff;
+}
+
+#sepiaFW-main-window .chat-buttons-area .my-view-custom-button {
+	background: #312F3F;
+	color: #fff;
 }
 
 #sepiaFW-chat-controls-swipe-area .sepiaFW-swipeBar-switchable {
@@ -122,6 +127,10 @@ html {
 }
 #sepiaFW-teachUI-view label {
     color: #B5B8C9;
+}
+#sepiaFW-teachUI-view a,
+#sepiaFW-teachUI-view a:visited {
+	color: #b5b8c9;
 }
 #sepiaFW-teachUI-editor button, 
 #sepiaFW-teachUI-manager button {
