@@ -2,6 +2,13 @@
 function sepiaFW_build_always_on(){
     var AlwaysOn = {};
 
+    //some states
+    var mainWasFullscreenOpen = false;
+    var mainWasVoiceDisabled = false;
+
+    //some settings
+    AlwaysOn.autoEnableVoice = true;
+
     //Load always on screen
     AlwaysOn.start = function(){
         SepiaFW.frames.open({ 
@@ -15,9 +22,14 @@ function sepiaFW_build_always_on(){
     //On finish setup (first open)
     AlwaysOn.onFinishSetup = function(){
         //console.log('finish setup');
-        //wake up
-        $(".sepiaFW-alwaysOn-page, .sepiaFW-alwaysOn-navbar").on('click', function(){
+        //wake up on screen click
+        $(".sepiaFW-alwaysOn-page, .sepiaFW-alwaysOn-navbar").off().on('click', function(){
             AlwaysOn.onWakeup();
+        });
+        //mic on avatar click
+        $("#sepiaFW-alwaysOn-avatar").off().on('click', function(){
+            var useConfirmationSound = SepiaFW.speech.shouldPlayConfirmation();
+            SepiaFW.ui.toggleMicButton(useConfirmationSound);
         });
     }
 
@@ -27,8 +39,9 @@ function sepiaFW_build_always_on(){
         //prevent screen sleep on mobile
         AlwaysOn.preventSleep();
         //make sure there are no frames
+        mainWasFullscreenOpen = $('.sepiaFW-carousel-pane').hasClass('full-screen');
+        $('#sepiaFW-main-window').removeClass('sepiaFW-skin-mod');
         $('.sepiaFW-carousel-pane').addClass('full-screen');
-        $('#sepiaFW-chat-menu').addClass('full-screen');
         //effects
         if (openFadeTimer) clearTimeout(openFadeTimer);
         openFadeTimer = setTimeout(function(){
@@ -37,8 +50,16 @@ function sepiaFW_build_always_on(){
                 fadeAvatarToRandomPosAfterDelay(60000);
             }, duration: 1000});
         }, 1000);
+        //TTS is always on?
+        if (SepiaFW.speech){
+            mainWasVoiceDisabled = SepiaFW.speech.skipTTS;
+            if (AlwaysOn.autoEnableVoice){
+                var skipStore = true;
+                SepiaFW.speech.enableVoice(skipStore);
+            }
+        }
     }
-    var openFadeTimer;
+    var openFadeTimer;    
 
     //On close
     AlwaysOn.onClose = function(){
@@ -49,8 +70,16 @@ function sepiaFW_build_always_on(){
         //allow sleep again
         AlwaysOn.allowSleep();
         //restore designs
-        $('.sepiaFW-carousel-pane').removeClass('full-screen');
-		$('#sepiaFW-chat-menu').removeClass('full-screen');
+        $('#sepiaFW-main-window').addClass('sepiaFW-skin-mod');
+        if (!mainWasFullscreenOpen){
+            $('.sepiaFW-carousel-pane').removeClass('full-screen');
+        }
+        //TTS is always on?
+        if (SepiaFW.speech){
+            var skipStore = true;
+            if (mainWasVoiceDisabled) SepiaFW.speech.disableVoice(skipStore);
+            else SepiaFW.speech.enableVoice(skipStore);
+        }
     }
 
     //Wake controls

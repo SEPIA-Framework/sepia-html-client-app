@@ -334,6 +334,9 @@ body {
 		max-height: 820px;
 	}
 }
+#sepiaFW-main-window.sepiaFW-skin-mod {
+
+}
 
 #sepiaFW-main-window input, #sepiaFW-login-box input {
 	-moz-appearance: none;

@@ -321,7 +321,8 @@ function sepiaFW_build_ui_build(){
 				if (SepiaFW.audio && SepiaFW.audio.initAudio(SepiaFW.ui.toggleMicButton)){
 					//skip because of callback
 				}else{
-					SepiaFW.ui.toggleMicButton();
+					var useConfirmationSound = SepiaFW.speech.shouldPlayConfirmation();
+					SepiaFW.ui.toggleMicButton(useConfirmationSound);
 				}
 			},'', true);
 		}
@@ -543,13 +544,9 @@ function sepiaFW_build_ui_build(){
 				//add voice toggle
 				document.getElementById('sepiaFW-menu-toggle-voice-li').appendChild(Build.toggleButton('sepiaFW-menu-toggle-voice', 
 					function(){
-						SepiaFW.speech.skipTTS = false;
-						SepiaFW.data.set('skipTTS', false);
-						SepiaFW.debug.info("TTS is ON");
+						SepiaFW.speech.enableVoice();
 					},function(){
-						SepiaFW.speech.skipTTS = true;
-						SepiaFW.data.set('skipTTS', true);
-						SepiaFW.debug.info("TTS is OFF");
+						SepiaFW.speech.disableVoice();
 					}, !SepiaFW.speech.skipTTS)
 				);
 
