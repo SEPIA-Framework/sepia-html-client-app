@@ -673,8 +673,8 @@ function sepiaFW_build_account(){
 			type: "POST",
 			data: JSON.stringify(dataBody),
 			headers: {
-				"Content-Type": "application/json",
-				"Cache-Control": "no-cache"
+				"content-type": "application/json",
+				"cache-control": "no-cache"
 			},
 			success: function(data) {
 				SepiaFW.ui.hideLoader();
@@ -734,8 +734,8 @@ function sepiaFW_build_account(){
 			type: "POST",
 			data: JSON.stringify(dataBody),
 			headers: {
-				"Content-Type": "application/json",
-				"Cache-Control": "no-cache"
+				"content-type": "application/json",
+				"cache-control": "no-cache"
 			},
 			success: function(data) {
 				SepiaFW.ui.hideLoader();
@@ -833,8 +833,8 @@ function sepiaFW_build_account(){
 			type: "POST",
 			data: JSON.stringify(data),
 			headers: {
-				"Content-Type": "application/json",
-				"Cache-Control": "no-cache"
+				"content-type": "application/json",
+				"cache-control": "no-cache"
 			},
 			success: function(data) {
 				SepiaFW.ui.hideLoader();
