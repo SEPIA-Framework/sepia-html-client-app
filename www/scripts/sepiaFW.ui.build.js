@@ -608,13 +608,23 @@ function sepiaFW_build_ui_build(){
 						buttonOneAction : function(){ location.reload(); }
 					};
 					var keepPermanent = true;
-					var localDataStatus = SepiaFW.data.clearAll(keepPermanent);		//clear all data except permanent (e.g. host-name)
+					var localDataStatus = "---";
 					SepiaFW.data.clearAppCache(function(status){
 						//Success
-						SepiaFW.ui.showPopup((localDataStatus + " " + status), config);
+						//clear all other data except permanent (e.g. host-name and device ID)
+						var keepPermanent = true;
+						localDataStatus = SepiaFW.data.clearAll(keepPermanent, function(){
+							//delayed call
+							SepiaFW.ui.showPopup((localDataStatus + " " + status), config);
+						});
 					}, function(status) {
 						//Error
-						SepiaFW.ui.showPopup((localDataStatus + " " + status), config);
+						//clear all other data except permanent (e.g. host-name and device ID)
+						var keepPermanent = true;
+						localDataStatus = SepiaFW.data.clearAll(keepPermanent, function(){
+							//delayed call
+							SepiaFW.ui.showPopup((localDataStatus + " " + status), config);
+						});
 					});
 				}
 			));

@@ -55,7 +55,7 @@ function sepiaFW_build_dataService(){
 			}else{
 				setTimeout(function(){
 					nativeStorageClear();				//repeat until queue is free
-				}, 300);
+				}, 250);
 			}
 		}else{
 			nativeStorageState = 1;	
@@ -70,7 +70,7 @@ function sepiaFW_build_dataService(){
 			}else{
 				setTimeout(function(){
 					nativeStorageSet(key, value);		//repeat until queue is free
-				}, 300);
+				}, 250);
 			}
 		}else{
 			nativeStorageState = 1;	
@@ -90,7 +90,8 @@ function sepiaFW_build_dataService(){
 
 	function save(permanent){
 		try{
-			//Note: we duplicate the localStorage to NativeStorage if we can, in case the app closes.
+			//Note: we duplicate the localStorage to NativeStorage if we can, in case the app closes, but
+			//due to native storage's async nature this might not finish if app closes before
 			if (permanent){
 				if (window.NativeStorage){
 					nativeStorageSet('sepiaFW-data-permanent', dataPermanent);
@@ -114,7 +115,7 @@ function sepiaFW_build_dataService(){
 		//TODO: load is called everytime a variable is retrived ... for safety reasons (not running out of sync) ... but could be smarter ^^
 		try{
 			//Note: we can't load from NativeStorage on-the-fly due to it's async nature (it's not a drop-in replacement for LS).
-			//That's why we load NativeStorage only once to localStorage when the app loads.
+			//That's why we load NativeStorage only once to localStorage when the app loads (see start.js ... it redirects to main app after async call completes).
 			if (permanent){
 				if (window.localStorage){
 					var entry = localStorage.getItem('sepiaFW-data-permanent');
@@ -174,8 +175,8 @@ function sepiaFW_build_dataService(){
 		save(true);
 	}
 	
-	//clear all stored data (optionally keeping 'permanent')
-	DataService.clearAll = function(keepPermanent){
+	//clear all stored data (optionally keeping 'permanent') except app-cache
+	DataService.clearAll = function(keepPermanent, delayedCallback, delay){
 		var localDataStatus = "";
 		if (window.NativeStorage){
 			nativeStorageClear();
@@ -190,14 +191,20 @@ function sepiaFW_build_dataService(){
 			SepiaFW.debug.log("Data: " + localDataStatus);
 		}
 		data = {};
-		//restore permanent data
+		//restore permanent data - NOTE: a potential race condition with nativeStorageClear() should be prevented by the nativeStorageState queue
 		if (keepPermanent){
-			save(true);
+			save(true); 	//restores current state to local and native storage
+		}
+		//support for a delayed callback in case you want to e.g. close/reload the app after this method
+		if (delayedCallback){
+			setTimeout(function(){
+				delayedCallback();
+			}, (delay || 1550));
 		}
 		return localDataStatus;
 	}
 	
-	//clear app cache if possible
+	//clear app cache if possible - NOTE: it will most likely kill localStorage too
 	DataService.clearAppCache = function(successCallback, errorCallback){
 		if (SepiaFW.ui.isCordova && window.CacheClear){
 			window.CacheClear(function(status) {

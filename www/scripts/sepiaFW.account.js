@@ -64,14 +64,22 @@ function sepiaFW_build_account(){
 		
 		//delete all other data we can find
 		SepiaFW.debug.log("Logout: Deleting all cached app data.");
-		var keepPermanent = true;
-		SepiaFW.data.clearAll(keepPermanent);		//clear all data except permanent (e.g. host-name and device ID)
 		SepiaFW.data.clearAppCache(function(status){
 			//Success
-			Account.finishedLogoutActionSection('App-data', true);
+			//clear all other data except permanent (e.g. host-name and device ID)
+			var keepPermanent = true;
+			SepiaFW.data.clearAll(keepPermanent, function(){
+				//delayed call
+				Account.finishedLogoutActionSection('App-data', true);
+			});
 		}, function(status) {
 			//Error
-			Account.finishedLogoutActionSection('App-data', false);
+			//clear all other data except permanent (e.g. host-name and device ID)
+			var keepPermanent = true;
+			SepiaFW.data.clearAll(keepPermanent, function(){
+				//delayed call
+				Account.finishedLogoutActionSection('App-data', false);
+			});
 		});
 				
 		//close websocket connection
