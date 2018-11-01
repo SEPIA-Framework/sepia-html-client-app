@@ -917,7 +917,8 @@ function sepiaFW_build_ui_build(){
 		var senderText = (senderName)? senderName : sender;
 		var receiver = msg.receiver;
 		var receiverName = (SepiaFW.webSocket)? SepiaFW.webSocket.client.getNameFromUserList(receiver) : "";
-		var time = msg.time;
+		var time = SepiaFW.tools.getLocalTime();	//msg.time; 	//for display we just take the client recieve time
+		//var timeUNIX = msg.timeUNIX;
 		
 		if (!text)	options.skipText = true;
 		
@@ -1080,7 +1081,8 @@ function sepiaFW_build_ui_build(){
 		var sender = msg.sender;
 		var senderName = (SepiaFW.webSocket)? SepiaFW.webSocket.client.getNameFromUserList(sender) : "";
 		var senderText = (senderName)? senderName : sender;
-		var time = msg.time;
+		var time = SepiaFW.tools.getLocalTime();	//msg.time; 	//for display we just take the client recieve time
+		//var timeUNIX = msg.timeUNIX;
 		
 		//type analysis
 		var classes = type || ''; 	//assistant, client, server

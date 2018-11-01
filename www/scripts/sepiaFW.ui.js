@@ -506,8 +506,13 @@ function sepiaFW_build_ui(){
 		//check back button quick double tap
 		if (backButtonPressed > 1){
 			backButtonPressed = 0;
-			if (navigator.app && navigator.app.exitApp){
+			//hard exit app (no background)
+			/* if (navigator.app && navigator.app.exitApp){
 				navigator.app.exitApp();
+			} */
+			//Always-On mode
+			if (SepiaFW.alwaysOn){
+				SepiaFW.alwaysOn.start();
 			}
 		}else{
 			setTimeout(function(){
