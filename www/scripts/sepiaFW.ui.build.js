@@ -414,6 +414,7 @@ function sepiaFW_build_ui_build(){
 					+ "<li id='sepiaFW-menu-toggle-channelMessages-li' title='Show status messages in chat like someone joined the channel?'><span>Channel status messages: </span></li>"
 					//TODO: this depends on the OS, maybe use only for Android?
 					+ "<li id='sepiaFW-menu-toggle-runBackgroundConnection-li' title='Try to keep connected in background?'><span>Allow background activity: </span></li>"
+					+ "<li id='sepiaFW-menu-toggle-gamepad-li' title='Support gamepads as remote?'><span>Use gamepads: </span></li>"
 					+ "<li id='sepiaFW-menu-assistant-host-li' title='Assistant hostname, e.g.: my.example.org/sepia, localhost or [IP]'>"
 						+ "<span>Hostname: </span>"
 						+ "<input id='sepiaFW-menu-assistant-host' type='url' placeholder='my.example.org/sepia'>"
@@ -657,6 +658,24 @@ function sepiaFW_build_ui_build(){
 					SepiaFW.debug.info("Background connection is NOT allowed");
 				}, SepiaFW.client.allowBackgroundConnection)
 			);
+			//support gamepads as remotes
+			if (SepiaFW.inputControls){
+				document.getElementById('sepiaFW-menu-toggle-gamepad-li').appendChild(Build.toggleButton('sepiaFW-menu-toggle-gamepad', 
+					function(){
+						SepiaFW.inputControls.useGamepads = true;
+						SepiaFW.data.set('useGamepads', true);
+						SepiaFW.debug.info("Gamepad support activated");
+						SepiaFW.inputControls.listenToGamepadConnectEvent();
+					},function(){
+						SepiaFW.inputControls.useGamepads = false;
+						SepiaFW.data.set('useGamepads', false);
+						SepiaFW.debug.info("Gamepad support deactivated");
+					}, SepiaFW.inputControls.useGamepads)
+				);
+			}else{
+				document.getElementById('sepiaFW-menu-toggle-gamepad-li').appendChild(Build.toggleButton('sepiaFW-menu-toggle-gamepad', 
+					function(){}, function(){}, false));
+			}
 			//Account-Language
 			document.getElementById("sepiaFW-menu-account-language-li").appendChild(SepiaFW.ui.build.languageSelector("sepiaFW-menu-account-language-dropdown", function(selectedLanguage){
 				//save

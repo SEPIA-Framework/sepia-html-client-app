@@ -364,7 +364,7 @@ function sepiaFW_build_ui(){
 		UI.assistIconAwaitAnswer = '<i class="material-icons md-mic-dia">&#xE0B7;</i>';  //&#xE90F;
 		
 		//LOAD other SETTINGS before building the UI:
-		//TODO: this shoule be simplified with a service!
+		//TODO: this should be simplified with a service!
 		
 		//TTS
 		if (SepiaFW.speech){
@@ -393,6 +393,12 @@ function sepiaFW_build_ui(){
 			SepiaFW.client.allowBackgroundConnection = SepiaFW.data.get('allowBackgroundConnection');
 			if (typeof SepiaFW.client.allowBackgroundConnection == 'undefined') SepiaFW.client.allowBackgroundConnection = false;
 			SepiaFW.debug.info("Background connections are " + ((SepiaFW.client.allowBackgroundConnection)? "ALLOWED" : "NOT ALLOWED"));
+		}
+		//Gamepad support
+		if (SepiaFW.inputControls){
+			SepiaFW.inputControls.useGamepads = SepiaFW.data.get('useGamepads');
+			if (typeof SepiaFW.inputControls.useGamepads == 'undefined') SepiaFW.inputControls.useGamepads = false;
+			SepiaFW.debug.info("Gamepads are " + ((SepiaFW.client.allowBackgroundConnection)? "SUPPORTED" : "NOT SUPPORTED"));
 		}
 		
 		//build UI logic and general buttons
