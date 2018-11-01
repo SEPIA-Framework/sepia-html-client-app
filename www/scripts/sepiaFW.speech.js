@@ -299,6 +299,17 @@ function sepiaFW_build_speech(){
 			recognition = (SepiaFW.ui.isCordova)? (new SpeechRecognition()) : (new webkitSpeechRecognition());
 		}
 	}
+
+	//some implementations have there own trigger confirmation sound
+	Speech.shouldPlayConfirmation = function(){
+		//Android with native ASR
+		if (SepiaFW.ui.isAndroid && Speech.asrEngine == "native"){
+			return false;
+		//Everything else
+		}else{
+			return true;
+		}
+	}
 	
 	//----------helpers-----------
 	
@@ -613,6 +624,18 @@ function sepiaFW_build_speech(){
 	}
 	
 	// ------------- TTS ---------------
+
+	//Enable/disable TTS - NOTE: will not set menu button to correct state :-(
+	Speech.enableVoice = function(skipStore){
+		Speech.skipTTS = false;
+		if (!skipStore)	SepiaFW.data.set('skipTTS', false);
+		SepiaFW.debug.info("TTS is ON");
+	}
+	Speech.disableVoice = function(skipStore){
+		Speech.skipTTS = true;
+		if (!skipStore)	SepiaFW.data.set('skipTTS', true);
+		SepiaFW.debug.info("TTS is OFF");
+	}
 	
 	//get voices - load them and return a select element to show them somewhere
 	Speech.getVoices = function(){

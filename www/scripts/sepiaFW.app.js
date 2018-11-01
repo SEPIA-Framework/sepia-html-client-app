@@ -32,6 +32,7 @@ SepiaFW.buildSepiaFwPlugins = function(){
 	SepiaFW.teach = sepiaFW_build_teach();
 	SepiaFW.offline = sepiaFW_build_offline();
 	SepiaFW.alwaysOn = sepiaFW_build_always_on();
+	SepiaFW.inputControls = sepiaFW_build_input_controls();
 }
 
 //DATA STORAGE
