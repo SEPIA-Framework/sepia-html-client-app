@@ -402,12 +402,16 @@ function sepiaFW_build_tools(){
 		return '' + yyyy + '.' + MM + '.' + dd + '_' + HH + ':' + mm + ':' + ss;
 	}
 	//get server default time (only) - TODO: note that this needs to be adjusted to server settings
-	Tools.getLocalTime = function(){
+	Tools.getLocalTime = function(short){
 		var d = new Date();
 		var HH = addZero(d.getHours());
 		var mm = addZero(d.getMinutes());
-		var ss = addZero(d.getSeconds());
-		return '' + HH + ':' + mm + ':' + ss;
+		if (!short){
+			var ss = addZero(d.getSeconds());
+			return '' + HH + ':' + mm + ':' + ss;
+		}else{
+			return '' + HH + ':' + mm;
+		}
 	}
 	
 	//get URL parameters

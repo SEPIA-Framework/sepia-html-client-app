@@ -276,6 +276,9 @@ function sepiaFW_build_ui(){
 		}
 		missedMessages = 0;
 	}
+	UI.getNumberOfMissedMessages = function(){
+		return missedMessages;
+	}
 	
 	//-------- SETUP --------
 	

@@ -27,7 +27,7 @@ function sepiaFW_build_always_on(){
             AlwaysOn.onWakeup();
         });
         //mic on avatar click
-        $("#sepiaFW-alwaysOn-avatar").off().on('click', function(){
+        $("#sepiaFW-alwaysOn-avatar-touch-area").off().on('click', function(){
             var useConfirmationSound = SepiaFW.speech.shouldPlayConfirmation();
             SepiaFW.ui.toggleMicButton(useConfirmationSound);
         });
@@ -42,7 +42,7 @@ function sepiaFW_build_always_on(){
         mainWasFullscreenOpen = $('.sepiaFW-carousel-pane').hasClass('full-screen');
         $('#sepiaFW-main-window').removeClass('sepiaFW-skin-mod');
         $('.sepiaFW-carousel-pane').addClass('full-screen');
-        //effects
+        //show avatar and stuff
         if (openFadeTimer) clearTimeout(openFadeTimer);
         openFadeTimer = setTimeout(function(){
             $("#sepiaFW-alwaysOn-avatar").css({opacity:'0'}).show().animate({opacity:'1.0'}, {complete:function(){
@@ -88,6 +88,9 @@ function sepiaFW_build_always_on(){
         fadeOutNavbarControlsAfterDelay(5000);
         //restore avatar to wake
         wakeAvatar();
+        //show info items for a while
+        showLocalTimeAndFade();
+        showNotificationsAndFade();
     }
 
     //Avatar animation controls
@@ -157,6 +160,9 @@ function sepiaFW_build_always_on(){
                 makeAvatarSleepy();
             }, duration: 1000});
         }, delay);
+        //show info items for a while
+        showLocalTimeAndFade();
+        showNotificationsAndFade();
     }
     var fadeAvatarTimer;
 
@@ -177,6 +183,39 @@ function sepiaFW_build_always_on(){
     function getRandomPixel(max) {
         return (Math.floor(Math.random() * Math.floor(max))) + "px";
     }
+
+    //Show a clock with local time for a while
+    function showLocalTimeAndFade(fadeOutAfterDelay){
+        var short = true;
+        var timeWithIcon = 
+            '<i class="material-icons md-txt">access_time</i>&nbsp;' + SepiaFW.tools.getLocalTime(short);
+        $clock = $('#sepiaFW-alwaysOn-clock');
+        $clock.html(timeWithIcon);
+        $clock.stop().fadeIn(500, function(){
+            if (fadeOutAfterDelay == undefined) fadeOutAfterDelay = 5000;
+            if (fadeClockTimer) clearTimeout(fadeClockTimer);
+            fadeClockTimer = setTimeout(function(){
+                $clock.fadeOut(3000);
+            }, fadeOutAfterDelay);
+        });
+    }
+    var fadeClockTimer;
+
+    //Show missed notifications for a while
+    function showNotificationsAndFade(fadeOutAfterDelay){
+        var missedNotesWithIcon = 
+            '<i class="material-icons md-txt">notifications_none</i>&nbsp;' + SepiaFW.ui.getNumberOfMissedMessages();
+        $notes = $('#sepiaFW-alwaysOn-notifications');
+        $notes.html(missedNotesWithIcon);
+        $notes.stop().fadeIn(500, function(){
+            if (fadeOutAfterDelay == undefined) fadeOutAfterDelay = 5000;
+            if (fadeNotificationsTimer) clearTimeout(fadeNotificationsTimer);
+            fadeNotificationsTimer = setTimeout(function(){
+                $notes.fadeOut(3000);
+            }, fadeOutAfterDelay);
+        });
+    }
+    var fadeNotificationsTimer;
 
     return AlwaysOn;
 }
