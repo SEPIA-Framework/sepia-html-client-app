@@ -302,6 +302,12 @@ body {
 .sepiaFW-carousel .sepiaFW-carousel-pane {
 	float: left;
 }
+.sepiaFW-carousel .sepiaFW-carousel-pane.full-screen {
+	border-top: 0px !important;
+	border-left: 0px !important;
+	border-right: 0px !important;
+	border-bottom: 0px !important;
+}
 
 /* ------------------ Workarounds ---------------------- */
 
@@ -327,6 +333,9 @@ body {
 		box-shadow: 0 0px 10px 0 rgba(0, 0, 0, 0.66);
 		max-height: 820px;
 	}
+}
+#sepiaFW-main-window.sepiaFW-skin-mod {
+
 }
 
 #sepiaFW-main-window input, #sepiaFW-login-box input {
@@ -539,6 +548,20 @@ body {
 #sepiaFW-main-window .chat-buttons-area button {
 	flex: 1 0 auto;
 }
+#sepiaFW-main-window .chat-buttons-area .my-view-custom-button {
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+	flex: 1 0 auto;
+	padding: 8px;
+	display: flex;
+	max-width: 160px;
+	background-color: #ceff1a;
+}
+#sepiaFW-main-window .chat-buttons-area .my-view-custom-button i,
+#sepiaFW-main-window .chat-buttons-area .my-view-custom-button span {
+	padding: 4px;
+}
 #sepiaFW-main-window .chat-buttons-area button.chat-button-url {
 }
 #sepiaFW-main-window .chat-buttons-area button.chat-button-cmd {
@@ -589,12 +612,14 @@ body {
 .sepiaFW-menu li.button  {
 	cursor: pointer;
 }
+/*
 .sepiaFW-menu li:first-of-type {
 	margin-top: 8px;
 }
 .sepiaFW-menu li:last-of-type {
 	margin-bottom: 8px;
 }
+*/
 .sepiaFW-notouch-device .sepiaFW-menu li:hover{
 	background: rgba(255, 255, 255, 0.33) !important;
 }
@@ -619,6 +644,10 @@ body {
 	font-size: 21px;
 	text-align: center;
 	z-index: 5;
+}
+#sepiaFW-chat-menu.full-screen {
+	top: 2px !important;
+	height: calc(100% - 59px) !important;
 }
 #sepiaFW-chat-menu button {
 	background: rgba(255, 255, 255, 0.95);
@@ -668,9 +697,6 @@ body {
 	height: 1px;
     margin: 6px 0 0 0;
     background: linear-gradient(to right, rgba(0,0,0,0) 0%,rgba(155,155,155,0.5) 40%,rgba(155,155,155,0.5) 60%,rgba(0,0,0,0) 100%);
-}
-#sepiaFW-menue-status-text{
-	margin: 8px 8px 0 8px;
 }
 #sepiaFW-chat-menu-center {
 	-webkit-flex: 1 1 auto;
@@ -842,21 +868,56 @@ body {
 	border-radius: 3px 3px 3px 0;
 	bottom: 57px;
 	left: 2px;
-	width: auto;
+	/*width: auto;*/
+	width: calc(100% - 4px);
+	max-width: 372px;
 	min-width: 100px;
-	max-height: calc(100% - 109px);
-    padding: 5px 10px;
+	/*max-height: calc(100% - 59px);*/
+    padding: 5px 5px 0 5px;
 	overflow: auto;
 	text-align: right;
 	z-index: 3;
 }
-#sepiaFW-more-menu-shortcuts{
-	text-align: center;
-    max-width: 230px;
+#sepiaFW-chat-controls-more-menu > div {
+	margin: 8px 4px;
+    border: 0px solid;
+    border-radius: 3px;
+	padding: 8px 12px;
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: space-between;
+	align-items: center;
+	font-size: 14px;
+}
+#sepiaFW-location-ctrls {
+	justify-content: center !important;
+	flex-wrap: nowrap !important;
+}
+#sepiaFW-menue-status-text{
+	margin: 8px 0 8px 8px;
+	text-align: left;
+}
+#sepiaFW-location-ctrls > button {
+	background-color: transparent !important;
+	color: inherit !important;
+	padding: 0px;
+	border: 1px solid;
+    border-radius: 100%;
+    min-width: 30px;
+    min-height: 30px;
+}
+#sepiaFW-more-menu-shortcuts {
+	padding: 8px 16px !important;
+	justify-content: space-around !important;
+}
+#sepiaFW-more-menu-actions {
+	padding: 8px 4px !important;
+}
+#sepiaFW-more-menu-actions > li {
+	display: inline-block;
 }
 #sepiaFW-audio-ctrls {
     position: relative;
-	margin: 8px 4px;
 }
 #sepiaFW-audio-ctrls button {
 	padding: 0px;
@@ -867,6 +928,11 @@ body {
 }
 #sepiaFW-audio-ctrls-title-container {
 	position: relative;
+	width: 100%;
+}
+#sepiaFW-audio-ctrls-buttons-container {
+	position: relative;
+	width: 100%;
 }
 #sepiaFW-audio-ctrls-title {
 	position: relative;
@@ -876,7 +942,7 @@ body {
 	border: 1px solid;
 	border-radius: 3px;
 	padding: 5px 8px;
-	max-width: 220px;
+	/*max-width: 220px;*/
 	min-width: 100px;
 	max-height: 50px;
 	/*white-space: nowrap;*/
@@ -890,7 +956,7 @@ body {
 	top: 0;
     left: 0;
     width: 100%;
-	max-width: 220px;
+	/*max-width: 220px;*/
     height: 100%;
 	background: #fff;
 	opacity: 0.2;
@@ -1016,7 +1082,7 @@ body {
 	position: relative;
     overflow: hidden;
     margin: 0px;
-	padding: 8px 8px;
+	padding: 8px 5px;
 	text-align: center;
 	min-height: 50px;
 	max-height: 50px;
@@ -1116,8 +1182,9 @@ body {
 	overflow: hidden;		/* better dont use position fixed inside */
 }
 #sepiaFW-chat-controls-more-btn {
-	padding-left: 8px !important;
-    padding-right: 12px !important;
+	padding-left: 0px !important;
+	padding-right: 0px !important;
+	width: 100%;
 }
 #sepiaFW-chat-send i {
 	transform: rotate(180deg);
@@ -1134,7 +1201,7 @@ body {
 }
 #sepiaFW-chat-controls .eButton {
 	border-radius: 3px 18px 18px 3px;
-	margin: 0px 4px 0px 8px;
+	margin: 0px 4px 0px 4px;
 	max-width: 41px;
 }
 #sepiaFW-chat-controls .extraMarginToBo {
@@ -1184,15 +1251,15 @@ body {
 			flex: 1 0 80px;
 	margin-top: 0px;
 	margin-bottom: 0px;
-	margin-right: 6px;
-    margin-left: 2px;
+	margin-right: 4px;
+    margin-left: 0px;
 	min-width: 0px;
 }
 #sepiaFW-chat-controls-right {
 	flex: 0 0 auto;
-	padding: 0px 2px 0px 4px; 
+	padding: 10px 5px 10px 5px; 
     margin: 0px;
-	min-width: 63px;
+	min-width: 61px;
 	/*max-width: 63px;*/
 	max-height: 55px;
 	min-height: 55px;
@@ -1262,7 +1329,8 @@ body {
 	position: absolute;
 	background: rgba(155, 155, 155, 0.50);
 	border-radius: 3px;
-    bottom: 57px;
+	bottom: 57px;
+	z-index: 6;
     left: 0;
 	width: calc(100% - 4px);
 	min-height: 35px;
@@ -1538,18 +1606,26 @@ body {
 #sepiaFW-myEvents-buttons,
 #sepiaFW-myEvents-buttons-replaced,
 #sepiaFW-myFirstStart-buttons,
-#sepiaFW-myFirstStart-buttons-replaced {
-	display: flex;
+#sepiaFW-myFirstStart-buttons-replaced,
+#sepiaFW-myCustom-buttons,
+#sepiaFW-myCustom-buttons-replaced {
+	/* display: flex;
     flex-direction: row;
     flex-wrap: wrap;
-    justify-content: space-between;
+    justify-content: space-between; Note: overwritten by: #sepiaFW-main-window .chat-buttons-area*/
 	text-align: center;
 	padding: 2px;
+}
+#sepiaFW-myCustom-buttons,
+#sepiaFW-myCustom-buttons-replaced {
+    justify-content: space-evenly !important;
 }
 #sepiaFW-myEvents-buttons button,
 #sepiaFW-myEvents-buttons-replaced button,
 #sepiaFW-myFirstStart-buttons button,
-#sepiaFW-myFirstStart-buttons-replaced button {
+#sepiaFW-myFirstStart-buttons-replaced button,
+#sepiaFW-myCustom-buttons button,
+#sepiaFW-myCustom-buttons-replaced button {
 	padding: 10px 15px;
     background-color: rgba(235, 235, 255, 0.95);
 	flex: 1 0 auto;
@@ -1560,12 +1636,13 @@ body {
 	min-width: 100%;
 }
 .sepiaFW-myEvents-titleNote,
-.sepiaFW-myFirstStart-titleNote {
+.sepiaFW-myFirstStart-titleNote,
+.sepiaFW-myCustomButtons-titleNote {
 	text-align: left !important;
 	font-size: 16px !important;
     font-weight: bold !important;
     margin: 4px 5px 12px 5px !important;
-	min-width: 100%;
+	min-width: calc(100% - 10px);
 }
 
 /* Animations */

@@ -34,6 +34,7 @@ function sepiaFW_build_client_interface(){
 	ClientInterface.getAndRemoveNextCommandInQueue = SepiaFW.webSocket.client.getAndRemoveNextCommandInQueue;
 	ClientInterface.clearCommandQueue = SepiaFW.webSocket.client.clearCommandQueue;
 	ClientInterface.getCommandQueueSize = SepiaFW.webSocket.client.getCommandQueueSize;
+	ClientInterface.wasLastInputSourceAsr = SepiaFW.webSocket.client.wasLastInputSourceAsr;
 	
 	ClientInterface.asrCallbackFinal = SepiaFW.webSocket.client.asrCallbackFinal;
 	ClientInterface.asrCallbackInterim = SepiaFW.webSocket.client.asrCallbackInterim;
@@ -199,6 +200,13 @@ function sepiaFW_build_webSocket_client(){
 	
 	//other
 	var optimizeAsrResult = true; 	//try to recognize some Sepia related vocab better (like 'Sepia' at the beginning)
+	
+	//keep track of last input source (e.g. to decide if we should auto-switch mic on question)
+	var inputCameViaAsr = false;			//local state, reset after each send-input to undefined
+	Client.lastInputSourceWasAsr = false;	//global state returned (only) via method below
+	Client.wasLastInputSourceAsr = function(){
+		return Client.lastInputSourceWasAsr;
+	}
 	
 	//command queue
 	var commandQueue = [];
@@ -366,12 +374,18 @@ function sepiaFW_build_webSocket_client(){
 		//BUILD UI
 		Client.buildUI();	//we could call this once inside ui.setup(), but without log-in ...
 		
-		//ADD welcome stuff? - TODO: what if this is offline mode or unreachable server?
+		//ADD welcome stuff - TODO: what if this is offline mode or unreachable server?
 		Client.welcomeActions(false);
+
+		//ADD (local) input controls support (e.g. gamepad)
+		if (SepiaFW.inputControls){
+			SepiaFW.inputControls.setup();
+		}
 	}
 	
 	//when client started add some info like first-visit messages or buttons
 	Client.welcomeActions = function(onlyOffline){
+		//First visit info
 		if (SepiaFW.account.getClientFirstVisit()){
 			var sender = "UI";
 			var options = { 
@@ -394,6 +408,10 @@ function sepiaFW_build_webSocket_client(){
 				}});
 			}
 			publishMyViewActions(actionsArray, sender, options);
+		}
+		//Custom buttons
+		if (SepiaFW.ui.customButtons){
+			SepiaFW.ui.customButtons.load();
 		}
 	}
 
@@ -514,6 +532,16 @@ function sepiaFW_build_webSocket_client(){
 				$(backBtn).off();
 				$(backBtn).on("click", function () {
 					SepiaFW.ui.backButtonAction();
+				});
+			}
+			//-always on mode
+			var alwaysOnBtn = document.getElementById("sepiaFW-alwaysOn-btn");
+			if (alwaysOnBtn){
+				$(alwaysOnBtn).off().on("click", function () {
+					if (SepiaFW.alwaysOn){
+						SepiaFW.ui.closeAllMenus();
+						SepiaFW.alwaysOn.start();
+					}
 				});
 			}
 			//-teachUi
@@ -732,6 +760,7 @@ function sepiaFW_build_webSocket_client(){
 			}else if (textRaw){
 				inBox.innerHTML = textRaw;
 			}
+			inputCameViaAsr = true;
 			SepiaFW.client.sendInputText();
 		//try default text input field
 		}else{
@@ -742,6 +771,7 @@ function sepiaFW_build_webSocket_client(){
 				}else if (textRaw){
 					inBox.value = textRaw;
 				}
+				inputCameViaAsr = true;
 				SepiaFW.client.sendInputText();
 			}
 		}
@@ -882,7 +912,7 @@ function sepiaFW_build_webSocket_client(){
 	Client.sendInputText = function(inputText){
 		//switch to chat
 		if (SepiaFW.ui.moc) SepiaFW.ui.moc.showPane(1);
-		
+
 		//stop running stuff
 		if (SepiaFW.speech.isSpeaking()){
 			SepiaFW.speech.stopSpeech();
@@ -915,6 +945,10 @@ function sepiaFW_build_webSocket_client(){
 				//console.log('send to: ' + activeChatPartner);
 				receiver = activeChatPartner;
 			}
+
+			//track last source (and reset state)
+			Client.lastInputSourceWasAsr = (inputCameViaAsr === true);
+			inputCameViaAsr = undefined;
 			
 			//check if ID is still in channel list and if not reply with status message
 			if (receiver && !Client.hasChannelUser(receiver)){
@@ -938,6 +972,9 @@ function sepiaFW_build_webSocket_client(){
 			data = addCredentialsAndParametersToData(data);
 			var newId = (username + "-" + ++msgId);
 			msg = buildSocketMessage(username, receiver, text, "", data, "", newId, activeChannelId);
+
+			//add source?
+			if (Client.lastInputSourceWasAsr) msg.inputViaAsr = true;
 
 			//SepiaFW.debug.info(JSON.stringify(msg));
 			Client.sendMessage(msg);
@@ -1072,6 +1109,8 @@ function sepiaFW_build_webSocket_client(){
 		if (dataset.info && dataset.info === "direct_cmd"){
 			data.dataType = 'directCmd';
 			isDirectCmd = true;
+		}else{
+			data.dataType = 'openText';
 		}
 		var cmd = dataset.cmd;
 		//the sender becomes the receiver - This workds because dataset is usually an 
@@ -1094,6 +1133,7 @@ function sepiaFW_build_webSocket_client(){
 		var msg = buildSocketMessage(username, receiver, cmd, "", data, "", newId, activeChannelId);
 		//console.log('CMD: ' + JSON.stringify(msg)); 		//DEBUG
 		if (options && Object.keys(options).length !== 0){
+			//console.log("msg-id: " + newId + " - options " + JSON.stringify(options)); 		//DEBUG
 			Client.setMessageIdOptions(newId, options);
 		}
 		Client.sendMessage(msg);
@@ -1247,7 +1287,8 @@ function sepiaFW_build_webSocket_client(){
 					//activate microphone for this user
 					if (actionUser === SepiaFW.account.getUserId()){
 						if (action.key === "F4"){
-							SepiaFW.ui.toggleMicButton(true);
+							var useConfirmationSound = SepiaFW.speech.shouldPlayConfirmation();
+							SepiaFW.ui.toggleMicButton(useConfirmationSound);
 						}
 					}
 				

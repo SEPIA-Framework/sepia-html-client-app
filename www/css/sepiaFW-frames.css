@@ -4,6 +4,10 @@
 	background: #fff;
 	color: #000;
 }
+#sepiaFW-frames-view.dark {
+	background: #000;
+	color: #fff;
+}
 
 #sepiaFW-frames-nav-bar {
 	background: #000;
@@ -58,4 +62,8 @@
 .sepiaFW-frames-page button {
 	background: #000 !important;
 	color: #ceff1a !important;
+}
+.sepiaFW-frames-page.dark button {
+	background: #ceff1a !important;
+	color: #000 !important;
 }

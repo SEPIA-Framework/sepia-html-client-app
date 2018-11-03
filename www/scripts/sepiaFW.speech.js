@@ -299,6 +299,20 @@ function sepiaFW_build_speech(){
 			recognition = (SepiaFW.ui.isCordova)? (new SpeechRecognition()) : (new webkitSpeechRecognition());
 		}
 	}
+
+	//some implementations have there own trigger confirmation sound
+	Speech.shouldPlayConfirmation = function(){
+		//Android with native ASR
+		if (SepiaFW.ui.isAndroid && Speech.asrEngine == "native"){
+			return false;
+		//iOS is quirky too
+		}else if (SepiaFW.ui.isIOS){
+			return false;
+		//Everything else
+		}else{
+			return true;
+		}
+	}
 	
 	//----------helpers-----------
 	
@@ -613,6 +627,18 @@ function sepiaFW_build_speech(){
 	}
 	
 	// ------------- TTS ---------------
+
+	//Enable/disable TTS - NOTE: will not set menu button to correct state :-(
+	Speech.enableVoice = function(skipStore){
+		Speech.skipTTS = false;
+		if (!skipStore)	SepiaFW.data.set('skipTTS', false);
+		SepiaFW.debug.info("TTS is ON");
+	}
+	Speech.disableVoice = function(skipStore){
+		Speech.skipTTS = true;
+		if (!skipStore)	SepiaFW.data.set('skipTTS', true);
+		SepiaFW.debug.info("TTS is OFF");
+	}
 	
 	//get voices - load them and return a select element to show them somewhere
 	Speech.getVoices = function(){
@@ -668,9 +694,14 @@ function sepiaFW_build_speech(){
 				//TODO: implement
 			}else{
 				selectedVoice = newVoice;
-				selectedVoiceObject = speechSynthesis.getVoices().filter(function(voice){
-					return voice.name === selectedVoice;
-				})[0];
+				var selectedVoiceObjectArray = speechSynthesis.getVoices().filter(function(voice){
+					return (voice && voice.name && (voice.name === selectedVoice));
+				});
+				if (selectedVoiceObjectArray.length == 0){
+					selectedVoiceObject = {};	
+				}else{
+					selectedVoiceObject = selectedVoiceObjectArray[0];
+				}
 				SepiaFW.debug.log("TTS voice set: " + ((selectedVoiceObject.name)? selectedVoiceObject.name : "undefined"));
 			}
 		}

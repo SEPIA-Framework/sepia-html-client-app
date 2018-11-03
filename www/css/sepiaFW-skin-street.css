@@ -42,7 +42,7 @@ html {
 
 .sepiaFW-menu {
 	/*background: rgba(206, 255, 26, 0.95);*/
-	background: rgba(235, 235, 255, 0.95);
+	background: rgba(222, 222, 240, 0.95);
 	color: #000;
 }
 #sepiaFW-chat-menu {
@@ -72,6 +72,10 @@ html {
 #sepiaFW-main-window .chat-buttons-area button:hover {
 	background: #ceff1a;
 	color: #000;
+}
+#sepiaFW-main-window .chat-buttons-area .my-view-custom-button {
+	background-color: rgb(255, 177, 80);
+	color: #fff;
 }
 
 #sepiaFW-nav-label-note{

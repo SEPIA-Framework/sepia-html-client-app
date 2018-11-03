@@ -38,6 +38,9 @@ html {
 #sepiaFW-main-window h2 {
 	font-weight: 300;
 }
+#sepiaFW-main-window a {
+	color: #ceff1a;
+}
 #sepiaFW-main-window input, #sepiaFW-login-box input {
 	background: #000;
 	color: #fff;
@@ -60,7 +63,9 @@ html {
 	border: 1px solid #fff;
 	background: #222226;
 }
-.sepiaFW-myEvents-titleNote, .sepiaFW-myFirstStart-titleNote {
+.sepiaFW-myEvents-titleNote, 
+.sepiaFW-myFirstStart-titleNote,
+.sepiaFW-myCustomButtons-titleNote {
     font-weight: 300 !important;
 }
 
@@ -144,6 +149,9 @@ html {
 
 #sepiaFW-main-window .chat-buttons-area button {
 	border: 1px solid #fff;
+}
+#sepiaFW-main-window .chat-buttons-area .my-view-custom-button {
+	background: #000;
 }
 
 #sepiaFW-myEvents-buttons button,
@@ -283,6 +291,9 @@ html {
 #sepiaFW-teachUI-view {
     background: #000;
 }
+/*#sepiaFW-teachUI-nav-bar {
+	border-top: 1px solid #333;
+}*/
 #sepiaFW-teachUI-editor button, 
 #sepiaFW-teachUI-manager button {
     background: #000 !important;

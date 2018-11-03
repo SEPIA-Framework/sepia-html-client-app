@@ -3,9 +3,10 @@ function sepiaFW_build_ui(){
 	var UI = {};
 	
 	//some constants
-	UI.version = "v0.12.2";
+	UI.version = "v0.14.1";
 	UI.JQ_RES_VIEW_IDS = "#sepiaFW-result-view, #sepiaFW-chat-output, #sepiaFW-my-view";			//a selector to get all result views e.g. $(UI.JQ_RES_VIEW_IDS).find(...)
 	UI.JQ_ALL_MAIN_VIEWS = "#sepiaFW-result-view, #sepiaFW-chat-output, #sepiaFW-my-view, #sepiaFW-teachUI-editor, #sepiaFW-teachUI-manager, #sepiaFW-frame-page-1, #sepiaFW-frame-page-2"; 	//TODO: frames can have more ...
+	UI.JQ_ALL_SETTINGS_VIEWS = ".sepiaFW-chat-menu-list-container";
 	UI.JQ_ALL_MAIN_CONTAINERS = "#sepiaFW-my-view, #sepiaFW-chat-output-container, #sepiaFW-result-view";
 	
 	UI.isCordova = ('cordova' in window);
@@ -39,16 +40,21 @@ function sepiaFW_build_ui(){
 		//fix scroll position on window resize to better place content on soft-keyboard appearance
 		if (UI.isAndroid && (windowSizeDifference < 0)){
 			setTimeout(function(){
-				$(UI.JQ_ALL_MAIN_VIEWS).each(function(){
+				$(UI.JQ_ALL_MAIN_VIEWS + ", " + UI.JQ_ALL_SETTINGS_VIEWS).each(function(){
 					this.scrollTop -= windowSizeDifference;
 				});
+				if (document.activeElement){
+					document.activeElement.scrollIntoView(true);
+				}
+				/*
 				var activeEle = $(document.activeElement);
 				if (activeEle.length > 0){
-					var scrollBox = activeEle.closest(UI.JQ_ALL_MAIN_VIEWS);
+					var scrollBox = activeEle.closest(UI.JQ_ALL_MAIN_VIEWS + ", " + UI.JQ_ALL_SETTINGS_VIEWS);
 					if (scrollBox && scrollBox.offset() && (scrollBox.offset().top > activeEle.offset().top)){
 						scrollBox[0].scrollTop -= (scrollBox.offset().top - activeEle.offset().top); 			//TODO: pull it a bit down like 8px or so
 					}
 				}
+				*/
 			},100);
 		}
 	}
@@ -276,6 +282,9 @@ function sepiaFW_build_ui(){
 		}
 		missedMessages = 0;
 	}
+	UI.getNumberOfMissedMessages = function(){
+		return missedMessages;
+	}
 	
 	//-------- SETUP --------
 	
@@ -361,7 +370,7 @@ function sepiaFW_build_ui(){
 		UI.assistIconAwaitAnswer = '<i class="material-icons md-mic-dia">&#xE0B7;</i>';  //&#xE90F;
 		
 		//LOAD other SETTINGS before building the UI:
-		//TODO: this shoule be simplified with a service!
+		//TODO: this should be simplified with a service!
 		
 		//TTS
 		if (SepiaFW.speech){
@@ -390,6 +399,12 @@ function sepiaFW_build_ui(){
 			SepiaFW.client.allowBackgroundConnection = SepiaFW.data.get('allowBackgroundConnection');
 			if (typeof SepiaFW.client.allowBackgroundConnection == 'undefined') SepiaFW.client.allowBackgroundConnection = false;
 			SepiaFW.debug.info("Background connections are " + ((SepiaFW.client.allowBackgroundConnection)? "ALLOWED" : "NOT ALLOWED"));
+		}
+		//Gamepad support
+		if (SepiaFW.inputControls){
+			SepiaFW.inputControls.useGamepads = SepiaFW.data.get('useGamepads');
+			if (typeof SepiaFW.inputControls.useGamepads == 'undefined') SepiaFW.inputControls.useGamepads = false;
+			SepiaFW.debug.info("Gamepads are " + ((SepiaFW.client.allowBackgroundConnection)? "SUPPORTED" : "NOT SUPPORTED"));
 		}
 		
 		//build UI logic and general buttons
@@ -485,6 +500,12 @@ function sepiaFW_build_ui(){
 			backButtonPressed = 0;
 			return;
 		}
+		//close frames
+		if (SepiaFW.frames && SepiaFW.frames.isOpen){
+			SepiaFW.frames.close();
+			backButtonPressed = 0;
+			return;
+		}
 		//close open menus
 		if (UI.getOpenMenus().length > 0){
 			UI.closeAllMenus();
@@ -500,8 +521,13 @@ function sepiaFW_build_ui(){
 		//check back button quick double tap
 		if (backButtonPressed > 1){
 			backButtonPressed = 0;
-			if (navigator.app && navigator.app.exitApp){
+			//hard exit app (no background)
+			/* if (navigator.app && navigator.app.exitApp){
 				navigator.app.exitApp();
+			} */
+			//Always-On mode
+			if (SepiaFW.alwaysOn){
+				SepiaFW.alwaysOn.start();
 			}
 		}else{
 			setTimeout(function(){
@@ -566,6 +592,11 @@ function sepiaFW_build_ui(){
 						SepiaFW.ui.actions.timerAndAlarm(action, document.getElementById('sepiaFW-my-view'));
 					}
 				});
+
+				//trigger my custom buttons refresh
+				if (SepiaFW.ui.customButtons){
+					SepiaFW.ui.customButtons.onMyViewRefresh();
+				}
 			}
 		}
 	}
@@ -860,7 +891,7 @@ function sepiaFW_build_ui(){
 			checkClicksAndTabs();
 		});
 	}
-	//Long-press / Short-press combo
+	//Long-press / Short-press combo - Version without Hammer.js - basically deprecated, use: onShortLongPress
 	UI.longPressShortPress = function(ele, callbackLong, callbackShort){
 		var pressTimer;
 		var delay = 750;
@@ -893,14 +924,15 @@ function sepiaFW_build_ui(){
 			return false;
 		});
 	}
-	//Simple tap with reduced delay for e.g. iOS' UIWebView (not needed anymore on WKWebview)
-	UI.useFastTouch = false;
-	UI.onclick = function(ele, callback){
+	//Default on-click method with optional haptik press-feedback
+	UI.useFastTouch = false; 	//reduced delay for e.g. iOS' UIWebView (basically deprecated, not needed anymore since use of WKWebview)
+	UI.onclick = function(ele, callback, animatePress){
 		if (UI.useFastTouch){
 			UI.longPressShortPressDoubleTap(ele, '', '', callback);
 			//this prevents the ghost-click but leads to a more complicated trigger event, use: $(ele).trigger('click', {bm_force : true})
 			$(ele).on('click', function(ev, data){
 				if (data && data.bm_force){
+					//if (animatePress){ SepiaFW.animate.flashObj(ele); }
 					callback(ev);
 				}else{
 					ev.preventDefault();
@@ -909,12 +941,16 @@ function sepiaFW_build_ui(){
 			//PreventGhostClick(ele);
 		}else{
 			$(ele).on('click', function(ev){
+				if (animatePress){
+					SepiaFW.animate.flashObj(ele);
+				}
 				callback(ev);
 			});
 		}
 	}
 	//Long-press / Short-press / Double-Tab combo
-	UI.longPressShortPressDoubleTap = function(ele, callbackLong, callbackLongRelease, callbackShort, callbackDouble, useLongPressIndicator, preventTapOnDoubleTap){
+	UI.longPressShortPressDoubleTap = function(ele, callbackLong, callbackLongRelease, callbackShort, callbackDouble, 
+							useLongPressIndicator, preventTapOnDoubleTap, animateShortPress){
 		//Hammertime!
 		var pressTimer;
 		var delay = 625;
@@ -930,7 +966,10 @@ function sepiaFW_build_ui(){
 
 		//if (callbackShort) mc.on("tap", callbackShort);
 		if (callbackShort) mc.on("tap", function(ev){
-			if (useLongPressIndicator) UI.hidelongPressIndicator(); 
+			if (useLongPressIndicator) UI.hidelongPressIndicator();
+			if (animateShortPress){
+				SepiaFW.animate.flashObj(ele);
+			}
 			callbackShort(ev);
 			//console.log('tab');
 		});
@@ -960,8 +999,34 @@ function sepiaFW_build_ui(){
 		/*mc.on("hammer.input", function(ev) {
 		   console.log(ev.pointers);
 		});*/
+		//add a normal event listener with data to enable trigger method
+		$(ele).on('click', function(ev, data){
+			if (data && data.bm_force){
+				if (callbackShort) callbackShort();
+			}else{
+				ev.preventDefault();
+			}
+		});
 	}
 	UI.longPressShortPressDoubleTab = UI.longPressShortPressDoubleTap;
+	//Shortcut for Short/Long combo with some default settings
+	UI.onShortLongPress = function(ele, shortCallback, longCallback, animateShort){
+		UI.longPressShortPressDoubleTap(ele, function(){
+			//Long press
+			if (longCallback) longCallback();
+		}, undefined, function(){
+			//Short press
+			if (shortCallback) shortCallback();
+		}, undefined, true, false, animateShort);
+		//add a normal event listener with data to enable trigger method
+		$(ele).on('click', function(ev, data){
+			if (data && data.bm_force){
+				if (shortCallback) shortCallback();
+			}else{
+				ev.preventDefault();
+			}
+		});
+	}
 	//Long-press indicator
 	var longPressIndicator = '';
 	UI.showlongPressIndicator = function(ev){
@@ -1211,15 +1276,22 @@ function sepiaFW_build_ui(){
 		if ($navBar.css('display') == 'none'){
 			$navBar.fadeIn(300);
 			$inputBar.fadeIn(300);
+			$('.sepiaFW-carousel-pane').removeClass('full-screen');
+			$('#sepiaFW-chat-menu').removeClass('full-screen');
+			UI.isInterfaceFullscreen = false;
 		}else{
 			$navBar.fadeOut(300);
 			$inputBar.fadeOut(300);
+			$('.sepiaFW-carousel-pane').addClass('full-screen');
+			$('#sepiaFW-chat-menu').addClass('full-screen');
+			UI.isInterfaceFullscreen = true;
 		}
 		setTimeout(function(){
 			$(window).trigger('resize'); 	//this might not work on IE
 		}, 500);
 		UI.closeAllMenus();
 	}
+	UI.isInterfaceFullscreen = ($('#sepiaFW-nav-bar').css('display') == 'none');
 	
 	//Use fullscreen API
 	UI.toggleFullscreen = function(elem){

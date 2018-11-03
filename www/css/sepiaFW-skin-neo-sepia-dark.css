@@ -146,6 +146,12 @@ html {
     background-color: #dfdff2 !important;
 	color: #000 !important;
 }
+/*
+#sepiaFW-main-window .chat-buttons-area .my-view-custom-button {
+	background-color: #3f9f74;
+	color: #fff;
+}
+*/
 
 #sepiaFW-chat-output .statusUpdate {
     background: rgba(255, 255, 255, 0.10);

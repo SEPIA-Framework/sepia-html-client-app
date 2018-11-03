@@ -89,10 +89,11 @@
 	});
 	$('#tutorial-test-mic').off().on('click', function(){
 		if (SepiaFW.speech){
+			SepiaFW.ui.showPopup('Start speaking...');
 			SepiaFW.speech.toggleRecognition(
-				function(msg){ SepiaFW.ui.showPopup('You said: <br>' + msg) }, 
+				function(msg){ SepiaFW.ui.showPopup('You said: <br>' + msg); }, 
 				function(msg){ /*interrim result*/ }, 
-				function(msg){ SepiaFW.ui.showPopup('Seems it did not work: <br>' + msg) }
+				function(msg){ SepiaFW.ui.showPopup('Seems it did not work: <br>' + msg); }
 			);
 		}
 	});

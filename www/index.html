@@ -87,7 +87,7 @@
 		<div id="sepiaFW-login-extend-box"><button id="sepiaFW-login-extend-btn"><i class="material-icons md-btn2">arrow_drop_down</i></button></div>
 	</div>
 	<!-- Main -->
-	<div id="sepiaFW-main-window" class="sepiaFW-translucent-10">
+	<div id="sepiaFW-main-window" class="sepiaFW-translucent-10 sepiaFW-skin-mod">
 		<!-- Menues -->
 		<div id="sepiaFW-chat-menu" class="sepiaFW-menu" style="display:none;"><!-- Dynamic content --></div>
 		<div id="sepiaFW-chat-channel-view" class="sepiaFW-menu" style="display:none;">
@@ -104,16 +104,22 @@
 				<button id="sepiaFW-custom-channel-connect">+</button>
 			</div>
 		</div>
-		<ul id="sepiaFW-chat-controls-more-menu" class="sepiaFW-menu">
+		<div id="sepiaFW-chat-controls-more-menu" class="sepiaFW-menu">
+			<div id="sepiaFW-location-ctrls">
+				<span id='sepiaFW-menue-status-text'><script>SepiaFW.local.w('locateMe')</script></span>
+				<button id='sepiaFW-geolocation-btn'><i class="material-icons md-txt">place</i></button>
+			</div>
 			<div id='sepiaFW-audio-ctrls'>
 				<div id='sepiaFW-audio-ctrls-title-container'>
 					<div id='sepiaFW-audio-ctrls-title'>SepiaFW audio player</div>
 					<canvas id='sepiaFW-audio-ctrls-canvas'></canvas>
 				</div>
-				<button id='sepiaFW-audio-ctrls-voldown'><i class="material-icons md-24">&#xE04D;</i><div id="sepiaFW-audio-ctrls-vol">10</div></button>
-				<button id='sepiaFW-audio-ctrls-volup'><i class="material-icons md-24">&#xE050;</i></button>
-				<button id='sepiaFW-audio-ctrls-start'><i class="material-icons md-24">&#xE037;</i></button>
-				<button id='sepiaFW-audio-ctrls-stop'><i class="material-icons md-24">&#xE034;</i></button>
+				<div id='sepiaFW-audio-ctrls-buttons-container'>
+					<button id='sepiaFW-audio-ctrls-voldown'><i class="material-icons md-24">&#xE04D;</i><div id="sepiaFW-audio-ctrls-vol">10</div></button>
+					<button id='sepiaFW-audio-ctrls-volup'><i class="material-icons md-24">&#xE050;</i></button>
+					<button id='sepiaFW-audio-ctrls-start'><i class="material-icons md-24">&#xE037;</i></button>
+					<button id='sepiaFW-audio-ctrls-stop'><i class="material-icons md-24">&#xE034;</i></button>
+				</div>
 			</div>
 			<div id="sepiaFW-more-menu-shortcuts">
 				<button id='sepiaFW-shortcut-btn-shop'><i class="material-icons md-24">&#xE8CC;</i></button>
@@ -121,16 +127,19 @@
 				<button id='sepiaFW-shortcut-btn-radio'><i class="material-icons md-24">&#xE03E;</i></button>
 				<button id='sepiaFW-shortcut-btn-alarm'><i class="material-icons md-24">&#xE855;</i></button>
 				<button id='sepiaFW-shortcut-btn-weather'><i class="material-icons md-24">&#xE430;</i></button>
-				<button id='sepiaFW-shortcut-btn-news'><i class="material-icons md-24">&#xE8B0;</i></button>
+				<button id='sepiaFW-shortcut-btn-news'><i class="material-icons md-24">local_library</i></button>
 				<button id='sepiaFW-shortcut-btn-myEvents'><i class="material-icons md-24">&#xE55A;</i></button>
 				<button id='sepiaFW-shortcut-btn-inAppBrowser'><i class="material-icons md-24">&#xE894;</i></button>
 			</div>
-			<li id='sepiaFW-history-btn'><script>SepiaFW.local.w('clearHistory')</script>&nbsp;<i class="material-icons md-txt">&#xE889;</i></li>
-			<li id='sepiaFW-saythis-btn'>Saythis&nbsp;<i class="material-icons md-txt">&#xE050;</i></li>
-			<li id='sepiaFW-teachUI-open'>Teach&nbsp;<i class="material-icons md-txt">&#xE87B;</i></li>
-			<li id='sepiaFW-fullsize-btn' style="display:inline-block;width:49%;text-align:left;"><i class="material-icons md-txt">&#xE56B;</i>&nbsp;Screen</li>
-			<li id='sepiaFW-back-btn' style="display:inline-block;width:49%;"><script>SepiaFW.local.w('back')</script>&nbsp;<i class="material-icons md-txt">&#xE408;</i></li>
-		</ul>
+			<div id="sepiaFW-more-menu-actions">
+				<li id='sepiaFW-history-btn'><script>SepiaFW.local.w('clearHistory')</script>&nbsp;<i class="material-icons md-txt">&#xE889;</i></li>
+				<li id='sepiaFW-saythis-btn'>Saythis&nbsp;<i class="material-icons md-txt">&#xE050;</i></li>
+				<li id='sepiaFW-teachUI-open'>Teach&nbsp;<i class="material-icons md-txt">&#xE87B;</i></li>
+				<li id='sepiaFW-fullsize-btn'>Screen&nbsp;<i class="material-icons md-txt">&#xE56B;</i></li>
+				<li id='sepiaFW-alwaysOn-btn'>Always On&nbsp;<i class="material-icons md-txt">mobile_friendly</i></li>
+				<!--<li id='sepiaFW-back-btn'><script>SepiaFW.local.w('back')</script>&nbsp;<i class="material-icons md-txt">&#xE408;</i></li>-->
+			</div>
+		</div>
 		<!-- Nav-Bar -->
 		<div id="sepiaFW-nav-bar">
 			<button id="sepiaFW-nav-menu-btn"><i class="material-icons md-btn2">&#xE5D2;</i></button>
@@ -156,7 +165,7 @@
 		<!-- Controls -->
 		<div id="sepiaFW-chat-controls">
 			<div id="sepiaFW-chat-controls-right">
-				<button id="sepiaFW-chat-controls-more-btn" class="eButton extraMarginToBo"><i class="material-icons md-btn">&#xE5D4;</i></button>
+				<button id="sepiaFW-chat-controls-more-btn" class="eButton"><i class="material-icons md-btn">apps</i></button>
 			</div>
 			<div id="sepiaFW-assist-btn-area">
 				<button id="sepiaFW-assist-btn"><i class="material-icons md-mic">&#xE029;</i></button>
@@ -231,6 +240,7 @@
 <link rel="stylesheet" href="css/sepiaFW-cards.css">
 <link rel="stylesheet" href="css/sepiaFW-teachUI.css">
 <link rel="stylesheet" href="css/sepiaFW-frames.css">
+<link rel="stylesheet" href="css/sepiaFW-alwaysOn.css">
 <link rel="stylesheet alternate" href="css/sepiaFW-skin-neo-sepia.css" class='sepiaFW-style-skin' title='main' data-name='NeoSepia'> 	<!-- main -->
 <link rel="stylesheet alternate" href="css/sepiaFW-skin-neo-sepia-dark.css" class='sepiaFW-style-skin' title='' data-name='NeoSepiaDark'>
 <link rel="stylesheet alternate" href="css/sepiaFW-skin-legacy.css" class='sepiaFW-style-skin' title='' data-name='Legacy'> 			<!-- no skin -->
@@ -264,6 +274,7 @@
 <script src="scripts/sepiaFW.ui.events.js"></script>
 <script src="scripts/sepiaFW.ui.actions.js"></script>
 <script src="scripts/sepiaFW.ui.cards.js"></script>
+<script src="scripts/sepiaFW.ui.customButtons.js"></script>
 <script src="scripts/sepiaFW.account.js"></script>
 <script src="scripts/sepiaFW.assistant.js"></script>
 <script src="scripts/sepiaFW.geocoder.js"></script>
@@ -275,6 +286,8 @@
 <script src="scripts/sepiaFW.frames.js"></script>
 <script src="scripts/sepiaFW.teach.js"></script>
 <script src="scripts/sepiaFW.offline.js"></script>
+<script src="scripts/sepiaFW.alwaysOn.js"></script>
+<script src="scripts/sepiaFW.inputControls.js"></script>
 <script type="text/javascript">
 
 	//get some settings via URL parameters

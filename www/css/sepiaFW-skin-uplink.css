@@ -53,24 +53,24 @@ html {
 
 .sepiaFW-menu {
 	/*background: rgba(206, 255, 26, 0.95);*/
-	background: rgba(235, 235, 255, 0.95);
-	color: #000;
+	background: #283059;
+	color: #fff;
 }
 .sepiaFW-menu button {
 	background: #1BFFE6 !important;
 	color: #283059 !important;
 }
 .sepiaFW-menu button:hover {
-	background: #283059 !important;
-	color: #1BFFE6 !important;
+	background: #ffffff !important;
+    color: #283059 !important;
 }
 .sepiaFW-touch-device .sepiaFW-menu button:hover {
 	background: #1BFFE6 !important;
 	color: #283059 !important;
 }
 #sepiaFW-chat-menu {
-	background: rgba(235, 235, 255, 1.00);
-	color: #000;
+	background: #283059;
+	color: #fff;
 }
 #sepiaFW-chat-menu li {
 	background: rgba(97, 157, 157, 0.10);
@@ -87,6 +87,10 @@ html {
 .sepiaFW-touch-device #sepiaFW-main-window .chat-buttons-area button:hover {
 	background: #1BFFE6;
 	color: #283059;
+}
+#sepiaFW-main-window .chat-buttons-area .my-view-custom-button {
+	background: #4470ae; /*#ffff00*/;
+	color: #fff; /*#283059*/;
 }
 
 #sepiaFW-nav-label-note{

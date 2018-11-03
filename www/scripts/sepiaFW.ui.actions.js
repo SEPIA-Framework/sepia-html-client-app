@@ -15,7 +15,7 @@ function sepiaFW_build_ui_actions(){
 			newAction.cmd = "chat;;type=help;;";
 			newAction.options = { skipTTS : true, skipText : true, targetView : "bigResults" };
 			Actions.openCMD(newAction);
-		});
+		}, true);
 		urlBtn.innerHTML = action.title || SepiaFW.local.g('help');
 		parentBlock.appendChild(urlBtn);
 	}
@@ -29,7 +29,7 @@ function sepiaFW_build_ui_actions(){
 			SepiaFW.ui.onclick(teachBtn, function(){
 				SepiaFW.ui.closeAllMenus();
 				SepiaFW.teach.openUI(info);
-			});
+			}, true);
 			teachBtn.innerHTML = action.title || SepiaFW.local.g('teach_ui_btn');
 			parentBlock.appendChild(teachBtn);
 		}
@@ -43,7 +43,7 @@ function sepiaFW_build_ui_actions(){
 			SepiaFW.ui.onclick(framesBtn, function(){
 				SepiaFW.ui.closeAllMenus();
 				SepiaFW.frames.open(info);
-			});
+			}, true);
 			framesBtn.innerHTML = action.title || info.frameName || SepiaFW.local.g('frames_view_btn');
 			parentBlock.appendChild(framesBtn);
 		}
@@ -57,7 +57,7 @@ function sepiaFW_build_ui_actions(){
 		funBtn.setAttribute("data-sender", action.sender);
 		SepiaFW.ui.onclick(funBtn, function(){
 			action.fun();
-		});
+		}, true);
 		funBtn.innerHTML = action.title;
 		parentBlock.appendChild(funBtn);
 	}
@@ -70,7 +70,7 @@ function sepiaFW_build_ui_actions(){
 		SepiaFW.ui.onclick(urlBtn, function(){
 		//urlBtn.addEventListener("click", function(){ 
 			Actions.openURL(action);
-		});
+		}, true);
 		urlBtn.innerHTML = action.title;
 		parentBlock.appendChild(urlBtn);
 	}
@@ -106,7 +106,7 @@ function sepiaFW_build_ui_actions(){
 		//cmdBtn.addEventListener("click", function(){ 
 			Actions.openCMD(action);
 			SepiaFW.debug.info("Action - sending button-cmd: " + action.cmd); 
-		});
+		}, true);
 		cmdBtn.innerHTML = action.title;
 		parentBlock.appendChild(cmdBtn);
 	}
@@ -347,7 +347,7 @@ function sepiaFW_build_ui_actions(){
 					}else if (type === 'fist_visit_info_start'){
 						parentBlock.removeChild(aButtonsArea); 	//we will create a new one
 						aButtonsArea = Actions.buildClientFirstStartBox(data.actionInfo[i], parentBlock);
-					
+
 					//HTML result
 					}else if (type === 'show_html_result'){
 						Actions.buildHtmlResultAction(data.actionInfo[i], parentBlock, handleOptions);

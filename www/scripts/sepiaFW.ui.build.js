@@ -54,6 +54,24 @@ function sepiaFW_build_ui_build(){
 		
 		return tglBtn;
 	}
+	//switch toggle button state without triggering callbacks
+	Build.toggleButtonSetState = function(btnId, newStateOnOrOff){
+		var tglBtn = document.getElementById(btnId);
+		if (tglBtn){
+			var state = tglBtn.getAttribute("data-toggle-state");
+			if (state == newStateOnOrOff.toLowerCase()){
+				return;
+			}else{
+				if (state === "on"){
+					tglBtn.setAttribute("data-toggle-state", "off");
+					tglBtn.firstChild.className = "off";
+				}else{
+					tglBtn.setAttribute("data-toggle-state", "on");
+					tglBtn.firstChild.className = "on";
+				}
+			}
+		}
+	}
 	
 	//simple action button
 	Build.inlineActionButton = function(btnId, btnName, callback){
@@ -261,8 +279,9 @@ function sepiaFW_build_ui_build(){
 		var chatMenuBtn = document.getElementById("sepiaFW-chat-controls-more-btn");
 		if (chatMenuBtn){
 			$(chatMenuBtn).off();
-			SepiaFW.ui.onclick(chatMenuBtn, function(){
-			//$(chatMenuBtn).on("click", function () {
+			var animateShortPress = false;
+			SepiaFW.ui.onShortLongPress(chatMenuBtn, function(){
+				//Short press
 				var menu = $("#sepiaFW-chat-controls-more-menu");
 				if (menu.css('display') == 'none'){
 					menu.fadeIn(300);
@@ -275,7 +294,10 @@ function sepiaFW_build_ui_build(){
 				if (SepiaFW.audio){
 					SepiaFW.audio.initAudio();
 				}
-			});
+			}, function(){
+				//Long press - open settings menu
+				$("#sepiaFW-nav-menu-btn").trigger('click', {bm_force : true});
+			}, animateShortPress);
 		}
 		//catch the shortcuts menue close/open event
 		$('#sepiaFW-main-window').on("sepiaFwOpen-sepiaFW-chat-controls-more-menu", function(){
@@ -288,21 +310,30 @@ function sepiaFW_build_ui_build(){
 		
 		//MIC and SPEECH CONTROLS
 	
-		var assistBtn = document.getElementById("sepiaFW-assist-btn");
-		if (assistBtn){
-			$(assistBtn).off();
-			SepiaFW.ui.longPressShortPressDoubleTap(assistBtn, function(){
-				SepiaFW.speech.reset();
-				SepiaFW.assistant.resetState();
-				SepiaFW.client.clearCommandQueue();
-			},'',function(){
-				if (SepiaFW.audio && SepiaFW.audio.initAudio(SepiaFW.ui.toggleMicButton)){
-					//skip because of callback
-				}else{
-					SepiaFW.ui.toggleMicButton();
-				}
-			},'', true);
+		//Add default mic button logic to an element
+		SepiaFW.ui.buildDefaultMicLogic = function(buttonEle, customCallbackShort, customCallbackLong){
+			if (buttonEle){
+				$(buttonEle).off();
+				SepiaFW.ui.longPressShortPressDoubleTap(buttonEle, function(){
+					SepiaFW.speech.reset();
+					SepiaFW.assistant.resetState();
+					SepiaFW.client.clearCommandQueue();
+					//custom
+					if (customCallbackLong) customCallbackLong();
+				},'',function(){
+					if (SepiaFW.audio && SepiaFW.audio.initAudio(SepiaFW.ui.toggleMicButton)){
+						//skip because of callback
+					}else{
+						SepiaFW.ui.toggleMicButton();
+						//custom
+						if (customCallbackShort) customCallbackShort();
+					}
+				},'', true);
+			}
 		}
+		//... and apply it
+		var assistBtn = document.getElementById("sepiaFW-assist-btn");
+		SepiaFW.ui.buildDefaultMicLogic(assistBtn);
 			
 		//Toggle microphone button
 		SepiaFW.ui.toggleMicButton = function(useConfirmationSound){
@@ -312,6 +343,10 @@ function sepiaFW_build_ui_build(){
 			}
 			//fade audio
 			SepiaFW.audio.fadeOutMain();
+			//confirmation sound?
+			if (useConfirmationSound == undefined){
+				useConfirmationSound = SepiaFW.speech.shouldPlayConfirmation();
+			}
 			//play a sound before activating mic?
 			if (useConfirmationSound && !SepiaFW.speech.isRecognizing() && SepiaFW.audio){ 		//&& (SepiaFW.config.clientInfo.indexOf('chrome_')>-1)
 				SepiaFW.audio.playURL('sounds/coin.mp3', '2', '', function(){
@@ -334,9 +369,9 @@ function sepiaFW_build_ui_build(){
 			
 			//---HEAD---
 			headDiv.innerHTML = ""
-				+ "<button id='sepiaFW-geolocation-btn'>" + SepiaFW.local.g('locateMe') + "</button>"
-				//+ "<button>QuickButton2</button>"
-				+ "<p id='sepiaFW-menue-status-text'>Status text</p>"
+				//+ "<button>QuickButton1</button>"
+				//+ "<button id='sepiaFW-geolocation-btn'>" + SepiaFW.local.g('locateMe') + "</button>"
+				//+ "<p id='sepiaFW-menue-status-text'>Status text</p>"
 				+ "<div id='sepiaFW-chat-menu-head-border'></div>";
 			menuArea.appendChild(headDiv);
 			
@@ -391,6 +426,7 @@ function sepiaFW_build_ui_build(){
 					+ "<li id='sepiaFW-menu-toggle-channelMessages-li' title='Show status messages in chat like someone joined the channel?'><span>Channel status messages: </span></li>"
 					//TODO: this depends on the OS, maybe use only for Android?
 					+ "<li id='sepiaFW-menu-toggle-runBackgroundConnection-li' title='Try to keep connected in background?'><span>Allow background activity: </span></li>"
+					+ "<li id='sepiaFW-menu-toggle-gamepad-li' title='Support gamepads as remote?'><span>Gamepads/Hotkeys: </span></li>"
 					+ "<li id='sepiaFW-menu-assistant-host-li' title='Assistant hostname, e.g.: my.example.org/sepia, localhost or [IP]'>"
 						+ "<span>Hostname: </span>"
 						+ "<input id='sepiaFW-menu-assistant-host' type='url' placeholder='my.example.org/sepia'>"
@@ -521,13 +557,9 @@ function sepiaFW_build_ui_build(){
 				//add voice toggle
 				document.getElementById('sepiaFW-menu-toggle-voice-li').appendChild(Build.toggleButton('sepiaFW-menu-toggle-voice', 
 					function(){
-						SepiaFW.speech.skipTTS = false;
-						SepiaFW.data.set('skipTTS', false);
-						SepiaFW.debug.info("TTS is ON");
+						SepiaFW.speech.enableVoice();
 					},function(){
-						SepiaFW.speech.skipTTS = true;
-						SepiaFW.data.set('skipTTS', true);
-						SepiaFW.debug.info("TTS is OFF");
+						SepiaFW.speech.disableVoice();
 					}, !SepiaFW.speech.skipTTS)
 				);
 
@@ -586,13 +618,23 @@ function sepiaFW_build_ui_build(){
 						buttonOneAction : function(){ location.reload(); }
 					};
 					var keepPermanent = true;
-					var localDataStatus = SepiaFW.data.clearAll(keepPermanent);		//clear all data except permanent (e.g. host-name)
+					var localDataStatus = "---";
 					SepiaFW.data.clearAppCache(function(status){
 						//Success
-						SepiaFW.ui.showPopup((localDataStatus + " " + status), config);
+						//clear all other data except permanent (e.g. host-name and device ID)
+						var keepPermanent = true;
+						localDataStatus = SepiaFW.data.clearAll(keepPermanent, function(){
+							//delayed call
+							SepiaFW.ui.showPopup((localDataStatus + " " + status), config);
+						});
 					}, function(status) {
 						//Error
-						SepiaFW.ui.showPopup((localDataStatus + " " + status), config);
+						//clear all other data except permanent (e.g. host-name and device ID)
+						var keepPermanent = true;
+						localDataStatus = SepiaFW.data.clearAll(keepPermanent, function(){
+							//delayed call
+							SepiaFW.ui.showPopup((localDataStatus + " " + status), config);
+						});
 					});
 				}
 			));
@@ -628,6 +670,32 @@ function sepiaFW_build_ui_build(){
 					SepiaFW.debug.info("Background connection is NOT allowed");
 				}, SepiaFW.client.allowBackgroundConnection)
 			);
+			//support gamepads as remotes and hotkeys in Always-On (by default)
+			if (SepiaFW.inputControls){
+				var listEntry = document.getElementById('sepiaFW-menu-toggle-gamepad-li');
+				//Toggle on/off button
+				listEntry.appendChild(Build.toggleButton('sepiaFW-menu-toggle-gamepad', 
+					function(){
+						SepiaFW.inputControls.useGamepads = true;
+						SepiaFW.data.set('useGamepads', true);
+						SepiaFW.debug.info("Gamepad support activated");
+						SepiaFW.inputControls.setup(); //.listenToGamepadConnectEvent();
+					},function(){
+						SepiaFW.inputControls.useGamepads = false;
+						SepiaFW.data.set('useGamepads', false);
+						SepiaFW.debug.info("Gamepad support deactivated");
+						SepiaFW.inputControls.setup();
+					}, SepiaFW.inputControls.useGamepads)
+				);
+				//Settings frame
+				var spanButton = $(listEntry).find("span");
+				if (spanButton.length > 0){
+					SepiaFW.ui.onclick(spanButton[0], SepiaFW.inputControls.openSettings, true); 
+				}
+			}else{
+				document.getElementById('sepiaFW-menu-toggle-gamepad-li').appendChild(Build.toggleButton('sepiaFW-menu-toggle-gamepad', 
+					function(){}, function(){}, false));
+			}
 			//Account-Language
 			document.getElementById("sepiaFW-menu-account-language-li").appendChild(SepiaFW.ui.build.languageSelector("sepiaFW-menu-account-language-dropdown", function(selectedLanguage){
 				//save
@@ -885,7 +953,8 @@ function sepiaFW_build_ui_build(){
 		var senderText = (senderName)? senderName : sender;
 		var receiver = msg.receiver;
 		var receiverName = (SepiaFW.webSocket)? SepiaFW.webSocket.client.getNameFromUserList(receiver) : "";
-		var time = msg.time;
+		var time = SepiaFW.tools.getLocalTime();	//msg.time; 	//for display we just take the client recieve time
+		//var timeUNIX = msg.timeUNIX;
 		
 		if (!text)	options.skipText = true;
 		
@@ -1048,7 +1117,8 @@ function sepiaFW_build_ui_build(){
 		var sender = msg.sender;
 		var senderName = (SepiaFW.webSocket)? SepiaFW.webSocket.client.getNameFromUserList(sender) : "";
 		var senderText = (senderName)? senderName : sender;
-		var time = msg.time;
+		var time = SepiaFW.tools.getLocalTime();	//msg.time; 	//for display we just take the client recieve time
+		//var timeUNIX = msg.timeUNIX;
 		
 		//type analysis
 		var classes = type || ''; 	//assistant, client, server

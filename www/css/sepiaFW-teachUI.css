@@ -9,7 +9,7 @@
 	margin: 12px 0;
 	border-radius: 0;
 }
-#sepiaFW-teachUI-view input {
+#sepiaFW-teachUI-view input[type="text"] {
     background: transparent !important;
 	border: 0 !important;
     border-bottom: 1px solid !important;
@@ -23,6 +23,12 @@
 }
 #sepiaFW-teachUI-view label.optional {
 	display: none;
+}
+#sepiaFW-teachUI-view a {
+	color: #ceff1a;
+}
+#sepiaFW-teachUI-view a:visited {
+	color: #ceff1a;
 }
 
 #sepiaFW-teachUI-nav-bar {
@@ -140,4 +146,43 @@
 #sepiaFW-teachUI-manager .sepiaFW-command-card span {
 	flex: 0 0 auto;
 	user-select: none;
+}
+
+.sepiaFW-teachUI-menu-group ul {
+	padding: 8px 12px;
+}
+.sepiaFW-teachUI-menu-group li {
+	overflow: hidden;
+	cursor: default;
+	background: rgba(128, 128, 128, 0.2);
+	min-height: 38px;
+	margin: 2px 0;
+	padding: 5px 8px;
+	font-size: 17px;
+}
+@media screen and (max-width: 360px) {
+	.sepiaFW-teachUI-menu-group li {
+		font-size: 14px;
+	}
+}
+.sepiaFW-teachUI-menu-group li span {
+	float: left;
+	padding-right: 8px;
+	padding-top: 5px;
+}
+.sepiaFW-teachUI-menu-group li input {
+	float: right;
+	margin: 0 !important;
+	max-width: 50%;
+	font-size: 16px !important;
+}
+.sepiaFW-teachUI-menu-group li i {
+	float: right;
+}
+.sepiaFW-teachUI-menu-group li .sepiaFW-button-inline {
+	float: right;
+	margin: 0;
+}
+.sepiaFW-teachUI-menu-group li .sepiaFW-toggle-btn {
+	float: right;
 }

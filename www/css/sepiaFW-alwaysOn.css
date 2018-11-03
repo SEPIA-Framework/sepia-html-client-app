@@ -1,0 +1,177 @@
+#sepiaFW-alwaysOn-view {
+	background: #000;
+	color: #fff;
+	width: 100%;
+	height: 100%;
+	position: relative;
+	overflow: hidden;
+}
+.sepiaFW-alwaysOn-page {
+	padding: 0px !important;
+}
+.sepiaFW-alwaysOn-navbar {
+	border-color: #000 !important;
+}
+
+#sepiaFW-alwaysOn-avatar {
+	position: relative;
+	background: transparent;
+	width: 250px;
+	height: 250px;
+	left: calc(50% - 125px);
+    top: calc(50% - 125px);
+}
+#sepiaFW-alwaysOn-avatar-touch-area {
+	position: absolute;
+	left: 0px;
+	top: 0px;
+	width: 250px;
+	height: 175px;
+	z-index: 99;
+}
+
+#sepiaFW-alwaysOn-avatar .avatar-eye {
+	position: absolute;
+	width: 30%;
+	height: 30%;
+	background: #333;
+	border: 1px solid #333;
+	border-radius: 50%;
+}
+#sepiaFW-alwaysOn-avatar .avatar-eye::after {
+	position: absolute;
+	content: '';
+	top: 5%;
+	left: 5%;
+	width: 88%;
+	height: 88%;
+	border: 1px solid #fff;
+	border-radius: 50%;
+	background: #000;
+}
+#sepiaFW-alwaysOn-avatar .avatar-eye.left {
+	top: 10%;
+	left: 10%;
+}
+#sepiaFW-alwaysOn-avatar .avatar-eye.right {
+	top: 10%;
+	right: 10%;
+}
+#sepiaFW-alwaysOn-avatar .avatar-iris {
+	position: absolute;
+    width: 20%;
+    height: 23%;
+    top: 50%;
+    left: 42%;
+    background: #aaa;
+    border: 0px solid #fff;
+    border-radius: 50%;
+	z-index: 2;
+}
+#sepiaFW-alwaysOn-avatar .avatar-eyelid {
+	position: absolute;
+    width: 24%;
+    height: 27%;
+    top: 23%;
+    left: 40%;
+    background: #000;
+    border-radius: 50%;
+    z-index: 3;
+	animation: blink 20s infinite ease-in;
+}
+#sepiaFW-alwaysOn-avatar .avatar-eyelid.sleep {
+	animation: sleep 40s infinite ease-in;
+	/*animation-fill-mode: forwards;*/
+}
+@keyframes blink {
+	0% {	  top: 23%;	}
+	98% {	  top: 23%;	}
+	98.5% {	  top: 48%;	}
+	99% {	  top: 23%;	}
+	99.5% {	  top: 48%;	}
+	100% {	  top: 23%;	}
+}
+@keyframes sleep {
+	0% {	  top: 23%;	}
+	10% {	  top: 23%;	}
+	18% {	  top: 48%;	}
+	18.25% {  top: 23%;	}
+	30% {	  top: 48%;	}
+	50% {	  top: 48%;	}
+	50.25% {  top: 23%;	}
+}
+
+#sepiaFW-alwaysOn-avatar .avatar-pupil {
+    position: absolute;
+    top: 50%;
+    right: 10%;
+    height: 50%;
+    width: 50%;
+    border-radius: 50%;
+	background: #000;
+	animation: look-around 10s infinite;
+}
+@keyframes look-around {
+	0% {  	transform: translate3d(0, 0, 0);			}
+	5% {  	transform: translate3d(50%, -25%, 0);		}
+	10% { 	transform: translate3d(50%, -25%, 0);		}
+	15% { 	transform: translate3d(-100%, -25%, 0);		}
+	20% { 	transform: translate3d(-100%, -25%, 0);		}
+	25% { 	transform: translate3d(0, 0, 0);			}
+	100% {	transform: translate3d(0, 0, 0);			}
+}
+
+#sepiaFW-alwaysOn-avatar .avatar-mouth {
+	position: absolute;
+    background: transparent;
+    width: 20%;
+    height: 10%;
+    top: 45%;
+	left: 40%;
+	border: 2px solid;
+	border-radius: 35%;
+	border-color: transparent transparent #aaa transparent;
+	transition: border-radius 2s;
+}
+#sepiaFW-alwaysOn-avatar .avatar-mouth.sleep {
+	border-radius: 20%;
+}
+
+#sepiaFW-alwaysOn-avatar .avatar-activity {
+	position: absolute;
+    top: 22%;
+    left: calc(50% - 10px);
+    width: 20px;
+    height: 20px;
+    border: 0px solid;
+	border-radius: 50%;
+	border-color: #aaa;
+	transition: background-color 1s;
+}
+#sepiaFW-alwaysOn-avatar .avatar-activity.listening {
+	background: #ca1717;
+}
+#sepiaFW-alwaysOn-avatar .avatar-activity.speaking {
+	background: #2196f3;
+}
+#sepiaFW-alwaysOn-avatar .avatar-activity.waiting {
+	background: #ceff1a;
+}
+#sepiaFW-alwaysOn-avatar .avatar-activity.loading {
+	background: #333;
+}
+
+#sepiaFW-alwaysOn-info-box {
+	position: absolute;
+	bottom: 0;
+	font-size: 14px;
+	color: #ccc;
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: space-evenly;
+	align-items: center;
+	width: 100%;
+}
+#sepiaFW-alwaysOn-info-box > div {
+	padding: 4px;
+}

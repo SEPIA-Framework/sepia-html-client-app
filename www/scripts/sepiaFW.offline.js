@@ -13,6 +13,17 @@ function sepiaFW_build_offline(){
 		}
 		return action;
 	}
+	//Get an action for a CMD button
+	Offline.getCmdButtonAction = function(_cmd, _title, cmdIsText){
+		var _info = cmdIsText? "question" : "direct_cmd";
+		var action = {
+			type: "button_cmd", 
+			info: _info,
+			title: _title, 
+			cmd: _cmd
+		}
+		return action;
+	}
 	//Get the help button
 	Offline.getHelpButtonAction = function(){
 		var action = {

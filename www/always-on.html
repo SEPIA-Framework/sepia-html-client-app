@@ -1,0 +1,50 @@
+<div id='sepiaFW-frame-carousel' class="sepiaFW-inner-container sepiaFW-carousel">
+	<div class='sepiaFW-carousel-pane-container'>
+		<!-- Page 1 -->
+		<div id="sepiaFW-frame-page-1" class='sepiaFW-alwaysOn-page sepiaFW-frames-page sepiaFW-carousel-pane'>
+			<div id="sepiaFW-alwaysOn-view">
+				<div id="sepiaFW-alwaysOn-avatar" style="display: none;">
+					<div id="sepiaFW-alwaysOn-avatar-touch-area"></div>
+					<span class="avatar-eye left">
+						<span class="avatar-eyelid"></span>
+						<span class="avatar-iris">
+							<span class="avatar-pupil left"></span>
+						</span>
+					</span>
+					<span class="avatar-eye right">
+						<span class="avatar-eyelid"></span>
+						<span class="avatar-iris">
+							<span class="avatar-pupil right"></span>
+						</span>
+					</span>
+					<span class="avatar-mouth"></span>
+					<span class="avatar-activity"></span>
+					<div id="sepiaFW-alwaysOn-info-box">
+						<div id="sepiaFW-alwaysOn-clock"></div>
+						<div id="sepiaFW-alwaysOn-notifications"></div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+<div id="sepiaFW-frames-nav-bar" class='sepiaFW-alwaysOn-navbar sepiaFW-layer-header'>
+	<button id="sepiaFW-frames-close" class='entry sepiaFW-alwaysOn-navbar-entry'>
+		<i class="material-icons md-btn2">&#xE5CD;</i>
+	</button>
+	<!--
+	<button id="sepiaFW-frames-show-prev-page" class='entry sepiaFW-alwaysOn-navbar-entry'>
+		<i class="material-icons md-btn2">keyboard_arrow_left</i><span data-localize="back">back</span>
+	</button>
+	<button id="sepiaFW-frames-show-next-page" class='entry sepiaFW-alwaysOn-navbar-entry'>
+		<span data-localize="next">next</span><i class="material-icons md-btn2">keyboard_arrow_right</i>
+	</button>
+	<div id="sepiaFW-frames-nav-bar-page-indicator"><div>&nbsp;</div><div>&nbsp;</div></div>
+	-->
+	<div id="sepiaFW-frames-nav-bar-page-indicator"><div>&nbsp;</div></div>
+</div>
+<script>
+	$('[data-localize]').each(function(){
+		$(this).html(SepiaFW.local.g(this.dataset.localize));
+	});
+</script>

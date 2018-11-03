@@ -9,7 +9,7 @@ html {
 #sepiaFW-sC 	 { background-color: #883446; }
 #sepiaFW-sC2 { background-color: rgba(235, 235, 255, 0.95); 	}
 #sepiaFW-aC 	 { background-color: #eebcb4; 	}
-#sepiaFW-aC2 { background-color: rgba(160, 145, 153, 0.95); }
+#sepiaFW-aC2 { background-color: rgba(160, 145, 153, 1.00); }
 #sepiaFW-asC { background-color: #503040; 	}
 #sepiaFW-adC { background-color: gold; 	}
 
@@ -36,7 +36,7 @@ html {
 }
 
 .sepiaFW-menu {
-	background: rgba(160, 145, 153, 0.95);
+	background: rgba(160, 145, 153, 1.00);
 	color: #fff;
 }
 #sepiaFW-chat-menu {
@@ -68,6 +68,10 @@ html {
 	color: #2f3035;
 }
 */
+#sepiaFW-main-window .chat-buttons-area .my-view-custom-button {
+	background-color: #eebcb4;
+	color: #fff;
+}
 
 #sepiaFW-nav-label-note{
     border: 1px solid #eebcb4;

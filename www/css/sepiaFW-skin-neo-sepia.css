@@ -12,14 +12,14 @@ html {
 	}
 }
 
-#sepiaFW-pC 	 { background-color: #000000; } 						/* Primary color - used for status bar and browser theme as well */
-#sepiaFW-sC 	 { background-color: #16ABC3; }						/* Secondary color - should be in contrast to primary */
+#sepiaFW-pC  { background-color: #000000; } 					/* Primary color - used for status bar and browser theme as well */
+#sepiaFW-sC  { background-color: #16ABC3; }						/* Secondary color - should be in contrast to primary */
 #sepiaFW-sC2 { background-color: rgba(225, 225, 245, 0.96); }	/* Secondary color 2 - should be in contrast to 1 and 2 */
-#sepiaFW-aC 	 { background-color: rgb(186, 42, 42); }				/* Accent color 1 - e.g. used during listening in assistant button */
-#sepiaFW-aC2 { background-color: #4ec48f; }						/* Accent color 2 - e.g. used during speaking in assistant button */
-#sepiaFW-asC { background-color: #c4ff3e; }	/*#69d177;*/		/* Assistant color - the signature color of the assistant */
-#sepiaFW-adC { background-color: #ffeb3b; }						/* Await-dialog color - used during "wait for interaction" in assistant button */
-#sepiaFW-lC 	 { background-color: rgba(30, 30, 30, 0.50); }		/* Loading color - used during loading in assistant button */
+#sepiaFW-aC  { background-color: rgb(186, 42, 42); }			/* Accent color 1 - e.g. used during listening in assistant button */
+#sepiaFW-aC2 { background-color: #4ec48f; }							/* Accent color 2 - e.g. used during speaking in assistant button */
+#sepiaFW-asC { background-color: #CEFF1A; }	/*#c4ff3e, #69d177;*/	/* Assistant color - the signature color of the assistant */
+#sepiaFW-adC { background-color: #ffeb3b; }							/* Await-dialog color - used during "wait for interaction" in assistant button */
+#sepiaFW-lC  { background-color: rgba(30, 30, 30, 0.50); }		/* Loading color - used during loading in assistant button */
 
 #sepiaFW-login-box, #sepiaFW-nav-bar, #sepiaFW-chat-controls-form, #sepiaFW-chat-controls-right {
 	background: #000000;
@@ -68,20 +68,25 @@ html {
 
 .sepiaFW-menu {
 	/*background: rgba(206, 255, 26, 0.95);*/
-	background: rgba(225, 225, 245, 0.96);
-	color: #000;
+	background:#000;
+	color: #fff;
 }
 #sepiaFW-chat-controls-more-menu button {
+	background: #fff;
+	color: #000;
+}
+.sepiaFW-notouch-device #sepiaFW-chat-controls-more-menu button:hover {
+	background-color: #CEFF1A !important;
+	color: #000 !important;
+}
+#sepiaFW-chat-menu {
 	background: #000;
 	color: #fff;
 }
-#sepiaFW-chat-menu {
-	background: rgba(225, 225, 245, 1.00);
-	color: #000;
-}
 #sepiaFW-chat-menu button {
-	background: #000;
-	color: #c4ff3e;
+	/*background: rgba(255, 255, 255, 0.15);*/
+	background: #262626;
+	color: #CEFF1A;
 }
 .sepiaFW-notouch-device #sepiaFW-chat-menu button:hover {
     background-color: #fff !important;
@@ -90,14 +95,10 @@ html {
 #sepiaFW-chat-menu li {
 	background: rgba(255, 255, 255, 0.15);
 }
-.sepiaFW-notouch-device #sepiaFW-chat-controls-more-menu button:hover {
-	background-color: #fff !important;
-	color: #000 !important;
-}
 
 #sepiaFW-myEvents-buttons button,
 #sepiaFW-myEvents-buttons-replaced button {
-    background: #c4ff3e !important;
+    background: #CEFF1A !important;
 	color: #333 !important;
 }
 .sepiaFW-notouch-device #sepiaFW-myEvents-buttons button:hover {
@@ -109,7 +110,7 @@ html {
 	color: #000000;
 }
 .sepiaFW-notouch-device #sepiaFW-main-window .chat-buttons-area button:hover {
-	background: #c4ff3e;
+	background: #CEFF1A;
 	color: #333;
 }
 
@@ -138,7 +139,7 @@ html {
 	border-left-color: rgba(255, 255,255, 0.40);
 }
 #sepiaFW-chat-output article.chatAssistant {
-	background: #c4ff3e;
+	background: #CEFF1A;
 	color: #333;
 }
 #sepiaFW-chat-output article.chatAssistant b{
@@ -150,10 +151,10 @@ html {
 
 .sepiaFW-button {
 	background-color: #333;
-	color: #c4ff3e;
+	color: #CEFF1A;
 }
 .sepiaFW-notouch-device .sepiaFW-button:hover {
-	background-color: #c4ff3e;
+	background-color: #CEFF1A;
 	color: #333;
 }
 
@@ -168,7 +169,7 @@ html {
 	background: #000;
 }
 #sepiaFW-popup-message button {
-	background-color: #c4ff3e;
+	background-color: #CEFF1A;
 }
 
 /*----- cards ------*/
@@ -181,17 +182,22 @@ html {
 /*----- teachUI -----*/
 
 #sepiaFW-teachUI-nav-bar {
-    background: #16ABC3;
-    color: #fff;
+	/*color: #fff;
+	background: #16ABC3;*/
+	border-top: 1px solid #333;
+}
+#sepiaFW-teachUI-nav-bar button:hover {
+	color: #fff !important;
+    background-color: #000 !important;
 }
 #sepiaFW-teachUI-view {
     background: #000;
 }
 #sepiaFW-teachUI-view label {
-    color: #c4ff3e;
+    color: #CEFF1A;
 }
 #sepiaFW-teachUI-editor button, 
 #sepiaFW-teachUI-manager button {
-    background: #c4ff3e !important;
+    background: #CEFF1A !important;
     color: #333 !important;
 }
