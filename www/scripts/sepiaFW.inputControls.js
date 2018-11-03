@@ -58,8 +58,8 @@ function sepiaFW_build_input_controls() {
         $.each(getControllers(), function(i, gamepad){
             if (gamepad){
                 settingsAppendDebug(gamepad.index + ": " + gamepad.id + " with "
-                    + gamepad.buttons.length + " buttons and "
-                    + gamepad.axes.length + " axes.");
+                    + (gamepad.buttons? gamepad.buttons.length : "0") + " buttons and "
+                    + (gamepad.axes? gamepad.axes.length : "0") + " axes.");
             }
         });
         settingsAppendDebug("<b>Registered controllers:</b>");

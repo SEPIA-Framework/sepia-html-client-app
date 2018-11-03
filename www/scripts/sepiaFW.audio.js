@@ -33,6 +33,7 @@ function sepiaFW_build_audio(){
 	var lastAudioStream = 'sounds/empty.mp3';
 	var beforeLastAudioStream = 'sounds/empty.mp3';
 	var mainAudioIsOnHold = false;
+	var mainAudioStopRequested = false;
 	var orgVolume = 0.66;
 	var orgGain = 1.0;
 	var FADE_OUT_VOL = 0.05; 	//note: on some devices audio is actually stopped so this value does not apply
@@ -216,11 +217,12 @@ function sepiaFW_build_audio(){
 	AudioPlayer.stop = function (audioPlayer){
 		if (!audioPlayer) audioPlayer = player;
 		if (AudioPlayer.isPlaying){
-			audioPlayer.pause();
+			audioPlayer.pause(); 		//NOTE: possible race condition here if onPause callback triggers after fadeOutMain (then AudioPlayer.isPlaying will be true)
 		}
 		broadcastAudioFinished();
 		if (!audioPlayer.dataset.tts){
 			mainAudioIsOnHold = false;
+			mainAudioStopRequested = true;		//We try to prevent the race-condition with that (1)
 			if (gotPlayerAudioContext) playerGainNode.gain.value = orgGain;
 			else audioPlayer.volume = orgVolume;
 		}
@@ -231,7 +233,7 @@ function sepiaFW_build_audio(){
 		return mainAudioIsOnHold;
 	}
 	AudioPlayer.fadeOutMain = function(force){
-		if (AudioPlayer.isPlaying || force){
+		if ((AudioPlayer.isPlaying && !mainAudioStopRequested) || force){ 	//NOTE: this relys on successful onPause if "stop" was called before (see race cond. above)
 			if (SepiaFW.ui.isMobile && AudioPlayer.isPlaying && !mainAudioIsOnHold){
 				SepiaFW.debug.info('AUDIO: instant fadeOutMain');
 				player.pause(); 		//<-- try without broadcasting, is it save?
@@ -247,7 +249,9 @@ function sepiaFW_build_audio(){
 				playerFadeOut(1.0);
 			}
 			broadcastPlayerFadeOut();
-			mainAudioIsOnHold = true;
+			if (!mainAudioStopRequested){		//(if forced ..) We try to prevent the race-condition with that (2)
+				mainAudioIsOnHold = true;
+			}
 		}
 	}
 	AudioPlayer.fadeInMainIfOnHold = function(){
@@ -430,6 +434,7 @@ function sepiaFW_build_audio(){
 				broadcastAudioStarted();
 				AudioPlayer.fadeInMainIfOnHold();
 				mainAudioIsOnHold = false;
+				mainAudioStopRequested = false;
 			}else{
 				TTS.isSpeaking = true;
 			}
@@ -442,6 +447,7 @@ function sepiaFW_build_audio(){
 				audioOnEndFired = true;
 				if (!audioPlayer.dataset.tts){
 					AudioPlayer.isPlaying = false;
+					mainAudioStopRequested = false; //from here on we rely on AudioPlayer.isPlaying
 					broadcastAudioFinished();
 					//mainAudioIsOnHold = false; 	//<- set in stop method, here we might actually really want to stop-for-hold
 				}else{
@@ -464,6 +470,7 @@ function sepiaFW_build_audio(){
 			if (!audioPlayer.dataset.tts){
 				broadcastAudioError();
 				mainAudioIsOnHold = false;
+				mainAudioStopRequested = false;
 				AudioPlayer.isPlaying = false;
 			}else{
 				TTS.isSpeaking = false;
@@ -490,6 +497,7 @@ function sepiaFW_build_audio(){
 		AudioPlayer.stopAlarmSound(); 	//just to be sure
 		AudioPlayer.stop(player);
 		mainAudioIsOnHold = false; 		//<- we might restart this manually
+		mainAudioStopRequested = false;
 						
 		audioOnEndFired = false;
 		broadcastAudioRequested();

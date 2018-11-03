@@ -88,6 +88,26 @@ function sepiaFW_build_teach(){
 					optional : true
 				}]
 			},
+			music_radio : {
+				command : "music_radio",
+				name : "Open music stream",
+				parameters : [{
+					value : "radio_station",
+					name : "Radio station ..."
+				},{
+					value : "genre",
+					name : "or genre ...",
+					optional : true
+				},{
+					value : "url",
+					name : "or stream URL (requires station)",
+					optional : true
+				},{
+					value : "action",
+					name : "Action (on or off): ",
+					optional : true
+				}]
+			},
 			sentence_connect : {
 				command : "sentence_connect",
 				name : "Execute command(s)",
