@@ -6,6 +6,7 @@ function sepiaFW_build_ui(){
 	UI.version = "v0.14.0";
 	UI.JQ_RES_VIEW_IDS = "#sepiaFW-result-view, #sepiaFW-chat-output, #sepiaFW-my-view";			//a selector to get all result views e.g. $(UI.JQ_RES_VIEW_IDS).find(...)
 	UI.JQ_ALL_MAIN_VIEWS = "#sepiaFW-result-view, #sepiaFW-chat-output, #sepiaFW-my-view, #sepiaFW-teachUI-editor, #sepiaFW-teachUI-manager, #sepiaFW-frame-page-1, #sepiaFW-frame-page-2"; 	//TODO: frames can have more ...
+	UI.JQ_ALL_SETTINGS_VIEWS = ".sepiaFW-chat-menu-list-container";
 	UI.JQ_ALL_MAIN_CONTAINERS = "#sepiaFW-my-view, #sepiaFW-chat-output-container, #sepiaFW-result-view";
 	
 	UI.isCordova = ('cordova' in window);
@@ -39,16 +40,21 @@ function sepiaFW_build_ui(){
 		//fix scroll position on window resize to better place content on soft-keyboard appearance
 		if (UI.isAndroid && (windowSizeDifference < 0)){
 			setTimeout(function(){
-				$(UI.JQ_ALL_MAIN_VIEWS).each(function(){
+				$(UI.JQ_ALL_MAIN_VIEWS + ", " + UI.JQ_ALL_SETTINGS_VIEWS).each(function(){
 					this.scrollTop -= windowSizeDifference;
 				});
+				if (document.activeElement){
+					document.activeElement.scrollIntoView(true);
+				}
+				/*
 				var activeEle = $(document.activeElement);
 				if (activeEle.length > 0){
-					var scrollBox = activeEle.closest(UI.JQ_ALL_MAIN_VIEWS);
+					var scrollBox = activeEle.closest(UI.JQ_ALL_MAIN_VIEWS + ", " + UI.JQ_ALL_SETTINGS_VIEWS);
 					if (scrollBox && scrollBox.offset() && (scrollBox.offset().top > activeEle.offset().top)){
 						scrollBox[0].scrollTop -= (scrollBox.offset().top - activeEle.offset().top); 			//TODO: pull it a bit down like 8px or so
 					}
 				}
+				*/
 			},100);
 		}
 	}

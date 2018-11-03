@@ -305,6 +305,9 @@ function sepiaFW_build_speech(){
 		//Android with native ASR
 		if (SepiaFW.ui.isAndroid && Speech.asrEngine == "native"){
 			return false;
+		//iOS is quirky too
+		}else if (SepiaFW.ui.isIOS){
+			return false;
 		//Everything else
 		}else{
 			return true;

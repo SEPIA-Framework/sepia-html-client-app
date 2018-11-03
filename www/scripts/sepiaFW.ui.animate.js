@@ -32,6 +32,10 @@ function sepiaFW_build_animate(){
 			if (SepiaFW.audio){
 				SepiaFW.audio.fadeInMainIfOnHold();
 			}
+			//Avatar
+			if (SepiaFW.alwaysOn){
+				SepiaFW.alwaysOn.avatarIdle();
+			}
 		}
 		//hide extra input box
 		SepiaFW.ui.hideLiveSpeechInputBox();
@@ -40,11 +44,17 @@ function sepiaFW_build_animate(){
 		SepiaFW.ui.assistBtn.innerHTML = SepiaFW.ui.assistIconLoad;
 		SepiaFW.ui.assistBtnArea.style.backgroundColor = SepiaFW.ui.loadingColor;
 		$("#sepiaFW-assist-btn-orbiters").removeClass("sepiaFW-animation-pause");
+		if (SepiaFW.alwaysOn){
+			SepiaFW.alwaysOn.avatarLoading();
+		}
 	}
 	Animate.assistant.speaking = function(){
 		SepiaFW.ui.assistBtn.innerHTML = SepiaFW.ui.assistIconSpeak;
 		SepiaFW.ui.assistBtnArea.style.backgroundColor = SepiaFW.ui.accentColor2;
 		$("#sepiaFW-assist-btn-orbiters").removeClass("sepiaFW-animation-pause");
+		if (SepiaFW.alwaysOn){
+			SepiaFW.alwaysOn.avatarSpeaking();
+		}
 	}
 	Animate.assistant.listening = function(){
 		SepiaFW.ui.assistBtn.innerHTML = SepiaFW.ui.assistIconRec;
@@ -52,11 +62,17 @@ function sepiaFW_build_animate(){
 		$("#sepiaFW-assist-btn-orbiters").removeClass("sepiaFW-animation-pause");
 		//extra input box
 		SepiaFW.ui.showLiveSpeechInputBox();
+		if (SepiaFW.alwaysOn){
+			SepiaFW.alwaysOn.avatarListening();
+		}
 	}
 	Animate.assistant.awaitDialog = function(){
 		SepiaFW.ui.assistBtn.innerHTML = SepiaFW.ui.assistIconAwaitAnswer;
 		SepiaFW.ui.assistBtnArea.style.backgroundColor = SepiaFW.ui.awaitDialogColor;
 		$("#sepiaFW-assist-btn-orbiters").removeClass("sepiaFW-animation-pause");
+		if (SepiaFW.alwaysOn){
+			SepiaFW.alwaysOn.avatarAwaitingInput();
+		}
 	}
 	
 	//audio player animations

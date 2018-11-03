@@ -16,6 +16,15 @@ function sepiaFW_build_frames(){
 		onOpen = info.onOpen;
 		onClose = info.onClose;
 		onFinishSetup = info.onFinishSetup;
+		
+		//theme
+		if (info.theme && info.theme == "dark"){
+			$('#sepiaFW-frames-view').addClass('dark');
+			$('.sepiaFW-frames-page').addClass('dark');
+		}else{
+			$('#sepiaFW-frames-view').removeClass('dark');
+			$('.sepiaFW-frames-page').removeClass('dark');
+		}
 
 		if (isActive != info.pageUrl){
 			Frames.setup(info, function(){

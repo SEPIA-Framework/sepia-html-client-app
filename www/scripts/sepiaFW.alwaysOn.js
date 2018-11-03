@@ -3,19 +3,26 @@ function sepiaFW_build_always_on(){
     var AlwaysOn = {};
 
     //some states
+    AlwaysOn.isOpen = false;
     var mainWasFullscreenOpen = false;
     var mainWasVoiceDisabled = false;
+    var $activityArea = undefined;
+    var $avatarEyelid = undefined;
+    var $avatarMouth = undefined;
+    var avatarIsWaiting = false;
+    var avatarIsLoading = false;
 
     //some settings
     AlwaysOn.autoEnableVoice = true;
 
-    //Load always on screen
+    //Load always-on screen
     AlwaysOn.start = function(){
         SepiaFW.frames.open({ 
             pageUrl: "always-on.html",
             onFinishSetup: AlwaysOn.onFinishSetup,
             onOpen: AlwaysOn.onOpen,
-            onClose: AlwaysOn.onClose
+            onClose: AlwaysOn.onClose,
+            theme: "dark"
         });
     }
 
@@ -27,10 +34,12 @@ function sepiaFW_build_always_on(){
             AlwaysOn.onWakeup();
         });
         //mic on avatar click
-        $("#sepiaFW-alwaysOn-avatar-touch-area").off().on('click', function(){
-            var useConfirmationSound = SepiaFW.speech.shouldPlayConfirmation();
-            SepiaFW.ui.toggleMicButton(useConfirmationSound);
-        });
+        var micButton = document.getElementById("sepiaFW-alwaysOn-avatar-touch-area");
+        SepiaFW.ui.buildDefaultMicLogic(micButton);
+        //get some elements
+        $activityArea = $('#sepiaFW-alwaysOn-avatar').find('.avatar-activity');
+        $avatarEyelid = $("#sepiaFW-alwaysOn-avatar").find(".avatar-eyelid");
+        $avatarMouth = $("#sepiaFW-alwaysOn-avatar").find(".avatar-mouth");
     }
 
     //On open
@@ -58,6 +67,13 @@ function sepiaFW_build_always_on(){
                 SepiaFW.speech.enableVoice(skipStore);
             }
         }
+        AlwaysOn.isOpen = true;
+        //restore some states (only support loading and waiting right now)
+        if (avatarIsWaiting){
+            AlwaysOn.avatarAwaitingInput();
+        }else if (avatarIsLoading){
+            AlwaysOn.avatarLoading();
+        }
     }
     var openFadeTimer;    
 
@@ -80,9 +96,10 @@ function sepiaFW_build_always_on(){
             if (mainWasVoiceDisabled) SepiaFW.speech.disableVoice(skipStore);
             else SepiaFW.speech.enableVoice(skipStore);
         }
+        AlwaysOn.isOpen = false;
     }
 
-    //Wake controls
+    //Animations and wake controls
     AlwaysOn.onWakeup = function(){
         //restore nav-bar and restart timer
         fadeOutNavbarControlsAfterDelay(5000);
@@ -92,13 +109,53 @@ function sepiaFW_build_always_on(){
         showLocalTimeAndFade();
         showNotificationsAndFade();
     }
-
-    //Avatar animation controls
+    AlwaysOn.avatarIdle = function(){
+        //reset stuff
+        avatarIsWaiting = false;
+        avatarIsLoading = false;
+        if ($activityArea){
+            //restore avatar to wake (because action will follow)
+            wakeAvatar();
+            $activityArea.removeClass('loading');
+            $activityArea.removeClass('listening');
+            $activityArea.removeClass('speaking');
+            $activityArea.removeClass('waiting');
+        }
+    }
+    AlwaysOn.avatarLoading = function(){
+        AlwaysOn.avatarIdle();
+        avatarIsLoading = true;
+        if ($activityArea){
+            $activityArea.addClass('loading');
+        }
+    }
+    AlwaysOn.avatarSpeaking = function(){
+        AlwaysOn.avatarIdle();
+        if ($activityArea){
+            $activityArea.addClass('speaking');
+        }
+    }
+    AlwaysOn.avatarListening = function(){
+        AlwaysOn.avatarIdle();
+        if ($activityArea){
+            $activityArea.addClass('listening');
+        }
+    }
+    AlwaysOn.avatarAwaitingInput = function(){
+        AlwaysOn.avatarIdle();
+        avatarIsWaiting = true;
+        if ($activityArea){
+            $activityArea.addClass('waiting');
+        }
+    }
+    //States
     function wakeAvatar(){
-        $("#sepiaFW-alwaysOn-avatar").find(".avatar-eyelid").removeClass('sleep');
+        $avatarEyelid.removeClass('sleep');
+        $avatarMouth.removeClass('sleep');
     }
     function makeAvatarSleepy(){
-        $("#sepiaFW-alwaysOn-avatar").find(".avatar-eyelid").addClass('sleep');
+        $avatarEyelid.addClass('sleep');
+        $avatarMouth.addClass('sleep');
     }
 
     //Control screen sleep on mobile

@@ -1,0 +1,42 @@
+<div id='sepiaFW-frame-carousel' class="sepiaFW-inner-container sepiaFW-carousel">
+	<div class='sepiaFW-carousel-pane-container'>
+		<!-- Page 1 -->
+		<div id="sepiaFW-frame-page-1" class='sepiaFW-frames-page sepiaFW-carousel-pane'>
+			<h3>Controllers and Hotkeys</h3>
+			<p>Note: Buttons work everywhere, hotkeys only work in Always-On mode.</p>
+			<div style="display: flex; flex-wrap: wrap; justify-content: center;">
+				<p style="width:100%;">Define hotkeys:</p>
+				<button id="SepiaFW-hotkeys-define-mic">Toggle microphone</button>
+				<button id="SepiaFW-hotkeys-define-back">Back</button>
+				<p style="width:100%;">Define buttons:</p>
+				<button id="SepiaFW-buttons-define-mic">Toggle microphone</button>
+				<button id="SepiaFW-buttons-define-back">Back</button>
+				<p style="width:100%;">Settings</p>
+				<button id="SepiaFW-input-controls-store">Store settings</button>
+				<button id="SepiaFW-input-controls-clear">Clear settings</button>
+			</div>
+			<div id="SepiaFW-input-controls-debug" style="overflow-y: auto; white-space: pre-wrap;"></div>
+		</div>
+		<!-- Page 2 -->
+		<!--<div id="sepiaFW-frame-page-2" class='sepiaFW-frames-page sepiaFW-carousel-pane'>
+			Page 2
+		</div>-->
+	</div>
+</div>
+<div id="sepiaFW-frames-nav-bar" class='sepiaFW-layer-header'>
+	<button id="sepiaFW-frames-close" class='entry'>
+		<i class="material-icons md-btn2">&#xE5CD;</i>
+	</button>
+	<!--<button id="sepiaFW-frames-show-prev-page" class='entry'>
+		<i class="material-icons md-btn2">keyboard_arrow_left</i><span data-localize="back">back</span>
+	</button>
+	<button id="sepiaFW-frames-show-next-page" class='entry'>
+		<span data-localize="next">next</span><i class="material-icons md-btn2">keyboard_arrow_right</i>
+	</button>-->
+	<div id="sepiaFW-frames-nav-bar-page-indicator"><div>&nbsp;</div></div>
+</div>
+<script>
+	$('[data-localize]').each(function(){
+		$(this).html(SepiaFW.local.g(this.dataset.localize));
+	});
+</script>
