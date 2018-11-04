@@ -548,6 +548,13 @@ body {
 #sepiaFW-main-window .chat-buttons-area button {
 	flex: 1 0 auto;
 }
+#sepiaFW-chat-output .chat-buttons-area {
+	justify-content: flex-start;
+}
+#sepiaFW-chat-output .chat-buttons-area button {
+	flex: 0 0 auto;
+}
+/*#sepiaFW-chat-output .chat-buttons-area button:first-of-type:last-of-type {}*/
 #sepiaFW-main-window .chat-buttons-area .my-view-custom-button {
     flex-direction: column;
     justify-content: center;

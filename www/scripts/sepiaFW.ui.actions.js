@@ -1,6 +1,44 @@
 //ACTIONS
 function sepiaFW_build_ui_actions(){
 	var Actions = {};
+
+	//Simple delay queue that waits for next idle state - NOTE: don't mistake this for 'command queue' (client)
+	//Executes all functions in next idle state so MAKE SURE! they don't interfere with each other!
+	var delayQueue = {};
+	var delayId = 0;
+	Actions.delayFunctionUntilIdle = function(_fun, _idleState){
+		delayId++;
+		if (delayId > 64000) delayId = 0;
+		if (!_idleState) _idleState = "any"; 		//could be: unknown, ttsFinished, dialogFinished, asrFinished, anyButAsr
+		delayQueue[delayId] = {
+			fun: _fun,
+			idleState: _idleState,
+			id: delayId
+		};
+	}
+	Actions.executeDelayedFunctionsAndRemove = function(stateFilter){
+		var cleanUpIds = [];
+		$.each(delayQueue, function(i, queueData){
+			//console.log("delayed call: " + JSON.stringify(queueData)); 		//DEBUG
+			if (!stateFilter 
+				|| queueData.idleState == "any" 
+				|| (queueData.idleState == stateFilter)
+				|| (queueData.idleState == "anyButAsr" && stateFilter != "asrFinished")){
+				queueData.fun();
+				cleanUpIds.push(queueData.id);
+			}
+		});
+		for (var i=0; i<cleanUpIds.length; i++){
+			delete delayQueue[cleanUpIds[i]];
+		}
+	}
+	Actions.getDelayQueueSize = function(){
+		//console.log('DelayQueue size: ' + delayQueue.length); 		//DEBUG
+		return Object.keys(delayQueue).length;
+	}
+	Actions.clearDelayQueue = function(){
+		delayQueue = {};
+	}
 	
 	//note: 'action' is 'actionInfo[i]'
 	
@@ -56,7 +94,7 @@ function sepiaFW_build_ui_actions(){
 		if (sender) action.sender = sender;
 		funBtn.setAttribute("data-sender", action.sender);
 		SepiaFW.ui.onclick(funBtn, function(){
-			action.fun();
+			action.fun(funBtn);
 		}, true);
 		funBtn.innerHTML = action.title;
 		parentBlock.appendChild(funBtn);
@@ -127,7 +165,7 @@ function sepiaFW_build_ui_actions(){
 		}
 	}
 	
-	//QUEUE CMDs
+	//QUEUE CMDs - Note: these commands are executed in idle state with "openCMD" (so they have to support this)
 	Actions.queueCMD = function(action){
 		if (SepiaFW.client){
 			SepiaFW.client.queueCommand(action);
@@ -164,23 +202,35 @@ function sepiaFW_build_ui_actions(){
 	}
 	
 	//PLAY AUDIO STREAM
-	Actions.playAudioURL = function(action){
+	Actions.playAudioURL = function(action, triggeredViaButton){
 		if (SepiaFW.audio){
-			if (SepiaFW.speech && (SepiaFW.speech.isSpeaking() || SepiaFW.speech.isWaitingForSpeech() )){	//its starting to get messy here with all the exceptions, we need a proper event queue ...
+			if (SepiaFW.speech && (SepiaFW.speech.isSpeaking() || SepiaFW.speech.isWaitingForSpeech())){	//its starting to get messy here with all the exceptions, we need a proper event queue ...
 				//do something to delay start?
-			}else{
-				SepiaFW.audio.fadeOutMain(true); 		//<-- to start smoothly
 			}
-			SepiaFW.audio.setPlayerTitle(action.audio_title, '');
-			SepiaFW.audio.playURL(action.audio_url, '');//, onStartCallback, onEndCallback, onErrorCallback)
+			if (!triggeredViaButton){
+				var idleState = "anyButAsr";
+				Actions.delayFunctionUntilIdle(function(){
+					playAction(action);
+				}, idleState);
+			}else{
+				playAction(action);
+			}
 		}else{
 			SepiaFW.debug.info("Action: type 'play_audio_stream' is not supported yet.");
 		}
+	}
+	function playAction(action){
+		SepiaFW.audio.playerSetVolumeTemporary(1.0); 		//<-- to start smoothly
+		SepiaFW.audio.setPlayerTitle(action.audio_title, '');
+		SepiaFW.audio.playURL(action.audio_url, '', function(){
+			SepiaFW.audio.playerFadeToOriginalVolume();
+		});//, onEndCallback, onErrorCallback)
 	}
 	//STOP AUDIO STREAM
 	Actions.stopAudio = function(action){
 		if (SepiaFW.audio){
 			SepiaFW.audio.stop();
+			//SepiaFW.debug.info("Action: type 'stop_audio_stream'.");
 		}else{
 			SepiaFW.debug.info("Action: type 'stop_audio_stream' is not supported yet.");
 		}
@@ -382,9 +432,20 @@ function sepiaFW_build_ui_actions(){
 					}else if (type === 'open_url'){
 						Actions.openURL(data.actionInfo[i], true);
 						
-					//Queue CMD
+					//Queue CMD - Note: these commands are executed in idle state with "openCMD" (so they have to support this)
 					}else if (type === 'queue_cmd'){
 						Actions.queueCMD(data.actionInfo[i]);
+
+					//Show dialog abort button
+					}else if (type === 'show_abort'){
+						var title = SepiaFW.local.g('abort');
+						//var abortAction = SepiaFW.offline.getCmdButtonAction("abort", title, false);
+						//Actions.addButtonCMD(abortAction, sender, aButtonsArea);
+						var abortAction = SepiaFW.offline.getCustomFunctionButtonAction(function(btn){
+							SepiaFW.ui.resetMicButton();
+							$(btn).fadeOut(300, function(){ $(btn).remove(); });
+						}, title);
+						Actions.addButtonCustomFunction(abortAction, sender, aButtonsArea);
 					
 					//Audio stream
 					}else if (type === 'play_audio_stream'){

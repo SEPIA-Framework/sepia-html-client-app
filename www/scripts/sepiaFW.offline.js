@@ -24,6 +24,15 @@ function sepiaFW_build_offline(){
 		}
 		return action;
 	}
+	//Get custom function action 
+	Offline.getCustomFunctionButtonAction = function(_fun, _title){
+		var action = {
+			type: "button_custom_fun", 
+			title: _title, 
+			fun: _fun
+		}
+		return action;
+	}
 	//Get the help button
 	Offline.getHelpButtonAction = function(){
 		var action = {
