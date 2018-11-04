@@ -315,9 +315,7 @@ function sepiaFW_build_ui_build(){
 			if (buttonEle){
 				$(buttonEle).off();
 				SepiaFW.ui.longPressShortPressDoubleTap(buttonEle, function(){
-					SepiaFW.speech.reset();
-					SepiaFW.assistant.resetState();
-					SepiaFW.client.clearCommandQueue();
+					SepiaFW.ui.resetMicButton();
 					//custom
 					if (customCallbackLong) customCallbackLong();
 				},'',function(){
@@ -356,6 +354,12 @@ function sepiaFW_build_ui_build(){
 			}else{
 				SepiaFW.speech.toggleRecognition(SepiaFW.client.asrCallbackFinal, SepiaFW.client.asrCallbackInterim, SepiaFW.client.asrErrorCallback, SepiaFW.client.asrLogCallback);
 			}
+		}
+		//Reset microphone button
+		SepiaFW.ui.resetMicButton = function(){
+			SepiaFW.speech.reset();
+			SepiaFW.assistant.resetState();
+			SepiaFW.client.clearCommandQueue();
 		}
 	}
 	

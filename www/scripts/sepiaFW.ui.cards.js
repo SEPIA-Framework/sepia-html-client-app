@@ -403,7 +403,7 @@ function sepiaFW_build_ui_cards(){
 				var action = {};
 				action.audio_url = station.streamURL;
 				action.audio_title = station.name;
-				SepiaFW.ui.actions.playAudioURL(action);
+				SepiaFW.ui.actions.playAudioURL(action, true); 	//true: action from button
 			});
 		});
 		

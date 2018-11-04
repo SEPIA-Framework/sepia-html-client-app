@@ -34,7 +34,7 @@ function sepiaFW_build_audio(){
 	var beforeLastAudioStream = 'sounds/empty.mp3';
 	var mainAudioIsOnHold = false;
 	var mainAudioStopRequested = false;
-	var orgVolume = 0.66;
+	var orgVolume = 1.0;
 	var orgGain = 1.0;
 	var FADE_OUT_VOL = 0.05; 	//note: on some devices audio is actually stopped so this value does not apply
 
@@ -233,20 +233,21 @@ function sepiaFW_build_audio(){
 		return mainAudioIsOnHold;
 	}
 	AudioPlayer.fadeOutMain = function(force){
+		//we only trigger this when audio is actually playing ...
 		if ((AudioPlayer.isPlaying && !mainAudioStopRequested) || force){ 	//NOTE: this relys on successful onPause if "stop" was called before (see race cond. above)
 			if (SepiaFW.ui.isMobile && AudioPlayer.isPlaying && !mainAudioIsOnHold){
 				SepiaFW.debug.info('AUDIO: instant fadeOutMain');
 				player.pause(); 		//<-- try without broadcasting, is it save?
 			}
 			if (!gotPlayerAudioContext){
-				orgVolume = (player.volume < orgVolume)? orgVolume : player.volume;
+				//orgVolume = (player.volume < orgVolume)? orgVolume : player.volume;
 				SepiaFW.debug.info('AUDIO: fadeOutMain orgVol=' + orgVolume);
-				$(player).stop();
+				$(player).stop(); 	//note: this is an animation stop
 				$(player).animate({volume: FADE_OUT_VOL}, 300);
 			}else{
-				orgGain = (playerGainNode.gain.value < orgGain)? orgGain : playerGainNode.gain.value;
+				//orgGain = (playerGainNode.gain.value < orgGain)? orgGain : playerGainNode.gain.value;
 				SepiaFW.debug.info('AUDIO: fadeOutMain orgVol=' + orgGain);
-				playerFadeOut(1.0);
+				playerFadeOut(1.0); 	//note: argument is speed of fader
 			}
 			broadcastPlayerFadeOut();
 			if (!mainAudioStopRequested){		//(if forced ..) We try to prevent the race-condition with that (2)
@@ -256,24 +257,23 @@ function sepiaFW_build_audio(){
 	}
 	AudioPlayer.fadeInMainIfOnHold = function(){
 		if (mainAudioIsOnHold){
-			if (SepiaFW.ui.isMobile && !AudioPlayer.isPlaying){
-				SepiaFW.debug.info('AUDIO: fadeInMain - restore play status');
-				SepiaFW.audio.playURL('', ''); 	//<-- potentially looses callBack info here, but since this is stopped
-			}
-			if (!gotPlayerAudioContext){
-				SepiaFW.debug.info('AUDIO: fadeInMain - restore vol=' + orgVolume);
-				$(player).stop();
-				$(player).animate({volume: orgVolume}, 3000);
-			}else{
-				SepiaFW.debug.info('AUDIO: fadeInMain - restore vol=' + orgGain);
-				playerFadeIn(10.0);
-			}
-			broadcastPlayerFadeIn();
+			//fade to original volume
+			AudioPlayer.playerFadeToOriginalVolume();
 			mainAudioIsOnHold = false;
-		}
+		}/*else{
+			//just restore volume
+			if (!gotPlayerAudioContext){
+				SepiaFW.debug.info('AUDIO: fadeInMain - no play just reset vol=' + orgVolume);
+				playerSetVolume(orgVolume * 10.0);
+			}else{
+				SepiaFW.debug.info('AUDIO: fadeInMain - no play just reset vol=' + orgGain);
+				playerSetVolume(orgGain * 10.0);
+			}
+		}*/
 	}
 	
 	//player specials
+
 	function playerGetVolume(){
 		if (!gotPlayerAudioContext){
 			return Math.round(10.0 * player.volume);
@@ -281,22 +281,55 @@ function sepiaFW_build_audio(){
 			return Math.round(10.0 * playerGainNode.gain.value);
 		}
 	}
+	AudioPlayer.playerGetVolume = playerGetVolume;
+
 	function playerSetVolume(newVol){
-		var vol = 0.5;
-		if (newVol > 10.0) vol = 10.0;
-		else if (newVol < 0.0) vol = 0.0;
-		else vol = newVol;
-		var setVol = (vol/10.0);
+		var setVol = getValidVolume(newVol)/10.0;
 		if (!gotPlayerAudioContext){
 			player.volume = setVol;
-			orgVolume = player.volume;
+			orgVolume = setVol;
 		}else{
 			playerGainNode.gain.value = setVol;
-			orgGain = playerGainNode.gain.value;
+			orgGain = setVol;
 		}
-		$('#sepiaFW-audio-ctrls-vol').html(vol);
-		SepiaFW.debug.info('AUDIO: volume set to ' + setVol);
+		$('#sepiaFW-audio-ctrls-vol').html(Math.floor(setVol*10.0));
+		SepiaFW.debug.info('AUDIO: volume set (and stored) to ' + setVol);
 		broadcastPlayerVolumeSet();
+	}
+	function playerSetVolumeTemporary(newVol){
+		var setVol = getValidVolume(newVol)/10.0;
+		if (!gotPlayerAudioContext){
+			player.volume = setVol;
+		}else{
+			playerGainNode.gain.value = setVol;
+		}
+		SepiaFW.debug.info('AUDIO: volume set temporary (till next fadeIn) to ' + setVol);
+	}
+	function getValidVolume(volumeIn){
+		var vol = 0.5;
+		if (volumeIn > 10.0) vol = 10.0;
+		else if (volumeIn < 0.0) vol = 0.0;
+		else vol = volumeIn;
+		return vol;
+	}
+	AudioPlayer.playerSetVolume = playerSetVolume;
+	AudioPlayer.playerSetVolumeTemporary = playerSetVolumeTemporary;
+
+	AudioPlayer.playerFadeToOriginalVolume = function(){
+		//fade to original volume
+		if (SepiaFW.ui.isMobile && !AudioPlayer.isPlaying){
+			SepiaFW.debug.info('AUDIO: fadeToOriginal - restore play status');
+			SepiaFW.audio.playURL('', ''); 	//<-- potentially looses callBack info here, but since this is stopped
+		}
+		if (!gotPlayerAudioContext){
+			SepiaFW.debug.info('AUDIO: fadeToOriginal - restore vol=' + orgVolume);
+			$(player).stop(); 	//note: this is an animation stop
+			$(player).animate({volume: orgVolume}, 3000);
+		}else{
+			SepiaFW.debug.info('AUDIO: fadeToOriginal - restore vol=' + orgGain);
+			playerFadeIn(10.0); 	//note: argument is speed of fader
+		}
+		broadcastPlayerFadeIn();
 	}
 	function playerFadeOut(slowness){
 		clearInterval(playerGainFader);
@@ -439,7 +472,7 @@ function sepiaFW_build_audio(){
 				TTS.isSpeaking = true;
 			}
 			//callback
-			if (onStartCallback) onStartCallback;
+			if (onStartCallback) onStartCallback();
 		};
 		audioPlayer.onpause = function() {
 			if (!audioOnEndFired){
@@ -466,6 +499,7 @@ function sepiaFW_build_audio(){
 		audioPlayer.onerror = function(error) {
 			SepiaFW.debug.info("AUDIO: error occured! - code: " + audioPlayer.error.code);			//debug
 			if (audioPlayer.error.code === 4){
+				SepiaFW.ui.showInfo('Cannot play the selected audio stream. Sorry!');		//TODO: localize
 			}
 			if (!audioPlayer.dataset.tts){
 				broadcastAudioError();

@@ -17,19 +17,30 @@ function sepiaFW_build_animate(){
 	
 	//assistant animations
 	
-	Animate.assistant.idle = function(event){
-		SepiaFW.debug.info('Animate.idle, source: ' + ((event)? event : "unknown")); 		//DEBUG
+	Animate.assistant.idle = function(source){
+		if (!source) source = "unknown";
+		SepiaFW.debug.info('Animate.idle, source: ' + source); 		//DEBUG
 		if (SepiaFW.assistant && SepiaFW.assistant.isWaitingForDialog){
 			Animate.assistant.awaitDialog();
 		}else if (SepiaFW.ui.actions && SepiaFW.client.getCommandQueueSize() > 0){
 			Animate.assistant.loading();
+			//get next command form commandQueue
 			var action = SepiaFW.client.getAndRemoveNextCommandInQueue();
 			SepiaFW.ui.actions.openCMD(action);
 		}else{
+			//get all functions from delayQueue
+			if (SepiaFW.ui.actions && SepiaFW.ui.actions.getDelayQueueSize() > 0){
+				if (source == "asrFinished"){
+					SepiaFW.ui.actions.executeDelayedFunctionsAndRemove(source); //only after-asr (or any) state 
+				}else{
+					SepiaFW.ui.actions.executeDelayedFunctionsAndRemove(); 		 //no state filters
+				}
+			}
+			//reset state
 			SepiaFW.ui.assistBtn.innerHTML = (SepiaFW.speech.isAsrSupported)? SepiaFW.ui.assistIconIdle : SepiaFW.ui.assistIconIdleNoAsr;
 			SepiaFW.ui.assistBtnArea.style.backgroundColor = SepiaFW.ui.micBackgroundColor;
 			$("#sepiaFW-assist-btn-orbiters").addClass("sepiaFW-animation-pause");
-			if (SepiaFW.audio){
+			if (SepiaFW.audio && (source != "asrFinished")){
 				SepiaFW.audio.fadeInMainIfOnHold();
 			}
 			//Avatar

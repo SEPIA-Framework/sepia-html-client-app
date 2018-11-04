@@ -44,7 +44,7 @@ function sepiaFW_build_ui(){
 					this.scrollTop -= windowSizeDifference;
 				});
 				if (document.activeElement){
-					document.activeElement.scrollIntoView(true);
+					document.activeElement.scrollIntoView(false);
 				}
 				/*
 				var activeEle = $(document.activeElement);
