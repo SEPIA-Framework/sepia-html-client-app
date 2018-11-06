@@ -364,10 +364,18 @@ function sepiaFW_build_always_on(){
         SepiaFW.debug.log("BatteryStatus - not listening to events.");
     }
 
+    var isFreshBatteryRead = true;
     function readBattery(batt) {
         if (battery == undefined){
             battery = batt;
             batteryStatusListen();
+        }
+        if (!batt.level && isFreshBatteryRead){
+            //This is an iOS error. Only way to fix it seems to be a reset :-/
+            isFreshBatteryRead = false;
+            batteryStatusDeactivate();
+            navigator.getBattery().then(readBattery);
+            return;
         }
     
         var previousLevel = AlwaysOn.batteryLevel;

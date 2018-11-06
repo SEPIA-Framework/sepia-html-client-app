@@ -19,9 +19,11 @@ function sepiaFW_build_frames(){
 		
 		//theme
 		if (info.theme && info.theme == "dark"){
+			$('html').addClass('dark');
 			$('#sepiaFW-frames-view').addClass('dark');
 			$('.sepiaFW-frames-page').addClass('dark');
 		}else{
+			$('html').removeClass('dark');
 			$('#sepiaFW-frames-view').removeClass('dark');
 			$('.sepiaFW-frames-page').removeClass('dark');
 		}
@@ -44,6 +46,9 @@ function sepiaFW_build_frames(){
 		if(onOpen) onOpen();
 	}
 	Frames.close = function(){
+		//design resets (global changes)
+		$('html').removeClass('dark');
+		//close
 		$('#sepiaFW-frames-view').slideUp(300);
 		Frames.isOpen = false;
 		SepiaFW.ui.switchSwipeBars();
