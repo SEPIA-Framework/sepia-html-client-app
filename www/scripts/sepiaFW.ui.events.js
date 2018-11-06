@@ -633,6 +633,12 @@ function sepiaFW_build_events(){
 		}else{
 			SepiaFW.debug.err("Alarm: Audio CANNOT be played, SepiaFW.audio is missing!");
 		}
+		//add missed message
+		if (!SepiaFW.ui.isVisible() || 
+			(SepiaFW.alwaysOn && SepiaFW.alwaysOn.isOpen)
+		){
+			SepiaFW.ui.addMissedMessage();
+		}
 	}
 	
 	//------------- other notifications --------------

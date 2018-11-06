@@ -272,7 +272,19 @@ function sepiaFW_build_ui(){
 		}
 	}
 	UI.showAndClearMissedMessages = function(){
-		UI.closeAllMenus();
+		//close teach UI
+		if (SepiaFW.teach && SepiaFW.teach.isOpen){
+			SepiaFW.teach.closeUI();
+		}
+		//close frames
+		if (SepiaFW.frames && SepiaFW.frames.isOpen){
+			SepiaFW.frames.close();
+		}
+		//close open menus
+		if (UI.getOpenMenus().length > 0){
+			UI.closeAllMenus();
+		}
+		//UI.closeAllMenus();
 		UI.moc.showPane(1);
 		UI.clearMissedMessages();
 	}
@@ -399,6 +411,15 @@ function sepiaFW_build_ui(){
 			SepiaFW.client.allowBackgroundConnection = SepiaFW.data.get('allowBackgroundConnection');
 			if (typeof SepiaFW.client.allowBackgroundConnection == 'undefined') SepiaFW.client.allowBackgroundConnection = false;
 			SepiaFW.debug.info("Background connections are " + ((SepiaFW.client.allowBackgroundConnection)? "ALLOWED" : "NOT ALLOWED"));
+		}
+		//Allow power status tracking (e.g. power plugIn event)
+		if (SepiaFW.alwaysOn){
+			SepiaFW.alwaysOn.trackPowerStatus = SepiaFW.data.get('trackPowerStatus');
+			if (typeof SepiaFW.alwaysOn.trackPowerStatus == 'undefined') SepiaFW.alwaysOn.trackPowerStatus = false;
+			if (SepiaFW.alwaysOn.trackPowerStatus){
+				SepiaFW.alwaysOn.setupBatteryStatus();
+			}
+			SepiaFW.debug.info("Power-status tracking is " + ((SepiaFW.alwaysOn.trackPowerStatus)? "ALLOWED" : "NOT ALLOWED"));
 		}
 		//Gamepad support
 		if (SepiaFW.inputControls){
@@ -1250,7 +1271,11 @@ function sepiaFW_build_ui(){
 			UI.insertEle(target, entryData);
 			UI.scrollToBottom(target);
 			//check if we should show the missed message note bubble
-			if (!beSilent && (!UI.isVisible() || (UI.moc && UI.moc.getCurrentPane() !== 1))){
+			if (!beSilent && (
+				!UI.isVisible() || 
+				(UI.moc && UI.moc.getCurrentPane() !== 1) ||
+				(SepiaFW.alwaysOn && SepiaFW.alwaysOn.isOpen)
+			)){
 				UI.addMissedMessage();
 			}
 		}else if (paneNbr == 0){

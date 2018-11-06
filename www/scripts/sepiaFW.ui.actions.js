@@ -264,7 +264,9 @@ function sepiaFW_build_ui_actions(){
 				//remove event
 				SepiaFW.events.removeTimeEvent(Timer.name);
 				//clear DOM?
-				$(SepiaFW.ui.JQ_RES_VIEW_IDS).find('[data-id="' + Timer.data.eventId + '"]').remove();
+				$timerElements = $(SepiaFW.ui.JQ_RES_VIEW_IDS).find('[data-id="' + Timer.data.eventId + '"]');
+				$timerElements.closest('.sepiaFW-cards-flexSize-container.oneElement').remove();
+				$timerElements.remove();
 			}
 			
 		}else{
@@ -459,14 +461,18 @@ function sepiaFW_build_ui_actions(){
 					
 					//Time events - TODO: type should be more general like "timeEvent"
 					}else if (type === 'timer' || type === 'alarm' || type === 'timeEvent'){
-						if (data.actionInfo[i].eleType === SepiaFW.events.TIMER){
-							Actions.timerAndAlarm(data.actionInfo[i], parentBlock);
-						}else if (data.actionInfo[i].eleType === SepiaFW.events.ALARM){
-							Actions.timerAndAlarm(data.actionInfo[i], parentBlock);
+						var actionInfo = data.actionInfo[i];
+						if (actionInfo.eleType === SepiaFW.events.TIMER){
+							Actions.timerAndAlarm(actionInfo, parentBlock);
+						}else if (actionInfo.eleType === SepiaFW.events.ALARM){
+							Actions.timerAndAlarm(actionInfo, parentBlock);
+						}else if (actionInfo.info === "remove"){
+							Actions.timerAndAlarm(actionInfo, parentBlock);
 						}else{
-							SepiaFW.debug.info('UNSUPPORTED ACTION (timeEvent): ' + JSON.stringify(data.actionInfo[i]));
+							SepiaFW.debug.info('UNSUPPORTED ACTION (timeEvent): ' + JSON.stringify(actionInfo));
 						}
 					
+					//UNKNOWN
 					}else{
 						SepiaFW.debug.info('UNSUPPORTED ACTION: ' + JSON.stringify(data.actionInfo[i]));
 					}
