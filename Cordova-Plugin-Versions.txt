@@ -1,0 +1,23 @@
+Android (tested October 2018)
+-----------------------------
+cordova version 7.1.0
+cordova platform version android@6.4.0
+cordova-android-support-gradle-release		version="1.4.4"
+cordova-custom-config    					version="5.0.2"
+cordova-plugin-badge       					version="0.8.7"
+cordova-plugin-cache-clear 					version="1.3.7"
+cordova-plugin-compat	 					version="1.2.0"
+cordova-plugin-device		    			version="2.0.2"
+cordova-plugin-file			      			version="6.0.1"
+cordova-plugin-geolocation		      		version="4.0.1"
+cordova-plugin-inappbrowser		      		version="1.7.1" --- customized
+cordova-plugin-local-notification        	version="0.9.0-beta.2"
+cordova-plugin-nativestorage				version="2.3.2"
+cordova-plugin-splashscreen		      		version="5.0.2"
+cordova-plugin-statusbar	    			version="2.4.2"
+cordova-plugin-tts							version="0.2.3"
+cordova-plugin-whitelist		      		version="1.3.3"
+cordova-universal-links-plugin 				version="1.2.1"
+es6-promise-plugin			  				version="4.2.2"
+org.apache.cordova.speech.speechrecognition		version="0.1.2"	--- customized
+phonegap-plugin-media-stream 				version="1.2.1"

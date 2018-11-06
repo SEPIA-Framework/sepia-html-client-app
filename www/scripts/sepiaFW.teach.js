@@ -104,7 +104,7 @@ function sepiaFW_build_teach(){
 					optional : true
 				},{
 					value : "action",
-					name : "Action (on or off): ",
+					name : "Action (&lt;on&gt; or &lt;off&gt;): ",
 					optional : true
 				}]
 			},

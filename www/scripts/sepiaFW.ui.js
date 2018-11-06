@@ -44,7 +44,7 @@ function sepiaFW_build_ui(){
 					this.scrollTop -= windowSizeDifference;
 				});
 				if (document.activeElement){
-					document.activeElement.scrollIntoView(false);
+					document.activeElement.scrollIntoView({block: 'center'}); 	//true: is ok but right at the top edge, false: covered by controls
 				}
 				/*
 				var activeEle = $(document.activeElement);

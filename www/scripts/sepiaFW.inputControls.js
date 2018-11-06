@@ -31,7 +31,7 @@ function sepiaFW_build_input_controls() {
         $('#SepiaFW-hotkeys-define-mic').off().on('click', function(){
             InputControls.defineHotkeyFunction(toggleMicrophone);
         });
-        $('#SepiaFW-buttons-define-back').off().on('click', function(){
+        $('#SepiaFW-hotkeys-define-back').off().on('click', function(){
             InputControls.defineHotkeyFunction(backButton);
         });
         //Buttons for button mappings
@@ -339,10 +339,14 @@ function sepiaFW_build_input_controls() {
 
     //Define a new button action
     InputControls.defineButtonFunction = function(newAction){
-        defineNewButtonAction = true;
-        newButtonAction = newAction;
-        settingsAppendDebug("Press a button to assign it to: " + newAction.name);
-        //set up to be triggered on next scan loop ...
+        if (Object.keys(controllers).length > 0){
+            defineNewButtonAction = true;
+            newButtonAction = newAction;
+            settingsAppendDebug("Press a button to assign it to: " + newAction.name);
+            //set up to be triggered on next scan loop ...
+        }else{
+            settingsAppendDebug("No controller with buttons connected/active!");
+        }
     }
     function gotNewButtonForAction(controllerIndex, buttonIndex){
         //... called from scan loop
