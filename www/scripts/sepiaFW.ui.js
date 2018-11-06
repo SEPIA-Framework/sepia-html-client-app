@@ -452,7 +452,7 @@ function sepiaFW_build_ui(){
 				$("#sepiaFW-nav-bar-page-indicator").find('div').removeClass("active");
 				$("#sepiaFW-nav-bar-page-indicator > div:nth-child(" + (currentPane+1) + ")").addClass('active').fadeTo(350, 1.0).fadeTo(350, 0.0);
 				//check note bubble
-				if (currentPane == 1){
+				if (currentPane == 1 && (!SepiaFW.frames || !SepiaFW.frames.isOpen)){
 					UI.clearMissedMessages();
 				}else if (currentPane == 0){
 					broadcastShowMyView();
@@ -1272,9 +1272,9 @@ function sepiaFW_build_ui(){
 			UI.scrollToBottom(target);
 			//check if we should show the missed message note bubble
 			if (!beSilent && (
-				!UI.isVisible() || 
-				(UI.moc && UI.moc.getCurrentPane() !== 1) ||
-				(SepiaFW.alwaysOn && SepiaFW.alwaysOn.isOpen)
+				!UI.isVisible() 
+				|| (UI.moc && UI.moc.getCurrentPane() !== 1) 
+				//|| (SepiaFW.alwaysOn && SepiaFW.alwaysOn.isOpen) 		//It is a bit too much but ...
 			)){
 				UI.addMissedMessage();
 			}

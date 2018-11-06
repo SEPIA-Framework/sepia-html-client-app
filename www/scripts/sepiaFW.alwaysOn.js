@@ -101,7 +101,7 @@ function sepiaFW_build_always_on(){
             else SepiaFW.speech.enableVoice(skipStore);
         }
         //go to my view on close
-        SepiaFW.ui.moc.showPane(0);
+        //SepiaFW.ui.moc.showPane(0);
 
         AlwaysOn.isOpen = false;
     }

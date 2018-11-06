@@ -622,9 +622,9 @@ function sepiaFW_build_events(){
 			return;
 		}
 		//if the app is open we trigger a simple notification just to give some visual feedback when the app is in background - it is delayed 
+		var titleS = SepiaFW.local.g(Timer.type); //+ ": " + (new Date().toLocaleString());
+		var textS = SepiaFW.local.g('expired') + ": " + Timer.data.name;
 		setTimeout(function(){
-			var titleS = SepiaFW.local.g(Timer.type); //+ ": " + (new Date().toLocaleString());
-			var textS = SepiaFW.local.g('expired') + ": " + Timer.data.name;
 			Events.showSimpleSilentNotification(titleS, textS);
 		}, 50);
 		//play sound
@@ -635,9 +635,10 @@ function sepiaFW_build_events(){
 		}
 		//add missed message
 		if (!SepiaFW.ui.isVisible() || 
-			(SepiaFW.alwaysOn && SepiaFW.alwaysOn.isOpen)
+			(SepiaFW.frames && SepiaFW.frames.isOpen)
 		){
 			SepiaFW.ui.addMissedMessage();
+			SepiaFW.ui.showInfo(SepiaFW.local.g('missed') + "? " + titleS + " " + textS);
 		}
 	}
 	

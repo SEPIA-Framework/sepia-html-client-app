@@ -67,6 +67,7 @@ function sepiaFW_build_strings(){
 	StringsDE.timer = 'Timer';				//name is title of UserDataList
 	StringsDE.oclock = 'Uhr';
 	StringsDE.expired = 'abgelaufen';
+	StringsDE.missed = 'Verpasst';
 	StringsDE.clearHistory = 'Verlauf löschen';
 	StringsDE.reload = 'Neu laden';
 	StringsDE.refreshUI = 'Interface neu laden';
@@ -150,6 +151,7 @@ function sepiaFW_build_strings(){
 	StringsEN.timer = 'Timer';			//name is title of UserDataList
 	StringsEN.oclock = 'o\'clock';
 	StringsEN.expired = 'expired';
+	StringsEN.missed = 'Missed';
 	StringsEN.clearHistory = 'Clear history';
 	StringsEN.reload = 'Reload';
 	StringsEN.refreshUI = 'Refresh interface';
