@@ -64,6 +64,9 @@ html {
     background-repeat: no-repeat;
 	background-position: calc(50% + 1px) center;
 }
+html.dark {
+    background-color: #000;
+}
 body {
     /*font-family: 'Roboto', sans-serif;*/
 	font-family: sans-serif;

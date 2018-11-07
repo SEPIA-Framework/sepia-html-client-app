@@ -2,6 +2,9 @@
 function sepiaFW_build_always_on(){
     var AlwaysOn = {};
 
+    var AVATAR_FADE_DELAY = 120000;
+    var CONTROLS_FADE_DELAY = 5000;
+
     //some states
     AlwaysOn.isOpen = false;
     var mainWasFullscreenOpen = false;
@@ -14,6 +17,7 @@ function sepiaFW_build_always_on(){
 
     //some settings
     AlwaysOn.autoEnableVoice = true;
+    AlwaysOn.autoLoadOnPowerPlug = true;
 
     //Load always-on screen
     AlwaysOn.start = function(){
@@ -55,8 +59,8 @@ function sepiaFW_build_always_on(){
         if (openFadeTimer) clearTimeout(openFadeTimer);
         openFadeTimer = setTimeout(function(){
             $("#sepiaFW-alwaysOn-avatar").css({opacity:'0'}).show().animate({opacity:'1.0'}, {complete:function(){
-                fadeOutNavbarControlsAfterDelay(5000);
-                fadeAvatarToRandomPosAfterDelay(60000);
+                fadeOutNavbarControlsAfterDelay(CONTROLS_FADE_DELAY);
+                fadeAvatarToRandomPosAfterDelay(AVATAR_FADE_DELAY);
             }, duration: 1000});
         }, 1000);
         //TTS is always on?
@@ -96,6 +100,9 @@ function sepiaFW_build_always_on(){
             if (mainWasVoiceDisabled) SepiaFW.speech.disableVoice(skipStore);
             else SepiaFW.speech.enableVoice(skipStore);
         }
+        //go to my view on close
+        //SepiaFW.ui.moc.showPane(0);
+
         AlwaysOn.isOpen = false;
     }
 
@@ -108,6 +115,7 @@ function sepiaFW_build_always_on(){
         //show info items for a while
         showLocalTimeAndFade();
         showNotificationsAndFade();
+        showBatteryAndFade();
     }
     AlwaysOn.avatarIdle = function(){
         //reset stuff
@@ -220,6 +228,7 @@ function sepiaFW_build_always_on(){
         //show info items for a while
         showLocalTimeAndFade();
         showNotificationsAndFade();
+        showBatteryAndFade();
     }
     var fadeAvatarTimer;
 
@@ -273,6 +282,126 @@ function sepiaFW_build_always_on(){
         });
     }
     var fadeNotificationsTimer;
+
+    //Show battery status for a while
+    function showBatteryAndFade(fadeOutAfterDelay){
+        if (AlwaysOn.trackPowerStatus){
+            var batteryIcon = "battery_alert";
+            if (AlwaysOn.batteryPlugStatus){
+                batteryIcon = "battery_charging_full";
+            }else if (AlwaysOn.batteryLevel > 0.9){
+                batteryIcon = "battery_std";
+            }else if (AlwaysOn.batteryLevel > 0.75){
+                batteryIcon = "battery_std";
+            }else if (AlwaysOn.batteryLevel > 0.5){
+                batteryIcon = "battery_std";
+            }else if (AlwaysOn.batteryLevel > 0.25){
+                batteryIcon = "battery_std";
+            }
+            var batteryWithIcon = 
+                '<i class="material-icons md-txt">' + batteryIcon + '</i>&nbsp;' + AlwaysOn.batteryPercentage;
+            $battery = $('#sepiaFW-alwaysOn-battery');
+            $battery.html(batteryWithIcon);
+            $battery.stop().fadeIn(500, function(){
+                if (fadeOutAfterDelay == undefined) fadeOutAfterDelay = 5000;
+                if (fadeBatteryTimer) clearTimeout(fadeBatteryTimer);
+                fadeBatteryTimer = setTimeout(function(){
+                    $battery.fadeOut(3000);
+                }, fadeOutAfterDelay);
+            });
+        }
+    }
+    var fadeBatteryTimer;
+
+    //---------- Battery status API -----------
+
+    var battery = undefined;
+    AlwaysOn.trackPowerStatus = false;       //TODO: switchable in settings
+
+    AlwaysOn.batteryLevel = undefined;
+    AlwaysOn.batteryPercentage = undefined;
+    AlwaysOn.batteryPlugStatus = undefined;
+
+    AlwaysOn.isBatteryStatusSupported = function(){
+        return !!navigator.getBattery;      //Note: we only support this API (see below)
+    }
+
+    AlwaysOn.setupBatteryStatus = function(){
+        if (AlwaysOn.trackPowerStatus){
+            //check and if possible activate
+            if (AlwaysOn.isBatteryStatusSupported()){
+                SepiaFW.debug.info("BatteryStatus supported via 'navigator.getBattery'.");
+                navigator.getBattery().then(readBattery);
+            
+            }else{
+                SepiaFW.debug.err("BatteryStatus is NOT supported!");
+            }
+        }else{
+            //reset
+            batteryStatusDeactivate();
+        }
+    }
+    function batteryStatusListen(){
+        //battery.addEventListener('chargingchange', readBattery);
+        //battery.addEventListener("levelchange", readBattery);
+        battery.onchargingchange = function(){
+            readBattery(this);
+        }
+        battery.onlevelchange = function(){
+            readBattery(this);
+        }
+        SepiaFW.debug.log("BatteryStatus - listening to plug and change events.");
+    }
+    function batteryStatusDeactivate(){
+        AlwaysOn.batteryLevel = undefined;
+        AlwaysOn.batteryPercentage = undefined;
+        AlwaysOn.batteryPlugStatus = undefined;
+        //battery.removeEventListener('chargingchange', readBattery);
+        //battery.removeEventListener("levelchange", readBattery);
+        battery.onchargingchange = null;
+        battery.onlevelchange = null;
+        battery = undefined;
+        SepiaFW.debug.log("BatteryStatus - not listening to events.");
+    }
+
+    var isFreshBatteryRead = true;
+    function readBattery(batt) {
+        if (battery == undefined){
+            battery = batt;
+            batteryStatusListen();
+        }
+        if (!batt.level && isFreshBatteryRead){
+            //This is an iOS error. Only way to fix it seems to be a reset :-/
+            isFreshBatteryRead = false;
+            batteryStatusDeactivate();
+            navigator.getBattery().then(readBattery);
+            return;
+        }
+    
+        var previousLevel = AlwaysOn.batteryLevel;
+        AlwaysOn.batteryLevel = batt.level;
+        AlwaysOn.batteryPercentage = Math.round(batt.level * 100) + '%';
+        if (previousLevel != AlwaysOn.batteryLevel){
+            fireLevelChangeEvent();
+        }
+        
+        var previousPlugStatus = AlwaysOn.batteryPlugStatus;
+        AlwaysOn.batteryPlugStatus = batt.charging;
+        if (AlwaysOn.batteryPlugStatus === true && previousPlugStatus === false){
+            firePlugInEvent();
+        }
+    }
+
+    function firePlugInEvent(){
+        SepiaFW.debug.info("BatteryStatus - device plugged in.");
+        if (!AlwaysOn.isOpen && AlwaysOn.autoLoadOnPowerPlug){
+            AlwaysOn.start();
+        }
+    }
+
+    function fireLevelChangeEvent(){
+        //SepiaFW.debug.info("BatteryStatus - device level changed to: " + AlwaysOn.batteryPercentage);
+    }
 
     return AlwaysOn;
 }

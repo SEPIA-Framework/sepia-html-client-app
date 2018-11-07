@@ -3,7 +3,7 @@ function sepiaFW_build_ui(){
 	var UI = {};
 	
 	//some constants
-	UI.version = "v0.14.2";
+	UI.version = "v0.14.3";
 	UI.JQ_RES_VIEW_IDS = "#sepiaFW-result-view, #sepiaFW-chat-output, #sepiaFW-my-view";			//a selector to get all result views e.g. $(UI.JQ_RES_VIEW_IDS).find(...)
 	UI.JQ_ALL_MAIN_VIEWS = "#sepiaFW-result-view, #sepiaFW-chat-output, #sepiaFW-my-view, #sepiaFW-teachUI-editor, #sepiaFW-teachUI-manager, #sepiaFW-frame-page-1, #sepiaFW-frame-page-2"; 	//TODO: frames can have more ...
 	UI.JQ_ALL_SETTINGS_VIEWS = ".sepiaFW-chat-menu-list-container";
@@ -44,7 +44,7 @@ function sepiaFW_build_ui(){
 					this.scrollTop -= windowSizeDifference;
 				});
 				if (document.activeElement){
-					document.activeElement.scrollIntoView(false);
+					document.activeElement.scrollIntoView({block: 'center'}); 	//true: is ok but right at the top edge, false: covered by controls
 				}
 				/*
 				var activeEle = $(document.activeElement);
@@ -272,7 +272,19 @@ function sepiaFW_build_ui(){
 		}
 	}
 	UI.showAndClearMissedMessages = function(){
-		UI.closeAllMenus();
+		//close teach UI
+		if (SepiaFW.teach && SepiaFW.teach.isOpen){
+			SepiaFW.teach.closeUI();
+		}
+		//close frames
+		if (SepiaFW.frames && SepiaFW.frames.isOpen){
+			SepiaFW.frames.close();
+		}
+		//close open menus
+		if (UI.getOpenMenus().length > 0){
+			UI.closeAllMenus();
+		}
+		//UI.closeAllMenus();
 		UI.moc.showPane(1);
 		UI.clearMissedMessages();
 	}
@@ -400,6 +412,15 @@ function sepiaFW_build_ui(){
 			if (typeof SepiaFW.client.allowBackgroundConnection == 'undefined') SepiaFW.client.allowBackgroundConnection = false;
 			SepiaFW.debug.info("Background connections are " + ((SepiaFW.client.allowBackgroundConnection)? "ALLOWED" : "NOT ALLOWED"));
 		}
+		//Allow power status tracking (e.g. power plugIn event)
+		if (SepiaFW.alwaysOn){
+			SepiaFW.alwaysOn.trackPowerStatus = SepiaFW.data.get('trackPowerStatus');
+			if (typeof SepiaFW.alwaysOn.trackPowerStatus == 'undefined') SepiaFW.alwaysOn.trackPowerStatus = false;
+			if (SepiaFW.alwaysOn.trackPowerStatus){
+				SepiaFW.alwaysOn.setupBatteryStatus();
+			}
+			SepiaFW.debug.info("Power-status tracking is " + ((SepiaFW.alwaysOn.trackPowerStatus)? "ALLOWED" : "NOT ALLOWED"));
+		}
 		//Gamepad support
 		if (SepiaFW.inputControls){
 			SepiaFW.inputControls.useGamepads = SepiaFW.data.get('useGamepads');
@@ -431,7 +452,7 @@ function sepiaFW_build_ui(){
 				$("#sepiaFW-nav-bar-page-indicator").find('div').removeClass("active");
 				$("#sepiaFW-nav-bar-page-indicator > div:nth-child(" + (currentPane+1) + ")").addClass('active').fadeTo(350, 1.0).fadeTo(350, 0.0);
 				//check note bubble
-				if (currentPane == 1){
+				if (currentPane == 1 && (!SepiaFW.frames || !SepiaFW.frames.isOpen)){
 					UI.clearMissedMessages();
 				}else if (currentPane == 0){
 					broadcastShowMyView();
@@ -1250,7 +1271,11 @@ function sepiaFW_build_ui(){
 			UI.insertEle(target, entryData);
 			UI.scrollToBottom(target);
 			//check if we should show the missed message note bubble
-			if (!beSilent && (!UI.isVisible() || (UI.moc && UI.moc.getCurrentPane() !== 1))){
+			if (!beSilent && (
+				!UI.isVisible() 
+				|| (UI.moc && UI.moc.getCurrentPane() !== 1) 
+				//|| (SepiaFW.alwaysOn && SepiaFW.alwaysOn.isOpen) 		//It is a bit too much but ...
+			)){
 				UI.addMissedMessage();
 			}
 		}else if (paneNbr == 0){

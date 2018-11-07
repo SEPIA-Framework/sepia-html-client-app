@@ -428,8 +428,10 @@ function sepiaFW_build_ui_build(){
 					+ "<li id='sepiaFW-menu-toggle-proactiveNotes-li' title='The assistant will remind you in a funny way to make a coffee break etc. :-)'><span>Chatty reminders: </span></li>"
 					+ "<li id='sepiaFW-menu-clear-app-cache-li'><span>Clear app data: </span></li>"
 					+ "<li id='sepiaFW-menu-toggle-channelMessages-li' title='Show status messages in chat like someone joined the channel?'><span>Channel status messages: </span></li>"
-					//TODO: this depends on the OS, maybe use only for Android?
+					//NOTE: we show this only for Android:
 					+ "<li id='sepiaFW-menu-toggle-runBackgroundConnection-li' title='Try to keep connected in background?'><span>Allow background activity: </span></li>"
+					//NOTE: we show this only if battery status API supported:
+					+ "<li id='sepiaFW-menu-toggle-trackPowerStatus-li' title='Observe power plug and battery status?'><span>Track power status: </span></li>"
 					+ "<li id='sepiaFW-menu-toggle-gamepad-li' title='Support gamepads as remote?'><span>Gamepads/Hotkeys: </span></li>"
 					+ "<li id='sepiaFW-menu-assistant-host-li' title='Assistant hostname, e.g.: my.example.org/sepia, localhost or [IP]'>"
 						+ "<span>Hostname: </span>"
@@ -663,17 +665,39 @@ function sepiaFW_build_ui_build(){
 				}, SepiaFW.ui.showChannelStatusMessages)
 			);
 			//allow background activity
-			document.getElementById('sepiaFW-menu-toggle-runBackgroundConnection-li').appendChild(Build.toggleButton('sepiaFW-menu-toggle-runBackgroundConnection', 
-				function(){
-					SepiaFW.client.allowBackgroundConnection = true;
-					SepiaFW.data.set('allowBackgroundConnection', true);
-					SepiaFW.debug.info("Background connection is allowed");
-				},function(){
-					SepiaFW.client.allowBackgroundConnection = false;
-					SepiaFW.data.set('allowBackgroundConnection', false);
-					SepiaFW.debug.info("Background connection is NOT allowed");
-				}, SepiaFW.client.allowBackgroundConnection)
-			);
+			if (!SepiaFW.ui.isAndroid){
+				$('#sepiaFW-menu-toggle-runBackgroundConnection-li').remove();
+			}else{
+				document.getElementById('sepiaFW-menu-toggle-runBackgroundConnection-li').appendChild(Build.toggleButton('sepiaFW-menu-toggle-runBackgroundConnection', 
+					function(){
+						SepiaFW.client.allowBackgroundConnection = true;
+						SepiaFW.data.set('allowBackgroundConnection', true);
+						SepiaFW.debug.info("Background connection is allowed");
+					},function(){
+						SepiaFW.client.allowBackgroundConnection = false;
+						SepiaFW.data.set('allowBackgroundConnection', false);
+						SepiaFW.debug.info("Background connection is NOT allowed");
+					}, SepiaFW.client.allowBackgroundConnection)
+				);
+			}
+			//track power status for special events - e.g. plug-in -> switch to AO-mode
+			if (!SepiaFW.alwaysOn || !SepiaFW.alwaysOn.isBatteryStatusSupported()){
+				$('#sepiaFW-menu-toggle-trackPowerStatus-li').remove();
+			}else{
+				document.getElementById('sepiaFW-menu-toggle-trackPowerStatus-li').appendChild(Build.toggleButton('sepiaFW-menu-toggle-trackPowerStatus', 
+					function(){
+						SepiaFW.alwaysOn.trackPowerStatus = true;
+						SepiaFW.data.set('trackPowerStatus', true);
+						SepiaFW.debug.info("Power status tracking is allowed");
+						SepiaFW.alwaysOn.setupBatteryStatus();
+					},function(){
+						SepiaFW.alwaysOn.trackPowerStatus = false;
+						SepiaFW.data.set('trackPowerStatus', false);
+						SepiaFW.debug.info("Power status tracking is NOT allowed");
+						SepiaFW.alwaysOn.setupBatteryStatus();
+					}, SepiaFW.alwaysOn.trackPowerStatus)
+				);
+			}
 			//support gamepads as remotes and hotkeys in Always-On (by default)
 			if (SepiaFW.inputControls){
 				var listEntry = document.getElementById('sepiaFW-menu-toggle-gamepad-li');
