@@ -128,6 +128,13 @@ function sepiaFW_build_always_on(){
             $activityArea.removeClass('listening');
             $activityArea.removeClass('speaking');
             $activityArea.removeClass('waiting');
+
+            //modify by mood
+            if (SepiaFW.assistant.getState().moodState == 2){
+                $avatarMouth.addClass('sad');
+            }else{
+                $avatarMouth.removeClass('sad');
+            }
         }
     }
     AlwaysOn.avatarLoading = function(){
