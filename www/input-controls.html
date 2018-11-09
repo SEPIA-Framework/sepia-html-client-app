@@ -2,25 +2,34 @@
 	<div class='sepiaFW-carousel-pane-container'>
 		<!-- Page 1 -->
 		<div id="sepiaFW-frame-page-1" class='sepiaFW-frames-page sepiaFW-carousel-pane'>
-			<h3>Controllers and Hotkeys</h3>
+			<h3>Controllers and Hotkeys (Beta)</h3>
 			<p>Note: Buttons work everywhere, hotkeys work in Always-On mode <b>only</b>.</p>
-			<div style="display: flex; flex-wrap: wrap; justify-content: center;">
+			<div style="display: flex; flex-direction: column; flex-wrap: wrap; justify-content: center;">
 				<div>
-					<p style="width:100%;">Define hotkeys:</p>
+					<p style="width:100%;"><u>Define hotkeys:</u></p>
 					<button id="SepiaFW-hotkeys-define-mic">Toggle microphone</button>
 					<button id="SepiaFW-hotkeys-define-back">Back</button>
 				</div>
 				<div>
-					<p style="width:100%;">Define buttons:</p>
+					<label>Ignore keys: </label><input id="SepiaFW-hotkeys-ignore-key1"
+						style="width: 48px; background: transparent; border-bottom: 1px solid; color: inherit;">
+				</div>
+				<div>
+					<p style="width:100%;"><u>Define buttons:</u></p>
 					<button id="SepiaFW-buttons-define-mic">Toggle microphone</button>
 					<button id="SepiaFW-buttons-define-back">Back</button>
 				</div>
+				<!--<div>
+					<label>Ignore buttons: </label><input id="SepiaFW-buttons-ignore-btn1" 
+						style="width: 48px; background: transparent; border-bottom: 1px solid; color: inherit;">
+				</div>-->
 				<div>
-					<p style="width:100%;">Settings</p>
+					<p style="width:100%;"><u>Settings</u></p>
 					<button id="SepiaFW-input-controls-store">Store settings</button>
 					<button id="SepiaFW-input-controls-clear">Clear settings</button>
 				</div>
 			</div>
+			<hr>
 			<div id="SepiaFW-input-controls-debug" style="overflow-y: auto; white-space: pre-wrap;"></div>
 		</div>
 		<!-- Page 2 -->

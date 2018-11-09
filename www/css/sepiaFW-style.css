@@ -65,7 +65,8 @@ html {
 	background-position: calc(50% + 1px) center;
 }
 html.dark {
-    background-color: #000;
+	background-color: #000;
+	background-image: none;
 }
 body {
     /*font-family: 'Roboto', sans-serif;*/

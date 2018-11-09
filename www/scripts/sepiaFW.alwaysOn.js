@@ -26,7 +26,7 @@ function sepiaFW_build_always_on(){
             onFinishSetup: AlwaysOn.onFinishSetup,
             onOpen: AlwaysOn.onOpen,
             onClose: AlwaysOn.onClose,
-            theme: "dark"
+            theme: "dark_full"
         });
     }
 
