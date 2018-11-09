@@ -34,6 +34,7 @@
 	position: absolute;
 	width: 30%;
 	height: 30%;
+	top: 10%;
 	background: #333;
 	border: 1px solid #333;
 	border-radius: 50%;
@@ -50,11 +51,9 @@
 	background: #000;
 }
 #sepiaFW-alwaysOn-avatar .avatar-eye.left {
-	top: 10%;
 	left: 10%;
 }
 #sepiaFW-alwaysOn-avatar .avatar-eye.right {
-	top: 10%;
 	right: 10%;
 }
 #sepiaFW-alwaysOn-avatar .avatar-iris {
@@ -135,6 +134,9 @@
 }
 #sepiaFW-alwaysOn-avatar .avatar-mouth.sleep {
 	border-radius: 20%;
+}
+#sepiaFW-alwaysOn-avatar .avatar-mouth.sad {
+	border-radius: 0%;
 }
 
 #sepiaFW-alwaysOn-avatar .avatar-activity {
