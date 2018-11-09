@@ -34,6 +34,13 @@ function sepiaFW_build_input_controls() {
         $('#SepiaFW-hotkeys-define-back').off().on('click', function(){
             InputControls.defineHotkeyFunction(backButton);
         });
+        //Ignore keys
+        $('#SepiaFW-hotkeys-ignore-key1').off().on('change', function(){
+            if (this.value){
+                ignoreKeys = JSON.parse("[" + this.value + "]");
+                settingsAppendDebug("New ignore keys: " + JSON.stringify(ignoreKeys));
+            }
+        });
         //Buttons for button mappings
         $('#SepiaFW-buttons-define-mic').off().on('click', function(){
             InputControls.defineButtonFunction(toggleMicrophone);
@@ -68,8 +75,11 @@ function sepiaFW_build_input_controls() {
         });
         settingsAppendDebug("<b>Hotkey matrix:</b>");
         settingsAppendDebug(convertActionMatrixToString(hotkeyActionMatrix));
+        settingsAppendDebug("<b>Ignoring keys:</b>");
+        settingsAppendDebug(JSON.stringify(ignoreKeys));
         settingsAppendDebug("<b>Button matrix:</b>");
         settingsAppendDebug(convertActionMatrixToString(buttonActionMatrix));
+        settingsAppendDebug("<hr>");
         settingsAppendDebug("<b>Controller and key events:</b>");
 
         SepiaFW.ui.scrollToTop('sepiaFW-frame-page-1');
@@ -89,20 +99,32 @@ function sepiaFW_build_input_controls() {
         var keys = convertActionMatrixToString(hotkeyActionMatrix);
         SepiaFW.data.set("input-controls-buttons", buttons);
         SepiaFW.data.set("input-controls-hotkeys", keys);
+        SepiaFW.data.set("input-controls-ignore", JSON.stringify({
+            "keys": ignoreKeys,
+            "buttons": ignoreButtons
+        }));
         SepiaFW.debug.log('Stored hotkeys and button settings in client storage.');
         SepiaFW.ui.showPopup('Stored hotkeys and button settings.');
     }
     InputControls.clearMappings = function(){
         SepiaFW.data.set("input-controls-buttons", "");
         SepiaFW.data.set("input-controls-hotkeys", "");
+        SepiaFW.data.set("input-controls-ignore", "");
         SepiaFW.debug.log('Cleared hotkeys and button settings from client storage.');
         SepiaFW.ui.showPopup('Cleared hotkeys and button settings (please reload app).');
     }
     InputControls.importMappings = function(){
         var buttonsMapString = SepiaFW.data.get("input-controls-buttons");
         var keysMapString = SepiaFW.data.get("input-controls-hotkeys");
+        var ignoresString = SepiaFW.data.get("input-controls-ignore");
         if (buttonsMapString)   buttonActionMatrix = importJsonToActionMatrix(buttonsMapString);
         if (keysMapString)      hotkeyActionMatrix = importJsonToActionMatrix(keysMapString);
+        if (ignoresString){
+            ignoresJson = JSON.parse(ignoresString);
+            ignoreKeys = ignoresJson.keys;
+            $('#SepiaFW-hotkeys-ignore-key1').val(JSON.stringify(ignoreKeys).replace(/\[|\]/g, ""));
+            ignoreButtons = ignoresJson.buttons;
+        }
         SepiaFW.debug.log('Imported hotkeys and button settings from client storage.');
     }
     function convertActionMatrixToString(actionMatrix){
@@ -127,6 +149,7 @@ function sepiaFW_build_input_controls() {
     //--------------- Keyboard Shortcuts ----------------
 
     var hotkeyActionMatrix = {};    //{unicode-key} -> action
+    var ignoreKeys = [];            //for quirky controllers that always fire more than one event at the same time
 
     InputControls.listenToGlobalHotkeys = function(){
         if (InputControls.useGamepads && InputControls.useHotkeysInAlwaysOn){
@@ -144,6 +167,10 @@ function sepiaFW_build_input_controls() {
     //Evaluate hotkey press
     function onHotkey(event){
         var e = event || window.event; // for IE to cover IEs window event-object
+        //ignore?
+        if (ignoreKeys && ignoreKeys.length > 0 && $.inArray(e.which, ignoreKeys) > -1){
+            return;
+        }
         if (InputControls.settingsAreOpen){
             settingsAppendDebug('Key pressed with unicode: ' + e.which);
         }
@@ -173,6 +200,7 @@ function sepiaFW_build_input_controls() {
     var controllers = {};           //Object to hold all connected controllers {"1":..,"2":..}
     var buttonMatrix = {};          //2D "object" with {controllerIndex}{buttonIndex} that holds current "pressed" state
     var buttonActionMatrix = {};    //2D "object" with {controllerIndex}{buttonIndex} that holds action method (if any)
+    var ignoreButtons = [];         //for quirky controllers that always fire more than one event at the same time
     var isGamepadListening = false;
 
     //Used for state scan-loop

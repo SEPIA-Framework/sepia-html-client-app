@@ -19,10 +19,13 @@ function sepiaFW_build_frames(){
 		
 		//theme
 		if (info.theme && info.theme == "dark"){
+			$('#sepiaFW-frames-view').addClass('dark');
+			$('.sepiaFW-frames-page').addClass('dark');
+		}else if (info.theme && info.theme == "dark_full"){
 			$('html').addClass('dark');
 			$('#sepiaFW-frames-view').addClass('dark');
 			$('.sepiaFW-frames-page').addClass('dark');
-		}else{
+		}else{	
 			$('html').removeClass('dark');
 			$('#sepiaFW-frames-view').removeClass('dark');
 			$('.sepiaFW-frames-page').removeClass('dark');

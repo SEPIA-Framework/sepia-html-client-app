@@ -54,6 +54,7 @@
 		<preference name="android-windowSoftInputMode" value="adjustSize" />
 		<!-- custom manifest changes -->
 		<custom-preference name="android-manifest/application/activity/@android:theme" value="@style/SplashTheme"/> <!-- Theme mainly for splash screen or background colors -->
+		<custom-preference name="android-manifest/application/activity/@android:configChanges" value="orientation|keyboardHidden|keyboard|screenSize|locale|navigation"/> <!-- Navigation is for bluetooth restart! -->
 		
 		<!--intents-->
         <allow-intent href="market:*" />
