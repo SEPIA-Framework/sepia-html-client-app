@@ -1284,11 +1284,13 @@ function sepiaFW_build_webSocket_client(){
 					SepiaFW.ui.scrollToBottom("sepiaFW-chat-output");
 					notAnsweredYet = false;
 					
-					//activate microphone for this user
+					//user has to be same! (security)
 					if (actionUser === SepiaFW.account.getUserId()){
-						if (action.key === "F4"){
-							var useConfirmationSound = SepiaFW.speech.shouldPlayConfirmation();
-							SepiaFW.ui.toggleMicButton(useConfirmationSound);
+						//handle remote action
+						if (SepiaFW.inputControls){
+							SepiaFW.inputControls.handleRemoteHotkeys(action);
+						}else{
+							SepiaFW.debug.log("remoteAction - no handler yet for type: " + message.data.type);
 						}
 					}
 				

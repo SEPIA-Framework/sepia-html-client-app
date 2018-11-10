@@ -1,6 +1,18 @@
 //BUILD - code blocks to build dynamic objects of the app
 function sepiaFW_build_ui_build(){
 	var Build = {};
+
+	//build spacer
+	Build.spacer = function(width, height, float){
+		var spacer = document.createElement('DIV');
+		spacer.style.width = width;
+		spacer.style.height = height;
+		spacer.style.display = "inline-block";
+		if (float){
+			spacer.style.float = float;
+		}
+		return spacer;
+	}
 	
 	//build reuseable language selector
 	Build.languageSelector = function(btnId, languageChangeAction){
@@ -79,10 +91,9 @@ function sepiaFW_build_ui_build(){
 		btn.className = "sepiaFW-button-inline";
 		if (btnName) btn.innerHTML = btnName;
 		if (btnId) btn.id = btnId;
-		$(btn).off();
-		$(btn).on('click', function(){
+		SepiaFW.ui.onclick(btn, function(){
 			callback(this);
-		});
+		}, true);
 		return btn;
 	}
 	
@@ -437,6 +448,7 @@ function sepiaFW_build_ui_build(){
 						+ "<span>Hostname: </span>"
 						+ "<input id='sepiaFW-menu-assistant-host' type='url' placeholder='my.example.org/sepia'>"
 					+ "</li>"
+					+ "<li id='sepiaFW-menu-toggle-wake-word-li' title='Use client wake-word detection?'><span>Hey SEPIA: </span></li>"
 					+ "<li id='sepiaFW-menu-select-stt-li' title='Speech recognition engine.'><span>ASR engine: </span></li>"
 					+ "<li id='sepiaFW-menu-stt-socket-url-li' title='Server for custom (socket) speech recognition engine.'>"
 						+ "<span>" + "ASR server" + ": </span>"
@@ -588,6 +600,35 @@ function sepiaFW_build_ui_build(){
 					$("#sepiaFW-menu-stt-socket-url-li").hide();
 				}
 			}
+			//wake-word stuff - Hey SEPIA
+			if (!SepiaFW.wakeTriggers){
+				$('#"sepiaFW-menu-toggle-wake-word-li"').remove();
+			}else{
+				var wakeWordLi = document.getElementById('sepiaFW-menu-toggle-wake-word-li');
+				//toggle
+				wakeWordLi.appendChild(Build.toggleButton('sepiaFW-menu-toggle-wake-word', 
+					function(){
+						SepiaFW.wakeTriggers.useWakeWord = true;
+						SepiaFW.data.set('useWakeWord', true);
+						SepiaFW.debug.info("Wake-word 'Hey SEPIA' is allowed.");
+					},function(){
+						SepiaFW.wakeTriggers.useWakeWord = false;
+						SepiaFW.data.set('useWakeWord', false);
+						SepiaFW.debug.info("Wake-word 'Hey SEPIA' is NOT allowed.");
+					}, SepiaFW.wakeTriggers.useWakeWord)
+				);
+				//spacer
+				wakeWordLi.appendChild(Build.spacer("18px", "28px", "right"));
+				//settings
+				wakeWordLi.appendChild(Build.inlineActionButton('sepiaFW-menu-wake-word-settings', "<i class='material-icons md-inherit'>settings</i>",
+					function(btn){
+						SepiaFW.frames.open({ 
+							pageUrl: "wake-word-test.html"
+							//, theme: "dark"
+						});
+					})
+				);
+			}
 			//add GPS on start button
 			if (SepiaFW.geocoder){
 				document.getElementById('sepiaFW-menu-toggle-GPS-li').appendChild(Build.toggleButton('sepiaFW-menu-toggle-GPS', 
@@ -715,11 +756,14 @@ function sepiaFW_build_ui_build(){
 						SepiaFW.inputControls.setup();
 					}, SepiaFW.inputControls.useGamepads)
 				);
-				//Settings frame
-				var spanButton = $(listEntry).find("span");
-				if (spanButton.length > 0){
-					SepiaFW.ui.onclick(spanButton[0], SepiaFW.inputControls.openSettings, true); 
-				}
+				//spacer
+				listEntry.appendChild(Build.spacer("18px", "28px", "right"));
+				//settings
+				listEntry.appendChild(Build.inlineActionButton('sepiaFW-menu-gamepad-settings', "<i class='material-icons md-inherit'>settings</i>",
+					function(btn){
+						SepiaFW.inputControls.openSettings();
+					})
+				);
 			}else{
 				document.getElementById('sepiaFW-menu-toggle-gamepad-li').appendChild(Build.toggleButton('sepiaFW-menu-toggle-gamepad', 
 					function(){}, function(){}, false));

@@ -23,6 +23,7 @@
 .material-icons.md-24 { font-size: 24px; }
 .material-icons.md-36 { font-size: 36px; }
 .material-icons.md-48 { font-size: 48px; }
+.material-icons.md-inherit { font-size: inherit; }
 .material-icons {
 	vertical-align: text-bottom;
 	-webkit-user-select: none;  
@@ -802,6 +803,11 @@ body {
 #sepiaFW-chat-menu li .sepiaFW-button-inline {
 	float: right;
 	margin: 0;
+	height: 28px;
+    padding: 0px 10px;
+}
+#sepiaFW-chat-menu li .sepiaFW-button-inline i {
+	float: none;
 }
 #sepiaFW-chat-menu li .sepiaFW-toggle-btn {
 	float: right;

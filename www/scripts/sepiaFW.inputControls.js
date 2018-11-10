@@ -146,6 +146,24 @@ function sepiaFW_build_input_controls() {
         }
     }
 
+    //----------------- Remote Hotkeys ------------------
+
+    InputControls.handleRemoteHotkeys = function(data){
+        //activate microphone for this user
+        if (data.key === "F4"){
+            if (SepiaFW.wakeTriggers && SepiaFW.wakeTriggers.useWakeWord){
+                var useConfirmationSound = SepiaFW.speech.shouldPlayConfirmation();
+                SepiaFW.ui.toggleMicButton(useConfirmationSound);
+            }else{
+                SepiaFW.debug.log("InputControls remoteAction - NOT ALLOWED to use remote wake-word! Key: " + data.key);    
+            }
+        
+        //no handler
+        }else{
+            SepiaFW.debug.log("InputControls remoteAction - no handler yet for key: " + data.key);
+        }
+    }
+
     //--------------- Keyboard Shortcuts ----------------
 
     var hotkeyActionMatrix = {};    //{unicode-key} -> action

@@ -427,6 +427,12 @@ function sepiaFW_build_ui(){
 			if (typeof SepiaFW.inputControls.useGamepads == 'undefined') SepiaFW.inputControls.useGamepads = false;
 			SepiaFW.debug.info("Gamepads are " + ((SepiaFW.client.allowBackgroundConnection)? "SUPPORTED" : "NOT SUPPORTED"));
 		}
+		//Wake-word trigger
+		if (SepiaFW.wakeTriggers){
+			SepiaFW.wakeTriggers.useWakeWord = SepiaFW.data.get('useWakeWord');
+			if (typeof SepiaFW.wakeTriggers.useWakeWord == 'undefined') SepiaFW.wakeTriggers.useWakeWord = false;
+			SepiaFW.debug.info("Wake-word 'Hey SEPIA' is " + ((SepiaFW.wakeTriggers.useWakeWord)? "ALLOWED" : "NOT ALLOWED"));
+		}
 		
 		//build UI logic and general buttons
 		UI.build.uiButtonsAndLogic();

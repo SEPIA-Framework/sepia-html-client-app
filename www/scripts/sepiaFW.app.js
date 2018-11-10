@@ -33,6 +33,7 @@ SepiaFW.buildSepiaFwPlugins = function(){
 	SepiaFW.offline = sepiaFW_build_offline();
 	SepiaFW.alwaysOn = sepiaFW_build_always_on();
 	SepiaFW.inputControls = sepiaFW_build_input_controls();
+	SepiaFW.wakeTriggers = sepiaFW_build_wake_triggers();
 }
 
 //DATA STORAGE
