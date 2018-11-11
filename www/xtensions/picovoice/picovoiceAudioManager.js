@@ -1,5 +1,3 @@
-navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
-
 let PicovoiceAudioManager = (function() {
     const inputBufferLength = 2048;
 
@@ -57,16 +55,56 @@ let PicovoiceAudioManager = (function() {
         engineNode.connect(audioSource.context.destination);
     };
 
+    //some config stuff
+    var audioInputPluginErrorCallback = function(e){};
+    if (window.cordova && window.audioinput) {
+        window.addEventListener('audioinputerror', function(e){
+            audioInputPluginErrorCallback(e);
+        }, false);
+    }
+    var getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
+
     this.start = function(picovoiceEngine, picovoiceProcessCallback, errorCallback) {
-        if (!navigator.getUserMedia) {
-            errorCallback("this browser does not support audio capture");
-        }
-
-        navigator.getUserMedia({audio: true}, getUserMediaSuccessCallback, errorCallback);
-
         engine = picovoiceEngine;
         processCallback = picovoiceProcessCallback;
         isProcessing = true;
+
+        //Plugin        ---        TODO: highly experimental
+        if (window.cordova && window.audioinput) {
+            //Error callback
+            audioInputPluginErrorCallback = errorCallback;
+
+            //Create node
+            var audioSource = window.audioinput.getAudioContext().createGain();
+            window.audioinput.connect(audioSource);
+            inputSampleRate = audioSource.context.sampleRate;
+            var engineNode;
+            if (!audioSource.context.createScriptProcessor) {
+                engineNode = audioSource.context.createJavaScriptNode(inputBufferLength, 1, 1);
+            } else {
+                engineNode = audioSource.context.createScriptProcessor(inputBufferLength, 1, 1);
+            }
+            engineNode.onaudioprocess = function(ev) { process(ev.inputBuffer.getChannelData(0)); };
+            audioSource.connect(engineNode);
+            engineNode.connect(audioSource.context.destination);
+
+        //Web standard
+        } else if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+            navigator.mediaDevices.getUserMedia({ video : false, audio: true }).then(function(stream) {
+				getUserMediaSuccessCallback(stream);
+			}).catch(function(err) {
+				errorCallback(err);
+			});
+            
+        //Old
+        } else if (getUserMedia) {
+            navigator.getUserMedia({audio: true}, getUserMediaSuccessCallback, errorCallback);
+
+        //No support
+        } else {
+            isProcessing = false;
+            errorCallback("this browser does not support audio capture");
+        }
     };
 
     this.stop = function() {

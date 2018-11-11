@@ -124,6 +124,22 @@ if (ENVIRONMENT_IS_NODE) {
             return new Uint8Array(xhr.response)
         }
     }
+	if (SepiaFW && SepiaFW.files) {
+		Module["optimizedBinaryReadPromise"] = function(url){
+			//console.log('optimizedBinaryReadPromise URL: ' + url);
+			return new Promise(function(resolve, reject) {
+				function onsuccess(arraybuffer){
+					//console.log('optimizedBinaryReadPromise success');
+					resolve(arraybuffer);
+				}
+				function onerror(e){
+					//console.log('optimizedBinaryReadPromise error: ' + e);
+					reject(e);
+				}
+				SepiaFW.files.fetch(url, onsuccess, onerror, "arraybuffer");
+			});
+		}
+	}
     Module["readAsync"] = function readAsync(url, onload, onerror) {
         var xhr = new XMLHttpRequest;
         xhr.open("GET", url, true);
@@ -765,15 +781,27 @@ function integrateWasmJS() {
     }
 
     function getBinaryPromise() {
-        if (!Module["wasmBinary"] && (ENVIRONMENT_IS_WEB || ENVIRONMENT_IS_WORKER) && typeof fetch === "function") {
+		if (Module["optimizedBinaryReadPromise"]) {
+			return Module["optimizedBinaryReadPromise"](wasmBinaryFile)
+			.then(function(arraybuffer) {
+                return arraybuffer;
+            })
+			.catch(function(e) {
+				err("optimizedBinaryReadPromise FAILED! - Reason: " + e);
+                return getBinary();
+            })
+			
+        } else if (!Module["wasmBinary"] && (ENVIRONMENT_IS_WEB || ENVIRONMENT_IS_WORKER) && typeof fetch === "function") {
             return fetch(wasmBinaryFile, {
                 credentials: "same-origin"
-            }).then((function(response) {
+            })
+			.then((function(response) {
                 if (!response["ok"]) {
                     throw "failed to load wasm binary file at '" + wasmBinaryFile + "'"
                 }
                 return response["arrayBuffer"]()
-            })).catch((function() {
+            }))
+			.catch((function() {
                 return getBinary()
             }))
         }
