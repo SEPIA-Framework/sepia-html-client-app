@@ -54,7 +54,40 @@ let PicovoiceAudioManager = (function() {
         audioSource.connect(engineNode);
         engineNode.connect(audioSource.context.destination);
     };
+    function getPluginUserMediaCallback(errorCallback) {
+        //Error callback
+        audioInputPluginErrorCallback = errorCallback;
 
+        //Create node
+        if (audioinput.isCapturing()){
+            errorCallback("Audio capture already running.");
+            return;
+        }
+        window.audioinput.start({
+            streamToWebAudio: true
+        });
+        var audioContext = window.audioinput.getAudioContext();
+
+        var audioSource = audioContext.createGain();
+        window.audioinput.connect(audioSource);
+        
+        inputSampleRate = audioSource.context.sampleRate;
+        console.log('inputSampleRate: ' + inputSampleRate);
+
+        var engineNode;
+        if (!audioSource.context.createScriptProcessor) {
+            engineNode = audioSource.context.createJavaScriptNode(inputBufferLength, 1, 1);
+        } else {
+            engineNode = audioSource.context.createScriptProcessor(inputBufferLength, 1, 1);
+        }
+        engineNode.onaudioprocess = function(ev) {
+            //console.log('*');
+            process(ev.inputBuffer.getChannelData(0));
+        };
+        audioSource.connect(engineNode);
+        engineNode.connect(audioSource.context.destination);
+    }
+                             
     //some config stuff
     var audioInputPluginErrorCallback = function(e){};
     if (window.cordova && window.audioinput) {
@@ -71,22 +104,7 @@ let PicovoiceAudioManager = (function() {
 
         //Plugin        ---        TODO: highly experimental
         if (window.cordova && window.audioinput) {
-            //Error callback
-            audioInputPluginErrorCallback = errorCallback;
-
-            //Create node
-            var audioSource = window.audioinput.getAudioContext().createGain();
-            window.audioinput.connect(audioSource);
-            inputSampleRate = audioSource.context.sampleRate;
-            var engineNode;
-            if (!audioSource.context.createScriptProcessor) {
-                engineNode = audioSource.context.createJavaScriptNode(inputBufferLength, 1, 1);
-            } else {
-                engineNode = audioSource.context.createScriptProcessor(inputBufferLength, 1, 1);
-            }
-            engineNode.onaudioprocess = function(ev) { process(ev.inputBuffer.getChannelData(0)); };
-            audioSource.connect(engineNode);
-            engineNode.connect(audioSource.context.destination);
+            getPluginUserMediaCallback(errorCallback);
 
         //Web standard
         } else if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
@@ -108,6 +126,17 @@ let PicovoiceAudioManager = (function() {
     };
 
     this.stop = function() {
+        if (window.audioinput && audioinput.isCapturing()) {
+            window.audioinput.stop();
+            //we release the audioContext here to be sure
+            setTimeout(function(){
+                //window.audioinput.getAudioContext().close();
+                window.audioinput.getAudioContext().suspend();
+                window.audioinput.disconnect();
+                //if (successCallback) successCallback();
+            },100);
+        }
+        
         isProcessing = false;
         inputAudioBuffer = [];
     };
