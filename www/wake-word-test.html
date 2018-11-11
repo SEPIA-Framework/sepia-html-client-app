@@ -1,0 +1,115 @@
+<div id='sepiaFW-frame-carousel' class="sepiaFW-inner-container sepiaFW-carousel">
+	<div class='sepiaFW-carousel-pane-container'>
+		<!-- Page 1 -->
+		<div id="sepiaFW-frame-page-1" class='sepiaFW-frames-page sepiaFW-carousel-pane'>
+			<h3>Wake-Word Test</h3>
+			<div style="display: flex; flex-direction: column; justify-content: center; align-items: center;">
+				<img id="sepiaFW-wake-word-indicator" src="img/icon-512-w.png" style="border-radius: 50%; overflow: hidden; max-width: 512px; max-height: 40vh;">
+				<p>Press START and say 'Hey SEPIA' to change the logo color. You can play around with the sensitivity as well, but make sure to STOP first.</p>
+				<p><label>Sensitivity: </label><input id="sepiaFW-wake-word-sensitivity" style="border-color: inherit;"></p>
+			</div>
+			<br>
+			<div style="display: flex; justify-content: center;">
+				<button id="sepiaFW-wake-word-toggle">START</button>
+			</div>
+		</div>
+		<!-- Page 2 -->
+		<div id="sepiaFW-frame-page-2" class='sepiaFW-frames-page sepiaFW-carousel-pane'>
+			Page 2
+		</div>
+	</div>
+</div>
+<div id="sepiaFW-frames-nav-bar" class='sepiaFW-layer-header'>
+	<button id="sepiaFW-frames-close" class='entry'>
+		<i class="material-icons md-btn2">close</i>
+	</button>
+	<button id="sepiaFW-frames-show-prev-page" class='entry'>
+		<i class="material-icons md-btn2">keyboard_arrow_left</i><span data-localize="back">back</span>
+	</button>
+	<button id="sepiaFW-frames-show-next-page" class='entry'>
+		<span data-localize="next">next</span><i class="material-icons md-btn2">keyboard_arrow_right</i>
+	</button>
+	<div id="sepiaFW-frames-nav-bar-page-indicator"><div>&nbsp;</div><div>&nbsp;</div></div>
+</div>
+<script>
+	$('[data-localize]').each(function(){
+		$(this).html(SepiaFW.local.g(this.dataset.localize));
+	});
+</script>
+
+<!-- DEMO -->
+<script>
+	SepiaFW.wakeTriggers.setupWakeWords();
+
+	var isWhite = true;
+	var isListening = false;
+	var keywordNames = SepiaFW.wakeTriggers.getWakeWords();
+	
+	var sensitivityEle = document.getElementById('sepiaFW-wake-word-sensitivity');
+	sensitivityEle.value = SepiaFW.wakeTriggers.getWakeWordSensitivities()[0];
+
+	var toggleButton = document.getElementById('sepiaFW-wake-word-toggle');
+	toggleButton.innerHTML = "Loading...";
+
+	SepiaFW.tools.loadJS("xtensions/picovoice/pv_porcupine_mod.js", function(){
+		SepiaFW.tools.loadJS("xtensions/picovoice/porcupine.js", function(){
+			SepiaFW.tools.loadJS("xtensions/picovoice/picovoiceAudioManager.js", function(){
+				ready();
+			});
+		});
+	});
+
+	function ready(){
+		toggleButton.innerHTML = "START";
+		toggleButton.addEventListener("click", function(){
+			if (!isListening){
+				if (sensitivityEle.value != undefined){
+					SepiaFW.wakeTriggers.setWakeWordSensitivities([sensitivityEle.value]);
+				}
+				isListening = true;
+				toggleButton.innerHTML = "STOP";
+				SepiaFW.wakeTriggers.listenToWakeWords(onKeywordSuccess, onError);
+			}else{
+				SepiaFW.wakeTriggers.stopListeningToWakeWords(onSuccessStop, onErrorStop);
+			}
+		});
+	}
+	
+	function onKeywordSuccess(keywordIndex){
+		if (keywordIndex === -1) {
+			return;
+		}else{
+			var keyword = keywordNames[keywordIndex];
+			if (keyword == "hey sepia" && isWhite){
+				isWhite = false;
+				document.querySelector("#sepiaFW-wake-word-indicator").setAttribute("src", "img/icon-512.png");
+			}else{
+				isWhite = true;
+				document.querySelector("#sepiaFW-wake-word-indicator").setAttribute("src", "img/icon-512-w.png");
+			}
+			//trigger mic?
+			if (SepiaFW.wakeTriggers.useWakeWord){
+				var useConfirmationSound = SepiaFW.speech.shouldPlayConfirmation();
+                SepiaFW.ui.toggleMicButton(useConfirmationSound);
+			}
+		}
+	}
+	function onError(ex){
+		reset();
+		alert(ex.toString());
+	}
+	function onSuccessStop(){
+		reset();
+	}
+	function onErrorStop(ex){
+		reset();
+		alert(ex.toString());
+	}
+
+	function reset(){
+		toggleButton.innerHTML = "START";
+		isListening = false;
+		isWhite = true;
+		document.querySelector("#sepiaFW-wake-word-indicator").setAttribute("src", "img/icon-512-w.png");
+	}
+</script>

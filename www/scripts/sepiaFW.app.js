@@ -443,6 +443,27 @@ function sepiaFW_build_tools(){
 		}
 		return url;
 	}
+
+	//load script to element (body by default)
+	Tools.loadJS = function(url, successCallback, location){
+		if (!location) location = document.body;
+		
+		var scriptTag = document.createElement('script');
+		scriptTag.src = url;
+
+		if (successCallback){
+			var didExecuteCallback = false;
+			function execute(){
+				if (!didExecuteCallback){
+					didExecuteCallback = true;
+					successCallback();
+				}
+			}
+			scriptTag.onload = execute;
+			scriptTag.onreadystatechange = execute;
+		}
+		location.appendChild(scriptTag);
+	}
 	
 	//check for IP
 	Tools.isIP = function(ip) {
