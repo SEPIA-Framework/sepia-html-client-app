@@ -4,7 +4,7 @@
 
 function sepiaFW_build_speechWebSocket(){
 	var Speech = {};
-	var isSocketAsrAllowed = true; 		//was before: !SepiaFW.ui.isCordova
+	var isSocketAsrAllowed = true; 		//read only (change by hand to disable)
 	
 	//Parameters and states
 	
@@ -17,18 +17,20 @@ function sepiaFW_build_speechWebSocket(){
 		SepiaFW.speech.testAsrSupport();
 	} 		
 
-	function testWebSocketAsrSupport(){
-		isMediaDevicesSupported = isSocketAsrAllowed 
-			&& ((navigator.mediaDevices && navigator.mediaDevices.getUserMedia) || navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia) 
-			&& (window.AudioContext || window.webkitAudioContext);
-			//&& (!!Speech.socketURI);
+	function testStreamRecorderSupport(){
+		isMediaDevicesSupported = (window.AudioContext || window.webkitAudioContext)
+			&& ((navigator.mediaDevices && navigator.mediaDevices.getUserMedia) || navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia);
 		isCordovaAudioinputSupported = (window.cordova && window.audioinput);
 		return !!isMediaDevicesSupported || isCordovaAudioinputSupported;
 	}
-	isMediaDevicesSupported = undefined;
-	isCordovaAudioinputSupported = undefined;
+	function testWebSocketAsrSupport(){
+		return testStreamRecorderSupport() && isSocketAsrAllowed;
+	}
+	var isMediaDevicesSupported = undefined;
+	var isCordovaAudioinputSupported = undefined;
 	
 	Speech.isAsrSupported = testWebSocketAsrSupport();
+	Speech.isStreamRecorderSupported = testStreamRecorderSupport();
 	
 	//--------------------------------
 	
@@ -127,39 +129,19 @@ function sepiaFW_build_speechWebSocket(){
 			error_callback("E00 - Speech recognition not activated, please select an STT server for the 'socket' engine (settings).");
 			broadcastAsrNoResult();
 		}
-		
-        //Audioinput plugin
-		if (isCordovaAudioinputSupported){
-            setTimeout(function(){
-                audioinputStartCapture();
-            }, 100);
-        
-		//Official MediaDevices interface
-        }else if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia){
-			navigator.mediaDevices.getUserMedia({ video : false, audio: true }).then(function(stream) {
-				getAudioStream(stream);
-			}).catch(function(err) {
-				SepiaFW.debug.err(err.name + ": " + err.message);
-				broadcastWrongAsrSettings();
-				broadcastAsrNoResult();
-				error_callback('E03 - Permission to use microphone was denied or there was a problem with the audio interface!');
-			});
-		
-		//Older version of getUserMedia
-		}else{
-			if (!navigator.getUserMedia) {
-				navigator.getUserMedia = navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia;
-			}
-			navigator.getUserMedia({
-				"audio": true,
-				"video": false,
-			}, getAudioStream.bind(this), function(e){
-				SepiaFW.debug.err(e.name + ": " + e.message);
-				broadcastWrongAsrSettings();
-				broadcastAsrNoResult();
-				error_callback('E03 - Permission to use microphone was denied or there was a problem with the audio interface!');
-			});
-		}
+
+		//Get audio recorder and start socket transfer
+		Speech.getAudioRecorder(function(audioRecorder){
+			//Start stream to socket
+			startWebSocketForMic();		//note: we use global audio-recorder (same object)
+
+		}, function(err){
+			//Failed
+			SepiaFW.debug.err(err.name + ": " + err.message);
+			broadcastWrongAsrSettings();
+			broadcastAsrNoResult();
+			error_callback('E03 - Permission to use microphone was denied or there was a problem with the audio interface!');
+		});
 	}
 
 	Speech.stopRecording = function(){
@@ -190,6 +172,7 @@ function sepiaFW_build_speechWebSocket(){
 				audioRecorder.stop();
 			}
 			
+			//Stop stream to socket
 			stopWebSocket();
 			
 			if (finalTranscript){
@@ -227,15 +210,60 @@ function sepiaFW_build_speechWebSocket(){
 			websocket.close();
 		}
 	}
+
+	// ---------------- Audio Recorder (Recorder.js) ----------------------
+
+	Speech.getAudioRecorder = function(callback, errorCallback){
+		//Create a new audio recorder. 
+		//NOTE: audioRecorder is a global variable (inside this scope) because we can't have 2 anyway (I guess..)
+
+		if (!Speech.isStreamRecorderSupported){
+			errorCallback({name: "ASR: Stream recorder not supported", message: "Cannot create an audio stream recorder!"});
+			return;
+		}
+		
+		//Audioinput plugin
+		if (isCordovaAudioinputSupported){
+            setTimeout(function(){
+				audioinputGetStreamRecorder(function(audioRecorder){
+					callback(audioRecorder);
+				});
+            }, 100);
+        
+		//Official MediaDevices interface
+        }else if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia){
+			navigator.mediaDevices.getUserMedia({ video : false, audio: true }).then(function(stream) {
+				getStreamRecorder(stream, function(audioRecorder){
+					callback(audioRecorder);
+				});
+			}).catch(function(err) {
+				errorCallback(err);
+			});
+		
+		//Older version of getUserMedia
+		}else{
+			var getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia;
+			getUserMedia({
+				"audio": true,
+				"video": false,
+			}, function(stream){
+				getStreamRecorder(stream, function(audioRecorder){
+					callback(audioRecorder);
+				});
+			}, function(e){
+				errorCallback(err);
+			});
+		}
+	}
 	
 	// ---------------- MediaDevices interface stuff ----------------------
 	
-	function getAudioStream(stream){
+	function getStreamRecorder(stream, callback){
 		audioSource = stream;
 		var inputPoint = audioContext.createGain();
 		audioContext.createMediaStreamSource(audioSource).connect(inputPoint);
 		audioRecorder = new RecorderJS(inputPoint);
-		startWebSocketForMic();
+		if (callback) callback(audioRecorder);
 	}
 
 	// ---------------- Audioinput plugin stuff ----------------------
@@ -248,6 +276,13 @@ function sepiaFW_build_speechWebSocket(){
             window.addEventListener('audioinputerror', onAudioInputError, false);
             audioInputPluginIsSet = true;
         }
+	}
+	//Errors
+    function onAudioInputError(error){
+		SepiaFW.debug.err("ASR error (audioinput plugin): " + JSON.stringify(error));
+        broadcastWrongAsrSettings();
+        broadcastAsrNoResult();
+        error_callback('E03 - Permission to use microphone was denied or audio-input interface failed!');
     }
 	//Check permission
 	function checkAudioinputPermission(successCallback, errorCallback){
@@ -272,19 +307,14 @@ function sepiaFW_build_speechWebSocket(){
 			}
 		});
 	}
-	//Errors
-    function onAudioInputError(error){
-		SepiaFW.debug.err("ASR error (audioinput plugin): " + JSON.stringify(error));
-        broadcastWrongAsrSettings();
-        broadcastAsrNoResult();
-        error_callback('E03 - Permission to use microphone was denied or audio-input interface failed!');
-    }
     //Start
-    var audioinputStartCapture = function(){
+    var audioinputGetStreamRecorder = function(successCallback){
         if (!audioInputPluginIsSet){
             initAudioinputPlugin();
 			if (!audioInputPluginHasPermission){
-				checkAudioinputPermission(audioinputStartCapture, onAudioInputError);
+				checkAudioinputPermission(function(){
+					audioinputGetStreamRecorder(successCallback);
+				}, onAudioInputError);
 				return;
 			}
         }
@@ -300,9 +330,11 @@ function sepiaFW_build_speechWebSocket(){
                 var inputPoint = window.audioinput.getAudioContext().createGain();
                 window.audioinput.connect(inputPoint);
                 audioRecorder = new RecorderJS(inputPoint);
-                startWebSocketForMic();
+				//Done! User audioRecorder to continue
+				if (successCallback) successCallback(audioRecorder);
             }else{
-                SepiaFW.debug.err("ASR error (audioinput plugin): Tried to capture audio but was already running!");
+				SepiaFW.debug.err("ASR error (audioinput plugin): Tried to capture audio but was already running!");
+				onAudioInputError({name: "ASR: not started!", message: "Audio capture was already running."});
             }
         }catch(error){
             SepiaFW.debug.err("ASR error (audioinput plugin) unknown exception. The following error might be displayed twice.");
@@ -310,13 +342,14 @@ function sepiaFW_build_speechWebSocket(){
         }
     };
     //Stop
-    var audioinputStopCapture = function(){
+    var audioinputStopCapture = function(successCallback){
         if (window.audioinput && window.audioinput.isCapturing()){
 			window.audioinput.stop();
 			//we release the audioContext here to be sure
 			setTimeout(function(){
 				//window.audioinput.getAudioContext().close();
 				window.audioinput.getAudioContext().suspend();
+				if (successCallback) successCallback();
 			},100);
         }
     };

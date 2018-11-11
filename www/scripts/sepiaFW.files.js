@@ -28,7 +28,11 @@ function sepiaFW_build_files(){
 		
 		//via Cordova local filesystem
 		if (SepiaFW.ui.isCordova && cordova.file){
-			var path = cordova.file.applicationDirectory + "www/" + fileUrl;
+			//var path = cordova.file.applicationDirectory + "www/" + fileUrl;
+            var path = fileUrl;
+            if (fileUrl.indexOf(cordova.file.applicationDirectory) < 0){
+                path = cordova.file.applicationDirectory + "www/" + fileUrl; 		//Note: we assume that this path makes most sense
+            }
             window.resolveLocalFileSystemURL(path, function (entry){
 				entry.file(
 					function(file){
@@ -75,7 +79,7 @@ function sepiaFW_build_files(){
 		var request = new XMLHttpRequest();
 		request.open('GET', fileUrl);
 		request.responseType = 'arraybuffer';
-		xhr.timeout = 8000;
+		request.timeout = 8000;
 		request.onload = function(e) {
 			successCallback(request.response); 	//the arraybuffer is in request.response
 		};

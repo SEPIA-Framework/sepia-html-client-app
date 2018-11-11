@@ -804,7 +804,10 @@ body {
 	float: right;
 	margin: 0;
 	height: 28px;
-    padding: 0px 10px;
+	padding: 0px 10px;
+	display: flex;
+    justify-content: center;
+    align-items: center;
 }
 #sepiaFW-chat-menu li .sepiaFW-button-inline i {
 	float: none;
