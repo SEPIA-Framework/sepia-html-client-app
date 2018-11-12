@@ -42,17 +42,30 @@ let PicovoiceAudioManager = (function() {
         }
     };
 
-    let getUserMediaSuccessCallback = function(stream) {
-        let audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    var audioSource;
+    var audioContext;
+    function getUserMediaSuccessCallback(stream) {
+        audioContext = new (window.AudioContext || window.webkitAudioContext)();
 
-        let audioSource = audioContext.createMediaStreamSource(stream);
+        audioSource = audioContext.createMediaStreamSource(stream);
 
         inputSampleRate = audioSource.context.sampleRate;
+        console.log('inputSampleRate: ' + inputSampleRate);
 
         let engineNode = audioSource.context.createScriptProcessor(inputBufferLength, 1, 1);
-        engineNode.onaudioprocess = function(ev) { process(ev.inputBuffer.getChannelData(0)); };
+        engineNode.onaudioprocess = function(ev) {
+            console.log('+');
+            process(ev.inputBuffer.getChannelData(0));
+        };
         audioSource.connect(engineNode);
         engineNode.connect(audioSource.context.destination);
+
+        console.log('audioContext.state: ' + audioContext.state);
+        if (audioContext.state === 'suspended') {
+            audioContext.resume().then(function() {
+                console.log('RESUMED audio-context');
+            });  
+        }
     };
     function getPluginUserMediaCallback(errorCallback) {
         //Error callback
@@ -66,9 +79,9 @@ let PicovoiceAudioManager = (function() {
         window.audioinput.start({
             streamToWebAudio: true
         });
-        var audioContext = window.audioinput.getAudioContext();
+        audioContext = window.audioinput.getAudioContext();
 
-        var audioSource = audioContext.createGain();
+        audioSource = audioContext.createGain();
         window.audioinput.connect(audioSource);
         
         inputSampleRate = audioSource.context.sampleRate;
@@ -81,7 +94,7 @@ let PicovoiceAudioManager = (function() {
             engineNode = audioSource.context.createScriptProcessor(inputBufferLength, 1, 1);
         }
         engineNode.onaudioprocess = function(ev) {
-            //console.log('*');
+            console.log('*');
             process(ev.inputBuffer.getChannelData(0));
         };
         audioSource.connect(engineNode);
@@ -95,6 +108,8 @@ let PicovoiceAudioManager = (function() {
             audioInputPluginErrorCallback(e);
         }, false);
     }
+    var isMediaDevicesSupported = (window.AudioContext || window.webkitAudioContext)
+        			&& ((navigator.mediaDevices && navigator.mediaDevices.getUserMedia) || navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia);
     var getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
 
     this.start = function(picovoiceEngine, picovoiceProcessCallback, errorCallback) {
@@ -132,9 +147,30 @@ let PicovoiceAudioManager = (function() {
             setTimeout(function(){
                 //window.audioinput.getAudioContext().close();
                 window.audioinput.getAudioContext().suspend();
-                window.audioinput.disconnect();
+                window.audioinput.getAudioContext().close();
+                //window.audioinput.disconnect();
                 //if (successCallback) successCallback();
             },100);
+
+        //MediaDevices interface
+        } else if (isMediaDevicesSupported){
+            if (audioSource && (audioSource.getAudioTracks || audioSource.stop)){
+                if (audioSource.getAudioTracks){
+                    console.log('stop source TRACKS');
+                    audioSource.getAudioTracks()[0].stop();
+                }else{
+                    console.log('STOP source');
+                    audioSource.stop();
+                }
+            }
+            if (audioContext && audioContext.suspend){
+                audioContext.suspend().then(function() {
+                    console.log('SUSPENDED audio-context');
+                    audioContext.close().then(function() {
+                        console.log('CLOSED audio-context');
+                    });
+                });
+            }
         }
         
         isProcessing = false;

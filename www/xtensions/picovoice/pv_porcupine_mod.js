@@ -859,6 +859,8 @@ function integrateWasmJS() {
                 abort(reason)
             }))
         }
+        instantiateArrayBuffer(receiveInstantiatedSource);
+        /*
         if (!Module["wasmBinary"] && typeof WebAssembly.instantiateStreaming === "function" && !isDataURI(wasmBinaryFile) && typeof fetch === "function") {
             WebAssembly.instantiateStreaming(fetch(wasmBinaryFile, {
                 credentials: "same-origin"
@@ -872,6 +874,7 @@ function integrateWasmJS() {
         } else {
             instantiateArrayBuffer(receiveInstantiatedSource)
         }
+        */
         return {}
     }
     Module["asmPreload"] = Module["asm"];

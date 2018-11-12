@@ -150,6 +150,7 @@
 
 .sepiaFW-teachUI-menu-group ul {
 	padding: 8px 12px;
+	list-style: none;
 }
 .sepiaFW-teachUI-menu-group li {
 	overflow: hidden;
