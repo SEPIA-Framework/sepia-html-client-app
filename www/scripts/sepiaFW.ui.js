@@ -567,6 +567,7 @@ function sepiaFW_build_ui(){
 	var myViewUpdateInterval = 30*60*1000; 		//<- automatic updates will not be done more than once within this interval
 	var lastMyViewUpdate = 0;
 	var myViewUpdateTimer;
+	var contextEventsLoadDelayTimer = undefined;
 	UI.updateMyView = function(forceUpdate, checkGeolocationFirst){
 		//is client active?
 		if (!SepiaFW.client.isActive() || !SepiaFW.assistant.id){
@@ -585,6 +586,7 @@ function sepiaFW_build_ui(){
 			//location update?
 			if (SepiaFW.geocoder && SepiaFW.geocoder.autoGPS){
 				if ((new Date().getTime() - SepiaFW.geocoder.lastBestLocationUpdate) > SepiaFW.geocoder.autoRefreshInterval){
+					//console.log('---------------GET BEST LOCATION--------------'); 		//DEBUG
 					SepiaFW.geocoder.getBestLocation();
 				}else{
 					UI.updateMyView(false, false);
@@ -602,7 +604,11 @@ function sepiaFW_build_ui(){
 				lastMyViewUpdate = now;
 				
 				//contextual events update
-				SepiaFW.events.loadContextualEvents();
+				if (contextEventsLoadDelayTimer) clearTimeout(contextEventsLoadDelayTimer);
+				contextEventsLoadDelayTimer = setTimeout(function(){
+					//console.log('---------------GET CONTEXT EVENTS--------------'); 		//DEBUG
+					SepiaFW.events.loadContextualEvents(forceUpdate); 						//We use a safety wait here because GPS is usually to late
+				}, 1000);
 				
 				//check for near timeEvents (within 18h (before) and 120h (past))
 				var maxTargetTime = now + 18*60*60*1000;

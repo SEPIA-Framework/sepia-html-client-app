@@ -340,7 +340,7 @@ body {
 	}
 }
 #sepiaFW-main-window.sepiaFW-skin-mod {
-
+	/* skins should write main-window modifications to this class */
 }
 
 #sepiaFW-main-window input, #sepiaFW-login-box input {

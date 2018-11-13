@@ -10,6 +10,18 @@ function sepiaFW_build_events(){
 	var HOUR_MS = 60*60*1000;
 	var MIN_MS = 60*1000;
 	var SEC_MS = 1000;
+
+	//----------------- Broadcasting -------------------
+
+	//Alarm/reminder has been triggered
+	function broadcastAlarmTrigger(){
+		//Always-On mode
+		if (SepiaFW.alwaysOn && SepiaFW.alwaysOn.isOpen){
+			SepiaFW.alwaysOn.triggerAlarm();
+		}
+	}
+	
+	//--------------------------------------------------
 	
 	//about notifications - TODO: unify methods for different types
 	var notificationsCurrentId = SepiaFW.data.get('notificationsCurrentId') || 1;
@@ -92,20 +104,21 @@ function sepiaFW_build_events(){
 	var proActiveMessageTimers = {}; 		//used to schedule non-cordova compatible proActive background notifications and to cancel cordova compatible messages if they are triggered in foreground
 	var lastContextualEventsCheck = 0;
 	
-	Events.loadContextualEvents = function() {
+	Events.loadContextualEvents = function(forceNew) {
 		if (!SepiaFW.assistant.id){
 			SepiaFW.debug.err("Events: tried to get events before channel-join completed!");
 			return;
 		}
 		//prevent multiple consecutive calls in short intervall...
 		var now = new Date().getTime();
-		if ((now - lastContextualEventsCheck) > 10*1000){ 		//interval: 10s
+		if (forceNew || (now - lastContextualEventsCheck) > 10*1000){ 		//interval: 10s
 			lastContextualEventsCheck = now;
 			//reset Ids tracking proActive background messages
 			resetProActiveNotificationIds();
 			//clear all old proActive ...
 			Events.clearAllProActiveBackgroundNotifications(function(){
 				//load contextual events to myView
+				SepiaFW.debug.info('Events loadContextualEvents: getting new events.');
 				var options = {};
 					options.skipText = true;
 					options.skipTTS = true;
@@ -210,6 +223,12 @@ function sepiaFW_build_events(){
 	//Scheduler variables
 	var scheduleDelay = 5000; 		//to prevent multiple syncs in a short time-period the current sync is delayed and gets shifted with each new sync request
 	var SyncSchedulers = {};
+
+	//----------------- Broadcasting -------------------
+
+	//see at top of class ...
+
+	//--------------------------------------------------
 	
 	//SETUP TimeEvents
 	Events.setupTimeEvents = function(){
@@ -640,6 +659,8 @@ function sepiaFW_build_events(){
 			SepiaFW.ui.addMissedMessage();
 			SepiaFW.ui.showInfo(SepiaFW.local.g('missed') + "? " + titleS + " " + textS);
 		}
+		//broadcast event
+		broadcastAlarmTrigger();
 	}
 	
 	//------------- other notifications --------------
