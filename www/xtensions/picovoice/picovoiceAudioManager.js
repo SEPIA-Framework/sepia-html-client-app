@@ -42,138 +42,73 @@ let PicovoiceAudioManager = (function() {
         }
     };
 
-    var audioSource;
-    var audioContext;
-    function getUserMediaSuccessCallback(stream) {
-        audioContext = new (window.AudioContext || window.webkitAudioContext)();
-
-        audioSource = audioContext.createMediaStreamSource(stream);
-
-        inputSampleRate = audioSource.context.sampleRate;
+    function setSampleRate(sr){
+        inputSampleRate = sr;
         console.log('inputSampleRate: ' + inputSampleRate);
+    }
 
-        let engineNode = audioSource.context.createScriptProcessor(inputBufferLength, 1, 1);
+    var PicovoiceRecorder = function(audioSource){
+        var bufferLen = inputBufferLength;      //2048
+        var audioContext = audioSource.context;
+
+        setSampleRate(audioContext.sampleRate);
+
+        let engineNode = audioContext.createScriptProcessor(bufferLen, 1, 1);
         engineNode.onaudioprocess = function(ev) {
             console.log('+');
             process(ev.inputBuffer.getChannelData(0));
         };
         audioSource.connect(engineNode);
-        engineNode.connect(audioSource.context.destination);
+        engineNode.connect(audioContext.destination);
 
-        console.log('audioContext.state: ' + audioContext.state);
-        if (audioContext.state === 'suspended') {
-            audioContext.resume().then(function() {
-                console.log('RESUMED audio-context');
-            });  
+        this.start = function(){
+            console.log('audioContext.state: ' + audioContext.state);
+            if (audioContext.state === 'suspended') {
+                audioContext.resume().then(function() {
+                    console.log('RESUMED audio-context');
+                });  
+            }
         }
-    };
-    function getPluginUserMediaCallback(errorCallback) {
-        //Error callback
-        audioInputPluginErrorCallback = errorCallback;
-
-        //Create node
-        if (audioinput.isCapturing()){
-            errorCallback("Audio capture already running.");
-            return;
-        }
-        window.audioinput.start({
-            streamToWebAudio: true
-        });
-        audioContext = window.audioinput.getAudioContext();
-
-        audioSource = audioContext.createGain();
-        window.audioinput.connect(audioSource);
-        
-        inputSampleRate = audioSource.context.sampleRate;
-        console.log('inputSampleRate: ' + inputSampleRate);
-
-        var engineNode;
-        if (!audioSource.context.createScriptProcessor) {
-            engineNode = audioSource.context.createJavaScriptNode(inputBufferLength, 1, 1);
-        } else {
-            engineNode = audioSource.context.createScriptProcessor(inputBufferLength, 1, 1);
-        }
-        engineNode.onaudioprocess = function(ev) {
-            console.log('*');
-            process(ev.inputBuffer.getChannelData(0));
-        };
-        audioSource.connect(engineNode);
-        engineNode.connect(audioSource.context.destination);
     }
-                             
-    //some config stuff
-    var audioInputPluginErrorCallback = function(e){};
-    if (window.cordova && window.audioinput) {
-        window.addEventListener('audioinputerror', function(e){
-            audioInputPluginErrorCallback(e);
-        }, false);
-    }
-    var isMediaDevicesSupported = (window.AudioContext || window.webkitAudioContext)
-        			&& ((navigator.mediaDevices && navigator.mediaDevices.getUserMedia) || navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia);
-    var getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
-
+      
+    //Create recorder and start processing
     this.start = function(picovoiceEngine, picovoiceProcessCallback, errorCallback) {
         engine = picovoiceEngine;
         processCallback = picovoiceProcessCallback;
         isProcessing = true;
 
-        //Plugin        ---        TODO: highly experimental
-        if (window.cordova && window.audioinput) {
-            getPluginUserMediaCallback(errorCallback);
+        //Get audio recorder
+		SepiaFW.audioRecorder.getRecorder(PicovoiceRecorder, function(audioRecorder){
+            //Start recorder
+            SepiaFW.audioRecorder.start(function(){
+                console.log('STARTED recorder');
+            });
+			//audioRecorder.start();		//note: uses internal global audio-recorder
 
-        //Web standard
-        } else if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-            navigator.mediaDevices.getUserMedia({ video : false, audio: true }).then(function(stream) {
-				getUserMediaSuccessCallback(stream);
-			}).catch(function(err) {
-				errorCallback(err);
-			});
-            
-        //Old
-        } else if (getUserMedia) {
-            navigator.getUserMedia({audio: true}, getUserMediaSuccessCallback, errorCallback);
-
-        //No support
-        } else {
-            isProcessing = false;
-            errorCallback("this browser does not support audio capture");
-        }
+		}, function(err){
+            //Failed
+            console.log('ERROR: ' + err);
+            if (errorCallback) errorCallback(err);
+		});
     };
 
+    //Stop recorder and processing
     this.stop = function() {
-        if (window.audioinput && audioinput.isCapturing()) {
-            window.audioinput.stop();
-            //we release the audioContext here to be sure
-            setTimeout(function(){
-                //window.audioinput.getAudioContext().close();
-                window.audioinput.getAudioContext().suspend();
-                window.audioinput.getAudioContext().close();
-                //window.audioinput.disconnect();
-                //if (successCallback) successCallback();
-            },100);
-
-        //MediaDevices interface
-        } else if (isMediaDevicesSupported){
-            if (audioSource && (audioSource.getAudioTracks || audioSource.stop)){
-                if (audioSource.getAudioTracks){
-                    console.log('stop source TRACKS');
-                    audioSource.getAudioTracks()[0].stop();
-                }else{
-                    console.log('STOP source');
-                    audioSource.stop();
-                }
+		var closeAfterStop = false;
+        SepiaFW.audioRecorder.stop(closeAfterStop, function(){
+            if (closeAfterStop){
+                console.log('CLOSED audio-context');
+            }else{
+                console.log('SUSPENDED audio-context');
             }
-            if (audioContext && audioContext.suspend){
-                audioContext.suspend().then(function() {
-                    console.log('SUSPENDED audio-context');
-                    audioContext.close().then(function() {
-                        console.log('CLOSED audio-context');
-                    });
-                });
-            }
-        }
-        
+            resetProcessing();
+        }, function(err){
+            //TODO: what if errorCallback triggers?
+            resetProcessing();
+        });
+    };
+    function resetProcessing(){
         isProcessing = false;
         inputAudioBuffer = [];
-    };
+    }
 });

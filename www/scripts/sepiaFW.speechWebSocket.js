@@ -111,8 +111,8 @@ function sepiaFW_build_speechWebSocket(){
 			broadcastAsrNoResult();
 		}
 
-		//Get audio recorder and start socket transfer
-		SepiaFW.audioRecorder.getRecorder(function(audioRecorder){
+		//Get audio recorder and start socket transfer - RecorderInstance: RecorderJS (SEPIA version for sockets)
+		SepiaFW.audioRecorder.getRecorder(RecorderJS, function(audioRecorder){
 			//Start stream to socket
 			startWebSocketForMic(audioRecorder);		//note: uses internal global audio-recorder
 

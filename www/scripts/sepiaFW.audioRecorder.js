@@ -57,6 +57,11 @@ function sepiaFW_build_audio_recorder(){
 		if (!AudioRecorder.isRecording){
 			//clean up?
 			//...
+			if (closeAfterStop){
+				closeAudioContext(recorderAudioContext, successCallback, errorCallback);
+			}else{
+				if (successCallback) successCallback();
+			}
 			return;
 		}
 		broadcastRecorderStopRequested();
@@ -84,13 +89,13 @@ function sepiaFW_build_audio_recorder(){
 				recorderAudioContext.suspend().then(function() {	//Note: a promise that can fail ...
 					//console.log('SUSPENDED audio-context');
 					if (closeAfterStop){
-						recorderAudioContext.close().then(function() {
-							//console.log('CLOSED audio-context');
-							broadcastRecorderClosed();
-						});
+						closeAudioContext(recorderAudioContext, successCallback, errorCallback);
+					}else{
+						if (successCallback) successCallback();
 					}
 				}).catch(function(e){
 					broadcastRecorderError(e);
+					if (errorCallback) errorCallback(e);
 				});
 			},100);
 		}, 100);
@@ -103,12 +108,28 @@ function sepiaFW_build_audio_recorder(){
 		AudioRecorder.isRecording = false;			//TODO: this probably has to wait for callbacks to be safe
 		broadcastRecorderStopped();
 	}
+	function closeAudioContext(audioContext, success, error){
+		if (audioContext.state == "closed"){
+			if (success) success();
+		}else{
+			audioContext.close().then(function() {
+				//console.log('CLOSED audio-context');
+				broadcastRecorderClosed();
+				if (success) success();
+			}).catch(function(e){
+				broadcastRecorderError(e);
+				if (error) error(e);
+			});
+		}
+	}
 	
 	//START recorder
 	AudioRecorder.start = function (successCallback, errorCallback){
 		if (AudioRecorder.isRecording){
 			//clean up?
 			//...
+			SepiaFW.debug.err("AudioRecorder error: Tried to capture audio but was already running!");
+			errorCallback({name: "AudioRecorder: not started!", message: "Audio capture was already running."});
 			return;
 		}
 		broadcastRecorderRequested();
@@ -152,7 +173,7 @@ function sepiaFW_build_audio_recorder(){
 		return recorderAudioContext;
 	}
 
-	AudioRecorder.getRecorder = function(callback, errorCallback){
+	AudioRecorder.getRecorder = function(RecorderInstance, callback, errorCallback){
 		//Create a new audio recorder. 
 		//NOTE: audioRec is a global variable (inside this scope) because we can't have 2 anyway (I guess..)
 
@@ -160,11 +181,25 @@ function sepiaFW_build_audio_recorder(){
 			errorCallback({name: "AudioRecorder: Stream recorder not supported", message: "Cannot create an audio stream recorder!"});
 			return;
 		}
+
+		//TODO: check if RecorderInstance has changed and if so recreate the whole (context?) thing ... 
+		if (audioRec){
+			var sameRecorder = (RecorderInstance.name == audioRec.constructor.name);
+			console.log("Same recorder type: " + sameRecorder);
+			if (!sameRecorder){
+				var closeAfterStop = true;
+				AudioRecorder.stop(closeAfterStop, function(){
+					console.log("Get NEW RECORDER");
+					audioRec = undefined;
+					AudioRecorder.getRecorder(RecorderInstance, callback, errorCallback);
+				}, errorCallback);
+			}
+		}
 		
 		//Audioinput plugin
 		if (isCordovaAudioinputSupported){
 			setTimeout(function(){
-				audioinputGetStreamRecorder(function(audioRec){
+				audioinputGetStreamRecorder(RecorderInstance, function(audioRec){
 					callback(audioRec);
 				}, errorCallback);
 			}, 100);
@@ -172,7 +207,7 @@ function sepiaFW_build_audio_recorder(){
 		//Official MediaDevices interface
 		}else if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia){
 			navigator.mediaDevices.getUserMedia({ video : false, audio: true }).then(function(stream) {
-				getStreamRecorder(stream, function(audioRec){
+				getStreamRecorder(RecorderInstance, stream, function(audioRec){
 					callback(audioRec);
 				});
 			}).catch(function(err) {
@@ -186,7 +221,7 @@ function sepiaFW_build_audio_recorder(){
 				"audio": true,
 				"video": false,
 			}, function(stream){
-				getStreamRecorder(stream, function(audioRec){
+				getStreamRecorder(RecorderInstance, stream, function(audioRec){
 					callback(audioRec);
 				});
 			}, function(e){
@@ -197,12 +232,13 @@ function sepiaFW_build_audio_recorder(){
 	
 	// ---------------- MediaDevices interface stuff ----------------------
 	
-	function getStreamRecorder(stream, callback){
+	function getStreamRecorder(RecorderInstance, stream, callback){
+		if (!RecorderInstance) RecorderInstance = RecorderJS;
 		recorderAudioContext = createOrUpdateAudioContext();
 		recorderAudioSource = stream;
 		var inputPoint = recorderAudioContext.createGain();
 		recorderAudioContext.createMediaStreamSource(recorderAudioSource).connect(inputPoint);
-		audioRec = new RecorderJS(inputPoint);
+		audioRec = new RecorderInstance(inputPoint);
 		if (callback) callback(audioRec);
 	}
 
@@ -247,7 +283,7 @@ function sepiaFW_build_audio_recorder(){
 		});
 	}
 	//Get a recorder
-	var audioinputGetStreamRecorder = function(successCallback, errorCallback){
+	var audioinputGetStreamRecorder = function(RecorderInstance, successCallback, errorCallback){
 		if (errorCallback) audioInputPluginErrorCallback = errorCallback;
 		else errorCallback = undefined;
 
@@ -255,7 +291,7 @@ function sepiaFW_build_audio_recorder(){
 			initAudioinputPlugin();
 			if (!audioInputPluginHasPermission){
 				checkAudioinputPermission(function(){
-					audioinputGetStreamRecorder(successCallback, errorCallback);
+					audioinputGetStreamRecorder(RecorderInstance, successCallback, errorCallback);
 				}, onAudioInputError);
 				return;
 			}
@@ -267,6 +303,7 @@ function sepiaFW_build_audio_recorder(){
 		}
 		try {
 			if (!window.audioinput.isCapturing()){
+				if (!RecorderInstance) RecorderInstance = RecorderJS;
 				//Reset context?
 				recorderAudioContext = createOrUpdateAudioContext();
 				//Start with default values and let the plugin handle conversion from raw data to web audio
@@ -284,12 +321,12 @@ function sepiaFW_build_audio_recorder(){
 				//Get input for the recorder
 				var inputPoint = window.audioinput.getAudioContext().createGain();
 				window.audioinput.connect(inputPoint);
-				audioRec = new RecorderJS(inputPoint);
+				audioRec = new RecorderInstance(inputPoint);
 				//Done! User audioRecorder to continue
 				if (successCallback) successCallback(audioRec);
 			}else{
 				SepiaFW.debug.err("AudioRecorder error (audioinput plugin): Tried to capture audio but was already running!");
-				onAudioInputError({name: "ASR: not started!", message: "Audio capture was already running."});
+				onAudioInputError({name: "AudioRecorder: not started!", message: "Audio capture was already running."});
 			}
 		}catch(error){
 			SepiaFW.debug.err("AudioRecorder error (audioinput plugin) unknown exception. The following error might be displayed twice.");

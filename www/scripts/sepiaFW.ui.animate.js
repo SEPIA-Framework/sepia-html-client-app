@@ -33,7 +33,7 @@ function sepiaFW_build_animate(){
 		}
 	}
 	function possibilityToSwitchOnWakeWordListener(source){
-		//console.log('Wake-word window - source: ' + source); 					//TODO: implement
+		//console.log('Wake-word window - source: ' + source); 						//TODO: implement
 	}
 	function possibilityToCleanCommandQueue(){
 		var action = SepiaFW.client.getAndRemoveNextCommandInQueue();
