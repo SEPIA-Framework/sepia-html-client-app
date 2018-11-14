@@ -21,6 +21,7 @@ SepiaFW.buildSepiaFwPlugins = function(){
 	SepiaFW.events = sepiaFW_build_events();
 	SepiaFW.geocoder = sepiaFW_build_geocoder();
 	SepiaFW.audio = sepiaFW_build_audio();
+	SepiaFW.audioRecorder = sepiaFW_build_audio_recorder();
 	SepiaFW.speechWebSocket = sepiaFW_build_speechWebSocket();
 	SepiaFW.speech = sepiaFW_build_speech();
 	SepiaFW.webSocket = new Object();

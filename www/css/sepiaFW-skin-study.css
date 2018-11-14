@@ -158,7 +158,7 @@ html {
 }
 
 #sepiaFW-chat-output .statusUpdate {
-    background: rgba(255, 255, 255, 0.10);
+    background: rgba(255, 255, 255, 0.05);
     color: #fff;
 }
 
@@ -184,7 +184,7 @@ html {
 	color: #fff;
 }
 #sepiaFW-chat-output article.chatAssistant.chatPm{
-	border-left-color: rgba(255, 255, 255, 0.40);
+	border-left-color: rgba(255, 255, 255, 0.10);
 }
 
 #sepiaFW-chat-controls-swipe-area .sepiaFW-swipeBar-switchable {
