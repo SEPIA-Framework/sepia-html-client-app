@@ -54,7 +54,7 @@ html {
 	color: #fff;
 }
 #sepiaFW-chat-controls {
-	background: linear-gradient(rgba(0,0,0,0), #1F252A, #1F252A);;
+	background: linear-gradient(rgba(31,37,42,0), #1F252A, #1F252A);
 	border-bottom-color: #1F252A;
 }
 
