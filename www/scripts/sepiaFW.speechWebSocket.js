@@ -190,13 +190,13 @@ function sepiaFW_build_speechWebSocket(){
 			finalTranscript = '';
 			partialTranscript = '';
 			partialPersistentTranscript = '';
-			audioRecorder.sendHeader(websocket);
+			audioRecorder.sendHeader(websocket); 		//NOTE: this is specific for Recorder.js instance
 
 			SepiaFW.audioRecorder.start(function(audioContext, audioRec){
 				if (isWaitingToRecord){
 					isRecording = true;		SepiaFW.speech.Interface.isRecognizing(true);
 					isWaitingToRecord = false;
-					audioRecorder.record(websocket);
+					audioRecorder.record(websocket);	//NOTE: websocket is specific for Recorder.js instance
 					abortRecognition = false;
 					broadcastAsrMicOpen();
 				}else{

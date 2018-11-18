@@ -1,73 +1,73 @@
 let PicovoiceAudioManager = (function() {
     const inputBufferLength = 2048;
 
-    let inputSampleRate;
-    let engine;
-    let processCallback;
-    let isProcessing = false;
-
-    let inputAudioBuffer = [];
-
-    let process = function(inputAudioFrame) {
-        if (!isProcessing) {
-            return;
-        }
-
-        for (let i = 0 ; i < inputAudioFrame.length ; i++) {
-            inputAudioBuffer.push((inputAudioFrame[i]) * 32767);
-        }
-
-        while(inputAudioBuffer.length * engine.sampleRate / inputSampleRate > engine.frameLength) {
-            let result = new Int16Array(engine.frameLength);
-            let bin = 0;
-            let num = 0;
-            let indexIn = 0;
-            let indexOut = 0;
-
-            while(indexIn < engine.frameLength) {
-                bin = 0;
-                num = 0;
-                while(indexOut < Math.min(inputAudioBuffer.length, (indexIn + 1) * inputSampleRate / engine.sampleRate)) {
-                    bin += inputAudioBuffer[indexOut];
-                    num += 1;
-                    indexOut++;
-                }
-                result[indexIn] = bin / num;
-                indexIn++;
-            }
-
-            processCallback(engine.process(result));
-
-            inputAudioBuffer = inputAudioBuffer.slice(indexOut);
-        }
-    };
-
-    function setSampleRate(sr){
-        inputSampleRate = sr;
-        console.log('inputSampleRate: ' + inputSampleRate);
-    }
+    var engine;
+    var processCallback;
+    var isProcessing = false;
 
     var PicovoiceRecorder = function(audioSource){
-        var bufferLen = inputBufferLength;      //2048
+        console.log('CREATED PicovoiceRecorder');
+
         var audioContext = audioSource.context;
 
-        setSampleRate(audioContext.sampleRate);
+        let inputSampleRate = audioContext.sampleRate;
+        console.log('inputSampleRate: ' + inputSampleRate);
 
-        let engineNode = audioContext.createScriptProcessor(bufferLen, 1, 1);
+        let inputAudioBuffer = [];
+
+        let engineNode = audioContext.createScriptProcessor(inputBufferLength, 1, 1);
         engineNode.onaudioprocess = function(ev) {
-            console.log('+');
-            process(ev.inputBuffer.getChannelData(0));
-        };
-        audioSource.connect(engineNode);
-        engineNode.connect(audioContext.destination);
-
-        this.start = function(){
-            console.log('audioContext.state: ' + audioContext.state);
-            if (audioContext.state === 'suspended') {
-                audioContext.resume().then(function() {
-                    console.log('RESUMED audio-context');
-                });  
+            
+            if (!isProcessing) {
+                return;
             }
+            console.log('+');
+
+            //-------------------------
+            let inputAudioFrame = ev.inputBuffer.getChannelData(0);
+    
+            for (let i = 0 ; i < inputAudioFrame.length ; i++) {
+                inputAudioBuffer.push((inputAudioFrame[i]) * 32767);
+            }
+    
+            while(inputAudioBuffer.length * engine.sampleRate / inputSampleRate > engine.frameLength) {
+                let result = new Int16Array(engine.frameLength);
+                let bin = 0;
+                let num = 0;
+                let indexIn = 0;
+                let indexOut = 0;
+    
+                while(indexIn < engine.frameLength) {
+                    bin = 0;
+                    num = 0;
+                    while(indexOut < Math.min(inputAudioBuffer.length, (indexIn + 1) * inputSampleRate / engine.sampleRate)) {
+                        bin += inputAudioBuffer[indexOut];
+                        num += 1;
+                        indexOut++;
+                    }
+                    result[indexIn] = bin / num;
+                    indexIn++;
+                }
+    
+                processCallback(engine.process(result));
+    
+                inputAudioBuffer = inputAudioBuffer.slice(indexOut);
+            }
+            //-------------------------
+        };
+
+        //Should we move this to start?
+        audioSource.connect(engineNode);
+
+        //Will be called at beginning of SepiaFW.audioRecorder.start();
+        this.start = function() {
+            inputAudioBuffer = [];
+            engineNode.connect(audioContext.destination);
+        }
+
+        //Will be called at beginning of SepiaFW.audioRecorder.stop();
+        this.stop = function () {
+            engineNode.disconnect(0);
         }
     }
       
@@ -80,7 +80,8 @@ let PicovoiceAudioManager = (function() {
         //Get audio recorder
 		SepiaFW.audioRecorder.getRecorder(PicovoiceRecorder, function(audioRecorder){
             //Start recorder
-            SepiaFW.audioRecorder.start(function(){
+            SepiaFW.audioRecorder.start(function(activeAudioContext, audioRec){
+                //Started
                 console.log('STARTED recorder');
             });
 			//audioRecorder.start();		//note: uses internal global audio-recorder
@@ -109,6 +110,7 @@ let PicovoiceAudioManager = (function() {
     };
     function resetProcessing(){
         isProcessing = false;
-        inputAudioBuffer = [];
+        engine = undefined;             //why do we set this on every start call? can't we just keep it?
+        processCallback = undefined;
     }
 });

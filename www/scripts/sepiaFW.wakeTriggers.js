@@ -63,8 +63,10 @@ function sepiaFW_build_wake_triggers() {
 		if (!onSuccessCallback) onSuccessCallback = defaultPpSuccessCallback;
 		if (!onErrorCallback) onErrorCallback = defaultPpErrorCallback;
 		
-        ppAudioManager = new PicovoiceAudioManager();
-        ppAudioManager.start(Porcupine.create(Object.values(ppKeywordIDs), ppSensitivities), onSuccessCallback, onErrorCallback);
+		if (!ppAudioManager){
+			ppAudioManager = new PicovoiceAudioManager();
+		}
+		ppAudioManager.start(Porcupine.create(Object.values(ppKeywordIDs), ppSensitivities), onSuccessCallback, onErrorCallback);
     }
 
     function ppStopListeningToWakeWords(onSuccessCallback, onErrorCallback){

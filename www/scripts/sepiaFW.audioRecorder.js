@@ -66,6 +66,11 @@ function sepiaFW_build_audio_recorder(){
 		}
 		broadcastRecorderStopRequested();
 
+		//If the recorder itself has a stop function call it first, e.g. Recorder.js websocket
+		if (audioRec && audioRec.stop){
+			audioRec.stop();
+		}
+
 		//stop audio source and suspend context
 		setTimeout(function(){
 			//Audioinput plugin
@@ -99,11 +104,6 @@ function sepiaFW_build_audio_recorder(){
 				});
 			},100);
 		}, 100);
-		
-		//Recorder.js
-		if (audioRec && audioRec.stop){
-			audioRec.stop();
-		}
 
 		AudioRecorder.isRecording = false;			//TODO: this probably has to wait for callbacks to be safe
 		broadcastRecorderStopped();
@@ -134,6 +134,11 @@ function sepiaFW_build_audio_recorder(){
 		}
 		broadcastRecorderRequested();
 		AudioRecorder.isRecording = true;			//TODO: this probably should be updated in callbacks
+
+		//If the recorder itself has a start function call it first
+		if (audioRec && audioRec.start){
+			audioRec.start();
+		}
 
 		//assign active audioContext
 		var activeAudioContext = recorderAudioContext; 		//this should always be the recent one set in getRecorder
@@ -185,7 +190,7 @@ function sepiaFW_build_audio_recorder(){
 		//TODO: check if RecorderInstance has changed and if so recreate the whole (context?) thing ... 
 		if (audioRec){
 			var sameRecorder = (RecorderInstance.name == audioRec.constructor.name);
-			console.log("Same recorder type: " + sameRecorder);
+			//console.log("Same recorder type: " + sameRecorder);
 			if (!sameRecorder){
 				var closeAfterStop = true;
 				AudioRecorder.stop(closeAfterStop, function(){
@@ -193,6 +198,7 @@ function sepiaFW_build_audio_recorder(){
 					audioRec = undefined;
 					AudioRecorder.getRecorder(RecorderInstance, callback, errorCallback);
 				}, errorCallback);
+				return;
 			}
 		}
 		
