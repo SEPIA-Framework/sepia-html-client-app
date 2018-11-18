@@ -381,7 +381,7 @@ function sepiaFW_build_ui(){
 		UI.assistIconStop = '<i class="material-icons md-mic">&#xE034;</i>';
 		UI.assistIconAwaitAnswer = '<i class="material-icons md-mic-dia">&#xE0B7;</i>';  //&#xE90F;
 		
-		//LOAD other SETTINGS before building the UI:
+		//---------------------- LOAD other SETTINGS before building the UI:
 		//TODO: this should be simplified with a service!
 		
 		//TTS
@@ -433,6 +433,14 @@ function sepiaFW_build_ui(){
 			if (typeof SepiaFW.wakeTriggers.useWakeWord == 'undefined') SepiaFW.wakeTriggers.useWakeWord = false;
 			SepiaFW.debug.info("Wake-word 'Hey SEPIA' is " + ((SepiaFW.wakeTriggers.useWakeWord)? "ALLOWED" : "NOT ALLOWED"));
 		}
+		//Smart microphone toggle
+		if (SepiaFW.speech){
+			SepiaFW.speech.useSmartMicToggle = SepiaFW.data.get('useSmartMicToggle');
+			if (typeof SepiaFW.speech.useSmartMicToggle == 'undefined') SepiaFW.speech.useSmartMicToggle = false;
+			SepiaFW.debug.info("Smart microphone toggle is " + ((SepiaFW.speech.useSmartMicToggle)? "ON" : "OFF"));
+		}
+
+		//-------------------------------------------------------------------------------------------------
 		
 		//build UI logic and general buttons
 		UI.build.uiButtonsAndLogic();
@@ -1167,15 +1175,15 @@ function sepiaFW_build_ui(){
 	UI.scrollToBottom = function(targetId, delay){
 		setTimeout(function(){
 			var scrollable = $('#' + targetId);
-			scrollable.animate({ scrollTop: scrollable[0].scrollHeight}, 250);
-		}, (delay? delay : 330));
+			scrollable.animate({ scrollTop: scrollable[0].scrollHeight}, 380);
+		}, (delay? delay : 200));
 	}
 	//Scroll to top
 	UI.scrollToTop = function(targetId, delay){
 		setTimeout(function(){
 			var scrollable = $('#' + targetId);
-			scrollable.animate({ scrollTop: 0}, 250);
-		}, (delay? delay : 330));
+			scrollable.animate({ scrollTop: 0}, 380);
+		}, (delay? delay : 200));
 	}
 	//Scroll to id inside scrollable element given by id, if scrollable is empty uses 'sepiaFW-chat-output'
 	UI.scrollToId = function(targetId, scrollViewId, delay){
@@ -1275,12 +1283,21 @@ function sepiaFW_build_ui(){
 		});
 	}
 	//Add elements to certain result view
+	UI.maxChatMessages = 40;
 	UI.addDataToResultView = function(resultView, entryData, beSilent, autoSwitchView, switchDelay){
 		var target = resultView.target;
+		var $target = $('#' + target);
 		var paneNbr = resultView.paneNumber;
 		
 		if (paneNbr == 1){
 			UI.insertEle(target, entryData);
+			//remove old message(s)?
+			var $allMessages = $target.find('.chatMsg').filter(":visible");
+			if (UI.maxChatMessages && UI.maxChatMessages <= $allMessages.length){
+				//remove old:
+				//$allMessages.slice(0, UI.maxChatMessages).hide();
+				$allMessages.first().hide();
+			}
 			UI.scrollToBottom(target);
 			//check if we should show the missed message note bubble
 			if (!beSilent && (
@@ -1291,11 +1308,11 @@ function sepiaFW_build_ui(){
 				UI.addMissedMessage();
 			}
 		}else if (paneNbr == 0){
-			$('#' + target).prepend(entryData);
+			$target.prepend(entryData);
 			UI.scrollToTop(target);
 		}else{
-			$('#' + target).html('');
-			$('#' + target).prepend(entryData);
+			$target.html('');
+			$target.prepend(entryData);
 			UI.scrollToTop(target);
 		}
 		

@@ -24,8 +24,12 @@ function sepiaFW_build_animate(){
 			return false;
 		}else{
 			//console.log('Last input was ASR? ' + SepiaFW.client.wasLastInputSourceAsr());
-			if (SepiaFW.client.wasLastInputSourceAsr()){
-				//console.log('Mic auto-trigger window - source: ' + source);		//TODO: implement
+			if (SepiaFW.client.wasLastInputSourceAsr() 
+				&& SepiaFW.speech.useSmartMicToggle
+				&& (SepiaFW.assistant && SepiaFW.assistant.isWaitingForDialog)
+			){
+				//console.log('Mic auto-trigger window - source: ' + source);
+				SepiaFW.speech.toggleSmartMic();									//TODO: TEST!
 				return true;
 			}else{
 				return false;

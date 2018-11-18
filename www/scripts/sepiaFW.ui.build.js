@@ -448,6 +448,7 @@ function sepiaFW_build_ui_build(){
 						+ "<span>Hostname: </span>"
 						+ "<input id='sepiaFW-menu-assistant-host' type='url' placeholder='my.example.org/sepia'>"
 					+ "</li>"
+					+ "<li id='sepiaFW-menu-toggle-smartMic-li' title='Automatically activate mic input after voice based question?'><span>Smart microphone: </span></li>"
 					+ "<li id='sepiaFW-menu-toggle-wake-word-li' title='Use client wake-word detection?'><span>Hey SEPIA: </span></li>"
 					+ "<li id='sepiaFW-menu-select-stt-li' title='Speech recognition engine.'><span>ASR engine: </span></li>"
 					+ "<li id='sepiaFW-menu-stt-socket-url-li' title='Server for custom (socket) speech recognition engine.'>"
@@ -599,6 +600,22 @@ function sepiaFW_build_ui_build(){
 				if (!SepiaFW.speechWebSocket || !SepiaFW.speechWebSocket.isAsrSupported){
 					$("#sepiaFW-menu-stt-socket-url-li").hide();
 				}
+			}
+			//Smart microphone auto-toggle
+			if (!SepiaFW.speech || !SepiaFW.speech.isAsrSupported){
+				$('#sepiaFW-menu-toggle-smartMic-li').remove();
+			}else{
+				document.getElementById('sepiaFW-menu-toggle-smartMic-li').appendChild(Build.toggleButton('sepiaFW-menu-toggle-smartMic', 
+					function(){
+						SepiaFW.speech.useSmartMicToggle = true;
+						SepiaFW.data.set('useSmartMicToggle', true);
+						SepiaFW.debug.info("Smart mic-toggle is ON");
+					},function(){
+						SepiaFW.speech.useSmartMicToggle = false;
+						SepiaFW.data.set('useSmartMicToggle', false);
+						SepiaFW.debug.info("Smart mic-toggle is OFF");
+					}, SepiaFW.speech.useSmartMicToggle)
+				);
 			}
 			//wake-word stuff - Hey SEPIA
 			if (!SepiaFW.wakeTriggers){
