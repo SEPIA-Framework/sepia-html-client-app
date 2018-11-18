@@ -64,14 +64,30 @@ function sepiaFW_build_offline(){
 		return action;
 	}
 
-	//Handle a message oflfine sent via Client.sendMessage - currently used for demo-mode
+	//------------------ message handling -------------------
+
+	//Handle a message offline sent via Client.sendMessage - currently used for demo-mode
 	Offline.handleClientSendMessage = function(message){
 		var dataIn = { sender: 'username' };
 		SepiaFW.ui.showCustomChatMessage(message.text, dataIn);
 		setTimeout(function(){
 			var dataOut = { sender: 'parrot', senderType: 'assistant' };
 			SepiaFW.ui.showCustomChatMessage(message.text, dataOut);
-		}, 500);
+		}, 600);
+	}
+
+	//------------------ custom buttons -------------------
+
+	//Create a custom button object
+	Offline.createCustomButton = function(name, icon, cmdSummary, text, language){
+		var btnObj = {
+			"name": name,
+			"icon": icon,
+			"cmd" : cmdSummary,
+			"text": text,
+			"language" : language
+		}
+		return btnObj;
 	}
 	
 	return Offline;

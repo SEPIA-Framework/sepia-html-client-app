@@ -1,0 +1,7 @@
+Attributions for graphics used in SEPIA:
+
+- Logo made for SEPIA Framework by Florian Quirin
+
+- Background images are based on public domain images (if not marked otherwise) found e.g. on: https://pixabay.com
+
+- Icons are public domain (if not marked otherwise) found online

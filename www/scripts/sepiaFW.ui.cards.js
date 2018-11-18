@@ -794,8 +794,9 @@ function sepiaFW_build_ui_cards(){
 			//$(linkCardEle).find('.linkCardCenter').on('click', function(){
 				SepiaFW.ui.actions.openUrlAutoTarget(linkUrl);
 			});
-			SepiaFW.ui.onclick($(linkCardEle).find('.linkCardRight')[0], function(){
+			SepiaFW.ui.onclick($(linkCardEle).find('.linkCardRight')[0], function(event){
 			//$(linkCardEle).find('.linkCardRight').on('click', function(){
+				event.preventDefault();
 				SepiaFW.ui.actions.openUrlAutoTarget(linkUrl, true);
 			});
 		})(linkUrl);

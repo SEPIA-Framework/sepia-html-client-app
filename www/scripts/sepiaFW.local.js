@@ -34,7 +34,6 @@ function sepiaFW_build_strings(){
 	StringsDE.noConnectionToServer = 'Es tut mir leid, aber ich konnte keine Verbindung zum Server herstellen :-(';
 	StringsDE.noConnectionToAssistant = 'Dein Assistent macht gerade Kaffeepause, ist sicher gleich zurück! (hoffentlich)';
 	StringsDE.noConnectionOrNoCredentials = 'Verbindung ist verloren gegangen oder die Login Daten sind abgelaufen. Du kannst warten und es noch einmal versuchen, die App neu laden oder dich erneut einloggen.';
-	StringsDE.demoMode = 'Du befindest dich im Demo-Modus! In diesem Modus kannst du die Einstellungen ändern (z.B. host-name) und das Tutorial anschauen. Um auf deinen Assistenten zuzugreifen melde dich bitte zuerst an.';
 	StringsDE.noAsrSupport = 'Es tut mir leid, aber dieser Client unterstütz die Spracherkennung leider nicht :-(';
 	StringsDE.asrMissingServer = 'Mir fehlen noch Server Informationen um diese Spracherkennungsengine nutzen zu können, check noch mal die Settings bitte (ASR server).';
 	StringsDE.asrSettingsProblem = 'Mikrofon nicht richtig erkannt oder Zugriff verweigert.';
@@ -89,6 +88,12 @@ function sepiaFW_build_strings(){
 	StringsDE.credits = 'Credits';
 	StringsDE.data_privacy = 'Datenschutz';
 	StringsDE.tutorial = 'Tutorial';
+	//Offline demo texts
+	StringsDE.demoMode = 'Du befindest dich im Demo-Modus! In diesem Modus kannst du die Einstellungen ändern (z.B. host-name) und das Tutorial anschauen. Um auf deinen Assistenten zuzugreifen melde dich bitte zuerst an.';
+	StringsDE.demoModeBtn = 'Demo-Modus';
+	StringsDE.myNewsDemoBtn = 'Öffne meine persönlichen News';
+	StringsDE.myRadioDemoBtn = 'Starte mein Lieblingsradio';
+	StringsDE.myToDoDemoBtn = 'Öffne meine To-Do Liste';
 	
 	//ENGLISH
 	StringsEN.welcome = 'Welcome';
@@ -118,7 +123,6 @@ function sepiaFW_build_strings(){
 	StringsEN.noConnectionToServer = 'I\'m sorry but I could not establish a connection to the server :-(';
 	StringsEN.noConnectionToAssistant = 'Your assistant is taking a coffee break, will be right back! (hopefully)';
 	StringsEN.noConnectionOrNoCredentials = 'Connection was lost or credentials became invalid. You can wait and try it again, reload the app or login again.';
-	StringsEN.demoMode = 'You are in demo-mode! This mode only allows you to change settings (e.g. host-name) and check out the tutorial. To get access to your assistant please log-in first.';
 	StringsEN.noAsrSupport = 'I\'m sorry but this client does not support speech recognition :-(';
 	StringsEN.asrMissingServer = 'I\'m missing some server info to user this speech recognition engine, please check the settings again (ASR server).';
 	StringsEN.asrSettingsProblem = 'Microphone has not been recognized properly or access was denied.';
@@ -173,6 +177,14 @@ function sepiaFW_build_strings(){
 	StringsEN.credits = 'Credits';
 	StringsEN.data_privacy = 'Data privacy';
 	StringsEN.tutorial = 'Tutorial';
+	//Offline demo texts
+	StringsEN.demoMode = 'You are in demo-mode! This mode only allows you to change settings (e.g. host-name) and check out the tutorial. To get access to your assistant please log-in first.';
+	StringsEN.demoModeBtn = 'Demo-Mode';
+	StringsEN.myNewsDemoBtn = 'Open my personal news';
+	StringsEN.myRadioDemoBtn = 'Start my favorite radio station';
+	StringsEN.myToDoDemoBtn = 'Open my to-do list';
+
+	//--------------------------------------------------------
 	
 	var StringsLocale = {};
 	if (SepiaFW.config.appLanguage.toLowerCase() === "de"){
