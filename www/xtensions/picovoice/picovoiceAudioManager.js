@@ -21,7 +21,7 @@ let PicovoiceAudioManager = (function() {
             if (!isProcessing) {
                 return;
             }
-            console.log('+');
+            //console.log('+');
 
             //-------------------------
             let inputAudioFrame = ev.inputBuffer.getChannelData(0);
