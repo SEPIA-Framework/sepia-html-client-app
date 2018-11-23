@@ -175,7 +175,11 @@ html {
 /*----- cards ------*/
 
 .sepiaFW-cards-list-title {
-	background: rgba(225, 225, 245, 1.00);
+	background: #000; /*rgba(225, 225, 245, 1.00);*/
+	color: #fff; /*#000;*/
+}
+.sepiaFW-cards-list-footer {
+	background: #CEFF1A;
 	color: #000;
 }
 

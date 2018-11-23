@@ -149,6 +149,9 @@
 	min-height: 20px;
 }
 .sepiaFW-cards-list-body .listElement .listLeft {
+	display: flex;
+    align-items: center;
+    justify-content: center;
 	width: 50px;
 	margin: 5px 0px 0px 5px;
 	user-select: none;
@@ -159,6 +162,9 @@
 	padding: 5px;
 }
 .sepiaFW-cards-list-body .listElement .listRight {
+	display: flex;
+    align-items: center;
+    justify-content: center;
 	width: 50px;
 	margin: 5px 5px 0px 0px;
 	user-select: none;
