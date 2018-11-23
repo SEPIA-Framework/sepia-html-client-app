@@ -48,13 +48,24 @@ function sepiaFW_build_ui_cards(){
 						
 						//UserDataList
 						if (elementType === USER_DATA_LIST){
+							var section = cardInfoI.info[j].section;
+							var dataN = (cardInfoI.info[j].data)? cardInfoI.info[j].data.length : 0;
 							var cardElement = buildUserDataList(cardInfoI.info[j]);
-							card.dataInline.push(cardElement);
+							//console.log('card list element info: ' + JSON.stringify(cardInfoI.info[j]));
+							if (N == 1){ 	//one list is shown in-chat
+								if (section === "timeEvents" && dataN > 3){
+									card.dataFullScreen.push(cardElement);
+								}else{
+									card.dataInline.push(cardElement);
+								}
+							}else{
+								card.dataFullScreen.push(cardElement);
+							}
 						}
 						//Radio
 						else if (elementType === RADIO_CARD_ELE){
 							var cardElement = buildRadioElement(cardInfoI.info[j]);
-							if (j==N-1) cardElement.style.paddingBottom = '5px';
+							if (j==N-1) cardElement.style.paddingBottom = '5px'; 	//TODO: convert to CSS
 							card.dataInline.push(cardElement);
 						}
 						//News
@@ -202,15 +213,24 @@ function sepiaFW_build_ui_cards(){
 		var cardElement = document.createElement('DIV');
 		cardElement.className = "sepiaFW-cards-flexSize-container";
 		cardElement.id = newId;
+		var sortData = false;
 		var elementsData = cardElementInfo.data; 		//get data ...
 		delete cardElementInfo.data;					//... and remove it from info ...
 		cardElement.setAttribute('data-list', JSON.stringify(cardElementInfo)); //... so we have a small basic set here
 		
 		var indexType = cardElementInfo.indexType;
 		var titleName = cardElementInfo.title;
-		var isTimerAndAlarmsList = (indexType === "alarms");
+		var isTimerAndAlarmsList = (indexType === "alarms"); 	//Note: section === "timeEvents" might even be better here
 		if (isTimerAndAlarmsList){
+			sortData = true;	//NOTE: maybe we should read this value from the list info itself ... maybe it is already sorted ...
+
+			//New localized title
 			titleName = SepiaFW.local.g(titleName);
+
+			//Sort time data
+			if (sortData){
+				elementsData.sort(function(a, b){return (a.targetTimeUnix - b.targetTimeUnix)});
+			}
 		}
 		
 		//header
@@ -228,7 +248,7 @@ function sepiaFW_build_ui_cards(){
 		
 		//list elements
 		var cardBody = document.createElement('DIV');
-		var maxShow = 12;
+		var maxShow = 4;
 		var N = elementsData.length;
 		var hasTimer=0, hasAlarm=0, hasCheckable=0;
 		for (i=0; i<N; i++){
@@ -305,10 +325,12 @@ function sepiaFW_build_ui_cards(){
 		var listEle = document.createElement('DIV');
 		listEle.className = 'listElement';
 		if (elementData.checked){
-			listEle.innerHTML = "<div class='listLeft checked'></div><div class='listCenter' contentEditable='true'>" + elementData.name + "</div><div class='listRight'></div>";
+			listEle.innerHTML = "<div class='listLeft checked'></div>";
 		}else{
-			listEle.innerHTML = "<div class='listLeft unchecked'></div><div class='listCenter' contentEditable='true'>" + elementData.name + "</div><div class='listRight'></div>";
+			listEle.innerHTML = "<div class='listLeft unchecked'></div>";
 		}
+		listEle.innerHTML += "<div class='listCenter' contentEditable='true'>" + elementData.name + "</div>"
+		listEle.innerHTML += "<div class='listRight'><i class='material-icons md-24'>&#xE15B;</i></div>";
 		listEle.setAttribute('data-element', JSON.stringify(elementData));
 		
 		//add button actions

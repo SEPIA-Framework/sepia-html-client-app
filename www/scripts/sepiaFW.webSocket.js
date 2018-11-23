@@ -603,7 +603,7 @@ function sepiaFW_build_webSocket_client(){
 					var options = {};
 						//options.skipText = true;
 						options.skipTTS = true;
-						options.targetView = "chat";
+						options.targetView = "chat"; 		//auto-selects bigResult for card
 						options.showView = true;
 					Client.sendCommand(dataset, options);
 					closeControlsMenueWithDelay();
@@ -621,7 +621,7 @@ function sepiaFW_build_webSocket_client(){
 					var options = {};
 						//options.skipText = true;
 						options.skipTTS = true;
-						options.targetView = "chat";
+						options.targetView = "chat"; 		//auto-selects bigResult for card
 						options.showView = true;
 					Client.sendCommand(dataset, options);
 					closeControlsMenueWithDelay();
@@ -645,7 +645,25 @@ function sepiaFW_build_webSocket_client(){
 					closeControlsMenueWithDelay();
 				});
 			}
-			//-alarms
+			//-timers
+			var timersBtn = document.getElementById("sepiaFW-shortcut-btn-timer");
+			if (timersBtn){
+				$(timersBtn).off();
+				$(timersBtn).on("click", function () {
+					SepiaFW.animate.flash(this.id);
+					var options = {};
+						//options.skipText = true;
+						options.targetView = "chat"; 		//might auto-select bigResult for card
+						options.showView = true;
+						options.skipTTS = true;
+					var dataset = {};	dataset.info = "direct_cmd";
+						dataset.cmd = "timer;;action=<show>;;alarm_type=<timer>;;";
+						dataset.newReceiver = SepiaFW.assistant.id;
+					Client.sendCommand(dataset, options);
+					closeControlsMenueWithDelay();
+				});
+			}
+			//-alarms/reminders
 			var alarmsBtn = document.getElementById("sepiaFW-shortcut-btn-alarm");
 			if (alarmsBtn){
 				$(alarmsBtn).off();
@@ -653,18 +671,20 @@ function sepiaFW_build_webSocket_client(){
 					SepiaFW.animate.flash(this.id);
 					var options = {};
 						//options.skipText = true;
-						options.targetView = "chat";
+						options.targetView = "chat";		//might auto-select bigResult for card
 						options.showView = true;
 						options.skipTTS = true;
 					var dataset = {};	dataset.info = "direct_cmd";
-						dataset.cmd = "timer;;action=<show>;;alarm_type=<timer>;;";
+						dataset.cmd = "timer;;action=<show>;;alarm_type=<alarmClock>;;";
 						dataset.newReceiver = SepiaFW.assistant.id;
 					Client.sendCommand(dataset, options);
 					//TODO: if voice is on we need to wait here or skip actively (better skip)
+					/* It is split now
 					var dataset2 = {};	dataset2.info = "direct_cmd";
-						dataset2.cmd = "timer;;action=<show>;;alarm_type=<alarmClock>;;";
+						dataset2.cmd = "timer;;action=<show>;;alarm_type=<timer>;;";
 						dataset2.newReceiver = SepiaFW.assistant.id;
 					Client.sendCommand(dataset2, options);
+					*/
 					closeControlsMenueWithDelay();
 				});
 			}

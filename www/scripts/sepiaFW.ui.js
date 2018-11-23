@@ -382,7 +382,7 @@ function sepiaFW_build_ui(){
 		UI.assistIconAwaitAnswer = '<i class="material-icons md-mic-dia">&#xE0B7;</i>';  //&#xE90F;
 		
 		//---------------------- LOAD other SETTINGS before building the UI:
-		//TODO: this should be simplified with a service!
+		//TODO: this should be simplified with a service! ... for the start we could move it to the 'data' module
 		
 		//TTS
 		if (SepiaFW.speech){
@@ -622,15 +622,16 @@ function sepiaFW_build_ui(){
 				var maxTargetTime = now + 18*60*60*1000;
 				var includePastMs = 120*60*60*1000;
 				var nextTimers = SepiaFW.events.getNextTimeEvents(maxTargetTime, '', includePastMs);
+				var myView = document.getElementById('sepiaFW-my-view'); 		//TODO: don't we have a method for this or a permanent variable?
 				$.each(nextTimers, function(index, Timer){
 					//check if alarm is present in myView 	
-					var timerPresentInMyView = $('#sepiaFW-my-view').find('[data-id="' + Timer.data.eventId + '"]');
+					var timerPresentInMyView = $(myView).find('[data-id="' + Timer.data.eventId + '"]');
 					if (timerPresentInMyView.length == 0){
 						//recreate timer and add to myView
 						var action = Timer.data;
 						action.info = "set";
 						action.type = Timer.data.eleType; 	//TODO: this is just identical by chance!!!
-						SepiaFW.ui.actions.timerAndAlarm(action, document.getElementById('sepiaFW-my-view'));
+						SepiaFW.ui.actions.timerAndAlarm(action, myView);
 					}
 				});
 
