@@ -13,17 +13,17 @@ html {
 	}
 }
 
-#sepiaFW-pC 	 { background-color: #102030; }
-#sepiaFW-sC 	 { background-color: #15abc3; }
-#sepiaFW-sC2 { background-color: rgba(235, 235, 255, 0.95); }
-#sepiaFW-aC 	 { background-color: #ff0000; }
-#sepiaFW-aC2 { background-color: #dfe0f5; }
-#sepiaFW-asC { background-color: #15abc3; }
-#sepiaFW-adC { background-color: #ceff1a; }
-#sepiaFW-lC 	 { background-color: rgba(200, 200, 200, 0.50); 	}
+#sepiaFW-pC 	{ background-color: #102030; }
+#sepiaFW-sC 	{ background-color: #15abc3; }
+#sepiaFW-sC2 	{ background-color: rgba(235, 235, 255, 0.95); }
+#sepiaFW-aC 	{ background-color: #ff0000; }
+#sepiaFW-aC2 	{ background-color: #dfe0f5; }
+#sepiaFW-asC 	{ background-color: #15abc3; }
+#sepiaFW-adC 	{ background-color: #ceff1a; }
+#sepiaFW-lC 	{ background-color: rgba(200, 200, 200, 0.50); 	}
 
 #sepiaFW-login-box, #sepiaFW-nav-bar, #sepiaFW-chat-controls-form, #sepiaFW-chat-controls-right {
-	background: #102030bf;
+	background: rgba(16, 32, 48, 0.75);;
 	border: 1px solid #15abc3;
 	box-shadow: 0 0 5px #15abc3;
 	color: #fff;
@@ -45,11 +45,11 @@ html {
 
 #sepiaFW-main-window button,
 .sepiaFW-touch-device #sepiaFW-main-window button:hover {
-	background: #102030bf;
+	background: rgba(16, 32, 48, 0.75);;
 	color: #15abc3;
 }
 .sepiaFW-notouch-device #sepiaFW-main-window button:hover {
-	background: #14a3bba8;
+	background: rgba(20, 163, 187, 0.66);
 	color: #fff;
 	border-color: #fff;
 }
@@ -59,7 +59,7 @@ html {
 	text-shadow: 0px 0px 2px #fff
 }
 #sepiaFW-login-form button {
-	background: #14a3bba8;
+	background: rgba(20, 163, 187, 0.66);
 	color: #fff;
 	border: 1px solid #fff !important;
     box-shadow: 0 0 5px #fff !important;
@@ -162,7 +162,7 @@ html {
 }
 */
 #sepiaFW-main-window .chat-buttons-area .my-view-custom-button {
-	background-color: #ceff1a40;
+	background-color: rgba(206, 255, 26, 0.25);
 	color: #fff;
 	border: 1px solid #ceff1a;
     box-shadow: 0 0 5px #ceff1a;
@@ -193,7 +193,7 @@ html {
 }
 #sepiaFW-chat-output article.chatMe{
 	margin: 2px 6px 2px 30px;
-	background: #ceff1a40;
+	background: rgba(206, 255, 26, 0.25);
 	color: #fff;
 	box-shadow: 0 0 5px #ceff1a;
 	border-color: #ceff1a;
@@ -262,7 +262,7 @@ html {
     border: 1px solid #ceff1a;
 }
 .sepiaFW-cards-list-footer {
-	background: #14a3bba8;
+	background: rgba(20, 163, 187, 0.66);
 	color: #fff;
 }
 .sepiaFW-cards-list-body {

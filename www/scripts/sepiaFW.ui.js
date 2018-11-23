@@ -572,7 +572,7 @@ function sepiaFW_build_ui(){
 	}
 	
 	//Update myView
-	var myViewUpdateInterval = 30*60*1000; 		//<- automatic updates will not be done more than once within this interval
+	var myViewUpdateInterval = 20*60*1000; 		//<- automatic updates will not be done more than once within this interval
 	var lastMyViewUpdate = 0;
 	var myViewUpdateTimer;
 	var contextEventsLoadDelayTimer = undefined;
