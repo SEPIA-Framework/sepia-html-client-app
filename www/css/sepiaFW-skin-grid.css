@@ -53,6 +53,11 @@ html {
 	color: #fff;
 	border-color: #fff;
 }
+.sepiaFW-notouch-device #sepiaFW-chat-controls button:hover,
+.sepiaFW-notouch-device #sepiaFW-nav-bar button:hover {
+	background: transparent;
+	text-shadow: 0px 0px 2px #fff
+}
 #sepiaFW-login-form button {
 	background: #14a3bba8;
 	color: #fff;

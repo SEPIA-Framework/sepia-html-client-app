@@ -1,6 +1,6 @@
 ::-webkit-scrollbar {
-	width: 2px;
-	height: 2px;
+	width: 4px;
+	height: 4px;
 	background: rgba(128,128,128,0.12);
 }
 ::-webkit-scrollbar-thumb {
@@ -828,7 +828,7 @@ body {
 .sepiaFW-toggle-btn .on {
 	user-select: none;
     pointer-events: none;
-	background: rgba(0, 255, 0, 0.5);
+	background: rgba(0, 255, 0, 0.55);
 	border-radius: 3px;
 	border: 0px;
 	height: 100%;
