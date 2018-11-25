@@ -1,10 +1,10 @@
-::-webkit-scrollbar {
+.sepiaFW-notouch-device ::-webkit-scrollbar {
 	width: 4px;
 	height: 4px;
 	background: rgba(128,128,128,0.12);
 }
-::-webkit-scrollbar-thumb {
-	border-radius: 2px;
+.sepiaFW-notouch-device ::-webkit-scrollbar-thumb {
+	border-radius: 0px;
 	background: rgba(128,128,128,0.24);
 }
 * {
