@@ -128,15 +128,17 @@ function sepiaFW_build_ui_build(){
 				}
 			});
 		}
-		//kind'a clumsy way to catch the main menue close/open event
+		//kind'a tricky way to catch the main menue close/open event
 		$('#sepiaFW-main-window').on("sepiaFwOpen-sepiaFW-chat-menu", function(){
 			//open
 			SepiaFW.ui.switchSwipeBars('menu');
+			$('#sepiaFW-chat-controls').addClass('chat-menu');
 			SepiaFW.ui.isMenuOpen = true;
 			if (SepiaFW.ui.soc) SepiaFW.ui.soc.refresh();
 		}).on("sepiaFwClose-sepiaFW-chat-menu", function(){
 			//close
 			SepiaFW.ui.switchSwipeBars('chat');
+			$('#sepiaFW-chat-controls').removeClass('chat-menu');
 			SepiaFW.ui.isMenuOpen = false;
 		});
 		
@@ -313,9 +315,11 @@ function sepiaFW_build_ui_build(){
 		//catch the shortcuts menue close/open event
 		$('#sepiaFW-main-window').on("sepiaFwOpen-sepiaFW-chat-controls-more-menu", function(){
 			//open
+			$('#sepiaFW-chat-controls').addClass('chat-controls-more-menu');
 			SepiaFW.ui.isControlsMenuOpen = true;
 		}).on("sepiaFwClose-sepiaFW-chat-controls-more-menu", function(){
 			//close
+			$('#sepiaFW-chat-controls').removeClass('chat-controls-more-menu');
 			SepiaFW.ui.isControlsMenuOpen = false;
 		});
 		

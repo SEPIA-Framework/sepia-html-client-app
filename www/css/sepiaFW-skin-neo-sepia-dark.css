@@ -135,12 +135,12 @@ html {
 }
 
 .sepiaFW-notouch-device #sepiaFW-main-window .chat-buttons-area button:hover {
-    background-color: #b4df18 !important;
+    background-color: #ceff1a !important;
 	color: #101418 !important;
 }
 #sepiaFW-main-window .chat-buttons-area button {
-    background: #ceff1a !important;
-	color: #101418 !important
+    background: #2d3034 !important;
+	color: #fff !important
 }
 #sepiaFW-main-window .chat-buttons-area .my-view-custom-button {
 	background-color: #08a0c8 !important;

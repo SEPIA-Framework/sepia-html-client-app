@@ -646,11 +646,11 @@ body {
 	    -ms-flex-direction: column;
 	        flex-direction: column;
     position: absolute;
-    left: 2px;
-	top: 52px;
-    padding: 4px 8px 4px 8px;
-    height: calc(100% - 109px);
-	width: calc(100% - 4px);
+    left: 0px;
+	top: 50px;
+    padding: 4px 8px 59px 8px;
+    height: calc(100% - 50px);
+	width: calc(100% - 0px);
 	overflow: auto;
 	-webkit-overflow-scrolling: touch;
 	font-size: 21px;
@@ -658,8 +658,8 @@ body {
 	z-index: 5;
 }
 #sepiaFW-chat-menu.full-screen {
-	top: 2px !important;
-	height: calc(100% - 59px) !important;
+	top: 0px !important;
+	height: calc(100% - 0px) !important;
 }
 #sepiaFW-chat-menu button {
 	background: rgba(255, 255, 255, 0.95);
@@ -885,15 +885,15 @@ body {
 #sepiaFW-chat-controls-more-menu {
 	display: none;
 	position: absolute;
-	border-radius: 3px 3px 3px 0;
-	bottom: 57px;
-	left: 2px;
+	border-radius: 3px 3px 0px 0px;
+	bottom: 0px;
+	left: 0px;
 	/*width: auto;*/
-	width: calc(100% - 4px);
-	max-width: 372px;
+	width: calc(100% - 0px);
+	max-width: 375px;
 	min-width: 100px;
 	/*max-height: calc(100% - 59px);*/
-    padding: 5px 5px 0 5px;
+    padding: 5px 5px 55px 5px;
 	overflow: auto;
 	text-align: right;
 	z-index: 3;
@@ -1186,6 +1186,8 @@ body {
 
 #sepiaFW-chat-controls {
 	background: linear-gradient(rgba(255,255,255,0), #fff);
+	transition: background 275ms;
+    transition-timing-function: ease-in-out;
 	position: absolute;
     bottom: 0px;			/* note that 'sepiaFW-chat-controls-speech-box' depends on that as well */
     z-index: 5;
@@ -1200,6 +1202,15 @@ body {
 	display: -ms-flexbox;
 	display: flex;
 	overflow: hidden;		/* better dont use position fixed inside */
+}
+/*#sepiaFW-chat-controls.full-screen.chat-controls-more-menu {
+	max-width: 375px;
+}*/
+#sepiaFW-chat-controls.chat-menu {
+	background: transparent;
+}
+#sepiaFW-chat-controls.chat-controls-more-menu {
+	background: transparent;
 }
 #sepiaFW-chat-controls-more-btn {
 	padding-left: 0px !important;

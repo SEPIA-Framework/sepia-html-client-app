@@ -32,9 +32,12 @@ html {
 	margin-top: 1px;
 }
 #sepiaFW-chat-controls {
-	background: linear-gradient(rgba(5,25,45,0), #051525, #051525);
+	background: linear-gradient(rgba(5,25,45,0), #051525, #051525) !important;
 	border-bottom: 1px solid #051525;
 	overflow: visible;
+}
+#sepiaFW-chat-controls.chat-menu {
+	background: #051525;
 }
 
 #sepiaFW-main-window {
@@ -46,7 +49,7 @@ html {
 
 #sepiaFW-main-window button,
 .sepiaFW-touch-device #sepiaFW-main-window button:hover {
-	background: rgba(16, 32, 48, 0.75);;
+	background: transparent;
 	color: #15abc3;
 }
 .sepiaFW-notouch-device #sepiaFW-main-window button:hover {
@@ -57,7 +60,7 @@ html {
 .sepiaFW-notouch-device #sepiaFW-chat-controls button:hover,
 .sepiaFW-notouch-device #sepiaFW-nav-bar button:hover {
 	background: transparent;
-	text-shadow: 0px 0px 2px #fff
+	text-shadow: 0px 0px 2px #fff;
 }
 #sepiaFW-login-form button {
 	background: rgba(20, 163, 187, 0.66);
@@ -101,6 +104,11 @@ html {
 #sepiaFW-chat-menu {
 	background: rgba(21, 171, 195, 1.00); 
 	color: #fff;
+	box-shadow: inset 0 0 5px 1px #fff;
+	height: calc(100% - 106px);
+}
+#sepiaFW-chat-menu:not(.full-screen) {
+	padding-bottom: 4px;
 }
 #sepiaFW-chat-menu-head-border {
     background: linear-gradient(to right, rgba(0,0,0,0) 0%,rgba(255,255,255,0.5) 40%,rgba(255,255,255,0.5) 60%,rgba(0,0,0,0) 100%);
@@ -122,6 +130,11 @@ html {
 	background: #102030;
 	color: #fff;
 }
+#sepiaFW-chat-controls-more-menu {
+	box-shadow: inset 0 0 5px 1px #fff;
+	bottom: 56px;
+	padding-bottom: 4px;
+}
 #sepiaFW-chat-controls-more-menu button {
 	background: #102030;
 	color: #ECEBE7;
@@ -141,20 +154,23 @@ html {
 	border: 1px solid #15abc3;
 	box-shadow: 0 0 5px #15abc3;
 	color: #fff;
+	background: rgba(16, 32, 48, 0.75);
 }
 
+/*
 #sepiaFW-myEvents-buttons button,
 #sepiaFW-myEvents-buttons-replaced button,
 .sepiaFW-touch-device #sepiaFW-myEvents-buttons button {
-    background: #102030;
+    background: rgba(16, 32, 48, 0.75);
 	color: #fff;
-	border: 1px solid #fff !important;
+	border: 1px solid #15abc3 !important;
     box-shadow: 0 0 5px #fff !important;
 }
 #sepiaFW-myEvents-buttons button:hover {
 	background: #fff;
 	color: #102030;
 }
+*/
 /*
 #sepiaFW-main-window .chat-buttons-area button,
 .sepiaFW-touch-device #sepiaFW-main-window .chat-buttons-area button {

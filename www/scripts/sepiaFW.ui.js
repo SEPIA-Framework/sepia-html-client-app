@@ -1333,12 +1333,14 @@ function sepiaFW_build_ui(){
 			$inputBar.fadeIn(300);
 			$('.sepiaFW-carousel-pane').removeClass('full-screen');
 			$('#sepiaFW-chat-menu').removeClass('full-screen');
+			$('#sepiaFW-chat-controls').removeClass('full-screen');
 			UI.isInterfaceFullscreen = false;
 		}else{
 			$navBar.fadeOut(300);
 			$inputBar.fadeOut(300);
 			$('.sepiaFW-carousel-pane').addClass('full-screen');
 			$('#sepiaFW-chat-menu').addClass('full-screen');
+			$('#sepiaFW-chat-controls').addClass('full-screen');
 			UI.isInterfaceFullscreen = true;
 		}
 		setTimeout(function(){

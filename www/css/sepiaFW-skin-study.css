@@ -72,7 +72,7 @@ html {
 	border-color: #23292e;
 }
 #sepiaFW-assist-btn {
-	background: linear-gradient(to right, #999 0%, #222 100%) !important;
+	background: linear-gradient(to right, #999 0%, #405365 100%) !important;
 	/*background: linear-gradient(to right, #CEFF1A 0%, #16ABC3 100%) !important;*/
 }
 .sepiaFW-notouch-device #sepiaFW-assist-btn:hover {
