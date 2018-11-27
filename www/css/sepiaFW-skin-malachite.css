@@ -94,6 +94,9 @@ html {
 .sepiaFW-menu input {
 	background: transparent !important;
 }
+.sepiaFW-cards-list-contextMenu {
+	background: #07333a;
+}
 #sepiaFW-chat-controls-more-menu {
 	background: #07333a;
 }

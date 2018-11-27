@@ -1040,9 +1040,9 @@ body {
 	#sepiaFW-chat-channel-view {
 		border-radius: 0px 0px 3px 3px;
 		position: absolute;
-		left: 2px;
-		top: 52px;
-		width: calc(100% - 4px);
+		left: 0px;
+		top: 50px;
+		width: calc(100% - 0px);
 		max-width: none;
 		max-height: calc(100% - 109px);
 	}

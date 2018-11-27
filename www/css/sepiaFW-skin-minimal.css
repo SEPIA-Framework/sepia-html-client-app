@@ -14,14 +14,14 @@ html {
 	}
 }
 
-#sepiaFW-pC 	 { background-color: #000; }
-#sepiaFW-sC 	 { background-color: #fff; }
-#sepiaFW-sC2 { background-color: #222226; }
-#sepiaFW-aC 	 { background-color: #ff0000; }
-#sepiaFW-aC2 { background-color: #dfe0f5; }
-#sepiaFW-asC { background-color: #ceff1a; }
-#sepiaFW-adC { background-color: #ceff1a; }
-#sepiaFW-lC 	 { background-color: rgba(200, 200, 200, 0.50); 	}
+#sepiaFW-pC 	{ background-color: #000; }
+#sepiaFW-sC 	{ background-color: #fff; }
+#sepiaFW-sC2 	{ background-color: #19191b; }
+#sepiaFW-aC 	{ background-color: #ff0000; }
+#sepiaFW-aC2 	{ background-color: #dfe0f5; }
+#sepiaFW-asC 	{ background-color: #ceff1a; }
+#sepiaFW-adC 	{ background-color: #ceff1a; }
+#sepiaFW-lC 	{ background-color: rgba(200, 200, 200, 0.50); 	}
 
 #sepiaFW-login-box, #sepiaFW-nav-bar, #sepiaFW-chat-controls-form, #sepiaFW-chat-controls-right {
 	background: #000;
@@ -61,7 +61,7 @@ html {
 }
 .sepiaFW-layer-header {
 	border: 1px solid #fff;
-	background: #222226;
+	background: #19191b;
 }
 .sepiaFW-myEvents-titleNote, 
 .sepiaFW-myFirstStart-titleNote,
@@ -90,7 +90,7 @@ html {
 #sepiaFW-assist-btn-area button,
 .sepiaFW-touch-device  #sepiaFW-assist-btn-area button:hover {
 	border: 0px solid #fff;
-	background: #222226 !important;
+	background: #19191b !important;
 }
 .sepiaFW-notouch-device #sepiaFW-assist-btn-area button:hover {
 	/*border: 1px solid #888;*/
@@ -111,14 +111,17 @@ html {
 }
 
 .sepiaFW-menu {
-	background: #222226;
+	background: #19191b;
 	color: #fff;
 }
 .sepiaFW-menu input {
 	background: transparent !important;
 }
+.sepiaFW-cards-list-contextMenu {
+	background: #121212;
+}
 #sepiaFW-chat-menu {
-	background: #222226; 
+	background: #19191b; 
 	color: #fff;
 }
 #sepiaFW-chat-menu-head-border {
@@ -141,7 +144,10 @@ html {
 	color: #fff;
 }
 #sepiaFW-chat-menu li {
-	background: rgba(255, 255, 255, 0.06);
+	background: rgba(155, 155, 155, 0.04);
+}
+.sepiaFW-notouch-device .sepiaFW-menu li:hover {
+	background: rgba(155, 155, 155, 0.07) !important;
 }
 .sepiaFW-toggle-btn .on {
     background: #ceff1a;
@@ -180,7 +186,7 @@ html {
 }
 
 #sepiaFW-chat-output .statusUpdate {
-    background: rgba(255, 255, 255, 0.10);
+    background: #121212;
     color: #fff;
 }
 #sepiaFW-chat-output article:not(.statusUpdate) {
@@ -198,13 +204,13 @@ html {
 	border-color: #fff;
 }
 #sepiaFW-chat-output article.chatMe b{
-	color: #fff;
+	color: #888;
 }
 #sepiaFW-chat-output article.chatMe span{
 	color: #fff;
 }
 #sepiaFW-chat-output article.chatAssistant {
-	background: rgba(34, 34, 38, 0.85);
+	background: #121212;
 	color: #fff;
 	border-color: #fff;
 }
@@ -225,12 +231,12 @@ html {
 }
 
 .sepiaFW-button {
-	background-color: #222226;
+	background-color: #19191b;
 	color: #fff;
 }
 .sepiaFW-button:hover {
 	background-color: #fff;
-	color: #222226;
+	color: #19191b;
 }
 
 #sepiaFW-chat-controls-swipe-area .sepiaFW-swipeBar-switchable {
@@ -253,15 +259,15 @@ html {
 /*----- cards ------*/
 
 .sepiaFW-cards-flexSize-container {
-    background: rgba(255, 255, 255, 0.07);
+    background: #121212;
 }
 
 .sepiaFW-help-view {
-    background: rgba(33, 33, 33, 0.75);
+    background: #121212;
 }
 
 .sepiaFW-cards-list-title {
-	background: #222226;
+	background: #19191b;
     color: #fff;
 }
 .sepiaFW-cards-list-body {
@@ -272,18 +278,25 @@ html {
 	color: #fff;
 }
 .sepiaFW-cards-list-body .listElement .checked {
-    background: rgba(206, 255, 26, 0.95) !important;
+    background: #c4f31a !important;
 }
-.sepiaFW-cards-list-body .listElement .listRight:hover {
-	background: rgba(255, 0, 0, 0.95) !important;
+.sepiaFW-notouch-device .sepiaFW-cards-list-body .listElement .unchecked:hover {
+    background: #ddd  !important;
+}
+.sepiaFW-notouch-device .sepiaFW-cards-list-body .listElement .listRight:hover {
+	background: #f30000 !important;
 }
 
 .sepiaFW-cards-list-body .weatherNowSmall .weatherNowSmallImage {
-	background: #222226;
+	background: #000 !important;
 }
 
 .sepiaFW-cards-list-footer {
     background: transparent;
+}
+
+#sepiaFW-audio-ctrls-canvas {
+    background: #404050;
 }
 
 /*----- teachUI -----*/

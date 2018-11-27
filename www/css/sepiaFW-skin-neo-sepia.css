@@ -71,6 +71,9 @@ html {
 	background:#000;
 	color: #fff;
 }
+.sepiaFW-cards-list-contextMenu {
+	background: #222;
+}
 #sepiaFW-chat-controls-more-menu button {
 	background: #fff;
 	color: #000;
@@ -175,7 +178,7 @@ html {
 /*----- cards ------*/
 
 .sepiaFW-cards-list-title {
-	background: #000; /*rgba(225, 225, 245, 1.00);*/
+	background: #121212; /*rgba(225, 225, 245, 1.00);*/
 	color: #fff; /*#000;*/
 }
 .sepiaFW-cards-list-footer {

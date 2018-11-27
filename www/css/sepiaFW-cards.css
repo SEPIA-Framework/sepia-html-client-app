@@ -62,6 +62,7 @@
 /* header */
 .sepiaFW-cards-list-title {
 	display: flex;
+	flex-wrap: wrap;
 	justify-content: space-between;
 	position: relative;
 	/*background: rgba(205, 235, 205, 0.90);*/
@@ -71,7 +72,7 @@
 	margin: 0px 5px 0px 5px;
 	width: calc(100% - 10px);
 	min-height: 38px;
-	padding: 1px;
+	padding-top: 1px;
     text-align: center;
 	font-weight: bold;
 	line-height: 27px;
@@ -94,18 +95,31 @@
 }
 .sepiaFW-cards-list-contextMenu {
 	position: absolute;
-	top: 39px;
+	top: 38px;
 	right: 0px;
 	line-height: 17px;
     font-size: 13px;
 	display: none;
+	width: 100%;
+    order: 4;
 }
-.sepiaFW-cards-list-contextMenu li:first-of-type{
+.sepiaFW-cards-list-contextMenu > ul {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: space-between;
+}
+.sepiaFW-cards-list-contextMenu li {
+	padding: 2px 6px;
+	display: flex;
+    justify-content: center;
+    align-items: center;
+}
+/*.sepiaFW-cards-list-contextMenu li:first-of-type{
 	margin-top: 0px;
 }
 .sepiaFW-cards-list-contextMenu li:last-of-type{
 	margin-bottom: 0px;
-}
+}*/
 .sepiaFW-cards-list-saveBtn {
 	/*float: left;*/
 	opacity: 0.10;

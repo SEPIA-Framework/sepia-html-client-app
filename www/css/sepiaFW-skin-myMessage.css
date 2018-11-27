@@ -66,9 +66,6 @@ html {
 	color: #000;
 }
 
-#sepiaFW-chat-menu li {
-	background: rgba(235, 235, 235, 0.25);
-}
 .sepiaFW-menu {
 	background: #fff !important;
 	color: #000 !important;
@@ -89,6 +86,19 @@ html {
 .sepiaFW-menu input {
 	border: 0px !important;
 	border-bottom: 1px solid white !important;
+}
+#sepiaFW-chat-menu:not(.full-screen) {
+	border-top: 0;
+	border-bottom: 0;
+}
+#sepiaFW-chat-menu li {
+	background: rgba(235, 235, 235, 0.25);
+}
+#sepiaFW-chat-channel-view {
+	border-top: 0;
+}
+#sepiaFW-chat-controls-more-menu:not(.full-screen) {
+	border-bottom: 0;
 }
 
 #sepiaFW-nav-label-note{

@@ -894,13 +894,25 @@ function sepiaFW_build_ui_cards(){
 		contextMenu.id = ("sepiaFW-contextMenu-id-" + Cards.currentCardId);
 			var cmList = document.createElement('UL');
 			
+			//move to my view
+			var moveToMyViewBtn = document.createElement('LI');
+			moveToMyViewBtn.className = "sepiaFW-cards-list-addBtn";
+			moveToMyViewBtn.innerHTML = SepiaFW.local.g('moveToMyView');
+			SepiaFW.ui.onclick(moveToMyViewBtn, function(){
+				var flexBox = $(moveToMyViewBtn).closest('.sepiaFW-cards-flexSize-container');
+				Cards.moveToMyViewOrDelete(flexBox[0]);
+				$(contextMenu).hide();
+				$('#sepiaFW-main-window').trigger(('sepiaFwClose-' + contextMenu.id));
+				$(moveToMyViewBtn).remove();
+			}, true);
+			cmList.appendChild(moveToMyViewBtn);
+
 			//add default list item
 			if (addAddDefaultListItemButton){
 				var addItemBtn = document.createElement('LI');
 				addItemBtn.className = "sepiaFW-cards-list-addBtn";
-				addItemBtn.innerHTML = SepiaFW.local.g('addItem');
+				addItemBtn.innerHTML = '<i class="material-icons md-24">add_circle_outline</i>'; //SepiaFW.local.g('addItem');
 				SepiaFW.ui.onclick(addItemBtn, function(){
-				//$(addItemBtn).on('click', function(){
 					var fakeData = {
 						'name' : '',
 						'checked' : false,
@@ -914,43 +926,28 @@ function sepiaFW_build_ui_cards(){
 						$(addItemBtn).closest('.sepiaFW-cards-flexSize-container').append(cardBody);
 					}
 					cardBody.append(emptyEle);
-					$(contextMenu).fadeOut(200);
-					$('#sepiaFW-main-window').trigger(('sepiaFwClose-' + contextMenu.id));
-				});
+					/*$(contextMenu).fadeOut(200);
+					$('#sepiaFW-main-window').trigger(('sepiaFwClose-' + contextMenu.id));*/
+				}, true);
 				cmList.appendChild(addItemBtn);
 			}
-			
-			//move to my view
-			var moveToMyViewBtn = document.createElement('LI');
-			moveToMyViewBtn.className = "sepiaFW-cards-list-addBtn";
-			moveToMyViewBtn.innerHTML = SepiaFW.local.g('moveToMyView');
-			SepiaFW.ui.onclick(moveToMyViewBtn, function(){
-			//$(moveToMyViewBtn).on('click', function(){
-				var flexBox = $(moveToMyViewBtn).closest('.sepiaFW-cards-flexSize-container');
-				Cards.moveToMyViewOrDelete(flexBox[0]);
-				$(contextMenu).hide();
-				$('#sepiaFW-main-window').trigger(('sepiaFwClose-' + contextMenu.id));
-				$(moveToMyViewBtn).remove();
-			});
-			cmList.appendChild(moveToMyViewBtn);
 			
 			//hide
 			var cmHideBtn = document.createElement('LI');
 			cmHideBtn.className = "sepiaFW-cards-list-contextMenu-hideBtn";
 			cmHideBtn.innerHTML = SepiaFW.local.g('hideItem');
 			SepiaFW.ui.onclick(cmHideBtn, function(){
-			//$(cmHideBtn).on('click', function(){
 				$(cmHideBtn).closest('.sepiaFW-cards-flexSize-container').fadeOut(300, function(){
 					$(this).remove();
 				});
-			});
+			}, true);
 			cmList.appendChild(cmHideBtn);
 
 			//delete list
 			if (addDeleteListButton){
 				var cmDelBtn = document.createElement('LI');
 				cmDelBtn.className = "sepiaFW-cards-list-contextMenu-delBtn";
-				cmDelBtn.innerHTML = SepiaFW.local.g('deleteItem');
+				cmDelBtn.innerHTML = '<i class="material-icons md-24">delete</i>'; //SepiaFW.local.g('deleteItem');
 				SepiaFW.ui.onclick(cmDelBtn, function(){
 				//$(cmDelBtn).on('click', function(){
 					var listInfo = JSON.parse(cmDelBtn.parentElement.parentElement.parentElement.parentElement.getAttribute('data-list')); 		//TODO: replace with $().closest('...')
@@ -967,7 +964,7 @@ function sepiaFW_build_ui_cards(){
 						//abort
 						return;
 					});
-				});
+				}, true);
 				cmList.appendChild(cmDelBtn);	
 			}
 		contextMenu.appendChild(cmList);
