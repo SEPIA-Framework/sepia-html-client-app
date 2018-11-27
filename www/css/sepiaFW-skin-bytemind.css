@@ -161,6 +161,10 @@ html {
 	background: #6b4d9f;
 	color: #fff;
 }
+.sepiaFW-cards-list-body .listElement .listRight {
+    border-left: 2px solid #999;
+    background: #d2d2d5;
+}
 
 /*----- teachUI -----*/
 

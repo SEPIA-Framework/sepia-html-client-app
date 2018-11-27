@@ -1627,8 +1627,10 @@ body {
 	margin-bottom: 5px;
 }
 #sepiaFW-my-view > .sepiaFW-cards-flexSize-container > :last-child {
-	padding-bottom: 0px !important;
 	margin-bottom: 0px !important;
+}
+#sepiaFW-my-view > .sepiaFW-cards-flexSize-container > :last-child:not(.sepiaFW-cards-list-footer) {
+	padding-bottom: 0px !important;
 }
 
 #sepiaFW-result-view {

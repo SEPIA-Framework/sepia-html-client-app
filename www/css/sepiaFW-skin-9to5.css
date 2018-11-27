@@ -114,7 +114,10 @@ html {
 .sepiaFW-cards-list-title.newsHeader button {
 	color: #312F3F !important;
 }
-
+.sepiaFW-cards-list-body .listElement .listRight {
+    border-left: 2px solid #545454;
+    background: #d2d2d5;
+}
 .sepiaFW-cards-list-body .weatherNowSmall .weatherNowSmallImage {
 	background: #4B6688;
 }

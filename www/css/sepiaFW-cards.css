@@ -1,5 +1,5 @@
 .sepiaFW-cards-flexSize-container {
-    background: rgba(0, 0, 0, 0.10);
+    background: #e5e5e5; /*rgba(0, 0, 0, 0.10);*/
 	position: relative;
 	margin: 5px 0px;
 	border-radius: 3px;
@@ -154,10 +154,14 @@
 .sepiaFW-cards-list-body .listElement {
 	display: flex;
 	min-height: 33px;
+	padding-top: 2px;
+}
+.sepiaFW-cards-list-body .listElement:first-child {
+	margin-top: 3px;
 }
 .sepiaFW-cards-list-body .listElement div {
 	background: rgba(255, 255, 255, 0.90);
-	border-radius: 3px;
+	border-radius: 0px;
 	display: inline-block;
 	vertical-align: top;
 	min-height: 20px;
@@ -166,34 +170,46 @@
 	display: flex;
     align-items: center;
     justify-content: center;
-	width: 50px;
-	margin: 5px 0px 0px 5px;
+	width: 44px;
+    /*border-right: 3px solid #e5e5e5;*/
+	margin: 0px 2px 0px 5px;
 	user-select: none;
 }
 .sepiaFW-cards-list-body .listElement .listCenter {
-	width: calc(100% - 120px);
-	margin: 5px 5px 0px 5px;
-	padding: 5px;
+	display: flex;
+	align-items: center;
+	justify-content: left;
+	width: calc(100% - 100px);
+	margin: 0px 0px 0px 0px;
+	padding: 5px 8px;
 }
 .sepiaFW-cards-list-body .listElement .listRight {
 	display: flex;
     align-items: center;
     justify-content: center;
-	width: 50px;
-	margin: 5px 5px 0px 0px;
+	width: 44px;
+	border-left: 2px solid #545454;
+	background: #bcbebe;
+	color: #fff;
+	margin: 0px 5px 0px 0px;
 	user-select: none;
 }
-.sepiaFW-notouch-device .sepiaFW-cards-list-body .listElement .listRight:hover {	background: rgba(255, 0, 0, 0.50);		}
+.sepiaFW-notouch-device .sepiaFW-cards-list-body .listElement .listRight:hover {	
+	background: rgba(255, 0, 0, 0.50);		
+}
 
 .sepiaFW-cards-list-body .listElement .checked {
 	background: rgba(0, 255, 0, 0.50);
 }
-.sepiaFW-notouch-device .sepiaFW-cards-list-body .listElement .checked:hover {	background: rgba(0, 255, 255, 0.50);	}
-
+.sepiaFW-notouch-device .sepiaFW-cards-list-body .listElement .checked:hover {	
+	background: rgba(0, 255, 255, 0.50);	
+}
 .sepiaFW-cards-list-body .listElement .unchecked {
 	background: rgba(255, 255, 255, 0.90);
 }
-.sepiaFW-notouch-device .sepiaFW-cards-list-body .listElement .unchecked:hover {	background: rgba(0, 255, 0, 0.50);		}
+.sepiaFW-notouch-device .sepiaFW-cards-list-body .listElement .unchecked:hover {	
+	background: rgba(0, 255, 0, 0.50);		
+}
 
 /* hidden and visible */
 .sepiaFW-cards-list-body .itemHidden {

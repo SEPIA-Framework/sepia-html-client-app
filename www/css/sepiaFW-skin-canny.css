@@ -70,7 +70,7 @@ html {
 	color: #fff;
 }
 #sepiaFW-chat-menu li {
-	background: rgba(97, 230, 157, 0.10);
+	background: #e9e9e9;
 }
 
 #sepiaFW-myEvents-buttons button,
@@ -157,8 +157,12 @@ html {
 /*----- cards ------*/
 
 .sepiaFW-cards-list-title {
-	background: #eaeaea;
+	background: #61E69D;
 	color: #2f3035;
+}
+.sepiaFW-cards-list-body .listElement .listRight {
+    border-left: 2px solid #545454;
+    background: #d2d2d5;
 }
 
 /*----- teachUI -----*/

@@ -276,6 +276,7 @@ html {
 .sepiaFW-cards-list-body > div > div {
     background: #000 !important;
 	color: #fff;
+	border-left-color: #222 !important;
 }
 .sepiaFW-cards-list-body .listElement .checked {
     background: #c4f31a !important;
