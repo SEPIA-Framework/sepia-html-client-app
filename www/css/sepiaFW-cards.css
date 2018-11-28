@@ -188,8 +188,10 @@
     align-items: center;
     justify-content: center;
 	width: 44px;
-	border-left: 2px solid #545454;
-	background: #bcbebe;
+	/*border-left: 2px solid #545454;*/
+	/*background: #bcbebe;*/
+	border-left: 2px solid #fff;
+	background: #d2d2dd;
 	color: #fff;
 	margin: 0px 5px 0px 0px;
 	user-select: none;
@@ -224,7 +226,8 @@
 .sepiaFW-cards-list-footer {
 	display: inline-block;
     /*background: rgba(235, 235, 255, 0.33);*/
-	background: rgba(170, 170, 180, 0.33);
+	/*background: rgba(170, 170, 180, 0.33);*/
+	background: #d2d2dd;
     margin: 0px 5px 5px 5px;
     text-align: center;
     padding: 5px;

@@ -64,16 +64,48 @@ function sepiaFW_build_offline(){
 		return action;
 	}
 
-	//------------------ message handling -------------------
+	//----- Cards builder -----
 
-	//Handle a message offline sent via Client.sendMessage - currently used for demo-mode
-	Offline.handleClientSendMessage = function(message){
-		var dataIn = { sender: 'username' };
-		SepiaFW.ui.showCustomChatMessage(message.text, dataIn);
-		setTimeout(function(){
-			var dataOut = { sender: 'parrot', senderType: 'assistant' };
-			SepiaFW.ui.showCustomChatMessage(message.text, dataOut);
-		}, 600);
+	//Build a list with custom or dummy data
+	Offline.buildListCardInfoDummy = function(id, title, section, indexType, group, listData){
+		if (!title) title = "My List";
+		if (!section) section = "productivity";
+		if (!indexType) indexType = "todo";
+		if (!group) group = "todo";
+		var type = "userDataList";
+		var dateAdded = new Date().getTime();
+		var id = id || ("ABCD" + dateAdded); 	//usually this is defined by database id generator
+		var data = listData || [{
+			"name": "Checked entry 1",
+			"checked": true,
+			"dateAdded": dateAdded
+		}, {
+			"name": "Open entry 1",
+			"checked": false,
+			"dateAdded": dateAdded
+		}, {
+			"name": "Open entry 2",
+			"checked": false,
+			"dateAdded": dateAdded
+		}];
+		var user = "userid";
+
+		var cardInfo = [{
+			"cardType": "uni_list",
+			"N": 1,
+			"info": [{
+				"indexType": indexType,
+				"data": data,
+				"section": section,
+				"_id": id,
+				"title": title,
+				"type": type,
+				"lastEdit": dateAdded,
+				"user": user,
+				"group": group
+			}]
+		}];
+		return cardInfo;
 	}
 
 	//------------------ custom buttons -------------------
@@ -88,6 +120,79 @@ function sepiaFW_build_offline(){
 			"language" : language
 		}
 		return btnObj;
+	}
+
+	//------------------ message handling -------------------
+
+	//Handle a message offline sent via Client.sendMessage - currently used for demo-mode
+	Offline.handleClientSendMessage = function(message){
+		var userId = 'username';
+		var dataIn = { sender: userId };
+		SepiaFW.ui.showCustomChatMessage(message.text, dataIn);
+		setTimeout(function(){
+			var nluResult;
+			var serviceResult;
+			//console.log(message); 								//DEBUG
+			if (message.text){
+				//try to get some result from offline interpreter
+				if (SepiaFW.embedded && SepiaFW.embedded.nlu){
+					nluResult = SepiaFW.embedded.nlu.interpretMessage(message);
+				}
+				//console.log(nluResult); 							//DEBUG
+			}
+			if (nluResult && nluResult.result == "success"){
+				//get a service result
+				var input = {
+					text: message.text,
+					user: userId,
+					language: nluResult.language
+				}
+				if (SepiaFW.embedded && SepiaFW.embedded.services){
+					serviceResult = SepiaFW.embedded.services.answerMessage(input, nluResult);
+				}
+				console.log(serviceResult); 						//DEBUG
+			}
+			if (!serviceResult || !serviceResult.result == "success"){
+				//just repeat input
+				var dataOut = { sender: 'Parrot', senderType: 'assistant' };
+				SepiaFW.ui.showCustomChatMessage(message.text, dataOut);
+			}else{
+				//build a message-object and send it to 'real' message handler (as if we got a server reply)
+				var id = message.msgId;
+				var resultMessage = Offline.buildAssistAnswerMessageForHandler(id, serviceResult);
+				Offline.sendToClienMessagetHandler(resultMessage);
+			}
+		}, 600);
+	}
+
+	//Send a message to regular message handler (where messages from the server usually end up)
+	Offline.sendToClienMessagetHandler = function(message){
+		SepiaFW.client.handleServerMessage(message);
+	}
+
+	//Message builder
+	Offline.buildAssistAnswerMessageForHandler = function(msgId, serviceResult){
+		var receiver = 'userid'; 	//e.g. uid1010
+		var sender = 'UI';			//e.g. uid1005 (assistant usually)
+		var senderType = 'assistant';
+		var channelId = SepiaFW.client.getActiveChannel(); 	//TODO: does this work with an empty channel?
+		var timeUnix = new Date().getTime();
+		var time = SepiaFW.tools.getLocalTime();
+		if (!msgId) msgId = receiver + "-" + timeUnix; 	//note: some tests probably require a proper ID
+		var messageData = {
+			"receiver": receiver,
+			"data": {
+				"assistAnswer": serviceResult,
+				"dataType": "assistAnswer"
+			},
+			"sender": sender,
+			"timeUNIX": timeUnix,
+			"msgId": msgId,
+			"senderType": senderType,
+			"time": time,
+			"channelId": channelId
+		};
+		return messageData;
 	}
 	
 	return Offline;

@@ -221,7 +221,13 @@ html {
 .sepiaFW-cards-list-body {
     color: #222;
 }
-
+.sepiaFW-cards-list-footer {
+	background: rgba(170, 170, 180, 0.33);
+}
+.sepiaFW-cards-list-body .listElement .listRight {
+	border-left: 2px solid #545454;
+	background: #BAB5A4;
+}
 .sepiaFW-cards-list-body .weatherNowSmall .weatherNowSmallImage {
 	background: #BAB5A4;
 }

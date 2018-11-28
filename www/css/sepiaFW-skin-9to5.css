@@ -39,6 +39,9 @@ html {
 	background: #684744;
 	color: #fff;
 }
+.sepiaFW-cards-list-contextMenu {
+	background: #312F3F;;
+}
 #sepiaFW-chat-menu {
 	background: #684744;
 	color: #fff;
@@ -108,15 +111,15 @@ html {
 /*----- cards ------*/
 
 .sepiaFW-cards-list-title {
-	background: #B5B8C9;
+	background: #4B6688;
 	color: #fff;
 }
 .sepiaFW-cards-list-title.newsHeader button {
 	color: #312F3F !important;
 }
 .sepiaFW-cards-list-body .listElement .listRight {
-    border-left: 2px solid #545454;
-    background: #d2d2d5;
+    border-left: 2px solid #c2c3d3;
+	background: #d4d5e0;
 }
 .sepiaFW-cards-list-body .weatherNowSmall .weatherNowSmallImage {
 	background: #4B6688;

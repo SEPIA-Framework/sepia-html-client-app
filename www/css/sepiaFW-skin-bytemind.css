@@ -158,12 +158,13 @@ html {
 /*----- cards ------*/
 
 .sepiaFW-cards-list-title {
-	background: #6b4d9f;
+	background: #44c8be;
 	color: #fff;
 }
 .sepiaFW-cards-list-body .listElement .listRight {
-    border-left: 2px solid #999;
-    background: #d2d2d5;
+	border-left: 2px solid #e5e5e5;
+	background: #fcfcfc;
+	color: #262629;
 }
 
 /*----- teachUI -----*/

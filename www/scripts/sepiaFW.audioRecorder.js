@@ -190,11 +190,11 @@ function sepiaFW_build_audio_recorder(){
 		//TODO: check if RecorderInstance has changed and if so recreate the whole (context?) thing ... 
 		if (audioRec){
 			var sameRecorder = (RecorderInstance.name == audioRec.constructor.name);
-			//console.log("Same recorder type: " + sameRecorder);
+			//console.log("Same recorder type: " + sameRecorder);	//DEBUG
 			if (!sameRecorder){
 				var closeAfterStop = true;
 				AudioRecorder.stop(closeAfterStop, function(){
-					console.log("Get NEW RECORDER");
+					//console.log("Get NEW RECORDER");				//DEBUG
 					audioRec = undefined;
 					AudioRecorder.getRecorder(RecorderInstance, callback, errorCallback);
 				}, errorCallback);

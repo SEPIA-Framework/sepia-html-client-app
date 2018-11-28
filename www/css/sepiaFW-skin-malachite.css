@@ -24,14 +24,14 @@ html {
 	}
 }
 
-#sepiaFW-pC 	 { background-color: #000; }
-#sepiaFW-sC 	 { background-color: #3ba57e; }
+#sepiaFW-pC  { background-color: #000; }
+#sepiaFW-sC  { background-color: #3ba57e; }
 #sepiaFW-sC2 { background-color: #07333a; 	}
-#sepiaFW-aC 	 { background-color: rgb(186, 42, 42); 	}
+#sepiaFW-aC  { background-color: rgb(186, 42, 42); 	}
 #sepiaFW-aC2 { background-color: #ceff1a; 	}
 #sepiaFW-asC { background-color: #1499ae; 	}
 #sepiaFW-adC { background-color: gold; 	}
-#sepiaFW-lC 	 { background-color: rgba(150, 150, 150, 0.50); 	}
+#sepiaFW-lC  { background-color: rgba(150, 150, 150, 0.50); 	}
 
 /*linear-gradient(to right, #07333a 0%, #16ABC3 100%);*/
 
@@ -71,7 +71,8 @@ html {
 	border-color: #1499ae;
 }
 #sepiaFW-assist-btn {
-	background: linear-gradient(to right, #999 0%, #000 100%) !important;
+	/*background: linear-gradient(to right, #999 0%, #000 100%) !important;*/
+	background: linear-gradient(to right, #3ba57e 0%, #07333a 100%) !important;
 	/*background: linear-gradient(to right, #CEFF1A 0%, #16ABC3 100%) !important;*/
 }
 .sepiaFW-notouch-device #sepiaFW-assist-btn:hover {
@@ -220,9 +221,15 @@ html {
 .sepiaFW-cards-list-body {
     color: #000;
 }
-
+.sepiaFW-cards-list-footer {
+    background: #07333a;
+}
+.sepiaFW-cards-list-body .listElement .listRight {
+	border-left: 2px solid #101418;
+	background: #465056;
+}
 .sepiaFW-cards-list-body .weatherNowSmall .weatherNowSmallImage {
-	background: rgba(21, 171, 195, 0.97);
+	background: #3ba57e;
 }
 
 /*----- teachUI -----*/

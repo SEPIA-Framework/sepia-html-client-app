@@ -273,10 +273,13 @@ html {
 .sepiaFW-cards-list-body {
     color: #051525;
 }
+.sepiaFW-cards-list-footer {
+    background: #19191b;
+}
 .sepiaFW-cards-list-body > div > div {
     background: #000 !important;
 	color: #fff;
-	border-left-color: #222 !important;
+	border-left-color: #19191b !important;
 }
 .sepiaFW-cards-list-body .listElement .checked {
     background: #c4f31a !important;
@@ -290,10 +293,6 @@ html {
 
 .sepiaFW-cards-list-body .weatherNowSmall .weatherNowSmallImage {
 	background: #000 !important;
-}
-
-.sepiaFW-cards-list-footer {
-    background: transparent;
 }
 
 #sepiaFW-audio-ctrls-canvas {

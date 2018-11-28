@@ -25,6 +25,8 @@ function sepiaFW_build_client_interface(){
 	ClientInterface.switchChannel = SepiaFW.webSocket.client.switchChannel;
 	ClientInterface.switchChatPartner = SepiaFW.webSocket.client.switchChatPartner;
 	ClientInterface.getActiveChatPartner = SepiaFW.webSocket.client.getActiveChatPartner;
+
+	ClientInterface.handleServerMessage = SepiaFW.webSocket.client.handleServerMessage;
 	
 	ClientInterface.toggleMicButton = SepiaFW.webSocket.client.toggleMicButton;
 	ClientInterface.sendInputText = SepiaFW.webSocket.client.sendInputText;
@@ -1213,14 +1215,22 @@ function sepiaFW_build_webSocket_client(){
 		return activeChatPartner;
 	}
 	
-	//Update the chat-panel, and the list of connected users
+	//Interface conform version of message handler
+	Client.handleServerMessage = function(msg){
+		var message = {
+			data: msg 	//we put the original message into the data field as we would get it from the chat server
+		}
+		Client.handleMessage(message);
+	}
+	//Handle message received from chat server and update the chat-panel, and the list of connected users
+	//Note: This also includes (and handles) messages sent by the user since the server bounces them back to confirm them
 	Client.handleMessage = function(msg) {
-		var message = JSON.parse(msg.data);
+		var message = (typeof msg.data === 'string')? JSON.parse(msg.data) : msg.data;
 		var refreshUsers = false;
 		var notAnsweredYet = true;
 		
 		//console.log(msg);
-		//console.log(message);
+		//console.log(JSON.stringify(message));
 		
 		//userList submitted?
 		if (message.userList){
