@@ -34,8 +34,7 @@ html {
 #sepiaFW-lC 	{ background-color: rgba(150, 150, 150, 0.50); 	}
 
 #sepiaFW-login-box {
-	background: #1f2327;
-	/*background: #2d3034;*/
+	background: #1e2124;
 	color: #ECEBE7;
 }
 #sepiaFW-login-box p {
@@ -72,8 +71,15 @@ html {
 	color: #ceff1a;
 }
 
+#sepiaFW-chat-input {
+	background: #ECEBE7;
+}
 #sepiaFW-assist-btn-area {
 	border-color: #101418;
+	background: #ECEBE7;
+}
+#sepiaFW-assist-btn-area button {
+	border: 4px solid rgb(207, 207, 207);
 }
 #sepiaFW-assist-btn {
 	background: #08a0c8 !important;
@@ -221,7 +227,8 @@ html {
 /*----- cards ------*/
 
 .sepiaFW-cards-flexSize-container {
-    background: rgba(255, 255, 255, 0.14);
+	/*background: rgba(255, 255, 255, 0.14);*/
+	background: rgba(21, 23, 26, 0.85);
 }
 
 .sepiaFW-help-view {
@@ -235,18 +242,36 @@ html {
 .sepiaFW-cards-list-body {
     color: #222;
 }
+.sepiaFW-cards-list-footer {
+	/*background: #ceff1a;*/
+	background: #2d3034;
+	/*color: #101418;*/
+	color: #ECEBE7;
+}
+.sepiaFW-cards-list-body .listElement div,
+.sepiaFW-cards-list-body .weatherNowSmall > div,
+.sepiaFW-cards-list-body .timeEvent div,
+.sepiaFW-cards-list-body .newsArticle .newsCenter,
+.sepiaFW-cards-list-body .radioStation div {
+	background: #1d1f22;
+	color: #ECEBE7;
+}
 .sepiaFW-cards-list-body .listElement .listRight {
 	border-left: 2px solid #101418;
-	background: #465056;
+	/*background: #465056;*/
+	/*background: #24272a;*/
+	background: #2d3034;
 }
-
-.sepiaFW-cards-list-footer {
-	background: #ceff1a;
-	color: #101418;
-}
-
 .sepiaFW-cards-list-body .weatherNowSmall .weatherNowSmallImage {
 	background: #08a0c8;
+}
+.sepiaFW-cards-list-title.newsHeader {
+    background: #08a0c8;
+	color: #ECEBE7;
+}
+.sepiaFW-cards-list-title.newsHeader span {
+	text-shadow: 1px 1px 0 #ECEBE7, 1px -1px 0 #ECEBE7, -1px 1px 0 #ECEBE7, -1px -1px 0 #ECEBE7, 
+					1px 1px 0 #ECEBE7, 0px 1px 0 #ECEBE7, -1px 0px 0 #ECEBE7, 0px -1px 0 #ECEBE7;
 }
 
 /*----- teachUI -----*/
