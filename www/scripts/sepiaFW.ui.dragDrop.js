@@ -59,6 +59,7 @@ function sepiaFW_build_ui_drag_and_drop(){
 		}
 		refreshDragContainers();
 		var activeDummy;
+		var lastDummyPosition; //top, left relative to viewport
 		var lastHoverElement;
 		var $newNeighbourElement;
 		var $dropZone; 				//currently we only need this if the drop-zone has no children
@@ -124,7 +125,7 @@ function sepiaFW_build_ui_drag_and_drop(){
 			}, 500);
 		}
 		//move element
-		this.moveTo = function($neighbour, $dropzone, doAnimate){
+		this.moveTo = function($neighbour, $dropzone, doAnimate, referencePosition){
 			var targetAndObjectSame = ($neighbour && $neighbour[0].isSameNode($dragObject[0]));
 			var moved = false;
 			if (($dropzone || $neighbour) && !targetAndObjectSame){
@@ -132,8 +133,14 @@ function sepiaFW_build_ui_drag_and_drop(){
 				$dragObject.detach();
 				//insert after neighbour
 				if ($neighbour){
-					//TODO: choose between insert-after and insert-before
-					$dragObject.insertAfter($neighbour);
+					//TODO: this only works for vertical list logic ... what if we want icons like drag and drop (e.g homescreen)?
+					//choose between insert-after and insert-before:
+					var isAbove = (referencePosition.top - $neighbour.get(0).getBoundingClientRect().top) < 0;
+					if (isAbove){
+						$dragObject.insertBefore($neighbour);
+					}else{
+						$dragObject.insertAfter($neighbour);
+					}
 				}else{
 					$dragObject.appendTo($dropzone);
 				}
@@ -298,6 +305,7 @@ function sepiaFW_build_ui_drag_and_drop(){
 			//console.log(e.type);
 
 			//clean-up some
+			lastDummyPosition = activeDummy.getBoundingClientRect();
 			$(activeDummy).remove();
 			activeDummy = undefined;
 			lastHoverElement = undefined;
@@ -307,7 +315,7 @@ function sepiaFW_build_ui_drag_and_drop(){
 			//move (if makes sense)
 			var doAnimate = true;
 			var dragOriginContainer = $dragObjectContainerOwner.get(0); 	//store this before it gets refreshed
-			var positionChanged = self.moveTo($newNeighbourElement, $dropZone, doAnimate);
+			var positionChanged = self.moveTo($newNeighbourElement, $dropZone, doAnimate, lastDummyPosition);
 
 			//auto-disable drag afterwards?
 			if (options.autoDisableAfterDrop){
@@ -324,6 +332,7 @@ function sepiaFW_build_ui_drag_and_drop(){
 			$dragObject.removeClass('dragging');
 			$newNeighbourElement = undefined;
 			$dropZone = undefined;
+			lastDummyPosition = undefined;
 		});
 	}
 

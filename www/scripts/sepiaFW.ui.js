@@ -765,6 +765,9 @@ function sepiaFW_build_ui(){
 	var lastDomEventTS = new Date().getTime();
 	//listener
 	UI.trackIdleTime = function(){
+		function resetTimer() {
+			lastDomEventTS = new Date().getTime();
+		}
 		//DOM Events
 		document.addEventListener("keypress", resetTimer);
 		document.addEventListener("mousemove", resetTimer);
@@ -775,9 +778,6 @@ function sepiaFW_build_ui(){
 		document.onload = resetTimer;
 		document.onscroll = resetTimer;    // scrolling with arrow keys
 		*/
-		function resetTimer() {
-			lastDomEventTS = new Date().getTime();
-		}
 	}
 	//state
 	UI.getIdleTime = function(){
@@ -1143,12 +1143,16 @@ function sepiaFW_build_ui(){
 		var xDown = 0;			var xUp = 0;
 		var yDown = 0;			var yUp = 0;
 		var timeDown = 0;
+		var longPressTime = 625;
+		var timeDownTimer;
+		var resetTimer;
 		$swipeArea.mouseup(function(event){			up(this, event);
 			}).mousedown(function(event){			down(this, event);
 			//}).on('touchstart', function(event){	console.log('touchstart'); down(this, event);
 			//}).on('touchend', function(event){	console.log('touchend'); up(this, event);
 			});
 		function down(that, ev){
+			//console.log('down');
 			if (!didDown){
 				didDown = true;
 				didUp = false;
@@ -1157,22 +1161,30 @@ function sepiaFW_build_ui(){
 				$(that).addClass('sepiaFW-fullSize');
 				timeDown = new Date().getTime();
 				//console.log(ev);
+				timeDownTimer = setTimeout(function(){
+					up(that, ev); 		//note: ev will not be up-to-date here
+				}, longPressTime);
 			}
 		}
 		function up(that, ev){
+			//console.log('up');
+			if (timeDownTimer) clearTimeout(timeDownTimer);
 			if (!didUp){
 				didUp = true;
-				xUp = (ev.center)? ev.center.x : ev.clientX;
-				yUp = (ev.center)? ev.center.y : ev.clientY;
 				$(that).removeClass('sepiaFW-fullSize');
-				var moved = (xDown-xUp)*(xDown-xUp) + (yDown-yUp)*(yDown-yUp);
-				//console.log(moved);
-				if (moved < 100){
-					click(ev);
-				}
+				checkClick(ev);
 				resetTimer = setTimeout(function(){
 					didDown = false;
 				}, 500);
+			}
+		}
+		function checkClick(ev){
+			xUp = (ev.center)? ev.center.x : ev.clientX;
+			yUp = (ev.center)? ev.center.y : ev.clientY;
+			var moved = (xDown-xUp)*(xDown-xUp) + (yDown-yUp)*(yDown-yUp);
+			//console.log(moved);
+			if (moved < 100){
+				click(ev);
 			}
 		}
 		function click(ev){
@@ -1191,7 +1203,7 @@ function sepiaFW_build_ui(){
 			//supports sepiaFW-events?
 			if (UI.elementSupportsCustomTriggers(elementMouseIsOver)){
 				var durationDown = new Date().getTime() - timeDown;
-				if (timeDown && (durationDown > 625)){
+				if (timeDown && (durationDown > longPressTime)){
 					$(elementMouseIsOver).trigger('sepiaFW-events', { name: 'longpress'});
 				}else{
 					$(elementMouseIsOver).trigger('sepiaFW-events', { name: 'shortpress'});
