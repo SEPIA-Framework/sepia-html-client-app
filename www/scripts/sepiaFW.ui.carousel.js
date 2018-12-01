@@ -1,5 +1,6 @@
 function sepiaFW_build_ui_carousel(){
 	/* example:
+	
 	<div class="sepiaFW-inner-container sepiaFW-carousel">
 		<div class='sepiaFW-carousel-pane-container'>
 			<div id="sepiaFW-my-view" class='sepiaFW-carousel-pane'><!-- dynamic content --></div>

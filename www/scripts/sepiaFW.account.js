@@ -816,6 +816,13 @@ function sepiaFW_build_account(){
 	//set, get or delete data
 	function dataTransfer(apiUrl, key, data, successCallback, errorCallback, debugCallback){
 		SepiaFW.ui.showLoader();
+		//Demo mode?
+		if (SepiaFW.client.isDemoMode()){
+			SepiaFW.ui.showPopup(SepiaFW.local.g('notPossibleInDemoMode'));
+			SepiaFW.ui.hideLoader();
+			return;
+		}
+		//Authenticated?
 		if (key){
 			data.KEY = key;
 		}else if (userId && userToken){

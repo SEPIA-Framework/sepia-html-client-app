@@ -651,7 +651,7 @@ body {
     padding: 4px 8px 59px 8px;
     height: calc(100% - 50px);
 	width: calc(100% - 0px);
-	overflow: auto;
+	overflow: hidden; /*scrolling happens inside the carousel*/
 	-webkit-overflow-scrolling: touch;
 	font-size: 21px;
 	text-align: center;
@@ -767,7 +767,8 @@ body {
 	position: relative;
 	height: 100%;
 	width: 100%;
-	overflow: auto;
+	overflow-y: auto;
+	overflow-y: overlay;
 }
 #sepiaFW-chat-menu ul {
 	/*display: inline-block;*/
@@ -1429,7 +1430,8 @@ body {
 #sepiaFW-chat-output {
 	/*height: calc(100vh - 146px);*/
 	width: 100%;
-	overflow: auto;
+	overflow-y: auto;
+	overflow-y: overlay;
 	-webkit-overflow-scrolling: touch;
 	padding: 8px 2px 2px 2px;
 	/*padding-bottom: 62px;*/
@@ -1447,7 +1449,8 @@ body {
     flex-direction: column;*/
 	padding: 2px 2px;
 	/*padding-bottom: 62px;*/
-    overflow: auto;
+	overflow-y: auto;
+	overflow-y: overlay;
 	-webkit-overflow-scrolling: touch;
 }
 .sepiaFW-results-container:after {

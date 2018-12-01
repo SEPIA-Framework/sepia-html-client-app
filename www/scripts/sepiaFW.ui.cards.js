@@ -184,6 +184,13 @@ function sepiaFW_build_ui_cards(){
 	}
 	
 	//USER DATA LIST
+
+	//Default sort-drag-options
+	var udListCheckablesDragOptions = {
+		allowCrossContainerDrag: true,
+		activateDragAfterLongPress: true,
+		autoDisableAfterDrop: true,
+	};
 	
 	//UserDataList
 	function makeUserDataList(user, sectionName, indexType, title, data, _id){
@@ -276,6 +283,7 @@ function sepiaFW_build_ui_cards(){
 				var listEle = makeUserDataListElement(elementsData[i]);
 				cardBody.appendChild(listEle);
 				if (hasCheckable === 0) { hasCheckable = 1; cardBody.className = "sepiaFW-cards-list-body sepiaFW-cards-list-checkables"; }
+				setupUserDataListElementButtons(listEle); 		//we do this as last step, after classes are set and ele ist appended!
 			}
 			
 			//hide element at start?
@@ -325,20 +333,29 @@ function sepiaFW_build_ui_cards(){
 		var listEle = document.createElement('DIV');
 		listEle.className = 'listElement';
 		if (elementData.checked){
-			listEle.innerHTML = "<div class='listLeft checked'></div>";
+			listEle.innerHTML = "<div class='listLeft checked' oncontextmenu='return false;'></div>";
 		}else{
-			listEle.innerHTML = "<div class='listLeft unchecked'></div>";
+			listEle.innerHTML = "<div class='listLeft unchecked' oncontextmenu='return false;'></div>";
 		}
 		listEle.innerHTML += "<div class='listCenter' contentEditable='true'>" + elementData.name + "</div>"
 		listEle.innerHTML += "<div class='listRight'><i class='material-icons md-24'>&#xE15B;</i></div>";
 		listEle.setAttribute('data-element', JSON.stringify(elementData));
 		
-		//add button actions
+		//note: add button actions with extra method (below)
+
+		return listEle;
+	}
+	//We separate this because it requires the element to be appended to list body first (list body etc.)
+	function setupUserDataListElementButtons(listEle){
+		var $listEle = $(listEle);
+		var $listBody = $listEle.closest('.sepiaFW-cards-list-body');
+
 		//left
-		$(listEle).find('.listLeft').each(function(){
+		$listEle.find('.listLeft').each(function(){
 			var that = this;
-			SepiaFW.ui.onclick(that, function(){
-			//$(this).on('click', function(){
+
+			function shortPress(){
+				//console.log('short-press');
 				var isChecked;
 				if ($(that).hasClass('checked')){
 					$(that).removeClass('checked').addClass('unchecked');
@@ -348,42 +365,58 @@ function sepiaFW_build_ui_cards(){
 					isChecked = true;
 				}
 				//update data
-				var listEle = $(that).parent();
-				var eleData = JSON.parse(listEle.attr('data-element'));
+				var eleData = JSON.parse($listEle.attr('data-element'));
 				eleData.checked = isChecked;
 				eleData.lastChange = new Date().getTime();
-				listEle.attr('data-element', JSON.stringify(eleData));
+				$listEle.attr('data-element', JSON.stringify(eleData));
 				//activate save button
-				var saveBtn = listEle.parent().parent().find('.sepiaFW-cards-list-saveBtn');
-				saveBtn.addClass('active');		//saveBtn.css({"opacity": 0.92, "color": saveBtn.parent().css("color")});
-			});
+				var $saveBtn = $listBody.parent().find('.sepiaFW-cards-list-saveBtn'); 	//note: we need to (re)load the button here
+				$saveBtn.addClass('active');		//saveBtn.css({"opacity": 0.92, "color": saveBtn.parent().css("color")});
+			}
+
+			//tap and drag handler (for sorting)
+			//SepiaFW.ui.onclick(that, shortPress);
+			var dragOptions = Object.assign({
+				tapCallback: shortPress,
+				dropCallback: function(draggedEle, startListBody, dropListBody, positionChanged){
+					var sameTargetContainer = startListBody.isSameNode(dropListBody);
+					if (positionChanged){
+						var $saveBtn = $listBody.parent().find('.sepiaFW-cards-list-saveBtn');
+						$saveBtn.addClass('active');
+						if (!sameTargetContainer && dropListBody){
+							var $saveBtnNewTarget = $(dropListBody).parent().find('.sepiaFW-cards-list-saveBtn');
+							$saveBtnNewTarget.addClass('active');
+						}
+					}
+					//TODO: handle data change? (userId, listType etc.)
+				}
+			}, udListCheckablesDragOptions);
+			var draggable = new SepiaFW.ui.dragDrop.Draggable(that, ".listElement", ".sepiaFW-cards-list-checkables", dragOptions);
 		});
 		//right
-		$(listEle).find('.listRight').each(function(){
+		$listEle.find('.listRight').each(function(){
 			var that = this;
 			SepiaFW.ui.onclick(that, function(){
-			//$(this).on('click', function(){
 				//activate save button
-				var saveBtn = $(that).parent().parent().parent().find('.sepiaFW-cards-list-saveBtn');
-				saveBtn.addClass('active');		//saveBtn.css({"opacity": 0.92, "color": saveBtn.parent().css("color")});
+				var $saveBtn = $listBody.parent().find('.sepiaFW-cards-list-saveBtn');
+				$saveBtn.addClass('active');
 				//remove
-				$(that).parent().remove();
+				$listEle.remove();
 			});
 		});
 		//center
-		$(listEle).find('.listCenter').each(function(){
+		$listEle.find('.listCenter').each(function(){
 			$(this).on('focusout', function(){
 				//update data
 				var newName = $(this).html().replace(/<br>|<div>|<\/div>/g,"").trim();
 				if (newName){
-					var listEle = $(this).parent();
-					var eleData = JSON.parse(listEle.attr('data-element'));
+					var eleData = JSON.parse($listEle.attr('data-element'));
 					eleData.name = newName;
 					$(this).html(newName);
-					listEle.attr('data-element', JSON.stringify(eleData));
+					$listEle.attr('data-element', JSON.stringify(eleData));
 					//activate save button
-					var saveBtn = listEle.parent().parent().find('.sepiaFW-cards-list-saveBtn');
-					saveBtn.addClass('active');		//saveBtn.css({"opacity": 0.92, "color": saveBtn.parent().css("color")});
+					var $saveBtn = $listBody.parent().find('.sepiaFW-cards-list-saveBtn'); 	//note: we need to load the button here
+					$saveBtn.addClass('active');		//saveBtn.css({"opacity": 0.92, "color": saveBtn.parent().css("color")});
 				}
 			});
 			$(this).keypress(function(event){
@@ -393,7 +426,6 @@ function sepiaFW_build_ui_cards(){
 				}
 			});
 		});
-		return listEle;
 	}
 	
 	//RADIO
@@ -888,7 +920,7 @@ function sepiaFW_build_ui_cards(){
 				}
 			});
 		}
-		//-context menue
+		//-context menu
 		var contextMenu = document.createElement('DIV');
 		contextMenu.className = "sepiaFW-cards-list-contextMenu sepiaFW-menu";
 		contextMenu.id = ("sepiaFW-contextMenu-id-" + Cards.currentCardId);
@@ -925,7 +957,9 @@ function sepiaFW_build_ui_cards(){
 						cardBody.className = "sepiaFW-cards-list-body sepiaFW-cards-list-unknownType";
 						$(addItemBtn).closest('.sepiaFW-cards-flexSize-container').append(cardBody);
 					}
-					cardBody.append(emptyEle);
+					cardBody.prepend(emptyEle);
+					setupUserDataListElementButtons(listEle);
+					//emptyEle.scrollIntoView({block: 'center'});
 					/*$(contextMenu).fadeOut(200);
 					$('#sepiaFW-main-window').trigger(('sepiaFwClose-' + contextMenu.id));*/
 				}, true);
@@ -949,7 +983,6 @@ function sepiaFW_build_ui_cards(){
 				cmDelBtn.className = "sepiaFW-cards-list-contextMenu-delBtn";
 				cmDelBtn.innerHTML = '<i class="material-icons md-24">delete</i>'; //SepiaFW.local.g('deleteItem');
 				SepiaFW.ui.onclick(cmDelBtn, function(){
-				//$(cmDelBtn).on('click', function(){
 					var listInfo = JSON.parse(cmDelBtn.parentElement.parentElement.parentElement.parentElement.getAttribute('data-list')); 		//TODO: replace with $().closest('...')
 					var parentCard = $(cmDelBtn).parent().parent().parent().parent();															//TODO: replace with $().closest('...')
 					SepiaFW.ui.build.askConfirm(SepiaFW.local.g('deleteItemConfirm'), function(){
@@ -962,7 +995,6 @@ function sepiaFW_build_ui_cards(){
 
 					}, function(){
 						//abort
-						return;
 					});
 				}, true);
 				cmList.appendChild(cmDelBtn);	
@@ -977,20 +1009,7 @@ function sepiaFW_build_ui_cards(){
 			var saveBtn = document.createElement('BUTTON');
 			saveBtn.className = "sepiaFW-cards-list-saveBtn";
 			saveBtn.innerHTML = "<i class='material-icons md-mnu'>&#xE864;</i>";
-			SepiaFW.ui.onclick(saveBtn, function(){
-			//$(saveBtn).on('click', function(){
-				var listInfoObj = getUserDataList(saveBtn.parentElement.parentElement);
-				//check user
-				if (SepiaFW.account && (SepiaFW.account.getUserId() !== listInfoObj.user)){
-					SepiaFW.ui.build.askConfirm(SepiaFW.local.g('copyList'), function(){
-						//ok
-						delete listInfoObj.user;
-						delete listInfoObj._id;
-					}, function(){
-						//abort
-						return;
-					});
-				}
+			var storeFun = function(listInfoObj){
 				var writeData = {};
 				writeData.lists = listInfoObj;
 				SepiaFW.account.saveList(listInfoObj, function(data){
@@ -1000,6 +1019,24 @@ function sepiaFW_build_ui_cards(){
 				}, function(msg){
 					SepiaFW.ui.showPopup(msg);
 				});
+			}
+			SepiaFW.ui.onclick(saveBtn, function(){
+				var listInfoObj = getUserDataList(saveBtn.parentElement.parentElement);
+				//check user
+				if (SepiaFW.account && (SepiaFW.account.getUserId() !== listInfoObj.user)){
+					//different user
+					SepiaFW.ui.build.askConfirm(SepiaFW.local.g('copyList'), function(){
+						//ok
+						delete listInfoObj.user;
+						delete listInfoObj._id;
+						storeFun(listInfoObj);
+					}, function(){
+						//abort
+					});
+				}else{
+					//same user
+					storeFun(listInfoObj);
+				}
 			});
 			title.appendChild(saveBtn);
 		//--dummy space holder
@@ -1013,11 +1050,11 @@ function sepiaFW_build_ui_cards(){
 		contextMenuBtn.className = "sepiaFW-cards-list-menuBtn";
 		contextMenuBtn.innerHTML = "<i class='material-icons md-mnu'>&#xE5D3;</i>";
 		SepiaFW.ui.onclick(contextMenuBtn, function(){
-		//$(contextMenuBtn).on('click', function(){
 			var title = $(contextMenuBtn).parent();
 			var flexBox = title.closest('.sepiaFW-cards-flexSize-container');
-			//flexBox.css({"z-index" : topIndexZ++});			//old overlay style
 			var menu = flexBox.find(".sepiaFW-cards-list-contextMenu");
+			/*
+			//flexBox.css({"z-index" : topIndexZ++});			//old overlay style
 			var menuHeight = menu.innerHeight();
 			//menu.css({"top" : ((title.height() + 2) + "px")});
 			if (menu.css('display') === 'none'){
@@ -1026,7 +1063,9 @@ function sepiaFW_build_ui_cards(){
 			}else{
 				flexBox.css({'min-height' : 50});
 			}
-			menu.fadeToggle(300);
+			*/
+			//menu.fadeToggle(300);
+			menu.slideToggle(300);
 		});
 		//catch menue close event
 		$('#sepiaFW-main-window').on("sepiaFwClose-" + contextMenu.id, function(){

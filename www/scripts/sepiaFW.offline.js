@@ -76,17 +76,15 @@ function sepiaFW_build_offline(){
 		var dateAdded = new Date().getTime();
 		var id = id || ("ABCD" + dateAdded); 	//usually this is defined by database id generator
 		var data = listData || [{
-			"name": "Checked entry 1",
-			"checked": true,
-			"dateAdded": dateAdded
+			"name": "Checked entry 1", "checked": true, "dateAdded": dateAdded
 		}, {
-			"name": "Open entry 1",
-			"checked": false,
-			"dateAdded": dateAdded
+			"name": "Open entry 1", "checked": false, "dateAdded": dateAdded
 		}, {
-			"name": "Open entry 2",
-			"checked": false,
-			"dateAdded": dateAdded
+			"name": "Open entry 2", "checked": false, "dateAdded": dateAdded
+		}, {
+			"name": "Checked entry 2", "checked": false, "dateAdded": dateAdded
+		}, {
+			"name": "Open entry 3", "checked": false, "dateAdded": dateAdded
 		}];
 		var user = "userid";
 
@@ -150,7 +148,7 @@ function sepiaFW_build_offline(){
 				if (SepiaFW.embedded && SepiaFW.embedded.services){
 					serviceResult = SepiaFW.embedded.services.answerMessage(input, nluResult);
 				}
-				console.log(serviceResult); 						//DEBUG
+				//console.log(serviceResult); 						//DEBUG
 			}
 			if (!serviceResult || !serviceResult.result == "success"){
 				//just repeat input

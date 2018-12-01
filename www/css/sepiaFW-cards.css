@@ -59,6 +59,19 @@
 
 /* ------ Lists ------ */
 
+/* commons */
+.sepiaFW-list-drag-dummy {
+	position: fixed;
+	pointer-events: none;
+	background: rgba(125, 125, 125, 0.5);
+	margin: 0;
+    padding: 0;
+	z-index: 999;
+}
+.sepiaFW-list-hover-over {
+	opacity: 0.5;
+}
+
 /* header */
 .sepiaFW-cards-list-title {
 	display: flex;
@@ -94,9 +107,9 @@
 	padding: 4px 12px !important;
 }
 .sepiaFW-cards-list-contextMenu {
-	position: absolute;
+	/*position: absolute;
 	top: 38px;
-	right: 0px;
+	right: 0px;*/
 	line-height: 17px;
     font-size: 13px;
 	display: none;
@@ -148,7 +161,7 @@
 .sepiaFW-cards-list-body {
 	margin: 0px;
 	padding: 0px;
-	min-height: 5px;
+	min-height: 25px;
 	padding-bottom: 5px;
 }
 .sepiaFW-cards-list-body .listElement {
@@ -158,6 +171,20 @@
 }
 .sepiaFW-cards-list-body .listElement:first-child {
 	margin-top: 3px;
+}
+.sepiaFW-cards-list-body .listElement.draggable-toggle {
+	opacity: 0.6;
+}
+.sepiaFW-cards-list-body .listElement.dragging {
+	opacity: 0.2;
+}
+.sepiaFW-cards-list-body .listElement.new-position {
+	animation: list-pulse .500s 1;
+}
+@keyframes list-pulse {
+	0% {	opacity: 0.2;	}
+	33% {	opacity: 0.05;	}
+	100% {	opacity: 1.0;	}
 }
 .sepiaFW-cards-list-body .listElement div {
 	background: rgba(255, 255, 255, 0.90);
@@ -207,7 +234,7 @@
 	background: rgba(0, 255, 255, 0.50);	
 }
 .sepiaFW-cards-list-body .listElement .unchecked {
-	background: rgba(255, 255, 255, 0.90);
+	/*background: rgba(255, 255, 255, 0.90);*/
 }
 .sepiaFW-notouch-device .sepiaFW-cards-list-body .listElement .unchecked:hover {	
 	background: rgba(0, 255, 0, 0.50);		

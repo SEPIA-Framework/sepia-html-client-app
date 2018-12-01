@@ -13,6 +13,7 @@ SepiaFW.buildSepiaFwPlugins = function(){
 	SepiaFW.ui = sepiaFW_build_ui();
 	SepiaFW.animate = sepiaFW_build_animate();
 	SepiaFW.ui.Carousel = sepiaFW_build_ui_carousel();
+	SepiaFW.ui.dragDrop = sepiaFW_build_ui_drag_and_drop();
 	SepiaFW.ui.notification = sepiaFW_build_ui_notifications();
 	SepiaFW.ui.build = sepiaFW_build_ui_build();
 	SepiaFW.ui.cards = sepiaFW_build_ui_cards();
