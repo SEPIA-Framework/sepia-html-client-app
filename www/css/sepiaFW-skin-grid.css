@@ -278,10 +278,10 @@ html {
 }
 
 .sepiaFW-cards-list-title {
-	background: rgba(16, 32, 48, 0.0);
+	background: rgba(20, 163, 187, 0.66);
     color: #fff;
-    box-shadow: 0 0 5px #ceff1a;
-    border: 1px solid #ceff1a;
+    box-shadow: 0 0 5px #15abc3;
+	border: 1px solid #15abc3;
 }
 .sepiaFW-cards-list-footer {
 	background: rgba(20, 163, 187, 0.66);
@@ -303,6 +303,10 @@ html {
 
 .sepiaFW-cards-list-body .weatherNowSmall .weatherNowSmallImage {
 	background: #44505c;
+}
+.sepiaFW-cards-list-title.newsHeader {
+	background: rgba(20, 163, 187, 0.66) !important;
+    text-shadow: 1px 1px 4px #fff, -1px -1px 4px #fff;
 }
 
 /*----- teachUI -----*/

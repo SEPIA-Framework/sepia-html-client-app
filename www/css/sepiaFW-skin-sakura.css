@@ -121,6 +121,10 @@ html {
 
 /*----- cards ------*/
 
+.sepiaFW-cards-flexSize-container {
+	background: rgba(235, 225, 230, 0.75);
+}
+
 .sepiaFW-cards-list-title {
 	background: #eebcb4;
 	/*color: #503040;*/

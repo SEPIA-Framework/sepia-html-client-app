@@ -567,7 +567,8 @@ body {
 	flex: 1 0 auto;
 	padding: 8px;
 	display: flex;
-	max-width: 160px;
+	/*max-width: 160px;*/
+    min-width: 110px;
 	background-color: #ceff1a;
 }
 #sepiaFW-main-window .chat-buttons-area .my-view-custom-button i,
@@ -1430,11 +1431,7 @@ body {
 #sepiaFW-chat-output {
 	/*height: calc(100vh - 146px);*/
 	width: 100%;
-	overflow-y: auto;
-	overflow-y: overlay;
-	-webkit-overflow-scrolling: touch;
-	padding: 8px 2px 2px 2px;
-	/*padding-bottom: 62px;*/
+	padding: 8px 6px 2px 6px;
 }
 #sepiaFW-chat-output:after {
     content: "";
@@ -1445,9 +1442,7 @@ body {
 	/*margin-bottom: 68px !important;*/
 }
 .sepiaFW-results-container {
-	/*display: flex;
-    flex-direction: column;*/
-	padding: 2px 2px;
+	padding: 2px 6px;
 	/*padding-bottom: 62px;*/
 	overflow-y: auto;
 	overflow-y: overlay;
@@ -1474,7 +1469,7 @@ body {
     background: rgba(145, 47, 86, 0.95); /*rgba(170, 180, 190, 0.94);*/
 	color: #fff;
 	padding: 9px 6px 6px 6px; /*7px 10px 7px 5px;*/
-    margin: 0 30px 0 4px;
+    margin: 0 30px 4px 2px;
     border-left: 5px solid rgba(0, 0, 0, 0.00);
 	border-top: 0px solid rgba(0, 0, 0, 0.00);
 	border-bottom: 0px solid rgba(0, 0, 0, 0.00); 
@@ -1573,7 +1568,7 @@ body {
 #sepiaFW-chat-output article.chatMe{
 	background: rgba(235, 235, 255, 0.95);
 	color: #2f3035;
-	margin: 0 4px 0 30px;
+	margin: 0 2px 4px 30px;
 }
 .sepiaFW-results-container article.chatMe b,
 #sepiaFW-chat-output article.chatMe b{
@@ -1650,7 +1645,7 @@ body {
     flex-wrap: wrap;
     justify-content: space-between; Note: overwritten by: #sepiaFW-main-window .chat-buttons-area*/
 	text-align: center;
-	padding: 2px;
+	padding: 2px 0px;;
 }
 #sepiaFW-myCustom-buttons,
 #sepiaFW-myCustom-buttons-replaced {

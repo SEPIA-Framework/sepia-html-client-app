@@ -82,6 +82,7 @@
 	background: rgba(235, 235, 255, 0.95);
 	/*color: #fff;*/
 	/*border-radius: 3px 3px 0 0;*/
+	border-radius: 3px;
 	margin: 0px 5px 0px 5px;
 	width: calc(100% - 10px);
 	min-height: 38px;
@@ -95,10 +96,12 @@
 	left: 50%;
 	top: 50%;
 	transform: translate(-50%, -50%);*/
-	display: inline-block;
+	display: flex;
+    align-items: center;
 	flex: 0 1 auto;
+	height: 37px;
 	order: 2;
-    padding-top: 3px;
+    padding-top: 0px;
 }
 .sepiaFW-cards-list-title button {
 	flex: 0 1 auto;
@@ -166,11 +169,11 @@
 }
 .sepiaFW-cards-list-body .listElement {
 	display: flex;
-	min-height: 33px;
-	padding-top: 2px;
+	min-height: 34px;
+	padding-top: 3px;
 }
 .sepiaFW-cards-list-body .listElement:first-child {
-	margin-top: 3px;
+	margin-top: 2px;
 }
 .sepiaFW-cards-list-body .listElement.draggable-toggle {
 	opacity: 0.6;
@@ -188,7 +191,7 @@
 }
 .sepiaFW-cards-list-body .listElement div {
 	background: rgba(255, 255, 255, 0.90);
-	border-radius: 0px;
+	border-radius: 3px;
 	display: inline-block;
 	vertical-align: top;
 	min-height: 20px;
@@ -199,14 +202,14 @@
     justify-content: center;
 	width: 44px;
     /*border-right: 3px solid #e5e5e5;*/
-	margin: 0px 2px 0px 5px;
+	margin: 0px 3px 0px 5px;
 	user-select: none;
 }
 .sepiaFW-cards-list-body .listElement .listCenter {
 	display: flex;
 	align-items: center;
 	justify-content: left;
-	width: calc(100% - 100px);
+	width: calc(100% - 101px);
 	margin: 0px 0px 0px 0px;
 	padding: 5px 8px;
 }
@@ -217,10 +220,10 @@
 	width: 44px;
 	/*border-left: 2px solid #545454;*/
 	/*background: #bcbebe;*/
-	border-left: 2px solid #fff;
+	border-left: 0px solid #fff;
 	background: #d2d2dd;
 	color: #fff;
-	margin: 0px 5px 0px 0px;
+	margin: 0px 5px 0px 3px;
 	user-select: none;
 }
 .sepiaFW-notouch-device .sepiaFW-cards-list-body .listElement .listRight:hover {	
@@ -255,6 +258,7 @@
     /*background: rgba(235, 235, 255, 0.33);*/
 	/*background: rgba(170, 170, 180, 0.33);*/
 	background: #d2d2dd;
+	border-radius: 3px;
     margin: 0px 5px 5px 5px;
     text-align: center;
     padding: 5px;
@@ -377,8 +381,8 @@
 /* ---- News ---- */
 
 .sepiaFW-cards-list-title.newsHeader {
-	background: rgba(255, 255, 255, 0.95);
-	color: #000;
+	background: rgba(255, 255, 255, 0.90);
+    border-radius: 0;
 }
 .sepiaFW-cards-list-title.newsHeader span {
 	padding-left: 0px;
@@ -412,6 +416,9 @@
 	margin: 0px;
 	padding: 0px;
 	font-size: 12px;
+}
+.sepiaFW-cards-list-footer.newsFooter {
+    border-radius: 0;
 }
 
 /* ---- Weather ---- */

@@ -34,7 +34,7 @@ html {
 #sepiaFW-lC 	{ background-color: rgba(150, 150, 150, 0.50); 	}
 
 #sepiaFW-login-box {
-	background: #1e2124;
+	background: #212327;
 	color: #ECEBE7;
 }
 #sepiaFW-login-box p {
@@ -253,7 +253,7 @@ html {
 .sepiaFW-cards-list-body .timeEvent div,
 .sepiaFW-cards-list-body .newsArticle .newsCenter,
 .sepiaFW-cards-list-body .radioStation div {
-	background: #1d1f22;
+	background: #212327;
 	color: #ECEBE7;
 }
 .sepiaFW-cards-list-body .listElement .listRight {

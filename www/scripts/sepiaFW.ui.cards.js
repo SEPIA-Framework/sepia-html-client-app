@@ -720,7 +720,8 @@ function sepiaFW_build_ui_cards(){
 		if (N > maxShow){
 			var footerConfig = {
 				"type" : "showHideButton",
-				"cardBody" : cardBody
+				"cardBody" : cardBody,
+				"cssClass" : "newsFooter"
 			};
 			var cardFooter = makeFooter(footerConfig);
 			cardBody.style.paddingBottom = '0px';
@@ -1080,8 +1081,12 @@ function sepiaFW_build_ui_cards(){
 	//Card footer
 	function makeFooter(footerConfig){
 		var type = footerConfig.type || '';
+		var footerCssClass = footerConfig.cssClass || '';
 		var footer = document.createElement('DIV');
 		footer.className = "sepiaFW-cards-list-footer";
+		if (footerCssClass){
+			footer.className += (" " + footerCssClass);
+		}
 		if (type === 'showHideButton'){
 			footer.innerHTML = "<i class='material-icons md-txt'>&#xE5CF;</i>";
 			SepiaFW.ui.onclick(footer, function(){
