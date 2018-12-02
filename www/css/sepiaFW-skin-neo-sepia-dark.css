@@ -257,7 +257,7 @@ html {
 	color: #ECEBE7;
 }
 .sepiaFW-cards-list-body .listElement .listRight {
-	border-left: 2px solid #101418;
+	border-color: #101418;
 	/*background: #465056;*/
 	/*background: #24272a;*/
 	background: #2d3034;

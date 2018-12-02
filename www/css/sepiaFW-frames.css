@@ -57,6 +57,7 @@
 .sepiaFW-frames-page {
 	padding: 8px 16px;
 	overflow-y: auto;
+	/*overflow-y: overlay;*/
 	-webkit-overflow-scrolling: touch;
 }
 .sepiaFW-frames-page button {

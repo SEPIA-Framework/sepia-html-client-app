@@ -118,7 +118,7 @@ html {
 	color: #312F3F !important;
 }
 .sepiaFW-cards-list-body .listElement .listRight {
-    border-left: 2px solid #c2c3d3;
+    border-color: #c2c3d3;
 	background: #d4d5e0;
 }
 .sepiaFW-cards-list-body .weatherNowSmall .weatherNowSmallImage {

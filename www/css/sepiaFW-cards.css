@@ -292,8 +292,10 @@
     align-items: center;
     justify-content: center;
 	width: calc(100% - 120px);
+	min-height: 38px;
 	margin: 5px 5px 0px 5px;
 	padding: 5px;
+	font-weight: bold;
 }
 .sepiaFW-cards-list-body .radioStation .radioRight {
 	display: flex;

@@ -182,12 +182,15 @@ html {
 	color: #fff; /*#000;*/
 }
 .sepiaFW-cards-list-body .listElement .listRight {
-    border-left: 2px solid #fcfcfc;
+    border-color: #fcfcfc;
 	background: #d2d2dd;
 }
 .sepiaFW-cards-list-footer {
 	background: #CEFF1A;
 	color: #000;
+}
+.sepiaFW-cards-list-body .weatherNowSmall .weatherNowSmallImage {
+	background: #121212;
 }
 
 /*----- teachUI -----*/
