@@ -4,7 +4,7 @@ function sepiaFW_build_ui(){
 	
 	//some constants
 	UI.version = "v0.15.2";
-	UI.JQ_RES_VIEW_IDS = "#sepiaFW-result-view, #sepiaFW-chat-output, #sepiaFW-my-view";			//a selector to get all result views e.g. $(UI.JQ_RES_VIEW_IDS).find(...)
+	UI.JQ_RES_VIEW_IDS = "#sepiaFW-result-view, #sepiaFW-chat-output, #sepiaFW-my-view";	//a selector to get all result views e.g. $(UI.JQ_RES_VIEW_IDS).find(...) - TODO: same as $('.sepiaFW-results-container') ??
 	UI.JQ_ALL_MAIN_VIEWS = "#sepiaFW-result-view, #sepiaFW-chat-output, #sepiaFW-my-view, #sepiaFW-teachUI-editor, #sepiaFW-teachUI-manager, #sepiaFW-frame-page-1, #sepiaFW-frame-page-2"; 	//TODO: frames can have more ...
 	UI.JQ_ALL_SETTINGS_VIEWS = ".sepiaFW-chat-menu-list-container";
 	UI.JQ_ALL_MAIN_CONTAINERS = "#sepiaFW-my-view, #sepiaFW-chat-output-container, #sepiaFW-result-view";
@@ -157,10 +157,13 @@ function sepiaFW_build_ui(){
 	});
 	
 	//make an info message
-	UI.showInfo = function(text, isErrorMessage){
+	UI.showInfo = function(text, isErrorMessage, customTag){
 		if (UI.build){
 			var message = UI.build.makeMessageObject(text, 'UI', 'client', '');
 			var sEntry = UI.build.statusMessage(message, 'username', true);		//we handle UI messages as errors for now
+			if (customTag){
+				sEntry.dataset.msgCustomTag = customTag;
+			}
 			//get right view
 			var targetViewName = "chat";
 			var resultView = UI.getResultViewByName(targetViewName);
@@ -266,11 +269,13 @@ function sepiaFW_build_ui(){
 	var missedMessages = 0;
 	UI.addMissedMessage = function(missed){
 		if (missed){
-			missedMessages += missed;
+			missedMessages += missed; 	//Note: use negative to substract
 		}else{
 			missedMessages++;
 		}
-		if ($('#sepiaFW-nav-label-note').css('display') === "none"){
+		if (missedMessages <= 0){
+			$('#sepiaFW-nav-label-note').hide();
+		}else if ($('#sepiaFW-nav-label-note').css('display') === "none"){
 			$('#sepiaFW-nav-label-note').fadeIn(300);
 		}
 		if (missedMessages < 999){

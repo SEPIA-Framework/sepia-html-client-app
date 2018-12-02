@@ -638,6 +638,10 @@ function sepiaFW_build_ui_cards(){
 					$(SepiaFW.ui.JQ_RES_VIEW_IDS).find('[data-id="' + Timer.data.eventId + '"]').each(function(){
 						removeTimeEventElement(this);
 					});
+					//linked messages:
+					$(SepiaFW.ui.JQ_RES_VIEW_IDS).find('[data-msg-custom-tag="' + Timer.data.eventId + '"]').each(function(){
+						this.remove();
+					});
 				}else{
 					removeTimeEventElement(timeEventEle[0]);
 				}

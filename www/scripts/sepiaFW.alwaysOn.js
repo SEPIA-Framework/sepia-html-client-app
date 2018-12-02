@@ -4,6 +4,7 @@ function sepiaFW_build_always_on(){
 
     var AVATAR_FADE_DELAY = 120000;
     var CONTROLS_FADE_DELAY = 5000;
+    var INFO_FADE_DELAY = 5000;
     var ALARM_ANIMATION_ACTIVE = 12000;
 
     //elements
@@ -11,9 +12,13 @@ function sepiaFW_build_always_on(){
     var $carouselPanes = undefined;
     var $alarmArea = undefined;
     var $topLayer = undefined;
+    var $avatar = undefined;
     var $activityArea = undefined;
     var $avatarEyelid = undefined;
     var $avatarMouth = undefined;
+    var $clock = undefined;
+    var $notes = undefined;
+    var $battery = undefined;
 
     //some states
     AlwaysOn.isOpen = false;
@@ -26,6 +31,7 @@ function sepiaFW_build_always_on(){
     //some settings
     AlwaysOn.autoEnableVoice = true;
     AlwaysOn.autoLoadOnPowerPlug = true;
+    var preventNoteIndicatorFadeIfNotZero = true;       //keep the missed notes indicator alive?
 
     //Load always-on screen
     AlwaysOn.start = function(){
@@ -55,10 +61,14 @@ function sepiaFW_build_always_on(){
         $mainWindow = $('#sepiaFW-main-window');
         $carouselPanes = $('.sepiaFW-carousel-pane');
         $alarmArea = $('.sepiaFW-alwaysOn-navbar');
-        $topLayer = $('#sepiaFW-alwaysOn-avatar').closest('.sepiaFW-top-layer-view');
-        $activityArea = $('#sepiaFW-alwaysOn-avatar').find('.avatar-activity');
-        $avatarEyelid = $("#sepiaFW-alwaysOn-avatar").find(".avatar-eyelid");
-        $avatarMouth = $("#sepiaFW-alwaysOn-avatar").find(".avatar-mouth");
+        $avatar = $("#sepiaFW-alwaysOn-avatar");
+        $topLayer = $avatar.closest('.sepiaFW-top-layer-view');
+        $activityArea = $avatar.find('.avatar-activity');
+        $avatarEyelid = $avatar.find(".avatar-eyelid");
+        $avatarMouth = $avatar.find(".avatar-mouth");
+        $clock = $('#sepiaFW-alwaysOn-clock');
+        $notes = $('#sepiaFW-alwaysOn-notifications');
+        $battery = $('#sepiaFW-alwaysOn-battery');
     }
 
     //On open
@@ -75,7 +85,7 @@ function sepiaFW_build_always_on(){
         //show avatar and stuff
         if (openFadeTimer) clearTimeout(openFadeTimer);
         openFadeTimer = setTimeout(function(){
-            $("#sepiaFW-alwaysOn-avatar").css({opacity:'0'}).show().animate({opacity:'1.0'}, {complete:function(){
+            $avatar.css({opacity:'0'}).show().animate({opacity:'1.0'}, {complete:function(){
                 fadeOutNavbarControlsAfterDelay(CONTROLS_FADE_DELAY);
                 fadeAvatarToRandomPosAfterDelay(AVATAR_FADE_DELAY);
             }, duration: 1000});
@@ -103,7 +113,7 @@ function sepiaFW_build_always_on(){
         //console.log('close');
         //stop reposition script
         if (fadeAvatarTimer) clearTimeout(fadeAvatarTimer);
-        $("#sepiaFW-alwaysOn-avatar").fadeOut(300);
+        $avatar.fadeOut(300);
         //allow sleep again
         AlwaysOn.allowSleep();
         //restore designs - TODO: we should reduce the necessary modifiers!
@@ -134,7 +144,7 @@ function sepiaFW_build_always_on(){
         wakeAvatar();
         //show info items for a while
         showLocalTimeAndFade();
-        showNotificationsAndFade();
+        showNotificationsAndFade(INFO_FADE_DELAY, preventNoteIndicatorFadeIfNotZero);
         showBatteryAndFade();
     }
     AlwaysOn.avatarIdle = function(){
@@ -216,6 +226,8 @@ function sepiaFW_build_always_on(){
             }
             //remove animation
             removeAlarmAnimation();
+            //remove missed event (since the user actively stopped it)
+            SepiaFW.ui.addMissedMessage(-1);
         }
     }
     function removeAlarmAnimation(){
@@ -268,7 +280,6 @@ function sepiaFW_build_always_on(){
 
     //Fade out avatar slowly after a certain delay and respawn at random pos (OLED screen protection)
     function fadeAvatarToRandomPosAfterDelay(delay){
-        var $avatar = $("#sepiaFW-alwaysOn-avatar");
         //stop any running timers and animations and restore opacity
         if (fadeAvatarTimer) clearTimeout(fadeAvatarTimer);
         $avatar.stop().css({opacity:'1.0'});
@@ -287,14 +298,13 @@ function sepiaFW_build_always_on(){
         }, delay);
         //show info items for a while
         showLocalTimeAndFade();
-        showNotificationsAndFade();
+        showNotificationsAndFade(INFO_FADE_DELAY, preventNoteIndicatorFadeIfNotZero);
         showBatteryAndFade();
     }
     var fadeAvatarTimer;
 
     //Move Avatar to new random position withing view
     function setNewAvatarRandomPosition(){
-        var $avatar = $("#sepiaFW-alwaysOn-avatar");
         var availableHeight = $('#sepiaFW-alwaysOn-view').height();
         var availableWidth = $('#sepiaFW-alwaysOn-view').width();
         var avatarHeigth = $avatar.height();
@@ -315,10 +325,9 @@ function sepiaFW_build_always_on(){
         var short = true;
         var timeWithIcon = 
             '<i class="material-icons md-txt">access_time</i>&nbsp;' + SepiaFW.tools.getLocalTime(short);
-        $clock = $('#sepiaFW-alwaysOn-clock');
         $clock.html(timeWithIcon);
         $clock.stop().fadeIn(500, function(){
-            if (fadeOutAfterDelay == undefined) fadeOutAfterDelay = 5000;
+            if (fadeOutAfterDelay == undefined) fadeOutAfterDelay = INFO_FADE_DELAY;
             if (fadeClockTimer) clearTimeout(fadeClockTimer);
             fadeClockTimer = setTimeout(function(){
                 $clock.fadeOut(3000);
@@ -328,16 +337,17 @@ function sepiaFW_build_always_on(){
     var fadeClockTimer;
 
     //Show missed notifications for a while
-    function showNotificationsAndFade(fadeOutAfterDelay){
+    function showNotificationsAndFade(fadeOutAfterDelay, keepIfNotZero){
         var missedNotesWithIcon = 
             '<i class="material-icons md-txt">notifications_none</i>&nbsp;' + SepiaFW.ui.getNumberOfMissedMessages();
-        $notes = $('#sepiaFW-alwaysOn-notifications');
         $notes.html(missedNotesWithIcon);
         $notes.stop().fadeIn(500, function(){
-            if (fadeOutAfterDelay == undefined) fadeOutAfterDelay = 5000;
+            if (fadeOutAfterDelay == undefined) fadeOutAfterDelay = INFO_FADE_DELAY;
             if (fadeNotificationsTimer) clearTimeout(fadeNotificationsTimer);
             fadeNotificationsTimer = setTimeout(function(){
-                $notes.fadeOut(3000);
+                if (!keepIfNotZero || SepiaFW.ui.getNumberOfMissedMessages() <= 0){
+                    $notes.fadeOut(3000);
+                }
             }, fadeOutAfterDelay);
         });
     }
@@ -360,15 +370,16 @@ function sepiaFW_build_always_on(){
             }
             var batteryWithIcon = 
                 '<i class="material-icons md-txt">' + batteryIcon + '</i>&nbsp;' + AlwaysOn.batteryPercentage;
-            $battery = $('#sepiaFW-alwaysOn-battery');
             $battery.html(batteryWithIcon);
             $battery.stop().fadeIn(500, function(){
-                if (fadeOutAfterDelay == undefined) fadeOutAfterDelay = 5000;
+                if (fadeOutAfterDelay == undefined) fadeOutAfterDelay = INFO_FADE_DELAY;
                 if (fadeBatteryTimer) clearTimeout(fadeBatteryTimer);
                 fadeBatteryTimer = setTimeout(function(){
                     $battery.fadeOut(3000);
                 }, fadeOutAfterDelay);
             });
+        }else{
+            $battery.hide();
         }
     }
     var fadeBatteryTimer;

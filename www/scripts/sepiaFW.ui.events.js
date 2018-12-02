@@ -657,7 +657,8 @@ function sepiaFW_build_events(){
 			(SepiaFW.frames && SepiaFW.frames.isOpen)
 		){
 			SepiaFW.ui.addMissedMessage();
-			SepiaFW.ui.showInfo(SepiaFW.local.g('missed') + "? " + titleS + " " + textS);
+			var customTag = Timer.data.eventId;
+			SepiaFW.ui.showInfo(SepiaFW.local.g('missed') + "? " + titleS + " " + textS, true, customTag);
 		}
 		//broadcast event
 		broadcastAlarmTrigger();
