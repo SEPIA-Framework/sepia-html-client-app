@@ -1153,9 +1153,16 @@ function sepiaFW_build_ui(){
 		var resetTimer;
 		$swipeArea.mouseup(function(event){			up(this, event);
 			}).mousedown(function(event){			down(this, event);
-			//}).on('touchstart', function(event){	console.log('touchstart'); down(this, event);
+            //}).on('touchstart', function(event){	console.log('touchstart');
 			//}).on('touchend', function(event){	console.log('touchend'); up(this, event);
 			});
+        if (UI.isIOS){
+            $swipeArea.on('touchstart', function(event){    touchdown(this, event); });
+        }
+        function touchdown(that, ev){
+            //console.log('touchstart');
+            timeDown = new Date().getTime();
+        }
 		function down(that, ev){
 			//console.log('down');
 			if (!didDown){
@@ -1164,7 +1171,9 @@ function sepiaFW_build_ui(){
 				xDown = (ev.center)? ev.center.x : ev.clientX;
 				yDown = (ev.center)? ev.center.y : ev.clientY;
 				$(that).addClass('sepiaFW-fullSize');
-				timeDown = new Date().getTime();
+                if (!timeDown){
+                    timeDown = new Date().getTime();
+                }
 				//console.log(ev);
 				timeDownTimer = setTimeout(function(){
 					up(that, ev); 		//note: ev will not be up-to-date here
@@ -1182,6 +1191,7 @@ function sepiaFW_build_ui(){
 					didDown = false;
 				}, 500);
 			}
+            timeDown = 0;
 		}
 		function checkClick(ev){
 			xUp = (ev.center)? ev.center.x : ev.clientX;
