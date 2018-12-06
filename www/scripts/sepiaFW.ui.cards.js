@@ -300,7 +300,8 @@ function sepiaFW_build_ui_cards(){
 		if (N > maxShow){
 			var footerConfig = {
 				"type" : "showHideButton",
-				"cardBody" : cardBody
+				"cardBody" : cardBody,
+				"visibleItems" : maxShow
 			};
 			var cardFooter = makeFooter(footerConfig);
 			cardElement.appendChild(cardFooter);
@@ -331,7 +332,7 @@ function sepiaFW_build_ui_cards(){
 	//build checkable card element (default list element)
 	function makeUserDataListElement(elementData){
 		var listEle = document.createElement('DIV');
-		listEle.className = 'listElement';
+		listEle.className = 'listElement cardBodyItem';
 		if (elementData.checked){
 			listEle.innerHTML = "<div class='listLeft checked' oncontextmenu='return false;'></div>";
 		}else{
@@ -441,7 +442,7 @@ function sepiaFW_build_ui_cards(){
 		cardBody.className = "sepiaFW-cards-list-body sepiaFW-cards-list-radioStations";
 		
 		var radioStation = document.createElement('DIV');
-		radioStation.className = 'radioStation';
+		radioStation.className = 'radioStation cardBodyItem';
 		radioStation.innerHTML = "<div class='radioLeft'><i class='material-icons md-24'>&#xE03E;</i></div><div class='radioCenter'>" + cardElementInfo.name + "</div><div class='radioRight'><i class='material-icons md-24'>&#xE037;</i></div>";
 		radioStation.setAttribute('data-element', JSON.stringify(cardElementInfo));
 		cardBody.appendChild(radioStation);
@@ -501,7 +502,7 @@ function sepiaFW_build_ui_cards(){
 	//timeEvent elements
 	function makeTimerElement(actionInfoI){ 	//actionInfoI can also be the data of an list element, should be compatible (in the most important fields)!
 		var timeEvent = document.createElement('DIV');
-		timeEvent.className = 'timeEvent';
+		timeEvent.className = 'timeEvent cardBodyItem';
 		timeEvent.innerHTML = "<div class='timeEventLeft'><i class='material-icons md-24'>&#xE425;</i></div>"
 							+ "<div class='timeEventCenter'>"
 								+ "<div class='sepiaFW-timer-name' contentEditable='true'>" + actionInfoI.name + "</div>"
@@ -518,7 +519,7 @@ function sepiaFW_build_ui_cards(){
 	}
 	function makeAlarmElement(actionInfoI){		//actionInfoI can also be the data of an list element, should be compatible (in the most important fields)!
 		var timeEvent = document.createElement('DIV');
-		timeEvent.className = 'timeEvent';
+		timeEvent.className = 'timeEvent cardBodyItem';
 		timeEvent.innerHTML = "<div class='timeEventLeft'><i class='material-icons md-24'>&#xE855;</i></div>"
 							+ "<div class='timeEventCenter'>"
 								+ "<div class='sepiaFW-timer-name' contentEditable='true'>" + actionInfoI.name + "</div>"
@@ -697,12 +698,12 @@ function sepiaFW_build_ui_cards(){
 				newsBody = newsBody.replace(/(<p>|<\/p>|<strong>|<\/strong>|<b>|<\/b>)/g," ").replace(/\s+/g, " ");
 				newsBody = (newsBody.length > 360)? (newsBody.substring(0, 360) + "...") : newsBody;
 			}
-			var newPublished = elementsData[i].pubDate;
+			var newsPublished = elementsData[i].pubDate;
 			var newsArticle = document.createElement('DIV');
 			if (i >= maxShow){
-				newsArticle.className = 'newsArticle itemHidden';
+				newsArticle.className = 'newsArticle cardBodyItem itemHidden';
 			}else{
-				newsArticle.className = 'newsArticle';
+				newsArticle.className = 'newsArticle cardBodyItem';
 			}
 			//newsArticle.setAttribute('data-element', JSON.stringify(elementsData[i]));
 			newsArticle.innerHTML = "<div class='newsCenter'><h3 class='newsArticleHeadline'>" + newsHeadline + "</h3><div class='newsArticleBody'>" + newsBody + "</div></div>";
@@ -725,7 +726,8 @@ function sepiaFW_build_ui_cards(){
 			var footerConfig = {
 				"type" : "showHideButton",
 				"cardBody" : cardBody,
-				"cssClass" : "newsFooter"
+				"cssClass" : "newsFooter",
+				"visibleItems" : maxShow
 			};
 			var cardFooter = makeFooter(footerConfig);
 			cardBody.style.paddingBottom = '0px';
@@ -746,6 +748,7 @@ function sepiaFW_build_ui_cards(){
 		
 		var cardBody = document.createElement('DIV');
 		cardBody.className = "sepiaFW-cards-list-body sepiaFW-cards-list-weatherA";
+		var visibleItems = 0;
 		var data = cardElementInfo.data;
 		//small preview
 		var weatherNowTmoSmall = document.createElement('DIV');
@@ -758,7 +761,7 @@ function sepiaFW_build_ui_cards(){
 		cardBody.appendChild(weatherNowTmoSmall);
 		//details part
 		var weatherNowTmoDetails = document.createElement('DIV');
-		weatherNowTmoDetails.className = 'weatherNowDetails itemHidden';
+		weatherNowTmoDetails.className = 'weatherNowDetails itemHidden cardBodyItem';
 		weatherNowTmoDetails.innerHTML = makeWeatherNowTmoDetailsData(cardElementInfo.details, data.units);
 		cardBody.appendChild(weatherNowTmoDetails);
 		
@@ -767,7 +770,8 @@ function sepiaFW_build_ui_cards(){
 		//footer
 		var footerConfig = {
 			"type" : "showHideButton",
-			"cardBody" : cardBody
+			"cardBody" : cardBody,
+			"visibleItems" : visibleItems
 		};
 		var cardFooter = makeFooter(footerConfig);
 		//cardBody.style.paddingBottom = '0px';
@@ -840,7 +844,7 @@ function sepiaFW_build_ui_cards(){
 		var linkLogo = cardElementInfo.image;
 		var linkLogoBack = cardElementInfo.imageBackground || '';
 		var linkCardEle = document.createElement('DIV');
-		linkCardEle.className = 'linkCard';
+		linkCardEle.className = 'linkCard cardBodyItem';
 		linkCardEle.innerHTML = "<div class='linkCardLogo' " + ((linkLogoBack)? ("style='background:" + linkLogoBack + ";'") : ("")) + "><img src='" + cardElementInfo.image + "' alt='logo'></div>"
 								+ "<div class='linkCardCenter'>" + (data.title? ("<h3>" + data.title + "</h3>") : ("")) + "<p>" + data.desc + "</p></div>"
 								+ "<div class='linkCardRight'><a href='" + linkUrl + "' target='_blank'>" + "<i class='material-icons md-mnu'>&#xE895;</i>" + "</a></div>";
@@ -886,6 +890,7 @@ function sepiaFW_build_ui_cards(){
 		var addSaveListButton = headerConfig.addSaveListButton || false;
 		var addAddDefaultListItemButton = headerConfig.addAddDefaultListItemButton || false;
 		
+		//-Title with context menu
 		var title = document.createElement('DIV');
 		title.className = "sepiaFW-cards-list-title";
 		if (titleCssClass){
@@ -929,84 +934,83 @@ function sepiaFW_build_ui_cards(){
 		var contextMenu = document.createElement('DIV');
 		contextMenu.className = "sepiaFW-cards-list-contextMenu sepiaFW-menu";
 		contextMenu.id = ("sepiaFW-contextMenu-id-" + Cards.currentCardId);
-			var cmList = document.createElement('UL');
-			
-			//move to my view
-			var moveToMyViewBtn = document.createElement('LI');
-			moveToMyViewBtn.className = "sepiaFW-cards-list-addBtn";
-			moveToMyViewBtn.innerHTML = SepiaFW.local.g('moveToMyView');
-			SepiaFW.ui.onclick(moveToMyViewBtn, function(){
-				var flexBox = $(moveToMyViewBtn).closest('.sepiaFW-cards-flexSize-container');
-				Cards.moveToMyViewOrDelete(flexBox[0]);
-				$(contextMenu).hide();
-				$('#sepiaFW-main-window').trigger(('sepiaFwClose-' + contextMenu.id));
-				$(moveToMyViewBtn).remove();
-			}, true);
-			cmList.appendChild(moveToMyViewBtn);
+		var cmList = document.createElement('UL');
+		
+		//move to my view
+		var moveToMyViewBtn = document.createElement('LI');
+		moveToMyViewBtn.className = "sepiaFW-cards-list-addBtn";
+		moveToMyViewBtn.innerHTML = SepiaFW.local.g('moveToMyView');
+		SepiaFW.ui.onclick(moveToMyViewBtn, function(){
+			var flexBox = $(moveToMyViewBtn).closest('.sepiaFW-cards-flexSize-container');
+			Cards.moveToMyViewOrDelete(flexBox[0]);
+			$(contextMenu).hide();
+			$('#sepiaFW-main-window').trigger(('sepiaFwClose-' + contextMenu.id));
+			$(moveToMyViewBtn).remove();
+		}, true);
+		cmList.appendChild(moveToMyViewBtn);
 
-			//add default list item
-			if (addAddDefaultListItemButton){
-				var addItemBtn = document.createElement('LI');
-				addItemBtn.className = "sepiaFW-cards-list-addBtn";
-				addItemBtn.innerHTML = '<i class="material-icons md-24">add_circle_outline</i>'; //SepiaFW.local.g('addItem');
-				SepiaFW.ui.onclick(addItemBtn, function(){
-					var fakeData = {
-						'name' : '',
-						'checked' : false,
-						'dateAdded' : (new Date().getTime())
-					};
-					var emptyEle = makeUserDataListElement(fakeData);
-					var cardBody = $(addItemBtn).closest('.sepiaFW-cards-flexSize-container').find('.sepiaFW-cards-list-body');
-					if (cardBody.length == 0){
-						cardBody = document.createElement('DIV');
-						cardBody.className = "sepiaFW-cards-list-body sepiaFW-cards-list-unknownType";
-						$(addItemBtn).closest('.sepiaFW-cards-flexSize-container').append(cardBody);
-					}
-					cardBody.prepend(emptyEle);
-					setupUserDataListElementButtons(listEle);
-					//emptyEle.scrollIntoView({block: 'center'});
-					/*$(contextMenu).fadeOut(200);
-					$('#sepiaFW-main-window').trigger(('sepiaFwClose-' + contextMenu.id));*/
-				}, true);
-				cmList.appendChild(addItemBtn);
-			}
-			
-			//hide
-			var cmHideBtn = document.createElement('LI');
-			cmHideBtn.className = "sepiaFW-cards-list-contextMenu-hideBtn";
-			cmHideBtn.innerHTML = SepiaFW.local.g('hideItem');
-			SepiaFW.ui.onclick(cmHideBtn, function(){
-				$(cmHideBtn).closest('.sepiaFW-cards-flexSize-container').fadeOut(300, function(){
-					$(this).remove();
+		//add default list item
+		if (addAddDefaultListItemButton){
+			var addItemBtn = document.createElement('LI');
+			addItemBtn.className = "sepiaFW-cards-list-addBtn";
+			addItemBtn.innerHTML = '<i class="material-icons md-24">add_circle_outline</i>'; //SepiaFW.local.g('addItem');
+			SepiaFW.ui.onclick(addItemBtn, function(){
+				var fakeData = {
+					'name' : '',
+					'checked' : false,
+					'dateAdded' : (new Date().getTime())
+				};
+				var emptyEle = makeUserDataListElement(fakeData);
+				var cardBody = $(addItemBtn).closest('.sepiaFW-cards-flexSize-container').find('.sepiaFW-cards-list-body');
+				if (cardBody.length == 0){
+					cardBody = document.createElement('DIV');
+					cardBody.className = "sepiaFW-cards-list-body sepiaFW-cards-list-unknownType";
+					$(addItemBtn).closest('.sepiaFW-cards-flexSize-container').append(cardBody);
+				}
+				cardBody.prepend(emptyEle);
+				setupUserDataListElementButtons(emptyEle);
+				//emptyEle.scrollIntoView({block: 'center'});
+				/*$(contextMenu).fadeOut(200);
+				$('#sepiaFW-main-window').trigger(('sepiaFwClose-' + contextMenu.id));*/
+			}, true);
+			cmList.appendChild(addItemBtn);
+		}
+		
+		//hide
+		var cmHideBtn = document.createElement('LI');
+		cmHideBtn.className = "sepiaFW-cards-list-contextMenu-hideBtn";
+		cmHideBtn.innerHTML = SepiaFW.local.g('hideItem');
+		SepiaFW.ui.onclick(cmHideBtn, function(){
+			$(cmHideBtn).closest('.sepiaFW-cards-flexSize-container').fadeOut(300, function(){
+				$(this).remove();
+			});
+		}, true);
+		cmList.appendChild(cmHideBtn);
+
+		//delete list
+		if (addDeleteListButton){
+			var cmDelBtn = document.createElement('LI');
+			cmDelBtn.className = "sepiaFW-cards-list-contextMenu-delBtn";
+			cmDelBtn.innerHTML = '<i class="material-icons md-24">delete</i>'; //SepiaFW.local.g('deleteItem');
+			SepiaFW.ui.onclick(cmDelBtn, function(){
+				var listInfo = JSON.parse(cmDelBtn.parentElement.parentElement.parentElement.parentElement.getAttribute('data-list')); 		//TODO: replace with $().closest('...')
+				var parentCard = $(cmDelBtn).parent().parent().parent().parent();															//TODO: replace with $().closest('...')
+				SepiaFW.ui.build.askConfirm(SepiaFW.local.g('deleteItemConfirm'), function(){
+					//ok
+					SepiaFW.account.deleteList(listInfo, function(data){
+						parentCard.fadeOut(300);
+					}, function(msg){
+						SepiaFW.ui.showPopup(msg);
+					});
+
+				}, function(){
+					//abort
 				});
 			}, true);
-			cmList.appendChild(cmHideBtn);
-
-			//delete list
-			if (addDeleteListButton){
-				var cmDelBtn = document.createElement('LI');
-				cmDelBtn.className = "sepiaFW-cards-list-contextMenu-delBtn";
-				cmDelBtn.innerHTML = '<i class="material-icons md-24">delete</i>'; //SepiaFW.local.g('deleteItem');
-				SepiaFW.ui.onclick(cmDelBtn, function(){
-					var listInfo = JSON.parse(cmDelBtn.parentElement.parentElement.parentElement.parentElement.getAttribute('data-list')); 		//TODO: replace with $().closest('...')
-					var parentCard = $(cmDelBtn).parent().parent().parent().parent();															//TODO: replace with $().closest('...')
-					SepiaFW.ui.build.askConfirm(SepiaFW.local.g('deleteItemConfirm'), function(){
-						//ok
-						SepiaFW.account.deleteList(listInfo, function(data){
-							parentCard.fadeOut(300);
-						}, function(msg){
-							SepiaFW.ui.showPopup(msg);
-						});
-
-					}, function(){
-						//abort
-					});
-				}, true);
-				cmList.appendChild(cmDelBtn);	
-			}
+			cmList.appendChild(cmDelBtn);	
+		}
 		contextMenu.appendChild(cmList);
 		title.appendChild(contextMenu);
-		//cardElement.appendChild(contextMenu);
 		
 		//-extra buttons
 		//--save
@@ -1050,7 +1054,7 @@ function sepiaFW_build_ui_cards(){
 			dummyBtn.className = "sepiaFW-cards-list-dummyBtn";
 			title.appendChild(dummyBtn);
 		}
-		//--context menu
+		//--context menu button
 		var contextMenuBtn = document.createElement('BUTTON');
 		contextMenuBtn.className = "sepiaFW-cards-list-menuBtn";
 		contextMenuBtn.innerHTML = "<i class='material-icons md-mnu'>&#xE5D3;</i>";
@@ -1086,11 +1090,13 @@ function sepiaFW_build_ui_cards(){
 	function makeFooter(footerConfig){
 		var type = footerConfig.type || '';
 		var footerCssClass = footerConfig.cssClass || '';
+		var visibleItems = (footerConfig.visibleItems == undefined)? -1 : footerConfig.visibleItems;
 		var footer = document.createElement('DIV');
 		footer.className = "sepiaFW-cards-list-footer";
 		if (footerCssClass){
 			footer.className += (" " + footerCssClass);
 		}
+		//extend toggle button
 		if (type === 'showHideButton'){
 			footer.innerHTML = "<i class='material-icons md-txt'>&#xE5CF;</i>";
 			SepiaFW.ui.onclick(footer, function(){
@@ -1099,7 +1105,7 @@ function sepiaFW_build_ui_cards(){
 					$(footer).attr('data-extended', 'on');
 					$(footer).html("<i class='material-icons md-txt'>&#xE5CE;</i>");
 					//$(footerConfig.cardBody).find('.itemHidden').removeClass('itemHidden').addClass('itemVisible');
-					$(footerConfig.cardBody).find('.itemHidden').each(function(index) {
+					$(footerConfig.cardBody).find('.itemHidden').each(function(index){
 						var self = $(this);
 						setTimeout(function() {
 							self.removeClass('itemHidden').addClass('itemVisible');
@@ -1108,7 +1114,12 @@ function sepiaFW_build_ui_cards(){
 				}else{
 					$(footer).attr('data-extended','off');
 					$(footer).html("<i class='material-icons md-txt'>&#xE5CF;</i>");
-					$(footerConfig.cardBody).find('.itemVisible').removeClass('itemVisible').addClass('itemHidden');
+					//Refresh first N items visibility (in case list was re-ordered)
+					var $items = $(footerConfig.cardBody).find('.cardBodyItem').removeClass('itemVisible itemHidden');
+					if (visibleItems >= 0){
+						$items.slice(visibleItems).addClass('itemHidden');
+					}
+					//$(footerConfig.cardBody).find('.itemVisible').removeClass('itemVisible').addClass('itemHidden');
 				}
 			});
 		}else{

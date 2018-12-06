@@ -1242,12 +1242,35 @@ function sepiaFW_build_ui_build(){
 				block.className += ' hidden-by-settings';
 			}
 		}
-		article.innerHTML = ""
-			+ "<b class='" + classes + "'>" + senderText + ": </b>"
-			+ "<span class='status'>" + text + "</span>"
-			+ "<span class='timestamp'>" + time + "</span>";
+		//inner HTML:
+		var articleSender = document.createElement('b');
+		articleSender.className = classes;
+		articleSender.innerHTML = (senderText + ": ");
+		article.appendChild(articleSender);
+
+		var articleText = document.createElement('span');
+		articleText.className = 'status';
+		articleText.innerHTML = text;
+		article.appendChild(articleText);
+
+		var articleTimestamp = document.createElement('span');
+		articleTimestamp.className = 'timestamp';
+		articleTimestamp.innerHTML = time;
+		article.appendChild(articleTimestamp);
 			
 		block.appendChild(article);
+
+		//add quick private message button
+		var closeBtn = articleTimestamp;
+		SepiaFW.ui.longPressShortPressDoubleTab(closeBtn, function(){
+			//long-press
+		},'',function(){
+			//short-press
+			$(article).remove();
+		},function(){
+			//double-tab
+		}, true);
+
 		return block;
 	}
 	

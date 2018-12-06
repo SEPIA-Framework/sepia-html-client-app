@@ -40,6 +40,8 @@ function sepiaFW_build_always_on(){
             onFinishSetup: AlwaysOn.onFinishSetup,
             onOpen: AlwaysOn.onOpen,
             onClose: AlwaysOn.onClose,
+            //onMessageHandler: AlwaysOn.onMessageHandler,              //TODO: use this?
+            onMissedMessageHandler: AlwaysOn.onMissedMessageHandler,
             theme: "dark_full"
         });
     }
@@ -133,6 +135,18 @@ function sepiaFW_build_always_on(){
         //SepiaFW.ui.moc.showPane(0);
 
         AlwaysOn.isOpen = false;
+    }
+
+    //Missed messages handling
+    AlwaysOn.onMissedMessageHandler = function(msgInfo){
+        //console.log(msgInfo);
+        //we only accept error messages and chat-other for now:
+        if (msgInfo && msgInfo.name && 
+                (msgInfo.name.indexOf('error') >= 0 || msgInfo.name.indexOf('chatOther') >= 0)
+            ){
+            SepiaFW.ui.addMissedMessage();
+            showNotificationsAndFade(INFO_FADE_DELAY, preventNoteIndicatorFadeIfNotZero);
+        }
     }
 
     //Animations and wake controls:

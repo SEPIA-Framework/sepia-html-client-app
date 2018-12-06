@@ -267,6 +267,14 @@ function sepiaFW_build_ui(){
 	
 	//missed message handling
 	var missedMessages = 0;
+	UI.handleMissedMessage = function(missed, msgInfo){
+		//is there a frame that can handle missed messages?
+		if (SepiaFW.frames && SepiaFW.frames.isOpen && SepiaFW.frames.canHandleMissedMessages()){
+			SepiaFW.frames.handleMissedMessages(msgInfo);
+		}else{
+			UI.addMissedMessage(missed);		
+		}
+	}
 	UI.addMissedMessage = function(missed){
 		if (missed){
 			missedMessages += missed; 	//Note: use negative to substract
@@ -1362,12 +1370,24 @@ function sepiaFW_build_ui(){
 			}
 			UI.scrollToBottom(target);
 			//check if we should show the missed message note bubble
-			if (!beSilent && (
-				!UI.isVisible() 
-				|| (UI.moc && UI.moc.getCurrentPane() !== 1) 
-				//|| (SepiaFW.alwaysOn && SepiaFW.alwaysOn.isOpen) 		//It is a bit too much but ...
-			)){
-				UI.addMissedMessage();
+			if (!beSilent){
+				if (!UI.isVisible() 
+					|| (UI.moc && UI.moc.getCurrentPane() !== 1)
+					|| (SepiaFW.frames && SepiaFW.frames.isOpen)
+					|| (SepiaFW.teach && SepiaFW.teach.isOpen)
+					//Note: this should be all possibilities, don't add more! 
+				){
+					//if (SepiaFW.alwaysOn && SepiaFW.alwaysOn.isOpen) ... use this and let AO-mode decide what to do?
+					var name = (entryData)? entryData.className : undefined;
+					if (name && entryData.firstChild){
+						name += (" " + entryData.firstChild.className);
+					}
+					var info = {
+						"data": entryData,
+						"name": name
+					};
+					UI.handleMissedMessage(1, info);
+				}
 			}
 		}else if (paneNbr == 0){
 			$target.prepend(entryData);

@@ -652,11 +652,12 @@ function sepiaFW_build_events(){
 		}else{
 			SepiaFW.debug.err("Alarm: Audio CANNOT be played, SepiaFW.audio is missing!");
 		}
-		//add missed message
-		if (!SepiaFW.ui.isVisible() || 
-			(SepiaFW.frames && SepiaFW.frames.isOpen)
+		//add missed message?
+		if (!SepiaFW.ui.isVisible()
+			|| (SepiaFW.frames && SepiaFW.frames.isOpen)
+			|| (SepiaFW.teach && SepiaFW.teach.isOpen)
 		){
-			SepiaFW.ui.addMissedMessage();
+			//SepiaFW.ui.addMissedMessage(); 		//this is handled inside UI.addDataToResultView call of the 'showInfo' item
 			var customTag = Timer.data.eventId;
 			SepiaFW.ui.showInfo(SepiaFW.local.g('missed') + "? " + titleS + " " + textS, true, customTag);
 		}
