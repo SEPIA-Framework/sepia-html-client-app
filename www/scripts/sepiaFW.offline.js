@@ -68,7 +68,7 @@ function sepiaFW_build_offline(){
 
 	//Build a list with custom or dummy data
 	Offline.buildListCardInfoDummy = function(id, title, section, indexType, group, listData){
-		if (!title) title = "My List";
+		if (!title) title = "Demo To-Do List";
 		if (!section) section = "productivity";
 		if (!indexType) indexType = "todo";
 		if (!group) group = "todo";
@@ -76,15 +76,15 @@ function sepiaFW_build_offline(){
 		var dateAdded = new Date().getTime();
 		var id = id || ("ABCD" + dateAdded); 	//usually this is defined by database id generator
 		var data = listData || [{
-			"name": "Checked entry 1", "checked": true, "dateAdded": dateAdded
+			"name": "Make screenshots", "checked": true, "dateAdded": dateAdded
 		}, {
-			"name": "Open entry 1", "checked": false, "dateAdded": dateAdded
+			"name": "Write tutorial text", "checked": true, "dateAdded": dateAdded
 		}, {
-			"name": "Open entry 2", "checked": false, "dateAdded": dateAdded
+			"name": "Update data", "checked": false, "state": "inProgress", "dateAdded": dateAdded
 		}, {
-			"name": "Checked entry 2", "checked": false, "dateAdded": dateAdded
+			"name": "Make offline demo-services", "checked": false, "state": "inProgress", "dateAdded": dateAdded
 		}, {
-			"name": "Open entry 3", "checked": false, "dateAdded": dateAdded
+			"name": "Connect shortcut-menu buttons", "checked": false, "dateAdded": dateAdded
 		}];
 		var user = "userid";
 

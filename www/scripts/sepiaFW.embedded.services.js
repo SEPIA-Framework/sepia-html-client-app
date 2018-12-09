@@ -36,6 +36,14 @@ function sepiaFW_build_embedded_services(){
 			//Lists
 			if (nluResult.command == "lists"){
 				serviceResult = Services.lists(nluInput, nluResult);
+			
+			//Other
+			}else{
+				var answerText = SepiaFW.local.g('notPossibleInDemoMode');
+				serviceResult = Services.buildServiceResult(
+					nluInput.user, nluInput.language, 
+					nluResult.command, answerText, '', '', ''
+				);
 			}
 		}
 		return serviceResult;
