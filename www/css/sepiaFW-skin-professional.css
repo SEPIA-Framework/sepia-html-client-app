@@ -12,6 +12,9 @@ html {
 		border-width: 6px;
 		border-radius: 0px;
 	}
+	.sepiaFW-top-layer-view {
+		border-radius: 0px;
+	}
 }
 
 #sepiaFW-pC 	{ background-color: #1b1e20; 	}
@@ -24,15 +27,23 @@ html {
 #sepiaFW-lC 	{ background-color: #606165; 	}
 
 #sepiaFW-login-box {
-	background: #606165;
+	background: #2d3034;
 	color: #fff;
+	border-radius: 0;
+	box-shadow: 0px 2px 4px 0px rgba(0,0,0,0.4);
 }
 #sepiaFW-login-box p {
 	color: #fff;
 }
-#sepiaFW-login-box button {
+#sepiaFW-login-box button:not(#sepiaFW-login-extend-btn) {
 	background: #0067b8;
 	color: #fff;
+	border-radius: 0;
+	box-shadow: 0px 2px 4px 0px rgba(0,0,0,0.4);
+}
+#sepiaFW-login-box input {
+	border-radius: 0;
+	box-shadow: 0px 2px 4px 0px rgba(0,0,0,0.4);
 }
 
 #sepiaFW-nav-bar, #sepiaFW-chat-controls-form {
@@ -46,6 +57,9 @@ html {
 #sepiaFW-chat-controls {
 	background: linear-gradient(rgba(27,30,32,0), #1b1e20, #1b1e20);
 	border-bottom-color: #1b1e20;
+}
+#sepiaFW-chat-controls input {
+	border-radius: 0;
 }
 
 #sepiaFW-main-window button,
