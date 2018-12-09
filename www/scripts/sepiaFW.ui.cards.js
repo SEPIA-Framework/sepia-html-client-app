@@ -185,12 +185,42 @@ function sepiaFW_build_ui_cards(){
 	
 	//USER DATA LIST
 
+	var INDEX_TYPE_TODO = "todo";
+	var INDEX_TYPE_SHOPPING = "shopping";
+	var INDEX_TYPE_REMINDERS = "reminders";
+	var INDEX_TYPE_APPOINTMENTS = "appointments";
+	var INDEX_TYPE_ALARMS = "alarms";			//includes timers
+	var INDEX_TYPE_NEWS_FAVORITES = "newsFavorites";
+	var INDEX_TYPE_UNKNOWN = "unknown";
+
 	//Default sort-drag-options
 	var udListCheckablesDragOptions = {
 		allowCrossContainerDrag: true,
 		activateDragAfterLongPress: true,
 		autoDisableAfterDrop: true,
 	};
+
+	//Make an empty list object for a certain list type
+	function makeProductivityListObject(name, indexType){
+		var emptyItemData;
+		if (indexType === INDEX_TYPE_TODO){
+			//To-Do
+			emptyItemData = {
+				'name' : name,
+				'checked' : false,
+				'state' : 'open',
+				'dateAdded' : (new Date().getTime())
+			};
+		}else{
+			//Shopping
+			emptyItemData = {
+				'name' : name,
+				'checked' : false,
+				'dateAdded' : (new Date().getTime())
+			};
+		}
+		return emptyItemData;
+	}
 	
 	//UserDataList
 	function makeUserDataList(user, sectionName, indexType, title, data, _id){
@@ -214,6 +244,7 @@ function sepiaFW_build_ui_cards(){
 	
 		return list;
 	}
+
 	//build card of this type
 	function buildUserDataList(cardElementInfo){
 		var newId = ("sepiaFW-card-id-" + Cards.currentCardId++);
@@ -227,7 +258,7 @@ function sepiaFW_build_ui_cards(){
 		
 		var indexType = cardElementInfo.indexType;
 		var titleName = cardElementInfo.title;
-		var isTimerAndAlarmsList = (indexType === "alarms"); 	//Note: section === "timeEvents" might even be better here
+		var isTimerAndAlarmsList = (indexType === INDEX_TYPE_ALARMS); 	//Note: section === "timeEvents" might even be better here
 		if (isTimerAndAlarmsList){
 			sortData = true;	//NOTE: maybe we should read this value from the list info itself ... maybe it is already sorted ...
 
@@ -255,6 +286,7 @@ function sepiaFW_build_ui_cards(){
 		
 		//list elements
 		var cardBody = document.createElement('DIV');
+		cardBody.className = "sepiaFW-cards-list-body";
 		var maxShow = 4;
 		var N = elementsData.length;
 		var hasTimer=0, hasAlarm=0, hasCheckable=0;
@@ -280,7 +312,7 @@ function sepiaFW_build_ui_cards(){
 			
 			//default: checkable element (default list element)
 			}else{
-				var listEle = makeUserDataListElement(elementsData[i]);
+				var listEle = makeUserDataListElement(elementsData[i], cardElementInfo);
 				cardBody.appendChild(listEle);
 				if (hasCheckable === 0) { hasCheckable = 1; cardBody.className = "sepiaFW-cards-list-body sepiaFW-cards-list-checkables"; }
 				setupUserDataListElementButtons(listEle); 		//we do this as last step, after classes are set and ele ist appended!
@@ -292,7 +324,7 @@ function sepiaFW_build_ui_cards(){
 		//refresh background notifications
 		//is mixed result?
 		if ((hasTimer + hasAlarm + hasCheckable) > 1){
-			cardBody.className = "sepiaFW-cards-list-body sepiaFW-cards-list-mixed"; 	//overwrite class - mixed card body
+			cardBody.className += " sepiaFW-cards-list-mixed"; 	//add class for mixed card body
 		}
 		cardElement.appendChild(cardBody);
 		
@@ -330,13 +362,26 @@ function sepiaFW_build_ui_cards(){
 		return listInfo;
 	}
 	//build checkable card element (default list element)
-	function makeUserDataListElement(elementData){
+	function makeUserDataListElement(elementData, cardElementInfo){
+		//console.log(cardElementInfo); 			//DEBUG
 		var listEle = document.createElement('DIV');
 		listEle.className = 'listElement cardBodyItem';
-		if (elementData.checked){
-			listEle.innerHTML = "<div class='listLeft checked' oncontextmenu='return false;'></div>";
-		}else{
-			listEle.innerHTML = "<div class='listLeft unchecked' oncontextmenu='return false;'></div>";
+		if (cardElementInfo.indexType === INDEX_TYPE_TODO){
+			//TODO LIST
+			if (elementData.checked){
+				listEle.innerHTML = "<div class='listLeft checked' oncontextmenu='return false;'></div>";
+			}else if (elementData.state && elementData.state == "inProgress"){
+				listEle.innerHTML = "<div class='listLeft inProgress' oncontextmenu='return false;'></div>";
+			}else{
+				listEle.innerHTML = "<div class='listLeft unchecked' oncontextmenu='return false;'></div>";
+			}
+		}else if (cardElementInfo.indexType === INDEX_TYPE_SHOPPING){
+			//SHOPPING LIST
+			if (elementData.checked){
+				listEle.innerHTML = "<div class='listLeft checked' oncontextmenu='return false;'></div>";
+			}else{
+				listEle.innerHTML = "<div class='listLeft unchecked' oncontextmenu='return false;'></div>";
+			}
 		}
 		listEle.innerHTML += "<div class='listCenter' contentEditable='true'>" + elementData.name + "</div>"
 		listEle.innerHTML += "<div class='listRight'><i class='material-icons md-24'>&#xE15B;</i></div>";
@@ -354,43 +399,68 @@ function sepiaFW_build_ui_cards(){
 		//left
 		$listEle.find('.listLeft').each(function(){
 			var that = this;
+			var $that = $(this);
 
 			function shortPress(){
 				//console.log('short-press');
-				var isChecked;
-				if ($(that).hasClass('checked')){
-					$(that).removeClass('checked').addClass('unchecked');
-					isChecked = false;
+				//get list index-type (we do this here because it can change via drag-drop)
+				var listContainer = $listEle.closest('.sepiaFW-cards-flexSize-container').get(0);
+				var listInfoObj = getUserDataList(listContainer);
+				var eleData = JSON.parse($listEle.attr('data-element'));
+				var classesToClean = "checked unchecked inProgress";
+				if (listInfoObj.indexType === INDEX_TYPE_TODO){
+					//TODO
+					if ($that.hasClass('checked')){
+						$that.removeClass(classesToClean).addClass('unchecked');
+						eleData.state = "open";
+						eleData.checked = false;
+					}else if ($that.hasClass('inProgress')){
+						$that.removeClass(classesToClean).addClass('checked');
+						eleData.state = "checked";
+						eleData.checked = true;
+					}else{
+						$that.removeClass(classesToClean).addClass('inProgress');
+						eleData.state = "inProgress";
+						eleData.checked = false;
+					}
 				}else{
-					$(that).removeClass('unchecked').addClass('checked');
-					isChecked = true;
+					//Rest of checkable types (e.g. shopping)
+					if ($that.hasClass('checked')){
+						$that.removeClass(classesToClean).addClass('unchecked');
+						eleData.checked = false;
+					}else{
+						$that.removeClass(classesToClean).addClass('checked');
+						eleData.checked = true;
+					}
+					//These type do not need a state attribue so we can remove it
+					if (eleData.state) 	delete eleData.state;
 				}
 				//update data
-				var eleData = JSON.parse($listEle.attr('data-element'));
-				eleData.checked = isChecked;
 				eleData.lastChange = new Date().getTime();
 				$listEle.attr('data-element', JSON.stringify(eleData));
 				//activate save button
-				var $saveBtn = $listBody.parent().find('.sepiaFW-cards-list-saveBtn'); 	//note: we need to (re)load the button here
+				var $saveBtn = $(listContainer).find('.sepiaFW-cards-list-saveBtn'); 	//note: we need to (re)load the button here
 				$saveBtn.addClass('active');		//saveBtn.css({"opacity": 0.92, "color": saveBtn.parent().css("color")});
+			}
+
+			function dropCallback(draggedEle, startListBody, dropListBody, positionChanged){
+				var sameTargetContainer = startListBody.isSameNode(dropListBody);
+				if (positionChanged){
+					var $saveBtn = $listBody.parent().find('.sepiaFW-cards-list-saveBtn');
+					$saveBtn.addClass('active');
+					if (!sameTargetContainer && dropListBody){
+						var $saveBtnNewTarget = $(dropListBody).parent().find('.sepiaFW-cards-list-saveBtn');
+						$saveBtnNewTarget.addClass('active');
+					}
+				}
+				//TODO: handle data change? (userId, listType etc.)
 			}
 
 			//tap and drag handler (for sorting)
 			//SepiaFW.ui.onclick(that, shortPress);
 			var dragOptions = Object.assign({
-				tapCallback: shortPress,
-				dropCallback: function(draggedEle, startListBody, dropListBody, positionChanged){
-					var sameTargetContainer = startListBody.isSameNode(dropListBody);
-					if (positionChanged){
-						var $saveBtn = $listBody.parent().find('.sepiaFW-cards-list-saveBtn');
-						$saveBtn.addClass('active');
-						if (!sameTargetContainer && dropListBody){
-							var $saveBtnNewTarget = $(dropListBody).parent().find('.sepiaFW-cards-list-saveBtn');
-							$saveBtnNewTarget.addClass('active');
-						}
-					}
-					//TODO: handle data change? (userId, listType etc.)
-				}
+				"tapCallback": shortPress,
+				"dropCallback": dropCallback
 			}, udListCheckablesDragOptions);
 			var draggable = new SepiaFW.ui.dragDrop.Draggable(that, ".listElement", ".sepiaFW-cards-list-checkables", dragOptions);
 		});
@@ -878,7 +948,7 @@ function sepiaFW_build_ui_cards(){
 	}
 	
 	//----------------------------- common elements ---------------------------------
-	
+				
 	//Card header
 	function makeHeader(headerConfig, cardElement){
 		var titleName = headerConfig.name;
@@ -928,6 +998,7 @@ function sepiaFW_build_ui_cards(){
 				if(keycode == '13'){
 					$('#sepiaFW-chat-input').focus().blur(); 	//workaround since SPAN can't be blurred
 				}
+				event.preventDefault;
 			});
 		}
 		//-context menu
@@ -955,12 +1026,10 @@ function sepiaFW_build_ui_cards(){
 			addItemBtn.className = "sepiaFW-cards-list-addBtn";
 			addItemBtn.innerHTML = '<i class="material-icons md-24">add_circle_outline</i>'; //SepiaFW.local.g('addItem');
 			SepiaFW.ui.onclick(addItemBtn, function(){
-				var fakeData = {
-					'name' : '',
-					'checked' : false,
-					'dateAdded' : (new Date().getTime())
-				};
-				var emptyEle = makeUserDataListElement(fakeData);
+				var listContainer = $(addItemBtn).closest('.sepiaFW-cards-flexSize-container').get(0);
+				var listInfoObj = getUserDataList(listContainer);
+				var emptyItemData = makeProductivityListObject('', listInfoObj.indexType);
+				var emptyEle = makeUserDataListElement(emptyItemData, listInfoObj);
 				var cardBody = $(addItemBtn).closest('.sepiaFW-cards-flexSize-container').find('.sepiaFW-cards-list-body');
 				if (cardBody.length == 0){
 					cardBody = document.createElement('DIV');
@@ -1030,7 +1099,8 @@ function sepiaFW_build_ui_cards(){
 				});
 			}
 			SepiaFW.ui.onclick(saveBtn, function(){
-				var listInfoObj = getUserDataList(saveBtn.parentElement.parentElement);
+				var listContainer = $(saveBtn).closest('.sepiaFW-cards-flexSize-container').get(0);
+				var listInfoObj = getUserDataList(listContainer);
 				//check user
 				if (SepiaFW.account && (SepiaFW.account.getUserId() !== listInfoObj.user)){
 					//different user

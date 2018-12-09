@@ -91,7 +91,7 @@
 	font-weight: bold;
 	line-height: 27px;
 }
-.sepiaFW-cards-list-title span {
+.sepiaFW-cards-list-title > span {
 	/*position: absolute;
 	left: 50%;
 	top: 50%;
@@ -204,6 +204,7 @@
     /*border-right: 3px solid #e5e5e5;*/
 	margin: 0px 3px 0px 5px;
 	user-select: none;
+	cursor: pointer;
 }
 .sepiaFW-cards-list-body .listElement .listCenter {
 	display: flex;
@@ -233,15 +234,18 @@
 .sepiaFW-cards-list-body .listElement .checked {
 	background: rgba(0, 255, 0, 0.50);
 }
-.sepiaFW-notouch-device .sepiaFW-cards-list-body .listElement .checked:hover {	
-	background: rgba(0, 255, 255, 0.50);	
+.sepiaFW-cards-list-body .listElement .inProgress {
+	background: rgba(255, 255, 0, 0.50);
 }
-.sepiaFW-cards-list-body .listElement .unchecked {
-	/*background: rgba(255, 255, 255, 0.90);*/
-}
-.sepiaFW-notouch-device .sepiaFW-cards-list-body .listElement .unchecked:hover {	
+/*.sepiaFW-cards-list-body .listElement .unchecked {
+	background: rgba(255, 255, 255, 0.90);
+}*/
+/*.sepiaFW-notouch-device .sepiaFW-cards-list-body .listElement .unchecked:hover {	
 	background: rgba(0, 255, 0, 0.50);		
 }
+.sepiaFW-notouch-device .sepiaFW-cards-list-body .listElement .checked:hover {	
+	background: rgba(0, 255, 255, 0.50);	
+}*/
 
 /* hidden and visible */
 .sepiaFW-cards-list-body .itemHidden {
@@ -376,13 +380,14 @@
 	cursor: pointer;
 	padding: 5px;
 }
-.sepiaFW-notouch-device .sepiaFW-cards-list-body .timeEvent .timeEventRight:hover {	background: rgba(255, 0, 0, 0.50);		}
+.sepiaFW-notouch-device .sepiaFW-cards-list-body .timeEvent .timeEventRight:hover {	background: rgba(255, 0, 0, 0.50);	}
 
 /* ---- News ---- */
 
 .sepiaFW-cards-list-title.newsHeader {
 	background: rgba(255, 255, 255, 0.90);
-    border-radius: 0;
+	border-radius: 0;
+	font-weight: normal;
 }
 .sepiaFW-cards-list-title.newsHeader span {
 	padding-left: 0px;

@@ -378,7 +378,7 @@ function sepiaFW_build_events(){
 		}
 		var listToLoad = {};
 			listToLoad.section = "timeEvents";
-			listToLoad.indexType = "alarms";
+			listToLoad.indexType = "alarms"; 		//see UI.cards: INDEX_TYPE_ALARMS
 			if (title) listToLoad.title = title;
 		SepiaFW.account.loadList(listToLoad, function(data){
 			//got list(s)
