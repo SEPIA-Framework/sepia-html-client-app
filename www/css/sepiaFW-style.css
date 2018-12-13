@@ -1567,7 +1567,8 @@ body {
 }
 .sepiaFW-results-container article.chatMe,
 #sepiaFW-chat-output article.chatMe{
-	background: rgba(235, 235, 255, 0.95);
+	/*background: rgba(235, 235, 255, 0.95);*/
+	background: #ceff1a;
 	color: #2f3035;
 	margin: 0 2px 4px 30px;
 }

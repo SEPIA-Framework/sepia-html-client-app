@@ -8,13 +8,13 @@ html {
 	border-color: #61E69D;
 }
 
-#sepiaFW-pC 	 { background-color: #61E69D; 	}
-#sepiaFW-sC 	 { background-color: #fff; 		}
-#sepiaFW-sC2 { background-color: #f0f0f0; 	}
-#sepiaFW-aC 	 { background-color: #2f3035; 	}
-#sepiaFW-aC2 { background-color: #61E69D; 	}
-#sepiaFW-asC { background-color: #FE5652;	}
-#sepiaFW-adC { background-color: gold; 		}
+#sepiaFW-pC 	{ background-color: #61E69D; 	}
+#sepiaFW-sC 	{ background-color: #fff; 		}
+#sepiaFW-sC2 	{ background-color: #f0f0f0; 	}
+#sepiaFW-aC 	{ background-color: #2f3035; 	}
+#sepiaFW-aC2 	{ background-color: #61E69D; 	}
+#sepiaFW-asC 	{ background-color: #FE5652;	}
+#sepiaFW-adC 	{ background-color: #ffef97;	}
 
 #sepiaFW-nav-bar, #sepiaFW-chat-controls-form, #sepiaFW-chat-controls-right {
 	background: #61E69D;
@@ -102,7 +102,7 @@ html {
 }
 
 #sepiaFW-chat-output article {
-    background: #61E69D;
+    background: #2f3035;
 }
 #sepiaFW-chat-output article:not(.statusUpdate) b {
     color: #fff;
@@ -159,6 +159,12 @@ html {
 .sepiaFW-cards-list-title {
 	background: #61E69D;
 	color: #2f3035;
+}
+.sepiaFW-cards-list-body .listElement .checked {
+    background: #61E69D;
+}
+.sepiaFW-cards-list-body .listElement .inProgress {
+    background: #ffef97;
 }
 .sepiaFW-cards-list-body .listElement .listRight {
     border-color: #61E69D;

@@ -232,10 +232,10 @@
 }
 
 .sepiaFW-cards-list-body .listElement .checked {
-	background: rgba(0, 255, 0, 0.50);
+	background: rgba(0, 255, 0, 0.50); 		/*#72f272 - rgba(114, 242, 114, 0.75)*/
 }
 .sepiaFW-cards-list-body .listElement .inProgress {
-	background: rgba(255, 255, 0, 0.50);
+	background: rgba(242, 242, 114, 0.75); 	/*#f2f272*/
 }
 /*.sepiaFW-cards-list-body .listElement .unchecked {
 	background: rgba(255, 255, 255, 0.90);
@@ -261,7 +261,8 @@
 	display: inline-block;
     /*background: rgba(235, 235, 255, 0.33);*/
 	/*background: rgba(170, 170, 180, 0.33);*/
-	background: #d2d2dd;
+	/*background: #d2d2dd;*/
+	background: #eff1ff;
 	border-radius: 3px;
     margin: 0px 5px 5px 5px;
     text-align: center;

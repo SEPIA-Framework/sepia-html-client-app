@@ -282,10 +282,10 @@ html {
 	border-left-color: #19191b !important;
 }
 .sepiaFW-cards-list-body .listElement .checked {
-    background: #c4f31a !important;
+    background: #e8e8e8 !important;
 }
-.sepiaFW-notouch-device .sepiaFW-cards-list-body .listElement .unchecked:hover {
-    background: #ddd  !important;
+.sepiaFW-cards-list-body .listElement .inProgress {
+    background: #555 !important;
 }
 .sepiaFW-notouch-device .sepiaFW-cards-list-body .listElement .listRight:hover {
 	background: #f30000 !important;

@@ -224,6 +224,12 @@ html {
 .sepiaFW-cards-list-footer {
     background: #07333a;
 }
+.sepiaFW-cards-list-body .listElement .checked {
+    background: #4ec48f;
+}
+.sepiaFW-cards-list-body .listElement .inProgress {
+    background: #b7ce96;
+}
 .sepiaFW-cards-list-body .listElement .listRight {
 	border-color: #101418;
 	background: #465056;

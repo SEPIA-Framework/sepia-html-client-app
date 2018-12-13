@@ -130,7 +130,8 @@ html {
 /*----- cards ------*/
 
 .sepiaFW-cards-flexSize-container {
-    background: rgba(255, 255, 255, 0.14);
+	/*background: rgba(255, 255, 255, 0.14);*/
+	background: rgba(21, 23, 26, 0.85);
 }
 
 .sepiaFW-help-view {
@@ -138,12 +139,44 @@ html {
 }
 
 .sepiaFW-cards-list-title {
-	color: #000;
+	color: #ECEBE7;
+    background: rgba(21, 171, 195, 0.97);
 }
 .sepiaFW-cards-list-body {
-    color: #000;
+    color: #222;
 }
-
+.sepiaFW-cards-list-footer {
+	background: #2d3034;
+	color: #ECEBE7;
+}
+.sepiaFW-cards-list-body .listElement div,
+.sepiaFW-cards-list-body .weatherNowSmall > div,
+.sepiaFW-cards-list-body .timeEvent div,
+.sepiaFW-cards-list-body .newsArticle .newsCenter,
+.sepiaFW-cards-list-body .radioStation div {
+	background: #212327;
+	color: #ECEBE7;
+}
+.sepiaFW-cards-list-body .listElement .checked {
+    background: #ceff1a;
+}
+.sepiaFW-cards-list-body .listElement .inProgress {
+    background: #888;
+}
+.sepiaFW-cards-list-body .listElement .listRight {
+	border-color: #101418;
+	/*background: #465056;*/
+	/*background: #24272a;*/
+	background: #2d3034;
+}
 .sepiaFW-cards-list-body .weatherNowSmall .weatherNowSmallImage {
 	background: rgba(21, 171, 195, 0.97);
+}
+.sepiaFW-cards-list-title.newsHeader {
+    background: rgba(21, 171, 195, 0.97);
+	color: #ECEBE7;
+}
+.sepiaFW-cards-list-title.newsHeader span {
+	text-shadow: 1px 1px 0 #ECEBE7, 1px -1px 0 #ECEBE7, -1px 1px 0 #ECEBE7, -1px -1px 0 #ECEBE7, 
+					1px 1px 0 #ECEBE7, 0px 1px 0 #ECEBE7, -1px 0px 0 #ECEBE7, 0px -1px 0 #ECEBE7;
 }

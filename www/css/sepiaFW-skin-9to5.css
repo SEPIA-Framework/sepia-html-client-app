@@ -114,6 +114,9 @@ html {
 	background: #4B6688;
 	color: #fff;
 }
+.sepiaFW-cards-list-footer {
+	background: #d2d2dd;
+}
 .sepiaFW-cards-list-title.newsHeader button {
 	color: #312F3F !important;
 }
