@@ -466,7 +466,7 @@ function sepiaFW_build_events(){
 			clearTimeout(Timer.action);
 			Timer.action = setTimeout(function(){
 				SepiaFW.debug.info("TimeEvent - " + Timer.name + ': ACTIVATED');		//DEBUG
-				//remove
+				//remove the timer and trigger the UI foreground action
 				Events.removeTimeEvent(Timer.name, "", function(){
 					//remove success - to prevent conflict between notification and trigger
 					Events.triggerAlarm(Timer, '', '', ''); 	//start, end, error
@@ -631,38 +631,51 @@ function sepiaFW_build_events(){
 		}
 	}
 	
-	//Alarm clock
+	//Alarm clock - Triggered when UI is on foreground (system notification is removed before)
 	Events.triggerAlarm = function(Timer, startCallback, endCallback, errorCallback){
 		//console.log('triggerAlarm'); 			//DEBUG
+		var showSimpleNote = true;
+		var playSound = true;
+		var showMissedNote = true;
+		var doBroadcast = true;
 		//in case the app was in background while the timer expired we block certain actions
-		if ((new Date().getTime() - Timer.targetTime) > 5000){
-			//block all if not triggered within 5s (optical feedback is triggered by interval action)
-			//TODO: show some message? Check once for animation!
-			return;
+		if ((new Date().getTime() - Timer.targetTime) > 15000){
+			//TODO: How can we land here again?? Awake from sleep-mode?
+			showSimpleNote = false;
+			playSound = false;
+			//we keep the 'missed' note and broadcast
 		}
 		//if the app is open we trigger a simple notification just to give some visual feedback when the app is in background - it is delayed 
 		var titleS = SepiaFW.local.g(Timer.type); //+ ": " + (new Date().toLocaleString());
 		var textS = SepiaFW.local.g('expired') + ": " + Timer.data.name;
-		setTimeout(function(){
-			Events.showSimpleSilentNotification(titleS, textS);
-		}, 50);
+		if (showSimpleNote){
+			setTimeout(function(){
+				Events.showSimpleSilentNotification(titleS, textS);
+			}, 50);
+		}
 		//play sound
-		if (SepiaFW.audio){
-			SepiaFW.audio.playAlarmSound(startCallback, endCallback, errorCallback);
-		}else{
-			SepiaFW.debug.err("Alarm: Audio CANNOT be played, SepiaFW.audio is missing!");
+		if (playSound){
+			if (SepiaFW.audio){
+				SepiaFW.audio.playAlarmSound(startCallback, endCallback, errorCallback);
+			}else{
+				SepiaFW.debug.err("Alarm: Audio CANNOT be played, SepiaFW.audio is missing!");
+			}
 		}
 		//add missed message?
-		if (!SepiaFW.ui.isVisible()
-			|| (SepiaFW.frames && SepiaFW.frames.isOpen)
-			|| (SepiaFW.teach && SepiaFW.teach.isOpen)
-		){
-			//SepiaFW.ui.addMissedMessage(); 		//this is handled inside UI.addDataToResultView call of the 'showInfo' item
-			var customTag = Timer.data.eventId;
-			SepiaFW.ui.showInfo(SepiaFW.local.g('missed') + "? " + titleS + " " + textS, true, customTag);
+		if (showMissedNote){
+			if (!SepiaFW.ui.isVisible()
+				|| (SepiaFW.frames && SepiaFW.frames.isOpen)
+				|| (SepiaFW.teach && SepiaFW.teach.isOpen)
+			){
+				//SepiaFW.ui.addMissedMessage(); 		//this is handled inside UI.addDataToResultView call of the 'showInfo' item
+				var customTag = Timer.data.eventId;
+				SepiaFW.ui.showInfo(SepiaFW.local.g('missed') + "? " + titleS + " " + textS, true, customTag);
+			}
 		}
 		//broadcast event
-		broadcastAlarmTrigger();
+		if (doBroadcast){
+			broadcastAlarmTrigger();
+		}
 	}
 	
 	//------------- other notifications --------------
