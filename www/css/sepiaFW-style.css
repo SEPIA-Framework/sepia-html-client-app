@@ -1361,7 +1361,7 @@ body {
 #sepiaFW-chat-controls-speech-box {
     display: flex;
 	position: absolute;
-	background: rgba(155, 155, 155, 0.50);
+	background: rgba(189, 189, 189, 0.66);
 	border-radius: 3px;
 	bottom: 57px;
 	z-index: 6;

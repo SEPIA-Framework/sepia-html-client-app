@@ -95,6 +95,15 @@ html {
 }
 */
 
+#sepiaFW-chat-controls-speech-box {
+	border-radius: 0;
+}
+#sepiaFW-chat-controls-speech-box > div {
+	background: #1b1e20;
+	color: #fff;
+	border-radius: 0;
+}
+
 .sepiaFW-menu {
 	background: #1b1e20;
 	color: #fff;

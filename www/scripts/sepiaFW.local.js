@@ -22,6 +22,7 @@ function sepiaFW_build_strings(){
 	StringsDE.addresses = 'Adressen';
 	StringsDE.logout = 'Logout';
 	StringsDE.closeLogin = 'Weiter ohne Login';
+	StringsDE.info_and_help = 'Infos und Support';
 	//StringsDE.chatInputPlaceholder = 'Deine Nachricht ...';
 	StringsDE.chatInputPlaceholder = '';
 	StringsDE.loginFailedPlain = 'Login fehlgeschlagen!';
@@ -112,6 +113,7 @@ function sepiaFW_build_strings(){
 	StringsEN.addresses = 'Addresses';
 	StringsEN.logout = 'Logout';
 	StringsEN.closeLogin = 'Continue without login';
+	StringsEN.info_and_help = 'Info and support';
 	//StringsEN.chatInputPlaceholder = 'Your message ...';
 	StringsEN.chatInputPlaceholder = '';
 	StringsEN.loginFailedPlain = 'Login failed!';

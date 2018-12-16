@@ -35,6 +35,11 @@ html {
 	border-color: #000;
 }
 
+#sepiaFW-chat-controls-speech-box > div {
+	background: #000;
+	color: #F3D713;
+}
+
 .sepiaFW-menu {
 	background: #f3c923;
 	color: #000;

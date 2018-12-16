@@ -91,6 +91,11 @@ html {
 }
 */
 
+#sepiaFW-chat-controls-speech-box > div {
+	background: #172735;
+	color: #fff;
+}
+
 .sepiaFW-menu {
 	background: #172735;
 	color: #ECEBE7;

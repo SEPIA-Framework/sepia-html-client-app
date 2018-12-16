@@ -96,8 +96,13 @@ html {
 	border-radius: 3px;
 }
 
+#sepiaFW-chat-controls-speech-box {
+	background: rgba(24, 40, 58, 0.92);
+	border: 1px solid #15abc3;
+    box-shadow: 0 0 5px #15abc3;
+}
 #sepiaFW-chat-controls-speech-box > div {
-	background: rgba(19, 38, 58, 0.92);
+	background: transparent;
 	color: #fff;
 }
 
