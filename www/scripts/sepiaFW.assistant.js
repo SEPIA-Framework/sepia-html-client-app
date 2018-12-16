@@ -62,8 +62,8 @@ function sepiaFW_build_assistant(){
 
 	function broadcastAwaitDialog(){
 		//EXAMPLE:
-		SepiaFW.animate.assistant.awaitDialog();
-		//console.log('Last input was ASR? ' + SepiaFW.client.wasLastInputSourceAsr()); 		//TODO: implement
+		SepiaFW.animate.assistant.awaitDialog(); 		
+		//Note: possible follow-up actions moved to 'animate.assistant.awaitDialog' function (since it can be triggered from elsewhere too)
 	}
 	function broadcastDialogFinished(returnToIdle){
 		//EXAMPLE:

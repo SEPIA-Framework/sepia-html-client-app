@@ -57,6 +57,12 @@ html {
 	background: #fff;
 	color: #000;
 }
+
+#sepiaFW-chat-controls-speech-box > div {
+	background: #027BFF;
+	color: #fff;
+}
+
 #sepiaFW-main-window .chat-buttons-area button {
     color: #000;
     background: rgba(255, 255, 255, 0.75);
@@ -66,9 +72,6 @@ html {
 	color: #000;
 }
 
-#sepiaFW-chat-menu li {
-	background: rgba(235, 235, 235, 0.25);
-}
 .sepiaFW-menu {
 	background: #fff !important;
 	color: #000 !important;
@@ -89,6 +92,19 @@ html {
 .sepiaFW-menu input {
 	border: 0px !important;
 	border-bottom: 1px solid white !important;
+}
+#sepiaFW-chat-menu:not(.full-screen) {
+	border-top: 0;
+	border-bottom: 0;
+}
+#sepiaFW-chat-menu li {
+	background: rgba(235, 235, 235, 0.15);
+}
+#sepiaFW-chat-channel-view {
+	border-top: 0;
+}
+#sepiaFW-chat-controls-more-menu:not(.full-screen) {
+	border-bottom: 0;
 }
 
 #sepiaFW-nav-label-note{
@@ -158,12 +174,20 @@ html {
 }
 
 .sepiaFW-cards-list-title {
-	background: rgba(133, 142, 153, 0.75);
+	background: rgba(255, 255, 255, 0.90);
 	/*background: rgba(15, 230, 15, 0.55);*/
-	color: #fff;
+	color: #000;
 }
 .sepiaFW-cards-list-title.newsHeader button {
 	color: #027BFF !important;
+}
+.sepiaFW-cards-list-footer {
+	background: rgba(255, 255, 255, 0.90);
+}
+.sepiaFW-cards-list-body .listElement .listRight {
+    border-color: #ededed;
+	background: rgba(255, 255, 255, 0.90);
+	color: #000;
 }
 
 .sepiaFW-cards-list-body .weatherNowSmall .weatherNowSmallImage {

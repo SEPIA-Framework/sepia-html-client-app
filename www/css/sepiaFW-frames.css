@@ -57,7 +57,14 @@
 .sepiaFW-frames-page {
 	padding: 8px 16px;
 	overflow-y: auto;
+	/*overflow-y: overlay;*/
 	-webkit-overflow-scrolling: touch;
+}
+.sepiaFW-frames-page a {
+	color: #4ec48f;
+}
+.sepiaFW-frames-page a:visited {
+	color: #4ec48f;
 }
 .sepiaFW-frames-page button {
 	background: #000 !important;

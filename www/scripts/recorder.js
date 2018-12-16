@@ -60,16 +60,25 @@ DEALINGS IN THE SOFTWARE.
             websocket.send(view);
         }
 
+        //Move this to 'start'?
+        source.connect(this.node);
+
+        //Will be called at beginning of SepiaFW.audioRecorder.start();
+        this.start = function() {
+            this.node.connect(this.context.destination);   // if the script node is not connected to an output the "onaudioprocess" event is not triggered in chrome.
+        }
+
+        //Will be called at beginning of SepiaFW.audioRecorder.stop();
+        this.stop = function () {
+            recording = false;
+            this.node.disconnect(0);
+        }
+
         this.record = function (ws) {
             websocket = ws;
             recording = true;
 			//console.log('Recorder record - ws: ' + ws); 		//DEBUG
 			//console.log(this.node);							//DEBUG
-        }
-
-        this.stop = function () {
-            recording = false;
-            this.node.disconnect(0);
         }
 
         this.sendHeader = function (ws) {
@@ -114,9 +123,6 @@ DEALINGS IN THE SOFTWARE.
 				view.setUint8(offset + i, string.charCodeAt(i));
 			}
 		}
-
-        source.connect(this.node);
-        this.node.connect(this.context.destination);   // if the script node is not connected to an output the "onaudioprocess" event is not triggered in chrome.
     };
 
     window.RecorderJS = Recorder;

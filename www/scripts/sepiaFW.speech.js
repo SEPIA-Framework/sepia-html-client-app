@@ -115,6 +115,29 @@ function sepiaFW_build_speech(){
 	}
 	
 	var abortRecognition = false;
+
+	//handle smart-mic auto-toggle - activate mic automatically in certain situations (e.g. after question via voice)
+	Speech.useSmartMicToggle = false; 	//note: overwritten by settings
+	Speech.toggleSmartMic = function(){
+		if (smartMicStartTimer) clearTimeout(smartMicStartTimer);
+		//console.log('Microphone smart-trigger: sheduled'); 			//DEBUG
+		smartMicStartTimer = setTimeout(function(){
+			if (!Speech.isWaitingForSpeech() && !Speech.isSpeaking()
+				&& !Speech.isWaitingForResult() && !Speech.isRecognizing()
+				&& (SepiaFW.assistant && SepiaFW.assistant.isWaitingForDialog)
+			){
+				var useConfirmationSound = SepiaFW.speech.shouldPlayConfirmation();
+        		SepiaFW.ui.toggleMicButton(useConfirmationSound);
+			}else{
+				//console.log('Microphone smart-trigger: skipped'); 	//DEBUG
+			}
+		}, Speech.smartMicDelay)
+	}
+	Speech.skipCurrentSmartMicToggle = function(){
+		if (smartMicStartTimer) clearTimeout(smartMicStartTimer);
+	}
+	Speech.smartMicDelay = 1000;
+	var smartMicStartTimer = undefined;
 	
 	//handle auto-stop ASR
 	var asrAutoStop = false; 			//note: it is a state not a setting
@@ -197,6 +220,10 @@ function sepiaFW_build_speech(){
 	function broadcastTtsFinished(){
 		//EXAMPLE: 
 		SepiaFW.animate.assistant.idle('ttsFinished');
+	}
+	function broadcastTtsSkipped(){
+		//EXAMPLE: 
+		//SepiaFW.animate.assistant.idle('ttsSkipped');
 	}
 	function broadcastTtsStarted(){
 		//EXAMPLE: 
@@ -290,6 +317,7 @@ function sepiaFW_build_speech(){
 	
 	//reset all states of speech
 	Speech.reset = function(){
+		Speech.skipCurrentSmartMicToggle();
 		Speech.stopSpeech();
 		Speech.stopRecognition();
 		isSpeaking = false;
@@ -729,6 +757,7 @@ function sepiaFW_build_speech(){
 		//skip but send success
 		if (!text || Speech.skipTTS || !Speech.isTtsSupported){
 			if (finishedCallback){
+				broadcastTtsSkipped();
 				finishedCallback();
 			}
 			return;

@@ -6,13 +6,13 @@ html {
 	border-color: #000;
 }
 
-#sepiaFW-pC 	 { background-color: #000; }
-#sepiaFW-sC 	 { background-color: #ceff1a; }
-#sepiaFW-sC2 { background-color: rgba(235, 235, 255, 0.95); 	}
-#sepiaFW-aC 	 { background-color: rgba(166, 58, 80, 1.0); 	}
-#sepiaFW-aC2 { background-color: #3399ff; }
+#sepiaFW-pC  { background-color: #000; 		}
+#sepiaFW-sC  { background-color: #ceff1a; 	}
+#sepiaFW-sC2 { background-color: rgba(235, 235, 255, 0.95); }
+#sepiaFW-aC  { background-color: rgba(166, 58, 80, 1.0); }
+#sepiaFW-aC2 { background-color: #3399ff; 	}
 #sepiaFW-asC { background-color: #ceff1a;	}
-#sepiaFW-adC { background-color: gold; 	}
+#sepiaFW-adC { background-color: gold; 		}
 
 #sepiaFW-login-box, #sepiaFW-nav-bar, #sepiaFW-chat-controls-form, #sepiaFW-chat-controls-right {
 	background: #000;
@@ -38,6 +38,11 @@ html {
 }
 #sepiaFW-chat-menu li {
 	background: rgba(255, 255, 255, 0.25);
+}
+
+#sepiaFW-chat-controls-speech-box > div {
+	background: #000;
+	color: #ceff1a;
 }
 
 .sepiaFW-menu {
@@ -131,4 +136,11 @@ html {
 .sepiaFW-cards-list-title {
 	background: rgb(255, 177, 80);
 	color: #fff;
+}
+.sepiaFW-cards-list-body .listElement .inProgress {
+    background: #CEFF1A;
+}
+
+.sepiaFW-cards-list-body .weatherNowSmall .weatherNowSmallImage {
+	background: #3399ff;
 }

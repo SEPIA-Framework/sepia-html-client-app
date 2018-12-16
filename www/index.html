@@ -125,7 +125,8 @@
 				<button id='sepiaFW-shortcut-btn-shop'><i class="material-icons md-24">&#xE8CC;</i></button>
 				<button id='sepiaFW-shortcut-btn-todo'><i class="material-icons md-24">&#xE85D;</i></button>
 				<button id='sepiaFW-shortcut-btn-radio'><i class="material-icons md-24">&#xE03E;</i></button>
-				<button id='sepiaFW-shortcut-btn-alarm'><i class="material-icons md-24">&#xE855;</i></button>
+				<button id='sepiaFW-shortcut-btn-timer'><i class="material-icons md-24">timer</i></button> <!-- av_timer -->
+				<button id='sepiaFW-shortcut-btn-alarm'><i class="material-icons md-24">alarm</i></button>
 				<button id='sepiaFW-shortcut-btn-weather'><i class="material-icons md-24">&#xE430;</i></button>
 				<button id='sepiaFW-shortcut-btn-news'><i class="material-icons md-24">local_library</i></button>
 				<button id='sepiaFW-shortcut-btn-myEvents'><i class="material-icons md-24">&#xE55A;</i></button>
@@ -157,7 +158,7 @@
 			<div class='sepiaFW-carousel-pane-container'>
 				<div id="sepiaFW-my-view" class='sepiaFW-carousel-pane sepiaFW-results-container'><!-- dynamic content --><h2 id='sepiaFW-my-view-intro'>My view</h2></div>
 				<div id="sepiaFW-chat-output-container" class='sepiaFW-inner-container sepiaFW-carousel-pane'>
-					<div id="sepiaFW-chat-output"><!-- dynamic content --></div>
+					<div id="sepiaFW-chat-output" class="sepiaFW-results-container"><!-- dynamic content --></div>
 				</div>
 				<div id="sepiaFW-result-view" class='sepiaFW-carousel-pane sepiaFW-results-container'><!-- dynamic content --><h2>Big results view</h2></div>
 			</div>
@@ -203,16 +204,16 @@
 	</div>
 	<!-- Swipe bars -->
 	<div id='sepiaFW-swipeBar-container-left' class='sepiaFW-swipeBar-container'>
-		<div id='sepiaFW-swipeBar-chat-left' class='sepiaFW-swipeBar-switchable'></div>
-		<div id='sepiaFW-swipeBar-menu-left' class='sepiaFW-swipeBar-switchable'></div>
-		<div id='sepiaFW-swipeBar-teach-left' class='sepiaFW-swipeBar-switchable'></div>
-		<div id='sepiaFW-swipeBar-frames-left' class='sepiaFW-swipeBar-switchable'></div>
+		<div id='sepiaFW-swipeBar-chat-left' class='sepiaFW-swipeBar-switchable' oncontextmenu='return false;'></div>
+		<div id='sepiaFW-swipeBar-menu-left' class='sepiaFW-swipeBar-switchable' oncontextmenu='return false;'></div>
+		<div id='sepiaFW-swipeBar-teach-left' class='sepiaFW-swipeBar-switchable' oncontextmenu='return false;'></div>
+		<div id='sepiaFW-swipeBar-frames-left' class='sepiaFW-swipeBar-switchable' oncontextmenu='return false;'></div>
 	</div>
 	<div id='sepiaFW-swipeBar-container-right' class='sepiaFW-swipeBar-container'>
-		<div id='sepiaFW-swipeBar-chat-right' class='sepiaFW-swipeBar-switchable'></div>
-		<div id='sepiaFW-swipeBar-menu-right' class='sepiaFW-swipeBar-switchable'></div>
-		<div id='sepiaFW-swipeBar-teach-right' class='sepiaFW-swipeBar-switchable'></div>
-		<div id='sepiaFW-swipeBar-frames-right' class='sepiaFW-swipeBar-switchable'></div>
+		<div id='sepiaFW-swipeBar-chat-right' class='sepiaFW-swipeBar-switchable' oncontextmenu='return false;'></div>
+		<div id='sepiaFW-swipeBar-menu-right' class='sepiaFW-swipeBar-switchable' oncontextmenu='return false;'></div>
+		<div id='sepiaFW-swipeBar-teach-right' class='sepiaFW-swipeBar-switchable' oncontextmenu='return false;'></div>
+		<div id='sepiaFW-swipeBar-frames-right' class='sepiaFW-swipeBar-switchable' oncontextmenu='return false;'></div>
 	</div>
 	<!-- top and bottom swipe bars are usually in conflict with OS
 	<div id="sepiaFW-swipeBar-container-top" class='sepiaFW-swipeBar-container'></div>
@@ -259,6 +260,11 @@
 <link rel="stylesheet alternate" href="css/sepiaFW-skin-grid.css" class='sepiaFW-style-skin' title='' data-name='TheGrid'>
 <link rel="stylesheet alternate" href="css/sepiaFW-skin-canny.css" class='sepiaFW-style-skin' title='' data-name='Canny'>
 <link rel="stylesheet alternate" href="css/sepiaFW-skin-minimal.css" class='sepiaFW-style-skin' title='' data-name='Essential'>
+<link rel="stylesheet alternate" href="css/sepiaFW-skin-study.css" class='sepiaFW-style-skin' title='' data-name='Study'>
+<link rel="stylesheet alternate" href="css/sepiaFW-skin-professional.css" class='sepiaFW-style-skin' title='' data-name='Professional'>
+<link rel="stylesheet alternate" href="css/sepiaFW-skin-odyssey1.css" class='sepiaFW-style-skin' title='' data-name='Odyssey1'>
+<link rel="stylesheet alternate" href="css/sepiaFW-skin-odyssey2.css" class='sepiaFW-style-skin' title='' data-name='Odyssey2'>
+<link rel="stylesheet alternate" href="css/sepiaFW-skin-malachite.css" class='sepiaFW-style-skin' title='' data-name='Malachite'>
 <!-- START JS -->
 <script src="scripts/jquery-3.1.1.min.js"></script>
 <!--<script src="https://code.jquery.com/jquery-3.1.1.min.js" integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8=" crossorigin="anonymous"></script>-->
@@ -271,6 +277,7 @@
 <script src="scripts/sepiaFW.ui.animate.js"></script>
 <script src="scripts/sepiaFW.ui.notify.js"></script>
 <script src="scripts/sepiaFW.ui.carousel.js"></script>
+<script src="scripts/sepiaFW.ui.dragDrop.js"></script>
 <script src="scripts/sepiaFW.ui.events.js"></script>
 <script src="scripts/sepiaFW.ui.actions.js"></script>
 <script src="scripts/sepiaFW.ui.cards.js"></script>
@@ -279,6 +286,7 @@
 <script src="scripts/sepiaFW.assistant.js"></script>
 <script src="scripts/sepiaFW.geocoder.js"></script>
 <script src="scripts/sepiaFW.audio.js"></script>
+<script src="scripts/sepiaFW.audioRecorder.js"></script>
 <script src="scripts/sepiaFW.speechWebSocket.js"></script>
 <script src="scripts/sepiaFW.speech.js"></script>
 <script src="scripts/sepiaFW.webSocket.js"></script>
@@ -288,6 +296,9 @@
 <script src="scripts/sepiaFW.offline.js"></script>
 <script src="scripts/sepiaFW.alwaysOn.js"></script>
 <script src="scripts/sepiaFW.inputControls.js"></script>
+<script src="scripts/sepiaFW.wakeTriggers.js"></script>
+<script src="scripts/sepiaFW.embedded.nlu.js"></script>
+<script src="scripts/sepiaFW.embedded.services.js"></script>
 <script type="text/javascript">
 
 	//get some settings via URL parameters
@@ -410,5 +421,6 @@
 		appSetup();
 	}
 </script>
+<!-- Plugins -->
 </body>
 </html>

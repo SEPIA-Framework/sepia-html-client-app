@@ -11,13 +11,13 @@ html {
 	}
 }
 
-#sepiaFW-pC 	 { background-color: #262629; /*#2f3035*/ }
-#sepiaFW-sC 	 { background-color: #44c8be; }
-#sepiaFW-sC2 { background-color: rgba(225, 225, 245, 1.00); 	}
-#sepiaFW-aC 	 { background-color: rgba(166, 58, 80, 1.0); 	}
-#sepiaFW-aC2 { background-color: #6b4d9f; }
-#sepiaFW-asC { background-color: #44c8be;	}
-#sepiaFW-adC { background-color: gold; 	}
+#sepiaFW-pC 	{ background-color: #262629; /*#2f3035*/ }
+#sepiaFW-sC 	{ background-color: #44c8be; 	}
+#sepiaFW-sC2 	{ background-color: rgba(225, 225, 245, 1.00); 	}
+#sepiaFW-aC 	{ background-color: rgba(166, 58, 80, 1.0); 	}
+#sepiaFW-aC2 	{ background-color: #6b4d9f; 	}
+#sepiaFW-asC 	{ background-color: #44c8be;	}
+#sepiaFW-adC 	{ background-color: gold; 		}
 
 #sepiaFW-login-box, #sepiaFW-nav-bar, #sepiaFW-chat-controls-form, #sepiaFW-chat-controls-right {
 	background: #262629;
@@ -52,6 +52,11 @@ html {
 }
 #sepiaFW-assist-btn {
 	background: #44c8be !important;
+}
+
+#sepiaFW-chat-controls-speech-box > div {
+	background: #262629;
+	color: #fff;
 }
 
 .sepiaFW-menu {
@@ -158,8 +163,16 @@ html {
 /*----- cards ------*/
 
 .sepiaFW-cards-list-title {
-	background: #6b4d9f;
+	background: #44c8be;
 	color: #fff;
+}
+.sepiaFW-cards-list-body .listElement .checked {
+    background: #44c8be;
+}
+.sepiaFW-cards-list-body .listElement .listRight {
+	border-color: #e5e5e5;
+	background: #fcfcfc;
+	color: #262629;
 }
 
 /*----- teachUI -----*/

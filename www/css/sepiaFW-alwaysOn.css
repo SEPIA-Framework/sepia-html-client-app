@@ -1,3 +1,15 @@
+/* modifiers to make sure there are no frames and stuff around the view */
+
+#sepiaFW-main-window.sepiaFW-ao-mode {
+	border-color: #000 !important;
+	box-shadow: 0 0 0 0 #000 !important;
+}
+.sepiaFW-top-layer-view.sepiaFW-ao-mode {
+	border-radius: 0 !important;		/* we should find a better solution to remove all changes */
+}
+
+/* Always-On elements */
+
 #sepiaFW-alwaysOn-view {
 	background: #000;
 	color: #fff;
@@ -28,6 +40,15 @@
 	width: 250px;
 	height: 175px;
 	z-index: 99;
+}
+
+.sepiaFW-alwaysOn-alarm-anim {
+	animation: alarm 1s infinite ease-in;
+}
+@keyframes alarm {
+	0% {	  background-color: #000;		}
+	50% {	  background-color: #ceff1a;	}
+	100% {	  background-color: #000;		}
 }
 
 #sepiaFW-alwaysOn-avatar .avatar-eye {

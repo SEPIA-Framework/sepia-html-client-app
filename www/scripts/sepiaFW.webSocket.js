@@ -25,6 +25,8 @@ function sepiaFW_build_client_interface(){
 	ClientInterface.switchChannel = SepiaFW.webSocket.client.switchChannel;
 	ClientInterface.switchChatPartner = SepiaFW.webSocket.client.switchChatPartner;
 	ClientInterface.getActiveChatPartner = SepiaFW.webSocket.client.getActiveChatPartner;
+
+	ClientInterface.handleServerMessage = SepiaFW.webSocket.client.handleServerMessage;
 	
 	ClientInterface.toggleMicButton = SepiaFW.webSocket.client.toggleMicButton;
 	ClientInterface.sendInputText = SepiaFW.webSocket.client.sendInputText;
@@ -603,7 +605,7 @@ function sepiaFW_build_webSocket_client(){
 					var options = {};
 						//options.skipText = true;
 						options.skipTTS = true;
-						options.targetView = "chat";
+						options.targetView = "chat"; 		//auto-selects bigResult for card
 						options.showView = true;
 					Client.sendCommand(dataset, options);
 					closeControlsMenueWithDelay();
@@ -621,7 +623,7 @@ function sepiaFW_build_webSocket_client(){
 					var options = {};
 						//options.skipText = true;
 						options.skipTTS = true;
-						options.targetView = "chat";
+						options.targetView = "chat"; 		//auto-selects bigResult for card
 						options.showView = true;
 					Client.sendCommand(dataset, options);
 					closeControlsMenueWithDelay();
@@ -645,7 +647,25 @@ function sepiaFW_build_webSocket_client(){
 					closeControlsMenueWithDelay();
 				});
 			}
-			//-alarms
+			//-timers
+			var timersBtn = document.getElementById("sepiaFW-shortcut-btn-timer");
+			if (timersBtn){
+				$(timersBtn).off();
+				$(timersBtn).on("click", function () {
+					SepiaFW.animate.flash(this.id);
+					var options = {};
+						//options.skipText = true;
+						options.targetView = "chat"; 		//might auto-select bigResult for card
+						options.showView = true;
+						options.skipTTS = true;
+					var dataset = {};	dataset.info = "direct_cmd";
+						dataset.cmd = "timer;;action=<show>;;alarm_type=<timer>;;";
+						dataset.newReceiver = SepiaFW.assistant.id;
+					Client.sendCommand(dataset, options);
+					closeControlsMenueWithDelay();
+				});
+			}
+			//-alarms/reminders
 			var alarmsBtn = document.getElementById("sepiaFW-shortcut-btn-alarm");
 			if (alarmsBtn){
 				$(alarmsBtn).off();
@@ -653,18 +673,20 @@ function sepiaFW_build_webSocket_client(){
 					SepiaFW.animate.flash(this.id);
 					var options = {};
 						//options.skipText = true;
-						options.targetView = "chat";
+						options.targetView = "chat";		//might auto-select bigResult for card
 						options.showView = true;
 						options.skipTTS = true;
 					var dataset = {};	dataset.info = "direct_cmd";
-						dataset.cmd = "timer;;action=<show>;;alarm_type=<timer>;;";
+						dataset.cmd = "timer;;action=<show>;;alarm_type=<alarmClock>;;";
 						dataset.newReceiver = SepiaFW.assistant.id;
 					Client.sendCommand(dataset, options);
 					//TODO: if voice is on we need to wait here or skip actively (better skip)
+					/* It is split now
 					var dataset2 = {};	dataset2.info = "direct_cmd";
-						dataset2.cmd = "timer;;action=<show>;;alarm_type=<alarmClock>;;";
+						dataset2.cmd = "timer;;action=<show>;;alarm_type=<timer>;;";
 						dataset2.newReceiver = SepiaFW.assistant.id;
 					Client.sendCommand(dataset2, options);
+					*/
 					closeControlsMenueWithDelay();
 				});
 			}
@@ -1193,14 +1215,22 @@ function sepiaFW_build_webSocket_client(){
 		return activeChatPartner;
 	}
 	
-	//Update the chat-panel, and the list of connected users
+	//Interface conform version of message handler
+	Client.handleServerMessage = function(msg){
+		var message = {
+			data: msg 	//we put the original message into the data field as we would get it from the chat server
+		}
+		Client.handleMessage(message);
+	}
+	//Handle message received from chat server and update the chat-panel, and the list of connected users
+	//Note: This also includes (and handles) messages sent by the user since the server bounces them back to confirm them
 	Client.handleMessage = function(msg) {
-		var message = JSON.parse(msg.data);
+		var message = (typeof msg.data === 'string')? JSON.parse(msg.data) : msg.data;
 		var refreshUsers = false;
 		var notAnsweredYet = true;
 		
 		//console.log(msg);
-		//console.log(message);
+		//console.log(JSON.stringify(message));
 		
 		//userList submitted?
 		if (message.userList){
@@ -1284,11 +1314,13 @@ function sepiaFW_build_webSocket_client(){
 					SepiaFW.ui.scrollToBottom("sepiaFW-chat-output");
 					notAnsweredYet = false;
 					
-					//activate microphone for this user
+					//user has to be same! (security)
 					if (actionUser === SepiaFW.account.getUserId()){
-						if (action.key === "F4"){
-							var useConfirmationSound = SepiaFW.speech.shouldPlayConfirmation();
-							SepiaFW.ui.toggleMicButton(useConfirmationSound);
+						//handle remote action
+						if (SepiaFW.inputControls){
+							SepiaFW.inputControls.handleRemoteHotkeys(action);
+						}else{
+							SepiaFW.debug.log("remoteAction - no handler yet for type: " + message.data.type);
 						}
 					}
 				

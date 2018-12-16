@@ -38,6 +38,11 @@ html {
 	border-color: #B84648;
 }
 
+#sepiaFW-chat-controls-speech-box > div {
+	background: #59372E;
+	color: #fff;
+}
+
 .sepiaFW-menu {
 	background: #019829; /*#B84648;*/
 	color: #fff;
@@ -133,7 +138,15 @@ html {
 	background: #f3e549;
 	color: #59372E;
 }
-
+.sepiaFW-cards-list-footer {
+	background: #f3e549;
+}
+.sepiaFW-cards-list-body .listElement .checked {
+    background: #019829;
+}
+.sepiaFW-cards-list-body .listElement .inProgress {
+    background: #f3e549;
+}
 .sepiaFW-cards-list-body .weatherNowSmall .weatherNowSmallImage {
 	background: #019829;
 }

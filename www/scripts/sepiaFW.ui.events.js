@@ -10,6 +10,18 @@ function sepiaFW_build_events(){
 	var HOUR_MS = 60*60*1000;
 	var MIN_MS = 60*1000;
 	var SEC_MS = 1000;
+
+	//----------------- Broadcasting -------------------
+
+	//Alarm/reminder has been triggered
+	function broadcastAlarmTrigger(){
+		//Always-On mode
+		if (SepiaFW.alwaysOn && SepiaFW.alwaysOn.isOpen){
+			SepiaFW.alwaysOn.triggerAlarm();
+		}
+	}
+	
+	//--------------------------------------------------
 	
 	//about notifications - TODO: unify methods for different types
 	var notificationsCurrentId = SepiaFW.data.get('notificationsCurrentId') || 1;
@@ -92,20 +104,21 @@ function sepiaFW_build_events(){
 	var proActiveMessageTimers = {}; 		//used to schedule non-cordova compatible proActive background notifications and to cancel cordova compatible messages if they are triggered in foreground
 	var lastContextualEventsCheck = 0;
 	
-	Events.loadContextualEvents = function() {
+	Events.loadContextualEvents = function(forceNew) {
 		if (!SepiaFW.assistant.id){
 			SepiaFW.debug.err("Events: tried to get events before channel-join completed!");
 			return;
 		}
 		//prevent multiple consecutive calls in short intervall...
 		var now = new Date().getTime();
-		if ((now - lastContextualEventsCheck) > 10*1000){ 		//interval: 10s
+		if (forceNew || (now - lastContextualEventsCheck) > 10*1000){ 		//interval: 10s
 			lastContextualEventsCheck = now;
 			//reset Ids tracking proActive background messages
 			resetProActiveNotificationIds();
 			//clear all old proActive ...
 			Events.clearAllProActiveBackgroundNotifications(function(){
 				//load contextual events to myView
+				SepiaFW.debug.info('Events loadContextualEvents: getting new events.');
 				var options = {};
 					options.skipText = true;
 					options.skipTTS = true;
@@ -210,6 +223,12 @@ function sepiaFW_build_events(){
 	//Scheduler variables
 	var scheduleDelay = 5000; 		//to prevent multiple syncs in a short time-period the current sync is delayed and gets shifted with each new sync request
 	var SyncSchedulers = {};
+
+	//----------------- Broadcasting -------------------
+
+	//see at top of class ...
+
+	//--------------------------------------------------
 	
 	//SETUP TimeEvents
 	Events.setupTimeEvents = function(){
@@ -359,7 +378,7 @@ function sepiaFW_build_events(){
 		}
 		var listToLoad = {};
 			listToLoad.section = "timeEvents";
-			listToLoad.indexType = "alarms";
+			listToLoad.indexType = "alarms"; 		//see UI.cards: INDEX_TYPE_ALARMS
 			if (title) listToLoad.title = title;
 		SepiaFW.account.loadList(listToLoad, function(data){
 			//got list(s)
@@ -447,7 +466,7 @@ function sepiaFW_build_events(){
 			clearTimeout(Timer.action);
 			Timer.action = setTimeout(function(){
 				SepiaFW.debug.info("TimeEvent - " + Timer.name + ': ACTIVATED');		//DEBUG
-				//remove
+				//remove the timer and trigger the UI foreground action
 				Events.removeTimeEvent(Timer.name, "", function(){
 					//remove success - to prevent conflict between notification and trigger
 					Events.triggerAlarm(Timer, '', '', ''); 	//start, end, error
@@ -612,33 +631,50 @@ function sepiaFW_build_events(){
 		}
 	}
 	
-	//Alarm clock
+	//Alarm clock - Triggered when UI is on foreground (system notification is removed before)
 	Events.triggerAlarm = function(Timer, startCallback, endCallback, errorCallback){
 		//console.log('triggerAlarm'); 			//DEBUG
+		var showSimpleNote = true;
+		var playSound = true;
+		var showMissedNote = true;
+		var doBroadcast = true;
 		//in case the app was in background while the timer expired we block certain actions
-		if ((new Date().getTime() - Timer.targetTime) > 5000){
-			//block all if not triggered within 5s (optical feedback is triggered by interval action)
-			//TODO: show some message? Check once for animation!
-			return;
+		if ((new Date().getTime() - Timer.targetTime) > 15000){
+			//TODO: How can we land here again?? Awake from sleep-mode?
+			showSimpleNote = false;
+			playSound = false;
+			//we keep the 'missed' note and broadcast
 		}
 		//if the app is open we trigger a simple notification just to give some visual feedback when the app is in background - it is delayed 
 		var titleS = SepiaFW.local.g(Timer.type); //+ ": " + (new Date().toLocaleString());
 		var textS = SepiaFW.local.g('expired') + ": " + Timer.data.name;
-		setTimeout(function(){
-			Events.showSimpleSilentNotification(titleS, textS);
-		}, 50);
-		//play sound
-		if (SepiaFW.audio){
-			SepiaFW.audio.playAlarmSound(startCallback, endCallback, errorCallback);
-		}else{
-			SepiaFW.debug.err("Alarm: Audio CANNOT be played, SepiaFW.audio is missing!");
+		if (showSimpleNote){
+			setTimeout(function(){
+				Events.showSimpleSilentNotification(titleS, textS);
+			}, 50);
 		}
-		//add missed message
-		if (!SepiaFW.ui.isVisible() || 
-			(SepiaFW.frames && SepiaFW.frames.isOpen)
-		){
-			SepiaFW.ui.addMissedMessage();
-			SepiaFW.ui.showInfo(SepiaFW.local.g('missed') + "? " + titleS + " " + textS);
+		//play sound
+		if (playSound){
+			if (SepiaFW.audio){
+				SepiaFW.audio.playAlarmSound(startCallback, endCallback, errorCallback);
+			}else{
+				SepiaFW.debug.err("Alarm: Audio CANNOT be played, SepiaFW.audio is missing!");
+			}
+		}
+		//add missed message?
+		if (showMissedNote){
+			if (!SepiaFW.ui.isVisible()
+				|| (SepiaFW.frames && SepiaFW.frames.isOpen)
+				|| (SepiaFW.teach && SepiaFW.teach.isOpen)
+			){
+				//SepiaFW.ui.addMissedMessage(); 		//this is handled inside UI.addDataToResultView call of the 'showInfo' item
+				var customTag = Timer.data.eventId;
+				SepiaFW.ui.showInfo(SepiaFW.local.g('missed') + "? " + titleS + " " + textS, true, customTag);
+			}
+		}
+		//broadcast event
+		if (doBroadcast){
+			broadcastAlarmTrigger();
 		}
 	}
 	

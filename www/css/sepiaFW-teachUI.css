@@ -79,6 +79,7 @@
 #sepiaFW-teachUI-manager {
 	padding: 8px;
 	overflow-y: auto;
+	/*overflow-y: overlay;*/
 	-webkit-overflow-scrolling: touch;
 }
 #sepiaFW-teachUI-editor button,
@@ -150,6 +151,7 @@
 
 .sepiaFW-teachUI-menu-group ul {
 	padding: 8px 12px;
+	list-style: none;
 }
 .sepiaFW-teachUI-menu-group li {
 	overflow: hidden;

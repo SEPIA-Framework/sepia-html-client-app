@@ -10,12 +10,18 @@ function sepiaFW_build_frames(){
 	var onFinishSetup = undefined;
 	var onOpen = undefined;
 	var onClose = undefined;
+
+	//handlers
+	var onMessageHandler = undefined; 			//should receive a message object
+	var onMissedMessageHandler = undefined;		//should be triggered when a message was not visible for user (e.g. because frame was open)
 	
 	Frames.open = function(info){
 		//callbacks?
 		onOpen = info.onOpen;
 		onClose = info.onClose;
 		onFinishSetup = info.onFinishSetup;
+		onMessageHandler = info.onMessageHandler;
+		onMissedMessageHandler = info.onMissedMessageHandler;
 		
 		//theme
 		if (info.theme && info.theme == "dark"){
@@ -61,6 +67,9 @@ function sepiaFW_build_frames(){
 		onFinishSetup = undefined;
 		onOpen = undefined;
 		onClose = undefined;
+		//handlers reset
+		onMessageHandler = undefined;
+		onMissedMessageHandler = undefined;
 	}
 		
 	Frames.setup = function(info, finishCallback){
@@ -110,6 +119,20 @@ function sepiaFW_build_frames(){
 		}, function(){
 			$('#sepiaFW-frames-view').html("Error - could not load page");
 		});
+	}
+
+	Frames.canHandleMessages = function(){
+		return !!onMessageHandler;
+	}
+	Frames.handleMessages = function(msgObject){
+		if (onMessageHandler) onMessageHandler(msgObject);
+	}
+
+	Frames.canHandleMissedMessages = function(){
+		return !!onMissedMessageHandler;
+	}
+	Frames.handleMissedMessages = function(msgObject){
+		if (onMissedMessageHandler) onMissedMessageHandler(msgObject);
 	}
 	
 	return Frames;

@@ -1,14 +1,23 @@
+html {
+	background-image: none;
+	background: #7dc8f0;
+}
 #sepiaFW-main-window {
 	border-color: #8E88BE;
+	background-size: auto 40%;
+	background-image: url(../img/SEPIA_back.png);
+    background-color: #fff;
+    background-repeat: no-repeat;
+    background-position: calc(50% + 1px) center;
 }
 
-#sepiaFW-pC 	 { background-color: #8E88BE; }
-#sepiaFW-sC 	 { background-color: #C1E7FB; }
-#sepiaFW-sC2 { background-color: rgba(54, 144, 168, 0.92); }
-#sepiaFW-aC 	 { background-color: #FBB0B0; }
-#sepiaFW-aC2 { background-color: #70CFF7; }
-#sepiaFW-asC { background-color: #8E88BE; 	}
-#sepiaFW-adC { background-color: rgba(255,255,0,0.94); 	}
+#sepiaFW-pC 	{ background-color: #8E88BE; }
+#sepiaFW-sC 	{ background-color: #C1E7FB; }
+#sepiaFW-sC2 	{ background-color: #4b89c3; }
+#sepiaFW-aC 	{ background-color: #FBB0B0; }
+#sepiaFW-aC2 	{ background-color: #7dc8f0; }
+#sepiaFW-asC 	{ background-color: #8E88BE; }
+#sepiaFW-adC 	{ background-color: rgba(255,255,0,0.94); 	}
 
 #sepiaFW-login-box, #sepiaFW-nav-bar, #sepiaFW-chat-controls-form, #sepiaFW-chat-controls-right {
 	background: #8E88BE;
@@ -36,12 +45,17 @@
 	border-color: #8E88BE;
 }
 
+#sepiaFW-chat-controls-speech-box > div {
+	background: #8E88BE;
+	color: #fff;
+}
+
 .sepiaFW-menu {
-	background: rgba(54, 144, 168, 0.92);
+	background: #4b89c3;
 	color: #fff;
 }
 #sepiaFW-chat-menu {
-	background: rgba(54, 144, 168, 1.00);
+	background: #4b89c3;
 	color: #fff;
 }
 #sepiaFW-chat-menu button {
@@ -56,7 +70,7 @@
 #sepiaFW-myEvents-buttons-replaced button,
 .sepiaFW-touch-device #sepiaFW-myEvents-buttons button {
     background: #C1E7FB;
-	color: #8E88BE;
+	color: #6a6689;
 }
 #sepiaFW-myEvents-buttons button:hover {
 	background: #8E88BE;
@@ -79,7 +93,7 @@
 	color: #404080;
 }
 #sepiaFW-chat-output article.chatMe{
-	background: #70CFF7;
+	background: #7dc8f0;
 	color: #fff;
 }
 #sepiaFW-chat-output article.chatMe b{
@@ -121,11 +135,29 @@
 
 /*----- cards ------*/
 
+.sepiaFW-cards-flexSize-container {
+	background: #f0f0f0;
+}
+
 .sepiaFW-cards-list-title {
-	background: #70CFF7;
+	background: #7dc8f0;
 	color: #fff;
+}
+.sepiaFW-cards-list-footer {
+	background: #c1e7fb;
+    color: #000;
+}
+
+.sepiaFW-cards-list-body .listElement .listRight {
+    border-color: #70cff7;
+    background: #c1e7fb;
 }
 
 .sepiaFW-cards-list-body .weatherNowSmall .weatherNowSmallImage {
-	background: #8E88BE;
+	background: #c1e7fb;
+}
+
+.sepiaFW-cards-list-body .timeEvent div {
+    background: rgb(193, 231, 251);
+	color: #6f6e90;
 }

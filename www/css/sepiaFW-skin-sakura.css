@@ -35,6 +35,11 @@ html {
 	border-color: #503040;
 }
 
+#sepiaFW-chat-controls-speech-box > div {
+	background: #503040;
+	color: #fff;
+}
+
 .sepiaFW-menu {
 	background: rgba(160, 145, 153, 1.00);
 	color: #fff;
@@ -121,6 +126,10 @@ html {
 
 /*----- cards ------*/
 
+.sepiaFW-cards-flexSize-container {
+	background: rgba(235, 225, 230, 0.75);
+}
+
 .sepiaFW-cards-list-title {
 	background: #eebcb4;
 	/*color: #503040;*/
@@ -129,7 +138,15 @@ html {
 .sepiaFW-cards-list-title.newsHeader button {
 	color: #883446 !important;
 }
-
+.sepiaFW-cards-list-footer {
+	background: #fbf3f6;
+    color: #503040;
+}
+.sepiaFW-cards-list-body .listElement .listRight {
+    border-color: #e5e5e5;
+	background: #fbf3f6;
+	color: #503040;
+}
 .sepiaFW-cards-list-body .weatherNowSmall .weatherNowSmallImage {
 	background: #503040;
 }

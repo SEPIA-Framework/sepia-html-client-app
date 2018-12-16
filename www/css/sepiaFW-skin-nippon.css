@@ -35,6 +35,11 @@ html {
 	border-color: #000;
 }
 
+#sepiaFW-chat-controls-speech-box > div {
+	background: #000;
+	color: #F3D713;
+}
+
 .sepiaFW-menu {
 	background: #f3c923;
 	color: #000;
@@ -133,6 +138,20 @@ html {
 .sepiaFW-cards-list-title {
 	background: #BC002D;
 	color: #fff;
+}
+.sepiaFW-cards-list-footer {
+	background: #d2d2d5;
+    color: #000;
+}
+.sepiaFW-cards-list-body .listElement .checked {
+    background: #5eee4f;
+}
+.sepiaFW-cards-list-body .listElement .inProgress {
+    background: #efdb4c;
+}
+.sepiaFW-cards-list-body .listElement .listRight {
+    border-color: #545454;
+    background: #d2d2d5;
 }
 
 /*----- teachUI -----*/

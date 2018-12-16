@@ -6,8 +6,22 @@ function sepiaFW_build_ui_custom_buttons(){
 
     CustomButtons.isOutdated = false;       //set this to true to reload icons on next my-view refresh
 
+    //My view refresh event
+    CustomButtons.onMyViewRefresh = function(){
+        //console.log('test my view refresh custom buttons');
+        if (CustomButtons.isOutdated){
+            CustomButtons.load();
+        }
+    }
+
     //Load first buttons via teach-API (max. 10 by default)
     CustomButtons.load = function(){
+        if (SepiaFW.client.isDemoMode()){
+            //Load demo-buttons and publish
+            customButtonObjects = CustomButtons.loadDemoButtons();
+            publishMyViewCustomButtons(customButtonObjects);
+            return;
+        }
         if (!SepiaFW.teach){
             SepiaFW.debug.err("CustomButtons.load - Call prevented due to missing module 'SepiaFW.teach'.");
             return;
@@ -48,12 +62,17 @@ function sepiaFW_build_ui_custom_buttons(){
         }
     }
 
-    //My view refresh event
-    CustomButtons.onMyViewRefresh = function(){
-        //console.log('test my view refresh custom buttons');
-        if (CustomButtons.isOutdated){
-            CustomButtons.load();
+    //Load some offline demo buttons
+    CustomButtons.loadDemoButtons = function(){
+        if (SepiaFW.offline){
+            var lang = SepiaFW.config.appLanguage;
+            var offlineCustomButtonObjects = [
+                SepiaFW.offline.createCustomButton("My Radio", "music_note", "dummy;;info=my_radio_dummy", SepiaFW.local.g('myRadioDemoBtn'), lang),
+                SepiaFW.offline.createCustomButton("My News", "local_library", "dummy;;info=my_news_dummy", SepiaFW.local.g('myNewsDemoBtn'), lang),
+                SepiaFW.offline.createCustomButton("To-Do List", "list", "dummy;;;;info=my_todo_list_dummy", SepiaFW.local.g('myToDoDemoBtn'), lang)
+            ];
         }
+        return offlineCustomButtonObjects;
     }
 
     //Build client-first-start box
@@ -113,28 +132,35 @@ function sepiaFW_build_ui_custom_buttons(){
         var animateShortPress = true;
         SepiaFW.ui.onShortLongPress(button, function(){
             //Short press
-            /* --> THIS LEADS TO DOUBLE EXECUTION OF sentence-connect commands O_o, need to find bug! <--
-            var isText = true;
-            var cmd = buttonData.text;
-            var newAction = SepiaFW.offline.getCmdButtonAction(cmd, buttonData.name, isText);
-            newAction.options = { 
-                skipTTS : true, 
-                //skipText : true,
-                autoSwitchView: true,
-				switchDelay: 1000
-            };
-            SepiaFW.debug.info("CustomButtons - sending button-cmd: " + newAction.cmd);
-            console.log('open CMD: ' + buttonData.name + ': ' + newAction.cmd);         //DEBUG
-            SepiaFW.ui.actions.openCMD(newAction);
-            */
-            SepiaFW.client.sendInputText(buttonData.text);
+            CustomButtons.callAction(buttonData);
             
         }, function(){
-            //Long press - TODO: we could use that to edit the button
+            //Long press
+            //TODO: we could use that to edit the button
             
         }, animateShortPress);
 
         return button;
+    }
+
+    //Call button action
+    CustomButtons.callAction = function(buttonData){
+        /* --> TODO: THIS LEADS TO DOUBLE EXECUTION OF sentence-connect commands O_o, need to find bug! <--
+        var isText = true;
+        var cmd = buttonData.text;
+        var newAction = SepiaFW.offline.getCmdButtonAction(cmd, buttonData.name, isText);
+        newAction.options = { 
+            skipTTS : true, 
+            //skipText : true,
+            autoSwitchView: true,
+            switchDelay: 1000
+        };
+        SepiaFW.debug.info("CustomButtons - sending button-cmd: " + newAction.cmd);
+        console.log('open CMD: ' + buttonData.name + ': ' + newAction.cmd);         //DEBUG
+        SepiaFW.ui.actions.openCMD(newAction);
+        */
+        SepiaFW.debug.info("CustomButtons - sending button-text: " + buttonData.text);
+        SepiaFW.client.sendInputText(buttonData.text);
     }
 
     return CustomButtons;
