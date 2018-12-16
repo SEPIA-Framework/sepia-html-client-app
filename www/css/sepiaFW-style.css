@@ -1371,13 +1371,15 @@ body {
 	margin: 2px;
 	padding: 2px;
 }
+#sepiaFW-chat-controls-speech-box > div {
+	background: #2f3035;
+	color: #fff;
+}
 #sepiaFW-chat-controls-speech-box-edit {
 	flex: 0 1 50px;
 	display: flex;
     align-items: center;
     justify-content: center;
-	background: #2f3035;
-	color: #fff;
 	border-radius: 3px 0 0 3px;
 	min-width: 50px;
 	padding: 5px;
@@ -1387,8 +1389,6 @@ body {
 #sepiaFW-chat-controls-speech-box-bubble {
 	flex: 1 0 auto;
 	max-width: calc(100% - 100px);
-	background: #2f3035;
-	color: #fff;
 	border-radius: 0px;
 	padding: 8px;
 	margin: 0 0px;
@@ -1401,8 +1401,6 @@ body {
 	display: flex;
     align-items: center;
     justify-content: center;
-	background: #2f3035;
-	color: #fff;
 	border-radius: 0 3px 3px 0;
 	min-width: 50px;
 	padding: 5px;

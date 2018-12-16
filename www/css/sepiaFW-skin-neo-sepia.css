@@ -19,7 +19,7 @@ html {
 #sepiaFW-aC2 { background-color: #4ec48f; }							/* Accent color 2 - e.g. used during speaking in assistant button */
 #sepiaFW-asC { background-color: #CEFF1A; }	/*#c4ff3e, #69d177;*/	/* Assistant color - the signature color of the assistant */
 #sepiaFW-adC { background-color: #ffeb3b; }							/* Await-dialog color - used during "wait for interaction" in assistant button */
-#sepiaFW-lC  { background-color: rgba(30, 30, 30, 0.50); }		/* Loading color - used during loading in assistant button */
+#sepiaFW-lC  { background-color: #8e8e8e; }						/* Loading color - used during loading in assistant button */
 
 #sepiaFW-login-box, #sepiaFW-nav-bar, #sepiaFW-chat-controls-form, #sepiaFW-chat-controls-right {
 	background: #000000;
@@ -64,6 +64,11 @@ html {
 }
 #sepiaFW-assist-btn i {
 	display: none !important;
+}
+
+#sepiaFW-chat-controls-speech-box > div {
+	background: #16abc3;
+	color: #fff;
 }
 
 .sepiaFW-menu {

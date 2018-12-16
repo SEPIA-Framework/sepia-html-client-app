@@ -150,16 +150,26 @@ function sepiaFW_build_offline(){
 				}
 				//console.log(serviceResult); 						//DEBUG
 			}
+			var senderUiIdOrName = undefined;	//default
 			if (!serviceResult || !serviceResult.result == "success"){
-				//just repeat input
+				//just repeat input for demo-mode
+				var command = "chat";
+				var answerText = message.text;
+				var lang = message.data.parameters.lang;
+				serviceResult = SepiaFW.embedded.services.buildServiceResult(
+					userId, lang, command, answerText, '', '', ''
+				);
+				senderUiIdOrName = 'Parrot';	//overwrite (to make clear this is no real answer ... and for fun)
+				/* Old version that lacks e.g. TTS:
 				var dataOut = { sender: 'Parrot', senderType: 'assistant' };
 				SepiaFW.ui.showCustomChatMessage(message.text, dataOut);
-			}else{
-				//build a message-object and send it to 'real' message handler (as if we got a server reply)
-				var id = message.msgId;
-				var resultMessage = Offline.buildAssistAnswerMessageForHandler(id, serviceResult);
-				Offline.sendToClienMessagetHandler(resultMessage);
+				return;
+				*/
 			}
+			//build a message-object and send it to 'real' message handler (as if we got a server reply)
+			var id = message.msgId;
+			var resultMessage = Offline.buildAssistAnswerMessageForHandler(id, serviceResult, senderUiIdOrName);
+			Offline.sendToClienMessagetHandler(resultMessage);
 		}, 600);
 	}
 
@@ -169,9 +179,9 @@ function sepiaFW_build_offline(){
 	}
 
 	//Message builder
-	Offline.buildAssistAnswerMessageForHandler = function(msgId, serviceResult){
-		var receiver = 'userid'; 	//e.g. uid1010
-		var sender = 'UI';			//e.g. uid1005 (assistant usually)
+	Offline.buildAssistAnswerMessageForHandler = function(msgId, serviceResult, assistantIdOrName){
+		var receiver = 'userid'; 				//e.g. uid1010
+		var sender = assistantIdOrName || 'UI';	//e.g. uid1005 (assistant usually)
 		var senderType = 'assistant';
 		var channelId = SepiaFW.client.getActiveChannel(); 	//TODO: does this work with an empty channel?
 		var timeUnix = new Date().getTime();

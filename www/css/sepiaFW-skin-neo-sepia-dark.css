@@ -31,7 +31,7 @@ html {
 #sepiaFW-aC2 	{ background-color: #08a0c8; 	}
 #sepiaFW-asC 	{ background-color: #ceff1a; 	}
 #sepiaFW-adC 	{ background-color: #ceff1a; 	}
-#sepiaFW-lC 	{ background-color: rgba(150, 150, 150, 0.50); 	}
+#sepiaFW-lC 	{ background-color: #535557; 	}
 
 #sepiaFW-login-box {
 	background: #212327;
@@ -97,6 +97,11 @@ html {
 	background-color: #ceff1a;
 }
 */
+
+#sepiaFW-chat-controls-speech-box > div {
+	background: #08a0c8;
+	color: #fff;
+}
 
 .sepiaFW-menu {
 	background: #101418;

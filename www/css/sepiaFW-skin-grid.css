@@ -78,7 +78,7 @@ html {
 #sepiaFW-assist-btn-area button {
 	border: 1px solid #fff;
 	box-shadow: 0 0 5px #fff, inset 0 0 5px #fff;
-	background: #142534;
+	background: #142534 !important;
 }
 #sepiaFW-assist-btn-orbiters {
     top: 2px;
@@ -94,6 +94,11 @@ html {
 	width: 3px;
 	border: 1px solid #638613;
 	border-radius: 3px;
+}
+
+#sepiaFW-chat-controls-speech-box > div {
+	background: rgba(19, 38, 58, 0.92);
+	color: #fff;
 }
 
 .sepiaFW-menu {
