@@ -1458,6 +1458,10 @@ body {
 .sepiaFW-results-container h2 {
 	padding: 8px;
 }
+.sepiaFW-results-container a,
+.sepiaFW-results-container a:visited {
+	color: #4ec48f;
+}
 .sepiaFW-results-container > :first-child {
 	margin-top: 4px !important;
 }

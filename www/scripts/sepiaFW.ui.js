@@ -44,7 +44,8 @@ function sepiaFW_build_ui(){
 					this.scrollTop -= windowSizeDifference;
 				});
 				if (document.activeElement){
-					document.activeElement.scrollIntoView({block: 'center'}); 	//true: is ok but right at the top edge, false: covered by controls
+					document.activeElement.scrollIntoView({block: 'center', inline: 'nearest'}); 	//note: this is experimental and might change!
+					//other versions: (true) is ok but right at the top edge, (false) covered by controls, "inline: 'nearest'" should prevent horizontal scroll
 				}
 				/*
 				var activeEle = $(document.activeElement);
