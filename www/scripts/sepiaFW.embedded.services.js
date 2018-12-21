@@ -153,15 +153,15 @@ function sepiaFW_build_embedded_services(){
 		var dateAdded = new Date().getTime();
 		var id = id || ("ABCDx123456"); 	//usually this is defined by database id generator
 		var data = listData || [{
-			"name": "Make screenshots", "checked": true, "dateAdded": dateAdded
+			"name": "Find to-do list", "checked": true, "dateAdded": dateAdded
 		}, {
-			"name": "Write tutorial text", "checked": true, "dateAdded": dateAdded
+			"name": "Check-out tutorial and (this) demo", "checked": false, "state": "inProgress", "dateAdded": dateAdded
 		}, {
-			"name": "Update data", "checked": false, "state": "inProgress", "dateAdded": dateAdded
+			"name": "Install own SEPIA server", "checked": false, "dateAdded": dateAdded
 		}, {
-			"name": "Make offline demo-services", "checked": false, "state": "inProgress", "dateAdded": dateAdded
+			"name": "Create own services and commands", "checked": false, "dateAdded": dateAdded
 		}, {
-			"name": "Connect shortcut-menu buttons", "checked": false, "dateAdded": dateAdded
+			"name": "Find alarms in shortcut-menu", "checked": false, "dateAdded": dateAdded
 		}];
 		var user = "userid";
 

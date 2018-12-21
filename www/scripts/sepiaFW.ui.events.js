@@ -368,6 +368,10 @@ function sepiaFW_build_events(){
 	}
 	//synchronize timeEvents with server - since creating an event should be done via server request we assume that only silently removed or UI-unknown events need sync.
 	Events.syncTimeEvents = function(type){
+		if (SepiaFW.client.isDemoMode()){
+			//we skip this in demo-mode to avoid confusing error-messages
+			return;
+		}
 		var title = "";
 		if (type === Events.TIMER){
 			title = "timer";
