@@ -366,7 +366,11 @@
 			if (SepiaFW.client.isDemoMode()){
 				//SepiaFW.ui.showInfo(SepiaFW.local.g('demoMode'), true);
 				SepiaFW.ui.showCustomChatMessage(SepiaFW.local.g('demoMode'));
+				//pseudo client
+				SepiaFW.client.buildUI();
+				SepiaFW.client.onActive();
 				SepiaFW.client.welcomeActions(true);
+				//Url action?
 				if (requestViaUrl){
 					SepiaFW.client.handleRequestViaUrl(requestViaUrl);
 				}
@@ -375,7 +379,7 @@
 					//success
 					function(data){
 						//TODO: startClient is a required method, maybe move it to core and replace it with 'client.onActive'?
-						SepiaFW.client.startClient(); 		//includes: buildUI and welcomeActions
+						SepiaFW.client.startClient(); 		//includes: buildUI, onActive and welcomeActions
 						if (requestViaUrl){
 							SepiaFW.client.handleRequestViaUrl(requestViaUrl);
 						}

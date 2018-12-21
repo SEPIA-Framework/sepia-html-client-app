@@ -89,6 +89,7 @@ function sepiaFW_build_strings(){
 	StringsDE.credits = 'Credits';
 	StringsDE.data_privacy = 'Datenschutz';
 	StringsDE.tutorial = 'Tutorial';
+	StringsDE.way_home = 'Weg nach Hause';
 	//Offline demo texts
 	StringsDE.demoMode = 'Du befindest dich im Demo-Modus! In diesem Modus kannst du die Einstellungen ändern (z.B. hostname), das Tutorial anschauen und mit manchen(!) Teilen des Interfaces spielen. Um auf deinen Assistenten zuzugreifen melde dich bitte zuerst an.';
 	StringsDE.notPossibleInDemoMode = 'Sorry aber das geht noch nicht im Demo-Modus.';
@@ -180,6 +181,7 @@ function sepiaFW_build_strings(){
 	StringsEN.credits = 'Credits';
 	StringsEN.data_privacy = 'Data privacy';
 	StringsEN.tutorial = 'Tutorial';
+	StringsEN.way_home = 'Way home';
 	//Offline demo texts
 	StringsEN.demoMode = 'You are in demo-mode! This mode only allows you to change settings (e.g. hostname), check out the tutorial and play with some(!) parts of the UI. To get access to your assistant please log-in first.';
 	StringsEN.notPossibleInDemoMode = 'Sorry this is not yet possible in demo-mode.';

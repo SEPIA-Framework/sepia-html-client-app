@@ -355,7 +355,7 @@ function sepiaFW_build_webSocket_client(){
 		}
 		
 		//update myView
-		SepiaFW.ui.updateMyView(false, true);
+		SepiaFW.ui.updateMyView(false, true, 'onActive');
 	}
 	
 	//execute when UI is ready and user is logged in (usually)
@@ -500,7 +500,7 @@ function sepiaFW_build_webSocket_client(){
 		
 		//CHAT CONTROLS
 		
-		//chat controls more menue
+		//chat controls more menue aka SHORTCUTS-MENU
 		var chatMenuBtn = document.getElementById("sepiaFW-chat-controls-more-btn");
 		if (chatMenuBtn){
 			function closeControlsMenueWithDelay(){
@@ -1435,7 +1435,15 @@ function sepiaFW_build_webSocket_client(){
 		//update my-view?
 		if (options.updateMyView){
 			setTimeout(function(){
-				SepiaFW.ui.updateMyView(true);
+				SepiaFW.ui.updateMyView(true, false, 'chatMessageRequest');
+			}, 500);
+		}else if (options.updateMyViewTimers){
+			setTimeout(function(){
+				SepiaFW.ui.updateMyTimers();
+			}, 500);
+		}else if (options.updateMyViewEvents){
+			setTimeout(function(){
+				SepiaFW.ui.updateMyContextualEvents();
 			}, 500);
 		}
 		

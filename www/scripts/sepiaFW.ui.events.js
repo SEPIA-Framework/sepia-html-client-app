@@ -105,7 +105,7 @@ function sepiaFW_build_events(){
 	var lastContextualEventsCheck = 0;
 	
 	Events.loadContextualEvents = function(forceNew) {
-		if (!SepiaFW.assistant.id){
+		if (!SepiaFW.assistant.id && !SepiaFW.client.isDemoMode()){
 			SepiaFW.debug.err("Events: tried to get events before channel-join completed!");
 			return;
 		}
@@ -123,6 +123,7 @@ function sepiaFW_build_events(){
 					options.skipText = true;
 					options.skipTTS = true;
 					options.targetView = "myView";
+					//NOTE: we don't need 'updateMyViewEvents' here since this is done by the message handler 
 				var dataset = {};	dataset.info = "direct_cmd";
 					dataset.cmd = "events_personal;;";
 					dataset.newReceiver = SepiaFW.assistant.id;
@@ -188,7 +189,7 @@ function sepiaFW_build_events(){
 						window.focus();
 						note.close();
 						Events.handleLocalNotificationClick(noteData);
-						SepiaFW.ui.updateMyView(false, true);
+						SepiaFW.ui.updateMyView(false, true, 'localNotificationClick');
 					});
 				}
 			}, action.triggerIn);
@@ -239,7 +240,7 @@ function sepiaFW_build_events(){
 			//reload Timers
 			var options = {};
 				options.loadOnlyData = true;
-				options.updateMyView = true; 		//update my-view afterwards
+				options.updateMyViewTimers = true; 		//update my-view (but only timers) afterwards
 			var dataset = {};	dataset.info = "direct_cmd";
 				dataset.cmd = "timer;;action=<show>;;alarm_type=<timer>;;";			//TODO: make a function for that
 				dataset.newReceiver = SepiaFW.assistant.id;
@@ -286,7 +287,7 @@ function sepiaFW_build_events(){
 	Events.getNextTimeEvents = function(maxTargetTime, excludeName, includePastMs){
 		if (!maxTargetTime) maxTargetTime = Number.MAX_SAFE_INTEGER;
 		var nextTimers = [];
-		var nearestFuture = Number.MAX_SAFE_INTEGER;
+		//var nearestFuture = Number.MAX_SAFE_INTEGER;
 		var now = new Date().getTime();
 		if (includePastMs){
 			now = now - includePastMs;

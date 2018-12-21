@@ -1626,7 +1626,7 @@ body {
 }
 #sepiaFW-my-view > .sepiaFW-cards-flexSize-container {
 	padding-bottom: 5px !important;
-	margin-bottom: 5px;
+	margin-bottom: 10px;
 }
 #sepiaFW-my-view > .sepiaFW-cards-flexSize-container > :last-child {
 	margin-bottom: 0px !important;

@@ -3,7 +3,7 @@ function sepiaFW_build_ui(){
 	var UI = {};
 	
 	//some constants
-	UI.version = "v0.15.2";
+	UI.version = "v0.15.3";
 	UI.JQ_RES_VIEW_IDS = "#sepiaFW-result-view, #sepiaFW-chat-output, #sepiaFW-my-view";	//a selector to get all result views e.g. $(UI.JQ_RES_VIEW_IDS).find(...) - TODO: same as $('.sepiaFW-results-container') ??
 	UI.JQ_ALL_MAIN_VIEWS = "#sepiaFW-result-view, #sepiaFW-chat-output, #sepiaFW-my-view, #sepiaFW-teachUI-editor, #sepiaFW-teachUI-manager, #sepiaFW-frame-page-1, #sepiaFW-frame-page-2"; 	//TODO: frames can have more ...
 	UI.JQ_ALL_SETTINGS_VIEWS = ".sepiaFW-chat-menu-list-container";
@@ -598,15 +598,17 @@ function sepiaFW_build_ui(){
 	var lastMyViewUpdate = 0;
 	var myViewUpdateTimer;
 	var contextEventsLoadDelayTimer = undefined;
-	UI.updateMyView = function(forceUpdate, checkGeolocationFirst){
-		//is client active?
-		if (!SepiaFW.client.isActive() || !SepiaFW.assistant.id){
+	UI.updateMyView = function(forceUpdate, checkGeolocationFirst, updateSource){
+		//console.log('My-view update source: ' + updateSource); 		//DEBUG
+		
+		//is client active or demo-mode?
+		if ((!SepiaFW.client.isActive() || !SepiaFW.assistant.id) && !SepiaFW.client.isDemoMode()){
 			clearTimeout(myViewUpdateTimer);
 			myViewUpdateTimer = setTimeout(function(){
 				//try again
-				UI.updateMyView(true);
+				UI.updateMyView(true, checkGeolocationFirst, 'notActiveRetry');
 			}, 10000);
-			SepiaFW.debug.err("Events: tried to get events before channel-join completed!");
+			SepiaFW.debug.err("Events: tried to update my-view before client is active! Will try again in 10s.");
 			return;
 		}
 		//console.log('passed');
@@ -619,50 +621,60 @@ function sepiaFW_build_ui(){
 					//console.log('---------------GET BEST LOCATION--------------'); 		//DEBUG
 					SepiaFW.geocoder.getBestLocation();
 				}else{
-					UI.updateMyView(false, false);
+					UI.updateMyView(false, false, 'geoCoderBlockedUpdate'); 	//TODO: should we use 'forceUpdate' variable instead of false?
 				}
 			}else{
-				UI.updateMyView(false, false);
+				UI.updateMyView(false, false, 'geoCoderSkippedUpdate');			//TODO: should we use 'forceUpdate' variable instead of false?
 			}
 		
 		//without GPS
 		}else{
 			var now = new Date().getTime();
 			if (forceUpdate || ((now - lastMyViewUpdate) > myViewUpdateInterval)){
-				//now we can cancel all timers
+				//now we can update the view
+
+				//first we reset the timer
 				clearTimeout(myViewUpdateTimer);
 				lastMyViewUpdate = now;
+				//TODO: in theory the idle timer and the view switching should update my-view but maybe we consider an auto-timer again? (cause it hangs sometimes)
 				
 				//contextual events update
-				if (contextEventsLoadDelayTimer) clearTimeout(contextEventsLoadDelayTimer);
-				contextEventsLoadDelayTimer = setTimeout(function(){
-					//console.log('---------------GET CONTEXT EVENTS--------------'); 		//DEBUG
-					SepiaFW.events.loadContextualEvents(forceUpdate); 						//We use a safety wait here because GPS is usually to late
-				}, 1000);
+				UI.updateMyContextualEvents(forceUpdate);
 				
 				//check for near timeEvents (within 18h (before) and 120h (past))
-				var maxTargetTime = now + 18*60*60*1000;
-				var includePastMs = 120*60*60*1000;
-				var nextTimers = SepiaFW.events.getNextTimeEvents(maxTargetTime, '', includePastMs);
-				var myView = document.getElementById('sepiaFW-my-view'); 		//TODO: don't we have a method for this or a permanent variable?
-				$.each(nextTimers, function(index, Timer){
-					//check if alarm is present in myView 	
-					var timerPresentInMyView = $(myView).find('[data-id="' + Timer.data.eventId + '"]');
-					if (timerPresentInMyView.length == 0){
-						//recreate timer and add to myView
-						var action = Timer.data;
-						action.info = "set";
-						action.type = Timer.data.eleType; 	//TODO: this is just identical by chance!!!
-						SepiaFW.ui.actions.timerAndAlarm(action, myView);
-					}
-				});
+				UI.updateMyTimers(now + 18*60*60*1000);
 
-				//trigger my custom buttons refresh
+				//trigger my custom buttons refresh (checks internally if buttons have changed)
 				if (SepiaFW.ui.customButtons){
 					SepiaFW.ui.customButtons.onMyViewRefresh();
 				}
 			}
 		}
+	}
+	UI.updateMyTimers = function(maximumPreviewTargetTime){
+		var maxTargetTime = maximumPreviewTargetTime || (new Date().getTime() + 18*60*60*1000);
+		var includePastMs = 120*60*60*1000;
+		var nextTimers = SepiaFW.events.getNextTimeEvents(maxTargetTime, '', includePastMs);
+		var myView = document.getElementById('sepiaFW-my-view'); 		//TODO: don't we have a method for this or a permanent variable?
+		//TODO: clean-up my-view of old timers
+		$.each(nextTimers, function(index, Timer){
+			//check if alarm is present in myView 	
+			var timerPresentInMyView = $(myView).find('[data-id="' + Timer.data.eventId + '"]');	//TODO: we don't need this if we clean before
+			if (timerPresentInMyView.length == 0){
+				//recreate timer and add to myView
+				var action = Timer.data;
+				action.info = "set";
+				action.type = Timer.data.eleType; 	//TODO: this is just identical by chance!!!
+				SepiaFW.ui.actions.timerAndAlarm(action, myView);
+			}
+		});
+	}
+	UI.updateMyContextualEvents = function(forceUpdate){
+		if (contextEventsLoadDelayTimer) clearTimeout(contextEventsLoadDelayTimer);
+		contextEventsLoadDelayTimer = setTimeout(function(){
+			//console.log('---------------GET CONTEXT EVENTS--------------'); 		//DEBUG
+			SepiaFW.events.loadContextualEvents(forceUpdate); 						//We use a safety wait here because GPS is usually to late
+		}, 1000);
 	}
 	
 	//Visibility
@@ -733,7 +745,7 @@ function sepiaFW_build_ui(){
 		if (SepiaFW.client.isActive()){
 			if (!isFirstVisibilityChange && (UI.isVisible() || forceTriggerVisible)){
 				//update myView (is automatically skipped if called too early)
-				UI.updateMyView(false, true);
+				UI.updateMyView(false, true, 'visibilityChange');
 			}
 			isFirstVisibilityChange = false;
 		}
@@ -747,7 +759,7 @@ function sepiaFW_build_ui(){
 		//update myView (is automatically skipped if called too early)
 		if (!isFirstMyViewShow){
 			if (SepiaFW.client.isActive()){
-				UI.updateMyView();
+				UI.updateMyView(false, false, 'showMyView');
 			}
 		}
 		isFirstMyViewShow = false;

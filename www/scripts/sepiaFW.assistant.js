@@ -18,7 +18,7 @@ function sepiaFW_build_assistant(){
 					SepiaFW.debug.err("Assistant: missing name for ID '" + id + "'!");
 				}
 				//Update my-view events
-				SepiaFW.ui.updateMyView(true, false);
+				SepiaFW.ui.updateMyView(true, false, 'assistantInfoUpdate');
 			}
 		}
 		SepiaFW.debug.log("Assistant: active assistant is '" + name + "' (" + id + ")");

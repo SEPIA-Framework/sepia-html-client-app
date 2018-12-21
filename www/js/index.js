@@ -60,7 +60,7 @@ var app = {
 		    //console.log(JSON.stringify(notification));
 			SepiaFW.events.handleLocalNotificationClick(JSON.parse(notification.data));
 		}
-		SepiaFW.ui.updateMyView(true, true); 		//TODO: think about this here!
+		SepiaFW.ui.updateMyView(true, true, 'notification'); 		//TODO: think about this here!
 	}
 };
 
