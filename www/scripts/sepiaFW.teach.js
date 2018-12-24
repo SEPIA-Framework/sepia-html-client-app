@@ -264,7 +264,6 @@ function sepiaFW_build_teach(){
 		$('#sepiaFW-teachUI-show-optionals').fadeOut(300);
 		parameterBox.fadeOut(300, function(){
 			parameterBox.html('');
-			var params = service.parameters;
 			var hasOptionals = false;
 			if ('parameters' in service && service.parameters.length > 0){
 				$.each(service.parameters, function(index, p){
@@ -296,6 +295,11 @@ function sepiaFW_build_teach(){
 		var params = data.params;
 		var service = services[cmd];
 		var cmdData = data.data;
+		//check support
+		if (!service){
+			SepiaFW.ui.showPopup('Sorry but this command cannot be edited here yet (custom service?).');
+			return;
+		}
 		//fill UI
 		$('#sepiaFW-teach-input').val(text);
 		$('#sepiaFW-teach-commands').val(cmd);
