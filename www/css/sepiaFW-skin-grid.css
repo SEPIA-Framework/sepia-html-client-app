@@ -334,7 +334,8 @@ html {
 }
 .sepiaFW-cards-list-body .timeEvent > div,
 .sepiaFW-cards-list-body .radioStation > div,
-.sepiaFW-cards-list-body .weatherNowSmall > div {
+.sepiaFW-cards-list-body .weatherNowSmall > div,
+.sepiaFW-cards-list-body .linkCard > div {
     background: rgba(20, 163, 187, 0.66);
     color: #fff !important;
     box-shadow: 0 0 5px #15abc3;

@@ -636,7 +636,7 @@ function sepiaFW_build_ui(){
 				//first we reset the timer
 				clearTimeout(myViewUpdateTimer);
 				lastMyViewUpdate = now;
-				//TODO: in theory the idle timer and the view switching should update my-view but maybe we consider an auto-timer again? (cause it hangs sometimes)
+				//TODO: in theory the idle timer and the view switching should update my-view but we should consider an auto-timer again? (cause it hangs sometimes)
 				
 				//contextual events update
 				UI.updateMyContextualEvents(forceUpdate);
@@ -656,10 +656,10 @@ function sepiaFW_build_ui(){
 		var includePastMs = 120*60*60*1000;
 		var nextTimers = SepiaFW.events.getNextTimeEvents(maxTargetTime, '', includePastMs);
 		var myView = document.getElementById('sepiaFW-my-view'); 		//TODO: don't we have a method for this or a permanent variable?
-		//TODO: clean-up my-view of old timers
+		//TODO: clean-up my-view of old timers first
 		$.each(nextTimers, function(index, Timer){
 			//check if alarm is present in myView 	
-			var timerPresentInMyView = $(myView).find('[data-id="' + Timer.data.eventId + '"]');	//TODO: we don't need this if we clean before
+			var timerPresentInMyView = $(myView).find('[data-id="' + Timer.data.eventId + '"]');	//TODO: we don't need this if we clean first
 			if (timerPresentInMyView.length == 0){
 				//recreate timer and add to myView
 				var action = Timer.data;

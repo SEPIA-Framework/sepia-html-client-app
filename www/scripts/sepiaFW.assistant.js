@@ -180,6 +180,8 @@ function sepiaFW_build_assistant(){
 		input_type = "question";
 		input_miss = "";
 		dialog_stage = 0;
+		last_command = '';
+		last_command_N = 0;
 		//broadcast
 		Assistant.isWaitingForDialog = false;
 		broadcastDialogFinished(true);
