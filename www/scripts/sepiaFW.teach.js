@@ -119,7 +119,30 @@ function sepiaFW_build_teach(){
 					name : "and says ...",
 					optional : true
 				}]
-			}
+			},
+			mesh_node_plugin : {
+				command : "mesh_node_plugin",
+				name : "Call SEPIA Mesh-Node plugin",
+				parameters : [{
+					value : "node_url",
+					name : "Mesh-Node URL"
+				},{
+					value : "node_plugin_name",
+					name : "Name of plugin"
+				},{
+					value : "node_plugin_data",
+					name : "JSON string sent to plugin",
+					optional : true
+				},{
+					value : "reply_success",
+					name : "Success answer",
+					optional : true
+				},{
+					value : "reply_fail",
+					name : "Fail answer",
+					optional : true
+				}]
+			},
 		};
 	}
 	
