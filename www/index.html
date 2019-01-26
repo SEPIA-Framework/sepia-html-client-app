@@ -64,7 +64,7 @@
 		<div id="sepiaFW-language-selector"></div>
 		<h2><!--Welcome--><script>SepiaFW.local.w('welcome')</script></h2>
 		<div id="sepiaFW-login-form" style="display: none">
-			<input id="sepiaFW-login-id" type="email" placeholder="Username" aria-label="Username" spellcheck="false">
+			<input id="sepiaFW-login-id" type="email" placeholder="Username" aria-label="Username" spellcheck="false" autocomplete="username">
 			<input id="sepiaFW-login-pwd" type="password" placeholder="Password" aria-label="Password">
 			<button id="sepiaFW-login-send"><script>SepiaFW.local.w('sendLogin')</script></button><br>
 			<button id="sepiaFW-login-close" class="extended-controls" style="display:none;"><script>SepiaFW.local.w('closeLogin')</script></button><br>
@@ -72,7 +72,7 @@
 		<!-- Host-name pre-login box -->
 		<div id="sepiaFW-host-name-box" class="extended-controls" style="display:none;">
 			<label>Hostname:</label>
-			<input id="sepiaFW-login-host-name" type="url" placeholder="my.example.org/sepia" aria-label="Hostname">
+			<input id="sepiaFW-login-host-name" type="url" placeholder="my.example.org/sepia" aria-label="Hostname" autocomplete="url">
 		</div>
 		<!-- Status and info links -->
 		<div id="sepiaFW-login-wait">
