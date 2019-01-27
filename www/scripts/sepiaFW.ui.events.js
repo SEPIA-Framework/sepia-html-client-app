@@ -106,7 +106,7 @@ function sepiaFW_build_events(){
 	
 	Events.loadContextualEvents = function(forceNew) {
 		if (!SepiaFW.assistant.id && !SepiaFW.client.isDemoMode()){
-			SepiaFW.debug.err("Events: tried to get events before channel-join completed!");
+			SepiaFW.debug.err("Events: tried to get contextual events before channel-join completed!");
 			return;
 		}
 		//prevent multiple consecutive calls in short intervall...
@@ -225,6 +225,8 @@ function sepiaFW_build_events(){
 	var scheduleDelay = 5000; 		//to prevent multiple syncs in a short time-period the current sync is delayed and gets shifted with each new sync request
 	var SyncSchedulers = {};
 
+	var lastTimeEventsCheck = 0;
+
 	//----------------- Broadcasting -------------------
 
 	//see at top of class ...
@@ -232,24 +234,37 @@ function sepiaFW_build_events(){
 	//--------------------------------------------------
 	
 	//SETUP TimeEvents
-	Events.setupTimeEvents = function(){
-		//reset ids tracking timeEvents
-		resetTimeEventNotificationIds();
-		//clear all background notifications
-		Events.clearAllTimeEventBackgroundNotifications(function(){
-			//reload Timers
-			var options = {};
-				options.loadOnlyData = true;
-				options.updateMyViewTimers = true; 		//update my-view (but only timers) afterwards
-			var dataset = {};	dataset.info = "direct_cmd";
-				dataset.cmd = "timer;;action=<show>;;alarm_type=<timer>;;";			//TODO: make a function for that
-				dataset.newReceiver = SepiaFW.assistant.id;
-			SepiaFW.client.sendCommand(dataset, options);
-			var dataset2 = {};	dataset2.info = "direct_cmd";
-				dataset2.cmd = "timer;;action=<show>;;alarm_type=<alarmClock>;;";	//TODO: make a function for that
-				dataset2.newReceiver = SepiaFW.assistant.id;
-			SepiaFW.client.sendCommand(dataset2, options);
-		});
+	Events.setupTimeEvents = function(forceNew){
+		if (!SepiaFW.assistant.id && !SepiaFW.client.isDemoMode()){
+			SepiaFW.debug.err("Events: tried to get time-events before channel-join completed!");
+			return;
+		}
+		//prevent multiple consecutive calls in short intervall...
+		var now = new Date().getTime();
+		if (forceNew || (now - lastTimeEventsCheck) > 10*1000){ 		//interval: 10s
+			lastTimeEventsCheck = now;
+			
+			//reset ids tracking timeEvents - TODO: what does this do again?
+			resetTimeEventNotificationIds();
+
+			//TODO: the next actions will not remove old timer cards only add new ones and disable old background notifications
+
+			//clear all background notifications
+			Events.clearAllTimeEventBackgroundNotifications(function(){
+				//reload Timers
+				var options = {};
+					options.loadOnlyData = true;
+					options.updateMyViewTimers = true; 		//update my-view (but only timers) afterwards
+				var dataset = {};	dataset.info = "direct_cmd";
+					dataset.cmd = "timer;;action=<show>;;alarm_type=<timer>;;";			//TODO: make a function for that
+					dataset.newReceiver = SepiaFW.assistant.id;
+				SepiaFW.client.sendCommand(dataset, options);
+				var dataset2 = {};	dataset2.info = "direct_cmd";
+					dataset2.cmd = "timer;;action=<show>;;alarm_type=<alarmClock>;;";	//TODO: make a function for that
+					dataset2.newReceiver = SepiaFW.assistant.id;
+				SepiaFW.client.sendCommand(dataset2, options);
+			});
+		}
 	}
 	
 	//add timeEvent to UI and activate it
