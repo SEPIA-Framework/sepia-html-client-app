@@ -42,6 +42,7 @@ function sepiaFW_build_always_on(){
             onClose: AlwaysOn.onClose,
             //onMessageHandler: AlwaysOn.onMessageHandler,              //TODO: use this?
             onMissedMessageHandler: AlwaysOn.onMissedMessageHandler,
+            onSpeechToTextInputHandler: AlwaysOn.onSpeechToTextInputHandler,
             theme: "dark_full"
         });
     }
@@ -71,6 +72,7 @@ function sepiaFW_build_always_on(){
         $clock = $('#sepiaFW-alwaysOn-clock');
         $notes = $('#sepiaFW-alwaysOn-notifications');
         $battery = $('#sepiaFW-alwaysOn-battery');
+        $sttOut = $('#sepiaFW-alwaysOn-stt-out');
     }
 
     //On open
@@ -148,6 +150,27 @@ function sepiaFW_build_always_on(){
             showNotificationsAndFade(INFO_FADE_DELAY, preventNoteIndicatorFadeIfNotZero);
         }
     }
+
+    //STT input handling
+    AlwaysOn.onSpeechToTextInputHandler = function(sttResult){
+        if (sttResult && sttResult.text){
+            if (sttResult.isFinal){
+                console.log('AO saw text: ' + sttResult.text);
+            }else{
+                //console.log('AO saw text: ' + sttResult.text);
+            }
+            $sttOut.html(sttResult.text);
+            if (fadeSttTimer) clearTimeout(fadeSttTimer);
+            $sttOut.stop().show();
+            fadeSttTimer = setTimeout(function(){
+                $sttOut.stop();
+                $sttOut.fadeOut(3000, function(){
+                    $sttOut.html("");
+                });
+            }, 4000);
+        }
+    }
+    var fadeSttTimer;
 
     //Animations and wake controls:
 
@@ -323,7 +346,7 @@ function sepiaFW_build_always_on(){
         var availableWidth = $('#sepiaFW-alwaysOn-view').width();
         var avatarHeigth = $avatar.height();
         var avatarWidth = $avatar.width();
-        var newTop = getRandomPixel(availableHeight-avatarHeigth);
+        var newTop = getRandomPixel(availableHeight-avatarHeigth-60);
         var newLeft = getRandomPixel(availableWidth-avatarWidth);
         $avatar.css({top: newTop, left: newLeft});
     }
