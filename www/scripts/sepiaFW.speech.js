@@ -722,16 +722,29 @@ function sepiaFW_build_speech(){
 				//TODO: implement
 			}else{
 				selectedVoice = newVoice;
-				var selectedVoiceObjectArray = speechSynthesis.getVoices().filter(function(voice){
-					return (voice && voice.name && (voice.name === selectedVoice));
-				});
-				if (selectedVoiceObjectArray.length == 0){
-					selectedVoiceObject = {};	
+				if (selectedVoice){
+					var selectedVoiceObjectArray = speechSynthesis.getVoices().filter(function(voice){
+						return (voice && voice.name && (voice.name === selectedVoice));
+					});
+					if (selectedVoiceObjectArray.length == 0){
+						selectedVoiceObject = {};	
+					}else{
+						selectedVoiceObject = selectedVoiceObjectArray[0];
+					}
 				}else{
-					selectedVoiceObject = selectedVoiceObjectArray[0];
+					selectedVoiceObject = {};
 				}
 				SepiaFW.debug.log("TTS voice set: " + ((selectedVoiceObject.name)? selectedVoiceObject.name : "undefined"));
 			}
+		}
+	}
+	Speech.getActiveVoice = function(){
+		return selectedVoice;
+	}
+	Speech.refreshVoice = function(){
+		if (voices && voices.length > 0){
+			selectedVoice = undefined;
+			setVoiceOnce();
 		}
 	}
 	
@@ -949,14 +962,14 @@ function sepiaFW_build_speech(){
 			if (SepiaFW.ui.isEdge){
 				if (SepiaFW.config.appLanguage === "de"){
 					Speech.setVoice('Microsoft Katja Mobile - German (Germany)');
-				}else{
+				}else if(SepiaFW.config.appLanguage === "en"){
 					Speech.setVoice('Microsoft Zira Mobile - English (United States)');
 				}
 			
 			}else if (SepiaFW.ui.isChromeDesktop){
 				if (SepiaFW.config.appLanguage === "de"){
 					Speech.setVoice('Google Deutsch');
-				}else{
+				}else if(SepiaFW.config.appLanguage === "en"){
 					Speech.setVoice('Google UK English Female');
 				}
 			}

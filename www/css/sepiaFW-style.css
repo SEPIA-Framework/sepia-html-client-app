@@ -1624,6 +1624,10 @@ body {
 
 #sepiaFW-my-view {
 }
+#sepiaFW-my-view.disabled {
+	pointer-events: none;
+	user-select: none;
+}
 #sepiaFW-my-view > .sepiaFW-cards-flexSize-container {
 	padding-bottom: 5px !important;
 	margin-bottom: 10px;

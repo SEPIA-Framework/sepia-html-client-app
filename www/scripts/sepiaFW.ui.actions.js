@@ -302,15 +302,25 @@ function sepiaFW_build_ui_actions(){
 		}
 		SepiaFW.events.addOrRefreshTimeEvent(action.targetTimeUnix, eventType, action);
 	}
+
+	//SWITCH LANGUAGE
+	Actions.switchLanguage = function(action){
+		if (action.language_code){
+			SepiaFW.config.broadcastLanguage(action.language_code);
+		}
+	}
 	
 	//EVENTS START
 	Actions.buildMyEventsBox = function(action, parentBlock){
 		//fadeout old
 		var	aButtonsAreaReplaced = document.getElementById('sepiaFW-myEvents-buttons');
 		if (aButtonsAreaReplaced){
+			//temporary disable interaction with my-view to prevent false click
+			$('#sepiaFW-my-view').addClass('disabled');
+			//remove
 			aButtonsAreaReplaced.id = 'sepiaFW-myEvents-buttons-replaced';
 			var oldEventsParent = $(aButtonsAreaReplaced).closest('.chatMsg');
-			oldEventsParent.fadeOut(300, function(){
+			oldEventsParent.hide(300, function(){
 				oldEventsParent.remove();
 			});
 		}else{
@@ -328,13 +338,20 @@ function sepiaFW_build_ui_actions(){
 		titleNote.innerHTML = SepiaFW.local.g('recommendationsFor') + " " + SepiaFW.account.getUserName() + ":";
 		var dateNote = document.createElement('DIV');
 		dateNote.className = 'sepiaFW-myEvents-dateHeader';
-		dateNote.innerHTML = (new Date().toLocaleString());
+		var d = new Date();
+		dateNote.innerHTML = (SepiaFW.local.g('lastUpdate') + ": " 
+			+ d.toLocaleDateString() + " - " + d.toLocaleTimeString([], {hour: 'numeric', minute:'2-digit'}));
 		$(aButtonsArea).prepend(dateNote);
 		$(aButtonsArea).prepend(titleNote);
 		
 		//show again on top
 		$(parentBlock).append(aButtonsArea);
-		$(aButtonsArea).fadeIn(500);
+		setTimeout(function(){
+			//show and enable everything again
+			$(aButtonsArea).show(300, function(){
+				$('#sepiaFW-my-view').removeClass('disabled');
+			});
+		}, 200);
 		
 		return aButtonsArea;
 	}
@@ -471,6 +488,10 @@ function sepiaFW_build_ui_actions(){
 						}else{
 							SepiaFW.debug.info('UNSUPPORTED ACTION (timeEvent): ' + JSON.stringify(actionInfo));
 						}
+
+					//Language switcher
+					}else if (type === 'switch_language'){
+						Actions.switchLanguage(data.actionInfo[i]);
 					
 					//UNKNOWN
 					}else{
