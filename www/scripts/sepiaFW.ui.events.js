@@ -34,12 +34,16 @@ function sepiaFW_build_events(){
 	var timeEventNotificationIds = SepiaFW.data.get('timeEventNotificationIds') || [];
 	var proActiveNotificationIds = SepiaFW.data.get('proActiveNotificationIds') || [];
 	function addTimeEventNotificationId(tenId){
-		timeEventNotificationIds.push(tenId);
-		SepiaFW.data.set('timeEventNotificationIds', timeEventNotificationIds);
+		if ($.inArray(tenId, timeEventNotificationIds) === -1){
+			timeEventNotificationIds.push(tenId);
+			SepiaFW.data.set('timeEventNotificationIds', timeEventNotificationIds);
+		}
 	}
 	function addProActiveNotificationId(panId){
-		proActiveNotificationIds.push(panId);
-		SepiaFW.data.set('proActiveNotificationIds', proActiveNotificationIds);
+		if ($.inArray(panId, proActiveNotificationIds) === -1){
+			proActiveNotificationIds.push(panId);
+			SepiaFW.data.set('proActiveNotificationIds', proActiveNotificationIds);
+		}
 	}
 	function getTimeEventNotificationIds(){
 		return timeEventNotificationIds;
@@ -244,10 +248,16 @@ function sepiaFW_build_events(){
 		if (forceNew || (now - lastTimeEventsCheck) > 10*1000){ 		//interval: 10s
 			lastTimeEventsCheck = now;
 			
-			//reset ids tracking timeEvents - TODO: what does this do again?
+			//reset ids tracking timeEvents - basically just reload all active background time events to 'timeEventNotificationIds'
 			resetTimeEventNotificationIds();
 
-			//TODO: the next actions will not remove old timer cards only add new ones and disable old background notifications
+			//remove all objects from collection and stop alarm trigger
+			$.each(Timers, function(name, Timer){
+				cleanUpRemovedTimeEvent(Timer);
+			});
+			Timers = {};
+
+			//TODO: this will not remove old timer cards only add new ones and disable old background notifications
 
 			//clear all background notifications
 			Events.clearAllTimeEventBackgroundNotifications(function(){
@@ -361,9 +371,8 @@ function sepiaFW_build_events(){
 			//Remove background notification
 			Events.removeTimeEventBackgroundNotification(Timer, callbackRemovedBackgroundActivity);
 			//clean up
-			if (Timer.action) clearTimeout(Timer.action);
-			//if (Timer.animation) clearInterval(Timer.animation); 	//<- animation keeps running until dom element is deleted
-			delete Timers[name];
+			cleanUpRemovedTimeEvent(Timer);
+			delete Timers[Timer.name];
 			//this might be set if a timeEvent is removed by a "UI-only-action" (e.g. remove button) and the server needs to get the info as well
 			if (resyncList){
 				//store eventId of deleted timer for resync
@@ -380,6 +389,11 @@ function sepiaFW_build_events(){
 				scheduleTimeEventsSync(activatedTimer.type);
 			}
 		}
+	}
+	function cleanUpRemovedTimeEvent(Timer){
+		//clean up
+		if (Timer.action) clearTimeout(Timer.action);
+		//if (Timer.animation) clearInterval(Timer.animation); 	//<- animation keeps running until dom element is deleted
 	}
 	//synchronize timeEvents with server - since creating an event should be done via server request we assume that only silently removed or UI-unknown events need sync.
 	Events.syncTimeEvents = function(type){
