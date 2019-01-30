@@ -312,6 +312,9 @@
 	function appSetup(){
 		//prepare plugins
 		SepiaFW.buildSepiaFwPlugins();
+
+		//set specific language dependent frames (pages)
+		SepiaFW.frames.setLocalPage('tutorial.html', "de", 'tutorial-de.html');
 	
 		//set endpoints
 		var config = new Object();
