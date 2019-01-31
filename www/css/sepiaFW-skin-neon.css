@@ -103,9 +103,9 @@ html {
 }
 
 #sepiaFW-chat-controls-speech-box {
-	background: rgba(24, 40, 58, 0.92);
-	border: 1px solid #15abc3;
-    box-shadow: 0 0 5px #15abc3;
+	background: rgba(23, 23, 52, 0.93);
+    border: 1px solid #3F51B5;
+    box-shadow: 0 0 5px #3F51B5;
 }
 #sepiaFW-chat-controls-speech-box > div {
 	background: transparent;
@@ -357,10 +357,14 @@ html {
 /*----- teachUI -----*/
 
 #sepiaFW-teachUI-view {
-    background: #102030;
+    background: #101035;
+}
+#sepiaFW-teachUI-view a,
+#sepiaFW-teachUI-view a:visited {
+    color: #c91bc3;
 }
 #sepiaFW-teachUI-nav-bar {
-    background: #15abc3;
+    background: #3F51B5;
 	color: #fff;
 }
 #sepiaFW-teachUI-view label {
@@ -369,10 +373,10 @@ html {
 }
 #sepiaFW-teachUI-editor button, 
 #sepiaFW-teachUI-manager button {
-    background: #15abc3 !important;
+    background: rgba(148, 41, 129, 0.75) !important;
     color: #fff !important;
-	box-shadow: 0 0 5px #fff;
-	border: 1px solid #fff;
+	box-shadow: 0 0 5px #c91bc3;
+	border: 1px solid #c91bc3;
 }
 
 /*----- AlwaysOn -----*/
