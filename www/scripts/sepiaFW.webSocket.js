@@ -348,14 +348,9 @@ function sepiaFW_build_webSocket_client(){
 	//actions triggered when the client becomes active (in this case when the active channel is obtained)
 	Client.onActive = function(){
 		//LOAD SOME MORE STUFF that requires account verification:
-			
-		//refresh timers
-		if (SepiaFW.events){
-			SepiaFW.events.setupTimeEvents();
-		}
 		
 		//update myView
-		SepiaFW.ui.updateMyView(false, true);
+		SepiaFW.ui.updateMyView(false, true, 'onActive');
 	}
 	
 	//execute when UI is ready and user is logged in (usually)
@@ -500,7 +495,7 @@ function sepiaFW_build_webSocket_client(){
 		
 		//CHAT CONTROLS
 		
-		//chat controls more menue
+		//chat controls more menue aka SHORTCUTS-MENU
 		var chatMenuBtn = document.getElementById("sepiaFW-chat-controls-more-btn");
 		if (chatMenuBtn){
 			function closeControlsMenueWithDelay(){
@@ -732,6 +727,8 @@ function sepiaFW_build_webSocket_client(){
 				$(myEventsBtn).off();
 				$(myEventsBtn).on("click", function () {
 					SepiaFW.animate.flash(this.id);
+					SepiaFW.ui.updateMyView(true, true, 'shortcutsButton');
+					/*
 					var dataset = {};	dataset.info = "direct_cmd";
 						dataset.cmd = "events_personal;;";
 						dataset.newReceiver = SepiaFW.assistant.id;
@@ -741,6 +738,7 @@ function sepiaFW_build_webSocket_client(){
 						options.showView = true;
 						options.skipTTS = true;
 					Client.sendCommand(dataset, options);
+					*/
 					closeControlsMenueWithDelay();
 				});
 			}
@@ -773,6 +771,14 @@ function sepiaFW_build_webSocket_client(){
 		if (optimizeAsrResult && (SepiaFW.speech.language === "de") && text && text.match(/^(GTA|GPA|PPA|WPA|dpa|liebherr)( ).+/ig)){
 			text = text.replace(/^(GTA|GPA|PPA|WPA|dpa|liebherr)( )/i, "Sepia ");
 		}
+
+		//show results in frame as well? (SHOW ONLY!)
+		if (SepiaFW.frames && SepiaFW.frames.isOpen && SepiaFW.frames.canShowSpeechToTextInput()){
+			SepiaFW.frames.handleSpeechToTextInput({
+				"text": text,
+				"isFinal": true
+			});
+		}
 		
 		//try speech-bubble
 		var inBox =	document.getElementById('sepiaFW-chat-controls-speech-box-bubble');
@@ -799,6 +805,14 @@ function sepiaFW_build_webSocket_client(){
 		}
 	}
 	Client.asrCallbackInterim = function(text){
+		//show results in frame as well? (SHOW ONLY!)
+		if (SepiaFW.frames && SepiaFW.frames.isOpen && SepiaFW.frames.canShowSpeechToTextInput()){
+			SepiaFW.frames.handleSpeechToTextInput({
+				"text": text,
+				"isFinal": false
+			});
+		}
+
 		//try speech-bubble
 		var inBox =	document.getElementById('sepiaFW-chat-controls-speech-box-bubble');
 		if (inBox){
@@ -1435,7 +1449,15 @@ function sepiaFW_build_webSocket_client(){
 		//update my-view?
 		if (options.updateMyView){
 			setTimeout(function(){
-				SepiaFW.ui.updateMyView(true);
+				SepiaFW.ui.updateMyView(true, false, 'chatMessageRequest');
+			}, 500);
+		}else if (options.updateMyViewTimers){
+			setTimeout(function(){
+				SepiaFW.ui.updateMyTimers();
+			}, 500);
+		}else if (options.updateMyViewEvents){
+			setTimeout(function(){
+				SepiaFW.ui.updateMyContextualEvents();
 			}, 500);
 		}
 		

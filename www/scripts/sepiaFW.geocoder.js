@@ -101,7 +101,7 @@ function sepiaFW_build_geocoder(){
 	}
 	function broadcastAddressIsNew(addressResult){
 		//Got new GPS coordinates (according to distance threshold) and with that a new address
-		SepiaFW.ui.updateMyView();
+		SepiaFW.ui.updateMyView(false, false, 'geoCoder');
 	}
 	function broadcastAddressFinished(){
 		//UPDATE

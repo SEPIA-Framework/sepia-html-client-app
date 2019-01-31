@@ -64,7 +64,7 @@
 		<div id="sepiaFW-language-selector"></div>
 		<h2><!--Welcome--><script>SepiaFW.local.w('welcome')</script></h2>
 		<div id="sepiaFW-login-form" style="display: none">
-			<input id="sepiaFW-login-id" type="email" placeholder="Username" aria-label="Username">
+			<input id="sepiaFW-login-id" type="email" placeholder="Username" aria-label="Username" spellcheck="false" autocomplete="username">
 			<input id="sepiaFW-login-pwd" type="password" placeholder="Password" aria-label="Password">
 			<button id="sepiaFW-login-send"><script>SepiaFW.local.w('sendLogin')</script></button><br>
 			<button id="sepiaFW-login-close" class="extended-controls" style="display:none;"><script>SepiaFW.local.w('closeLogin')</script></button><br>
@@ -72,7 +72,7 @@
 		<!-- Host-name pre-login box -->
 		<div id="sepiaFW-host-name-box" class="extended-controls" style="display:none;">
 			<label>Hostname:</label>
-			<input id="sepiaFW-login-host-name" type="url" placeholder="my.example.org/sepia" aria-label="Hostname">
+			<input id="sepiaFW-login-host-name" type="url" placeholder="my.example.org/sepia" aria-label="Hostname" autocomplete="url">
 		</div>
 		<!-- Status and info links -->
 		<div id="sepiaFW-login-wait">
@@ -265,6 +265,7 @@
 <link rel="stylesheet alternate" href="css/sepiaFW-skin-odyssey1.css" class='sepiaFW-style-skin' title='' data-name='Odyssey1'>
 <link rel="stylesheet alternate" href="css/sepiaFW-skin-odyssey2.css" class='sepiaFW-style-skin' title='' data-name='Odyssey2'>
 <link rel="stylesheet alternate" href="css/sepiaFW-skin-malachite.css" class='sepiaFW-style-skin' title='' data-name='Malachite'>
+<link rel="stylesheet alternate" href="css/sepiaFW-skin-neon.css" class='sepiaFW-style-skin' title='' data-name='Nightlife'>
 <!-- START JS -->
 <script src="scripts/jquery-3.1.1.min.js"></script>
 <!--<script src="https://code.jquery.com/jquery-3.1.1.min.js" integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8=" crossorigin="anonymous"></script>-->
@@ -311,6 +312,9 @@
 	function appSetup(){
 		//prepare plugins
 		SepiaFW.buildSepiaFwPlugins();
+
+		//set specific language dependent frames (pages)
+		SepiaFW.frames.setLocalPage('tutorial.html', "de", 'tutorial-de.html');
 	
 		//set endpoints
 		var config = new Object();
@@ -366,7 +370,11 @@
 			if (SepiaFW.client.isDemoMode()){
 				//SepiaFW.ui.showInfo(SepiaFW.local.g('demoMode'), true);
 				SepiaFW.ui.showCustomChatMessage(SepiaFW.local.g('demoMode'));
+				//pseudo client
+				SepiaFW.client.buildUI();
+				SepiaFW.client.onActive();
 				SepiaFW.client.welcomeActions(true);
+				//Url action?
 				if (requestViaUrl){
 					SepiaFW.client.handleRequestViaUrl(requestViaUrl);
 				}
@@ -375,7 +383,7 @@
 					//success
 					function(data){
 						//TODO: startClient is a required method, maybe move it to core and replace it with 'client.onActive'?
-						SepiaFW.client.startClient(); 		//includes: buildUI and welcomeActions
+						SepiaFW.client.startClient(); 		//includes: buildUI, onActive and welcomeActions
 						if (requestViaUrl){
 							SepiaFW.client.handleRequestViaUrl(requestViaUrl);
 						}

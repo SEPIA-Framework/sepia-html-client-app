@@ -119,7 +119,30 @@ function sepiaFW_build_teach(){
 					name : "and says ...",
 					optional : true
 				}]
-			}
+			},
+			mesh_node_plugin : {
+				command : "mesh_node_plugin",
+				name : "Call SEPIA Mesh-Node plugin",
+				parameters : [{
+					value : "node_url",
+					name : "Mesh-Node URL"
+				},{
+					value : "node_plugin_name",
+					name : "Name of plugin"
+				},{
+					value : "node_plugin_data",
+					name : "JSON string sent to plugin",
+					optional : true
+				},{
+					value : "reply_success",
+					name : "Success answer",
+					optional : true
+				},{
+					value : "reply_fail",
+					name : "Fail answer",
+					optional : true
+				}]
+			},
 		};
 	}
 	
@@ -264,7 +287,6 @@ function sepiaFW_build_teach(){
 		$('#sepiaFW-teachUI-show-optionals').fadeOut(300);
 		parameterBox.fadeOut(300, function(){
 			parameterBox.html('');
-			var params = service.parameters;
 			var hasOptionals = false;
 			if ('parameters' in service && service.parameters.length > 0){
 				$.each(service.parameters, function(index, p){
@@ -296,6 +318,11 @@ function sepiaFW_build_teach(){
 		var params = data.params;
 		var service = services[cmd];
 		var cmdData = data.data;
+		//check support
+		if (!service){
+			SepiaFW.ui.showPopup('Sorry but this command cannot be edited here yet (custom service?).');
+			return;
+		}
 		//fill UI
 		$('#sepiaFW-teach-input').val(text);
 		$('#sepiaFW-teach-commands').val(cmd);

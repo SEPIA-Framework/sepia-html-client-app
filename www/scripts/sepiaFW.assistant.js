@@ -5,6 +5,11 @@ function sepiaFW_build_assistant(){
 	//some global settings
 	Assistant.name = "Sepia"; 	//this should be received from server to prevent confusion with Usernames
 	Assistant.id = ""; 			//this should be received from server because it works as receiver for action-commands (buttons etc.)
+
+	//control settings
+	Assistant.autoCloseAwaitDialog = true;
+	Assistant.autoCloseAwaitDialogDelay = 15000; 	//15s
+	var autoCloseAwaitDialogTimer;
 	
 	//set assistant info received from server
 	Assistant.updateInfo = function(id, name){
@@ -18,7 +23,7 @@ function sepiaFW_build_assistant(){
 					SepiaFW.debug.err("Assistant: missing name for ID '" + id + "'!");
 				}
 				//Update my-view events
-				SepiaFW.ui.updateMyView(true, false);
+				SepiaFW.ui.updateMyView(true, false, 'assistantInfoUpdate');
 			}
 		}
 		SepiaFW.debug.log("Assistant: active assistant is '" + name + "' (" + id + ")");
@@ -72,6 +77,8 @@ function sepiaFW_build_assistant(){
 		}
 	}
 	function broadcastDialogTimeout(){
+		//EXAMPLE:
+		SepiaFW.animate.assistant.idle('dialogTimeout');
 	}
 	
 	//set direct command
@@ -107,6 +114,13 @@ function sepiaFW_build_assistant(){
 		//set state only when the message was intended for this user - TODO: rethink this
 		if (SepiaFW.account && (SepiaFW.account.getUserId() !== result.more.user)){
 			return;
+		}
+
+		//reset auto-close timer
+		if (Assistant.autoCloseAwaitDialog){
+			if (autoCloseAwaitDialogTimer){
+				clearTimeout(autoCloseAwaitDialogTimer);
+			}
 		}
 			
 		//handle mood
@@ -161,6 +175,20 @@ function sepiaFW_build_assistant(){
 				//broadcast
 				Assistant.isWaitingForDialog = true;
 				broadcastAwaitDialog();
+
+				//activate auto-close timer?
+				if (Assistant.autoCloseAwaitDialog){
+					autoCloseAwaitDialogTimer = setTimeout(function(){
+						input_type = "question";
+						input_miss = "";
+						dialog_stage = 0;
+						last_command = '';
+						last_command_N = 0;
+						//broadcast
+						Assistant.isWaitingForDialog = false;
+						broadcastDialogTimeout();
+					}, Assistant.autoCloseAwaitDialogDelay);
+				}
 			}
 		}else{
 			input_type = "question";
@@ -180,6 +208,8 @@ function sepiaFW_build_assistant(){
 		input_type = "question";
 		input_miss = "";
 		dialog_stage = 0;
+		last_command = '';
+		last_command_N = 0;
 		//broadcast
 		Assistant.isWaitingForDialog = false;
 		broadcastDialogFinished(true);

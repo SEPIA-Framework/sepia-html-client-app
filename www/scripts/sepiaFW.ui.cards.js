@@ -444,7 +444,7 @@ function sepiaFW_build_ui_cards(){
 			}
 
 			function dropCallback(draggedEle, startListBody, dropListBody, positionChanged){
-				var sameTargetContainer = startListBody.isSameNode(dropListBody);
+				var sameTargetContainer = (!!startListBody && !!dropListBody)? startListBody.isSameNode(dropListBody) : true;
 				if (positionChanged){
 					var $saveBtn = $listBody.parent().find('.sepiaFW-cards-list-saveBtn');
 					$saveBtn.addClass('active');

@@ -1458,6 +1458,10 @@ body {
 .sepiaFW-results-container h2 {
 	padding: 8px;
 }
+.sepiaFW-results-container a,
+.sepiaFW-results-container a:visited {
+	color: #4ec48f;
+}
 .sepiaFW-results-container > :first-child {
 	margin-top: 4px !important;
 }
@@ -1620,9 +1624,13 @@ body {
 
 #sepiaFW-my-view {
 }
+#sepiaFW-my-view.disabled {
+	pointer-events: none;
+	user-select: none;
+}
 #sepiaFW-my-view > .sepiaFW-cards-flexSize-container {
 	padding-bottom: 5px !important;
-	margin-bottom: 5px;
+	margin-bottom: 10px;
 }
 #sepiaFW-my-view > .sepiaFW-cards-flexSize-container > :last-child {
 	margin-bottom: 0px !important;

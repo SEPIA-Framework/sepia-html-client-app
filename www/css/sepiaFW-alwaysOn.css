@@ -198,3 +198,17 @@
 #sepiaFW-alwaysOn-info-box > div {
 	padding: 4px;
 }
+
+#sepiaFW-alwaysOn-stt-out {
+	height: 42px;
+    width: 100%;
+    text-align: center;
+    color: #ceff1a;
+    padding: 0px 24px;
+    position: absolute;
+	bottom: 12px;
+	font-size: 18px;
+	overflow: hidden;
+	display: flex;
+    flex-direction: column-reverse;
+}

@@ -34,12 +34,16 @@ function sepiaFW_build_events(){
 	var timeEventNotificationIds = SepiaFW.data.get('timeEventNotificationIds') || [];
 	var proActiveNotificationIds = SepiaFW.data.get('proActiveNotificationIds') || [];
 	function addTimeEventNotificationId(tenId){
-		timeEventNotificationIds.push(tenId);
-		SepiaFW.data.set('timeEventNotificationIds', timeEventNotificationIds);
+		if ($.inArray(tenId, timeEventNotificationIds) === -1){
+			timeEventNotificationIds.push(tenId);
+			SepiaFW.data.set('timeEventNotificationIds', timeEventNotificationIds);
+		}
 	}
 	function addProActiveNotificationId(panId){
-		proActiveNotificationIds.push(panId);
-		SepiaFW.data.set('proActiveNotificationIds', proActiveNotificationIds);
+		if ($.inArray(panId, proActiveNotificationIds) === -1){
+			proActiveNotificationIds.push(panId);
+			SepiaFW.data.set('proActiveNotificationIds', proActiveNotificationIds);
+		}
 	}
 	function getTimeEventNotificationIds(){
 		return timeEventNotificationIds;
@@ -105,8 +109,8 @@ function sepiaFW_build_events(){
 	var lastContextualEventsCheck = 0;
 	
 	Events.loadContextualEvents = function(forceNew) {
-		if (!SepiaFW.assistant.id){
-			SepiaFW.debug.err("Events: tried to get events before channel-join completed!");
+		if (!SepiaFW.assistant.id && !SepiaFW.client.isDemoMode()){
+			SepiaFW.debug.err("Events: tried to get contextual events before channel-join completed!");
 			return;
 		}
 		//prevent multiple consecutive calls in short intervall...
@@ -123,6 +127,7 @@ function sepiaFW_build_events(){
 					options.skipText = true;
 					options.skipTTS = true;
 					options.targetView = "myView";
+					//NOTE: we don't need 'updateMyViewEvents' here since this is done by the message handler 
 				var dataset = {};	dataset.info = "direct_cmd";
 					dataset.cmd = "events_personal;;";
 					dataset.newReceiver = SepiaFW.assistant.id;
@@ -188,7 +193,7 @@ function sepiaFW_build_events(){
 						window.focus();
 						note.close();
 						Events.handleLocalNotificationClick(noteData);
-						SepiaFW.ui.updateMyView(false, true);
+						SepiaFW.ui.updateMyView(false, true, 'localNotificationClick');
 					});
 				}
 			}, action.triggerIn);
@@ -224,6 +229,8 @@ function sepiaFW_build_events(){
 	var scheduleDelay = 5000; 		//to prevent multiple syncs in a short time-period the current sync is delayed and gets shifted with each new sync request
 	var SyncSchedulers = {};
 
+	var lastTimeEventsCheck = 0;
+
 	//----------------- Broadcasting -------------------
 
 	//see at top of class ...
@@ -231,24 +238,43 @@ function sepiaFW_build_events(){
 	//--------------------------------------------------
 	
 	//SETUP TimeEvents
-	Events.setupTimeEvents = function(){
-		//reset ids tracking timeEvents
-		resetTimeEventNotificationIds();
-		//clear all background notifications
-		Events.clearAllTimeEventBackgroundNotifications(function(){
-			//reload Timers
-			var options = {};
-				options.loadOnlyData = true;
-				options.updateMyView = true; 		//update my-view afterwards
-			var dataset = {};	dataset.info = "direct_cmd";
-				dataset.cmd = "timer;;action=<show>;;alarm_type=<timer>;;";			//TODO: make a function for that
-				dataset.newReceiver = SepiaFW.assistant.id;
-			SepiaFW.client.sendCommand(dataset, options);
-			var dataset2 = {};	dataset2.info = "direct_cmd";
-				dataset2.cmd = "timer;;action=<show>;;alarm_type=<alarmClock>;;";	//TODO: make a function for that
-				dataset2.newReceiver = SepiaFW.assistant.id;
-			SepiaFW.client.sendCommand(dataset2, options);
-		});
+	Events.setupTimeEvents = function(forceNew){
+		if (!SepiaFW.assistant.id && !SepiaFW.client.isDemoMode()){
+			SepiaFW.debug.err("Events: tried to get time-events before channel-join completed!");
+			return;
+		}
+		//prevent multiple consecutive calls in short intervall...
+		var now = new Date().getTime();
+		if (forceNew || (now - lastTimeEventsCheck) > 10*1000){ 		//interval: 10s
+			lastTimeEventsCheck = now;
+			
+			//reset ids tracking timeEvents - basically just reload all active background time events to 'timeEventNotificationIds'
+			resetTimeEventNotificationIds();
+
+			//remove all objects from collection and stop alarm trigger
+			$.each(Timers, function(name, Timer){
+				cleanUpRemovedTimeEvent(Timer);
+			});
+			Timers = {};
+
+			//TODO: this will not remove old timer cards only add new ones and disable old background notifications
+
+			//clear all background notifications
+			Events.clearAllTimeEventBackgroundNotifications(function(){
+				//reload Timers
+				var options = {};
+					options.loadOnlyData = true;
+					options.updateMyViewTimers = true; 		//update my-view (but only timers) afterwards
+				var dataset = {};	dataset.info = "direct_cmd";
+					dataset.cmd = "timer;;action=<show>;;alarm_type=<timer>;;";			//TODO: make a function for that
+					dataset.newReceiver = SepiaFW.assistant.id;
+				SepiaFW.client.sendCommand(dataset, options);
+				var dataset2 = {};	dataset2.info = "direct_cmd";
+					dataset2.cmd = "timer;;action=<show>;;alarm_type=<alarmClock>;;";	//TODO: make a function for that
+					dataset2.newReceiver = SepiaFW.assistant.id;
+				SepiaFW.client.sendCommand(dataset2, options);
+			});
+		}
 	}
 	
 	//add timeEvent to UI and activate it
@@ -286,7 +312,7 @@ function sepiaFW_build_events(){
 	Events.getNextTimeEvents = function(maxTargetTime, excludeName, includePastMs){
 		if (!maxTargetTime) maxTargetTime = Number.MAX_SAFE_INTEGER;
 		var nextTimers = [];
-		var nearestFuture = Number.MAX_SAFE_INTEGER;
+		//var nearestFuture = Number.MAX_SAFE_INTEGER;
 		var now = new Date().getTime();
 		if (includePastMs){
 			now = now - includePastMs;
@@ -345,9 +371,8 @@ function sepiaFW_build_events(){
 			//Remove background notification
 			Events.removeTimeEventBackgroundNotification(Timer, callbackRemovedBackgroundActivity);
 			//clean up
-			if (Timer.action) clearTimeout(Timer.action);
-			//if (Timer.animation) clearInterval(Timer.animation); 	//<- animation keeps running until dom element is deleted
-			delete Timers[name];
+			cleanUpRemovedTimeEvent(Timer);
+			delete Timers[Timer.name];
 			//this might be set if a timeEvent is removed by a "UI-only-action" (e.g. remove button) and the server needs to get the info as well
 			if (resyncList){
 				//store eventId of deleted timer for resync
@@ -365,8 +390,17 @@ function sepiaFW_build_events(){
 			}
 		}
 	}
+	function cleanUpRemovedTimeEvent(Timer){
+		//clean up
+		if (Timer.action) clearTimeout(Timer.action);
+		//if (Timer.animation) clearInterval(Timer.animation); 	//<- animation keeps running until dom element is deleted
+	}
 	//synchronize timeEvents with server - since creating an event should be done via server request we assume that only silently removed or UI-unknown events need sync.
 	Events.syncTimeEvents = function(type){
+		if (SepiaFW.client.isDemoMode()){
+			//we skip this in demo-mode to avoid confusing error-messages
+			return;
+		}
 		var title = "";
 		if (type === Events.TIMER){
 			title = "timer";
