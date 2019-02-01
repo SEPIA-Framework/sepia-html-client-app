@@ -2,7 +2,7 @@
 Part of the [SEPIA Framework](https://sepia-framework.github.io/)  
 
 <p align="center">
-  <img src="https://github.com/SEPIA-Framework/SEPIA-Framework.github.io/blob/master/img/teach-ui.png" alt="S.E.P.I.A. Logo"/>
+  <img src="https://github.com/SEPIA-Framework/SEPIA-Framework.github.io/blob/master/img/teach-ui.png" alt="S.E.P.I.A. App"/>
 </p>
 
 This is a HTML-based application (SEPIA client) to communicate with SEPIA via browser, iOS and Android.  
@@ -12,6 +12,7 @@ Features of the app are:
 * Text-to-Speech voice output
 * WebSocket based chat with SEPIA and other users that are registered on your private or public server ([see Chat-Server](https://github.com/SEPIA-Framework/sepia-websocket-server-java))
 * Customizable start-screen with user-recommendations (created by the SEPIA server)
+* AlwaysOn mode with animated avatar (works best with OLED screens! ^_^)
 * In-chat card results (e.g. for to-do lists), audio player (e.g. for web-radio) and in-app browser for iOS and Android
 * User-account management
 * Teach-interface to add your own commands/chats/actions to SEPIA ([see Teach-Server](https://github.com/SEPIA-Framework/sepia-teach-server))
@@ -26,10 +27,12 @@ Features of the app are:
 ### Quick-start
 
 The latest release version is always online at: https://sepia-framework.github.io/app/index.html  
-If you don't operate a SEPIA server you can still look around a bit in "demo-mode" when skipping the log-in though most of the features will not be active in this mode.  
-Android and iOS apps are in beta-test phase and will be release "when they are done" :-p  
+The Android app can be installed via the Google Play Store (currently only German): [German Play Store link](https://play.google.com/store/apps/details?id=de.bytemind.sepia.app.web)  
   
-For experts only: Use the install-scripts in the repository to build your own version of the app.
+Note: If you don't operate your own SEPIA server you can still open the app in "demo-mode" (simply skip the log-in) and look around a bit though most of the features will not be active in this mode.  
+More languages for Android and an iOS app are in beta-test phase and will be release "when they are done" :-p  
+  
+For experts only: Use the build-scripts in this repository to build your own version of the app (Android and iOS are available).
 
 ### Version history ...
 
