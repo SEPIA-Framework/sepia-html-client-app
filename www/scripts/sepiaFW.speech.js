@@ -800,6 +800,7 @@ function sepiaFW_build_speech(){
 		
 		//WEB-SPEECH-API
 		}else{
+			window.sepia_tts_utterances = []; 		//This is a bug-fix to prevent utterance from getting garbage collected
 			var utterance = new SpeechSynthesisUtterance();
 			utterance.text = text;
 			utterance.lang = getLongLanguageCode(Speech.language);
@@ -836,6 +837,7 @@ function sepiaFW_build_speech(){
 			setTimeout(function(){
 				broadcastTtsRequested();
 				speechWaitingForResult = true;
+				window.sepia_tts_utterances.push(utterance); 	//bug-fix see above
 				window.speechSynthesis.speak(utterance);
 			}, 0);
 		}
