@@ -684,7 +684,11 @@ function sepiaFW_build_events(){
 		var textS = SepiaFW.local.g('expired') + ": " + Timer.data.name;
 		if (showSimpleNote){
 			setTimeout(function(){
-				Events.showSimpleSilentNotification(titleS, textS);
+				var noteData = {
+					type : "alarm",
+					onClickType : "stopAlarmSound"
+				};
+				Events.showSimpleSilentNotification(titleS, textS, noteData);
 			}, 50);
 		}
 		//play sound
@@ -799,6 +803,15 @@ function sepiaFW_build_events(){
 					chatInput.focus();
 					chatInput.value = '@' + data.sender + " ";
 				}, 300);
+			}
+		
+		//alarm trigger
+		}else if (data && data.type == "alarm"){
+			if (data.onClickType == "stopAlarmSound"){
+				//stop alarm
+				if (SepiaFW.audio && SepiaFW.audio.isPlaying){
+					SepiaFW.audio.stopAlarmSound();
+				}
 			}
 		
 		//pro-active chat message
