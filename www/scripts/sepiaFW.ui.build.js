@@ -565,6 +565,10 @@ function sepiaFW_build_ui_build(){
 					option.value = i+1;
 				document.getElementById('sepiaFW-menu-select-skin').appendChild(option);
 			});
+			var activeSkin = SepiaFW.data.get('activeSkin');
+			if (activeSkin){
+				$('#sepiaFW-menu-select-skin').val(activeSkin);
+			}
 			$('#sepiaFW-menu-select-skin').off();
 			$('#sepiaFW-menu-select-skin').on('change', function() {
 				SepiaFW.ui.setSkin($('#sepiaFW-menu-select-skin').val());
@@ -596,8 +600,10 @@ function sepiaFW_build_ui_build(){
 					}, !SepiaFW.speech.skipTTS)
 				);
 
-				//add voice select options
-				document.getElementById('sepiaFW-menu-select-voice-li').appendChild(SepiaFW.speech.getVoices());
+				//add voice select options - delayed due to loading process
+				setTimeout(function(){
+					document.getElementById('sepiaFW-menu-select-voice-li').appendChild(SepiaFW.speech.getVoices());
+				}, 1000);
 				
 				//add speech recognition engine select
 				document.getElementById('sepiaFW-menu-select-stt-li').appendChild(SepiaFW.speech.getSttEngines());

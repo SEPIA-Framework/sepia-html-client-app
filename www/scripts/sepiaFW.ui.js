@@ -59,6 +59,23 @@ function sepiaFW_build_ui(){
 			},100);
 		}
 	}
+
+	//Open a view or frame by key (e.g. for URL parameter 'view=xy')
+	UI.openViewOrFrame = function(openView){
+		openView = openView.replace(".html", "").trim();
+		//AO-Mode
+		if (openView == "ao" || openView == "aomode" || openView == "alwayson"){
+			if (SepiaFW.alwaysOn) SepiaFW.alwaysOn.start();
+	
+		//Teach-UI
+		}else if (openView == "teach" || openView == "teachui"){
+			if (SepiaFW.teach) SepiaFW.teach.openUI();
+		
+		//Frame
+		}else{
+			if (SepiaFW.frames) SepiaFW.frames.open({pageUrl: (openView + ".html")});
+		}
+	}
 	
 	UI.primaryColor = '#ceff1a';
 	UI.secondaryColor = '#2f3035';
@@ -383,8 +400,6 @@ function sepiaFW_build_ui(){
 		var lastSkin = SepiaFW.data.get('activeSkin');
 		if (lastSkin){
 			UI.setSkin(lastSkin);
-			//var selBox = document.getElementById("sepiaFW-menu-select-skin");
-			//if (selBox) selBox.selectedIndex = activeSkin;		//<- not working, box not there yet?
 		}else{
 			//get skin colors
 			UI.refreshSkinColors();
