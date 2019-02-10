@@ -37,79 +37,82 @@
 	});
 </script>
 
-<!-- DEMO -->
+<!-- DEMO - TODO: build real setupWakeWords method with callback -->
 <script>
-	SepiaFW.wakeTriggers.setupWakeWords();
+	function startWakeWordDemo(){
+		SepiaFW.wakeTriggers.setupWakeWords();
 
-	var isWhite = true;
-	var isListening = false;
-	var keywordNames = SepiaFW.wakeTriggers.getWakeWords();
-	
-	var sensitivityEle = document.getElementById('sepiaFW-wake-word-sensitivity');
-	sensitivityEle.value = SepiaFW.wakeTriggers.getWakeWordSensitivities()[0];
+		var isWhite = true;
+		var isListening = false;
+		var keywordNames = SepiaFW.wakeTriggers.getWakeWords();
+		
+		var sensitivityEle = document.getElementById('sepiaFW-wake-word-sensitivity');
+		sensitivityEle.value = SepiaFW.wakeTriggers.getWakeWordSensitivities()[0];
 
-	var toggleButton = document.getElementById('sepiaFW-wake-word-toggle');
-	toggleButton.innerHTML = "Loading...";
+		var toggleButton = document.getElementById('sepiaFW-wake-word-toggle');
+		toggleButton.innerHTML = "Loading...";
 
-	SepiaFW.tools.loadJS("xtensions/picovoice/pv_porcupine_mod.js", function(){
-		SepiaFW.tools.loadJS("xtensions/picovoice/porcupine.js", function(){
-			SepiaFW.tools.loadJS("xtensions/picovoice/picovoiceAudioManager.js", function(){
-				ready();
+		SepiaFW.tools.loadJS("xtensions/picovoice/pv_porcupine_mod.js", function(){
+			SepiaFW.tools.loadJS("xtensions/picovoice/porcupine.js", function(){
+				SepiaFW.tools.loadJS("xtensions/picovoice/picovoiceAudioManager.js", function(){
+					ready();
+				});
 			});
 		});
-	});
 
-	function ready(){
-		toggleButton.innerHTML = "START";
-		toggleButton.addEventListener("click", function(){
-			if (!isListening){
-				if (sensitivityEle.value != undefined){
-					SepiaFW.wakeTriggers.setWakeWordSensitivities([sensitivityEle.value]);
+		function ready(){
+			toggleButton.innerHTML = "START";
+			toggleButton.addEventListener("click", function(){
+				if (!isListening){
+					if (sensitivityEle.value != undefined){
+						SepiaFW.wakeTriggers.setWakeWordSensitivities([sensitivityEle.value]);
+					}
+					isListening = true;
+					toggleButton.innerHTML = "STOP";
+					SepiaFW.wakeTriggers.listenToWakeWords(onKeywordSuccess, onError);
+				}else{
+					SepiaFW.wakeTriggers.stopListeningToWakeWords(onSuccessStop, onErrorStop);
 				}
-				isListening = true;
-				toggleButton.innerHTML = "STOP";
-				SepiaFW.wakeTriggers.listenToWakeWords(onKeywordSuccess, onError);
+			});
+		}
+		
+		function onKeywordSuccess(keywordIndex){
+			if (keywordIndex === -1) {
+				return;
 			}else{
-				SepiaFW.wakeTriggers.stopListeningToWakeWords(onSuccessStop, onErrorStop);
-			}
-		});
-	}
-	
-	function onKeywordSuccess(keywordIndex){
-		if (keywordIndex === -1) {
-			return;
-		}else{
-			var keyword = keywordNames[keywordIndex];
-			if (keyword == "hey sepia" && isWhite){
-				isWhite = false;
-				document.querySelector("#sepiaFW-wake-word-indicator").setAttribute("src", "img/icon-512.png");
-			}else{
-				isWhite = true;
-				document.querySelector("#sepiaFW-wake-word-indicator").setAttribute("src", "img/icon-512-w.png");
-			}
-			//trigger mic?
-			if (SepiaFW.wakeTriggers.useWakeWord){
-				var useConfirmationSound = SepiaFW.speech.shouldPlayConfirmation();
-                SepiaFW.ui.toggleMicButton(useConfirmationSound);
+				var keyword = keywordNames[keywordIndex];
+				if (keyword == "hey sepia" && isWhite){
+					isWhite = false;
+					document.querySelector("#sepiaFW-wake-word-indicator").setAttribute("src", "img/icon-512.png");
+				}else{
+					isWhite = true;
+					document.querySelector("#sepiaFW-wake-word-indicator").setAttribute("src", "img/icon-512-w.png");
+				}
+				//trigger mic?
+				if (SepiaFW.wakeTriggers.useWakeWord){
+					var useConfirmationSound = SepiaFW.speech.shouldPlayConfirmation();
+					SepiaFW.ui.toggleMicButton(useConfirmationSound);
+				}
 			}
 		}
-	}
-	function onError(ex){
-		reset();
-		alert(ex.toString());
-	}
-	function onSuccessStop(){
-		reset();
-	}
-	function onErrorStop(ex){
-		reset();
-		alert(ex.toString());
-	}
+		function onError(ex){
+			reset();
+			alert(ex.toString());
+		}
+		function onSuccessStop(){
+			reset();
+		}
+		function onErrorStop(ex){
+			reset();
+			alert(ex.toString());
+		}
 
-	function reset(){
-		toggleButton.innerHTML = "START";
-		isListening = false;
-		isWhite = true;
-		document.querySelector("#sepiaFW-wake-word-indicator").setAttribute("src", "img/icon-512-w.png");
+		function reset(){
+			toggleButton.innerHTML = "START";
+			isListening = false;
+			isWhite = true;
+			document.querySelector("#sepiaFW-wake-word-indicator").setAttribute("src", "img/icon-512-w.png");
+		}
 	}
+	startWakeWordDemo();
 </script>

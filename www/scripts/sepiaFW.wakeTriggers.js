@@ -3,10 +3,14 @@ function sepiaFW_build_wake_triggers() {
 	var WakeTriggers = {};
 	
 	WakeTriggers.useWakeWord = false;	//allows to use client side and remote wake-word trigger
+	WakeTriggers.engine = "Porcupine";	//active engine
+	WakeTriggers.isLoaded = false;
 	
 	//Interface 
 	
 	WakeTriggers.setupWakeWords = function(){
+		//TODO: move stuff from demo here
+		WakeTriggers.isLoaded = true;
 	}
 	
 	WakeTriggers.listenToWakeWords = function(onSuccessCallback, onErrorCallback){
@@ -46,7 +50,7 @@ function sepiaFW_build_wake_triggers() {
 			0x18, 0x4B, 0xCE, 0x31, 0xBC, 0x4F, 0xBC, 0xF4, 0xDA, 0xA6, 0x0D, 0x6C, 
 			0x5D, 0xA5, 0x50, 0x0F])
     };
-	var ppSensitivities = new Float32Array([0.75]); 	//1: low threshold, 0.1: high threshold
+	var ppSensitivities = new Float32Array([0.50]); 	//1: low threshold, 0.1: high threshold
 	var ppKeywordNames = Object.keys(ppKeywordIDs);
 	
 	var ppAudioManager;

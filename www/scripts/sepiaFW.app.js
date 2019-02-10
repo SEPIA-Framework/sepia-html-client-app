@@ -453,24 +453,42 @@ function sepiaFW_build_tools(){
 	}
 
 	//load script to element (body by default)
-	Tools.loadJS = function(url, successCallback, location){
-		if (!location) location = document.body;
-		
-		var scriptTag = document.createElement('script');
-		scriptTag.src = url;
+	Tools.loadJS = function(url, successCallback, domParent){
+		if (!domParent) domParent = document.body;
 
-		if (successCallback){
-			var didExecuteCallback = false;
-			function execute(){
-				if (!didExecuteCallback){
-					didExecuteCallback = true;
-					successCallback();
-				}
+		//Check if already exists
+		var alreadyThere = false;
+		var urlWithOrigin = (location.origin + "/" + url);
+		$(domParent).find('script').each(function(index){
+			if (this.src == url || this.src == urlWithOrigin){
+				alreadyThere = true;
+				return;
 			}
-			scriptTag.onload = execute;
-			scriptTag.onreadystatechange = execute;
+		});
+		if (!alreadyThere){
+			//build new
+			var scriptTag = document.createElement('script');
+			scriptTag.src = url;
+
+			if (successCallback){
+				var didExecuteCallback = false;
+				function execute(){
+					if (!didExecuteCallback){
+						didExecuteCallback = true;
+						successCallback();
+					}
+				}
+				scriptTag.onload = execute;
+				scriptTag.onreadystatechange = execute;
+			}
+			domParent.appendChild(scriptTag);
+			SepiaFW.debug.info("Added script to DOM: " + url);
+		
+		}else{
+			SepiaFW.debug.log("Skipped loading of '" + url + "' ... was already there!");
+			//just call callback
+			if (successCallback) successCallback();
 		}
-		location.appendChild(scriptTag);
 	}
 	
 	//check for IP
