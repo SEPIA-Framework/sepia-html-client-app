@@ -354,6 +354,10 @@ function sepiaFW_build_ui_build(){
 				SepiaFW.speech.stopSpeech();
 				return;
 			}
+			//stop alarm
+			if (SepiaFW.audio && SepiaFW.audio.isPlaying){
+				SepiaFW.audio.stopAlarmSound();
+			}
 			//fade audio
 			SepiaFW.audio.fadeOutMain();
 			//confirmation sound?

@@ -458,7 +458,7 @@ function sepiaFW_build_ui(){
 		//Smart microphone toggle
 		if (SepiaFW.speech){
 			SepiaFW.speech.useSmartMicToggle = SepiaFW.data.get('useSmartMicToggle');
-			if (typeof SepiaFW.speech.useSmartMicToggle == 'undefined') SepiaFW.speech.useSmartMicToggle = false;
+			if (typeof SepiaFW.speech.useSmartMicToggle == 'undefined') SepiaFW.speech.useSmartMicToggle = true;
 			SepiaFW.debug.info("Smart microphone toggle is " + ((SepiaFW.speech.useSmartMicToggle)? "ON" : "OFF"));
 		}
 
