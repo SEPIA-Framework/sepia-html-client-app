@@ -24,6 +24,8 @@ function sepiaFW_build_always_on(){
     AlwaysOn.isOpen = false;
     var mainWasFullscreenOpen = false;
     var mainWasVoiceDisabled = false;
+    var mainEnvironment;
+    var thisEnvironment = "avatar_display";
     var avatarIsWaiting = false;
     var avatarIsLoading = false;
     var avatarIsAlarmed = false;
@@ -80,6 +82,9 @@ function sepiaFW_build_always_on(){
         //console.log('open');
         //prevent screen sleep on mobile
         AlwaysOn.preventSleep();
+        //set special environment
+        mainEnvironment = SepiaFW.config.environment;
+        SepiaFW.config.environment = thisEnvironment;
         //make sure there are no frames - TODO: we should reduce the necessary modifiers!
         mainWasFullscreenOpen = $('.sepiaFW-carousel-pane').hasClass('full-screen');
         $mainWindow.removeClass('sepiaFW-skin-mod');
@@ -120,6 +125,8 @@ function sepiaFW_build_always_on(){
         $avatar.fadeOut(300);
         //allow sleep again
         AlwaysOn.allowSleep();
+        //restore original environment
+        SepiaFW.config.environment = mainEnvironment;
         //restore designs - TODO: we should reduce the necessary modifiers!
         $mainWindow.removeClass('sepiaFW-ao-mode');
         $topLayer.removeClass('sepiaFW-ao-mode');

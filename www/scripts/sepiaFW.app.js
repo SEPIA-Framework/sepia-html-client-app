@@ -252,7 +252,7 @@ function sepiaFW_build_config(){
 	Config.clientInfo = "web_app_v1.0.0";	//defined by client properties
 	var deviceId = "";						//set in settings and freely chosen by user to address his devices directly
 	var deviceIdClean = "";					//clean version of device ID (no spaces, only alphanumeric, lower-case)
-	Config.environment = "default";			//tbd
+	Config.environment = "default";			//default for now - switched to "avatar_display" in AO-Mode
 	
 	//set client info
 	Config.setClientInfo = function(clientInfo){
