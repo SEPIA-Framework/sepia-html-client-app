@@ -553,6 +553,8 @@ body {
 }
 #sepiaFW-main-window .chat-buttons-area button {
 	flex: 1 0 auto;
+	position: relative;
+	min-width: 90px;
 }
 #sepiaFW-chat-output .chat-buttons-area {
 	justify-content: flex-start;
@@ -579,6 +581,17 @@ body {
 #sepiaFW-main-window .chat-buttons-area button.chat-button-url {
 }
 #sepiaFW-main-window .chat-buttons-area button.chat-button-cmd {
+}
+#sepiaFW-main-window .chat-buttons-area button.chat-button-custom-fun::after { 
+	position: absolute;
+	/*color: #181818;*/
+	bottom: 3px;
+	right: 3px;
+	content: "album"; 
+	font-family: "Material Icons";
+	font-size: 10px;
+	padding-left: 16px;
+    padding-right: 21px;
 }
 
 .sepiaFW-button {
