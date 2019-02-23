@@ -97,7 +97,7 @@ function sepiaFW_build_ui_actions(){
 			action.fun(funBtn);
 		}, true);
 		funBtn.innerHTML = action.title;
-		funBtn.title = ("Function: " + action.fun);
+		//funBtn.title = ("Function: " + action.fun);
 		parentBlock.appendChild(funBtn);
 	}
 	//CLIENT Control function

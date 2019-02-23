@@ -1,4 +1,4 @@
-//Controls and functions to be executed from client not server:
+//Interface for controls and functions to be executed from client not server:
 
 function sepiaFW_build_client_controls(){
     var Controls = {};
@@ -18,6 +18,12 @@ function sepiaFW_build_client_controls(){
         }else{
             SepiaFW.debug.error("Client controls - Missing 'controlData'!");
         }
+        return false;
+    }
+
+    //Music volume up/down
+    Controls.volume = function(controlData){
+        //TODO
         return false;
     }
 

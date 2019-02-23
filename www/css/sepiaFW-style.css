@@ -582,16 +582,19 @@ body {
 }
 #sepiaFW-main-window .chat-buttons-area button.chat-button-cmd {
 }
+#sepiaFW-main-window .chat-buttons-area button.chat-button-custom-fun {
+	padding-left: 16px;
+    padding-right: 16px;
+}
 #sepiaFW-main-window .chat-buttons-area button.chat-button-custom-fun::after { 
 	position: absolute;
 	/*color: #181818;*/
-	bottom: 3px;
-	right: 3px;
-	content: "album"; 
-	font-family: "Material Icons";
-	font-size: 10px;
-	padding-left: 16px;
-    padding-right: 21px;
+	bottom: 0px;
+    right: 0px;
+    content: "signal_cellular_connected_no_internet_4_bar";
+    font-family: "Material Icons";
+    font-size: 12px;
+    opacity: 0.25;
 }
 
 .sepiaFW-button {
