@@ -97,7 +97,18 @@ function sepiaFW_build_ui_actions(){
 			action.fun(funBtn);
 		}, true);
 		funBtn.innerHTML = action.title;
+		funBtn.title = ("Function: " + action.fun);
 		parentBlock.appendChild(funBtn);
+	}
+	//CLIENT Control function
+	Actions.clientControlFun = function(action, sender){
+		if (action && action.fun){
+			if (action.fun in SepiaFW.client.controls){
+				SepiaFW.client.controls[action.fun](action.controlData);
+			}else{
+				SepiaFW.debug.error("Action - client control fun. not existing: " + action.fun); 
+			}
+		}
 	}
 	
 	//BUTTON URLs
@@ -444,6 +455,10 @@ function sepiaFW_build_ui_actions(){
 					//BUTTON - custom function
 					}else if (type === 'button_custom_fun'){	
 						Actions.addButtonCustomFunction(data.actionInfo[i], sender, aButtonsArea);
+
+					//Open client control function (pre-defined, "safe" functions)
+					}else if (type === 'client_control_fun'){	
+						Actions.clientControlFun(data.actionInfo[i], sender);
 						
 					//Open URL
 					}else if (type === 'open_in_app_browser'){

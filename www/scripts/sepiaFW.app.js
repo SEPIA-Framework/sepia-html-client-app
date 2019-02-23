@@ -29,6 +29,7 @@ SepiaFW.buildSepiaFwPlugins = function(){
 	SepiaFW.webSocket.common = sepiaFW_build_webSocket_common();
 	SepiaFW.webSocket.client = sepiaFW_build_webSocket_client();
 	SepiaFW.client = sepiaFW_build_client_interface();
+	SepiaFW.client.controls = sepiaFW_build_client_controls();
 	SepiaFW.files = sepiaFW_build_files();
 	SepiaFW.frames = sepiaFW_build_frames();
 	SepiaFW.teach = sepiaFW_build_teach();
