@@ -458,10 +458,14 @@ function sepiaFW_build_ui_cards(){
 
 			//tap and drag handler (for sorting)
 			//SepiaFW.ui.onclick(that, shortPress);
-			var dragOptions = Object.assign({
+			var dragOptions = $.extend({}, {
 				"tapCallback": shortPress,
 				"dropCallback": dropCallback
 			}, udListCheckablesDragOptions);
+			/*var dragOptions = Object.assign({		//might not be fully supported by webview ?!
+				"tapCallback": shortPress,
+				"dropCallback": dropCallback
+			}, udListCheckablesDragOptions);*/
 			var draggable = new SepiaFW.ui.dragDrop.Draggable(that, ".listElement", ".sepiaFW-cards-list-checkables", dragOptions);
 		});
 		//right

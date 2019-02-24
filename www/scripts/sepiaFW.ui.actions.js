@@ -93,10 +93,30 @@ function sepiaFW_build_ui_actions(){
 		funBtn.className = 'chat-button-custom-fun';
 		if (sender) action.sender = sender;
 		funBtn.setAttribute("data-sender", action.sender);
-		SepiaFW.ui.onclick(funBtn, function(){
-			action.fun(funBtn);
-		}, true);
+		if (action.fun && (typeof action.fun === 'string')){
+			if (action.fun.indexOf("controlFun;;") >= 0){
+				//it is a control function given as string...
+				var funParts = action.fun.split(";;");
+				funParts.shift();
+				var fun = funParts.shift();
+				var act = funParts.shift();
+				if (act && act.indexOf("{") == 0){
+					act = JSON.parse(act);
+				}
+				SepiaFW.ui.onclick(funBtn, function(){
+					Actions.clientControlFun({
+						"fun": fun,
+						"controlData": act
+					}, sender);
+				}, true);	
+			}
+		}else if (action.fun){
+			SepiaFW.ui.onclick(funBtn, function(){
+				action.fun(funBtn);
+			}, true);
+		}
 		funBtn.innerHTML = action.title;
+		funBtn.setAttribute("data-fun", action.fun);
 		//funBtn.title = ("Function: " + action.fun);
 		parentBlock.appendChild(funBtn);
 	}
@@ -410,7 +430,7 @@ function sepiaFW_build_ui_actions(){
 			//iterate:
 			for (var i = 0; i < data.actionInfo.length; i++) {
 				var type = data.actionInfo[i].type;
-				//run through everything except buttons (that does the UI build method)
+				//run through all actions
 				if (type){
 					if (doButtonsOnly){
 						if (!type.indexOf('button_') === 0){

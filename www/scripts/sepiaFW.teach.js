@@ -120,6 +120,21 @@ function sepiaFW_build_teach(){
 					optional : true
 				}]
 			},
+			client_controls : {
+				command : "client_controls",
+				name : "Execute a client control function",
+				parameters : [{
+					value : "action",
+					name : "Action (e.g.: &lt;on&gt; or &lt;increase&gt;): "
+				},{
+					value : "client_fun",
+					name : "Function (e.g.: settings, volume, meshNode): "
+				},{
+					value : "data",
+					name : "Additional data (e.g. JSON)",
+					optional : true
+				}]
+			},
 			mesh_node_plugin : {
 				command : "mesh_node_plugin",
 				name : "Call SEPIA Mesh-Node plugin",

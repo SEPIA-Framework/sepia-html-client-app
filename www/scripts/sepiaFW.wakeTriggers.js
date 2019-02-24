@@ -4,13 +4,13 @@ function sepiaFW_build_wake_triggers() {
 	
 	WakeTriggers.useWakeWord = false;	//allows to use client side and remote wake-word trigger
 	WakeTriggers.engine = "Porcupine";	//active engine
-	WakeTriggers.isLoaded = false;
+	WakeTriggers.engineLoaded = false;
 	
 	//Interface 
 	
 	WakeTriggers.setupWakeWords = function(){
 		//TODO: move stuff from demo here
-		WakeTriggers.isLoaded = true;
+		WakeTriggers.engineLoaded = true;
 	}
 	
 	WakeTriggers.listenToWakeWords = function(onSuccessCallback, onErrorCallback){

@@ -44,14 +44,15 @@ html {
 	color: #fff;
 }
 .sepiaFW-notouch-device #sepiaFW-main-window button:hover {
-	background: #fff;
-	color: #262629;
+	background: transparent;
+	color: #44c8be;
 }
 #sepiaFW-assist-btn-area {
 	border-color: #262629;
 }
 #sepiaFW-assist-btn {
 	background: #44c8be !important;
+	color: #fff !important;
 }
 
 #sepiaFW-chat-controls-speech-box > div {
@@ -71,6 +72,9 @@ html {
 #sepiaFW-chat-menu button {
 	background: #262629;
 	color: #44c8be;
+}
+.sepiaFW-notouch-device #sepiaFW-chat-menu button:hover {
+	background-color: #fff !important;
 }
 #sepiaFW-chat-controls-more-menu button {
 	background: #262629;
