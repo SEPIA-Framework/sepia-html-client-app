@@ -93,12 +93,23 @@ function sepiaFW_build_client_controls(){
             console.log(req);
             //req.url
             //req.plugin
-            //req.data   
+            //req.data
+            return callMeshNode(req.url, req.plugin, req.data);
         }
         return false;
     }
     function callMeshNode(url, plugin, data){
-        //TODO
+        //Call Mesh-Node:
+        meshNodePluginCall(url, plugin, data, function(res){
+            //success:
+            console.log("Success:");
+            console.log(res);
+        }, function(err){
+            //error:
+            console.log("Error:");
+            console.log(err);
+        });
+        return true;
     }
     var MESH_NODE_PLUGIN_PACKAGE = "net.b07z.sepia.server.mesh.plugins";
     var MESH_NODE_PLUGIN_STATUS_KEY = "status";
@@ -141,7 +152,7 @@ function sepiaFW_build_client_controls(){
 			},
 			success: function(response) {
 				SepiaFW.ui.hideLoader();
-				if (!response.data || !response.data[MESH_NODE_PLUGIN_STATUS_KEY] === "success"){
+				if (!response.data || response.data[MESH_NODE_PLUGIN_STATUS_KEY] !== "success"){
 					if (errorCallback) errorCallback('Sorry, but the Mesh-Node call failed! Msg: ' + JSON.stringify(response));
 					return;
 				}

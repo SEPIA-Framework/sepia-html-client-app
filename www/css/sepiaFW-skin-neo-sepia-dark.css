@@ -16,8 +16,10 @@ html {
 	#sepiaFW-nav-bar {
 		border-radius: 9px 9px 0 0;
 	}
-	#sepiaFW-chat-controls {
-		border-radius: 0 0 0px 0px;
+	#sepiaFW-chat-controls,
+	#sepiaFW-chat-menu,
+	#sepiaFW-chat-controls-more-menu {
+		border-radius: 0 0 16px 16px;
 	}
 	.sepiaFW-top-layer-view {
 		border-radius: 7px;
