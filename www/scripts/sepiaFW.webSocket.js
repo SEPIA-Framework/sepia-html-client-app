@@ -32,11 +32,15 @@ function sepiaFW_build_client_interface(){
 	ClientInterface.sendInputText = SepiaFW.webSocket.client.sendInputText;
 	ClientInterface.sendMessage = SepiaFW.webSocket.client.sendMessage;
 	ClientInterface.sendCommand = SepiaFW.webSocket.client.sendCommand;
+	
 	ClientInterface.queueCommand = SepiaFW.webSocket.client.queueCommand;
 	ClientInterface.getAndRemoveNextCommandInQueue = SepiaFW.webSocket.client.getAndRemoveNextCommandInQueue;
 	ClientInterface.clearCommandQueue = SepiaFW.webSocket.client.clearCommandQueue;
 	ClientInterface.getCommandQueueSize = SepiaFW.webSocket.client.getCommandQueueSize;
 	ClientInterface.wasLastInputSourceAsr = SepiaFW.webSocket.client.wasLastInputSourceAsr;
+	
+	ClientInterface.queueIdleTimeEvent = SepiaFW.webSocket.client.queueIdleTimeEvent;
+	ClientInterface.clearIdleTimeEventQueue = SepiaFW.webSocket.client.clearIdleTimeEventQueue;
 	
 	ClientInterface.asrCallbackFinal = SepiaFW.webSocket.client.asrCallbackFinal;
 	ClientInterface.asrCallbackInterim = SepiaFW.webSocket.client.asrCallbackInterim;
@@ -209,8 +213,10 @@ function sepiaFW_build_webSocket_client(){
 	Client.wasLastInputSourceAsr = function(){
 		return Client.lastInputSourceWasAsr;
 	}
+
+	//--- Queues:
 	
-	//command queue
+	//Command queue - Executed via: client.sendCommand(...)
 	var commandQueue = [];
 	Client.queueCommand = function(queueCmd){
 		commandQueue.push(queueCmd);	//note: queueCmd = action
@@ -231,6 +237,83 @@ function sepiaFW_build_webSocket_client(){
 	Client.clearCommandQueue = function(){
 		commandQueue = [];
 	}
+
+	//Idle time event queue - Executed via arbitrary callback after certain idle time
+	//NOTE: not to be confused with UI.getIdleTime
+	//NOTE2: idle events are NOT guaranteed to be executed!
+	var idleTimeEventQueue = [];
+	var idleTimeEventChecker = undefined;
+	var lastIdleStateTS = 0;
+	Client.clearIdleTimeEventQueue = function(){
+		idleTimeEventQueue = [];
+	}
+	Client.queueIdleTimeEvent = function(eventCallback, minIdle, maxDelay){
+		var minIdleTime = (minIdle)? minIdle : 2000;
+		if (minIdleTime < 2000) minIdleTime = 2000;		//min. 2s idle
+		var maxDelayTime = (maxDelay)? maxDelay : 30000;
+		if (maxDelayTime > 60000) maxDelayTime = 60000;	//max. 60s delay
+		if (maxDelayTime < minIdleTime){
+			minIdleTime = 2000;
+			maxDelayTime = 30000;
+		}
+		var now = new Date().getTime();
+		idleTimeEventQueue.push({
+			event: eventCallback,
+			minIdle: minIdleTime,
+			maxUnix: (now + maxDelayTime)
+		});
+		//start now or wait for next idle state?
+		if (SepiaFW.animate.assistant.getState() == "idle"){
+			runIdleTimeEventChecker(); 
+		}
+	}
+	function runIdleTimeEventChecker(){
+		if (idleTimeEventChecker){
+			return;		//trust the running checker
+		}else{
+			idleTimeEventChecker = setInterval(function(){
+				//anything left?
+				if (!idleTimeEventQueue || idleTimeEventQueue.length == 0){
+					clearInterval(idleTimeEventChecker);
+					idleTimeEventChecker = undefined;
+				//check next event
+				}else{
+					checkNextIdleTimeEventAndRemove();		
+				}
+			}, 1000);
+		}
+	}
+	function checkNextIdleTimeEventAndRemove(){
+		if (idleTimeEventQueue && idleTimeEventQueue.length > 0){
+			var now  = new Date().getTime();
+			var idleTime = (now - lastIdleStateTS);
+			var idleEvent = idleTimeEventQueue[0];
+			if (idleEvent){
+				if (now > idleEvent.maxUnix){
+					//drop this event, its not valid anymore. Then restart check.
+					idleTimeEventQueue.shift();
+					checkNextIdleTimeEventAndRemove();
+				}
+				if (idleTime >= idleEvent.minIdle){
+					lastIdleStateTS = new Date().getTime(); 	//idle or not, we reset
+					if (SepiaFW.animate.assistant.getState() == "idle"){
+						idleTimeEventQueue.shift();
+						idleEvent.event();
+					}
+				}
+			}
+		}
+	}
+	//listen to SEPIA state changes to find "idle"
+	document.addEventListener("sepia_state_change", function(e){		//e.g. stt, tts, loading
+		//console.log(e.detail.state);
+		lastIdleStateTS = new Date().getTime();
+		if (e.detail && e.detail.state == "idle"){
+			runIdleTimeEventChecker();
+		}
+	});
+
+	//------
 	
 	//shortcuts
 	var buildSocketMessage = SepiaFW.webSocket.common.buildSocketMessage;

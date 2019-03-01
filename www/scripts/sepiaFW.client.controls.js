@@ -108,6 +108,9 @@ function sepiaFW_build_client_controls(){
             //error:
             console.log("Error:");
             console.log(err);
+            SepiaFW.client.queueIdleTimeEvent(function(){ 
+                console.log('IDLE EVENT: Could not execute control.');
+            }, 2000, 30000);
         });
         return true;
     }

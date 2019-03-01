@@ -826,9 +826,9 @@ function sepiaFW_build_ui(){
 		}, 9000);
 	}
 	
-	//Idle-time
+	//Idle-time and events
 	var lastDomEventTS = new Date().getTime();
-	//listener
+	//listener - NOTE: not to be confused with Client.queueIdleTimeEvent
 	UI.trackIdleTime = function(){
 		function resetTimer() {
 			lastDomEventTS = new Date().getTime();
@@ -839,6 +839,15 @@ function sepiaFW_build_ui(){
 		document.addEventListener("mousedown", resetTimer);		// touchscreen presses
 		document.addEventListener("click", resetTimer);			// touchpad clicks
 		document.addEventListener("touchstart", resetTimer);
+		//custom events
+		document.addEventListener("sepia_state_change", function(e){		//e.g. stt, tts, loading
+			//This one is tricky ... idle time is used for example to show notifications when the UI had no interactons for a while
+			//... but hands-free controls do not trigger one of the upper DOM events. What if SEPIA is covered by a window but used hands-free?
+			if (e.detail && e.detail.state == "listening"){
+				resetTimer();
+			}
+			//console.log(e.detail.state);
+		});
 		/*
 		document.onload = resetTimer;
 		document.onscroll = resetTimer;    // scrolling with arrow keys
