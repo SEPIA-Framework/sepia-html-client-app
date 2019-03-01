@@ -65,6 +65,21 @@ function sepiaFW_build_client_controls(){
         $("#sepiaFW-audio-ctrls-voldown").trigger('click', {bm_force : true});
     }
 
+    //AlwaysOn mode
+    Controls.alwaysOn = function(controlData){
+        //we ignore the control-data for now and just toggle
+        if (SepiaFW.alwaysOn){
+            //open
+            if (!SepiaFW.alwaysOn.isOpen){
+                SepiaFW.ui.closeAllMenus();
+                SepiaFW.alwaysOn.start();
+            //close
+            }else{
+                SepiaFW.alwaysOn.stop();
+            }
+        }
+    }
+
     //Mesh-Node call
     Controls.meshNode = function(controlData){
         //TODO

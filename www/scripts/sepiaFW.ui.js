@@ -170,9 +170,13 @@ function sepiaFW_build_ui(){
 			$('#sepiaFW-nav-label').html(newLabel);
 		}
 	}
-	$('#sepiaFW-nav-label').on('click', function(){
-		//TODO: do some button action (maybe depending on scope?)
-	});
+	UI.getLabel = function(){
+		return $('#sepiaFW-nav-label').html();
+	}
+	UI.getDefaultLabel = function(){
+		return defaultLabel;
+	}
+	//Note: for label button actions see ui.build module
 	
 	//make an info message
 	UI.showInfo = function(text, isErrorMessage, customTag){

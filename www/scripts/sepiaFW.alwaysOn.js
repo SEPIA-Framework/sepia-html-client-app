@@ -48,6 +48,9 @@ function sepiaFW_build_always_on(){
             theme: "dark_full"
         });
     }
+    AlwaysOn.stop = function(){
+        SepiaFW.frames.close();
+    }
 
     //On finish setup (first open)
     AlwaysOn.onFinishSetup = function(){
@@ -162,7 +165,7 @@ function sepiaFW_build_always_on(){
     AlwaysOn.onSpeechToTextInputHandler = function(sttResult){
         if (sttResult && sttResult.text){
             if (sttResult.isFinal){
-                console.log('AO saw text: ' + sttResult.text);
+                console.log('Always-On saw text: ' + sttResult.text);
             }else{
                 //console.log('AO saw text: ' + sttResult.text);
             }
@@ -201,6 +204,7 @@ function sepiaFW_build_always_on(){
             $activityArea.removeClass('loading');
             $activityArea.removeClass('listening');
             $activityArea.removeClass('speaking');
+            $avatarMouth.removeClass('speaking');
             $activityArea.removeClass('waiting');
 
             //modify by mood
@@ -222,6 +226,7 @@ function sepiaFW_build_always_on(){
         AlwaysOn.avatarIdle();
         if ($activityArea){
             $activityArea.addClass('speaking');
+            $avatarMouth.addClass('speaking');
         }
     }
     AlwaysOn.avatarListening = function(){

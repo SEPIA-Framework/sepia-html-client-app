@@ -177,6 +177,22 @@ function sepiaFW_build_ui_build(){
 				SepiaFW.ui.showAndClearMissedMessages();
 			});
 		}
+		//label button - note: for label content see ui.setLable/getLabel functions
+		var sepiaLabel = document.getElementById("sepiaFW-nav-label");
+		if (sepiaLabel){
+			$(sepiaLabel).off();
+			SepiaFW.ui.longPressShortPressDoubleTap(sepiaLabel, function(){
+				//long-press
+			},'',function(){
+				//short press
+			},function(){
+				//double-tab
+				if (SepiaFW.alwaysOn){
+					SepiaFW.ui.closeAllMenus();
+					SepiaFW.alwaysOn.start();
+				}
+			}, true);
+		}
 		
 		//CHAT CONTROLS
 	
