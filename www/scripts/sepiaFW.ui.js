@@ -470,9 +470,7 @@ function sepiaFW_build_ui(){
 		}
 		//Wake-word trigger
 		if (SepiaFW.wakeTriggers){
-			SepiaFW.wakeTriggers.useWakeWord = SepiaFW.data.get('useWakeWord');
-			if (typeof SepiaFW.wakeTriggers.useWakeWord == 'undefined') SepiaFW.wakeTriggers.useWakeWord = false;
-			SepiaFW.debug.info("Wake-word 'Hey SEPIA' is " + ((SepiaFW.wakeTriggers.useWakeWord)? "ALLOWED" : "NOT ALLOWED"));
+			SepiaFW.wakeTriggers.initialize();
 		}
 		//Smart microphone toggle
 		if (SepiaFW.speech){

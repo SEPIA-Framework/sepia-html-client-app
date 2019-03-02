@@ -653,32 +653,15 @@ function sepiaFW_build_ui_build(){
 					}, SepiaFW.speech.useSmartMicToggle)
 				);
 			}
-			//wake-word stuff - Hey SEPIA
+			//Wake-word stuff - Hey SEPIA
 			if (!SepiaFW.wakeTriggers){
 				$('#"sepiaFW-menu-toggle-wake-word-li"').remove();
 			}else{
 				var wakeWordLi = document.getElementById('sepiaFW-menu-toggle-wake-word-li');
-				//toggle
-				wakeWordLi.appendChild(Build.toggleButton('sepiaFW-menu-toggle-wake-word', 
-					function(){
-						SepiaFW.wakeTriggers.useWakeWord = true;
-						SepiaFW.data.set('useWakeWord', true);
-						SepiaFW.debug.info("Wake-word 'Hey SEPIA' is allowed.");
-					},function(){
-						SepiaFW.wakeTriggers.useWakeWord = false;
-						SepiaFW.data.set('useWakeWord', false);
-						SepiaFW.debug.info("Wake-word 'Hey SEPIA' is NOT allowed.");
-					}, SepiaFW.wakeTriggers.useWakeWord)
-				);
-				//spacer
-				wakeWordLi.appendChild(Build.spacer("18px", "28px", "right"));
-				//settings
+				//settings - includes toggles
 				wakeWordLi.appendChild(Build.inlineActionButton('sepiaFW-menu-wake-word-settings', "<i class='material-icons md-inherit'>settings</i>",
 					function(btn){
-						SepiaFW.frames.open({ 
-							pageUrl: "wake-word-test.html"
-							//, theme: "dark"
-						});
+						SepiaFW.wakeWordSettings.open();
 					})
 				);
 			}

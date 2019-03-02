@@ -74,3 +74,26 @@
 	background: #ceff1a !important;
 	color: #000 !important;
 }
+
+.sepiaFW-frames-page .group-container {
+	display: flex; 
+	justify-content: center;
+	flex-wrap: wrap;
+}
+.sepiaFW-frames-page .group {
+	width: 100%; 
+	display: flex; 
+	justify-content: space-between; 
+	align-items: center;
+	margin: 8px;
+}
+.sepiaFW-frames-page .group label {
+	margin: 0 8px;
+}
+.sepiaFW-frames-page .group input {
+	width: auto !important;
+}
+.sepiaFW-frames-page .group .sepiaFW-toggle-btn {
+	border: 1px solid;
+	border-color: inherit;
+}
