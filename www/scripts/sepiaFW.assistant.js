@@ -29,7 +29,7 @@ function sepiaFW_build_assistant(){
 		SepiaFW.debug.log("Assistant: active assistant is '" + name + "' (" + id + ")");
 	}
 	
-	Assistant.isProActive = true;	//will send entertaining notifications and stuff?
+	Assistant.isProActive = false;	//will send entertaining notifications and stuff?
 
 	//primary
 	var mood = 6;
