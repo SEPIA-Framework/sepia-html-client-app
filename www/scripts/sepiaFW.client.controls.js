@@ -90,34 +90,47 @@ function sepiaFW_build_client_controls(){
             }else{
                 req = controlData.action;
             }
-            console.log(req);
-            //req.url
-            //req.plugin
-            //req.data
-            return callMeshNode(req.url, req.plugin, req.data);
+            //console.log(req);
+            return callMeshNode(req.url, req.pin, req.plugin, req.data);
         }
         return false;
     }
-    function callMeshNode(url, plugin, data){
+    function callMeshNode(url, accessPin, plugin, data){
         //Call Mesh-Node:
-        meshNodePluginCall(url, plugin, data, function(res){
+        meshNodePluginCall(url, accessPin, plugin, data, function(res){
             //success:
-            console.log("Success:");
-            console.log(res);
+            SepiaFW.debug.log("Client controls: Mesh-Node call success of plugin: " + plugin);
+            //console.log(res);
+            //TODO:
+            //- add some actions here depending on plugin
         }, function(err){
             //error:
-            console.log("Error:");
-            console.log(err);
-            SepiaFW.client.queueIdleTimeEvent(function(){ 
-                console.log('IDLE EVENT: Could not execute control.');
-            }, 2000, 30000);
+            if (err && err.status && err.status == 401){
+                SepiaFW.debug.error("Client controls: Mesh-Node call to plugin '" + plugin + "' was NOT allowed!");
+            }else{
+                SepiaFW.debug.error("Client controls: Mesh-Node call ERROR at plugin: " + plugin);
+            }
+
+            //Feedback (to server and user ... server just loads a chat message in this case, but one could send real data back)
+            SepiaFW.client.queueIdleTimeEvent(function(){
+                var options = {};   //things like skipTTS etc. (see sendCommand function)
+                var dataset = {
+                    info: "direct_cmd",
+                    cmd: "chat;;reply=<error_client_control_0a>;;",
+                    newReceiver: SepiaFW.assistant.id
+                };
+                SepiaFW.client.sendCommand(dataset, options);
+            }, 2000, 30000, function(){
+                //Fallback:
+                SepiaFW.ui.showInfo(SepiaFW.local.g('mesh_node_fail'));
+            });
         });
         return true;
     }
     var MESH_NODE_PLUGIN_PACKAGE = "net.b07z.sepia.server.mesh.plugins";
     var MESH_NODE_PLUGIN_STATUS_KEY = "status";
 
-    function meshNodePluginCall(hostUrl, pluginSimpleName, data, successCallback, errorCallback){
+    function meshNodePluginCall(hostUrl, accessPin, pluginSimpleName, data, successCallback, errorCallback){
         //prep. plugin name
         var pluginName;
         if (pluginSimpleName.indexOf(".") < 0){
@@ -131,6 +144,7 @@ function sepiaFW_build_client_controls(){
 		dataBody.KEY = SepiaFW.account.getKey();        //TODO: use this??
         dataBody.client = clientAndDeviceId;
         dataBody.canonicalName = pluginName;
+        if (accessPin) dataBody.pin = accessPin;
         var defaultData = {
             language: SepiaFW.config.appLanguage,
             client: clientAndDeviceId,
@@ -156,7 +170,7 @@ function sepiaFW_build_client_controls(){
 			success: function(response) {
 				SepiaFW.ui.hideLoader();
 				if (!response.data || response.data[MESH_NODE_PLUGIN_STATUS_KEY] !== "success"){
-					if (errorCallback) errorCallback('Sorry, but the Mesh-Node call failed! Msg: ' + JSON.stringify(response));
+					if (errorCallback) errorCallback(response);
 					return;
 				}
 				//--callback--
@@ -164,7 +178,7 @@ function sepiaFW_build_client_controls(){
 			},
 			error: function(response) {
 				SepiaFW.ui.hideLoader();
-				if (errorCallback) errorCallback('Sorry, but the Mesh-Node call failed! Msg: ' + JSON.stringify(response));
+				if (errorCallback) errorCallback(response);
 			}
 		});
 	}

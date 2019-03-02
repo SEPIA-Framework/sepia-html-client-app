@@ -26,6 +26,7 @@ function sepiaFW_build_client_interface(){
 	ClientInterface.switchChatPartner = SepiaFW.webSocket.client.switchChatPartner;
 	ClientInterface.getActiveChatPartner = SepiaFW.webSocket.client.getActiveChatPartner;
 
+	ClientInterface.getNewMessageId = SepiaFW.webSocket.client.getNewMessageId;
 	ClientInterface.handleServerMessage = SepiaFW.webSocket.client.handleServerMessage;
 	
 	ClientInterface.toggleMicButton = SepiaFW.webSocket.client.toggleMicButton;
@@ -86,11 +87,11 @@ function sepiaFW_build_webSocket_common(){
 	
 	//SocketMessage
 	Common.buildSocketMessage = function(sender, receiver, text, html, data, clientType, msgId, channelId){
-		//TODO: there is some confusion with ui.build.makeMessageObject - this is what is sent to server
+		//NOTE: Don't confuse with ui.build.makeMessageObject ... this here is what is sent to server
 		var msg = new Object();
 		var tsUNIX = new Date().getTime();
 			
-		if (!msgId) msgId = (sender + "-" + SepiaFW.webSocket.client.getNewMessageId());
+		if (!msgId) msgId = (sender + "-" + SepiaFW.webSocket.client.getNewMessageId()); 	//DONT CHANGE!
 		msg.msgId = msgId;
 		msg.channelId = channelId;
 		msg.sender = sender;
@@ -247,7 +248,7 @@ function sepiaFW_build_webSocket_client(){
 	Client.clearIdleTimeEventQueue = function(){
 		idleTimeEventQueue = [];
 	}
-	Client.queueIdleTimeEvent = function(eventCallback, minIdle, maxDelay){
+	Client.queueIdleTimeEvent = function(eventCallback, minIdle, maxDelay, fallbackEvent){
 		var minIdleTime = (minIdle)? minIdle : 2000;
 		if (minIdleTime < 2000) minIdleTime = 2000;		//min. 2s idle
 		var maxDelayTime = (maxDelay)? maxDelay : 30000;
@@ -260,7 +261,8 @@ function sepiaFW_build_webSocket_client(){
 		idleTimeEventQueue.push({
 			event: eventCallback,
 			minIdle: minIdleTime,
-			maxUnix: (now + maxDelayTime)
+			maxUnix: (now + maxDelayTime),
+			fallback: fallbackEvent 	//this triggers if maxUnix expires without event. Should be a simple note like SepiaFW.ui.showInfo(...)
 		});
 		//start now or wait for next idle state?
 		if (SepiaFW.animate.assistant.getState() == "idle"){
@@ -292,6 +294,9 @@ function sepiaFW_build_webSocket_client(){
 				if (now > idleEvent.maxUnix){
 					//drop this event, its not valid anymore. Then restart check.
 					idleTimeEventQueue.shift();
+					if (idleEvent.fallback){
+						idleEvent.fallback(); 		//call fallback if its important stuff, e.g. via SepiaFW.ui.showInfo(...);
+					}
 					checkNextIdleTimeEventAndRemove();
 				}
 				if (idleTime >= idleEvent.minIdle){

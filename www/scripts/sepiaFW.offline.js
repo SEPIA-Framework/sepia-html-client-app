@@ -145,9 +145,9 @@ function sepiaFW_build_offline(){
 	}
 
 	//Message builder
-	Offline.buildAssistAnswerMessageForHandler = function(msgId, serviceResult, assistantIdOrName){
-		var receiver = 'userid'; 				//e.g. uid1010
-		var sender = assistantIdOrName || 'UI';	//e.g. uid1005 (assistant usually)
+	Offline.buildAssistAnswerMessageForHandler = function(msgId, serviceResult, assistantIdOrName, receiverId){
+		var receiver = receiverId || 'userid'; 		//e.g. uid1010
+		var sender = assistantIdOrName || 'UI';		//e.g. uid1005 (assistant usually)
 		var senderType = 'assistant';
 		var channelId = SepiaFW.client.getActiveChannel(); 	//TODO: does this work with an empty channel?
 		var timeUnix = new Date().getTime();
@@ -167,6 +167,13 @@ function sepiaFW_build_offline(){
 			"channelId": channelId
 		};
 		return messageData;
+	}
+	//same as above just with 'real' login data
+	Offline.buildAssistAnswerMessageForHandlerWithLogin = function(serviceResult){
+		var receiverId = SepiaFW.account.getUserId() || 'userid';
+		var assistantId = SepiaFW.assistant.id || 'UI';
+		var msgId = (receiverId + "-" + SepiaFW.client.getNewMessageId());
+		return Offline.buildAssistAnswerMessageForHandler(msgId, serviceResult, assistantId, receiverId);
 	}
 	
 	return Offline;

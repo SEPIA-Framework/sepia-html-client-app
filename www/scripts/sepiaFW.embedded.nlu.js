@@ -10,7 +10,7 @@ function sepiaFW_build_embedded_nlu(){
 
 		var nluResult = {
 			"result": "fail",
-			"environment": "all",
+			"environment": SepiaFW.config.environment,
 			"mood": 6,
 			"bestDirectMatch": "---",
 			"context": "default",
