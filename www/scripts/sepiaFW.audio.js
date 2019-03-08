@@ -282,6 +282,13 @@ function sepiaFW_build_audio(){
 		}
 	}
 	AudioPlayer.playerGetVolume = playerGetVolume;
+	AudioPlayer.getOriginalVolume = function(){
+		if (!gotPlayerAudioContext){
+			return Math.round(10.0 * orgVolume);
+		}else{
+			return Math.round(10.0 * orgGain);
+		}
+	}
 
 	function playerSetVolume(newVol){
 		var setVol = getValidVolume(newVol)/10.0;
@@ -314,6 +321,23 @@ function sepiaFW_build_audio(){
 	}
 	AudioPlayer.playerSetVolume = playerSetVolume;
 	AudioPlayer.playerSetVolumeTemporary = playerSetVolumeTemporary;
+	
+	//Set volume safely by checking if its currently faded and set either org. volume only or current AND org.
+	AudioPlayer.playerSetCurrentOrTargetVolume = function(newVol){
+		if (mainAudioIsOnHold || (SepiaFW.speech.isSpeakingOrListening())){
+			var setVol = getValidVolume(newVol)/10.0;
+			if (!gotPlayerAudioContext){
+				orgVolume = setVol;
+			}else{
+				orgGain = setVol;
+			}
+			$('#sepiaFW-audio-ctrls-vol').html(Math.floor(setVol*10.0));
+			SepiaFW.debug.info('AUDIO: unfaded volume set to ' + setVol);
+			broadcastPlayerVolumeSet();
+		}else{
+			playerSetVolume(newVol);
+		}
+	}
 
 	AudioPlayer.playerFadeToOriginalVolume = function(){
 		//fade to original volume

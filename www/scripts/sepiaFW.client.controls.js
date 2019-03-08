@@ -50,6 +50,10 @@ function sepiaFW_build_client_controls(){
                 //volumeDown
                 volumeDown();
                 return true;
+            }else if (controlData.action == "set"){
+                //volumeSet
+                volumeSet(controlData.volume);       //TODO: untested and not fully implemented yet
+                return true;
             }else{
                 SepiaFW.debug.error("Client controls - Unsupported action in 'settings': " + controlData.action);
             }
@@ -59,10 +63,15 @@ function sepiaFW_build_client_controls(){
         return false;
     }
     function volumeUp(){
-        $("#sepiaFW-audio-ctrls-volup").trigger('click', {bm_force : true});
+        //$("#sepiaFW-audio-ctrls-volup").trigger('click', {bm_force : true});
+        SepiaFW.audio.playerSetCurrentOrTargetVolume(SepiaFW.audio.getOriginalVolume() + 1.0);
     }
     function volumeDown(){
-        $("#sepiaFW-audio-ctrls-voldown").trigger('click', {bm_force : true});
+        //$("#sepiaFW-audio-ctrls-voldown").trigger('click', {bm_force : true});
+        SepiaFW.audio.playerSetCurrentOrTargetVolume(SepiaFW.audio.getOriginalVolume() - 1.0);
+    }
+    function volumeSet(newVol){
+        SepiaFW.audio.playerSetCurrentOrTargetVolume(newVol);       //value between 0.0-10.0
     }
 
     //AlwaysOn mode

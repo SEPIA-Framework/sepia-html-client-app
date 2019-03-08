@@ -171,6 +171,13 @@ function sepiaFW_build_speech(){
 	Speech.isWaitingForSpeech = function(){
 		return speechWaitingForResult;
 	}
+
+	//BOTH:
+
+	//Input, output or waiting for action?
+	Speech.isSpeakingOrListening = function(){
+		return (isSpeaking || speechWaitingForResult || isRecognizing || recognizerWaitingForResult || speechWaitingForStop);
+	}
 	
 	//--------broadcast methods----------
 	
