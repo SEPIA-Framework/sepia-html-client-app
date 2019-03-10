@@ -686,7 +686,8 @@ function sepiaFW_build_events(){
 			setTimeout(function(){
 				var noteData = {
 					type : "alarm",
-					onClickType : "stopAlarmSound"
+					onClickType : "stopAlarmSound",
+					onCloseType : "stopAlarmSound"
 				};
 				Events.showSimpleSilentNotification(titleS, textS, noteData);
 			}, 50);
@@ -783,6 +784,8 @@ function sepiaFW_build_events(){
 					window.focus();
 					note.close();
 					Events.handleLocalNotificationClick(data);
+				}, function(note){
+					Events.handleLocalNotificationClose(data);
 				});
 				//sound
 				if (soundFile && soundFile != 'null'){
@@ -821,6 +824,18 @@ function sepiaFW_build_events(){
 				var dataOut = { sender: SepiaFW.assistant.name, senderType: 'assistant' };
 				SepiaFW.ui.showCustomChatMessage(msg, dataOut);
 			}, 300);
+		}
+	}
+	//handle close events on simple notifications
+	Events.handleLocalNotificationClose = function(data){
+		//alarm trigger
+		if (data && data.type == "alarm"){
+			if (data.onCloseType == "stopAlarmSound"){
+				//stop alarm
+				if (SepiaFW.audio && SepiaFW.audio.isPlaying){
+					SepiaFW.audio.stopAlarmSound();
+				}
+			}
 		}
 	}
 	
