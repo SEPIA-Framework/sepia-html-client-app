@@ -3,7 +3,7 @@ function sepiaFW_build_ui(){
 	var UI = {};
 	
 	//some constants
-	UI.version = "v0.16.1";
+	UI.version = "v0.17.0";
 	UI.JQ_RES_VIEW_IDS = "#sepiaFW-result-view, #sepiaFW-chat-output, #sepiaFW-my-view";	//a selector to get all result views e.g. $(UI.JQ_RES_VIEW_IDS).find(...) - TODO: same as $('.sepiaFW-results-container') ??
 	UI.JQ_ALL_MAIN_VIEWS = "#sepiaFW-result-view, #sepiaFW-chat-output, #sepiaFW-my-view, #sepiaFW-teachUI-editor, #sepiaFW-teachUI-manager, #sepiaFW-frame-page-1, #sepiaFW-frame-page-2"; 	//TODO: frames can have more ...
 	UI.JQ_ALL_SETTINGS_VIEWS = ".sepiaFW-chat-menu-list-container";
@@ -462,11 +462,13 @@ function sepiaFW_build_ui(){
 			}
 			SepiaFW.debug.info("Power-status tracking is " + ((SepiaFW.alwaysOn.trackPowerStatus)? "ALLOWED" : "NOT ALLOWED"));
 		}
-		//Gamepad support
+		//Gamepad, Hotkeys and BLE-Beacon support
 		if (SepiaFW.inputControls){
 			SepiaFW.inputControls.useGamepads = SepiaFW.data.get('useGamepads');
 			if (typeof SepiaFW.inputControls.useGamepads == 'undefined') SepiaFW.inputControls.useGamepads = false;
-			SepiaFW.debug.info("Gamepads are " + ((SepiaFW.client.allowBackgroundConnection)? "SUPPORTED" : "NOT SUPPORTED"));
+			SepiaFW.debug.info("Gamepads are " + ((SepiaFW.inputControls.useGamepads)? "SUPPORTED" : "NOT SUPPORTED"));
+
+			SepiaFW.inputControls.initializeBluetoothBeacons();
 		}
 		//Wake-word trigger
 		if (SepiaFW.wakeTriggers){

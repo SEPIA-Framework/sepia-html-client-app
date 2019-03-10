@@ -15,6 +15,9 @@ function sepiaFW_build_input_controls() {
 
     InputControls.useGamepads = false;          //switchable in settings
     InputControls.useHotkeysInAlwaysOn = true;  //hardcoded here for now
+    InputControls.useBluetoothBeacons = false;  //switchable in settings
+    InputControls.useBluetoothBeaconsInAoModeOnly = false;  //switchable in settings
+    InputControls.useBluetoothBeaconsOnlyWithPower = false; //switchable in settings
 
     //Load controls settings view
     InputControls.openSettings = function(){
@@ -48,6 +51,45 @@ function sepiaFW_build_input_controls() {
         $('#SepiaFW-buttons-define-back').off().on('click', function(){
             InputControls.defineButtonFunction(backButton);
         });
+        //build toggles
+        var beaconScan = document.getElementById('sepiaFW-input-controls-beacon-box');
+        beaconScan.appendChild(SepiaFW.ui.build.toggleButton('sepiaFW-input-controls-beacon', 
+            function(){
+                InputControls.useBluetoothBeacons = true;
+                SepiaFW.data.set('useBluetoothBeacons', true);
+                InputControls.listenToBluetoothBeacons();
+                SepiaFW.debug.info("Listening to Bluetooth Beacons.");
+            },function(){
+                InputControls.useBluetoothBeacons = false;
+                SepiaFW.data.set('useBluetoothBeacons', false);
+                InputControls.stopListeningToBluetoothBeacons();
+                SepiaFW.debug.info("NOT listening to Bluetooth Beacons.");
+            }, InputControls.useBluetoothBeacons)
+        );
+        var beaconAoModeOnly = document.getElementById('sepiaFW-input-controls-beacon-ao-box');
+        beaconAoModeOnly.appendChild(SepiaFW.ui.build.toggleButton('sepiaFW-input-controls-beacon-ao', 
+            function(){
+                InputControls.useBluetoothBeaconsInAoModeOnly = true;
+                SepiaFW.data.set('useBluetoothBeaconsInAoModeOnly', true);
+                SepiaFW.debug.info("Listening to Bluetooth Beacons in AO-Mode only.");
+            },function(){
+                InputControls.useBluetoothBeaconsInAoModeOnly = false;
+                SepiaFW.data.set('useBluetoothBeaconsInAoModeOnly', false);
+                SepiaFW.debug.info("Listening to Bluetooth Beacons in every mode (if enabled).");
+            }, InputControls.useBluetoothBeaconsInAoModeOnly)
+        );
+        var beaconPowerPlugOnly = document.getElementById('sepiaFW-input-controls-beacon-power-box');
+        beaconPowerPlugOnly.appendChild(SepiaFW.ui.build.toggleButton('sepiaFW-input-controls-beacon-power', 
+            function(){
+                InputControls.useBluetoothBeaconsOnlyWithPower = true;
+                SepiaFW.data.set('useBluetoothBeaconsOnlyWithPower', true);
+                SepiaFW.debug.info("Listening to Bluetooth Beacons only with power-plug.");
+            },function(){
+                InputControls.useBluetoothBeaconsOnlyWithPower = false;
+                SepiaFW.data.set('useBluetoothBeaconsOnlyWithPower', false);
+                SepiaFW.debug.info("Listening to Bluetooth Beacons with and without power-plug.");
+            }, InputControls.useBluetoothBeaconsOnlyWithPower)
+        );
         //Storage
         $('#SepiaFW-input-controls-store').off().on('click', function(){
             InputControls.storeMappings();
@@ -146,14 +188,95 @@ function sepiaFW_build_input_controls() {
         }
     }
 
+    //---------------- Bluetooth Beacons ----------------
+
+    var isScannigBeacons = false;
+    InputControls.isScannigForBeacons = function(){
+        return isScannigBeacons;
+    }
+
+    InputControls.initializeBluetoothBeacons = function(){
+        if (InputControls.areBluetoothBeaconsSupported()){
+            InputControls.useBluetoothBeacons = SepiaFW.data.get('useBluetoothBeacons');
+            if (typeof InputControls.useBluetoothBeacons == 'undefined') InputControls.useBluetoothBeacons = false;
+            SepiaFW.debug.info("Listening to Bluetooth Beacons is " + ((InputControls.useBluetoothBeacons)? "ACTIVATED" : "NOT ACTIVATED"));
+
+            InputControls.useBluetoothBeaconsInAoModeOnly = SepiaFW.data.get('useBluetoothBeaconsInAoModeOnly');
+            if (typeof InputControls.useBluetoothBeaconsInAoModeOnly == 'undefined') InputControls.useBluetoothBeaconsInAoModeOnly = false;
+            SepiaFW.debug.info("Bluetooth Beacons 'in AO-mode only' is " + ((InputControls.useBluetoothBeaconsInAoModeOnly)? "TRUE" : "FALSE"));
+
+            InputControls.useBluetoothBeaconsOnlyWithPower = SepiaFW.data.get('useBluetoothBeaconsOnlyWithPower');
+            if (typeof InputControls.useBluetoothBeaconsOnlyWithPower == 'undefined') InputControls.useBluetoothBeaconsOnlyWithPower = false;
+            SepiaFW.debug.info("Bluetooth Beacons 'only with power plug' is " + ((InputControls.useBluetoothBeaconsOnlyWithPower)? "TRUE" : "FALSE"));
+
+            if (InputControls.useBluetoothBeacons){
+                //wait a bit
+                setTimeout(function(){
+                    InputControls.listenToBluetoothBeacons();
+                }, 3000);
+            }
+        }
+    }
+
+    InputControls.areBluetoothBeaconsSupported = function(){
+        if ("evothings" in window && evothings.eddystone){
+            return true;
+        }else{
+            return false;
+        }
+    }
+    InputControls.listenToBluetoothBeacons = function(){
+        if (InputControls.areBluetoothBeaconsSupported()){
+            if (!isScannigBeacons){
+                evothings.eddystone.startScan(function(beaconData){
+                    //Found
+                    InputControls.handleBluetoothBeaconData(beaconData);
+                }, function(error){
+                    //Error
+                    SepiaFW.debug.error("Bluetooth-Beacon - " + error);
+                    SepiaFW.ui.build.toggleButtonSetState('sepiaFW-input-controls-beacon', 'off');
+                    isScannigBeacons = false;
+                });
+                isScannigBeacons = true;
+            }
+        }else{
+            alert("Sorry, but Bluetooth-Beacons are not yet supported on this device.");
+            SepiaFW.ui.build.toggleButtonSetState('sepiaFW-input-controls-beacon', 'off');
+            isScannigBeacons = false;
+        }
+    }
+    InputControls.stopListeningToBluetoothBeacons = function(){
+        if (InputControls.areBluetoothBeaconsSupported() && isScannigBeacons){
+            evothings.eddystone.stopScan();
+            isScannigBeacons = false;
+        }
+    }
+
+    InputControls.handleBluetoothBeaconData = function(beaconData){
+        //console.error("Beacon URL: " + beaconData.url + ", power: " + beaconData.txPower);
+        if (InputControls.settingsAreOpen){
+            var distance = evothings.eddystone.calculateAccuracy(beaconData.txPower, beaconData.rssi)
+            settingsAppendDebug("Beacon URL: " + beaconData.url + ", distance: " + distance);
+        }
+        if (!beaconData.url){
+            return;
+        }
+        //MIC
+        if (beaconData.url.indexOf("/sepia/trigger/mic") >= 0){
+            toggleMicrophone();
+        //BACK
+        }else if (beaconData.url.indexOf("/sepia/trigger/back") >= 0){
+            backButton();
+        }
+    }
+
     //----------------- Remote Hotkeys ------------------
 
     InputControls.handleRemoteHotkeys = function(data){
         //activate microphone for this user
         if (data.key === "F4"){
             if (SepiaFW.wakeTriggers && SepiaFW.wakeTriggers.useWakeWord){
-                var useConfirmationSound = SepiaFW.speech.shouldPlayConfirmation();
-                SepiaFW.ui.toggleMicButton(useConfirmationSound);
+                toggleMicrophone();
             }else{
                 SepiaFW.debug.log("InputControls remoteAction - NOT ALLOWED to use remote wake-word! Key: " + data.key);    
             }
