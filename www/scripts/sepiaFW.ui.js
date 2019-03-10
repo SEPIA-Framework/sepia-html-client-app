@@ -464,10 +464,7 @@ function sepiaFW_build_ui(){
 		}
 		//Gamepad, Hotkeys and BLE-Beacon support
 		if (SepiaFW.inputControls){
-			SepiaFW.inputControls.useGamepads = SepiaFW.data.get('useGamepads');
-			if (typeof SepiaFW.inputControls.useGamepads == 'undefined') SepiaFW.inputControls.useGamepads = false;
-			SepiaFW.debug.info("Gamepads are " + ((SepiaFW.inputControls.useGamepads)? "SUPPORTED" : "NOT SUPPORTED"));
-
+			SepiaFW.inputControls.initializeGamepads();
 			SepiaFW.inputControls.initializeBluetoothBeacons();
 		}
 		//Wake-word trigger

@@ -5,6 +5,45 @@ function sepiaFW_build_input_controls() {
     InputControls.settingsAreOpen = false;
     $settingsDebugField = undefined;
 
+    //---- Initializers ----
+
+    InputControls.initializeGamepads = function(){
+        InputControls.useGamepads = SepiaFW.data.get('useGamepads');
+		if (typeof InputControls.useGamepads == 'undefined') InputControls.useGamepads = false;
+        SepiaFW.debug.info("Gamepads are " + ((InputControls.useGamepads)? "SUPPORTED" : "NOT SUPPORTED"));
+        
+        if (InputControls.useGamepads){
+            //wait a bit
+            setTimeout(function(){
+                InputControls.setup();
+            }, 2000);
+        }
+    }
+    InputControls.initializeBluetoothBeacons = function(){
+        if (InputControls.areBluetoothBeaconsSupported()){
+            InputControls.useBluetoothBeacons = SepiaFW.data.get('useBluetoothBeacons');
+            if (typeof InputControls.useBluetoothBeacons == 'undefined') InputControls.useBluetoothBeacons = false;
+            SepiaFW.debug.info("Listening to Bluetooth Beacons is " + ((InputControls.useBluetoothBeacons)? "ACTIVATED" : "NOT ACTIVATED"));
+
+            InputControls.useBluetoothBeaconsInAoModeOnly = SepiaFW.data.get('useBluetoothBeaconsInAoModeOnly');
+            if (typeof InputControls.useBluetoothBeaconsInAoModeOnly == 'undefined') InputControls.useBluetoothBeaconsInAoModeOnly = false;
+            SepiaFW.debug.info("Bluetooth Beacons 'in AO-mode only' is " + ((InputControls.useBluetoothBeaconsInAoModeOnly)? "TRUE" : "FALSE"));
+
+            InputControls.useBluetoothBeaconsOnlyWithPower = SepiaFW.data.get('useBluetoothBeaconsOnlyWithPower');
+            if (typeof InputControls.useBluetoothBeaconsOnlyWithPower == 'undefined') InputControls.useBluetoothBeaconsOnlyWithPower = false;
+            SepiaFW.debug.info("Bluetooth Beacons 'only with power plug' is " + ((InputControls.useBluetoothBeaconsOnlyWithPower)? "TRUE" : "FALSE"));
+
+            if (InputControls.useBluetoothBeacons && !InputControls.useBluetoothBeaconsInAoModeOnly){
+                //wait a bit
+                setTimeout(function(){
+                    InputControls.listenToBluetoothBeacons();
+                }, 3000);
+            }
+        }
+    }
+
+    //----------------------
+
     InputControls.setup = function () {
         //console.log('Input controls setup');
         InputControls.listenToGamepadConnectEvent();
@@ -52,6 +91,22 @@ function sepiaFW_build_input_controls() {
             InputControls.defineButtonFunction(backButton);
         });
         //build toggles
+        //--Gamepad
+        var gamepadUse = document.getElementById('sepiaFW-input-controls-gamepad-box');
+        gamepadUse.appendChild(SepiaFW.ui.build.toggleButton('sepiaFW-input-controls-toggle-gamepad', 
+            function(){
+                InputControls.useGamepads = true;
+                SepiaFW.data.set('useGamepads', true);
+                SepiaFW.debug.info("Gamepad support activated");
+                SepiaFW.inputControls.setup(); //.listenToGamepadConnectEvent();
+            },function(){
+                InputControls.useGamepads = false;
+                SepiaFW.data.set('useGamepads', false);
+                SepiaFW.debug.info("Gamepad support deactivated");
+                SepiaFW.inputControls.setup();
+            }, InputControls.useGamepads)
+        );
+        //--BLE Beacons
         var beaconScan = document.getElementById('sepiaFW-input-controls-beacon-box');
         beaconScan.appendChild(SepiaFW.ui.build.toggleButton('sepiaFW-input-controls-beacon', 
             function(){
@@ -195,29 +250,6 @@ function sepiaFW_build_input_controls() {
         return isScannigBeacons;
     }
 
-    InputControls.initializeBluetoothBeacons = function(){
-        if (InputControls.areBluetoothBeaconsSupported()){
-            InputControls.useBluetoothBeacons = SepiaFW.data.get('useBluetoothBeacons');
-            if (typeof InputControls.useBluetoothBeacons == 'undefined') InputControls.useBluetoothBeacons = false;
-            SepiaFW.debug.info("Listening to Bluetooth Beacons is " + ((InputControls.useBluetoothBeacons)? "ACTIVATED" : "NOT ACTIVATED"));
-
-            InputControls.useBluetoothBeaconsInAoModeOnly = SepiaFW.data.get('useBluetoothBeaconsInAoModeOnly');
-            if (typeof InputControls.useBluetoothBeaconsInAoModeOnly == 'undefined') InputControls.useBluetoothBeaconsInAoModeOnly = false;
-            SepiaFW.debug.info("Bluetooth Beacons 'in AO-mode only' is " + ((InputControls.useBluetoothBeaconsInAoModeOnly)? "TRUE" : "FALSE"));
-
-            InputControls.useBluetoothBeaconsOnlyWithPower = SepiaFW.data.get('useBluetoothBeaconsOnlyWithPower');
-            if (typeof InputControls.useBluetoothBeaconsOnlyWithPower == 'undefined') InputControls.useBluetoothBeaconsOnlyWithPower = false;
-            SepiaFW.debug.info("Bluetooth Beacons 'only with power plug' is " + ((InputControls.useBluetoothBeaconsOnlyWithPower)? "TRUE" : "FALSE"));
-
-            if (InputControls.useBluetoothBeacons){
-                //wait a bit
-                setTimeout(function(){
-                    InputControls.listenToBluetoothBeacons();
-                }, 3000);
-            }
-        }
-    }
-
     InputControls.areBluetoothBeaconsSupported = function(){
         if ("evothings" in window && evothings.eddystone){
             return true;
@@ -234,6 +266,9 @@ function sepiaFW_build_input_controls() {
                 }, function(error){
                     //Error
                     SepiaFW.debug.error("Bluetooth-Beacon - " + error);
+                    if (InputControls.settingsAreOpen){
+                        settingsAppendDebug("Bluetooth-Beacon - " + error);
+                    }
                     SepiaFW.ui.build.toggleButtonSetState('sepiaFW-input-controls-beacon', 'off');
                     isScannigBeacons = false;
                 });
@@ -253,20 +288,77 @@ function sepiaFW_build_input_controls() {
     }
 
     InputControls.handleBluetoothBeaconData = function(beaconData){
+        //TODO: we probably need a method to filter duplicated calls ... e.g. an ID of the beacon "session"
         //console.error("Beacon URL: " + beaconData.url + ", power: " + beaconData.txPower);
         if (InputControls.settingsAreOpen){
-            var distance = evothings.eddystone.calculateAccuracy(beaconData.txPower, beaconData.rssi)
+            var distance = evothings.eddystone.calculateAccuracy(beaconData.txPower, beaconData.rssi);
             settingsAppendDebug("Beacon URL: " + beaconData.url + ", distance: " + distance);
+        }else{
+            if (!beaconData.url){
+                return;
+            }
+            if (beaconData.url == lastBeaconUrl){
+                if (!blockAllFurtherBeaconEvents){
+                    //checkForBeaconLongpress(beaconData);      //currently this will never trigger (first event will block it)
+                }
+                return;
+            }else{
+                lastBeaconUrl = beaconData.url;
+                currentBeaconRepeat = 0;
+                blockAllFurtherBeaconEvents = false;
+            }
+            var e = getBeaconEvent(beaconData);
+            //MIC
+            if (e == "mic"){
+                toggleMicrophone();
+            //BACK
+            }else if (e == "back"){
+                backButton();
+            //AO-Mode
+            }else if (e == "ao"){
+                openAlwaysOn();
+            //Next and previous view
+            }else if (e == "next"){
+                nextChatView();
+            }else if (e == "prev"){
+                previousChatView();
+            }
+            blockAllFurtherBeaconEvents = true;
         }
-        if (!beaconData.url){
-            return;
+    }
+    function getBeaconEvent(beaconData){
+        var baseUrl = "b07z.net/BT";
+        var deviceId = SepiaFW.config.getDeviceId();
+        if (deviceId){
+            baseUrl += ("/" + deviceId);
         }
         //MIC
-        if (beaconData.url.indexOf("/sepia/trigger/mic") >= 0){
-            toggleMicrophone();
+        if (beaconData.url.indexOf(baseUrl + "/mic") >= 0){
+            return "mic";
         //BACK
-        }else if (beaconData.url.indexOf("/sepia/trigger/back") >= 0){
-            backButton();
+        }else if (beaconData.url.indexOf(baseUrl + "/back") >= 0){
+            return "back";
+        //AO-mode
+        }else if (beaconData.url.indexOf(baseUrl + "/ao") >= 0){
+            return "ao";
+        //Next & previous
+        }else if (beaconData.url.indexOf(baseUrl + "/next") >= 0){
+            return "next";
+        }else if (beaconData.url.indexOf(baseUrl + "/prev") >= 0){
+            return "prev";
+        }else{
+            return "";
+        }
+    }
+    var lastBeaconUrl = "";
+    var currentBeaconRepeat = 0;
+    var blockAllFurtherBeaconEvents = false;
+    function checkForBeaconLongpress(beaconData){
+        currentBeaconRepeat++;
+        if (currentBeaconRepeat > 6){
+            blockAllFurtherBeaconEvents = true;
+            //handle long-press once
+            //TODO: can we make proper use of this?
         }
     }
 
@@ -549,6 +641,13 @@ function sepiaFW_build_input_controls() {
     }
     function backButton(){
         SepiaFW.ui.backButtonAction();
+    }
+    function openAlwaysOn(){
+        SepiaFW.ui.closeAllMenus();
+        SepiaFW.alwaysOn.start();
+    }
+    function resetMic(){
+        SepiaFW.ui.resetMicButton();
     }
     function test1(){
         console.log('TEST 1');

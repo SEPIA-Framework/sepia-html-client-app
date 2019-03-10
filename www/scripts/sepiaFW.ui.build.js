@@ -468,7 +468,7 @@ function sepiaFW_build_ui_build(){
 					+ "<li id='sepiaFW-menu-toggle-runBackgroundConnection-li' title='Try to keep connected in background?'><span>Allow background activity: </span></li>"
 					//NOTE: we show this only if battery status API supported:
 					+ "<li id='sepiaFW-menu-toggle-trackPowerStatus-li' title='Observe power plug and battery status?'><span>Track power status: </span></li>"
-					+ "<li id='sepiaFW-menu-toggle-gamepad-li' title='Support gamepads as remote?'><span>Gamepads/Hotkeys: </span></li>"
+					+ "<li id='sepiaFW-menu-input-controls-li' title='Settings for remote input devices, e.g. gamepads'><span>Remote controls: </span></li>"
 					+ "<li id='sepiaFW-menu-assistant-host-li' title='Assistant hostname, e.g.: my.example.org/sepia, localhost or [IP]'>"
 						+ "<span>Hostname: </span>"
 						+ "<input id='sepiaFW-menu-assistant-host' type='url' placeholder='my.example.org/sepia'>"
@@ -777,32 +777,13 @@ function sepiaFW_build_ui_build(){
 			}
 			//support gamepads as remotes and hotkeys in Always-On (by default)
 			if (SepiaFW.inputControls){
-				var listEntry = document.getElementById('sepiaFW-menu-toggle-gamepad-li');
-				//Toggle on/off button
-				listEntry.appendChild(Build.toggleButton('sepiaFW-menu-toggle-gamepad', 
-					function(){
-						SepiaFW.inputControls.useGamepads = true;
-						SepiaFW.data.set('useGamepads', true);
-						SepiaFW.debug.info("Gamepad support activated");
-						SepiaFW.inputControls.setup(); //.listenToGamepadConnectEvent();
-					},function(){
-						SepiaFW.inputControls.useGamepads = false;
-						SepiaFW.data.set('useGamepads', false);
-						SepiaFW.debug.info("Gamepad support deactivated");
-						SepiaFW.inputControls.setup();
-					}, SepiaFW.inputControls.useGamepads)
-				);
-				//spacer
-				listEntry.appendChild(Build.spacer("18px", "28px", "right"));
+				var inputControls = document.getElementById('sepiaFW-menu-input-controls-li');
 				//settings
-				listEntry.appendChild(Build.inlineActionButton('sepiaFW-menu-gamepad-settings', "<i class='material-icons md-inherit'>settings</i>",
+				inputControls.appendChild(Build.inlineActionButton('sepiaFW-menu-input-controls-settings', "<i class='material-icons md-inherit'>settings</i>",
 					function(btn){
 						SepiaFW.inputControls.openSettings();
 					})
 				);
-			}else{
-				document.getElementById('sepiaFW-menu-toggle-gamepad-li').appendChild(Build.toggleButton('sepiaFW-menu-toggle-gamepad', 
-					function(){}, function(){}, false));
 			}
 			//Account-Language
 			document.getElementById("sepiaFW-menu-account-language-li").appendChild(SepiaFW.ui.build.languageSelector("sepiaFW-menu-account-language-dropdown", function(selectedLanguage){

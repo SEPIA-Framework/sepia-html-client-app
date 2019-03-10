@@ -110,6 +110,9 @@ function sepiaFW_build_always_on(){
                 SepiaFW.speech.enableVoice(skipStore);
             }
         }
+        //Activate BLE-Beacon detection?
+        activateBluetoothBeaconIfSet();
+
         AlwaysOn.isOpen = true;
         //restore some states (only support loading and waiting right now)
         if (avatarIsWaiting){
@@ -143,6 +146,13 @@ function sepiaFW_build_always_on(){
             if (mainWasVoiceDisabled) SepiaFW.speech.disableVoice(skipStore);
             else SepiaFW.speech.enableVoice(skipStore);
         }
+        //Deactivate BLE-Beacon detection?
+        /* -- we keep this on for now since we want to use the back or mic button to get back into AO --
+        if (SepiaFW.inputControls && SepiaFW.inputControls.useBluetoothBeacons && SepiaFW.inputControls.useBluetoothBeaconsInAoModeOnly){
+            setTimeout(function(){
+                SepiaFW.inputControls.stopListeningToBluetoothBeacons();
+            }, 0);
+        }*/
         //go to my view on close
         //SepiaFW.ui.moc.showPane(0);
 
@@ -433,6 +443,18 @@ function sepiaFW_build_always_on(){
     }
     var fadeBatteryTimer;
 
+    //---------- Bluetooth LE Beacon support -----------
+
+    function activateBluetoothBeaconIfSet(){
+        if (SepiaFW.inputControls && SepiaFW.inputControls.useBluetoothBeacons && SepiaFW.inputControls.useBluetoothBeaconsInAoModeOnly){
+            if (!SepiaFW.inputControls.useBluetoothBeaconsOnlyWithPower || (AlwaysOn.batteryPlugStatus === true)){
+                setTimeout(function(){
+                    SepiaFW.inputControls.listenToBluetoothBeacons();
+                }, 0);
+            }
+        }
+    }
+
     //---------- Battery status API -----------
 
     var battery = undefined;
@@ -516,6 +538,9 @@ function sepiaFW_build_always_on(){
         SepiaFW.debug.info("BatteryStatus - device plugged in.");
         if (!AlwaysOn.isOpen && AlwaysOn.autoLoadOnPowerPlug){
             AlwaysOn.start();
+        }else{
+            //change BLE beacon status?
+            activateBluetoothBeaconIfSet();
         }
     }
 
