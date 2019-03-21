@@ -477,6 +477,10 @@ function sepiaFW_build_ui(){
 			if (typeof SepiaFW.speech.useSmartMicToggle == 'undefined') SepiaFW.speech.useSmartMicToggle = true;
 			SepiaFW.debug.info("Smart microphone toggle is " + ((SepiaFW.speech.useSmartMicToggle)? "ON" : "OFF"));
 		}
+		//CLEXI.js support
+		if (SepiaFW.clexi){
+			SepiaFW.clexi.initialize();
+		}
 
 		//-------------------------------------------------------------------------------------------------
 		

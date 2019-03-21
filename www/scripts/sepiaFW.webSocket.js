@@ -439,6 +439,13 @@ function sepiaFW_build_webSocket_client(){
 		
 		//update myView
 		SepiaFW.ui.updateMyView(false, true, 'onActive');
+
+		//connect to CLEXI
+		if (SepiaFW.clexi.isSupported && SepiaFW.clexi.doConnect){
+            setTimeout(function(){
+                SepiaFW.clexi.setup();
+            }, 500);
+        }
 	}
 	
 	//execute when UI is ready and user is logged in (usually)

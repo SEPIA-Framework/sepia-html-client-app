@@ -246,44 +246,64 @@ function sepiaFW_build_input_controls() {
     //---------------- Bluetooth Beacons ----------------
 
     var isScannigBeacons = false;
+    var bleBeaconInterface = undefined;
     InputControls.isScannigForBeacons = function(){
         return isScannigBeacons;
     }
 
     InputControls.areBluetoothBeaconsSupported = function(){
         if ("evothings" in window && evothings.eddystone){
+            bleBeaconInterface = "evothings";
             return true;
+        }else if (SepiaFW.clexi){
+            bleBeaconInterface = "clexi";
+            return  SepiaFW.clexi.isSupported;      //actually at this point we do not yet know if CLEXI runs with BLE support
         }else{
+            bleBeaconInterface = "none";
             return false;
         }
     }
     InputControls.listenToBluetoothBeacons = function(){
         if (InputControls.areBluetoothBeaconsSupported()){
             if (!isScannigBeacons){
-                evothings.eddystone.startScan(function(beaconData){
-                    //Found
-                    InputControls.handleBluetoothBeaconData(beaconData);
-                }, function(error){
-                    //Error
-                    SepiaFW.debug.error("Bluetooth-Beacon - " + error);
-                    if (InputControls.settingsAreOpen){
-                        settingsAppendDebug("Bluetooth-Beacon - " + error);
-                    }
-                    SepiaFW.ui.build.toggleButtonSetState('sepiaFW-input-controls-beacon', 'off');
-                    isScannigBeacons = false;
-                });
-                isScannigBeacons = true;
+                //evothings scanner
+                if (bleBeaconInterface == "evothings"){
+                    evothings.eddystone.startScan(function(beaconData){
+                        //Found
+                        InputControls.handleBluetoothBeaconData(beaconData);
+                    }, function(error){
+                        //Error
+                        SepiaFW.debug.error("Bluetooth-Beacon - " + error);
+                        if (InputControls.settingsAreOpen){
+                            settingsAppendDebug("Bluetooth-Beacon - " + error);
+                        }
+                        SepiaFW.ui.build.toggleButtonSetState('sepiaFW-input-controls-beacon', 'off');  //note: will not trigger "off" actions. OK?
+                        isScannigBeacons = false;
+                    });
+                    isScannigBeacons = true;
+                
+                //clexi xtension scanner
+                }else if (bleBeaconInterface == "clexi"){
+                    
+                }
             }
         }else{
             alert("Sorry, but Bluetooth-Beacons are not yet supported on this device.");
-            SepiaFW.ui.build.toggleButtonSetState('sepiaFW-input-controls-beacon', 'off');
+            SepiaFW.ui.build.toggleButtonSetState('sepiaFW-input-controls-beacon', 'off');  //note: will not trigger "off" actions. OK?
             isScannigBeacons = false;
         }
     }
     InputControls.stopListeningToBluetoothBeacons = function(){
         if (InputControls.areBluetoothBeaconsSupported() && isScannigBeacons){
-            evothings.eddystone.stopScan();
-            isScannigBeacons = false;
+            //evothings scanner
+            if (bleBeaconInterface == "evothings"){
+                evothings.eddystone.stopScan();
+                isScannigBeacons = false;
+            
+            //clexi xtension scanner
+            }else if (bleBeaconInterface == "clexi"){
+
+            }
         }
     }
 
@@ -291,8 +311,13 @@ function sepiaFW_build_input_controls() {
         //TODO: we probably need a method to filter duplicated calls ... e.g. an ID of the beacon "session"
         //console.error("Beacon URL: " + beaconData.url + ", power: " + beaconData.txPower);
         if (InputControls.settingsAreOpen){
-            var distance = evothings.eddystone.calculateAccuracy(beaconData.txPower, beaconData.rssi);
-            settingsAppendDebug("Beacon URL: " + beaconData.url + ", distance: " + distance);
+            if (bleBeaconInterface == "evothings"){
+                //debug distance
+                var distance = evothings.eddystone.calculateAccuracy(beaconData.txPower, beaconData.rssi);
+                settingsAppendDebug("Beacon URL: " + beaconData.url + ", distance: " + distance);
+            }else if (bleBeaconInterface == "clexi"){
+                //skip       
+            }
         }else{
             if (!beaconData.url){
                 return;
