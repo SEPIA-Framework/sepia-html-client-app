@@ -4,6 +4,16 @@
 function sepiaFW_build_client_controls(){
     var Controls = {};
 
+    function parseAction(action){
+        var req;
+        if (typeof action === "string"){
+            req = JSON.parse(action);
+        }else{
+            req = action;
+        }
+        return req;
+    }
+
     //Open/close settings menu
     Controls.settings = function(controlData){
         if (controlData && controlData.action){
@@ -50,10 +60,15 @@ function sepiaFW_build_client_controls(){
                 //volumeDown
                 volumeDown();
                 return true;
-            }else if (controlData.action == "set"){
+            }else if (controlData.action.match(/volume;;\d/gi).length == 1){
                 //volumeSet
-                volumeSet(controlData.volume);       //TODO: untested and not fully implemented yet
-                return true;
+                var vol = parseInt(controlData.action.split(";;")[1]);       //no data, we have the shortcut here ;-)
+                if (vol){
+                    volumeSet(vol);       //TODO: untested and not fully implemented yet
+                    return true;
+                }else{
+                    return false;
+                }
             }else{
                 SepiaFW.debug.error("Client controls - Unsupported action in 'settings': " + controlData.action);
             }
@@ -89,16 +104,21 @@ function sepiaFW_build_client_controls(){
         }
     }
 
+    //CLEXI send
+    Controls.clexi = function(controlData){
+        if (SepiaFW.clexi && controlData.action){
+            var req = parseAction(controlData.action);
+            //console.log(req);
+            SepiaFW.clexi.send(req.xtension, req.data);
+            return true;
+        }
+        return false;
+    }
+
     //Mesh-Node call
     Controls.meshNode = function(controlData){
-        //TODO
         if (controlData.action){
-            var req;
-            if (typeof controlData.action === "string"){
-                req = JSON.parse(controlData.action);
-            }else{
-                req = controlData.action;
-            }
+            var req = parseAction(controlData.action);
             //console.log(req);
             return callMeshNode(req.url, req.pin, req.plugin, req.data);
         }
