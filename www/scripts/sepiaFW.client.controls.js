@@ -121,18 +121,12 @@ function sepiaFW_build_client_controls(){
             }
 
             //Feedback (to server and user ... server just loads a chat message in this case, but one could send real data back)
-            SepiaFW.client.queueIdleTimeEvent(function(){
-                var options = {};   //things like skipTTS etc. (see sendCommand function)
-                var dataset = {
-                    info: "direct_cmd",
-                    cmd: "chat;;reply=<error_client_control_0a>;;",
-                    newReceiver: SepiaFW.assistant.id
-                };
-                SepiaFW.client.sendCommand(dataset, options);
-            }, 2000, 30000, function(){
-                //Fallback:
-                SepiaFW.ui.showInfo(SepiaFW.local.g('mesh_node_fail'));
-            });
+            if (SepiaFW.assistant){
+                SepiaFW.assistant.waitForOpportunityAndSay("<error_client_control_0a>", function(){
+                    //Fallback after max-wait:
+                    SepiaFW.ui.showInfo(SepiaFW.local.g('mesh_node_fail'));
+                }, 2000, 30000);    //min-wait, max-wait
+            }
         });
         return true;
     }

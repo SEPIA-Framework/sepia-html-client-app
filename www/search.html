@@ -7,7 +7,7 @@
 	<title>SepiaFW Search</title>
 	<meta name="application-name" content="SepiaFW Search"/>
 	<meta name="description" content="SepiaFW plain search page">
-	<meta name="theme-color" content="#007AFF">
+	<meta name="theme-color" content="#beff1a">
 	<!--<link rel="icon" sizes="192x192" href="img/icon.png">
 	<link rel="apple-touch-icon" href="img/icon.png">
 	<meta property="og:image" content="img/icon.png"/>-->
@@ -58,17 +58,24 @@
 		margin: auto;
 	}
 	.labelBlock {
+		height: 100%;
+		width: 100%;
+		display: flex;
+		align-content: center;
+		align-items: flex-end;
+		justify-content: center;
+		overflow: hidden;
 	}
 	.labelBlock label {
 		font-size: 32px;
 		font-weight: 300;
-		/*color: #ceff1a;*/
+		color: #beff1a;
 		/*color: #15abc3;*/
-		color: #007AFF;
+		/*color: #007AFF;*/
 	}
 	.inputBlock {
 		background: #fff;
-		border: 1px solid #007AFF;
+		border: 1px solid #beff1a;
 		border-radius: 3px;
 		overflow: hidden
 	}
@@ -88,11 +95,11 @@
 	.buttonBlock button {
 		border: 0;
 		border-radius: 3px;
-		/*background: #ceff1a;*/
+		background: #beff1a;
 		/*background: #15abc3;*/
-		background: #007AFF;
-		color: #fff;
-		/*color: #000;*/
+		/*background: #007AFF;*/
+		/*color: #fff;*/
+		color: #222;
 		font-size: 16px;
 		padding: 5px 12px;
 		margin: 4px 2px;
@@ -106,7 +113,8 @@
 	<!-- Main -->
 	<section style="display:flex;justify-content:center;align-items:flex-end;width:100%;height:33%;">
 		<div class='labelBlock'>
-			<label class='font-effect-wallpaper'>Search</label>
+			<img src="img/icon.png" style="height: 128px; max-width: 100%; max-height: 100%;">
+			<!--<label class='font-effect-wallpaper'>Search</label>-->
 		</div>
 	</section>
 	<section>

@@ -373,7 +373,6 @@ function sepiaFW_build_ui(){
 		}
 		
 		//is standalone app?
-		UI.isStandaloneWebApp = isStandaloneWebApp();
 		function isStandaloneWebApp(){
 			if (UI.isCordova){
 				isStandalone = true;
@@ -391,6 +390,20 @@ function sepiaFW_build_ui(){
 			}
 			return isStandalone;
 		}
+		UI.isStandaloneWebApp = isStandaloneWebApp();
+
+		//is tiny app?
+		function isTinyApp(){
+			var urlParam = SepiaFW.tools.getURLParameter("isTiny");
+			if (urlParam && urlParam == "true"){
+				urlParam = true;
+			}
+			if (urlParam){
+				document.documentElement.className += " sepiaFW-tiny-app";
+			}
+			return urlParam;
+		}
+		UI.isTinyApp = isTinyApp();
 		
 		//client
 		SepiaFW.config.setClientInfo(((UI.isIOS)? 'iOS_' : '') 
@@ -780,13 +793,13 @@ function sepiaFW_build_ui(){
 		SepiaFW.debug.info('UI.listenToVisibilityChange: ' + document[visibility]);
 		
 		//became visible
-		//if (SepiaFW.client.isActive()){
+		if (!SepiaFW.account || !SepiaFW.account.isLoginBoxOpen()){		//SepiaFW.client.isActive()
 			if (!isFirstVisibilityChange && (UI.isVisible() || forceTriggerVisible)){
 				//update myView (is automatically skipped if called too early)
 				UI.updateMyView(false, true, 'visibilityChange');
 			}
 			isFirstVisibilityChange = false;
-		//}
+		}
 	}
 	//broadcaster for myView show
 	var isFirstMyViewShow = true;

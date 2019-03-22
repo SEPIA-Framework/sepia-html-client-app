@@ -150,7 +150,16 @@ function sepiaFW_build_ui_actions(){
 	}
 	var inAppBrowserOptions = 'location=yes,toolbar=yes,mediaPlaybackRequiresUserAction=yes,allowInlineMediaPlayback=yes,hardwareback=yes,disableswipenavigation=no,clearsessioncache=no,clearcache=no';
 	Actions.openUrlAutoTarget = function(url, forceExternal){
-		if (SepiaFW.ui.isCordova){
+		if (SepiaFW.ui.isTinyApp){
+			//Tiny app usually has no ability to open in-app browser
+			if (SepiaFW.assistant){
+                SepiaFW.assistant.waitForOpportunityAndSay("<error_client_support_0a>", function(){
+                    //Fallback after max-wait:
+                    SepiaFW.ui.showInfo(SepiaFW.local.g('no_client_support'));
+                }, 2000, 30000);    //min-wait, max-wait
+            }
+			
+		}else if (SepiaFW.ui.isCordova){
 			if (forceExternal 
 				|| url.indexOf('https://maps.') === 0 || url.indexOf('http://maps.') === 0
 				|| url.indexOf('https://www.google.com/maps/') === 0 || url.indexOf('https://www.google.de/maps/') === 0

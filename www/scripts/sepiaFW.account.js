@@ -570,6 +570,11 @@ function sepiaFW_build_account(){
 			$("#sepiaFW-main-window").removeClass("sepiaFW-translucent-10");
 		}
 	}
+	Account.isLoginBoxOpen = function(){
+		var box = document.getElementById("sepiaFW-login-box");
+		if (box && box.style.display != 'none') return true;
+		else return false;
+	}
 	
 	//Logout action e.g. for button
 	Account.logoutAction = function(logoutAll){

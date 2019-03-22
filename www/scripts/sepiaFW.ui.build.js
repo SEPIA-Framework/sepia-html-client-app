@@ -178,7 +178,7 @@ function sepiaFW_build_ui_build(){
 			});
 		}
 		//label button - note: for label content see ui.setLable/getLabel functions
-		var sepiaLabel = document.getElementById("sepiaFW-nav-label");
+		var sepiaLabel = document.getElementById("sepiaFW-nav-label-box");
 		if (sepiaLabel){
 			$(sepiaLabel).off();
 			SepiaFW.ui.longPressShortPressDoubleTap(sepiaLabel, function(){

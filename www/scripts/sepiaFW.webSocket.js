@@ -843,18 +843,15 @@ function sepiaFW_build_webSocket_client(){
 				if (SepiaFW.ui.isCordova){
 					$(inAppBrowserBtn).off();
 					$(inAppBrowserBtn).on("click", function () {
-						var inAppBrowserOptions = 'location=yes,toolbar=yes,mediaPlaybackRequiresUserAction=yes,allowInlineMediaPlayback=yes,hardwareback=yes,disableswipenavigation=no,clearsessioncache=no,clearcache=no';
-						cordova.InAppBrowser.open("<inappbrowser-last>", '_blank', inAppBrowserOptions);	//also valid: <inappbrowser-home>
+						SepiaFW.ui.actions.openUrlAutoTarget("<inappbrowser-last>");	//also valid: <inappbrowser-home>
 						closeControlsMenueWithDelay();
 					});
 				}else{
 					$(inAppBrowserBtn).hide();
-					/*
 					$(inAppBrowserBtn).on("click", function () {
-						window.open("search.html", '_blank');
+						SepiaFW.ui.actions.openUrlAutoTarget("search.html");
 						closeControlsMenueWithDelay();
 					});
-					*/
 				}
 			}
 		}

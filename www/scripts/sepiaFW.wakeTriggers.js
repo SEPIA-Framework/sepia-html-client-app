@@ -43,7 +43,7 @@ function sepiaFW_build_wake_triggers() {
 		}
 
 		//start setup?
-		if (WakeTriggers.autoLoadWakeWord){
+		if (WakeTriggers.autoLoadWakeWord){ 		//TODO: move to Client.onActive ?
 			WakeTriggers.setupWakeWords();
 		}
 	}

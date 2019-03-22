@@ -93,6 +93,7 @@ function sepiaFW_build_strings(){
 	StringsDE.way_home = 'Weg nach Hause';
 	//More errors
 	StringsDE.mesh_node_fail = 'Sorry, die Mesh-Node Funktion zeigte einen Fehler.';
+	StringsDE.no_client_support = 'Sorry, aber diese Version der App unterstütz die aufgerufene Aktion nicht.';
 	//Offline demo texts
 	StringsDE.demoMode = 'Du befindest dich im Demo-Modus! In diesem Modus kannst du die Einstellungen ändern (z.B. hostname), das Tutorial anschauen und mit manchen(!) Teilen des Interfaces spielen. Um auf deinen Assistenten zuzugreifen melde dich bitte zuerst an.';
 	StringsDE.notPossibleInDemoMode = 'Sorry aber das geht noch nicht im Demo-Modus.';
@@ -188,6 +189,7 @@ function sepiaFW_build_strings(){
 	StringsEN.way_home = 'Way home';
 	//More errors
 	StringsEN.mesh_node_fail = 'Sorry, the Mesh-Node function showed an error.';
+	StringsEN.no_client_support = 'Sorry, but this version of the app does not support the requested action.';
 	//Offline demo texts
 	StringsEN.demoMode = 'You are in demo-mode! This mode only allows you to change settings (e.g. hostname), check out the tutorial and play with some(!) parts of the UI. To get access to your assistant please log-in first.';
 	StringsEN.notPossibleInDemoMode = 'Sorry this is not yet possible in demo-mode.';

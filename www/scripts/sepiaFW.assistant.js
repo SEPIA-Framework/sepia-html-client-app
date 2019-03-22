@@ -214,6 +214,30 @@ function sepiaFW_build_assistant(){
 		Assistant.isWaitingForDialog = false;
 		broadcastDialogFinished(true);
 	}
+
+	//------------------ SOME METHODS TO ENGAGE USER ------------------
+
+	/**
+	 * Wait for the right opportunity (e.g. idle time) and let the assistant say a text
+	 * loaded from server.
+	 */
+	Assistant.waitForOpportunityAndSay = function(dialogTagOrText, fallbackAction, minWait, maxWait){
+		if (!minWait) minWait = 2000;
+		if (!maxWait) maxWait = 30000;
+		if (!dialogTagOrText) dialogTagOrText = "<error_client_control_0a>";
+		SepiaFW.client.queueIdleTimeEvent(function(){
+			var options = {};   //things like skipTTS etc. (see sendCommand function)
+			var dataset = {
+				info: "direct_cmd",
+				cmd: "chat;;reply=" + dialogTagOrText + ";;",
+				newReceiver: SepiaFW.assistant.id
+			};
+			SepiaFW.client.sendCommand(dataset, options);
+		}, minWait, maxWait, function(){
+			//Fallback, e.g.: SepiaFW.ui.showInfo(SepiaFW.local.g('no_client_support'));
+			if (fallbackAction) fallbackAction();
+		});
+	}
 	
 	//------------------- SOME BASIC COMMUNICATION METHODS ---------------------
 	
