@@ -13,7 +13,7 @@ var ClexiJS = (function(){
 	var msgId = 0;
 
 	var reconnectBaseDelay = 330;
-	var reconnectMaxDelay = 30000;
+	var reconnectMaxDelay = 300000;
 	var reconnectTry = 0;
 	var reconnectTimer = undefined;
 	var requestedClose = false;
@@ -23,6 +23,9 @@ var ClexiJS = (function(){
 		return isConnected;
 	}
 	Clexi.doAutoReconnect = true;
+	Clexi.setMaxReconnectDelay = function(delay){
+		reconnectMaxDelay = delay;
+	}
 	
 	Clexi.onLog = undefined;		//set this in your code to get log messages
 	Clexi.onDebug = undefined;
@@ -126,7 +129,7 @@ var ClexiJS = (function(){
 		}, delay);
 	}
 	
-	Clexi.send = function(extensionName, data){
+	Clexi.send = function(extensionName, data, numOfRetries){
 		if (ws && isConnected){
 			var msg = {
 				type: extensionName,
@@ -136,8 +139,26 @@ var ClexiJS = (function(){
 			};
 			// Send the msg object as a JSON-formatted string.
 			ws.send(JSON.stringify(msg));
+		}else if (numOfRetries && numOfRetries > 0){
+			Clexi.schedule(extensionName, data, 0, numOfRetries);
 		}
 	}
+	Clexi.schedule = function(extensionName, data, thisRetry, maxRetries){
+		thisRetry++;
+		if (thisRetry <= maxRetries){
+			setTimeout(function(){
+				if (ws && isConnected){
+					Clexi.send(extensionName, data, maxRetries - thisRetry);
+				}else{
+					Clexi.schedule(extensionName, data, thisRetry, maxRetries);
+				}
+			}, Clexi.scheduleDelay);
+		}else{
+			//Error: message not delivered - what TODO ?
+			if (Clexi.onError) Clexi.onError('CLEXI send failed!');
+		}
+	}
+	Clexi.scheduleDelay = 1500;
 	
 	/**
 	* Subscribe to an extension event. 

@@ -266,25 +266,23 @@ function sepiaFW_build_input_controls() {
     InputControls.listenToBluetoothBeacons = function(){
         if (InputControls.areBluetoothBeaconsSupported()){
             if (!isScannigBeacons){
-                //evothings scanner
+                //evothings scanner - TODO: what if we want to force CLEXI BLE?
                 if (bleBeaconInterface == "evothings"){
                     evothings.eddystone.startScan(function(beaconData){
                         //Found
                         InputControls.handleBluetoothBeaconData(beaconData);
                     }, function(error){
                         //Error
-                        SepiaFW.debug.error("Bluetooth-Beacon - " + error);
-                        if (InputControls.settingsAreOpen){
-                            settingsAppendDebug("Bluetooth-Beacon - " + error);
-                        }
-                        SepiaFW.ui.build.toggleButtonSetState('sepiaFW-input-controls-beacon', 'off');  //note: will not trigger "off" actions. OK?
-                        isScannigBeacons = false;
+                        InputControls.handleBluetoothBeaconError(error);
                     });
                     isScannigBeacons = true;
                 
                 //clexi xtension scanner
                 }else if (bleBeaconInterface == "clexi"){
-                    
+                    SepiaFW.clexi.startBleBeaconScanner();
+                    SepiaFW.clexi.addBleBeaconEventListener(InputControls.handleBluetoothBeaconData);
+                    SepiaFW.clexi.addBleBeaconErrorListener(InputControls.handleBluetoothBeaconError);
+                    isScannigBeacons = true;
                 }
             }
         }else{
@@ -302,24 +300,42 @@ function sepiaFW_build_input_controls() {
             
             //clexi xtension scanner
             }else if (bleBeaconInterface == "clexi"){
-
+                SepiaFW.clexi.stopBleBeaconScanner();
+                SepiaFW.clexi.removeBleBeaconEventListener(InputControls.handleBluetoothBeaconData);
+                SepiaFW.clexi.removeBleBeaconErrorListener(InputControls.handleBluetoothBeaconError);
+                isScannigBeacons = false;
             }
         }
     }
 
+    InputControls.handleBluetoothBeaconError = function(error){
+        SepiaFW.debug.error("Bluetooth-Beacon - " + error);
+        if (InputControls.settingsAreOpen){
+            settingsAppendDebug("Bluetooth-Beacon - " + error);
+        }
+        //TODO: do we want to switch off and reset or just set the button to off with no other effect?
+        SepiaFW.ui.build.toggleButtonSetState('sepiaFW-input-controls-beacon', 'off');  //note: will not trigger "off" actions. OK?
+        isScannigBeacons = false;
+    }
+
     InputControls.handleBluetoothBeaconData = function(beaconData){
+        if (beaconData && beaconData.detail && beaconData.detail.beacon){
+            beaconData = beaconData.detail.beacon.eddystoneUrl;     //for now we just use eddystone URL
+        }
         //TODO: we probably need a method to filter duplicated calls ... e.g. an ID of the beacon "session"
         //console.error("Beacon URL: " + beaconData.url + ", power: " + beaconData.txPower);
-        if (InputControls.settingsAreOpen){
+        if (InputControls.settingsAreOpen && beaconData){
             if (bleBeaconInterface == "evothings"){
-                //debug distance
+                //debug with distance
                 var distance = evothings.eddystone.calculateAccuracy(beaconData.txPower, beaconData.rssi);
                 settingsAppendDebug("Beacon URL: " + beaconData.url + ", distance: " + distance);
             }else if (bleBeaconInterface == "clexi"){
-                //skip       
+                //debug
+                console.log(beaconData);
+                settingsAppendDebug("Beacon URL: " + beaconData.url);
             }
         }else{
-            if (!beaconData.url){
+            if (!beaconData || !beaconData.url){
                 return;
             }
             if (beaconData.url == lastBeaconUrl){
