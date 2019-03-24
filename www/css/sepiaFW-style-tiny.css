@@ -38,3 +38,11 @@
 	left: calc(50% - 95px);
     top: calc(50% - 95px);
 }
+
+.sepiaFW-tiny-app #sepiaFW-login-box {
+	width: 100%;
+    left: 0;
+    top: 0;
+	margin: 0;
+	padding: 12px;
+}

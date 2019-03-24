@@ -644,7 +644,7 @@ public class InAppBrowser extends CordovaPlugin {
                 //toolbar.setBackgroundColor(android.graphics.Color.rgb(235,235,235));
                 int toolbarColor;
                 int blackColor = android.graphics.Color.rgb(0, 0, 0);
-                int blueColor = android.graphics.Color.rgb(0, 122, 255);
+                int accentColor = android.graphics.Color.rgb(190, 255, 26); //android.graphics.Color.rgb(0, 122, 255);
 				if(Build.VERSION.SDK_INT >= 21){
                     /*
                     toolbarColor = cordova.getActivity().getWindow().getStatusBarColor();
@@ -663,7 +663,7 @@ public class InAppBrowser extends CordovaPlugin {
                 back.setId(Integer.valueOf(2));
                 back.setBackground(null);
                 if (toolbarColor == blackColor)
-                    back.setColorFilter(blueColor);
+                    back.setColorFilter(accentColor);
                 back.setImageDrawable(getDrawableFromMyResources("ic_chevron_left_black_24dp"));
                 back.setScaleType(ImageView.ScaleType.FIT_CENTER);
                 back.setPadding(this.dpToPixels(8), this.dpToPixels(5), this.dpToPixels(8), this.dpToPixels(5));
@@ -682,7 +682,7 @@ public class InAppBrowser extends CordovaPlugin {
                 forward.setId(Integer.valueOf(3));
                 forward.setBackground(null);
                 if (toolbarColor == blackColor)
-                    forward.setColorFilter(blueColor);
+                    forward.setColorFilter(accentColor);
                 forward.setImageDrawable(getDrawableFromMyResources("ic_chevron_right_black_24dp"));
                 forward.setScaleType(ImageView.ScaleType.FIT_CENTER);
                 forward.setPadding(this.dpToPixels(8), this.dpToPixels(5), this.dpToPixels(8), this.dpToPixels(5));
@@ -751,12 +751,12 @@ public class InAppBrowser extends CordovaPlugin {
                 close.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
                 close.setBackground(null);
                 if (toolbarColor == blackColor)
-                    close.setTextColor(blueColor);
+                    close.setTextColor(accentColor);
                 */
                 close.setBackground(null);
                 close.setPadding(this.dpToPixels(8), this.dpToPixels(5), this.dpToPixels(8), this.dpToPixels(5));
                 if (toolbarColor == blackColor)
-                    close.setColorFilter(blueColor);
+                    close.setColorFilter(accentColor);
                 close.setImageDrawable(getDrawableFromMyResources("ic_close_black_24dp"));
                 close.setScaleType(ImageView.ScaleType.FIT_CENTER);
                 close.getAdjustViewBounds();
@@ -777,7 +777,7 @@ public class InAppBrowser extends CordovaPlugin {
                 reload.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
                 reload.setBackground(null);
                 if (toolbarColor == blackColor)
-                    reload.setTextColor(blueColor);
+                    reload.setTextColor(accentColor);
                 reload.setPadding(this.dpToPixels(8), this.dpToPixels(5), this.dpToPixels(8), this.dpToPixels(5));
                 //Drawable reloadIcon = activityRes.getDrawable(android.R.drawable.ic_popup_sync);
                 //reload.setImageDrawable(reloadIcon);
@@ -804,7 +804,7 @@ public class InAppBrowser extends CordovaPlugin {
                 homeButton.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
                 homeButton.setBackground(null);
                 if (toolbarColor == blackColor)
-                    homeButton.setTextColor(blueColor);
+                    homeButton.setTextColor(accentColor);
                 homeButton.setPadding(this.dpToPixels(8), this.dpToPixels(5), this.dpToPixels(8), this.dpToPixels(5));
 
                 homeButton.setOnClickListener(new View.OnClickListener() {
@@ -822,7 +822,7 @@ public class InAppBrowser extends CordovaPlugin {
                 clearAllButton.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
                 clearAllButton.setBackground(null);
                 if (toolbarColor == blackColor)
-                    clearAllButton.setTextColor(blueColor);
+                    clearAllButton.setTextColor(accentColor);
                 clearAllButton.setPadding(this.dpToPixels(8), this.dpToPixels(5), this.dpToPixels(8), this.dpToPixels(5));
 
                 clearAllButton.setOnClickListener(new View.OnClickListener() {
@@ -959,7 +959,7 @@ public class InAppBrowser extends CordovaPlugin {
                 contextButton.setId(Integer.valueOf(9));
                 contextButton.setBackground(null);
                 if (toolbarColor == blackColor)
-                    contextButton.setColorFilter(blueColor);
+                    contextButton.setColorFilter(accentColor);
                 contextButton.setImageDrawable(getDrawableFromMyResources("ic_add_black_24dp"));
                 contextButton.setScaleType(ImageView.ScaleType.FIT_CENTER);
                 contextButton.setPadding(this.dpToPixels(8), this.dpToPixels(5), this.dpToPixels(8), this.dpToPixels(5));
