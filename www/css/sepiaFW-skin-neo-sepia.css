@@ -103,6 +103,14 @@ html {
 #sepiaFW-chat-menu li {
 	background: rgba(255, 255, 255, 0.15);
 }
+#sepiaFW-chat-menu li .sepiaFW-button-inline {
+	background: #363636;
+    /*color: #262626;*/
+}
+.sepiaFW-notouch-device #sepiaFW-chat-menu li .sepiaFW-button-inline:hover {
+	background-color: #fff !important;
+    color: #000 !important;
+}
 
 #sepiaFW-myEvents-buttons button,
 #sepiaFW-myEvents-buttons-replaced button {

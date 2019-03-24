@@ -1,0 +1,56 @@
+<div id='sepiaFW-frame-carousel' class="sepiaFW-inner-container sepiaFW-carousel">
+	<div class='sepiaFW-carousel-pane-container'>
+		<!-- Page 1 -->
+		<div id="sepiaFW-frame-page-1" class='sepiaFW-frames-page sepiaFW-carousel-pane'>
+			<h3>Wake-Word Settings</h3>
+			<div style="display: flex; flex-direction: column; justify-content: center; align-items: center;">
+				<img id="sepiaFW-wake-word-indicator" src="img/icon-512-w.png" style="border-radius: 50%; overflow: hidden; max-width: 512px; max-height: 33vh;">
+				<p>Press START and say 'Hey SEPIA' to change the logo color. You can play around with the sensitivity as well, but make sure to STOP first.</p>
+			</div>
+			<br>
+			<div class="group-container">
+				<div class="group" style="justify-content: center;">
+					<button id="sepiaFW-wake-word-toggle">START</button>
+				</div>
+				<div class="group">
+					<label>Wake-word sensitivity:</label>
+					<input id="sepiaFW-wake-word-sensitivity" style="border-color: inherit; width: 56px !important;" onchange="SepiaFW.wakeWordSettings.storeWakeWordSensitivity()">
+				</div>
+				<div class="group">
+					<label>Allow local/remote wake-word:</label>
+					<div id="sepiaFW-wake-word-allow-box"></div>
+				</div>
+				<div class="group">
+					<label>Load engine on start:</label>
+					<div id="sepiaFW-wake-word-autoload-box"></div>
+				</div>
+				<div class="group">
+					<label>Debug info:</label>
+					<div id="sepiaFW-wake-word-debug-box"></div>
+				</div>
+				<div id="sepiaFW-wake-word-audio-info"></div>
+			</div>
+		</div>
+		<!-- Page 2 -->
+		<div id="sepiaFW-frame-page-2" class='sepiaFW-frames-page sepiaFW-carousel-pane'>
+			Page 2
+		</div>
+	</div>
+</div>
+<div id="sepiaFW-frames-nav-bar" class='sepiaFW-layer-header'>
+	<button id="sepiaFW-frames-close" class='entry'>
+		<i class="material-icons md-btn2">close</i>
+	</button>
+	<button id="sepiaFW-frames-show-prev-page" class='entry'>
+		<i class="material-icons md-btn2">keyboard_arrow_left</i><span data-localize="back">back</span>
+	</button>
+	<button id="sepiaFW-frames-show-next-page" class='entry'>
+		<span data-localize="next">next</span><i class="material-icons md-btn2">keyboard_arrow_right</i>
+	</button>
+	<div id="sepiaFW-frames-nav-bar-page-indicator"><div>&nbsp;</div><div>&nbsp;</div></div>
+</div>
+<script>
+	$('[data-localize]').each(function(){
+		$(this).html(SepiaFW.local.g(this.dataset.localize));
+	});
+</script>

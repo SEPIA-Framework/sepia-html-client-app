@@ -684,7 +684,12 @@ function sepiaFW_build_events(){
 		var textS = SepiaFW.local.g('expired') + ": " + Timer.data.name;
 		if (showSimpleNote){
 			setTimeout(function(){
-				Events.showSimpleSilentNotification(titleS, textS);
+				var noteData = {
+					type : "alarm",
+					onClickType : "stopAlarmSound",
+					onCloseType : "stopAlarmSound"
+				};
+				Events.showSimpleSilentNotification(titleS, textS, noteData);
 			}, 50);
 		}
 		//play sound
@@ -779,6 +784,8 @@ function sepiaFW_build_events(){
 					window.focus();
 					note.close();
 					Events.handleLocalNotificationClick(data);
+				}, function(note){
+					Events.handleLocalNotificationClose(data);
 				});
 				//sound
 				if (soundFile && soundFile != 'null'){
@@ -801,6 +808,15 @@ function sepiaFW_build_events(){
 				}, 300);
 			}
 		
+		//alarm trigger
+		}else if (data && data.type == "alarm"){
+			if (data.onClickType == "stopAlarmSound"){
+				//stop alarm
+				if (SepiaFW.audio && SepiaFW.audio.isPlaying){
+					SepiaFW.audio.stopAlarmSound();
+				}
+			}
+		
 		//pro-active chat message
 		}else if (data && data.type === "entertainWhileIdle" && data.data){
 			var msg = data.data.message;
@@ -808,6 +824,18 @@ function sepiaFW_build_events(){
 				var dataOut = { sender: SepiaFW.assistant.name, senderType: 'assistant' };
 				SepiaFW.ui.showCustomChatMessage(msg, dataOut);
 			}, 300);
+		}
+	}
+	//handle close events on simple notifications
+	Events.handleLocalNotificationClose = function(data){
+		//alarm trigger
+		if (data && data.type == "alarm"){
+			if (data.onCloseType == "stopAlarmSound"){
+				//stop alarm
+				if (SepiaFW.audio && SepiaFW.audio.isPlaying){
+					SepiaFW.audio.stopAlarmSound();
+				}
+			}
 		}
 	}
 	

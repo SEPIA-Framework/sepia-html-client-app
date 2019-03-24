@@ -26,17 +26,22 @@ function sepiaFW_build_client_interface(){
 	ClientInterface.switchChatPartner = SepiaFW.webSocket.client.switchChatPartner;
 	ClientInterface.getActiveChatPartner = SepiaFW.webSocket.client.getActiveChatPartner;
 
+	ClientInterface.getNewMessageId = SepiaFW.webSocket.client.getNewMessageId;
 	ClientInterface.handleServerMessage = SepiaFW.webSocket.client.handleServerMessage;
 	
 	ClientInterface.toggleMicButton = SepiaFW.webSocket.client.toggleMicButton;
 	ClientInterface.sendInputText = SepiaFW.webSocket.client.sendInputText;
 	ClientInterface.sendMessage = SepiaFW.webSocket.client.sendMessage;
 	ClientInterface.sendCommand = SepiaFW.webSocket.client.sendCommand;
+	
 	ClientInterface.queueCommand = SepiaFW.webSocket.client.queueCommand;
 	ClientInterface.getAndRemoveNextCommandInQueue = SepiaFW.webSocket.client.getAndRemoveNextCommandInQueue;
 	ClientInterface.clearCommandQueue = SepiaFW.webSocket.client.clearCommandQueue;
 	ClientInterface.getCommandQueueSize = SepiaFW.webSocket.client.getCommandQueueSize;
 	ClientInterface.wasLastInputSourceAsr = SepiaFW.webSocket.client.wasLastInputSourceAsr;
+	
+	ClientInterface.queueIdleTimeEvent = SepiaFW.webSocket.client.queueIdleTimeEvent;
+	ClientInterface.clearIdleTimeEventQueue = SepiaFW.webSocket.client.clearIdleTimeEventQueue;
 	
 	ClientInterface.asrCallbackFinal = SepiaFW.webSocket.client.asrCallbackFinal;
 	ClientInterface.asrCallbackInterim = SepiaFW.webSocket.client.asrCallbackInterim;
@@ -82,11 +87,11 @@ function sepiaFW_build_webSocket_common(){
 	
 	//SocketMessage
 	Common.buildSocketMessage = function(sender, receiver, text, html, data, clientType, msgId, channelId){
-		//TODO: there is some confusion with ui.build.makeMessageObject - this is what is sent to server
+		//NOTE: Don't confuse with ui.build.makeMessageObject ... this here is what is sent to server
 		var msg = new Object();
 		var tsUNIX = new Date().getTime();
 			
-		if (!msgId) msgId = (sender + "-" + SepiaFW.webSocket.client.getNewMessageId());
+		if (!msgId) msgId = (sender + "-" + SepiaFW.webSocket.client.getNewMessageId()); 	//DONT CHANGE!
 		msg.msgId = msgId;
 		msg.channelId = channelId;
 		msg.sender = sender;
@@ -209,8 +214,10 @@ function sepiaFW_build_webSocket_client(){
 	Client.wasLastInputSourceAsr = function(){
 		return Client.lastInputSourceWasAsr;
 	}
+
+	//--- Queues:
 	
-	//command queue
+	//Command queue - Executed via: client.sendCommand(...)
 	var commandQueue = [];
 	Client.queueCommand = function(queueCmd){
 		commandQueue.push(queueCmd);	//note: queueCmd = action
@@ -231,6 +238,87 @@ function sepiaFW_build_webSocket_client(){
 	Client.clearCommandQueue = function(){
 		commandQueue = [];
 	}
+
+	//Idle time event queue - Executed via arbitrary callback after certain idle time
+	//NOTE: not to be confused with UI.getIdleTime
+	//NOTE2: idle events are NOT guaranteed to be executed!
+	var idleTimeEventQueue = [];
+	var idleTimeEventChecker = undefined;
+	var lastIdleStateTS = 0;
+	Client.clearIdleTimeEventQueue = function(){
+		idleTimeEventQueue = [];
+	}
+	Client.queueIdleTimeEvent = function(eventCallback, minIdle, maxDelay, fallbackEvent){
+		var minIdleTime = (minIdle)? minIdle : 2000;
+		if (minIdleTime < 2000) minIdleTime = 2000;		//min. 2s idle
+		var maxDelayTime = (maxDelay)? maxDelay : 30000;
+		if (maxDelayTime > 60000) maxDelayTime = 60000;	//max. 60s delay
+		if (maxDelayTime < minIdleTime){
+			minIdleTime = 2000;
+			maxDelayTime = 30000;
+		}
+		var now = new Date().getTime();
+		idleTimeEventQueue.push({
+			event: eventCallback,
+			minIdle: minIdleTime,
+			maxUnix: (now + maxDelayTime),
+			fallback: fallbackEvent 	//this triggers if maxUnix expires without event. Should be a simple note like SepiaFW.ui.showInfo(...)
+		});
+		//start now or wait for next idle state?
+		if (SepiaFW.animate.assistant.getState() == "idle"){
+			runIdleTimeEventChecker(); 
+		}
+	}
+	function runIdleTimeEventChecker(){
+		if (idleTimeEventChecker){
+			return;		//trust the running checker
+		}else{
+			idleTimeEventChecker = setInterval(function(){
+				//anything left?
+				if (!idleTimeEventQueue || idleTimeEventQueue.length == 0){
+					clearInterval(idleTimeEventChecker);
+					idleTimeEventChecker = undefined;
+				//check next event
+				}else{
+					checkNextIdleTimeEventAndRemove();		
+				}
+			}, 1000);
+		}
+	}
+	function checkNextIdleTimeEventAndRemove(){
+		if (idleTimeEventQueue && idleTimeEventQueue.length > 0){
+			var now  = new Date().getTime();
+			var idleTime = (now - lastIdleStateTS);
+			var idleEvent = idleTimeEventQueue[0];
+			if (idleEvent){
+				if (now > idleEvent.maxUnix){
+					//drop this event, its not valid anymore. Then restart check.
+					idleTimeEventQueue.shift();
+					if (idleEvent.fallback){
+						idleEvent.fallback(); 		//call fallback if its important stuff, e.g. via SepiaFW.ui.showInfo(...);
+					}
+					checkNextIdleTimeEventAndRemove();
+				}
+				if (idleTime >= idleEvent.minIdle){
+					lastIdleStateTS = new Date().getTime(); 	//idle or not, we reset
+					if (SepiaFW.animate.assistant.getState() == "idle"){
+						idleTimeEventQueue.shift();
+						idleEvent.event();
+					}
+				}
+			}
+		}
+	}
+	//listen to SEPIA state changes to find "idle"
+	document.addEventListener("sepia_state_change", function(e){		//e.g. stt, tts, loading
+		//console.log(e.detail.state);
+		lastIdleStateTS = new Date().getTime();
+		if (e.detail && e.detail.state == "idle"){
+			runIdleTimeEventChecker();
+		}
+	});
+
+	//------
 	
 	//shortcuts
 	var buildSocketMessage = SepiaFW.webSocket.common.buildSocketMessage;
@@ -351,6 +439,13 @@ function sepiaFW_build_webSocket_client(){
 		
 		//update myView
 		SepiaFW.ui.updateMyView(false, true, 'onActive');
+
+		//connect to CLEXI
+		if (SepiaFW.clexi.isSupported && SepiaFW.clexi.doConnect){
+            setTimeout(function(){
+                SepiaFW.clexi.setup();
+            }, 500);
+        }
 	}
 	
 	//execute when UI is ready and user is logged in (usually)
@@ -748,18 +843,15 @@ function sepiaFW_build_webSocket_client(){
 				if (SepiaFW.ui.isCordova){
 					$(inAppBrowserBtn).off();
 					$(inAppBrowserBtn).on("click", function () {
-						var inAppBrowserOptions = 'location=yes,toolbar=yes,mediaPlaybackRequiresUserAction=yes,allowInlineMediaPlayback=yes,hardwareback=yes,disableswipenavigation=no,clearsessioncache=no,clearcache=no';
-						cordova.InAppBrowser.open("<inappbrowser-last>", '_blank', inAppBrowserOptions);	//also valid: <inappbrowser-home>
+						SepiaFW.ui.actions.openUrlAutoTarget("<inappbrowser-last>");	//also valid: <inappbrowser-home>
 						closeControlsMenueWithDelay();
 					});
 				}else{
 					$(inAppBrowserBtn).hide();
-					/*
 					$(inAppBrowserBtn).on("click", function () {
-						window.open("search.html", '_blank');
+						SepiaFW.ui.actions.openUrlAutoTarget("search.html");
 						closeControlsMenueWithDelay();
 					});
-					*/
 				}
 			}
 		}

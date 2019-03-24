@@ -120,6 +120,11 @@
 	50% {	  top: 48%;	}
 	50.25% {  top: 23%;	}
 }
+@keyframes flicker {
+	0%   { opacity:1; }
+	50%  { opacity:0.33; }
+	100% { opacity:1; }
+}
 
 #sepiaFW-alwaysOn-avatar .avatar-pupil {
     position: absolute;
@@ -158,6 +163,9 @@
 }
 #sepiaFW-alwaysOn-avatar .avatar-mouth.sad {
 	border-radius: 0%;
+}
+#sepiaFW-alwaysOn-avatar .avatar-mouth.speaking {
+	animation: flicker 1.5s infinite;
 }
 
 #sepiaFW-alwaysOn-avatar .avatar-activity {

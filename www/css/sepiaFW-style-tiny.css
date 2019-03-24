@@ -1,0 +1,48 @@
+.sepiaFW-tiny-app body {
+	padding: 0px;
+	min-width: auto;
+}
+
+.sepiaFW-tiny-app #sepiaFW-nav-menu-btn {
+	display: none;
+}
+.sepiaFW-tiny-app #sepiaFW-nav-users-btn {
+	display: none;
+}
+.sepiaFW-tiny-app #sepiaFW-chat-controls-form {
+	display: none;
+}
+
+.sepiaFW-tiny-app #sepiaFW-chat-controls-more-menu {
+	height: 100%;
+}
+.sepiaFW-tiny-app #sepiaFW-more-menu-actions {
+	display: none;
+}
+.sepiaFW-tiny-app #sepiaFW-audio-ctrls {
+	display: none;
+}
+.sepiaFW-tiny-app #sepiaFW-more-menu-shortcuts {
+	padding: 4px 0 !important;
+}
+.sepiaFW-tiny-app #sepiaFW-location-ctrls {
+	padding: 4px 0 0 0;
+}
+.sepiaFW-tiny-app #sepiaFW-menue-status-text {
+	font-size: 12px;
+}
+
+.sepiaFW-tiny-app #sepiaFW-alwaysOn-avatar {
+	width: 190px;
+	height: 190px;
+	left: calc(50% - 95px);
+    top: calc(50% - 95px);
+}
+
+.sepiaFW-tiny-app #sepiaFW-login-box {
+	width: 100%;
+    left: 0;
+    top: 0;
+	margin: 0;
+	padding: 12px;
+}

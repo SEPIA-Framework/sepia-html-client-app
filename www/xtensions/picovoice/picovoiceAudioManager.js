@@ -5,13 +5,21 @@ let PicovoiceAudioManager = (function() {
     var processCallback;
     var isProcessing = false;
 
+    function logInfo(info){
+        if (SepiaFW && SepiaFW.wakeWordSettings){
+            SepiaFW.wakeWordSettings.debugLog(info);
+        }else{
+            console.log(info);
+        }
+    }
+
     var PicovoiceRecorder = function(audioSource){
-        console.log('CREATED PicovoiceRecorder');
+        logInfo('CREATED PicovoiceRecorder');
 
         var audioContext = audioSource.context;
 
         let inputSampleRate = audioContext.sampleRate;
-        console.log('inputSampleRate: ' + inputSampleRate);
+        logInfo('inputSampleRate: ' + inputSampleRate);
 
         let inputAudioBuffer = [];
 
@@ -82,13 +90,13 @@ let PicovoiceAudioManager = (function() {
             //Start recorder
             SepiaFW.audioRecorder.start(function(activeAudioContext, audioRec){
                 //Started
-                console.log('STARTED recorder');
+                logInfo('STARTED recorder');
             });
 			//audioRecorder.start();		//note: uses internal global audio-recorder
 
 		}, function(err){
             //Failed
-            console.log('ERROR: ' + err);
+            logInfo('ERROR: ' + err);
             if (errorCallback) errorCallback(err);
 		});
     };
@@ -98,9 +106,9 @@ let PicovoiceAudioManager = (function() {
 		var closeAfterStop = false;
         SepiaFW.audioRecorder.stop(closeAfterStop, function(){
             if (closeAfterStop){
-                console.log('CLOSED audio-context');
+                logInfo('CLOSED audio-context');
             }else{
-                console.log('SUSPENDED audio-context');
+                logInfo('SUSPENDED audio-context');
             }
             resetProcessing();
         }, function(err){

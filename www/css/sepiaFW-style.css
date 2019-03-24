@@ -553,6 +553,8 @@ body {
 }
 #sepiaFW-main-window .chat-buttons-area button {
 	flex: 1 0 auto;
+	position: relative;
+	min-width: 90px;
 }
 #sepiaFW-chat-output .chat-buttons-area {
 	justify-content: flex-start;
@@ -579,6 +581,20 @@ body {
 #sepiaFW-main-window .chat-buttons-area button.chat-button-url {
 }
 #sepiaFW-main-window .chat-buttons-area button.chat-button-cmd {
+}
+#sepiaFW-main-window .chat-buttons-area button.chat-button-custom-fun {
+	padding-left: 16px;
+    padding-right: 16px;
+}
+#sepiaFW-main-window .chat-buttons-area button.chat-button-custom-fun::after { 
+	position: absolute;
+	/*color: #181818;*/
+	bottom: 0px;
+    right: 0px;
+    content: "signal_cellular_connected_no_internet_4_bar";
+    font-family: "Material Icons";
+    font-size: 12px;
+    opacity: 0.25;
 }
 
 .sepiaFW-button {
@@ -1112,6 +1128,7 @@ body {
 }
 #sepiaFW-nav-bar button {
 	margin: 0px 5px 0px 5px;
+	border-radius: 18px;
 }
 #sepiaFW-nav-menu-btn {
 	float: left;
@@ -1219,6 +1236,7 @@ body {
 	padding-left: 0px !important;
 	padding-right: 0px !important;
 	width: 100%;
+	height: 100%;
 }
 #sepiaFW-chat-send i {
 	transform: rotate(180deg);
@@ -1235,8 +1253,14 @@ body {
 }
 #sepiaFW-chat-controls .eButton {
 	border-radius: 3px 18px 18px 3px;
-	margin: 0px 4px 0px 4px;
-	max-width: 41px;
+	/* margin: 0px 4px 0px 4px; */
+	/* max-width: 41px; */
+	margin: 0;
+	padding: 0;
+	border-radius: 0px 28px 28px 0px;
+}
+.sepiaFW-notouch-device #sepiaFW-chat-controls .eButton:hover {
+	border-radius: 28px;
 }
 #sepiaFW-chat-controls .extraMarginToBo {
 	margin-top: 10px;
@@ -1291,7 +1315,8 @@ body {
 }
 #sepiaFW-chat-controls-right {
 	flex: 0 0 auto;
-	padding: 10px 5px 10px 5px; 
+	/*padding: 10px 5px 10px 5px; */
+	padding: 3px 3px 3px 0;
     margin: 0px;
 	min-width: 61px;
 	/*max-width: 63px;*/

@@ -24,6 +24,8 @@ function sepiaFW_build_always_on(){
     AlwaysOn.isOpen = false;
     var mainWasFullscreenOpen = false;
     var mainWasVoiceDisabled = false;
+    var mainEnvironment;
+    var thisEnvironment = "avatar_display";
     var avatarIsWaiting = false;
     var avatarIsLoading = false;
     var avatarIsAlarmed = false;
@@ -45,6 +47,9 @@ function sepiaFW_build_always_on(){
             onSpeechToTextInputHandler: AlwaysOn.onSpeechToTextInputHandler,
             theme: "dark_full"
         });
+    }
+    AlwaysOn.stop = function(){
+        SepiaFW.frames.close();
     }
 
     //On finish setup (first open)
@@ -80,6 +85,9 @@ function sepiaFW_build_always_on(){
         //console.log('open');
         //prevent screen sleep on mobile
         AlwaysOn.preventSleep();
+        //set special environment
+        mainEnvironment = SepiaFW.config.environment;
+        SepiaFW.config.environment = thisEnvironment;
         //make sure there are no frames - TODO: we should reduce the necessary modifiers!
         mainWasFullscreenOpen = $('.sepiaFW-carousel-pane').hasClass('full-screen');
         $mainWindow.removeClass('sepiaFW-skin-mod');
@@ -102,6 +110,9 @@ function sepiaFW_build_always_on(){
                 SepiaFW.speech.enableVoice(skipStore);
             }
         }
+        //Activate BLE-Beacon detection?
+        activateBluetoothBeaconIfSet();
+
         AlwaysOn.isOpen = true;
         //restore some states (only support loading and waiting right now)
         if (avatarIsWaiting){
@@ -120,6 +131,8 @@ function sepiaFW_build_always_on(){
         $avatar.fadeOut(300);
         //allow sleep again
         AlwaysOn.allowSleep();
+        //restore original environment
+        SepiaFW.config.environment = mainEnvironment;
         //restore designs - TODO: we should reduce the necessary modifiers!
         $mainWindow.removeClass('sepiaFW-ao-mode');
         $topLayer.removeClass('sepiaFW-ao-mode');
@@ -133,6 +146,13 @@ function sepiaFW_build_always_on(){
             if (mainWasVoiceDisabled) SepiaFW.speech.disableVoice(skipStore);
             else SepiaFW.speech.enableVoice(skipStore);
         }
+        //Deactivate BLE-Beacon detection?
+        /* -- we keep this on for now since we want to use the back or mic button to get back into AO --
+        if (SepiaFW.inputControls && SepiaFW.inputControls.useBluetoothBeacons && SepiaFW.inputControls.useBluetoothBeaconsInAoModeOnly){
+            setTimeout(function(){
+                SepiaFW.inputControls.stopListeningToBluetoothBeacons();
+            }, 0);
+        }*/
         //go to my view on close
         //SepiaFW.ui.moc.showPane(0);
 
@@ -155,7 +175,7 @@ function sepiaFW_build_always_on(){
     AlwaysOn.onSpeechToTextInputHandler = function(sttResult){
         if (sttResult && sttResult.text){
             if (sttResult.isFinal){
-                console.log('AO saw text: ' + sttResult.text);
+                console.log('Always-On saw text: ' + sttResult.text);
             }else{
                 //console.log('AO saw text: ' + sttResult.text);
             }
@@ -194,6 +214,7 @@ function sepiaFW_build_always_on(){
             $activityArea.removeClass('loading');
             $activityArea.removeClass('listening');
             $activityArea.removeClass('speaking');
+            $avatarMouth.removeClass('speaking');
             $activityArea.removeClass('waiting');
 
             //modify by mood
@@ -215,6 +236,7 @@ function sepiaFW_build_always_on(){
         AlwaysOn.avatarIdle();
         if ($activityArea){
             $activityArea.addClass('speaking');
+            $avatarMouth.addClass('speaking');
         }
     }
     AlwaysOn.avatarListening = function(){
@@ -421,6 +443,18 @@ function sepiaFW_build_always_on(){
     }
     var fadeBatteryTimer;
 
+    //---------- Bluetooth LE Beacon support -----------
+
+    function activateBluetoothBeaconIfSet(){
+        if (SepiaFW.inputControls && SepiaFW.inputControls.useBluetoothBeacons && SepiaFW.inputControls.useBluetoothBeaconsInAoModeOnly){
+            if (!SepiaFW.inputControls.useBluetoothBeaconsOnlyWithPower || (AlwaysOn.batteryPlugStatus === true)){
+                setTimeout(function(){
+                    SepiaFW.inputControls.listenToBluetoothBeacons();
+                }, 0);
+            }
+        }
+    }
+
     //---------- Battery status API -----------
 
     var battery = undefined;
@@ -504,6 +538,9 @@ function sepiaFW_build_always_on(){
         SepiaFW.debug.info("BatteryStatus - device plugged in.");
         if (!AlwaysOn.isOpen && AlwaysOn.autoLoadOnPowerPlug){
             AlwaysOn.start();
+        }else{
+            //change BLE beacon status?
+            activateBluetoothBeaconIfSet();
         }
     }
 

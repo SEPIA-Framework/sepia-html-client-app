@@ -2,9 +2,30 @@
 	<div class='sepiaFW-carousel-pane-container'>
 		<!-- Page 1 -->
 		<div id="sepiaFW-frame-page-1" class='sepiaFW-frames-page sepiaFW-carousel-pane'>
-			<h3>Controllers and Hotkeys (Beta)</h3>
+			<h3>Controllers, Hotkeys and BLE-Beacons (Beta)</h3>
 			<p>Note: Buttons work everywhere, hotkeys work in Always-On mode <b>only</b>.</p>
 			<div style="display: flex; flex-direction: column; flex-wrap: wrap; justify-content: center;">
+				<div>
+					<p style="width:100%;"><u>Settings</u></p>
+					<div class="group" style="margin: 8px 0;">
+						<label>Use Gamepad:</label>
+						<div id="sepiaFW-input-controls-gamepad-box"></div>
+					</div>
+					<div class="group" style="margin: 8px 0;">
+						<label>Use Bluetooth-Beacon buttons:</label>
+						<div id="sepiaFW-input-controls-beacon-box"></div>
+					</div>
+					<div class="group" style="margin: 8px 0;">
+						<label>...but in Always-On only:</label>
+						<div id="sepiaFW-input-controls-beacon-ao-box"></div>
+					</div>
+					<div class="group" style="margin: 8px 0;">
+						<label>...and only when plugged in:</label>
+						<div id="sepiaFW-input-controls-beacon-power-box"></div>
+					</div>
+					<button id="SepiaFW-input-controls-store">Store settings</button>
+					<button id="SepiaFW-input-controls-clear">Clear settings</button>
+				</div>
 				<div>
 					<p style="width:100%;"><u>Define hotkeys:</u></p>
 					<button id="SepiaFW-hotkeys-define-mic">Toggle microphone</button>
@@ -23,11 +44,6 @@
 					<label>Ignore buttons: </label><input id="SepiaFW-buttons-ignore-btn1" 
 						style="width: 48px; background: transparent; border-bottom: 1px solid; color: inherit;">
 				</div>-->
-				<div>
-					<p style="width:100%;"><u>Settings</u></p>
-					<button id="SepiaFW-input-controls-store">Store settings</button>
-					<button id="SepiaFW-input-controls-clear">Clear settings</button>
-				</div>
 			</div>
 			<hr>
 			<div id="SepiaFW-input-controls-debug" style="overflow-y: auto; white-space: pre-wrap;"></div>

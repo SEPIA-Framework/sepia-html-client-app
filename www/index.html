@@ -37,7 +37,8 @@
 	<!-- imports -->
 	<!--<link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">-->
 	<!-- <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,600" rel="stylesheet"> -->
-    <link rel="stylesheet" href="css/sepiaFW-style.css" title='main'>
+	<link rel="stylesheet" href="css/sepiaFW-style.css" title='main'>
+	<link rel="stylesheet" href="css/sepiaFW-style-tiny.css" title='main'>
 	<!-- FOR MORE STYLESHEETS SEE END-OF-BODY -->
 	<script src="scripts/sepiaFW.app.js"></script>
 	<script src="scripts/sepiaFW.local.js"></script>
@@ -273,6 +274,7 @@
 <script src="scripts/recorder.js"></script>
 <script src="scripts/hammer.min.js"></script>
 <script src="scripts/hammer-time.min.js"></script>
+<script src="scripts/clexi-0.7.0.js"></script>
 <script src="scripts/sepiaFW.ui.js"></script>
 <script src="scripts/sepiaFW.ui.build.js"></script>
 <script src="scripts/sepiaFW.ui.animate.js"></script>
@@ -298,8 +300,11 @@
 <script src="scripts/sepiaFW.alwaysOn.js"></script>
 <script src="scripts/sepiaFW.inputControls.js"></script>
 <script src="scripts/sepiaFW.wakeTriggers.js"></script>
+<script src="scripts/sepiaFW.wakeWordSettings.js"></script>
 <script src="scripts/sepiaFW.embedded.nlu.js"></script>
 <script src="scripts/sepiaFW.embedded.services.js"></script>
+<script src="scripts/sepiaFW.client.controls.js"></script>
+<script src="scripts/sepiaFW.clexi.js"></script>
 <script type="text/javascript">
 
 	//get some settings via URL parameters
@@ -307,7 +312,8 @@
 	var isTest = SepiaFW.tools.getURLParameter('isTest');
 	var hostParam = SepiaFW.tools.getURLParameter('host');
 	var requestViaUrl = SepiaFW.tools.getURLParameter('q');
-	
+	var openView = SepiaFW.tools.getURLParameter('view');
+
 	//define app setup (called either here (index.html) or in cordova device-ready (index.js)
 	function appSetup(){
 		//prepare plugins
@@ -378,6 +384,10 @@
 				if (requestViaUrl){
 					SepiaFW.client.handleRequestViaUrl(requestViaUrl);
 				}
+				//Open view or frame?
+				if (openView){
+					SepiaFW.ui.openViewOrFrame(openView);
+				}
 			}else{
 				SepiaFW.client.ping(
 					//success
@@ -387,6 +397,12 @@
 						if (requestViaUrl){
 							SepiaFW.client.handleRequestViaUrl(requestViaUrl);
 						}
+						//Open view or frame - move outside?
+						if (openView){
+							SepiaFW.ui.openViewOrFrame(openView);
+						}
+						//Hide debug stuff O_O
+						$('#sepiaFW-colorRefBox').hide();
 					},
 					//fail: no connection to chat-server - note: on mobile this might trigger although network in general is down
 					function(data){ doThisOnConnectionFail(data) },

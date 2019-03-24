@@ -10,20 +10,20 @@ function sepiaFW_build_ui_notifications(){
 	}
 	
 	//send a note
-	Notify.send = function(text, title, options, pressCallback){
+	Notify.send = function(text, title, options, pressCallback, closeCallback){
 		if (!Notify.isSupported){
 			return;
 		}
 		//permission check
 		if (Notification.permission === "granted"){
-			makeNote(text, title, options, pressCallback);
+			makeNote(text, title, options, pressCallback, closeCallback);
 		}
 		//ask for permission
 		else if (Notification.permission !== 'denied'){
 			Notification.requestPermission(function (permission){
 				userHasBeenAsked = true;
 				if (permission === "granted") {
-					makeNote(text, title, options, pressCallback);
+					makeNote(text, title, options, pressCallback, closeCallback);
 				}else{
 					SepiaFW.debug.log('Notifications are deactivated, please check your browser settings, e.g. chrome://settings/content');
 				}
@@ -37,7 +37,7 @@ function sepiaFW_build_ui_notifications(){
 			}
 		}
 	}
-	function makeNote(text, title, options, pressCallback){
+	function makeNote(text, title, options, pressCallback, closeCallback){
 		var options = options || new Object();
 		//dir, lang, body, tag, icon, data
 		options.body = text;
@@ -45,8 +45,12 @@ function sepiaFW_build_ui_notifications(){
 		//options.data = title;
 		var notification = new Notification((title || "SepiaFW Notification"), options);
 		//notification.onshow = function(){};
-		notification.onclick = function(){ pressCallback(notification); }; 		//event.preventDefault(); // prevent the browser from focusing the Notification's tab
-		//notification.onclose = function(){};
+		if (pressCallback){
+			notification.onclick = function(){ pressCallback(notification); }; 		//event.preventDefault(); // prevent the browser from focusing the Notification's tab
+		}
+		if (closeCallback){
+			notification.onclose = function(){ closeCallback(notification); };
+		}
 	}
 	
 	return Notify;

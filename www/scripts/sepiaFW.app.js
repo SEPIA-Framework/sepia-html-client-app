@@ -29,6 +29,7 @@ SepiaFW.buildSepiaFwPlugins = function(){
 	SepiaFW.webSocket.common = sepiaFW_build_webSocket_common();
 	SepiaFW.webSocket.client = sepiaFW_build_webSocket_client();
 	SepiaFW.client = sepiaFW_build_client_interface();
+	SepiaFW.client.controls = sepiaFW_build_client_controls();
 	SepiaFW.files = sepiaFW_build_files();
 	SepiaFW.frames = sepiaFW_build_frames();
 	SepiaFW.teach = sepiaFW_build_teach();
@@ -36,9 +37,11 @@ SepiaFW.buildSepiaFwPlugins = function(){
 	SepiaFW.alwaysOn = sepiaFW_build_always_on();
 	SepiaFW.inputControls = sepiaFW_build_input_controls();
 	SepiaFW.wakeTriggers = sepiaFW_build_wake_triggers();
+	SepiaFW.wakeWordSettings = sepiaFW_build_wake_word_settings();
 	SepiaFW.embedded = new Object();
 	SepiaFW.embedded.nlu = sepiaFW_build_embedded_nlu();
 	SepiaFW.embedded.services = sepiaFW_build_embedded_services();
+	SepiaFW.clexi = sepiaFW_build_clexi();
 }
 
 //DATA STORAGE
@@ -252,7 +255,7 @@ function sepiaFW_build_config(){
 	Config.clientInfo = "web_app_v1.0.0";	//defined by client properties
 	var deviceId = "";						//set in settings and freely chosen by user to address his devices directly
 	var deviceIdClean = "";					//clean version of device ID (no spaces, only alphanumeric, lower-case)
-	Config.environment = "default";			//tbd
+	Config.environment = "default";			//default for now - switched to "avatar_display" in AO-Mode
 	
 	//set client info
 	Config.setClientInfo = function(clientInfo){
@@ -453,24 +456,42 @@ function sepiaFW_build_tools(){
 	}
 
 	//load script to element (body by default)
-	Tools.loadJS = function(url, successCallback, location){
-		if (!location) location = document.body;
-		
-		var scriptTag = document.createElement('script');
-		scriptTag.src = url;
+	Tools.loadJS = function(url, successCallback, domParent){
+		if (!domParent) domParent = document.body;
 
-		if (successCallback){
-			var didExecuteCallback = false;
-			function execute(){
-				if (!didExecuteCallback){
-					didExecuteCallback = true;
-					successCallback();
-				}
+		//Check if already exists
+		var alreadyThere = false;
+		var urlWithOrigin = (location.origin + "/" + url);
+		$(domParent).find('script').each(function(index){
+			if (this.src == url || this.src == urlWithOrigin){
+				alreadyThere = true;
+				return;
 			}
-			scriptTag.onload = execute;
-			scriptTag.onreadystatechange = execute;
+		});
+		if (!alreadyThere){
+			//build new
+			var scriptTag = document.createElement('script');
+			scriptTag.src = url;
+
+			if (successCallback){
+				var didExecuteCallback = false;
+				function execute(){
+					if (!didExecuteCallback){
+						didExecuteCallback = true;
+						successCallback();
+					}
+				}
+				scriptTag.onload = execute;
+				scriptTag.onreadystatechange = execute;
+			}
+			domParent.appendChild(scriptTag);
+			SepiaFW.debug.info("Added script to DOM: " + url);
+		
+		}else{
+			SepiaFW.debug.log("Skipped loading of '" + url + "' ... was already there!");
+			//just call callback
+			if (successCallback) successCallback();
 		}
-		location.appendChild(scriptTag);
 	}
 	
 	//check for IP

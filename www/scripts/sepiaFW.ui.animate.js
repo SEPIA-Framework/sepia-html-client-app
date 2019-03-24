@@ -59,6 +59,11 @@ function sepiaFW_build_animate(){
 	}
 
 	//---------------------
+
+	var animState = "idle";
+	Animate.assistant.getState = function(){
+		return animState;
+	}
 	
 	Animate.assistant.idle = function(source){
 		if (!source) source = "unknown";
@@ -84,6 +89,9 @@ function sepiaFW_build_animate(){
 			if (SepiaFW.alwaysOn){
 				SepiaFW.alwaysOn.avatarIdle();
 			}
+			//Dispatch - NOTE: this will also trigger the timer for idle-time events (see: Client.queueIdleTimeEvent)
+			animState = "idle";
+			dispatchAnimationStateEvent(animState);
 		}
 		//hide extra input box
 		SepiaFW.ui.hideLiveSpeechInputBox();
@@ -92,9 +100,13 @@ function sepiaFW_build_animate(){
 		SepiaFW.ui.assistBtn.innerHTML = SepiaFW.ui.assistIconLoad;
 		SepiaFW.ui.assistBtnArea.style.backgroundColor = SepiaFW.ui.loadingColor;
 		$("#sepiaFW-assist-btn-orbiters").removeClass("sepiaFW-animation-pause");
+		//Avatar
 		if (SepiaFW.alwaysOn){
 			SepiaFW.alwaysOn.avatarLoading();
 		}
+		//Dispatch
+		animState = "loading";
+		dispatchAnimationStateEvent(animState);
 	}
 	Animate.assistant.speaking = function(){
 		SepiaFW.ui.assistBtn.innerHTML = SepiaFW.ui.assistIconSpeak;
@@ -110,22 +122,38 @@ function sepiaFW_build_animate(){
 		$("#sepiaFW-assist-btn-orbiters").removeClass("sepiaFW-animation-pause");
 		//extra input box
 		SepiaFW.ui.showLiveSpeechInputBox();
+		//Avatar
 		if (SepiaFW.alwaysOn){
 			SepiaFW.alwaysOn.avatarListening();
 		}
+		//Dispatch
+		animState = "listening";
+		dispatchAnimationStateEvent(animState);
 	}
 	Animate.assistant.awaitDialog = function(source){
 		SepiaFW.ui.assistBtn.innerHTML = SepiaFW.ui.assistIconAwaitAnswer;
 		SepiaFW.ui.assistBtnArea.style.backgroundColor = SepiaFW.ui.awaitDialogColor;
 		$("#sepiaFW-assist-btn-orbiters").removeClass("sepiaFW-animation-pause");
+		//Avatar
 		if (SepiaFW.alwaysOn){
 			SepiaFW.alwaysOn.avatarAwaitingInput();
 		}
+		//Dispatch
+		animState = "awaitDialog";
+		dispatchAnimationStateEvent(animState);
 		//check for automatic microphone trigger
 		var didTriggerMic = possibilityToAutoSwitchMic(source);
 		if (!didTriggerMic){
 			possibilityToSwitchOnWakeWordListener(source);
 		}
+	}
+
+	//animation state dispatcher
+	function dispatchAnimationStateEvent(animEvent){
+		var event = new CustomEvent('sepia_state_change', { detail: {
+			state: animEvent
+		}});
+		document.dispatchEvent(event);
 	}
 	
 	//audio player animations

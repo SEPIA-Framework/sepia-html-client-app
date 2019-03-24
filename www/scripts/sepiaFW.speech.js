@@ -171,6 +171,13 @@ function sepiaFW_build_speech(){
 	Speech.isWaitingForSpeech = function(){
 		return speechWaitingForResult;
 	}
+
+	//BOTH:
+
+	//Input, output or waiting for action?
+	Speech.isSpeakingOrListening = function(){
+		return (isSpeaking || speechWaitingForResult || isRecognizing || recognizerWaitingForResult || speechWaitingForStop);
+	}
 	
 	//--------broadcast methods----------
 	
@@ -705,6 +712,10 @@ function sepiaFW_build_speech(){
 		}else{
 			setVoiceOnce();
 		}
+		//refresh selector once more?
+		if (Speech.getActiveVoice()){
+			$(voiceSelector).val(Speech.getActiveVoice());
+		}
 		return voiceSelector;
 	}
 	
@@ -735,6 +746,10 @@ function sepiaFW_build_speech(){
 					selectedVoiceObject = {};
 				}
 				SepiaFW.debug.log("TTS voice set: " + ((selectedVoiceObject.name)? selectedVoiceObject.name : "undefined"));
+				if (selectedVoiceObject.name){
+					$('#sepiaFW-menu-select-voice').val(selectedVoice);
+				}
+				SepiaFW.data.setPermanent(Speech.language + "-voice", selectedVoice);
 			}
 		}
 	}
@@ -800,6 +815,7 @@ function sepiaFW_build_speech(){
 		
 		//WEB-SPEECH-API
 		}else{
+			window.sepia_tts_utterances = []; 		//This is a bug-fix to prevent utterance from getting garbage collected
 			var utterance = new SpeechSynthesisUtterance();
 			utterance.text = text;
 			utterance.lang = getLongLanguageCode(Speech.language);
@@ -836,6 +852,7 @@ function sepiaFW_build_speech(){
 			setTimeout(function(){
 				broadcastTtsRequested();
 				speechWaitingForResult = true;
+				window.sepia_tts_utterances.push(utterance); 	//bug-fix see above
 				window.speechSynthesis.speak(utterance);
 			}, 0);
 		}
@@ -956,9 +973,15 @@ function sepiaFW_build_speech(){
 		}
 	}
 	
-	//set a voice in Edge
+	//set a preselected voice (e.g. in Edge)
 	function setVoiceOnce(){
-		if (!selectedVoice){
+		//stored?
+		var storedVoice = SepiaFW.data.getPermanent(Speech.language + "-voice");
+		if (storedVoice){
+			Speech.setVoice(storedVoice);
+
+		//some defaults
+		}else if (!selectedVoice){
 			if (SepiaFW.ui.isEdge){
 				if (SepiaFW.config.appLanguage === "de"){
 					Speech.setVoice('Microsoft Katja Mobile - German (Germany)');
