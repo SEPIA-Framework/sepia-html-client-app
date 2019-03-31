@@ -44,9 +44,17 @@ function sepiaFW_build_clexi(){
         }
     }
 
+    var rgyIndicators = [];
+    Clexi.addStateIndicatorRGY = function(sepiaIndicator){
+        rgyIndicators.push(sepiaIndicator);
+    }
+
     Clexi.connect = function(){
         ClexiJS.connect(Clexi.socketURI, function(e){
             //connected
+            rgyIndicators.forEach(function(indi){
+                indi.setState("g");
+            });
 
             //subscribe
             subscribeToBeaconScanner();
@@ -57,6 +65,10 @@ function sepiaFW_build_clexi(){
             
         }, function(e){
             //closed
+            rgyIndicators.forEach(function(indi){
+                indi.setState("r");
+            });
+
             removeBeaconScannerSubscription();
             //removeBroadcasterSubscription();
             
@@ -64,10 +76,18 @@ function sepiaFW_build_clexi(){
             //error
             removeBeaconScannerSubscription();
             //removeBroadcasterSubscription();
+        
+        }, function(){
+            //connecting
+            rgyIndicators.forEach(function(indi){
+                indi.setState("y");
+            });
         });
     }
     Clexi.close = function(){
         ClexiJS.close();
+        var useClexi = SepiaFW.data.get('clexiConnect');
+        if (useClexi != undefined) Clexi.doConnect = useClexi;
     }
 
     Clexi.send = function(extensionName, data, numOfRetries){

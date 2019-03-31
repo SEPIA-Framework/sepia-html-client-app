@@ -868,6 +868,26 @@ body {
     padding: 0px;
 	float: left;
 }
+.sepiaFW-indicator-rgy {
+	background: #888;
+	border-radius: 10px;
+	height: 16px;
+    width: 16px;
+    margin: 6px 8px 6px 8px;
+	padding: 0px;
+}
+.sepiaFW-indicator-rgy.red {
+	background: #f00;
+}
+.sepiaFW-indicator-rgy.yellow {
+	background: #ff0;
+}
+.sepiaFW-indicator-rgy.green {
+	background: #0f0;
+}
+#sepiaFW-chat-menu li .sepiaFW-indicator-rgy {
+	float: right;
+}
 .sepiaFW-menu-addresses-list {
 }
 .sepiaFW-menu-addresses-list p {

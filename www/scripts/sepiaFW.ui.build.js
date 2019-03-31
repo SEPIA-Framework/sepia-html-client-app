@@ -84,6 +84,51 @@ function sepiaFW_build_ui_build(){
 			}
 		}
 	}
+
+	//state indicator
+	Build.stateIndicatorRGY = function(indicatorId, initialState, onGreenCallback, onYellowCallback, onRedCallback){
+		var Indicator = {};
+
+		var indicatorEle = document.createElement('DIV');
+		indicatorEle.className = "sepiaFW-indicator-rgy";
+		if (indicatorId) indicatorEle.id = indicatorId;
+		indicatorEle.sepiaIndicator = Indicator;
+
+		Indicator.getElement = function(){
+			return indicatorEle;
+		}
+
+		if (!initialState || initialState == "r"){
+			indicatorEle.innerHTML = "<div class='red'></div>";
+			indicatorEle.setAttribute("data-rgy-indicator", "r");
+		}else if (initialState == "y"){
+			indicatorEle.innerHTML = "<div class='yellow'></div>";
+			indicatorEle.setAttribute("data-rgy-indicator", "y");
+		}else if (initialState == "g"){
+			indicatorEle.innerHTML = "<div class='green'></div>";
+			indicatorEle.setAttribute("data-rgy-indicator", "g");
+		}
+
+		Indicator.getState = function(){
+			return indicatorEle.getAttribute("data-rgy-indicator");
+		}
+		Indicator.setState = function(state, skipCallback){
+			indicatorEle.classList.remove("red", "yellow", "green");
+			indicatorEle.setAttribute("data-toggle-state", state);
+			if (state == "r"){
+				indicatorEle.classList.add("red");
+				if (!skipCallback && onRedCallback) onRedCallback();
+			}else if (state == "y"){
+				indicatorEle.classList.add("yellow");
+				if (!skipCallback && onYellowCallback) onYellowCallback();
+			}else if (state == "g"){
+				indicatorEle.classList.add("green");
+				if (!skipCallback && onGreenCallback) onGreenCallback();
+			}
+		}
+		
+		return Indicator;
+	}
 	
 	//simple action button
 	Build.inlineActionButton = function(btnId, btnName, callback){
@@ -661,7 +706,8 @@ function sepiaFW_build_ui_build(){
 			//CLEXI stuff
 			if (SepiaFW.clexi && SepiaFW.clexi.isSupported){
 				//add CLEXI toggle
-				document.getElementById('sepiaFW-menu-toggle-clexi-li').appendChild(Build.toggleButton('sepiaFW-menu-toggle-clexi', 
+				var clexiToggleLi = document.getElementById('sepiaFW-menu-toggle-clexi-li');
+				clexiToggleLi.appendChild(Build.toggleButton('sepiaFW-menu-toggle-clexi', 
 					function(){
 						SepiaFW.data.set('clexiConnect', true);
 						SepiaFW.debug.info("CLEXI connection is ENABLED");
@@ -672,6 +718,16 @@ function sepiaFW_build_ui_build(){
 						SepiaFW.clexi.close();
 					}, SepiaFW.clexi.doConnect)
 				);
+				//add indicator
+				var clexiIndicator = Build.stateIndicatorRGY('sepiaFW-menu-clexi-state', "r", function(){
+					//green
+				}, function(){
+					//yellow
+				}, function(){
+					//red
+				});
+				clexiToggleLi.appendChild(clexiIndicator.getElement());
+				SepiaFW.clexi.addStateIndicatorRGY(clexiIndicator);
 				
 				//CLEXI server URL
 				var clexiServerInput = document.getElementById("sepiaFW-menu-clexi-socket-url");
@@ -1066,10 +1122,10 @@ function sepiaFW_build_ui_build(){
 
 	//chat entry block
 	Build.chatEntry = function(msg, username, options){
-		var isAssistAnswer = (msg.data && msg.data.dataType === "assistAnswer");
+		var isAssistMsg = (msg.data && (msg.data.dataType === "assistAnswer" || msg.data.dataType === "assistFollowUp"));
 		
 		var type = msg.senderType;
-		var text = (isAssistAnswer)? msg.data.assistAnswer.answer : msg.text;
+		var text = (isAssistMsg)? msg.data.assistAnswer.answer : msg.text;
 		var sender = msg.sender;
 		var senderName = (SepiaFW.webSocket)? SepiaFW.webSocket.client.getNameFromUserList(sender) : "";
 		var senderText = (senderName)? senderName : sender;
@@ -1180,7 +1236,7 @@ function sepiaFW_build_ui_build(){
 		}
 		
 		//Actions
-		if (isAssistAnswer && SepiaFW.ui.actions){
+		if (isAssistMsg && SepiaFW.ui.actions){
 			if (!options.skipActions){
 				SepiaFW.ui.actions.handle(msg.data.assistAnswer, block, sender, options);
 			}else if (options.skipNoneButtonActions){
@@ -1190,7 +1246,7 @@ function sepiaFW_build_ui_build(){
 		}
 		
 		//add card-data
-		if (isAssistAnswer && msg.data.assistAnswer.hasCard){
+		if (isAssistMsg && msg.data.assistAnswer.hasCard){
 			if (SepiaFW.ui.cards){
 				var card = SepiaFW.ui.cards.get(msg.data.assistAnswer, sender);
 				//TODO: handle both? Right now its 'take inline if you can and ignore fullscreen'
