@@ -1,8 +1,8 @@
-/* CLEXI - Client Extension Interface v0.9.0 */
+/* CLEXI - Client Extension Interface */
 var ClexiJS = (function(){
 	var Clexi = {};
 	
-	Clexi.version = "0.7.0";
+	Clexi.version = "0.7.1";
 	
 	//Extension subscriptions
 	var subscriptions = {};
@@ -33,7 +33,7 @@ var ClexiJS = (function(){
 	
 	Clexi.availableXtensions = {};
 	
-	Clexi.connect = function(host, onOpen, onClose, onError){
+	Clexi.connect = function(host, onOpen, onClose, onError, onConnecting){
 		//URL
 		if (host){
 			//given URL
@@ -51,6 +51,7 @@ var ClexiJS = (function(){
 		ws = new WebSocket(hostURL);
 		requestedClose = false;
 		if (Clexi.onLog) Clexi.onLog('CLEXI connecting ...');
+		if (onConnecting) onConnecting();
 		
 		//Events:
 		
@@ -100,7 +101,7 @@ var ClexiJS = (function(){
 			if (!requestedClose){
 				//try reconnect?
 				if (Clexi.doAutoReconnect){
-					autoReconnect(host, onOpen, onClose, onError);
+					autoReconnect(host, onOpen, onClose, onError, onConnecting);
 				}
 			}else{
 				if (reconnectTimer) clearTimeout(reconnectTimer);
@@ -111,20 +112,21 @@ var ClexiJS = (function(){
 	
 	Clexi.close = function(){
 		if (reconnectTimer) clearTimeout(reconnectTimer);
+		requestedClose = true;
 		if (ws && isConnected){
-			requestedClose = true;
 			ws.close();
 		}
 	}
 	
-	function autoReconnect(host, onOpen, onClose, onError){
+	function autoReconnect(host, onOpen, onClose, onError, onConnecting){
 		reconnectTry++;
 		var delay = Math.min(reconnectTry*reconnectTry*reconnectBaseDelay, reconnectMaxDelay);
 		//TODO: we could/should check navigator.onLine here ...
+		if (reconnectTimer) clearTimeout(reconnectTimer);
 		reconnectTimer = setTimeout(function(){
-			if (!isConnected){
+			if (!isConnected && !requestedClose){
 				if (Clexi.onLog) Clexi.onLog('CLEXI reconnecting after unexpected close. Try: ' + reconnectTry);
-				Clexi.connect(host, onOpen, onClose, onError);
+				Clexi.connect(host, onOpen, onClose, onError, onConnecting);
 			}
 		}, delay);
 	}
