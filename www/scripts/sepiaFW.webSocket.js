@@ -1392,13 +1392,19 @@ function sepiaFW_build_webSocket_client(){
 				
 			//get welcome message after channel-join
 			}else if (message.sender === serverName && message.data.dataType === "welcome"){
-				
 				broadcastChannelJoin(activeChannelId);
-				
-			
+
 			//assistant answer
 			}else if (message.data.dataType === "assistAnswer"){
 				publishChatMessage(message, username);
+				notAnsweredYet = false;
+
+			//assistant follow up message
+			}else if (message.data.dataType === "assistFollowUp"){
+				//TODO: should we wait for idle time here? I guess so ..., on the other hand TTS (if active) will be queued anyway
+				//console.log(message);
+				publishChatMessage(message, username); 		
+				//TODO: the msg ID will be the one of the initial request ... is this an unhandled problem later? msg options (e.g. skipTTS) might be lost ...
 				notAnsweredYet = false;
 			
 			//direct command
@@ -1515,7 +1521,13 @@ function sepiaFW_build_webSocket_client(){
 		//console.log('options: ' + JSON.stringify(options));		//DEBUG
 		
 		var isAssistAnswer = (message.data && message.data.dataType === "assistAnswer");
-		var messageTextSpeak = (isAssistAnswer)? message.data.assistAnswer.answer_clean : message.text;
+		var isAssistFollowUp = (message.data && message.data.dataType === "assistFollowUp");
+		var messageTextSpeak;
+		if (isAssistAnswer || isAssistFollowUp){
+			messageTextSpeak = message.data.assistAnswer.answer_clean; 		//note: follow-up is also called 'assistAnswer' .. should have called it 'assistMsg' ^^
+		}else{
+			messageTextSpeak = message.text;
+		}
 		if (!messageTextSpeak){
 			options.skipTTS = true;
 		}
@@ -1569,7 +1581,7 @@ function sepiaFW_build_webSocket_client(){
 		}
 		
 		//Assistant states - TODO: this needs some rework to make it compatible with background commands 
-		if (isAssistAnswer && !(options.loadOnlyData || options.skipInsert || options.skipText)){
+		if ((isAssistAnswer || isAssistFollowUp) && !(options.loadOnlyData || options.skipInsert || options.skipText)){
 			var returnToIdle;
 			if (options.skipTTS || !SepiaFW.speech || SepiaFW.speech.skipTTS || !SepiaFW.speech.isTtsSupported){
 				returnToIdle = true;
@@ -1578,7 +1590,7 @@ function sepiaFW_build_webSocket_client(){
 			}
 			SepiaFW.assistant.setState(message.data.assistAnswer, returnToIdle);
 		
-		}else if (isAssistAnswer && options.skipTTS){
+		}else if ((isAssistAnswer || isAssistFollowUp) && options.skipTTS){
 			//there will be no trigger for queued commands now, so we have to check it manually
 			if (SepiaFW.ui.actions && SepiaFW.client.getCommandQueueSize() > 0){
 				SepiaFW.animate.assistant.loading();
