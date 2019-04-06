@@ -3,7 +3,7 @@ function sepiaFW_build_ui(){
 	var UI = {};
 	
 	//some constants
-	UI.version = "v0.17.0";
+	UI.version = "v0.17.1";
 	UI.JQ_RES_VIEW_IDS = "#sepiaFW-result-view, #sepiaFW-chat-output, #sepiaFW-my-view";	//a selector to get all result views e.g. $(UI.JQ_RES_VIEW_IDS).find(...) - TODO: same as $('.sepiaFW-results-container') ??
 	UI.JQ_ALL_MAIN_VIEWS = "#sepiaFW-result-view, #sepiaFW-chat-output, #sepiaFW-my-view, #sepiaFW-teachUI-editor, #sepiaFW-teachUI-manager, #sepiaFW-frame-page-1, #sepiaFW-frame-page-2"; 	//TODO: frames can have more ...
 	UI.JQ_ALL_SETTINGS_VIEWS = ".sepiaFW-chat-menu-list-container";
@@ -342,9 +342,9 @@ function sepiaFW_build_ui(){
 	}
 	
 	//-------- SETUP --------
-	
-	//setup UI components and client variables
-	UI.setup = function(){
+
+	//setup device properties and stuff
+	UI.beforeSetup = function(){
 		//is touch device?
 		if ("ontouchstart" in document.documentElement){
 			UI.isTouchDevice = true;
@@ -354,7 +354,7 @@ function sepiaFW_build_ui(){
 			document.documentElement.className += " sepiaFW-notouch-device";
 		}
 		
-		//is Android or Chrome?
+		//is Android or Chrome? - TODO: what about Chromium?
 		UI.isAndroid = (UI.isCordova)? (device.platform === "Android") : (navigator.userAgent.match(/(Android)/ig)? true : false);
 		UI.isChrome = (/Chrome/gi.test(navigator.userAgent)) && !(/Edge/gi.test(navigator.userAgent));
 		//is iOS or Safari?
@@ -404,6 +404,23 @@ function sepiaFW_build_ui(){
 			return urlParam;
 		}
 		UI.isTinyApp = isTinyApp();
+	}
+
+	//get default device ID
+	UI.getDefaultDeviceId = function(){
+		if (UI.isIOS){
+			return "I1";
+		}else if (UI.isAndroid){
+			return "A1";
+		}else if (UI.isStandaloneWebApp){
+			return "O1";
+		}else{
+			return "B1";
+		}
+	}
+	
+	//setup UI components and client variables - requires UI.beforeSetup() !
+	UI.setup = function(){
 		
 		//client
 		SepiaFW.config.setClientInfo(((UI.isIOS)? 'iOS_' : '') 
@@ -412,7 +429,9 @@ function sepiaFW_build_ui(){
 							+ ((UI.isEdge)? 'edge_' : '')
 							+ ((UI.isSafari)? 'safari_' : '')
 							+ ((UI.isStandaloneWebApp)? "app_" : "browser_") + UI.version);
-							
+		
+		//---------------------- LOAD other SETTINGS before building the UI:
+
 		//load skin
 		var lastSkin = SepiaFW.data.get('activeSkin');
 		if (lastSkin){
@@ -422,6 +441,11 @@ function sepiaFW_build_ui(){
 			UI.refreshSkinColors();
 		}
 		
+		//module specific settings
+		SepiaFW.config.loadAppSettings();
+
+		//-------------------------------------------------------------------------------------------------
+
 		//set assist-button defaults
 		UI.assistBtn = document.getElementById("sepiaFW-assist-btn") || document.createElement("BUTTON");
 		UI.assistBtnArea = document.getElementById("sepiaFW-assist-btn-area") || document.createElement("DIV");
@@ -434,68 +458,6 @@ function sepiaFW_build_ui(){
 		UI.assistIconRec = '<i class="material-icons md-mic">&#xE1B8;</i>';
 		UI.assistIconStop = '<i class="material-icons md-mic">&#xE034;</i>';
 		UI.assistIconAwaitAnswer = '<i class="material-icons md-mic-dia">&#xE0B7;</i>';  //&#xE90F;
-		
-		//---------------------- LOAD other SETTINGS before building the UI:
-		//TODO: this should be simplified with a service! ... for the start we could move it to the 'data' module
-		
-		//TTS
-		if (SepiaFW.speech){
-			var storedValue = SepiaFW.data.get('skipTTS');
-			if (typeof storedValue != 'undefined') SepiaFW.speech.skipTTS = storedValue;
-			SepiaFW.debug.info("TTS is " + ((SepiaFW.speech.skipTTS)? "OFF" : "ON"));
-		}
-		//GPS
-		if (SepiaFW.geocoder){
-			var storedValue = SepiaFW.data.get('autoGPS');
-			if (typeof storedValue != 'undefined') SepiaFW.geocoder.autoGPS = storedValue;
-			SepiaFW.debug.info("GPS is in " + ((SepiaFW.geocoder.autoGPS)? "AUTO" : "MANUAL") + " mode.");
-		}
-		//Proactive notes
-		if (SepiaFW.assistant){
-			var storedValue = SepiaFW.data.get('proactiveNotes');
-			if (typeof storedValue != 'undefined') SepiaFW.assistant.isProActive = storedValue;
-			SepiaFW.debug.info("Proactive notes are " + ((SepiaFW.assistant.isProActive)? "ON" : "OFF"));
-		}
-		//Channel status messages
-		UI.showChannelStatusMessages = SepiaFW.data.get('channelStatusMessages');
-			if (typeof UI.showChannelStatusMessages == 'undefined') UI.showChannelStatusMessages = true;
-			SepiaFW.debug.info("Channel status messages are " + ((UI.showChannelStatusMessages)? "ON" : "OFF"));
-		//Allow background connection
-		if (SepiaFW.client){
-			SepiaFW.client.allowBackgroundConnection = SepiaFW.data.get('allowBackgroundConnection');
-			if (typeof SepiaFW.client.allowBackgroundConnection == 'undefined') SepiaFW.client.allowBackgroundConnection = false;
-			SepiaFW.debug.info("Background connections are " + ((SepiaFW.client.allowBackgroundConnection)? "ALLOWED" : "NOT ALLOWED"));
-		}
-		//Allow power status tracking (e.g. power plugIn event)
-		if (SepiaFW.alwaysOn){
-			SepiaFW.alwaysOn.trackPowerStatus = SepiaFW.data.get('trackPowerStatus');
-			if (typeof SepiaFW.alwaysOn.trackPowerStatus == 'undefined') SepiaFW.alwaysOn.trackPowerStatus = false;
-			if (SepiaFW.alwaysOn.trackPowerStatus){
-				SepiaFW.alwaysOn.setupBatteryStatus();
-			}
-			SepiaFW.debug.info("Power-status tracking is " + ((SepiaFW.alwaysOn.trackPowerStatus)? "ALLOWED" : "NOT ALLOWED"));
-		}
-		//Gamepad, Hotkeys and BLE-Beacon support
-		if (SepiaFW.inputControls){
-			SepiaFW.inputControls.initializeGamepads();
-			SepiaFW.inputControls.initializeBluetoothBeacons();
-		}
-		//Wake-word trigger
-		if (SepiaFW.wakeTriggers){
-			SepiaFW.wakeTriggers.initialize();
-		}
-		//Smart microphone toggle
-		if (SepiaFW.speech){
-			SepiaFW.speech.useSmartMicToggle = SepiaFW.data.get('useSmartMicToggle');
-			if (typeof SepiaFW.speech.useSmartMicToggle == 'undefined') SepiaFW.speech.useSmartMicToggle = true;
-			SepiaFW.debug.info("Smart microphone toggle is " + ((SepiaFW.speech.useSmartMicToggle)? "ON" : "OFF"));
-		}
-		//CLEXI.js support
-		if (SepiaFW.clexi){
-			SepiaFW.clexi.initialize();
-		}
-
-		//-------------------------------------------------------------------------------------------------
 		
 		//build UI logic and general buttons
 		UI.build.uiButtonsAndLogic();
@@ -932,52 +894,54 @@ function sepiaFW_build_ui(){
 	
 	//Show message popup
 	UI.showPopup = function(content, config){
-		var buttonOneName, buttonOneAction, buttonTwoName, buttonTwoAction, buttonThreeName, buttonThreeAction, buttonFourName, buttonFourAction;
-		var primaryColor, secondaryColor;
-		if (config){
-			buttonOneName = config.buttonOneName;
-			buttonOneAction = config.buttonOneAction;
-			buttonTwoName = config.buttonTwoName;
-			buttonTwoAction = config.buttonTwoAction;
-			buttonThreeName = config.buttonThreeName;
-			buttonThreeAction = config.buttonThreeAction;
-			buttonFourName = config.buttonFourName;
-			buttonFourAction = config.buttonFourAction;
-			primaryColor = config.primaryColor;
-			secondaryColor = config.secondaryColor;
+		//var primaryColor, secondaryColor; 		//could be added as config variables
+		if (!config) config = {};
+		if (config.inputLabelOne){
+			var input1 = $('#sepiaFW-popup-message-input-one');
+			input1.val("").attr("placeholder", config.inputLabelOne).show();
+		}else{
+			$('#sepiaFW-popup-message-input-one').val("").attr("placeholder", "").hide();
 		}
-		if (buttonOneName && buttonOneAction){
+		if (config.inputLabelTwo){
+			var input2 = $('#sepiaFW-popup-message-input-two');
+			input2.val("").attr("placeholder", config.inputLabelTwo).show();
+		}else{
+			$('#sepiaFW-popup-message-input-two').val("").attr("placeholder", "").hide();
+		}
+		//NOTE: currently only button one and two receive the input data
+		if (config.buttonOneName && config.buttonOneAction){
 			var btn1 = $('#sepiaFW-popup-message-btn-one');
-			btn1.html(buttonOneName);	
-			btn1.off();		
-			btn1.on('click', function(){	buttonOneAction(this); 	UI.hidePopup();		});
+			btn1.html(config.buttonOneName);	
+			btn1.off().on('click', function(){	
+				config.buttonOneAction(this, $('#sepiaFW-popup-message-input-one').val(), $('#sepiaFW-popup-message-input-two').val()); 	
+				UI.hidePopup();		
+			});
 		}else{
 			var btn1 = $('#sepiaFW-popup-message-btn-one');
 			btn1.html('OK');			
-			btn1.off();
-			btn1.on('click', function(){	UI.hidePopup();		});
+			btn1.off().on('click', function(){	UI.hidePopup();		});
 		}
-		if (buttonTwoName && buttonTwoAction){
+		if (config.buttonTwoName && config.buttonTwoAction){
 			var btn2 = $('#sepiaFW-popup-message-btn-two');
-			btn2.html(buttonTwoName).show();	
-			btn2.off();		
-			btn2.on('click', function(){	buttonTwoAction(this); 	UI.hidePopup();		});
+			btn2.html(config.buttonTwoName).show();	
+			btn2.off().on('click', function(){	
+				config.buttonTwoAction(this, $('#sepiaFW-popup-message-input-one').val(), $('#sepiaFW-popup-message-input-two').val()); 	
+				UI.hidePopup();		
+			});
 		}else{
 			$('#sepiaFW-popup-message-btn-two').off().hide();
 		}
-		if (buttonThreeName && buttonThreeAction){
+		if (config.buttonThreeName && config.buttonThreeAction){
 			var btn3 = $('#sepiaFW-popup-message-btn-three');
-			btn3.html(buttonThreeName).show();	
-			btn3.off();		
-			btn3.on('click', function(){	buttonThreeAction(this); 	UI.hidePopup();		});
+			btn3.html(config.buttonThreeName).show();	
+			btn3.off().on('click', function(){	config.buttonThreeAction(this); 	UI.hidePopup();		});
 		}else{
 			$('#sepiaFW-popup-message-btn-three').off().hide();
 		}
-		if (buttonFourName && buttonFourAction){
+		if (config.buttonFourName && config.buttonFourAction){
 			var btn4 = $('#sepiaFW-popup-message-btn-four');
-			btn4.html(buttonFourName).show();	
-			btn4.off();		
-			btn4.on('click', function(){	buttonFourAction(this); 	UI.hidePopup();		});
+			btn4.html(config.buttonFourName).show();	
+			btn4.off().on('click', function(){	config.buttonFourAction(this); 	UI.hidePopup();		});
 		}else{
 			$('#sepiaFW-popup-message-btn-four').off().hide();
 		}

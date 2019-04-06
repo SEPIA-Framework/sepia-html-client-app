@@ -530,6 +530,10 @@ function sepiaFW_build_ui_build(){
 						+ "<span>" + "CLEXI server" + ": </span>"
 						+ "<input id='sepiaFW-menu-clexi-socket-url' type='url' spellcheck='false'>"
 					+ "</li>"
+					+ "<li id='sepiaFW-menu-clexi-server-id-li' title='Server ID of Node.js CLEXI. Trust only this connection ID.'>"
+						+ "<span>" + "CLEXI ID" + ": </span>"
+						+ "<input id='sepiaFW-menu-clexi-server-id' type='url' spellcheck='false'>"
+					+ "</li>"
 					+ "<li id='sepiaFW-menu-administration-li'>"
 						+ "<button id='sepiaFW-menu-ui-dataprivacy-btn'>" + SepiaFW.local.g('data_privacy') + "</button>"
 						+ "<button id='sepiaFW-menu-ui-license-btn'>" + SepiaFW.local.g('license') + "</button>"
@@ -547,6 +551,11 @@ function sepiaFW_build_ui_build(){
 				+ "<ul class='sepiaFW-menu-settings-list'>"
 					+ "<li id='sepiaFW-menu-account-language-li'><span>" + SepiaFW.local.g('language') + ": </span></li>"
 					+ "<li id='sepiaFW-menu-account-nickname-li'><span>" + SepiaFW.local.g('nickname') + ": </span><input id='sepiaFW-menu-account-nickname' type='text' maxlength='24'></li>"
+					+ "<li id='sepiaFW-menu-store-load-app-settings-li'>"
+						+ "<span>App settings: </span>"
+						+ "<button id='sepiaFW-menu-load-app-settings-btn' class='sepiaFW-button-inline'>" + SepiaFW.local.g('load') + "</button>"
+						+ "<button id='sepiaFW-menu-store-app-settings-btn' class='sepiaFW-button-inline'>" + SepiaFW.local.g('save') + "</button>"
+					+ "</li>"
 					+ "<li id='sepiaFW-menu-account-signoutall-li'>"
 						+ "<button id='sepiaFW-menu-ui-signoutall-btn'>" + SepiaFW.local.g('sign_out_all') + "</button>"
 						+ "<button id='sepiaFW-menu-ui-admin-tools-btn'>" + SepiaFW.local.g('apps_admin') + "</button>"
@@ -738,6 +747,15 @@ function sepiaFW_build_ui_build(){
 					this.blur();
 					SepiaFW.clexi.setSocketURI(newHost);
 				});
+				//CLEXI server ID
+				var clexiServerId = document.getElementById("sepiaFW-menu-clexi-server-id");
+				clexiServerId.placeholder = "clexi-123";
+				clexiServerId.value = SepiaFW.clexi.serverId || "";
+				clexiServerId.addEventListener("change", function(){
+					var newId = this.value;
+					this.blur();
+					SepiaFW.clexi.setServerId(newId);
+				});
 			}else{
 				$('#sepiaFW-menu-toggle-clexi-li').remove();
 				$('#sepiaFW-menu-clexi-socket-url-li').remove();
@@ -898,6 +916,13 @@ function sepiaFW_build_ui_build(){
 					SepiaFW.config.broadcastUserName(newName);
 					this.blur();
 				//}
+			});
+			//Store and load app settings
+			document.getElementById("sepiaFW-menu-store-app-settings-btn").addEventListener("click", function(){
+				SepiaFW.account.saveAppSettings();
+			});
+			document.getElementById("sepiaFW-menu-load-app-settings-btn").addEventListener("click", function(){
+				SepiaFW.account.loadAppSettings();
 			});
 			//Sign-out all clients
 			document.getElementById("sepiaFW-menu-ui-signoutall-btn").addEventListener("click", function(){

@@ -48,6 +48,8 @@ function sepiaFW_build_strings(){
 	StringsDE.back = 'Zurück';
 	StringsDE.next = 'Weiter';
 	StringsDE.save = 'Speichern';
+	StringsDE.store = 'Speichern';
+	StringsDE.load = 'Laden';
 	StringsDE.tryAgain = 'Nochmal versuchen';
 	StringsDE.wait = 'Warten';
 	StringsDE.forget = 'Vergessen';
@@ -144,6 +146,8 @@ function sepiaFW_build_strings(){
 	StringsEN.back = 'Back';
 	StringsEN.next = 'Next';
 	StringsEN.save = 'Save';
+	StringsEN.store = 'Store';
+	StringsEN.load = 'Load';
 	StringsEN.tryAgain = 'Try again';
 	StringsEN.wait = 'Wait';
 	StringsEN.forget = 'Forget';

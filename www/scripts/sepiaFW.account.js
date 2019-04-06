@@ -157,11 +157,19 @@ function sepiaFW_build_account(){
 	}
 	//save account settings value
 	//TODO: add callbacks?
-	Account.saveAccountData = function(dataBody){
+	Account.saveAccountData = function(dataBody, successCallback, errorCallback){
 		setAccountData("", dataBody, function(data){
-			SepiaFW.debug.log('Account - successfully stored account data.');
+			if (successCallback){
+				successCallback(data);
+			}else{
+				SepiaFW.debug.log('Account - successfully stored account data.');
+			}
 		}, function(msg){
-			SepiaFW.ui.showPopup(msg);
+			if (errorCallback){
+				errorCallback(msg);
+			}else{
+				SepiaFW.ui.showPopup(msg);
+			}
 		});
 	}
 	//delete data from account
@@ -182,6 +190,76 @@ function sepiaFW_build_account(){
 		});
 	}
 	
+	//Store and load app settings from account
+	Account.saveAppSettings = function(){
+		var deviceId = SepiaFW.config.getDeviceId().split(" ").join("_").toLowerCase();		//no spaces plz and no cases
+		var appData = SepiaFW.data.getAll();
+		delete appData["account"];
+		SepiaFW.ui.showPopup("Please define a security PIN", {
+			inputLabelOne: "PIN",
+			buttonOneName: "OK",
+			buttonOneAction: function(btn, pwd){
+				if (pwd){
+					var encryptedData = SepiaFW.tools.encryptBasic(pwd, appData);
+					if (encryptedData){
+						var data = {};
+						data[deviceId] = encryptedData;
+						Account.saveAccountData({
+							infos: {
+								app_settings: data
+							}
+						}, function(){
+							SepiaFW.ui.showPopup('Successfully stored app settings.');
+						}, function(msg){
+							SepiaFW.ui.showPopup('Error while trying to store app settings: ' + msg);
+						});
+						//console.log(data);
+					}
+				}
+			},
+			buttonTwoName: "ABORT",
+			buttonTwoAction: function(btn, input1){}
+		});
+	}
+	Account.loadAppSettings = function(){
+		var deviceId = SepiaFW.config.getDeviceId().split(" ").join("_").toLowerCase();		//no spaces plz and no cases
+		SepiaFW.ui.showPopup("Please enter the security PIN", {
+			inputLabelOne: "PIN",
+			buttonOneName: "OK",
+			buttonOneAction: function(btn, pwd){
+				if (pwd){
+					Account.loadAccountData(["infos.app_settings." + deviceId], function(data){
+						var res = data["infos.app_settings." + deviceId];
+						if (res){
+							//Success
+							var decryptedData = SepiaFW.tools.decryptBasic(pwd, res);
+							if (decryptedData && typeof decryptedData == "object"){
+								//console.log(decryptedData);
+								$.each(decryptedData, function(key, entry){
+									//console.log(key + " - " + entry);
+									SepiaFW.data.set(key, entry);
+								})
+								//window.location.reload(true);
+								SepiaFW.ui.showPopup('Successfully loaded app settings. Please reload interface to see effects.');
+							}else{
+								//Error
+								SepiaFW.ui.showPopup("Sorry, could not load app settings, wrong PIN or corrupted data!");
+							}
+						}else{
+							//Error
+							SepiaFW.ui.showPopup("Sorry, could not load app settings, there seems to be no data or data was not accessible!");
+						}
+					}, function(e){
+						//Error
+						SepiaFW.ui.showPopup("Sorry, could not load app settings! Error: " + e);
+					});
+				}
+			},
+			buttonTwoName: "ABORT",
+			buttonTwoAction: function(btn, input1){}
+		});
+	}
+
 	//load address from account
 	Account.loadAddressByTag = function(tag, successCallback, errorCallback){
 		if (Array.isArray(tag)){

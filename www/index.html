@@ -40,6 +40,7 @@
 	<link rel="stylesheet" href="css/sepiaFW-style.css" title='main'>
 	<link rel="stylesheet" href="css/sepiaFW-style-tiny.css" title='main'>
 	<!-- FOR MORE STYLESHEETS SEE END-OF-BODY -->
+	<script src="scripts/sepiaFW.app.config.js"></script>
 	<script src="scripts/sepiaFW.app.js"></script>
 	<script src="scripts/sepiaFW.local.js"></script>
 	<!-- FOR MORE JS SEE END-OF-BODY -->
@@ -197,6 +198,8 @@
 		<div id='sepiaFW-cover-layer'></div>
 		<div id='sepiaFW-popup-message'>
 			<div id='sepiaFW-popup-message-content'></div>
+			<input id='sepiaFW-popup-message-input-one'>
+			<input id='sepiaFW-popup-message-input-two'>
 			<button id='sepiaFW-popup-message-btn-one'>OK</button>
 			<button id='sepiaFW-popup-message-btn-two'>ABORT</button>
 			<button id='sepiaFW-popup-message-btn-three'>RETRY</button>
@@ -363,9 +366,12 @@
 			config.webSocketAPI = http + cleanHost + "/chat/";
 		}
 		SepiaFW.config.setEndPoints(config);
+
+		//Before setup - to get e.g. app type (Android, iOS etc.)
+		SepiaFW.ui.beforeSetup();
 		
 		//Device ID
-		var restoreDeviceIdOrDefault = SepiaFW.data.getPermanent('deviceId') || "";
+		var restoreDeviceIdOrDefault = SepiaFW.data.getPermanent('deviceId') || SepiaFW.ui.getDefaultDeviceId();
 		SepiaFW.config.setDeviceId(restoreDeviceIdOrDefault, true);
 				
 		//set privacy policy link

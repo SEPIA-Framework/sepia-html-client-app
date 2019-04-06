@@ -242,6 +242,9 @@ body {
 	background-color: #888 !important;
 	color: #fff !important;
 }
+#sepiaFW-popup-message input {
+	width: 100%;
+}
 #sepiaFW-cover-layer {
 	display: none;
 	position: fixed;
@@ -822,6 +825,7 @@ body {
 #sepiaFW-chat-menu li .sepiaFW-button-inline {
 	float: right;
 	margin: 0;
+	margin-left: 4px;
 	height: 28px;
 	padding: 0px 10px;
 	display: flex;

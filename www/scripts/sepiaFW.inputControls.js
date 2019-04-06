@@ -369,7 +369,7 @@ function sepiaFW_build_input_controls() {
     }
     function getBeaconEvent(beaconData){
         var baseUrl = "b07z.net/BT";
-        var deviceId = SepiaFW.config.getDeviceId();
+        var deviceId = SepiaFW.config.getDeviceId().split(" ").join("_");       //no spaces plz
         if (deviceId){
             baseUrl += ("/" + deviceId);
         }
