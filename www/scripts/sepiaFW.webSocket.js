@@ -1020,7 +1020,7 @@ function sepiaFW_build_webSocket_client(){
 	Client.handleCloseEvent = function(){
 		clearTimeout(reconTimer);
 		var nextWaitDuration = Math.min(reconnectMaxWait, (connectAttempts * connectAttempts * nextReconnect));
-		if (tryReconnect && !neverReconnect){
+		if (tryReconnect && !neverReconnect && !Client.isDemoMode()){
 			reconTimer = setTimeout(function(){ 
 				Client.connect(SepiaFW.config.webSocketURI);
 			}, nextWaitDuration);
@@ -1030,7 +1030,7 @@ function sepiaFW_build_webSocket_client(){
 	Client.instaReconnect = function(){
 		clearTimeout(reconTimer);
 		connectAttempts = 0;
-		if (!neverReconnect && !connectionIsOpen){
+		if (!neverReconnect && !connectionIsOpen && !Client.isDemoMode()){
 			Client.connect(SepiaFW.config.webSocketURI);
 		}
 	}

@@ -310,15 +310,60 @@
 <script src="scripts/sepiaFW.clexi.js"></script>
 <script type="text/javascript">
 
-	//get some settings via URL parameters
+	//get cordova via URL parameter
 	var isCordova = SepiaFW.tools.getURLParameter('cordova') + '';
-	var isTest = SepiaFW.tools.getURLParameter('isTest');
-	var hostParam = SepiaFW.tools.getURLParameter('host');
-	var requestViaUrl = SepiaFW.tools.getURLParameter('q');
-	var openView = SepiaFW.tools.getURLParameter('view');
+
+	//start-up actions (and buffered local notifications)
+	function handleUrlParameterActions(isDemo){
+		//get
+		var requestViaUrl = SepiaFW.tools.getURLParameter('q');
+		var openView = SepiaFW.tools.getURLParameter('view');
+
+		//Url request (q)
+		if (requestViaUrl){
+			SepiaFW.client.handleRequestViaUrl(requestViaUrl);
+		}
+		//Open view or frame (view)
+		if (openView){
+			SepiaFW.ui.openViewOrFrame(openView);
+		}
+		//NOTE: compare to deeplinks in index.js
+	}
+	function handleDeeplinksAndNotifications(isDemo){
+		//get some Cordova transfer stuff from localStorage
+		if (isCordova && "localStorage" in window){
+			//get
+			var deeplinkAction;
+			var dlActionString = localStorage.getItem("sepia-deeplink-intent");
+			if (dlActionString){
+				deeplinkAction = JSON.parse(dlActionString);
+				localStorage.removeItem("sepia-deeplink-intent");
+			}
+			var localNotification;
+			var lnString = localStorage.getItem("sepia-local-note");
+			if (lnString){
+				localNotification = JSON.parse(lnString);
+				localStorage.removeItem("sepia-local-note");
+			}
+			//handle
+			if (deeplinkAction){
+				//Deeplink
+				app.onUniversalLink(deeplinkAction);
+			}
+			if (localNotification){
+				//Local notification
+				app.onLocalNotification(localNotification);
+			}
+		}
+	}
 
 	//define app setup (called either here (index.html) or in cordova device-ready (index.js)
 	function appSetup(){
+		//get some more settings via URL parameters
+		var isCordova = SepiaFW.tools.getURLParameter('cordova') + '';
+		var isTest = SepiaFW.tools.getURLParameter('isTest');
+		var hostParam = SepiaFW.tools.getURLParameter('host');
+
 		//prepare plugins
 		SepiaFW.buildSepiaFwPlugins();
 
@@ -386,29 +431,22 @@
 				SepiaFW.client.buildUI();
 				SepiaFW.client.onActive();
 				SepiaFW.client.welcomeActions(true);
-				//Url action?
-				if (requestViaUrl){
-					SepiaFW.client.handleRequestViaUrl(requestViaUrl);
-				}
-				//Open view or frame?
-				if (openView){
-					SepiaFW.ui.openViewOrFrame(openView);
-				}
+				//Url actions
+				handleUrlParameterActions(true);
+				//Deeplinks and local notifications
+				handleDeeplinksAndNotifications(true);
 			}else{
 				SepiaFW.client.ping(
 					//success
 					function(data){
-						//TODO: startClient is a required method, maybe move it to core and replace it with 'client.onActive'?
-						SepiaFW.client.startClient(); 		//includes: buildUI, onActive and welcomeActions
-						if (requestViaUrl){
-							SepiaFW.client.handleRequestViaUrl(requestViaUrl);
-						}
-						//Open view or frame - move outside?
-						if (openView){
-							SepiaFW.ui.openViewOrFrame(openView);
-						}
 						//Hide debug stuff O_O
 						$('#sepiaFW-colorRefBox').hide();
+						//TODO: startClient is a required method, maybe move it to core and replace it with 'client.onActive'?
+						SepiaFW.client.startClient(); 		//includes: buildUI, onActive and welcomeActions
+						//Url actions
+						handleUrlParameterActions(false);
+						//Deeplinks and local notifications
+						handleDeeplinksAndNotifications(false);
 					},
 					//fail: no connection to chat-server - note: on mobile this might trigger although network in general is down
 					function(data){ doThisOnConnectionFail(data) },

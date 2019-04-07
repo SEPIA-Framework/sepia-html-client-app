@@ -46,21 +46,75 @@ var app = {
     },
 	//openUniversalLinks Event Handler
 	onUniversalLink: function(eventData) {
-		//handle universal link
-		//alert('Universal link test successful! :-) (index)');
+		//user logged in (or demo-mode)?
+		if ("SepiaFW" in window && (
+			(SepiaFW.account && SepiaFW.account.getUserId()) || (SepiaFW.client && SepiaFW.client.isDemoMode())
+		)){
+			//clean up first to prevent double-call
+			if ("localStorage" in window){
+				localStorage.removeItem("sepia-deeplink-intent");
+			}
+			//handle universal link
+			var requestViaUrl;
+			var openView;
+			if (eventData.params){
+				requestViaUrl = eventData.params.q;
+				openView = eventData.params.view;
+			}
+
+			//Url request (q)
+			if (requestViaUrl){
+				SepiaFW.client.handleRequestViaUrl(requestViaUrl);
+			}
+			//Open view or frame (view)
+			if (openView){
+				SepiaFW.ui.openViewOrFrame(openView);
+			}
+			//NOTE: compare to URL parameter actions in index.html
+
+		//delay until after login
+		}else{
+			//update localStorage
+			if ("localStorage" in window){
+				localStorage.setItem("sepia-deeplink-intent", JSON.stringify(eventData));
+			}
+			//let index.html appSetup() do the rest
+		}
+		/* eventData:
+		{"url":"https://b07z.net/dl/sepia/index.html","host":"b07z.net","scheme":"https","path":"/dl/sepia/index.html","params":{}}
+		{
+			"url": "http://myhost.com/news/ul-plugin-released.html?foo=bar#cordova-news",
+			"scheme": "http",
+			"host": "myhost.com",
+			"path": "/news/ul-plugin-released.html",
+			"params": {
+				"foo": "bar"
+			},
+			"hash": "cordova-news"
+		}
+		*/
+		//console.log('Universal link test successful! :-) (index)');
+		//console.log(JSON.stringify(eventData));
 	},
 	//openLocalNotification
 	onLocalNotification: function(notification, state) {
+		//clean up first to prevent double-call
+		if ("localStorage" in window){
+			localStorage.removeItem("sepia-local-note");
+		}
 		//handle local notification
-		//alert('Local notification test successful! :-) (index)');
-		//console.log('Local notification test successful! :-) (index)');
-		
-		//TODO: add to start.js as well!
 		if (SepiaFW.events && notification && notification.data){
+			if (typeof notification.data == "string" && notification.data.indexOf("{") == 0){
+				notification.data = JSON.parse(notification.data);
+			}
 		    //console.log(JSON.stringify(notification));
-			SepiaFW.events.handleLocalNotificationClick(JSON.parse(notification.data));
+			SepiaFW.events.handleLocalNotificationClick(notification.data);
 		}
 		SepiaFW.ui.updateMyView(true, true, 'notification'); 		//TODO: think about this here!
+		/* notification example:
+		{"id":10,"title":"Alarm","text":"expired: 5min Alarm","smallIcon":"res://ic_popup_reminder","color":"303030","data":{"type":"alarm","onClickType":"stopAlarmSound","onCloseType":"stopAlarmSound"},"actions":[],"attachments":[],"autoClear":true,"defaults":0,"foreground":false,"groupSummary":false,"launch":true,"led":true,"lockscreen":true,"number":0,"priority":0,"progressBar":{"enabled":false,"value":0,"maxValue":100,"indeterminate":false},"showWhen":true,"silent":false,"trigger":{"type":"calendar"},"vibrate":false,"wakeup":true,"meta":{"plugin":"cordova-plugin-local-notification","version":"0.9-beta.2"}}
+		*/
+		//console.log('Local notification test successful! :-) (index)');
 	}
 };
 

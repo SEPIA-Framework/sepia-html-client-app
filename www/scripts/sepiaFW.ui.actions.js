@@ -279,7 +279,7 @@ function sepiaFW_build_ui_actions(){
 	//SCHEDULE Messages
 	Actions.scheduleMessage = function(action, parentBlock){
 		//TODO: distinguish between proActive-background and other types of messages
-		if (action.info && action.info === "entertainWhileIdle"){
+		if (action.info && (action.info === "entertainWhileIdle" || action.info === "proActiveNote")){
 			SepiaFW.events.setProActiveBackgroundNotification(action);
 		}else{
 			SepiaFW.debug.info("Action: type '" + action.type + "' with info '" + action.info + "' is not supported yet.");

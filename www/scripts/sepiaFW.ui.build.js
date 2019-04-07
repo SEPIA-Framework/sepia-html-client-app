@@ -555,6 +555,7 @@ function sepiaFW_build_ui_build(){
 						+ "<span>App settings: </span>"
 						+ "<button id='sepiaFW-menu-load-app-settings-btn' class='sepiaFW-button-inline'>" + SepiaFW.local.g('load') + "</button>"
 						+ "<button id='sepiaFW-menu-store-app-settings-btn' class='sepiaFW-button-inline'>" + SepiaFW.local.g('save') + "</button>"
+						//TODO: add delete button
 					+ "</li>"
 					+ "<li id='sepiaFW-menu-account-signoutall-li'>"
 						+ "<button id='sepiaFW-menu-ui-signoutall-btn'>" + SepiaFW.local.g('sign_out_all') + "</button>"

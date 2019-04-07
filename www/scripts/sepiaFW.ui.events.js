@@ -148,6 +148,7 @@ function sepiaFW_build_events(){
 		}
 		/* action:
 		{"eventId":"randomMotivationMorning","info":"entertainWhileIdle","triggerIn":-22800000,"text":"Ach, ich wollte noch sagen, du bist cool! :-)","type":"schedule_msg"}
+		or e.g.: "info": "proActiveNote"
 		*/
 		var noteData = {"type" : action.info, "action" : "triggered", "data" : {"message" : action.text, "eventId" : action.eventId}};
 
@@ -818,13 +819,14 @@ function sepiaFW_build_events(){
 			}
 		
 		//pro-active chat message
-		}else if (data && data.type === "entertainWhileIdle" && data.data){
+		}else if (data && (data.type === "entertainWhileIdle" || data.type === "proActiveNote") && data.data){
 			var msg = data.data.message;
 			setTimeout(function(){
-				var dataOut = { sender: SepiaFW.assistant.name, senderType: 'assistant' };
+				var dataOut = { sender: SepiaFW.assistant.name, senderType: 'assistant' }; 	//valid for both types?
 				SepiaFW.ui.showCustomChatMessage(msg, dataOut);
 			}, 300);
 		}
+		
 	}
 	//handle close events on simple notifications
 	Events.handleLocalNotificationClose = function(data){

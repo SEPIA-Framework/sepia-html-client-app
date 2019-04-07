@@ -28,6 +28,12 @@ var app = {
     },
     // deviceready Event Handler
     onDeviceReady: function() {
+		//clean up some old stuff just to be sure
+		if ("localStorage" in window){
+			localStorage.removeItem("sepia-deeplink-intent");
+			localStorage.removeItem("sepia-local-note");
+		}
+
 		//universal links
 		universalLinks.subscribe('universalLinkTest', app.onUniversalLink);
 		
@@ -56,15 +62,17 @@ var app = {
     },
 	// openNewsListPage Event Handler
 	onUniversalLink: function(eventData) {
-		//handle universal link
-		//alert('Universal link test successful! :-) (start)');
-		//TODO: use localstorage for intent transfer
+		//store deep-link and handle in index.html appSetup()
+		if ("localStorage" in window){
+			localStorage.setItem("sepia-deeplink-intent", JSON.stringify(eventData));
+		}
 	},
 	//openLocalNotification
 	onLocalNotification: function(notification, state) {
-		//handle local notification
-		//alert('Local notification test successful! :-) (start)');
-		//TODO: use localstorage for intent transfer
+		//store notification and handle in index.html appSetup()
+		if ("localStorage" in window){
+			localStorage.setItem("sepia-local-note", JSON.stringify(notification));
+		}
 	}
 };
 
