@@ -26,9 +26,19 @@ function sepiaFW_build_clexi(){
         var useClexi = SepiaFW.data.get('clexiConnect');
         if (useClexi != undefined) Clexi.doConnect = useClexi;
         SepiaFW.debug.info("CLEXI support is " + ((Clexi.isSupported && Clexi.doConnect)? "ENABLED" : "DISABLED"));
+
+        //Add onActive action:
+        SepiaFW.client.addOnActiveAction(clexiOnAction);
+    }
+    function clexiOnAction(){
+        if (SepiaFW.clexi.isSupported && SepiaFW.clexi.doConnect){
+            setTimeout(function(){
+                SepiaFW.clexi.setup();
+            }, 500);
+        }
     }
 
-    //This is called after user login inside 'Client.onActive'
+    //This is called after user login via 'Client.onActive' (see above)
     Clexi.setup = function(){
         //Logging
         ClexiJS.onLog = SepiaFW.debug.log;

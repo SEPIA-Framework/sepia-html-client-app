@@ -421,20 +421,24 @@
 				
 		//set privacy policy link
 		SepiaFW.config.privacyPolicyUrl = document.getElementById("sepiaFW-login-policy-btn").href;
+
+		//add one-time onActive actions (actions triggered after client is ready, e.g. user has chat-channel)
+        SepiaFW.client.addOnActiveOneTimeAction(function(){
+			//Url actions
+			handleUrlParameterActions(SepiaFW.client.isDemoMode());
+			//Deeplinks and local notifications
+			handleDeeplinksAndNotifications(SepiaFW.client.isDemoMode());
+		});
 		
 		//what happens after login?
 		SepiaFW.account.afterLogin = function(){
 			if (SepiaFW.client.isDemoMode()){
 				//SepiaFW.ui.showInfo(SepiaFW.local.g('demoMode'), true);
 				SepiaFW.ui.showCustomChatMessage(SepiaFW.local.g('demoMode'));
-				//pseudo client
+				//pseudo client - usually handled by client.startClient()
 				SepiaFW.client.buildUI();
 				SepiaFW.client.onActive();
 				SepiaFW.client.welcomeActions(true);
-				//Url actions
-				handleUrlParameterActions(true);
-				//Deeplinks and local notifications
-				handleDeeplinksAndNotifications(true);
 			}else{
 				SepiaFW.client.ping(
 					//success
@@ -443,10 +447,6 @@
 						$('#sepiaFW-colorRefBox').hide();
 						//TODO: startClient is a required method, maybe move it to core and replace it with 'client.onActive'?
 						SepiaFW.client.startClient(); 		//includes: buildUI, onActive and welcomeActions
-						//Url actions
-						handleUrlParameterActions(false);
-						//Deeplinks and local notifications
-						handleDeeplinksAndNotifications(false);
 					},
 					//fail: no connection to chat-server - note: on mobile this might trigger although network in general is down
 					function(data){ doThisOnConnectionFail(data) },

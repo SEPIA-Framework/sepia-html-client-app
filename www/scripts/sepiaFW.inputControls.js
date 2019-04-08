@@ -13,12 +13,8 @@ function sepiaFW_build_input_controls() {
 		if (typeof InputControls.useGamepads == 'undefined') InputControls.useGamepads = false;
         SepiaFW.debug.info("Gamepads are " + ((InputControls.useGamepads)? "SUPPORTED" : "NOT SUPPORTED"));
         
-        if (InputControls.useGamepads){
-            //wait a bit
-            setTimeout(function(){
-                InputControls.setup();
-            }, 2000);
-        }
+        //Add onActive action:
+        SepiaFW.client.addOnActiveOneTimeAction(inputControlsOnActiveActionPadAndKeys);
     }
     InputControls.initializeBluetoothBeacons = function(){
         if (InputControls.areBluetoothBeaconsSupported()){
@@ -34,12 +30,24 @@ function sepiaFW_build_input_controls() {
             if (typeof InputControls.useBluetoothBeaconsOnlyWithPower == 'undefined') InputControls.useBluetoothBeaconsOnlyWithPower = false;
             SepiaFW.debug.info("Bluetooth Beacons 'only with power plug' is " + ((InputControls.useBluetoothBeaconsOnlyWithPower)? "TRUE" : "FALSE"));
 
-            if (InputControls.useBluetoothBeacons && !InputControls.useBluetoothBeaconsInAoModeOnly){
-                //wait a bit
-                setTimeout(function(){
-                    InputControls.listenToBluetoothBeacons();
-                }, 3000);
-            }
+            //Add onActive action:
+            SepiaFW.client.addOnActiveOneTimeAction(inputControlsOnActiveActionBeacons);
+        }
+    }
+    function inputControlsOnActiveActionPadAndKeys(){
+        if (InputControls.useGamepads){
+            //wait a bit
+            setTimeout(function(){
+                InputControls.setup();
+            }, 1000);
+        }
+    }
+    function inputControlsOnActiveActionBeacons(){
+        if (InputControls.useBluetoothBeacons && !InputControls.useBluetoothBeaconsInAoModeOnly){
+            //wait a bit
+            setTimeout(function(){
+                InputControls.listenToBluetoothBeacons();
+            }, 2000);
         }
     }
 

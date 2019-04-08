@@ -42,9 +42,15 @@ function sepiaFW_build_wake_triggers() {
 			WakeTriggers.setWakeWordSensitivities(wwSensitivity);
 		}
 
+		//Add onActive action:
+        SepiaFW.client.addOnActiveOneTimeAction(wakeTriggersOnActiveAction);
+	}
+	function wakeTriggersOnActiveAction(){
 		//start setup?
-		if (WakeTriggers.autoLoadWakeWord){ 		//TODO: move to Client.onActive ?
-			WakeTriggers.setupWakeWords();
+		if (WakeTriggers.autoLoadWakeWord){ 		//Client.onActive good place?
+			setTimeout(function(){
+				WakeTriggers.setupWakeWords();
+			}, 50);
 		}
 	}
 	
@@ -157,7 +163,9 @@ function sepiaFW_build_wake_triggers() {
     }
 	function defaultPpErrorCallback(ex){
 		ppIsListening = false;
-        alert(ex.toString());
+		var errMsg = ex.toString();
+		SepiaFW.debug.error("Porcupine: " + errMsg);
+		alert("Porcupine: " + errMsg);
     };
 	
 	//-------------------------------------------------

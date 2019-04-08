@@ -21,6 +21,8 @@ function sepiaFW_build_client_interface(){
 	
 	ClientInterface.isActive = SepiaFW.webSocket.client.isActive;
 	ClientInterface.onActive = SepiaFW.webSocket.client.onActive;
+	ClientInterface.addOnActiveAction = SepiaFW.webSocket.client.addOnActiveAction;
+	ClientInterface.addOnActiveOneTimeAction = SepiaFW.webSocket.client.addOnActiveOneTimeAction;
 	ClientInterface.getActiveChannel = SepiaFW.webSocket.client.getActiveChannel;
 	ClientInterface.switchChannel = SepiaFW.webSocket.client.switchChannel;
 	ClientInterface.switchChatPartner = SepiaFW.webSocket.client.switchChatPartner;
@@ -436,17 +438,39 @@ function sepiaFW_build_webSocket_client(){
 	//actions triggered when the client becomes active (in this case when the active channel is obtained)
 	Client.onActive = function(){
 		//LOAD SOME MORE STUFF that requires account verification:
-		
-		//update myView
+
+		//update my-view
 		SepiaFW.ui.updateMyView(false, true, 'onActive');
 
-		//connect to CLEXI
-		if (SepiaFW.clexi.isSupported && SepiaFW.clexi.doConnect){
-            setTimeout(function(){
-                SepiaFW.clexi.setup();
-            }, 500);
-        }
+		//actions like CLEXI and other modules are queued here
+		onActiveActions.forEach(function(fun, index){
+			try{
+				fun();
+			}catch(e){
+				SepiaFW.debug.error("Client.onActive failed for 'onActiveActions' with index: " + index);
+			}
+		});
+		onActiveOneTimeActions.forEach(function(fun, index){
+			try{
+				fun();
+			}catch(e){
+				SepiaFW.debug.error("Client.onActive failed for 'onActiveOneTimeActions' with index: " + index);
+			}
+		});
+		onActiveOneTimeActions = [];
 	}
+	Client.addOnActiveAction = function(actionFunction){
+		if ($.inArray(actionFunction, onActiveActions) == -1){
+			onActiveActions.push(actionFunction);
+		}
+	}
+	Client.addOnActiveOneTimeAction = function(actionFunction){
+		if ($.inArray(actionFunction, onActiveOneTimeActions) == -1){
+			onActiveOneTimeActions.push(actionFunction);
+		}
+	}
+	var onActiveActions = [];
+	var onActiveOneTimeActions = [];
 	
 	//execute when UI is ready and user is logged in (usually)
 	Client.startClient = function(){
@@ -475,7 +499,7 @@ function sepiaFW_build_webSocket_client(){
 		}
 	}
 	
-	//when client started add some info like first-visit messages or buttons
+	//when client started (and likely before active channel is received) add some info like first-visit messages or buttons
 	Client.welcomeActions = function(onlyOffline){
 		//First visit info
 		if (SepiaFW.account.getClientFirstVisit()){
