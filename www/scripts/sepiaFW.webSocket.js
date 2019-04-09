@@ -1560,6 +1560,10 @@ function sepiaFW_build_webSocket_client(){
 		
 		//build entry
 		var cEntry = SepiaFW.ui.build.chatEntry(message, username, options);
+		if (!cEntry){
+			SepiaFW.debug.error('Failed to publish chat-entry, data was invalid! ChannelId issue?');
+			return;
+		}
 		
 		//get right view
 		var resultView = SepiaFW.ui.getResultViewByName(options.targetView);

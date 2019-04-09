@@ -434,7 +434,9 @@
 		SepiaFW.account.afterLogin = function(){
 			if (SepiaFW.client.isDemoMode()){
 				//SepiaFW.ui.showInfo(SepiaFW.local.g('demoMode'), true);
-				SepiaFW.ui.showCustomChatMessage(SepiaFW.local.g('demoMode'));
+				SepiaFW.ui.showCustomChatMessage(SepiaFW.local.g('demoMode'), { 
+					channelId: 'info'
+				});
 				//pseudo client - usually handled by client.startClient()
 				SepiaFW.client.buildUI();
 				SepiaFW.client.onActive();
@@ -465,7 +467,9 @@
 				buttonTwoName : SepiaFW.local.g('continueOffline'),
 				buttonTwoAction : function(){
 					//offline notice
-					SepiaFW.ui.showCustomChatMessage(SepiaFW.local.g('noConnectionToAssistant'));
+					SepiaFW.ui.showCustomChatMessage(SepiaFW.local.g('noConnectionToAssistant'), { 
+						channelId: 'info'
+					});
 				}
 			});
 			//get offline welcome help anyway

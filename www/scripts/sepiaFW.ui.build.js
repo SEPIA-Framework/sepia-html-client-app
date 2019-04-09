@@ -1135,13 +1135,14 @@ function sepiaFW_build_ui_build(){
 	}
 	
 	//make message object
-	Build.makeMessageObject = function(text, sender, senderType, receiver){
+	Build.makeMessageObject = function(text, sender, senderType, receiver, channelId){
 		//TODO: is this really needed or is webSocket.common.SepiaSocketMessage enough - this is for internal construction
 		var message = {};
 		message.text = text;
 		message.sender = sender;
 		message.senderType = senderType;
 		message.receiver = receiver;
+		message.channelId = channelId;
 		message.time = SepiaFW.tools.getLocalTime();
 		return message;
 	}
@@ -1153,10 +1154,10 @@ function sepiaFW_build_ui_build(){
 		var type = msg.senderType;
 		var text = (isAssistMsg)? msg.data.assistAnswer.answer : msg.text;
 		var sender = msg.sender;
-		var senderName = (SepiaFW.webSocket)? SepiaFW.webSocket.client.getNameFromUserList(sender) : "";
+		var senderName = (SepiaFW.webSocket)? SepiaFW.webSocket.client.getNameFromUserList(sender) : ""; 		//TODO: Rename and add to ClientInterface
 		var senderText = (senderName)? senderName : sender;
 		var receiver = msg.receiver;
-		var receiverName = (SepiaFW.webSocket)? SepiaFW.webSocket.client.getNameFromUserList(receiver) : "";
+		var receiverName = (SepiaFW.webSocket)? SepiaFW.webSocket.client.getNameFromUserList(receiver) : "";	//TODO: Rename and add to ClientInterface
 		var time = SepiaFW.tools.getLocalTime();	//msg.time; 	//for display we just take the client recieve time
 		//var timeUNIX = msg.timeUNIX;
 		
@@ -1196,6 +1197,19 @@ function sepiaFW_build_ui_build(){
 		}else if (classes === "chatPm"){
 			classes = "chatOther chatPm";
 		}
+
+		//find correct channel
+		var activeChannel = SepiaFW.client.getActiveChannel();
+		if (msg.channelId && msg.channelId == "info"){
+			msg.channelId = activeChannel;
+		}
+		if (!msg.channelId){
+			msg.channelId = SepiaFW.account.getUserId() || ""; 		//TODO: what shall we do without channel ID?
+		}
+		if (!msg.channelId && !SepiaFW.client.isDemoMode()){		//Demo-mode allows empty channel
+			//still no channel ID? then abort
+			return undefined;
+		}
 		
 		//switch carousel pane?
 		if (!options.targetView){
@@ -1205,7 +1219,11 @@ function sepiaFW_build_ui_build(){
 		//make block
 		var block = document.createElement('DIV');
 		block.className = classesBlock;
-		block.dataset.channelId = SepiaFW.client.getActiveChannel();
+		block.dataset.channelId = msg.channelId;
+		if (activeChannel && activeChannel != msg.channelId){
+			block.className += ' hidden-by-channel';
+			//TODO: add some indicator for new channel messages of inactive channels
+		}
 		
 		//make text
 		if (!options.skipText){
@@ -1331,7 +1349,7 @@ function sepiaFW_build_ui_build(){
 		var type = msg.senderType;
 		var text = msg.text;
 		var sender = msg.sender;
-		var senderName = (SepiaFW.webSocket)? SepiaFW.webSocket.client.getNameFromUserList(sender) : "";
+		var senderName = (SepiaFW.webSocket)? SepiaFW.webSocket.client.getNameFromUserList(sender) : "";	//TODO: Rename and add to ClientInterface
 		var senderText = (senderName)? senderName : sender;
 		var time = SepiaFW.tools.getLocalTime();	//msg.time; 	//for display we just take the client recieve time
 		//var timeUNIX = msg.timeUNIX;

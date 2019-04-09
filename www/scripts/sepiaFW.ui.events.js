@@ -822,7 +822,11 @@ function sepiaFW_build_events(){
 		}else if (data && (data.type === "entertainWhileIdle" || data.type === "proActiveNote") && data.data){
 			var msg = data.data.message;
 			setTimeout(function(){
-				var dataOut = { sender: SepiaFW.assistant.name, senderType: 'assistant' }; 	//valid for both types?
+				var dataOut = { 
+					sender: SepiaFW.assistant.name, 
+					senderType: 'assistant', 	 	//valid for both types?
+					channelId: (data.data.channelId || 'info')
+				};
 				SepiaFW.ui.showCustomChatMessage(msg, dataOut);
 			}, 300);
 		}
