@@ -552,18 +552,22 @@
     align-items: center;
     justify-content: center;
 	border-radius: 3px;
-	min-width: 60px;
+	min-width: 50px;
 	max-width: 60px;
 	margin: 5px 5px 0px 5px;
-	padding: 5px;
+	padding: 0px;
 	user-select: none;
 	cursor: pointer;
 	text-align: center;
 	/*background: transparent;*/
-	color: #fff;
+	/*color: #fff;*/
 }
-.sepiaFW-cards-list-body .linkCard .linkCardLogo img{
+.sepiaFW-cards-list-body .linkCard .linkCardLogo img {
 	max-width: 50px;
+	border-radius: 3px;
+}
+.sepiaFW-cards-list-body .linkCard.locationCustom .linkCardLogo img {
+	max-width: 45px;
 }
 .sepiaFW-cards-list-body .linkCard .linkCardCenter {
 	display: flex;
@@ -572,7 +576,7 @@
 	flex: 1 1 auto;
 	/*max-width: 120px;*/
 	margin: 5px 0px 0px 0px;
-	padding: 0 8px 0 8px;
+	padding: 2px 8px 2px 8px;
 	display: flex;
     align-items: center;
     justify-content: center;

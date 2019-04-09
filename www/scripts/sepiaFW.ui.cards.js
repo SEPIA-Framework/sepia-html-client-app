@@ -919,7 +919,21 @@ function sepiaFW_build_ui_cards(){
 		var linkLogoBack = cardElementInfo.imageBackground || '';
 		var linkCardEle = document.createElement('DIV');
 		linkCardEle.className = 'linkCard cardBodyItem';
-		linkCardEle.innerHTML = "<div class='linkCardLogo' " + ((linkLogoBack)? ("style='background:" + linkLogoBack + ";'") : ("")) + "><img src='" + cardElementInfo.image + "' alt='logo'></div>"
+		var leftElement = "<div class='linkCardLogo' " + ((linkLogoBack)? ("style='background:" + linkLogoBack + ";'") : ("")) + "><img src='" + linkLogo + "' alt='logo'></div>";
+		if (data.type){
+			linkCardEle.className += (" " + data.type);
+			if (data.type == "websearch"){
+				//overwrite with websearch icon
+				leftElement = "<div class='linkCardLogo'>" + "<i class='material-icons md-mnu'>search</i>" + "</div>";
+			}else if (data.type == "locationDefault"){
+				//overwrite with default map icon
+				leftElement = "<div class='linkCardLogo'>" + "<i class='material-icons md-mnu'>room</i>" + "</div>";
+			}else if (data.type == "default"){
+				//overwrite with default link icon
+				leftElement = "<div class='linkCardLogo'>" + "<i class='material-icons md-mnu'>link</i>" + "</div>";	//language
+			}
+		}
+		linkCardEle.innerHTML = leftElement
 								+ "<div class='linkCardCenter'>" + (data.title? ("<h3>" + data.title + "</h3>") : ("")) + "<p>" + data.desc + "</p></div>"
 								+ "<div class='linkCardRight'><a href='" + linkUrl + "' target='_blank'>" + "<i class='material-icons md-mnu'>&#xE895;</i>" + "</a></div>";
 		//linkCardEle.setAttribute('data-element', JSON.stringify(cardElementInfo));
