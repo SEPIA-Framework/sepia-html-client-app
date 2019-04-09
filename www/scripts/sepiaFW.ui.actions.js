@@ -161,6 +161,7 @@ function sepiaFW_build_ui_actions(){
 			
 		}else if (SepiaFW.ui.isCordova){
 			if (forceExternal 
+				|| url.indexOf('http') !== 0 		//TODO: keep an eye on this! Does it prevent some cool URL scheme features?
 				|| url.indexOf('https://maps.') === 0 || url.indexOf('http://maps.') === 0
 				|| url.indexOf('https://www.google.com/maps/') === 0 || url.indexOf('https://www.google.de/maps/') === 0
 				){
