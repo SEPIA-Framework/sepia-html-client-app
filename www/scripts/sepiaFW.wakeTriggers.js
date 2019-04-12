@@ -20,8 +20,13 @@ function sepiaFW_build_wake_triggers() {
 		
 		//trigger mic?
 		if (WakeTriggers.useWakeWord){ 		// && keyword == "hey sepia"
-			var useConfirmationSound = SepiaFW.speech.shouldPlayConfirmation();
-			SepiaFW.ui.toggleMicButton(useConfirmationSound);
+			SepiaFW.animate.assistant.loading();
+			WakeTriggers.stopListeningToWakeWords(function(){
+				var useConfirmationSound = SepiaFW.speech.shouldPlayConfirmation();
+				SepiaFW.ui.toggleMicButton(useConfirmationSound);
+			}, function(e){
+				//no error handling?
+			});
 		}
 	}
 	
@@ -147,10 +152,13 @@ function sepiaFW_build_wake_triggers() {
 
     function ppStopListeningToWakeWords(onSuccessCallback, onErrorCallback){
 		ppAudioManager.stop();
-		ppIsListening = false;
 		
 		//can this throw an error?
-		if (onSuccessCallback) onSuccessCallback();
+		setTimeout(function(){
+			//give the audio manager some time to react
+			ppIsListening = false;
+			if (onSuccessCallback) onSuccessCallback();
+		}, 300);
     }
 	
 	function defaultPpSuccessCallback(keywordIndex){
@@ -158,6 +166,7 @@ function sepiaFW_build_wake_triggers() {
             return;
         }else{
 			var keyword = ppKeywordNames[keywordIndex];
+			//console.log('Wake-word close window.');		//NOTE: we let the keyword evaluation (e.g. toggleMic handle the stop)
 			broadcastWakeWordTrigger(keyword);
 		}
     }

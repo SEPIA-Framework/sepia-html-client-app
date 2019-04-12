@@ -57,25 +57,25 @@ let PicovoiceAudioManager = (function() {
                     indexIn++;
                 }
     
-                processCallback(engine.process(result));
-    
+                var keywordIndex = engine.process(result);
                 inputAudioBuffer = inputAudioBuffer.slice(indexOut);
+
+                processCallback(keywordIndex);
             }
             //-------------------------
         };
 
-        //Should we move this to start?
-        audioSource.connect(engineNode);
-
         //Will be called at beginning of SepiaFW.audioRecorder.start();
         this.start = function() {
             inputAudioBuffer = [];
+            audioSource.connect(engineNode);
             engineNode.connect(audioContext.destination);
         }
 
         //Will be called at beginning of SepiaFW.audioRecorder.stop();
-        this.stop = function () {
-            engineNode.disconnect(0);
+        this.stop = function() {
+            audioSource.disconnect(engineNode);
+            engineNode.disconnect(audioContext.destination);
         }
     }
       

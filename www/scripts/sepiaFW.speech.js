@@ -254,6 +254,17 @@ function sepiaFW_build_speech(){
 
 	//start speech recognition for a single sentence - submit callbacks
 	Speech.toggleRecognition = function (callback_final, callback_interim, error_callback, log_callback){
+		if (SepiaFW.wakeTriggers && SepiaFW.wakeTriggers.isListening()){
+			SepiaFW.animate.assistant.loading();
+			SepiaFW.wakeTriggers.stopListeningToWakeWords(function(){
+				//Use the success-callback here to introduce a proper wait
+				Speech.toggleRecognition(callback_final, callback_interim, error_callback, log_callback);
+			}, function(e){
+				//Error
+				if (error_callback) error_callback(e);
+			});
+			return;
+		}
 		if (isSpeaking){
 			Speech.stopSpeech();	//note: this is in the client button action aswell, I'll leave it here just in case
 		}
@@ -474,10 +485,10 @@ function sepiaFW_build_speech(){
 				//reset recognizer
 				resetsOnUnexpectedEnd();
 
-				if (!event){
-					SepiaFW.debug.err('ASR: unknown ERROR!');
-					//TODO: do something here!	
-					before_error(error_callback, 'E0? - unknown error!');
+				if (event == undefined){
+					//No event likely just means no result due to abort
+					SepiaFW.debug.err('ASR: unknown ERROR, no error event data!');
+					before_error(error_callback, 'E0? - unknown ERROR, no error event data!');
 					return;
 				}
 				var orgEvent = event;
@@ -507,8 +518,16 @@ function sepiaFW_build_speech(){
 					}
 				}
 				else {
-					SepiaFW.debug.err('ASR: unknown ERROR!');
-					console.log(orgEvent);
+					if (orgEvent && typeof orgEvent == "object"){
+						var err = JSON.stringify(orgEvent);
+						if (err != '{"type":"error"}'){		//usually happens when you simply abort recording
+							SepiaFW.debug.err('ASR: unknown ERROR!');
+							console.log(err);
+						}
+					}else{
+						SepiaFW.debug.err('ASR: unknown ERROR!');
+					    console.log(orgEvent);
+					}
 					//TODO: do something here!	
 					before_error(error_callback, 'E0? - unknown error!');
 					return;

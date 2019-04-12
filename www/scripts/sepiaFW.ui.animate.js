@@ -37,7 +37,10 @@ function sepiaFW_build_animate(){
 		}
 	}
 	function possibilityToSwitchOnWakeWordListener(source){
-		//console.log('Wake-word window - source: ' + source); 						//TODO: implement
+		if (SepiaFW.wakeTriggers.useWakeWord && SepiaFW.wakeTriggers.engineLoaded && !SepiaFW.wakeTriggers.isListening()){
+			//console.log('Wake-word window - source: ' + source); 					//TODO: implement
+			SepiaFW.wakeTriggers.listenToWakeWords();
+		}
 	}
 	function possibilityToCleanCommandQueue(){
 		var action = SepiaFW.client.getAndRemoveNextCommandInQueue();
