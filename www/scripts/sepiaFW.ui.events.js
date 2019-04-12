@@ -159,7 +159,9 @@ function sepiaFW_build_events(){
 				id: nid,
 				title: SepiaFW.assistant.name + ":",
 				text: action.text,
-				at: (d),
+				trigger: {
+					at: (d)
+				},
 				sound: "res://platform_default",
 				smallIcon: "res://ic_popup_reminder",
 				icon: "res://icon",
@@ -595,7 +597,9 @@ function sepiaFW_build_events(){
 				id: nid,
 				title: (SepiaFW.local.g(Timer.type) + ": " + d.toLocaleString()),
 				text: Timer.data.name,
-				at: (d),
+				trigger: {
+					at: (d)
+				},
 				sound: "file://sounds/alarm.mp3",
 				smallIcon: "res://ic_popup_reminder",
 				color: "303030",
@@ -766,7 +770,9 @@ function sepiaFW_build_events(){
 			}
 			//schedule
 			if (date){
-				options.at = date;
+				options.trigger= {
+					at: date
+				}
 			}
 			cordova.plugins.notification.local.schedule([options]);
 			

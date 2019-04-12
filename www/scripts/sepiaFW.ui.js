@@ -120,12 +120,21 @@ function sepiaFW_build_ui(){
 			if (SepiaFW.tools.getBestContrast(colorString) === 'white'){
 				StatusBar.backgroundColorByHexString(colorString);
 				StatusBar.styleLightContent();
+				if ('NavigationBar' in window){
+                    NavigationBar.backgroundColorByHexString(colorString);
+                }
 			}else{
 				if (UI.isAndroid){
 					StatusBar.backgroundColorByHexString('#000000');
+					if ('NavigationBar' in window){
+                        NavigationBar.backgroundColorByHexString('#000000');
+                    }
 				}else{
 					StatusBar.backgroundColorByHexString(colorString);
 					StatusBar.styleDefault();
+					if ('NavigationBar' in window){
+                        NavigationBar.backgroundColorByHexString(colorString);
+                    }
 				}
 			}
 		}
@@ -1459,6 +1468,12 @@ function sepiaFW_build_ui(){
 			$('.sepiaFW-carousel-pane').removeClass('full-screen');
 			$('#sepiaFW-chat-menu').removeClass('full-screen');
 			$('#sepiaFW-chat-controls').removeClass('full-screen');
+			/*if ('StatusBar' in window){
+                StatusBar.show();
+            }*/
+            if ('NavigationBar' in window){
+                NavigationBar.show();
+			}
 			UI.isInterfaceFullscreen = false;
 		}else{
 			$navBar.fadeOut(300);
@@ -1466,6 +1481,12 @@ function sepiaFW_build_ui(){
 			$('.sepiaFW-carousel-pane').addClass('full-screen');
 			$('#sepiaFW-chat-menu').addClass('full-screen');
 			$('#sepiaFW-chat-controls').addClass('full-screen');
+			/*if ('StatusBar' in window){
+                StatusBar.hide();
+            }*/
+            if ('NavigationBar' in window){
+                NavigationBar.hide();
+            }
 			UI.isInterfaceFullscreen = true;
 		}
 		setTimeout(function(){

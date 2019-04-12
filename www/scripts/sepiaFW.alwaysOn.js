@@ -89,7 +89,7 @@ function sepiaFW_build_always_on(){
         mainEnvironment = SepiaFW.config.environment;
         SepiaFW.config.environment = thisEnvironment;
         //make sure there are no frames - TODO: we should reduce the necessary modifiers!
-        mainWasFullscreenOpen = $('.sepiaFW-carousel-pane').hasClass('full-screen');
+        mainWasFullscreenOpen = $('.sepiaFW-carousel-pane').hasClass('full-screen');        //or use 'UI.isInterfaceFullscreen' ?
         $mainWindow.removeClass('sepiaFW-skin-mod');
         $mainWindow.addClass('sepiaFW-ao-mode');
         $topLayer.addClass('sepiaFW-ao-mode');
@@ -301,26 +301,36 @@ function sepiaFW_build_always_on(){
     AlwaysOn.preventSleep = function(){
         if (SepiaFW.ui.isCordova){
             //check for plugins
-            if (window.plugins.insomnia){
+            if ('plugins' in window && window.plugins.insomnia){
                 //console.log('----------- INSOMNIA TRIGGERED -----------');
                 window.plugins.insomnia.keepAwake();
             }
-            if (StatusBar){
+            if ('StatusBar' in window){
                 //console.log('----------- STATUSBAR TRIGGERED -----------');
                 StatusBar.hide();
+            }
+            if ('NavigationBar' in window){
+                //console.log('----------- NAVIGATIONBAR TRIGGERED -----------');
+                NavigationBar.hide();
             }
         }
     }
     AlwaysOn.allowSleep = function(){
         if (SepiaFW.ui.isCordova){
             //check for plugins
-            if (window.plugins.insomnia){
+            if ('plugins' in window && window.plugins.insomnia){
                 //console.log('----------- INSOMNIA TRIGGERED -----------');
                 window.plugins.insomnia.allowSleepAgain();
             }
-            if (StatusBar){
-                //console.log('----------- STATUSBAR TRIGGERED -----------');
-                StatusBar.show();
+            if (!mainWasFullscreenOpen){
+                if ('StatusBar' in window){
+                    //console.log('----------- STATUSBAR TRIGGERED -----------');
+                    StatusBar.show();
+                }
+                if ('NavigationBar' in window){
+                    //console.log('----------- NAVIGATIONBAR TRIGGERED -----------');
+                    NavigationBar.show();
+                }
             }
         }
     }
