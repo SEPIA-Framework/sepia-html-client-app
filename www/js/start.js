@@ -36,6 +36,16 @@ var app = {
 
 		//universal links
 		universalLinks.subscribe('universalLinkTest', app.onUniversalLink);
+
+		//android intents
+		if ('plugins' in window && window.plugins.intentShim){
+		    window.plugins.intentShim.getIntent(
+		        app.onAndroidIntent,
+		        function(){
+					console.log('window.plugins.intentShim.getIntent - Failed to get Android launch intent.');
+				}
+            );
+		}
 		
 		//local notification
 		cordova.plugins.notification.local.on("click", app.onLocalNotification, this);
@@ -60,14 +70,21 @@ var app = {
 			redirect();
 		}
     },
-	// openNewsListPage Event Handler
-	onUniversalLink: function(eventData) {
+	//universal link events
+	onUniversalLink: function(eventData){
 		//store deep-link and handle in index.html appSetup()
 		if ("localStorage" in window){
 			localStorage.setItem("sepia-deeplink-intent", JSON.stringify(eventData));
 		}
 	},
-	//openLocalNotification
+	//Android intent events
+	onAndroidIntent: function(intent) {
+		//store intent and handle in index.html appSetup()
+		if ("localStorage" in window){
+			localStorage.setItem("sepia-android-intent", JSON.stringify(intent));
+		}
+	},
+	//local notification events
 	onLocalNotification: function(notification, state) {
 		//store notification and handle in index.html appSetup()
 		if ("localStorage" in window){

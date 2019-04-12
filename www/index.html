@@ -329,7 +329,7 @@
 		}
 		//NOTE: compare to deeplinks in index.js
 	}
-	function handleDeeplinksAndNotifications(isDemo){
+	function handleDeeplinksIntentsAndNotifications(isDemo){
 		//get some Cordova transfer stuff from localStorage
 		if (isCordova && "localStorage" in window){
 			//get
@@ -345,10 +345,20 @@
 				localNotification = JSON.parse(lnString);
 				localStorage.removeItem("sepia-local-note");
 			}
+			var androidIntent;
+			var andiString = localStorage.getItem("sepia-android-intent");
+			if (andiString){
+				androidIntent = JSON.parse(andiString);
+				localStorage.removeItem("sepia-android-intent");
+			}
 			//handle
 			if (deeplinkAction){
 				//Deeplink
 				app.onUniversalLink(deeplinkAction);
+			}
+			if (androidIntent){
+				//Android Intent
+				app.onAndroidIntent(androidIntent);
 			}
 			if (localNotification){
 				//Local notification
@@ -427,7 +437,7 @@
 			//Url actions
 			handleUrlParameterActions(SepiaFW.client.isDemoMode());
 			//Deeplinks and local notifications
-			handleDeeplinksAndNotifications(SepiaFW.client.isDemoMode());
+			handleDeeplinksIntentsAndNotifications(SepiaFW.client.isDemoMode());
 		});
 		
 		//what happens after login?
