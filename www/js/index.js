@@ -109,7 +109,7 @@ var app = {
 			//user logged in - delay until onActive
 			SepiaFW.client.addOnActiveOneTimeAction(function(){
 				app.onUniversalLink(eventData);
-			});
+			}, 'onUniversalLink');
 
 		}, function(){
 			//let index.html load first??
@@ -147,16 +147,13 @@ var app = {
 		//check SEPIA state
 		activeOrLoggedInOrNothingYet(function(){
 			//user active (or demo-mode)?
-			console.log('Action' + JSON.stringify(intent.action));
-			var intentExtras = intent.extras;
-			if (intentExtras == null)	intentExtras = "No extras in intent";
-			console.log('Launch Intent Extras: ' + JSON.stringify(intentExtras));
+			SepiaFW.client.handleRequestViaIntent(intent);
 
 		}, function(){
 			//user logged in - delay until onActive
 			SepiaFW.client.addOnActiveOneTimeAction(function(){
 				app.onAndroidIntent(intent);
-			});
+			}, 'onAndroidIntent');
 
 		}, function(){
 			//let index.html load first??
@@ -194,7 +191,7 @@ var app = {
 			//user logged in - delay until onActive
 			SepiaFW.client.addOnActiveOneTimeAction(function(){
 				app.onLocalNotification(notification);
-			});
+			}, 'onLocalNotification');
 
 		}, function(){
 			//let index.html load first??

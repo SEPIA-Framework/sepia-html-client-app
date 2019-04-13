@@ -13,6 +13,7 @@ function sepiaFW_build_client_interface(){
 	ClientInterface.startClient = SepiaFW.webSocket.client.startClient;
 	ClientInterface.welcomeActions = SepiaFW.webSocket.client.welcomeActions;
 	ClientInterface.handleRequestViaUrl = SepiaFW.webSocket.client.handleRequestViaUrl;
+	ClientInterface.handleRequestViaIntent = SepiaFW.webSocket.client.handleRequestViaIntent;
 	ClientInterface.setDemoMode = SepiaFW.webSocket.client.setDemoMode;
 	ClientInterface.isDemoMode = SepiaFW.webSocket.client.isDemoMode;
 	
@@ -332,7 +333,7 @@ function sepiaFW_build_webSocket_client(){
 		//call onActive when first joining a channel
 		if (isFirstJoin){
 			isFirstJoin = false;
-			Client.onActive();
+			//Client.onActive();
 		}
 		
 		//update and build channel list
@@ -357,6 +358,9 @@ function sepiaFW_build_webSocket_client(){
 		if (lastActivatedChatPartner && (activeChatPartner !== lastActivatedChatPartner)){
 			Client.switchChatPartner(lastActivatedChatPartner);
 		}
+
+		//always call onActive
+		Client.onActive();
 	}
 	
 	function broadcastChatPartnerSwitch(partnerId){
@@ -458,15 +462,19 @@ function sepiaFW_build_webSocket_client(){
 			}
 		});
 		onActiveOneTimeActions = [];
+		SepiaFW.debug.log("Ran and removed one-time onActive events.");
 	}
 	Client.addOnActiveAction = function(actionFunction){
 		if ($.inArray(actionFunction, onActiveActions) == -1){
 			onActiveActions.push(actionFunction);
 		}
 	}
-	Client.addOnActiveOneTimeAction = function(actionFunction){
+	Client.addOnActiveOneTimeAction = function(actionFunction, source){
 		if ($.inArray(actionFunction, onActiveOneTimeActions) == -1){
 			onActiveOneTimeActions.push(actionFunction);
+		}
+		if (source){
+			SepiaFW.debug.log("Added one-time onAction event of source: " + source);
 		}
 	}
 	var onActiveActions = [];
@@ -564,6 +572,21 @@ function sepiaFW_build_webSocket_client(){
 			//yes
 			SepiaFW.debug.log("Executing command via URL: " + requestMsg);
 		});
+	}
+	//handle a message or command that was given via (Android) intent
+	Client.handleRequestViaIntent = function(intent){
+		console.log('Android intent action: ' + JSON.stringify(intent.action));		//DEBUG
+		if (intent.action){
+			//NOTE: the following assumes that the intent was properly executed after onActive
+			if (intent.action == "android.intent.action.ASSIST"){
+				//DEBUG
+				var intentExtras = intent.extras;
+				if (intentExtras)	console.log('Intent extras: ' + JSON.stringify(intentExtras));
+				//Start mic
+				var useConfirmationSound = SepiaFW.speech.shouldPlayConfirmation();
+				SepiaFW.ui.toggleMicButton(useConfirmationSound);
+			}
+		}		
 	}
 	
 	//demo mode setup
