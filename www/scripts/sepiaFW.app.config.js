@@ -3,8 +3,7 @@ function sepiaFW_build_config(){
 	var Config = {};
 	
 	Config.clientInfo = "web_app_v1.0.0";	//defined by client properties
-	var deviceId = "";						//set in settings and freely chosen by user to address his devices directly
-	var deviceIdClean = "";					//clean version of device ID (no spaces, only alphanumeric, lower-case)
+	var deviceId = "";						//set in settings and chosen by user to address his devices directly (only numbers and letters, space is replaced by '-', lower-case)
 	Config.environment = "default";			//default for now - switched to "avatar_display" in AO-Mode
 	
 	//set client info
@@ -14,16 +13,19 @@ function sepiaFW_build_config(){
 	}
 	//get client-device info (for server communication etc.)
 	Config.getClientDeviceInfo = function(){
-		if (deviceIdClean){
-			return (deviceIdClean + "_" + Config.clientInfo);
+		if (deviceId){
+			return (deviceId.toLowerCase() + "_" + Config.clientInfo);
 		}else{
 			return (Config.clientInfo);
 		}
 	}
 	//set device ID			
 	Config.setDeviceId = function(newDeviceId, skipReload){
-		deviceId = newDeviceId.replace(/[\W]+/g, " ").replace(/\s+/g, " ").trim();
-		deviceIdClean = deviceId.split(" ").join("_").toLowerCase();
+		deviceId = newDeviceId.replace(/[\W]+/g, " ").replace(/\s+/g, " ").trim().split(" ").join("-").toLowerCase();
+		if (deviceId.length > 8) deviceId = deviceId.substring(0, 8);
+		if (newDeviceId != deviceId){
+			alert("Your device ID has been adjusted to: " + deviceId + " - Allowed are only lower-case letters, numbers and - and a max. length of 8 characters.");
+		}
 		SepiaFW.data.setPermanent('deviceId', deviceId);
 		Config.broadcastDeviceId(deviceId);
 		if (!skipReload){

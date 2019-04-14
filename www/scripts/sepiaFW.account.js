@@ -192,7 +192,7 @@ function sepiaFW_build_account(){
 	
 	//Store and load app settings from account
 	Account.saveAppSettings = function(){
-		var deviceId = SepiaFW.config.getDeviceId().split(" ").join("_").toLowerCase();		//no spaces plz and no cases
+		var deviceId = SepiaFW.config.getDeviceId();
 		var appData = SepiaFW.data.getAll();
 		delete appData["account"];
 		SepiaFW.ui.showPopup("Please define a security PIN", {
@@ -222,7 +222,7 @@ function sepiaFW_build_account(){
 		});
 	}
 	Account.loadAppSettings = function(){
-		var deviceId = SepiaFW.config.getDeviceId().split(" ").join("_").toLowerCase();		//no spaces plz and no cases
+		var deviceId = SepiaFW.config.getDeviceId();
 		SepiaFW.ui.showPopup("Please enter the security PIN", {
 			inputLabelOne: "PIN",
 			buttonOneName: "OK",

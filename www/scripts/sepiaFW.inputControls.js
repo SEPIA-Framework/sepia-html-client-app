@@ -397,23 +397,25 @@ function sepiaFW_build_input_controls() {
     }
     function getBeaconEvent(beaconData){
         var baseUrl = "b07z.net/BT";
-        var deviceId = SepiaFW.config.getDeviceId().split(" ").join("_");       //no spaces plz
+        var deviceId = SepiaFW.config.getDeviceId();
         if (deviceId){
             baseUrl += ("/" + deviceId);
         }
+        baseUrl = baseUrl.toLowerCase();
+        var beaconDataUrlLower = (beaconData.url)? beaconData.url.toLowerCase() : "";
         //MIC
-        if (beaconData.url.indexOf(baseUrl + "/mic") >= 0){
+        if (beaconDataUrlLower.indexOf(baseUrl + "/mic") >= 0){
             return "mic";
         //BACK
-        }else if (beaconData.url.indexOf(baseUrl + "/back") >= 0){
+        }else if (beaconDataUrlLower.indexOf(baseUrl + "/back") >= 0){
             return "back";
         //AO-mode
-        }else if (beaconData.url.indexOf(baseUrl + "/ao") >= 0){
+        }else if (beaconDataUrlLower.indexOf(baseUrl + "/ao") >= 0){
             return "ao";
         //Next & previous
-        }else if (beaconData.url.indexOf(baseUrl + "/next") >= 0){
+        }else if (beaconDataUrlLower.indexOf(baseUrl + "/next") >= 0){
             return "next";
-        }else if (beaconData.url.indexOf(baseUrl + "/prev") >= 0){
+        }else if (beaconDataUrlLower.indexOf(baseUrl + "/prev") >= 0){
             return "prev";
         }else{
             return "";
@@ -444,8 +446,8 @@ function sepiaFW_build_input_controls() {
             //console.log(data.detail);
             if (data.detail.name == "remoteButton"){
                 var remoteData = data.detail.data;
-                var deviceId = SepiaFW.config.getDeviceId().split(" ").join("_");       //no spaces plz
-                if (remoteData && remoteData.deviceId == deviceId){
+                var deviceId = SepiaFW.config.getDeviceId();
+                if (remoteData && remoteData.deviceId && remoteData.deviceId.toLowerCase() == deviceId){
                     handleRemoteInputEvent(remoteData.button);
                 }
             }

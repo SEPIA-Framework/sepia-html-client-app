@@ -427,6 +427,9 @@
 		
 		//Device ID
 		var restoreDeviceIdOrDefault = SepiaFW.data.getPermanent('deviceId') || SepiaFW.ui.getDefaultDeviceId();
+		if (restoreDeviceIdOrDefault.indexOf(" ") != -1 || restoreDeviceIdOrDefault.length > 8){
+			alert("Sorry but your device ID has been modified due to new format restrictions. Please use only lower-case letters, numbers and - and keep it short (<=8)!");
+		}
 		SepiaFW.config.setDeviceId(restoreDeviceIdOrDefault, true);
 				
 		//set privacy policy link
