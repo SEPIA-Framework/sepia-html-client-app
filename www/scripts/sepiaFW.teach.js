@@ -125,14 +125,35 @@ function sepiaFW_build_teach(){
 				name : "Execute a client control function",
 				parameters : [{
 					value : "action",
-					name : "Action (e.g.: &lt;on&gt; or &lt;increase&gt;): "
+					name : "Action (e.g.: &lt;on&gt;, &lt;increase&gt; or &lt;set&gt;): "
 				},{
 					value : "client_fun",
-					name : "Function (e.g.: settings, volume, meshNode, ...): "		//alwaysOn, clexi
+					name : "Function (e.g.: settings, volume, alwaysOn, ...): "		//meshNode, clexi
 				},{
 					value : "data",
-					name : "Additional data (e.g. JSON)",
+					name : "Additional data (e.g. JSON or number)",
 					optional : true
+				}]
+			},
+			platform_controls : {
+				command : "platform_controls",
+				name : "Execute platform specific actions",
+				parameters : [{
+					value : "device_fun",
+					name : "Actions for specific device IDs: "		//e.g.: { "a1": {"type": "androidIntent", "data": intentData} }
+					//function types: androidIntent, iosIntent, windowsIntent, browserIntent, url
+				},{
+					value : "android_fun",
+					name : "Android specific Intent or URL: "
+				},{
+					value : "ios_fun",
+					name : "iOS specific action: "
+				},{
+					value : "browser_fun",
+					name : "Browser specific function or URL: "
+				},{
+					value : "windows_fun",
+					name : "Windows specific action: "
 				}]
 			},
 			mesh_node_plugin : {

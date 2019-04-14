@@ -104,6 +104,42 @@ function sepiaFW_build_client_controls(){
         }
     }
 
+    //Platform specific function like Android Intents
+    Controls.platformFunction = function(controlData){
+        if (controlData && controlData.platform){
+            var req = parseAction(controlData.data);
+            /* DEBUG
+            console.log('Platform: ' + controlData.platform);
+            console.log('Request type: ' + req.type);
+            console.log('Request data: ' + JSON.stringify(req.data));
+            */
+
+            //Android
+            if (controlData.platform == "android" && SepiaFW.ui.isAndroid){
+                if (req.type == "androidIntent" && req.data && req.data.action && ("plugins" in window) && window.plugins.intentShim){
+                    //TODO: what about safety here? Should we do a whitelist?
+                    window.plugins.intentShim.startActivity({
+                        action: req.data.action,
+                        extras: req.data.extras
+                    }, function(){
+                        //console.log('Android intent success');
+                        //bring SEPIA back to front? - TODO: test and use or deactivate?
+                        /*
+                        if (req.data.action == "android.media.action.MEDIA_PLAY_FROM_SEARCH" && SepiaFW.alwaysOn && SepiaFW.alwaysOn.isOpen){
+                            setTimeout(function(){
+                                window.plugins.intentShim.startActivity({action: "de.bytemind.sepia.app.web"}, function(){}, function(){});
+                            }, 4000);
+                        }
+                        */
+                    }, function(){
+                        //console.log('Android intent fail');
+                        //TODO: say something to user
+                    });
+                }
+            }
+        }
+    }
+
     //CLEXI send
     Controls.clexi = function(controlData){
         if (SepiaFW.clexi && controlData.action){

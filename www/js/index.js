@@ -54,12 +54,12 @@ var app = {
 				}
 			);
 			window.plugins.intentShim.onIntent(app.onAndroidIntent);
-			window.plugins.intentShim.registerBroadcastReceiver({
+			/*window.plugins.intentShim.registerBroadcastReceiver({
 				filterActions: [
-					'android.intent.action.ASSIST'
+					'android.intent.action.INPUT_METHOD_CHANGED'		//example
 				]},
 				app.onAndroidIntent
-			);
+			);*/
 		}
 		
 		//local notification
@@ -117,6 +117,7 @@ var app = {
 			//update localStorage
 			if ("localStorage" in window){
 				localStorage.setItem("sepia-deeplink-intent", JSON.stringify(eventData));
+				localStorage.setItem("sepia-deeplink-intent-ts", new Date().getTime());
 			}
 			//let index.html appSetup() do the rest
 		});
@@ -161,6 +162,7 @@ var app = {
 			//update localStorage
 			if ("localStorage" in window){
 				localStorage.setItem("sepia-android-intent", JSON.stringify(intent));
+				localStorage.setItem("sepia-android-intent-ts", new Date().getTime());
 			}
 			//let index.html appSetup() do the rest
 		});
@@ -198,7 +200,8 @@ var app = {
 			
 			//update localStorage
 			if ("localStorage" in window){
-				localStorage.setItem("sepia-android-intent", JSON.stringify(notification));
+				localStorage.setItem("sepia-local-note", JSON.stringify(notification));
+				localStorage.setItem("sepia-local-note-ts", new Date().getTime());
 			}
 			//let index.html appSetup() do the rest
 		});

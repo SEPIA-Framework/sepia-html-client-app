@@ -31,6 +31,7 @@ var app = {
 		//clean up some old stuff just to be sure
 		if ("localStorage" in window){
 			localStorage.removeItem("sepia-deeplink-intent");
+			localStorage.removeItem("sepia-android-intent");
 			localStorage.removeItem("sepia-local-note");
 		}
 
@@ -75,6 +76,7 @@ var app = {
 		//store deep-link and handle in index.html appSetup()
 		if ("localStorage" in window){
 			localStorage.setItem("sepia-deeplink-intent", JSON.stringify(eventData));
+			localStorage.setItem("sepia-deeplink-intent-ts", new Date().getTime());
 		}
 	},
 	//Android intent events
@@ -82,6 +84,7 @@ var app = {
 		//store intent and handle in index.html appSetup()
 		if ("localStorage" in window){
 			localStorage.setItem("sepia-android-intent", JSON.stringify(intent));
+			localStorage.setItem("sepia-android-intent-ts", new Date().getTime());
 		}
 	},
 	//local notification events
@@ -89,6 +92,7 @@ var app = {
 		//store notification and handle in index.html appSetup()
 		if ("localStorage" in window){
 			localStorage.setItem("sepia-local-note", JSON.stringify(notification));
+			localStorage.setItem("sepia-local-note-ts", new Date().getTime());
 		}
 	}
 };
