@@ -345,7 +345,7 @@ function sepiaFW_build_ui_build(){
 			$(chatSwipeBar).off();
 			SepiaFW.ui.simpleDoubleTab(chatSwipeBar, function(){
 				//double-tab
-				$('#sepiaFW-chat-controls-form').css({"background-color" : $('#sepiaFW-chat-controls-right').css('background-color')});
+				$('#sepiaFW-chat-controls-form').css({"background-color" : ""});	//$('#sepiaFW-chat-controls-right').css('background-color')
 				$('#sepiaFW-chat-controls-swipe-area').fadeOut(300);
 			});
 		}
