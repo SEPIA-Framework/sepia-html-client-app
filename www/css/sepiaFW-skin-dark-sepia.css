@@ -3,14 +3,14 @@ html {
 	background-color: #000;
 }
 
-#sepiaFW-pC 	 { background-color: #ceff1a; }
-#sepiaFW-sC 	 { background-color: #000; }
-#sepiaFW-sC2 { background-color: rgba(235, 235, 255, 0.95); 	}
-#sepiaFW-aC 	 { background-color: rgba(145, 47, 86, 0.95); 	}
+#sepiaFW-pC  { background-color: #ceff1a; }
+#sepiaFW-sC  { background-color: #000; }
+#sepiaFW-sC2 { background-color: #f0f0fa; }
+#sepiaFW-aC  { background-color: rgba(145, 47, 86, 0.95); }
 #sepiaFW-aC2 { background-color: rgba(21, 171, 195, 0.97); /*rgba(11, 122, 117, 0.97) rgba(86, 47, 145, 0.95);*/ }
-#sepiaFW-asC { background-color: #ceff1a; 	}
-#sepiaFW-adC { background-color: gold; 	}
-#sepiaFW-lC 	 { background-color: rgba(150, 150, 150, 0.50); 	}
+#sepiaFW-asC { background-color: #ceff1a; }
+#sepiaFW-adC { background-color: gold; }
+#sepiaFW-lC  { background-color: rgba(150, 150, 150, 0.50); }
 
 #sepiaFW-login-box {
 	background: rgba(21, 171, 195, 0.97);
@@ -39,8 +39,8 @@ html {
 	color: #000;
 }
 .sepiaFW-notouch-device #sepiaFW-main-window button:hover {
-	background: #fff;
-	color: #000;
+	background: #2f3035;
+    color: #ceff1a;
 }
 
 #sepiaFW-nav-label {
@@ -74,10 +74,15 @@ html {
 	background: transparent !important;
 }
 #sepiaFW-chat-controls-more-menu button {
-	background: rgba(235, 235, 255, 0.97);
+	background: #2f2f2f;
+	color: #fff;
+}
+.sepiaFW-notouch-device #sepiaFW-chat-controls-more-menu button:hover {
+	background-color: #fff !important;
+	color: #2f2f2f !important;
 }
 #sepiaFW-chat-menu {
-	background: rgba(21, 171, 195, 1.00); 
+	background: #101418; 
 	color: #fff;
 }
 #sepiaFW-chat-menu-head-border {
@@ -90,12 +95,8 @@ html {
 	background: rgba(255, 255, 255, 0.14);
 }
 .sepiaFW-notouch-device #sepiaFW-chat-menu button:hover {
-	background-color: #000 !important;
-	color: #fff !important;
-}
-.sepiaFW-notouch-device #sepiaFW-chat-controls-more-menu button:hover {
-	background-color: #000 !important;
-	color: #fff !important;
+	background-color: #ceff1a !important;
+	color: #000 !important;
 }
 
 #sepiaFW-myEvents-buttons button,
@@ -105,8 +106,13 @@ html {
 	color: #fff !important;
 }
 #sepiaFW-myEvents-buttons button:hover {
-	background-color: rgba(235, 235, 255, 0.95) !important;
+	background-color: #f0f0fa !important;
 	color: #000 !important;
+}
+#sepiaFW-myFirstStart-buttons button, 
+#sepiaFW-myFirstStart-buttons-replaced button {
+	background-color: #2f3035;
+	color: #fff;
 }
 
 #sepiaFW-chat-output .statusUpdate {

@@ -190,6 +190,12 @@ html {
 
 /*----- cards ------*/
 
+.sepiaFW-cards-button,
+.sepiaFW-notouch-device .sepiaFW-cards-button:hover {
+	background: #CEFF1A;
+    color: #121212;
+}
+
 .sepiaFW-cards-list-title {
 	background: #121212; /*rgba(225, 225, 245, 1.00);*/
 	color: #fff; /*#000;*/

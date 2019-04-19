@@ -19,6 +19,12 @@
     font-weight: 300;
 }
 
+.sepiaFW-cards-button,
+.sepiaFW-notouch-device .sepiaFW-cards-button:hover {
+	background: #2f3035;
+	color: #fcfcfc;
+}
+
 /* --- Help view --- */
 
 .sepiaFW-help-view {
@@ -78,9 +84,8 @@
 	flex-wrap: wrap;
 	justify-content: space-between;
 	position: relative;
-	/*background: rgba(205, 235, 205, 0.90);*/
-	background: rgba(235, 235, 255, 0.95);
-	/*color: #fff;*/
+	background: #973a5f;
+	color: #fcfcfc;
 	/*border-radius: 3px 3px 0 0;*/
 	border-radius: 3px;
 	margin: 0px 5px 0px 5px;
@@ -119,16 +124,34 @@
 	width: 100%;
     order: 4;
 }
+.sepiaFW-cards-contextMenu-single {
+	/* NOTE: this is added '..list-contextMenu' */
+	margin: 0px 5px 0px 5px;
+    width: calc(100% - 10px);
+    border-radius: 3px 3px 3px 3px;
+    background: inherit !important;
+    color: inherit !important;
+}
+/*.sepiaFW-cards-contextMenu-single:last-of-type {
+	margin: 0px 5px 0px 5px;
+}*/
 .sepiaFW-cards-list-contextMenu > ul {
 	display: flex;
 	flex-wrap: wrap;
 	justify-content: space-between;
 }
+.sepiaFW-cards-contextMenu-single > ul {
+	justify-content: space-evenly;
+}
 .sepiaFW-cards-list-contextMenu li {
 	padding: 2px 6px;
 	display: flex;
     justify-content: center;
-    align-items: center;
+	align-items: center;
+	min-width: 82px;
+}
+#sepiaFW-my-view .sepiaFW-cards-list-contextMenu .sepiaFW-cards-list-moveBtn {
+	display: none;
 }
 /*.sepiaFW-cards-list-contextMenu li:first-of-type{
 	margin-top: 0px;

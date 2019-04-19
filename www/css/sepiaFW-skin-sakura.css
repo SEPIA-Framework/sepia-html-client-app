@@ -5,13 +5,13 @@ html {
 	border-color: #503040;
 }
 
-#sepiaFW-pC 	 { background-color: #503040; }
-#sepiaFW-sC 	 { background-color: #883446; }
-#sepiaFW-sC2 { background-color: rgba(235, 235, 255, 0.95); 	}
-#sepiaFW-aC 	 { background-color: #eebcb4; 	}
+#sepiaFW-pC 	{ background-color: #503040; }
+#sepiaFW-sC 	{ background-color: #883446; }
+#sepiaFW-sC2 	{ background-color: #f1ecff; }
+#sepiaFW-aC 	{ background-color: #eebcb4; }
 #sepiaFW-aC2 { background-color: rgba(160, 145, 153, 1.00); }
-#sepiaFW-asC { background-color: #503040; 	}
-#sepiaFW-adC { background-color: gold; 	}
+#sepiaFW-asC { background-color: #503040; }
+#sepiaFW-adC { background-color: gold; }
 
 #sepiaFW-login-box, #sepiaFW-nav-bar, #sepiaFW-chat-controls-form, #sepiaFW-chat-controls-right {
 	background: #503040;
@@ -135,6 +135,11 @@ html {
 	/*color: #503040;*/
 	color: #fff;
 }
+.sepiaFW-cards-button,
+.sepiaFW-notouch-device .sepiaFW-cards-button:hover {
+	background: #883446;
+    color: #fbf3f6;
+}
 .sepiaFW-cards-list-title.newsHeader button {
 	color: #883446 !important;
 }
@@ -149,6 +154,12 @@ html {
 }
 .sepiaFW-cards-list-body .weatherNowSmall .weatherNowSmallImage {
 	background: #503040;
+}
+.sepiaFW-cards-list-body .listElement .checked {
+    background: #8BC34A;
+}
+.sepiaFW-cards-list-body .listElement .inProgress {
+    background: #faf888;
 }
 
 /*----- teachUI -----*/

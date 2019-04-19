@@ -184,14 +184,14 @@ body {
 	min-height: 5px;
 	float: right;
 }
-#sepiaFW-pC 	 { background-color: #ceff1a; }
-#sepiaFW-sC 	 { background-color: #2f3035; }
-#sepiaFW-sC2 { background-color: rgba(235, 235, 255, 0.97); 	}
-#sepiaFW-aC 	 { background-color: rgba(145, 47, 86, 0.97); 	}
-#sepiaFW-aC2 { background-color: rgba(21, 171, 195, 0.97); /*rgba(11, 122, 117, 0.95); rgba(86, 47, 145, 0.95);*/ }
-#sepiaFW-asC { background-color: #ceff1a; 	}
-#sepiaFW-adC { background-color: gold; 	}
-#sepiaFW-lC 	 { background-color: rgba(30, 30, 30, 0.50); 	}
+#sepiaFW-pC 	{ background-color: #ceff1a; }
+#sepiaFW-sC 	{ background-color: #2f3035; }
+#sepiaFW-sC2 	{ background-color: #e5e5e5; }
+#sepiaFW-aC 	{ background-color: #94365b; }
+#sepiaFW-aC2 	{ background-color: #1caec5; /*rgba(11, 122, 117, 0.95); rgba(86, 47, 145, 0.95);*/ }
+#sepiaFW-asC 	{ background-color: #ceff1a; }
+#sepiaFW-adC 	{ background-color: gold; }
+#sepiaFW-lC 	{ background-color: rgba(30, 30, 30, 0.50); }
 .sepiaFW-long-press-indicator {
 	position: fixed;
 	top: -100px;
@@ -653,7 +653,7 @@ body {
 	margin-bottom: 8px;
 }
 */
-.sepiaFW-notouch-device .sepiaFW-menu li:hover{
+.sepiaFW-notouch-device .sepiaFW-menu li:not(.sepiaFW-cards-button):hover{
 	background: rgba(255, 255, 255, 0.33) !important;
 }
 
@@ -1368,7 +1368,7 @@ body {
 }
 #sepiaFW-assist-btn-area button {
 	border-radius: 23px;
-	border: 4px solid rgba(235, 235, 255, 0.95);
+	border: 4px solid #e1e1f5;
 	margin: 0px;
 	padding: 0px;
 	width: 37px;
@@ -1618,7 +1618,6 @@ body {
 }
 .sepiaFW-results-container article.chatMe,
 #sepiaFW-chat-output article.chatMe{
-	/*background: rgba(235, 235, 255, 0.95);*/
 	background: #ceff1a;
 	color: #2f3035;
 	margin: 0 2px 4px 30px;
@@ -1715,7 +1714,7 @@ body {
 #sepiaFW-myCustom-buttons button,
 #sepiaFW-myCustom-buttons-replaced button {
 	padding: 10px 15px;
-    background-color: rgba(235, 235, 255, 0.95);
+    background-color: #e5e5e5;
 	flex: 1 0 auto;
 }
 .sepiaFW-myEvents-dateHeader {

@@ -119,6 +119,11 @@ html {
 	background: #4B6688;
 	color: #fff;
 }
+.sepiaFW-cards-button,
+.sepiaFW-notouch-device .sepiaFW-cards-button:hover {
+	background: #312F3F;
+    color: #fcfcfc;
+}
 .sepiaFW-cards-list-footer {
 	background: #d2d2dd;
 }

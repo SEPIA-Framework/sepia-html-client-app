@@ -133,6 +133,11 @@ html {
 	background: #F3B547;
 	color: #44451F;
 }
+.sepiaFW-cards-button,
+.sepiaFW-notouch-device .sepiaFW-cards-button:hover {
+	background: #44451F;
+    color: #ebd2a6;
+}
 .sepiaFW-cards-list-title.newsHeader button {
 	color: #BE3E2C !important;
 }
@@ -146,6 +151,12 @@ html {
 }
 .sepiaFW-cards-list-body .weatherNowSmall .weatherNowSmallImage {
 	background: #44451F;
+}
+.sepiaFW-cards-list-body .listElement .checked {
+    background: #8BC34A;
+}
+.sepiaFW-cards-list-body .listElement .inProgress {
+    background: #FFEB3B;
 }
 
 /*----- teachUI -----*/

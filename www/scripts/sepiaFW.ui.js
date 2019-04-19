@@ -79,11 +79,11 @@ function sepiaFW_build_ui(){
 	
 	UI.primaryColor = '#ceff1a';
 	UI.secondaryColor = '#2f3035';
-	UI.secondaryColor2 = 'rgba(235, 235, 255, 0.95)';
-	UI.accentColor = 'rgba(145, 47, 86, 0.95)';
-	UI.accentColor2 = 'rgba(11, 122, 117, 0.95)'; //'rgba(86, 47, 145, 0.95)';
+	UI.secondaryColor2 = '#f0f0fa';
+	UI.accentColor = '#94365b';
+	UI.accentColor2 = '#16817b'; 	//'rgba(86, 47, 145, 0.95)';
 	UI.awaitDialogColor = 'gold';
-	UI.loadingColor = 'rgba(180, 180, 180, 1.0)';
+	UI.loadingColor = '#b4b4b4';
 	UI.assistantColor = '';
 	UI.micBackgroundColor = '#fff';  //reassigned during UI setup
 	
@@ -423,13 +423,13 @@ function sepiaFW_build_ui(){
 	//get default device ID
 	UI.getDefaultDeviceId = function(){
 		if (UI.isIOS){
-			return "I1";
+			return "i1";
 		}else if (UI.isAndroid){
-			return "A1";
+			return "a1";
 		}else if (UI.isStandaloneWebApp){
-			return "O1";
+			return "o1";
 		}else{
-			return "B1";
+			return "b1";
 		}
 	}
 	

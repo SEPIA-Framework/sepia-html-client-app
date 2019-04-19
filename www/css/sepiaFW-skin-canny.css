@@ -62,20 +62,23 @@ html {
 }
 
 .sepiaFW-menu {
-	/*background: rgba(206, 255, 26, 0.95);*/
-	background: #f0f0f0;
-	color: #000;
+	background: #2f3035;
+    color: #fff;
 }
 #sepiaFW-chat-menu {
-	background: #f0f0f0;
-	color: #000;
+	background: #2f3035;
+	color: #fff;
+}
+#sepiaFW-chat-controls-more-menu {
+	border: 1px solid #61e69d;
+    border-bottom: 0;
 }
 #sepiaFW-chat-menu button {
 	background: #FE5652;
 	color: #fff;
 }
 #sepiaFW-chat-menu li {
-	background: #e9e9e9;
+	/*background: #81ebb1;*/
 }
 
 #sepiaFW-myEvents-buttons button,
@@ -90,11 +93,11 @@ html {
 }
 #sepiaFW-main-window .chat-buttons-area button,
 .sepiaFW-touch-device #sepiaFW-main-window .chat-buttons-area button {
-	background: #eaeaea;
-	color: #2f3035;
+	background: #2f3035;
+	color: #eaeaea;
 }
 #sepiaFW-main-window .chat-buttons-area button:hover {
-	background: #f0f0f0;
+	background: #eaeaea;
 	color: #2f3035;
 }
 #sepiaFW-main-window .chat-buttons-area .my-view-custom-button {
@@ -160,6 +163,12 @@ html {
 }
 
 /*----- cards ------*/
+
+.sepiaFW-cards-button, 
+.sepiaFW-notouch-device .sepiaFW-cards-button:hover {
+    background: #fe5652;
+    color: #fcfcfc;
+}
 
 .sepiaFW-cards-list-title {
 	background: #61E69D;

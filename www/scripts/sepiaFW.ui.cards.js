@@ -100,7 +100,7 @@ function sepiaFW_build_ui_cards(){
 	
 	//Move cards
 	var isFirstMove = true;
-	Cards.moveToMyViewOrDelete = function(eleOrCard){
+	Cards.moveToMyViewOrDelete = function(eleOrCard, forceDelete){
 		var ele = $(eleOrCard);
 		var myViewParent = ele.closest('#sepiaFW-my-view');
 		var isAlreadyHidden = false;
@@ -126,7 +126,7 @@ function sepiaFW_build_ui_cards(){
 				}
 			}
 			//if the view is myView then end here
-			if (myViewParent.length > 0){
+			if (forceDelete || myViewParent.length > 0){
 				return;
 			}
 			//check for flex card container and add one if missing
@@ -193,6 +193,8 @@ function sepiaFW_build_ui_cards(){
 	var INDEX_TYPE_NEWS_FAVORITES = "newsFavorites";
 	var INDEX_TYPE_UNKNOWN = "unknown";
 
+	var SECTION_TIME_EVENTS = "timeEvents";
+
 	//Default sort-drag-options
 	var udListCheckablesDragOptions = {
 		allowCrossContainerDrag: true,
@@ -256,9 +258,9 @@ function sepiaFW_build_ui_cards(){
 		delete cardElementInfo.data;					//... and remove it from info ...
 		cardElement.setAttribute('data-list', JSON.stringify(cardElementInfo)); //... so we have a small basic set here
 		
-		var indexType = cardElementInfo.indexType;
 		var titleName = cardElementInfo.title;
-		var isTimerAndAlarmsList = (indexType === INDEX_TYPE_ALARMS); 	//Note: section === "timeEvents" might even be better here
+		//var isTimerAndAlarmsList = (cardElementInfo.indexType === INDEX_TYPE_ALARMS); 	//Note: section === "timeEvents" might even be better here
+		var isTimerAndAlarmsList = (cardElementInfo.section === SECTION_TIME_EVENTS);
 		if (isTimerAndAlarmsList){
 			sortData = true;	//NOTE: maybe we should read this value from the list info itself ... maybe it is already sorted ...
 
@@ -275,7 +277,7 @@ function sepiaFW_build_ui_cards(){
 		var headerConfig = {
 			"name" : titleName,
 			"isEditable" : !isTimerAndAlarmsList,
-			"addDeleteListButton" : true,
+			"addDeleteListButton" : !isTimerAndAlarmsList,
 			"addSaveListButton" : true
 		};
 		if (!isTimerAndAlarmsList){
@@ -296,23 +298,21 @@ function sepiaFW_build_ui_cards(){
 			
 			//timer element
 			if (elementsData[i].eleType === "timer"){
-				var listEle = makeTimerElement(elementsData[i]);
-				cardBody.appendChild(listEle);
+				var listEle = makeTimerElement(elementsData[i], cardElement.id, cardBody);		//make AND add
 				if (hasTimer === 0) { hasTimer = 1;	cardBody.className = "sepiaFW-cards-list-body sepiaFW-cards-list-timers"; }
 				//refresh interval actions
 				SepiaFW.events.addOrRefreshTimeEvent(elementsData[i].targetTimeUnix, elementsData[i].eleType, elementsData[i]);
 			
 			//alarm element
 			}else if (elementsData[i].eleType === "alarm"){
-				var listEle = makeAlarmElement(elementsData[i]);
-				cardBody.appendChild(listEle);
+				var listEle = makeAlarmElement(elementsData[i], cardElement.id, cardBody);		//make AND add
 				if (hasAlarm === 0) { hasAlarm = 1; cardBody.className = "sepiaFW-cards-list-body sepiaFW-cards-list-alarms"; }
 				//refresh interval actions
 				SepiaFW.events.addOrRefreshTimeEvent(elementsData[i].targetTimeUnix, elementsData[i].eleType, elementsData[i]);
 			
 			//default: checkable element (default list element)
 			}else{
-				var listEle = makeUserDataListElement(elementsData[i], cardElementInfo);
+				var listEle = makeUserDataListElement(elementsData[i], cardElementInfo); 	//just make (add self)
 				cardBody.appendChild(listEle);
 				if (hasCheckable === 0) { hasCheckable = 1; cardBody.className = "sepiaFW-cards-list-body sepiaFW-cards-list-checkables"; }
 				setupUserDataListElementButtons(listEle); 		//we do this as last step, after classes are set and ele ist appended!
@@ -562,19 +562,17 @@ function sepiaFW_build_ui_cards(){
 		if (eventType === SepiaFW.events.TIMER){
 			//TIMER
 			cardBody.className = "sepiaFW-cards-list-body sepiaFW-cards-list-timers";
-			timeEvent = makeTimerElement(actionInfoI);
+			timeEvent = makeTimerElement(actionInfoI, cardElement.id, cardBody);
 		}else{
 			//ALARM
 			cardBody.className = "sepiaFW-cards-list-body sepiaFW-cards-list-alarms";
-			timeEvent = makeAlarmElement(actionInfoI);
+			timeEvent = makeAlarmElement(actionInfoI, cardElement.id, cardBody);
 		}
-		cardBody.appendChild(timeEvent);
-		
 		cardElement.appendChild(cardBody);
 		return cardElement;
 	}
 	//timeEvent elements
-	function makeTimerElement(actionInfoI){ 	//actionInfoI can also be the data of an list element, should be compatible (in the most important fields)!
+	function makeTimerElement(actionInfoI, flexCardId, cardBody, skipAdd){ 	//actionInfoI can also be the data of an list element, should be compatible (in the most important fields)!
 		var timeEvent = document.createElement('DIV');
 		timeEvent.className = 'timeEvent cardBodyItem';
 		timeEvent.innerHTML = "<div class='timeEventLeft'><i class='material-icons md-24'>&#xE425;</i></div>"
@@ -587,11 +585,15 @@ function sepiaFW_build_ui_cards(){
 		timeEvent.setAttribute('data-id', actionInfoI.eventId);
 		//buttons
 		makeTimeEventNameEditable(timeEvent);
-		makeTimeEventRemoveButton(timeEvent);
-		makeTimeEventToMyViewButton(timeEvent, SepiaFW.events.TIMER);
+		makeTimeEventRemoveButton(timeEvent, cardBody);
+		//makeTimeEventToMyViewButton(timeEvent, SepiaFW.events.TIMER);
+		if (!skipAdd){
+			cardBody.appendChild(timeEvent);
+		}
+		makeTimeEventContextMenu(flexCardId, cardBody, timeEvent, actionInfoI.eventId, SepiaFW.events.TIMER);
 		return timeEvent;
 	}
-	function makeAlarmElement(actionInfoI){		//actionInfoI can also be the data of an list element, should be compatible (in the most important fields)!
+	function makeAlarmElement(actionInfoI, flexCardId, cardBody, skipAdd){		//actionInfoI can also be the data of an list element, should be compatible (in the most important fields)!
 		var timeEvent = document.createElement('DIV');
 		timeEvent.className = 'timeEvent cardBodyItem';
 		timeEvent.innerHTML = "<div class='timeEventLeft'><i class='material-icons md-24'>&#xE855;</i></div>"
@@ -604,8 +606,12 @@ function sepiaFW_build_ui_cards(){
 		timeEvent.setAttribute('data-id', actionInfoI.eventId);
 		//buttons
 		makeTimeEventNameEditable(timeEvent);
-		makeTimeEventRemoveButton(timeEvent);
-		makeTimeEventToMyViewButton(timeEvent, SepiaFW.events.ALARM);
+		makeTimeEventRemoveButton(timeEvent, cardBody);
+		//makeTimeEventToMyViewButton(timeEvent, SepiaFW.events.ALARM);
+		if (!skipAdd){
+			cardBody.appendChild(timeEvent);
+		}
+		makeTimeEventContextMenu(flexCardId, cardBody, timeEvent, actionInfoI.eventId, SepiaFW.events.ALARM);
 		return timeEvent;
 	}
 	//buttons
@@ -644,11 +650,28 @@ function sepiaFW_build_ui_cards(){
 			}
 		});
 	}
+	function makeTimeEventContextMenu(flexCardId, cardBody, cardBodyItem, eventId, eventType){
+		//class in case we need to create new body
+		var newBodyClass;
+		if (eventType === SepiaFW.events.TIMER){
+			//TIMER
+			newBodyClass = "sepiaFW-cards-list-body sepiaFW-cards-list-timers";
+		}else{
+			//ALARM
+			newBodyClass = "sepiaFW-cards-list-body sepiaFW-cards-list-alarms";
+		}
+		//context menu
+		var contextMenu = makeBodyElementContextMenu(flexCardId, cardBody, cardBodyItem, eventId, {
+			toggleButtonSelector: ".timeEventLeft",
+			newBodyClass: newBodyClass
+		});
+	}
+	//NOTE: replaced by context menu
 	function makeTimeEventToMyViewButton(timeEvent, eventType){
 		$(timeEvent).find('.timeEventLeft').each(function(){
 			var that = this;
+
 			SepiaFW.ui.onclick(that, function(){
-			//$(this).on('click', function(){
 				var flexCard = $(that).closest(".sepiaFW-cards-flexSize-container");
 				var title = flexCard.find('.sepiaFW-cards-list-title');
 				if (title.length > 0){
@@ -687,21 +710,21 @@ function sepiaFW_build_ui_cards(){
 			});
 		});
 	}
-	function makeTimeEventRemoveButton(timeEvent){
-		$(timeEvent).find('.timeEventRight').each(function(){
-			var that = this;
+	function makeTimeEventRemoveButton(timeEvent, cardBody){
+		$button = $(timeEvent).find('.timeEventRight');
+		if ($button.length > 0){
+			var that = $button[0];
 			SepiaFW.ui.onclick(that, function(){
-			//$(this).on('click', function(){
-				var timeEventEle = $(that).parent(); 		//TODO: potential to fail if DOM structure changed (use closest(...))
+				var $timeEvent = $(timeEvent);
 				//delete event
 				var Timer = '';
-				if (timeEventEle[0].hasAttribute('data-element')){
-					//var event = JSON.parse(timeEventEle.attr('data-element'));
-					var eventId = timeEventEle.attr('data-id');
+				var eventId = $timeEvent.attr('data-id');
+				if (timeEvent.hasAttribute('data-element')){
+					//var event = JSON.parse($timeEvent.attr('data-element'));
 					Timer = SepiaFW.events.getRunningOrActivatedTimeEventById(eventId);
 					if (Timer){
 						var resyncList = true;
-						SepiaFW.events.removeTimeEvent(Timer.name, resyncList);		//timeEventEle[0].id
+						SepiaFW.events.removeTimeEvent(Timer.name, resyncList);		//timeEvent.id
 					}
 				}
 				//stop alarm and remove 
@@ -711,29 +734,37 @@ function sepiaFW_build_ui_cards(){
 				//remove DOM element and parent if emtpy
 				if (Timer){
 					$(SepiaFW.ui.JQ_RES_VIEW_IDS).find('[data-id="' + Timer.data.eventId + '"]').each(function(){
-						removeTimeEventElement(this);
+						removeTimeEventElement(this, Timer.data.eventId);
 					});
 					//linked messages:
 					$(SepiaFW.ui.JQ_RES_VIEW_IDS).find('[data-msg-custom-tag="' + Timer.data.eventId + '"]').each(function(){
 						this.remove();
 					});
 				}else{
-					removeTimeEventElement(timeEventEle[0]);
+					removeTimeEventElement(timeEvent, eventId);
 				}
 			});
-		});
+		};
 	}	
 	//remove element and parent if possible
-	function removeTimeEventElement(timeEventEle){
-		var flexCardBody = $(timeEventEle).parent();
-		var flexCard = flexCardBody.parent();
+	function removeTimeEventElement(timeEventEle, eventId){
+		var $flexCardBody = $(timeEventEle).closest(".sepiaFW-cards-list-body");
+		var $flexCard = $flexCardBody.closest('.sepiaFW-cards-flexSize-container');
+		if (eventId && $flexCard.length > 0 && $flexCard[0].id){
+			//could use: $("[id$=" + eventId + "]")
+			//or: var contextMenuSelector = "#" + $flexCard[0].id + "-contextMenu-id-" + eventId;
+			if (timeEventEle.nextSibling && timeEventEle.nextSibling.id && timeEventEle.nextSibling.id.indexOf(eventId)){
+				//$flexCardBody.find(contextMenuSelector).remove();
+				$(timeEventEle.nextSibling).remove();
+			}
+		}
 		$(timeEventEle).remove();
-		if (flexCardBody.children().length == 0 && flexCard.children().length == 1){
+		if ($flexCardBody.children().length == 0 && $flexCard.children().length == 1){
 			//only empty body left (no title / header)
-			flexCard.remove();
+			$flexCard.remove();
 		}else{
 			//assume list update so activate save button
-			var saveBtn = flexCard.find('.sepiaFW-cards-list-saveBtn');
+			var saveBtn = $flexCard.find('.sepiaFW-cards-list-saveBtn');
 			saveBtn.addClass('active');	
 			//note: deleted time events are resynchronized automatically after 5s (which should make the button inactive again)
 		}
@@ -840,6 +871,9 @@ function sepiaFW_build_ui_cards(){
 		cardBody.appendChild(weatherNowTmoDetails);
 		
 		cardElement.appendChild(cardBody);
+
+		//context menu - TODO: add?
+		//var contextMenu = makeBodyElementContextMenu(cardBody, {});
 		
 		//footer
 		var footerConfig = {
@@ -855,7 +889,6 @@ function sepiaFW_build_ui_cards(){
 		$(weatherNowTmoSmall).find('.weatherNowSmallImage').each(function(){
 			var that = this;
 			SepiaFW.ui.onclick(that, function(){
-			//$(this).on('click', function(){
 				Cards.moveToMyViewOrDelete($(that).parent().parent().parent()[0]);
 			});
 		});
@@ -1027,7 +1060,7 @@ function sepiaFW_build_ui_cards(){
 		
 		//move to my view
 		var moveToMyViewBtn = document.createElement('LI');
-		moveToMyViewBtn.className = "sepiaFW-cards-list-addBtn";
+		moveToMyViewBtn.className = "sepiaFW-cards-list-moveBtn";
 		moveToMyViewBtn.innerHTML = SepiaFW.local.g('moveToMyView');
 		SepiaFW.ui.onclick(moveToMyViewBtn, function(){
 			var flexBox = $(moveToMyViewBtn).closest('.sepiaFW-cards-flexSize-container');
@@ -1149,7 +1182,7 @@ function sepiaFW_build_ui_cards(){
 		SepiaFW.ui.onclick(contextMenuBtn, function(){
 			var title = $(contextMenuBtn).parent();
 			var flexBox = title.closest('.sepiaFW-cards-flexSize-container');
-			var menu = flexBox.find(".sepiaFW-cards-list-contextMenu");
+			var menu = flexBox.find(".sepiaFW-cards-list-contextMenu:not(.sepiaFW-cards-contextMenu-single)").first();
 			/*
 			//flexBox.css({"z-index" : topIndexZ++});			//old overlay style
 			var menuHeight = menu.innerHeight();
@@ -1172,6 +1205,99 @@ function sepiaFW_build_ui_cards(){
 		title.appendChild(contextMenuBtn);
 		
 		return title;
+	}
+
+	//Card body element context menu
+	function makeBodyElementContextMenu(flexCardId, cardBody, cardBodyItem, cardBodyItemId, menuConfig, skipAdd){
+		//-context menu
+		var contextMenu = document.createElement('DIV');
+		contextMenu.className = "sepiaFW-cards-list-contextMenu sepiaFW-cards-contextMenu-single sepiaFW-menu"; 	//we simply keep the cards-list style here
+		contextMenu.id = (flexCardId + "-contextMenu-id-" + cardBodyItemId);
+		var cmList = document.createElement('UL');
+
+		$(cardBodyItem).find(menuConfig.toggleButtonSelector).each(function(){
+			var that = this;
+			SepiaFW.ui.onclick(that, function(){
+				$(contextMenu).slideToggle(300);
+			});
+		});
+		
+		//move to my view
+		var moveToMyViewBtn = document.createElement('LI');
+		moveToMyViewBtn.className = "sepiaFW-cards-button sepiaFW-cards-list-moveBtn"; 		//will be surpressed inside '#sepiaFW-my-view' via CSS (here we have no destination yet)
+		moveToMyViewBtn.innerHTML = SepiaFW.local.g('moveToMyView');
+		SepiaFW.ui.onclick(moveToMyViewBtn, function(){
+			var flexCard = $(moveToMyViewBtn).closest(".sepiaFW-cards-flexSize-container");
+			var title = flexCard.find('.sepiaFW-cards-list-title');
+			if (title.length > 0){
+				//single element?
+				/*
+				var isOnlyElement = false;
+				if (flexCard.find('.sepiaFW-cards-list-body').children().length == 1){
+					isOnlyElement = true;
+				}
+				*/
+				//hide save button (just to be sure the user does not save an incomplete list)
+				title.find(".sepiaFW-cards-list-saveBtn").animate({ opacity: 0.0 }, 500, function(){
+					$(this).css({opacity: 0.5, visibility: "hidden"});
+				});
+				//create new body for element
+				var cardBody = document.createElement('DIV');
+				cardBody.className = menuConfig.newBodyClass;
+				//fade out the element, add it to new body and then move it over
+				$(cardBodyItem).fadeOut(500, function(){
+					var parentN = cardBodyItem.parentNode;
+					parentN.removeChild(cardBodyItem);
+					parentN.removeChild(contextMenu);
+					$(cardBodyItem).fadeIn(0);
+					cardBody.style.display = "none";
+					cardBody.appendChild(cardBodyItem);
+					cardBody.appendChild(contextMenu);
+					//update id
+					//contextMenu.id = (flexCardId + "-contextMenu-id-" + cardBodyItemId);
+					Cards.moveToMyViewOrDelete(cardBody);
+				});
+			}else{
+				Cards.moveToMyViewOrDelete(flexCard[0]);
+			}
+			$(contextMenu).hide();
+			$('#sepiaFW-main-window').trigger(('sepiaFwClose-' + contextMenu.id));
+			$(moveToMyViewBtn).remove(); 		//we will try to surpress this via CSS inside '#sepiaFW-my-view' as well
+		}, true);
+		cmList.appendChild(moveToMyViewBtn);
+
+		//hide
+		var cmHideBtn = document.createElement('LI');
+		cmHideBtn.className = "sepiaFW-cards-button sepiaFW-cards-list-contextMenu-hideBtn";
+		cmHideBtn.innerHTML = SepiaFW.local.g('hideItem');
+		SepiaFW.ui.onclick(cmHideBtn, function(){
+			var flexCard = $(cmHideBtn).closest(".sepiaFW-cards-flexSize-container");
+			var title = flexCard.find('.sepiaFW-cards-list-title');
+			if (title.length > 0){
+				//hide save button (just to be sure the user does not save an incomplete list)
+				title.find(".sepiaFW-cards-list-saveBtn").animate({ opacity: 0.0 }, 500, function(){
+					$(this).css({opacity: 0.5, visibility: "hidden"});
+				});
+				$(contextMenu).fadeOut(480);
+				$(cardBodyItem).fadeOut(500, function(){
+					if (flexCard.find('.cardBodyItem').filter(":visible").length == 0){
+						flexCard.remove();
+					}
+				});
+			}else{
+				flexCard.fadeOut(500, function(){
+					flexCard.remove();
+				});
+			}
+		}, true);
+		cmList.appendChild(cmHideBtn);
+
+		contextMenu.appendChild(cmList);
+		if (!skipAdd){
+			cardBody.appendChild(contextMenu);
+		}
+
+		return contextMenu;
 	}
 	
 	//Card footer
