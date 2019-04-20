@@ -93,6 +93,9 @@ function sepiaFW_build_strings(){
 	StringsDE.data_privacy = 'Datenschutz';
 	StringsDE.tutorial = 'Tutorial';
 	StringsDE.way_home = 'Weg nach Hause';
+	//Fill words
+	StringsDE.from = 'von';
+	StringsDE.atClock = 'um';
 	//More errors
 	StringsDE.mesh_node_fail = 'Sorry, die Mesh-Node Funktion zeigte einen Fehler.';
 	StringsDE.no_client_support = 'Sorry, aber diese Version der App unterstütz die aufgerufene Aktion nicht.';
@@ -191,6 +194,9 @@ function sepiaFW_build_strings(){
 	StringsEN.data_privacy = 'Data privacy';
 	StringsEN.tutorial = 'Tutorial';
 	StringsEN.way_home = 'Way home';
+	//Fill words
+	StringsEN.from = 'from';
+	StringsEN.atClock = 'at';
 	//More errors
 	StringsEN.mesh_node_fail = 'Sorry, the Mesh-Node function showed an error.';
 	StringsEN.no_client_support = 'Sorry, but this version of the app does not support the requested action.';

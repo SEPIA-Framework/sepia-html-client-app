@@ -1061,7 +1061,8 @@ function sepiaFW_build_ui_cards(){
 		//move to my view
 		var moveToMyViewBtn = document.createElement('LI');
 		moveToMyViewBtn.className = "sepiaFW-cards-list-moveBtn";
-		moveToMyViewBtn.innerHTML = SepiaFW.local.g('moveToMyView');
+		moveToMyViewBtn.innerHTML = '<i class="material-icons md-24">add_to_home_screen</i>'; //SepiaFW.local.g('moveToMyView');
+		moveToMyViewBtn.title = SepiaFW.local.g('moveToMyView');
 		SepiaFW.ui.onclick(moveToMyViewBtn, function(){
 			var flexBox = $(moveToMyViewBtn).closest('.sepiaFW-cards-flexSize-container');
 			Cards.moveToMyViewOrDelete(flexBox[0]);
@@ -1076,6 +1077,7 @@ function sepiaFW_build_ui_cards(){
 			var addItemBtn = document.createElement('LI');
 			addItemBtn.className = "sepiaFW-cards-list-addBtn";
 			addItemBtn.innerHTML = '<i class="material-icons md-24">add_circle_outline</i>'; //SepiaFW.local.g('addItem');
+			addItemBtn.title = SepiaFW.local.g('addItem');
 			SepiaFW.ui.onclick(addItemBtn, function(){
 				var listContainer = $(addItemBtn).closest('.sepiaFW-cards-flexSize-container').get(0);
 				var listInfoObj = getUserDataList(listContainer);
@@ -1099,7 +1101,8 @@ function sepiaFW_build_ui_cards(){
 		//hide
 		var cmHideBtn = document.createElement('LI');
 		cmHideBtn.className = "sepiaFW-cards-list-contextMenu-hideBtn";
-		cmHideBtn.innerHTML = SepiaFW.local.g('hideItem');
+		cmHideBtn.innerHTML = '<i class="material-icons md-24">visibility_off</i>'; //SepiaFW.local.g('hideItem');
+		cmHideBtn.title = SepiaFW.local.g('hideItem');
 		SepiaFW.ui.onclick(cmHideBtn, function(){
 			$(cmHideBtn).closest('.sepiaFW-cards-flexSize-container').fadeOut(300, function(){
 				$(this).remove();
@@ -1112,6 +1115,7 @@ function sepiaFW_build_ui_cards(){
 			var cmDelBtn = document.createElement('LI');
 			cmDelBtn.className = "sepiaFW-cards-list-contextMenu-delBtn";
 			cmDelBtn.innerHTML = '<i class="material-icons md-24">delete</i>'; //SepiaFW.local.g('deleteItem');
+			cmDelBtn.title = SepiaFW.local.g('deleteItem');
 			SepiaFW.ui.onclick(cmDelBtn, function(){
 				var listInfo = JSON.parse(cmDelBtn.parentElement.parentElement.parentElement.parentElement.getAttribute('data-list')); 		//TODO: replace with $().closest('...')
 				var parentCard = $(cmDelBtn).parent().parent().parent().parent();															//TODO: replace with $().closest('...')
@@ -1225,7 +1229,8 @@ function sepiaFW_build_ui_cards(){
 		//move to my view
 		var moveToMyViewBtn = document.createElement('LI');
 		moveToMyViewBtn.className = "sepiaFW-cards-button sepiaFW-cards-list-moveBtn"; 		//will be surpressed inside '#sepiaFW-my-view' via CSS (here we have no destination yet)
-		moveToMyViewBtn.innerHTML = SepiaFW.local.g('moveToMyView');
+		moveToMyViewBtn.innerHTML = SepiaFW.local.g('moveToMyView'); //'<i class="material-icons md-24">add_to_home_screen</i>';
+		moveToMyViewBtn.title = SepiaFW.local.g('moveToMyView');;
 		SepiaFW.ui.onclick(moveToMyViewBtn, function(){
 			var flexCard = $(moveToMyViewBtn).closest(".sepiaFW-cards-flexSize-container");
 			var title = flexCard.find('.sepiaFW-cards-list-title');
@@ -1269,7 +1274,8 @@ function sepiaFW_build_ui_cards(){
 		//hide
 		var cmHideBtn = document.createElement('LI');
 		cmHideBtn.className = "sepiaFW-cards-button sepiaFW-cards-list-contextMenu-hideBtn";
-		cmHideBtn.innerHTML = SepiaFW.local.g('hideItem');
+		cmHideBtn.innerHTML = SepiaFW.local.g('hideItem'); //'<i class="material-icons md-24">visibility_off</i>';
+		cmHideBtn.title = SepiaFW.local.g('hideItem');
 		SepiaFW.ui.onclick(cmHideBtn, function(){
 			var flexCard = $(cmHideBtn).closest(".sepiaFW-cards-flexSize-container");
 			var title = flexCard.find('.sepiaFW-cards-list-title');

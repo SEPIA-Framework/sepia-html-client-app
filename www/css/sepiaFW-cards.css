@@ -148,7 +148,7 @@
 	display: flex;
     justify-content: center;
 	align-items: center;
-	min-width: 82px;
+	min-width: 55px;
 }
 #sepiaFW-my-view .sepiaFW-cards-list-contextMenu .sepiaFW-cards-list-moveBtn {
 	display: none;
@@ -387,6 +387,7 @@
 	font-size: 15px;
 	background: transparent;
 	padding-top: 2px;
+	padding-bottom: 2px;
 }
 .sepiaFW-cards-list-body .timeEvent .timeEventCenter .sepiaFW-timer-indicator {
 	font-size: 15px;
@@ -465,7 +466,7 @@
 	flex-direction: column;
     align-items: center;
     justify-content: center;
-	min-width: 65px;
+	min-width: 61px;
 	max-width: 65px;
 	margin: 5px 0px 0px 5px;
 	padding: 5px;
@@ -476,7 +477,7 @@
 	color: #fff;
 }
 .sepiaFW-cards-list-body .weatherNowSmall .weatherNowSmallImage img{
-	max-width: 50px;
+	max-width: 45px;
 }
 .sepiaFW-cards-list-body .weatherNowSmall .weatherNowSmallData {
 	/*width: calc(100% - 80px);*/
@@ -501,6 +502,9 @@
 	font-size: 14px;
 	text-align: center;
 }
+.sepiaFW-cards-list-body .weatherNowSmall .weatherNowSmallIntro b {
+	font-size: 15px;
+}
 @media screen and (max-width: 359px) {
 	.sepiaFW-cards-list-body .weatherNowSmall .weatherNowSmallIntro {
 		display: none;
@@ -512,11 +516,12 @@
 	text-align: center;
 }
 .sepiaFW-cards-list-body .weatherNowSmall .weatherNowSmallData h3 {
-	font-size: 20px;
-	margin: 5px;
+	font-size: 18px;
+	margin: 5px 0 0 0;
 }
 .sepiaFW-cards-list-body .weatherNowSmall .weatherNowSmallData p {
 	font-size: 14px;
+	margin-top: 2px
 }
 .sepiaFW-cards-list-body .weatherNowDetails ul {
 	background: transparent;
@@ -607,6 +612,7 @@
 }
 .sepiaFW-cards-list-body .linkCard .linkCardCenter h3 {
 	margin: 5px 0 0 0;
+	font-size: 15px;
 }
 .sepiaFW-cards-list-body .linkCard .linkCardRight {
 	display: flex;

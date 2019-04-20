@@ -294,6 +294,9 @@ html {
 	text-shadow: 1px 1px 0 #ECEBE7, 1px -1px 0 #ECEBE7, -1px 1px 0 #ECEBE7, -1px -1px 0 #ECEBE7, 
 					1px 1px 0 #ECEBE7, 0px 1px 0 #ECEBE7, -1px 0px 0 #ECEBE7, 0px -1px 0 #ECEBE7;
 }
+.sepiaFW-cards-list-title.newsHeader button {
+	color: #101418 !important;
+}
 
 /*----- teachUI -----*/
 
