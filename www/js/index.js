@@ -89,15 +89,21 @@ var app = {
 
 			//handle universal link
 			var requestViaUrl;
+			var shareViaUrl;
 			var openView;
 			if (eventData.params){
 				requestViaUrl = eventData.params.q;
+				shareViaUrl = eventData.params.share;
 				openView = eventData.params.view;
 			}
 
 			//Url request (q)
 			if (requestViaUrl){
 				SepiaFW.client.handleRequestViaUrl(requestViaUrl);
+			}
+			//Share data (share)
+			if (shareViaUrl){
+				SepiaFW.client.handleShareViaUrl(shareViaUrl);
 			}
 			//Open view or frame (view)
 			if (openView){

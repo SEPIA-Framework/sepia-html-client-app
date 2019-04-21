@@ -142,6 +142,7 @@
 }
 .sepiaFW-cards-contextMenu-single > ul {
 	justify-content: space-evenly;
+	padding-top: 0;
 }
 .sepiaFW-cards-list-contextMenu li {
 	padding: 2px 6px;
@@ -149,6 +150,9 @@
     justify-content: center;
 	align-items: center;
 	min-width: 55px;
+}
+.sepiaFW-cards-contextMenu-single li {
+	margin: 8px 4px 0px 4px !important;
 }
 #sepiaFW-my-view .sepiaFW-cards-list-contextMenu .sepiaFW-cards-list-moveBtn {
 	display: none;

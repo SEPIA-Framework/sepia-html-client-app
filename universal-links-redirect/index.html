@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<link rel="alternate" href="android-app://net.b07z.sepia.app.web/https/b07z.net/dl/sepia/.*" />
+	<style>
+		body {
+			background: #000; 
+			color: #ceff1a;
+			font-family: sans-serif;
+		}
+		.redirect-button {
+			display: inline-block;
+			margin: 4px 8px;
+			padding: 4px 8px;
+			background: #ceff1a;
+			border-radius: 3px;
+		}
+		a {
+			color: #000;
+			text-decoration: none;
+		}
+		h3 {
+			color: white;
+		}
+	</style>
+</head>
+	<body>
+		<h3>SEPIA Framework - Universal links page</h3>
+		<p>This page should automatically redirect you to a SEPIA client,</p>
+		<p>if not please click one of the following links:</p>
+		<div class="redirect-button" id="redirect-link-browser"></div>
+		<div class="redirect-button" id="redirect-link-app"></div>
+		<script>
+			var redirectLinkBrowser = 'https://sepia-framework.github.io/app/index.html' + document.location.search;
+			var redirectLinkApp = 'https://b07z.net/dl/sepia/index.html' + document.location.search;
+			document.getElementById('redirect-link-browser').innerHTML = ("<a href='" + redirectLinkBrowser + "'>Browser</a>");
+			document.getElementById('redirect-link-app').innerHTML = ("<a href='" + redirectLinkApp + "'>App</a>");
+			//document.location.href = redirectLinkBrowser;
+		</script>
+	</body>
+</html>

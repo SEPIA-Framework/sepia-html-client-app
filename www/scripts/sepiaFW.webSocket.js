@@ -13,6 +13,7 @@ function sepiaFW_build_client_interface(){
 	ClientInterface.startClient = SepiaFW.webSocket.client.startClient;
 	ClientInterface.welcomeActions = SepiaFW.webSocket.client.welcomeActions;
 	ClientInterface.handleRequestViaUrl = SepiaFW.webSocket.client.handleRequestViaUrl;
+	ClientInterface.handleShareViaUrl = SepiaFW.webSocket.client.handleShareViaUrl;
 	ClientInterface.handleRequestViaIntent = SepiaFW.webSocket.client.handleRequestViaIntent;
 	ClientInterface.setDemoMode = SepiaFW.webSocket.client.setDemoMode;
 	ClientInterface.isDemoMode = SepiaFW.webSocket.client.isDemoMode;
@@ -55,6 +56,10 @@ function sepiaFW_build_client_interface(){
 	
 	//states and settings
 	ClientInterface.allowBackgroundConnection = false;
+
+	//some constants for link sharing
+	ClientInterface.deeplinkHostUrl = "https://b07z.net/dl/sepia/index.html";
+	ClientInterface.SHARE_TYPE_ALARM = "alarm";
 	
 	//broadcast some events:
 	
@@ -571,17 +576,32 @@ function sepiaFW_build_webSocket_client(){
 		SepiaFW.ui.askForPermissionToExecute(requestMsg, function(){
 			//yes
 			SepiaFW.debug.log("Executing command via URL: " + requestMsg);
+			//TODO:
+			//implement?
 		});
+	}
+	//handle data that was shared via URL 'share=...' parameter
+	Client.handleShareViaUrl = function(requestMsg){
+		//1st: remove it from URL to avoid repeat
+		var url = SepiaFW.tools.removeParameterFromURL(window.location.href, 'share');
+		if (window.history && window.history.replaceState){
+			window.history.replaceState(history.state, document.title, url);
+		}
+		//2nd: check data and build
+		//TODO: implement
+		console.log(requestMsg);
+		//SepiaFW.client.SHARE_TYPE_ALARM
+		//TYPES: alarm, reminder, timer, website, ...
 	}
 	//handle a message or command that was given via (Android) intent
 	Client.handleRequestViaIntent = function(intent){
-		console.log('Android intent action: ' + JSON.stringify(intent.action));		//DEBUG
+		//console.log('Android intent action: ' + JSON.stringify(intent.action));		//DEBUG
 		if (intent.action){
 			//NOTE: the following assumes that the intent was properly executed after onActive
 			if (intent.action == "android.intent.action.ASSIST"){
 				//DEBUG
-				var intentExtras = intent.extras;
-				if (intentExtras)	console.log('Intent extras: ' + JSON.stringify(intentExtras));
+				//var intentExtras = intent.extras;
+				//if (intentExtras)	console.log('Intent extras: ' + JSON.stringify(intentExtras));
 				//Start mic
 				var useConfirmationSound = SepiaFW.speech.shouldPlayConfirmation();
 				SepiaFW.ui.toggleMicButton(useConfirmationSound);

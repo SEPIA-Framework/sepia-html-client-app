@@ -116,27 +116,35 @@ function sepiaFW_build_client_controls(){
 
             //Android
             if (controlData.platform == "android" && SepiaFW.ui.isAndroid){
-                if (req.type == "androidIntent" && req.data && req.data.action && ("plugins" in window) && window.plugins.intentShim){
-                    //TODO: what about safety here? Should we do a whitelist?
-                    window.plugins.intentShim.startActivity({
-                        action: req.data.action,
-                        extras: req.data.extras
-                    }, function(){
-                        //console.log('Android intent success');
-                        //bring SEPIA back to front? - TODO: test and use or deactivate?
-                        /*
-                        if (req.data.action == "android.media.action.MEDIA_PLAY_FROM_SEARCH" && SepiaFW.alwaysOn && SepiaFW.alwaysOn.isOpen){
-                            setTimeout(function(){
-                                window.plugins.intentShim.startActivity({action: "de.bytemind.sepia.app.web"}, function(){}, function(){});
-                            }, 4000);
-                        }
-                        */
-                    }, function(){
-                        //console.log('Android intent fail');
-                        //TODO: say something to user
-                    });
+                if (req.type == "androidIntent" && req.data){
+                    Controls.androidIntentAction(req.data);
                 }
             }
+        }
+    }
+    Controls.androidIntentAction = function(data){
+        if (data.action && ("plugins" in window) && window.plugins.intentShim){
+            //TODO: what about safety here? Should we do a whitelist?
+            var dataObj = {
+                action: data.action
+            }
+            if (data.extras) dataObj.extras = data.extras;
+            if (data.url) dataObj.url = data.url;
+            if (data.package) dataObj.package = data.package;
+            window.plugins.intentShim.startActivity(dataObj, function(){
+                //console.log('Android intent success');
+                //bring SEPIA back to front? - TODO: test and use or deactivate?
+                /*
+                if (data.action == "android.media.action.MEDIA_PLAY_FROM_SEARCH" && SepiaFW.alwaysOn && SepiaFW.alwaysOn.isOpen){
+                    setTimeout(function(){
+                        window.plugins.intentShim.startActivity({action: "de.bytemind.sepia.app.web"}, function(){}, function(){});
+                    }, 4000);
+                }
+                */
+            }, function(){
+                //console.log('Android intent fail');
+                //TODO: say something to user
+            });
         }
     }
 

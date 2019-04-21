@@ -910,24 +910,30 @@ function sepiaFW_build_ui(){
 	UI.showPopup = function(content, config){
 		//var primaryColor, secondaryColor; 		//could be added as config variables
 		if (!config) config = {};
+		var $input1 = $('#sepiaFW-popup-message-input-one');
+		var $input2 = $('#sepiaFW-popup-message-input-two');
 		if (config.inputLabelOne){
-			var input1 = $('#sepiaFW-popup-message-input-one');
-			input1.val("").attr("placeholder", config.inputLabelOne).show();
+			$input1.val(config.inputOneValue || "").attr("placeholder", config.inputLabelOne).show();
 		}else{
-			$('#sepiaFW-popup-message-input-one').val("").attr("placeholder", "").hide();
+			$input1.val("").attr("placeholder", "").hide();
 		}
 		if (config.inputLabelTwo){
-			var input2 = $('#sepiaFW-popup-message-input-two');
-			input2.val("").attr("placeholder", config.inputLabelTwo).show();
+			$input2.val(config.inputTwoValue || "").attr("placeholder", config.inputLabelTwo).show();
 		}else{
-			$('#sepiaFW-popup-message-input-two').val("").attr("placeholder", "").hide();
+			$input2.val("").attr("placeholder", "").hide();
 		}
 		//NOTE: currently only button one and two receive the input data
 		if (config.buttonOneName && config.buttonOneAction){
 			var btn1 = $('#sepiaFW-popup-message-btn-one');
 			btn1.html(config.buttonOneName);	
 			btn1.off().on('click', function(){	
-				config.buttonOneAction(this, $('#sepiaFW-popup-message-input-one').val(), $('#sepiaFW-popup-message-input-two').val()); 	
+				config.buttonOneAction(
+					this, 
+					$input1.val(), 
+					$input2.val(),
+					$input1[0],
+					$input2[0]
+				); 	
 				UI.hidePopup();		
 			});
 		}else{
@@ -939,7 +945,13 @@ function sepiaFW_build_ui(){
 			var btn2 = $('#sepiaFW-popup-message-btn-two');
 			btn2.html(config.buttonTwoName).show();	
 			btn2.off().on('click', function(){	
-				config.buttonTwoAction(this, $('#sepiaFW-popup-message-input-one').val(), $('#sepiaFW-popup-message-input-two').val()); 	
+				config.buttonTwoAction(
+					this, 
+					$input1.val(), 
+					$input2.val(),
+					$input1[0],
+					$input2[0]
+				); 	
 				UI.hidePopup();		
 			});
 		}else{

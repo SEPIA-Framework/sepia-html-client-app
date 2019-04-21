@@ -129,7 +129,6 @@ function sepiaFW_build_ui_custom_buttons(){
         if (buttonData.icon){
             button.innerHTML = '<i class="material-icons md-24">' + buttonData.icon + '</i><span>' + buttonData.name + '</span>';
         }else{
-            //button.innerHTML = '<img src="img/ui/sepia_24x24_w.png">' + '<span>' + buttonData.name + '</span>';
             //button.innerHTML = '<span>' + buttonData.name + '</span>';
             button.innerHTML = '<span class="sepia-icon-font sepia-icon-sepia_bw"><span class="path1"></span><span class="path2"></span></span><span>' + buttonData.name + '</span>';
         }

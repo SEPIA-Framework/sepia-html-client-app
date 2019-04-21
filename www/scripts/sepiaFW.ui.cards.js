@@ -590,7 +590,7 @@ function sepiaFW_build_ui_cards(){
 		if (!skipAdd){
 			cardBody.appendChild(timeEvent);
 		}
-		makeTimeEventContextMenu(flexCardId, cardBody, timeEvent, actionInfoI.eventId, SepiaFW.events.TIMER);
+		makeTimeEventContextMenu(flexCardId, cardBody, timeEvent, actionInfoI, SepiaFW.events.TIMER);
 		return timeEvent;
 	}
 	function makeAlarmElement(actionInfoI, flexCardId, cardBody, skipAdd){		//actionInfoI can also be the data of an list element, should be compatible (in the most important fields)!
@@ -611,7 +611,7 @@ function sepiaFW_build_ui_cards(){
 		if (!skipAdd){
 			cardBody.appendChild(timeEvent);
 		}
-		makeTimeEventContextMenu(flexCardId, cardBody, timeEvent, actionInfoI.eventId, SepiaFW.events.ALARM);
+		makeTimeEventContextMenu(flexCardId, cardBody, timeEvent, actionInfoI, SepiaFW.events.ALARM);
 		return timeEvent;
 	}
 	//buttons
@@ -650,20 +650,57 @@ function sepiaFW_build_ui_cards(){
 			}
 		});
 	}
-	function makeTimeEventContextMenu(flexCardId, cardBody, cardBodyItem, eventId, eventType){
-		//class in case we need to create new body
-		var newBodyClass;
+	function makeTimeEventContextMenu(flexCardId, cardBody, cardBodyItem, event, eventType){
+		//some additional data
+		var newBodyClass;			//class in case we need to create new body
+		var androidIntentButtons;	//Android intent action buttons
+		var shareButton;			//button to share event as SEPIA link
+		//console.log(event);
+		var d = new Date(event.targetTimeUnix);
 		if (eventType === SepiaFW.events.TIMER){
 			//TIMER
 			newBodyClass = "sepiaFW-cards-list-body sepiaFW-cards-list-timers";
 		}else{
-			//ALARM
+			//ALARM - REMINDER
 			newBodyClass = "sepiaFW-cards-list-body sepiaFW-cards-list-alarms";
+			//Android export buttons
+			androidIntentButtons = [{
+				//add to calendar
+				action: "android.intent.action.INSERT",
+				extras: {
+					"beginTime": event.targetTimeUnix,
+					"title": event.name
+				},
+				url: "content://com.android.calendar/events",
+				buttonName: SepiaFW.local.g('exportToCalendar'),
+				buttonTitle: "Export event to system calendar."	//TODO: add local translation
+			},{
+				//add to alarms
+				action: "android.intent.action.SET_ALARM",
+				extras: {
+					"android.intent.extra.alarm.HOUR": d.getHours(),
+					"android.intent.extra.alarm.MINUTES": d.getMinutes()
+				},
+				buttonName: SepiaFW.local.g('exportToAlarms'),
+				buttonTitle: "Export event to system alarms."	//TODO: add local translation
+			}];
+			//Link button
+			shareButton = {
+				type: SepiaFW.client.SHARE_TYPE_ALARM,
+				data: {
+					"beginTime": event.targetTimeUnix,
+					"title": event.name
+				},
+				buttonName: SepiaFW.local.g('exportToUrl'),
+				buttonTitle: "Copy SEPIA share link to clipboard."	//TODO: add local translation
+			}
 		}
 		//context menu
-		var contextMenu = makeBodyElementContextMenu(flexCardId, cardBody, cardBodyItem, eventId, {
+		var contextMenu = makeBodyElementContextMenu(flexCardId, cardBody, cardBodyItem, event.eventId, {
 			toggleButtonSelector: ".timeEventLeft",
-			newBodyClass: newBodyClass
+			newBodyClass: newBodyClass,
+			androidIntentButtons: androidIntentButtons,
+			shareButton: shareButton
 		});
 	}
 	//NOTE: replaced by context menu
@@ -1227,76 +1264,135 @@ function sepiaFW_build_ui_cards(){
 		});
 		
 		//move to my view
-		var moveToMyViewBtn = document.createElement('LI');
-		moveToMyViewBtn.className = "sepiaFW-cards-button sepiaFW-cards-list-moveBtn"; 		//will be surpressed inside '#sepiaFW-my-view' via CSS (here we have no destination yet)
-		moveToMyViewBtn.innerHTML = SepiaFW.local.g('moveToMyView'); //'<i class="material-icons md-24">add_to_home_screen</i>';
-		moveToMyViewBtn.title = SepiaFW.local.g('moveToMyView');;
-		SepiaFW.ui.onclick(moveToMyViewBtn, function(){
-			var flexCard = $(moveToMyViewBtn).closest(".sepiaFW-cards-flexSize-container");
-			var title = flexCard.find('.sepiaFW-cards-list-title');
-			if (title.length > 0){
-				//single element?
-				/*
-				var isOnlyElement = false;
-				if (flexCard.find('.sepiaFW-cards-list-body').children().length == 1){
-					isOnlyElement = true;
+		if (menuConfig.myViewButton == undefined || menuConfig.myViewButton == true){
+			var moveToMyViewBtn = document.createElement('LI');
+			moveToMyViewBtn.className = "sepiaFW-cards-button sepiaFW-cards-list-moveBtn"; 		//will be surpressed inside '#sepiaFW-my-view' via CSS (here we have no destination yet)
+			moveToMyViewBtn.innerHTML = SepiaFW.local.g('moveToMyView'); //'<i class="material-icons md-24">add_to_home_screen</i>';
+			moveToMyViewBtn.title = SepiaFW.local.g('moveToMyView');
+			SepiaFW.ui.onclick(moveToMyViewBtn, function(){
+				var flexCard = $(moveToMyViewBtn).closest(".sepiaFW-cards-flexSize-container");
+				var title = flexCard.find('.sepiaFW-cards-list-title');
+				if (title.length > 0){
+					//single element?
+					/*
+					var isOnlyElement = false;
+					if (flexCard.find('.sepiaFW-cards-list-body').children().length == 1){
+						isOnlyElement = true;
+					}
+					*/
+					//hide save button (just to be sure the user does not save an incomplete list)
+					title.find(".sepiaFW-cards-list-saveBtn").animate({ opacity: 0.0 }, 500, function(){
+						$(this).css({opacity: 0.5, visibility: "hidden"});
+					});
+					//create new body for element
+					var cardBody = document.createElement('DIV');
+					cardBody.className = menuConfig.newBodyClass;
+					//fade out the element, add it to new body and then move it over
+					$(cardBodyItem).fadeOut(500, function(){
+						var parentN = cardBodyItem.parentNode;
+						parentN.removeChild(cardBodyItem);
+						parentN.removeChild(contextMenu);
+						$(cardBodyItem).fadeIn(0);
+						cardBody.style.display = "none";
+						cardBody.appendChild(cardBodyItem);
+						cardBody.appendChild(contextMenu);
+						//update id
+						//contextMenu.id = (flexCardId + "-contextMenu-id-" + cardBodyItemId);
+						Cards.moveToMyViewOrDelete(cardBody);
+					});
+				}else{
+					Cards.moveToMyViewOrDelete(flexCard[0]);
 				}
-				*/
-				//hide save button (just to be sure the user does not save an incomplete list)
-				title.find(".sepiaFW-cards-list-saveBtn").animate({ opacity: 0.0 }, 500, function(){
-					$(this).css({opacity: 0.5, visibility: "hidden"});
+				$(contextMenu).hide();
+				$('#sepiaFW-main-window').trigger(('sepiaFwClose-' + contextMenu.id));
+				$(moveToMyViewBtn).remove(); 		//we will try to surpress this via CSS inside '#sepiaFW-my-view' as well
+			}, true);
+			cmList.appendChild(moveToMyViewBtn);
+		}
+
+		//Android intents
+		if (SepiaFW.ui.isAndroid && menuConfig.androidIntentButtons && menuConfig.androidIntentButtons.length > 0){
+			menuConfig.androidIntentButtons.forEach(function(intent){
+				/*intent = {
+					action: "...",
+					extras: {"query": "...", ...},
+					url: "content://...",
+					buttonName: "...",
+					buttonTitle: "..."
+				}*/
+				//create button
+				var androidIntentBtn = document.createElement('LI');
+				androidIntentBtn.className = "sepiaFW-cards-button sepiaFW-cards-list-contextMenu-androidIntentBtn";
+				androidIntentBtn.innerHTML = intent.buttonName || 'Android';
+				if (intent.buttonTitle) androidIntentBtn.title = intent.buttonTitle;
+				SepiaFW.ui.onclick(androidIntentBtn, function(){
+					//call intent
+					//$(contextMenu).fadeOut(500);	
+					SepiaFW.client.controls.androidIntentAction(intent);
+				}, true);
+				cmList.appendChild(androidIntentBtn);
+			});
+		}
+
+		//share link
+		if (menuConfig.shareButton){
+			//create button
+			var shareBtn = document.createElement('LI');
+			shareBtn.className = "sepiaFW-cards-button sepiaFW-cards-list-contextMenu-shareBtn";
+			shareBtn.innerHTML = menuConfig.shareButton.buttonName;
+			SepiaFW.ui.onclick(shareBtn, function(){
+				//copy link
+				//$(contextMenu).fadeOut(500);
+				var shareData = {
+					type: menuConfig.shareButton.type,
+					data: menuConfig.shareButton.data
+				}
+				SepiaFW.ui.showPopup("Click OK to copy link to clipboard", {
+					inputLabelOne: "Link",
+					inputOneValue: (SepiaFW.client.deeplinkHostUrl + "?share=" + encodeURI(JSON.stringify(shareData))),
+					buttonOneName: "OK",
+					buttonOneAction: function(btn, linkValue, iv2, inputEle1, ie2){
+						if (linkValue && inputEle1){
+							//select text and copy
+							inputEle1.select();
+							document.execCommand("copy");
+						}
+					},
+					buttonTwoName: "ABORT",
+					buttonTwoAction: function(){}
 				});
-				//create new body for element
-				var cardBody = document.createElement('DIV');
-				cardBody.className = menuConfig.newBodyClass;
-				//fade out the element, add it to new body and then move it over
-				$(cardBodyItem).fadeOut(500, function(){
-					var parentN = cardBodyItem.parentNode;
-					parentN.removeChild(cardBodyItem);
-					parentN.removeChild(contextMenu);
-					$(cardBodyItem).fadeIn(0);
-					cardBody.style.display = "none";
-					cardBody.appendChild(cardBodyItem);
-					cardBody.appendChild(contextMenu);
-					//update id
-					//contextMenu.id = (flexCardId + "-contextMenu-id-" + cardBodyItemId);
-					Cards.moveToMyViewOrDelete(cardBody);
-				});
-			}else{
-				Cards.moveToMyViewOrDelete(flexCard[0]);
-			}
-			$(contextMenu).hide();
-			$('#sepiaFW-main-window').trigger(('sepiaFwClose-' + contextMenu.id));
-			$(moveToMyViewBtn).remove(); 		//we will try to surpress this via CSS inside '#sepiaFW-my-view' as well
-		}, true);
-		cmList.appendChild(moveToMyViewBtn);
+			}, true);
+			cmList.appendChild(shareBtn);
+		}
 
 		//hide
-		var cmHideBtn = document.createElement('LI');
-		cmHideBtn.className = "sepiaFW-cards-button sepiaFW-cards-list-contextMenu-hideBtn";
-		cmHideBtn.innerHTML = SepiaFW.local.g('hideItem'); //'<i class="material-icons md-24">visibility_off</i>';
-		cmHideBtn.title = SepiaFW.local.g('hideItem');
-		SepiaFW.ui.onclick(cmHideBtn, function(){
-			var flexCard = $(cmHideBtn).closest(".sepiaFW-cards-flexSize-container");
-			var title = flexCard.find('.sepiaFW-cards-list-title');
-			if (title.length > 0){
-				//hide save button (just to be sure the user does not save an incomplete list)
-				title.find(".sepiaFW-cards-list-saveBtn").animate({ opacity: 0.0 }, 500, function(){
-					$(this).css({opacity: 0.5, visibility: "hidden"});
-				});
-				$(contextMenu).fadeOut(480);
-				$(cardBodyItem).fadeOut(500, function(){
-					if (flexCard.find('.cardBodyItem').filter(":visible").length == 0){
+		if (menuConfig.hideButton == undefined || menuConfig.hideButton == true){
+			var cmHideBtn = document.createElement('LI');
+			cmHideBtn.className = "sepiaFW-cards-button sepiaFW-cards-list-contextMenu-hideBtn";
+			cmHideBtn.innerHTML = SepiaFW.local.g('hideItem'); //'<i class="material-icons md-24">visibility_off</i>';
+			cmHideBtn.title = SepiaFW.local.g('hideItem');
+			SepiaFW.ui.onclick(cmHideBtn, function(){
+				var flexCard = $(cmHideBtn).closest(".sepiaFW-cards-flexSize-container");
+				var title = flexCard.find('.sepiaFW-cards-list-title');
+				if (title.length > 0){
+					//hide save button (just to be sure the user does not save an incomplete list)
+					title.find(".sepiaFW-cards-list-saveBtn").animate({ opacity: 0.0 }, 500, function(){
+						$(this).css({opacity: 0.5, visibility: "hidden"});
+					});
+					$(contextMenu).fadeOut(480);
+					$(cardBodyItem).fadeOut(500, function(){
+						if (flexCard.find('.cardBodyItem').filter(":visible").length == 0){
+							flexCard.remove();
+						}
+					});
+				}else{
+					flexCard.fadeOut(500, function(){
 						flexCard.remove();
-					}
-				});
-			}else{
-				flexCard.fadeOut(500, function(){
-					flexCard.remove();
-				});
-			}
-		}, true);
-		cmList.appendChild(cmHideBtn);
+					});
+				}
+			}, true);
+			cmList.appendChild(cmHideBtn);
+		}
 
 		contextMenu.appendChild(cmList);
 		if (!skipAdd){
