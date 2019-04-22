@@ -168,8 +168,10 @@ function sepiaFW_build_webSocket_client(){
 	}
 	//special input commands
 	var CMD_SAYTHIS = "saythis";
+	var CMD_LINKSHARE = "linkshare";
+	//var CMD_HTTP = "http";
 	Client.inputHasSpecialCommand = function(inputText){
-		var regEx = new RegExp('(^' + SepiaFW.assistant.name + ' |^)' + '(' + CMD_SAYTHIS + ') ', "i");
+		var regEx = new RegExp('(^' + SepiaFW.assistant.name + ' |^|\)' + '(' + CMD_SAYTHIS + '|' + CMD_LINKSHARE +') ', "i");
 		var checkRes = inputText.match(regEx);
 		if (checkRes && checkRes[2]){
 			return checkRes[2];
@@ -554,7 +556,7 @@ function sepiaFW_build_webSocket_client(){
 		//2nd: check if it is a text message or a command and handle accordingly
 		if (requestMsg.indexOf("cmd=") == 0){
 			//handle command:
-			handleUrlCommandRequest(requestMsg);
+			handleUrlCommandRequest(requestMsg.substring(5, requestMsg.length));
 		}else{
 			//handle msg:
 			handleUrlMessageRequest(requestMsg);
@@ -573,25 +575,57 @@ function sepiaFW_build_webSocket_client(){
 		});
 	}
 	function handleUrlCommandRequest(requestMsg){
-		SepiaFW.ui.askForPermissionToExecute(requestMsg, function(){
+		SepiaFW.ui.askForPermissionToExecute("<b>cmd: </b>" + requestMsg.replace(/;;(\w+)=/, ", <b>$1:</b> "), function(){
 			//yes
 			SepiaFW.debug.log("Executing command via URL: " + requestMsg);
 			//TODO:
 			//implement?
+			var options = {};   //things like skipTTS etc. (see sendCommand function)
+			var dataset = {
+				info: "direct_cmd",
+				cmd: requestMsg,
+				newReceiver: SepiaFW.assistant.id
+			};
+			SepiaFW.client.sendCommand(dataset, options);
+		}, function(){
+			//no
 		});
 	}
 	//handle data that was shared via URL 'share=...' parameter
-	Client.handleShareViaUrl = function(requestMsg){
+	Client.handleShareViaUrl = function(shareData){
 		//1st: remove it from URL to avoid repeat
 		var url = SepiaFW.tools.removeParameterFromURL(window.location.href, 'share');
 		if (window.history && window.history.replaceState){
 			window.history.replaceState(history.state, document.title, url);
 		}
 		//2nd: check data and build
-		//TODO: implement
-		console.log(requestMsg);
-		//SepiaFW.client.SHARE_TYPE_ALARM
-		//TYPES: alarm, reminder, timer, website, ...
+		if (typeof shareData == "string" && shareData.indexOf("{") == 0){
+			shareData = JSON.parse(shareData);
+		}
+		//console.log(shareData);
+		if (shareData.type){
+			SepiaFW.ui.askForPermissionToExecute("Add shared data of type: " + shareData.type.toUpperCase(), function(){
+				//ALARM
+				if (shareData.type == SepiaFW.client.SHARE_TYPE_ALARM && shareData.data && shareData.data.beginTime){
+					var options = {};   //things like skipTTS etc. (see sendCommand function)
+					var dataset = {
+						info: "direct_cmd",
+						cmd: "timer;;alarm_name=" + (shareData.data.title || "Shared Alarm") 
+							+ ";;alarm_type=" + "<alarmClock>" 
+							+ ";;time=" + "<unix>" + shareData.data.beginTime 
+							+ ";;clock=" + "<unix>" + shareData.data.beginTime
+							+ ";;action=<set>",
+						newReceiver: SepiaFW.assistant.id
+					};
+					SepiaFW.client.sendCommand(dataset, options);
+					//TODO: note that name might be unreliable if it was a date and timezone changes
+				}
+			}, function(){
+				//no
+			});
+		}
+		//TODO: implement more:
+		//TYPES: reminder, timer, website, ...
 	}
 	//handle a message or command that was given via (Android) intent
 	Client.handleRequestViaIntent = function(intent){
