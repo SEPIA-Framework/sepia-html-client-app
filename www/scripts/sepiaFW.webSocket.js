@@ -554,9 +554,9 @@ function sepiaFW_build_webSocket_client(){
 			window.history.replaceState(history.state, document.title, url);
 		}
 		//2nd: check if it is a text message or a command and handle accordingly
-		if (requestMsg.indexOf("cmd=") == 0){
+		if (requestMsg.indexOf("cmd:") == 0){
 			//handle command:
-			handleUrlCommandRequest(requestMsg.substring(5, requestMsg.length));
+			handleUrlCommandRequest(requestMsg.substring(4, requestMsg.length));
 		}else{
 			//handle msg:
 			handleUrlMessageRequest(requestMsg);
@@ -575,11 +575,13 @@ function sepiaFW_build_webSocket_client(){
 		});
 	}
 	function handleUrlCommandRequest(requestMsg){
-		SepiaFW.ui.askForPermissionToExecute("<b>cmd: </b>" + requestMsg.replace(/;;(\w+)=/, ", <b>$1:</b> "), function(){
+		//decode base64 string
+		requestMsg = atob(requestMsg);
+		var ask = requestMsg.replace(/;;(\w+)=/gi, ", <b>$1:</b> ");
+		SepiaFW.ui.askForPermissionToExecute("<b>cmd: </b>" + ask, function(){
 			//yes
 			SepiaFW.debug.log("Executing command via URL: " + requestMsg);
-			//TODO:
-			//implement?
+			//TODO: test
 			var options = {};   //things like skipTTS etc. (see sendCommand function)
 			var dataset = {
 				info: "direct_cmd",

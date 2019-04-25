@@ -1,4 +1,4 @@
-Android (tested March 2019)
+Android (tested April 2019)
 -----------------------------
 cordova version 7.1.0
 cordova platform version android@6.4.0
