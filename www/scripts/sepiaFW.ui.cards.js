@@ -660,6 +660,17 @@ function sepiaFW_build_ui_cards(){
 		if (eventType === SepiaFW.events.TIMER){
 			//TIMER
 			newBodyClass = "sepiaFW-cards-list-body sepiaFW-cards-list-timers";
+			//Android export buttons
+			androidIntentButtons = [{
+				//add to alarms
+				action: "android.intent.action.SET_ALARM",
+				extras: {
+					"android.intent.extra.alarm.HOUR": d.getHours(),
+					"android.intent.extra.alarm.MINUTES": d.getMinutes()
+				},
+				buttonName: SepiaFW.local.g('exportToAlarms'),
+				buttonTitle: "Export event to system alarms."	//TODO: add local translation
+			}];
 		}else{
 			//ALARM - REMINDER
 			newBodyClass = "sepiaFW-cards-list-body sepiaFW-cards-list-alarms";
@@ -684,16 +695,16 @@ function sepiaFW_build_ui_cards(){
 				buttonName: SepiaFW.local.g('exportToAlarms'),
 				buttonTitle: "Export event to system alarms."	//TODO: add local translation
 			}];
-			//Link button
-			shareButton = {
-				type: SepiaFW.client.SHARE_TYPE_ALARM,
-				data: {
-					"beginTime": event.targetTimeUnix,
-					"title": event.name
-				},
-				buttonName: SepiaFW.local.g('exportToUrl'),
-				buttonTitle: "Copy SEPIA share link to clipboard."	//TODO: add local translation
-			}
+		}
+		//Link button
+		shareButton = {
+			type: SepiaFW.client.SHARE_TYPE_ALARM,
+			data: {
+				"beginTime": event.targetTimeUnix,
+				"title": event.name
+			},
+			buttonName: SepiaFW.local.g('exportToUrl'),
+			buttonTitle: "Copy SEPIA share link to clipboard."	//TODO: add local translation
 		}
 		//context menu
 		var contextMenu = makeBodyElementContextMenu(flexCardId, cardBody, cardBodyItem, event.eventId, {
@@ -1328,7 +1339,11 @@ function sepiaFW_build_ui_cards(){
 				SepiaFW.ui.onclick(androidIntentBtn, function(){
 					//call intent
 					//$(contextMenu).fadeOut(500);	
-					SepiaFW.client.controls.androidIntentAction(intent);
+					SepiaFW.client.controls.androidIntentAction(intent, function(intent){
+						//Success
+					}, function(info){
+						//Error
+					});
 				}, true);
 				cmList.appendChild(androidIntentBtn);
 			});

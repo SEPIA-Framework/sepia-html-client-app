@@ -43,7 +43,7 @@ var app = {
     //deviceready Event Handler
     onDeviceReady: function() {
 		//universal links
-		universalLinks.subscribe('universalLinkTest', app.onUniversalLink);
+		universalLinks.subscribe('universalLinks', app.onUniversalLink);
 
 		//android intents
 		if ('plugins' in window && window.plugins.intentShim){
