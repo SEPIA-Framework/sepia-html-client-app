@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='utf-8'?>
-<widget id="org.example.sepia.app.web" version="0.17.1" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
+<widget id="org.example.sepia.app.web" version="0.18.0" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
     <name>S.E.P.I.A.</name>
     <description>
         Prototype of S.E.P.I.A. framework client
@@ -11,10 +11,12 @@
 	<content src="start.html" />
 	
 	<preference name="orientation" value="portrait" />
+	<!--<preference name="BackgroundColor" value="0xff000000"/>-->
 		
 	<!--plugins-->
 	<preference name="StatusBarOverlaysWebView" value="false" />
-    <preference name="StatusBarBackgroundColor" value="#000" />
+    <preference name="StatusBarBackgroundColor" value="#000000" />
+	<preference name="NavigationBarBackgroundColor" value="#000000" />
 	
 	<plugin name="cordova-plugin-whitelist" spec="1" />
 	<access origin="*" />
@@ -24,14 +26,14 @@
     <allow-intent href="sms:*" />
     <allow-intent href="mailto:*" />
     <allow-intent href="geo:*" />
+	<allow-intent href="spotify:*" />
 	
-	<!--hooks--><!-- this hooks dont work reliably enough, at least not under windows -->
-	<!--<hook type="before_platform_add" src="hooks/010_install_plugins.js" />-->
-	<!--<hook type="after_platform_add" src="hooks/030_resource_files.js" />-->
+	<!--platforms-->
     
 	<platform name="android">
-		<!--more hooks-->
+		<!--hooks-->
 		<hook type="after_platform_add" src="hooks/add-android-intent-filters.js" />
+		<hook type="after_prepare" src="hooks/add-android-permissions.js"/>
 	
 		<!--one main icon-->
 		<icon src="resources/icons/android/icon-ldpi.png" density="ldpi" />         <!-- 32px -->
@@ -61,7 +63,7 @@
     </platform>
     
 	<platform name="ios">
-		<!--more hooks-->
+		<!--hooks-->
 		<hook type="after_platform_add" src="hooks/add-swift-support.js" />
 		
 		<!--icons and splash-->
@@ -109,7 +111,7 @@
 	<universal-links>
 		<ios-team-id value="" />
 		<host name="b07z.net" scheme="https">
-			<path url="/dl/sepia/*" event="universalLinkTest"/>
+			<path url="/dl/sepia/*" event="universalLinks"/>
 		</host>
 	</universal-links>
 	
