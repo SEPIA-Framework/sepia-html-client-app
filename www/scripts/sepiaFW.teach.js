@@ -505,8 +505,19 @@ function sepiaFW_build_teach(){
 		submit.environment = env;
 		submit.language = language;
 		submit.user_location = userLocation || "";
-		submit.sentence = txt;
-		submit.tagged_sentence = '';			//TODO
+		if (!!txt.match(/<\w+>/)){
+			//we allow this currently only for sentence_connect - TODO: add more
+			if (cmd == "sentence_connect"){
+				submit.sentence = txt;
+				submit.tagged_sentence = txt;
+			}else{
+				submit.sentence = '';
+				submit.tagged_sentence = txt;
+			}
+		}else{
+			submit.sentence = txt;
+			submit.tagged_sentence = '';
+		}
 		submit.params = JSON.stringify(parameters);
 		submit.command = cmd;
 		submit.cmd_summary = cmdSum;
