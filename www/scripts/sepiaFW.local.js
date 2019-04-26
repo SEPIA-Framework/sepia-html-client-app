@@ -100,6 +100,7 @@ function sepiaFW_build_strings(){
 	StringsDE.from = 'von';
 	StringsDE.atClock = 'um';
 	//More errors
+	StringsDE.serverVersionTooLow = 'Beachte: Deine SEPIA Server Version ist niedrig und manche Features des Clients funktionieren eventuell nicht wie erwartet. Bitte führe ein Server Update durch, wenn möglich!';
 	StringsDE.mesh_node_fail = 'Sorry, die Mesh-Node Funktion zeigte einen Fehler.';
 	StringsDE.no_client_support = 'Sorry, aber diese Version der App unterstütz die aufgerufene Aktion nicht.';
 	//Offline demo texts
@@ -204,6 +205,7 @@ function sepiaFW_build_strings(){
 	StringsEN.from = 'from';
 	StringsEN.atClock = 'at';
 	//More errors
+	StringsEN.serverVersionTooLow = 'Note: Your SEPIA server version is low and some features of the client might not work as expected. Please update the server when possible!';
 	StringsEN.mesh_node_fail = 'Sorry, the Mesh-Node function showed an error.';
 	StringsEN.no_client_support = 'Sorry, but this version of the app does not support the requested action.';
 	//Offline demo texts

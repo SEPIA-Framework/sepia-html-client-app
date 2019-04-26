@@ -60,6 +60,51 @@ function sepiaFW_build_client_interface(){
 	//some constants for link sharing
 	ClientInterface.deeplinkHostUrl = "https://b07z.net/dl/sepia/index.html";
 	ClientInterface.SHARE_TYPE_ALARM = "alarm";
+
+	//check server info
+	ClientInterface.getServerInfo = function(successCallback, errorCallback){
+		function success(data){
+			var serverInfo = {
+				name: data.server,
+				version: (data.version)? data.version.replace(/^v/,"").trim() : "",
+				signature: data.signature,
+				privacy_policy: data.privacy_policy
+			};
+			if (successCallback) successCallback(serverInfo);
+		}
+		function error(err){
+			if (errorCallback) errorCallback(err);
+		}
+		$.ajax({
+			dataType: "json",
+			url: (SepiaFW.config.assistAPI + "validate"),
+			success: success,
+			error: error
+		});
+	}
+	ClientInterface.checkServerVersion = function(serverInfo){
+		if (!SepiaFW.ui.requiresServerVersion || ClientInterface.isDemoMode()){
+			return true;
+		}else if (serverInfo.version && !!serverInfo.version.match(/\d\.\d\.\d/)){
+			var target = SepiaFW.ui.requiresServerVersion.split(".");
+			var got = serverInfo.version.split(".");
+			var gotVersion = [];
+			var targetVersion = [];
+			for (var i=0; i<3; i++){
+				gotVersion[i] = parseInt(got[i]);
+				targetVersion[i] = parseInt(target[i]);
+			}
+			if ((gotVersion[0] < targetVersion[0]) || 
+				(gotVersion[0] == targetVersion[0] && gotVersion[1] < targetVersion[1]) || 
+				(gotVersion[0] == targetVersion[0] && gotVersion[1] == targetVersion[1] && gotVersion[2] < targetVersion[2])){
+					return false;
+			}else{
+				return true;
+			}
+		}else{
+			return false;
+		}
+	}
 	
 	//broadcast some events:
 	

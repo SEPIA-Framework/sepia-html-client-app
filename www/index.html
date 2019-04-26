@@ -451,6 +451,15 @@
 			handleUrlParameterActions(SepiaFW.client.isDemoMode());
 			//Deeplinks and local notifications
 			handleDeeplinksIntentsAndNotifications(SepiaFW.client.isDemoMode());
+			//check server version
+			SepiaFW.client.getServerInfo(function(info){
+				if (!SepiaFW.client.checkServerVersion(info)){
+					SepiaFW.ui.showInfo(SepiaFW.local.g('serverVersionTooLow') + " Target: v" + SepiaFW.ui.requiresServerVersion + ", found: v" + info.version);
+					SepiaFW.debug.error("SEPIA Assist-Server version (low): " + info.version + " < " + SepiaFW.ui.requiresServerVersion);
+				}else{
+					SepiaFW.debug.log("SEPIA Assist-Server version (good): " + info.version);
+				}
+			});
 		});
 		
 		//what happens after login?
