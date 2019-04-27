@@ -1431,10 +1431,10 @@ function sepiaFW_build_ui_cards(){
 		if (type === 'showHideButton'){
 			footer.innerHTML = "<i class='material-icons md-txt'>&#xE5CF;</i>";
 			SepiaFW.ui.onclick(footer, function(){
-			//$(footer).on('click', function(){
-				if (!$(footer).attr('data-extended') || $(footer).attr('data-extended') == 'off'){
-					$(footer).attr('data-extended', 'on');
-					$(footer).html("<i class='material-icons md-txt'>&#xE5CE;</i>");
+				var $footer = $(footer);
+				if (!$footer.attr('data-extended') || $footer.attr('data-extended') == 'off'){
+					$footer.attr('data-extended', 'on');
+					$footer.html("<i class='material-icons md-txt'>&#xE5CE;</i>");
 					//$(footerConfig.cardBody).find('.itemHidden').removeClass('itemHidden').addClass('itemVisible');
 					$(footerConfig.cardBody).find('.itemHidden').each(function(index){
 						var self = $(this);
@@ -1443,14 +1443,27 @@ function sepiaFW_build_ui_cards(){
 						}, 25*index);
 					});
 				}else{
-					$(footer).attr('data-extended','off');
-					$(footer).html("<i class='material-icons md-txt'>&#xE5CF;</i>");
+					$footer.attr('data-extended','off');
+					$footer.html("<i class='material-icons md-txt'>&#xE5CF;</i>");
 					//Refresh first N items visibility (in case list was re-ordered)
 					var $items = $(footerConfig.cardBody).find('.cardBodyItem').removeClass('itemVisible itemHidden');
 					if (visibleItems >= 0){
 						$items.slice(visibleItems).addClass('itemHidden');
 					}
 					//$(footerConfig.cardBody).find('.itemVisible').removeClass('itemVisible').addClass('itemHidden');
+					//footer.scrollIntoView({block: 'center', inline: 'nearest'}); 
+					var $scrollBody = $footer.closest(SepiaFW.ui.JQ_RES_VIEW_IDS);
+					var $card = $footer.closest('.sepiaFW-cards-flexSize-container');
+					var $msg = $footer.closest('.chatMsg');
+					//var $title = $card.find('.sepiaFW-cards-list-title');
+					var offset = 0;
+					if ($msg.length > 0){
+						offset = $msg[0].offsetTop;
+					}
+					if (!SepiaFW.ui.isTopOfChildVisibleInsideScrollable($card[0], $scrollBody[0], offset)){
+						SepiaFW.ui.scrollToElement($card[0], $scrollBody[0], 50);
+					}
+					SepiaFW.animate.flashObj(footer);
 				}
 			});
 		}else{

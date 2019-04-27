@@ -1338,6 +1338,14 @@ function sepiaFW_build_ui(){
 			}, (delay? delay : 330));
 		}
 	}
+
+	//Is the top of the child (+offset) visible inside a scrollable element - TODO: will only work if child disappears above (not below)
+	UI.isTopOfChildVisibleInsideScrollable = function(childElement, scrollableElement, childOffset){
+		var offset = childElement.offsetTop + childOffset;
+		var scrollTop = scrollableElement.scrollTop;
+		var isScrollable = scrollableElement.scrollHeight > scrollableElement.clientHeight;
+		return (!isScrollable || (offset > scrollTop));		//TODO: take scrollableElement.clientHeight and child.clientHeight into account for "below" case
+	}
 	
 	//do these elements collide?
 	UI.doCollide = function($el1, $el2){

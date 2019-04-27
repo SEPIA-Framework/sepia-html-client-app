@@ -460,7 +460,7 @@ function sepiaFW_build_events(){
 						cardsBodyClass = ".sepiaFW-cards-list-alarms";
 					}
 					if (cardsBodyClass){
-						$('#sepiaFW-chat-output').find(cardsBodyClass).each(function(){
+						$(SepiaFW.ui.JQ_RES_VIEW_IDS).find(cardsBodyClass).each(function(){
 							var saveBtn = $(this).parent().find('.sepiaFW-cards-list-saveBtn');
 							saveBtn.removeClass('active');
 						});
