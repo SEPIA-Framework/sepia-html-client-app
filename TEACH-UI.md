@@ -16,6 +16,13 @@ Function: meshNode
 Data: {"url":"http://localhost:20780", "plugin":"RuntimePlugin", "data":{"command":["echo", "test"]}}
 ```
 
+### Call CLEXI
+```
+Action: <on>
+Function: clexi
+Data: {"xtension":"clexi-broadcaster", "data":{"text":"Hello", "sender":"Me"}}
+```
+
 ## Platform actions (platform_controls)
 
 ### Call Android Intent for certain device or browser action

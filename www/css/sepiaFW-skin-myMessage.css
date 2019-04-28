@@ -225,3 +225,22 @@ html {
 .sepiaFW-cards-list-body .weatherNowSmall .weatherNowSmallImage {
 	background: #027BFF;
 }
+
+/*----- teachUI -----*/
+
+#sepiaFW-teachUI-nav-bar {
+    background: #027BFF;
+    color: #fff;
+}
+#sepiaFW-teachUI-view {
+	background: #2f3035;
+	color: #fff;
+}
+#sepiaFW-teachUI-view label {
+    color: #027BFF;
+}
+#sepiaFW-teachUI-editor button, 
+#sepiaFW-teachUI-manager button {
+    background: #027BFF !important;
+    color: #fff !important;
+}

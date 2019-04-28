@@ -24,7 +24,8 @@ function sepiaFW_build_config(){
 		deviceId = newDeviceId.replace(/[\W]+/g, " ").replace(/\s+/g, " ").trim().split(" ").join("-").toLowerCase();
 		if (deviceId.length > 8) deviceId = deviceId.substring(0, 8);
 		if (newDeviceId != deviceId){
-			alert("Your device ID has been adjusted to: " + deviceId + " - Allowed are only lower-case letters, numbers and - and a max. length of 8 characters.");
+			SepiaFW.ui.showPopup("Please note: Your device ID has been modified due to new format conventions. Your new ID is: " + deviceId
+				+ ". If you plan to change your ID please use only lower-case letters, numbers, '-' and keep it short (2-8 characters)!"); 		//TODO: translate
 		}
 		SepiaFW.data.setPermanent('deviceId', deviceId);
 		Config.broadcastDeviceId(deviceId);

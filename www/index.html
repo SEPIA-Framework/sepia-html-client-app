@@ -115,6 +115,11 @@
 				<div id='sepiaFW-audio-ctrls-title-container'>
 					<div id='sepiaFW-audio-ctrls-title'>SepiaFW audio player</div>
 					<canvas id='sepiaFW-audio-ctrls-canvas'></canvas>
+					<div id="sepiaFW-audio-ctrls-soundbars">
+						<div class="sepiaFW-audio-soundbar"></div>
+						<div class="sepiaFW-audio-soundbar"></div>
+						<div class="sepiaFW-audio-soundbar"></div>
+					</div>
 				</div>
 				<div id='sepiaFW-audio-ctrls-buttons-container'>
 					<button id='sepiaFW-audio-ctrls-voldown'><i class="material-icons md-24">&#xE04D;</i><div id="sepiaFW-audio-ctrls-vol">10</div></button>
@@ -196,14 +201,16 @@
 		</div>
 		<!-- message popup -->
 		<div id='sepiaFW-cover-layer'></div>
-		<div id='sepiaFW-popup-message'>
+		<div id='sepiaFW-popup-message' style="display: none;">
 			<div id='sepiaFW-popup-message-content'></div>
-			<input id='sepiaFW-popup-message-input-one'>
-			<input id='sepiaFW-popup-message-input-two'>
-			<button id='sepiaFW-popup-message-btn-one'>OK</button>
-			<button id='sepiaFW-popup-message-btn-two'>ABORT</button>
-			<button id='sepiaFW-popup-message-btn-three'>RETRY</button>
-			<button id='sepiaFW-popup-message-btn-four'>IGNORE</button>
+			<div id='sepiaFW-popup-message-controls'>
+				<input id='sepiaFW-popup-message-input-one'>
+				<input id='sepiaFW-popup-message-input-two'>
+				<button id='sepiaFW-popup-message-btn-one'>OK</button>
+				<button id='sepiaFW-popup-message-btn-two'>ABORT</button>
+				<button id='sepiaFW-popup-message-btn-three'>RETRY</button>
+				<button id='sepiaFW-popup-message-btn-four'>IGNORE</button>
+			</div>
 		</div>
 	</div>
 	<!-- Swipe bars -->
@@ -437,9 +444,6 @@
 		
 		//Device ID
 		var restoreDeviceIdOrDefault = SepiaFW.data.getPermanent('deviceId') || SepiaFW.ui.getDefaultDeviceId();
-		if (restoreDeviceIdOrDefault.indexOf(" ") != -1 || restoreDeviceIdOrDefault.length > 8){
-			alert("Sorry but your device ID has been modified due to new format restrictions. Please use only lower-case letters, numbers and - and keep it short (<=8)!");
-		}
 		SepiaFW.config.setDeviceId(restoreDeviceIdOrDefault, true);
 				
 		//set privacy policy link

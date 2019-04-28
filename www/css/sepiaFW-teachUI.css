@@ -130,12 +130,13 @@
 #sepiaFW-teachUI-manager .sepiaFW-command-card .cmdRemoveBtn {
 	background: #fff;
 	color: #2f3035;
-	flex: 1 0 auto;
+	flex: 1 1 auto;
     text-align: center;
 	display: flex;
     flex-direction: column;
     justify-content: center;
 	cursor: pointer;
+	padding: 2px 4px;
 }
 #sepiaFW-teachUI-manager .sepiaFW-command-card .cmdRemoveBtn {
 	background: #bcbebe;

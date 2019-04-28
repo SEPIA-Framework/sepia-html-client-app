@@ -9,6 +9,8 @@ function sepiaFW_build_strings(){
 	//GERMAN
 	StringsDE.welcome = 'Willkommen';
 	StringsDE.help = 'Hilfe';
+	StringsDE.ok = 'Ok';
+	StringsDE.more = 'Mehr';
 	StringsDE.username = 'Username';
 	StringsDE.nickname = 'Spitzname';
 	StringsDE.password = 'Passwort';
@@ -110,10 +112,15 @@ function sepiaFW_build_strings(){
 	StringsDE.myNewsDemoBtn = 'Öffne meine persönlichen News';
 	StringsDE.myRadioDemoBtn = 'Starte mein Lieblingsradio';
 	StringsDE.myToDoDemoBtn = 'Öffne meine To-Do Liste';
+	//Teach-UI
+	StringsDE.command = 'Befehl';
+	StringsDE.chooseCommand = 'Bitte wähle einen Befehl.';
 	
 	//ENGLISH
 	StringsEN.welcome = 'Welcome';
 	StringsEN.help = 'Help';
+	StringsEN.ok = 'Ok';
+	StringsEN.more = 'More';
 	StringsEN.username = 'Username';
 	StringsEN.nickname = 'Nickname';
 	StringsEN.password = 'Password';
@@ -215,6 +222,9 @@ function sepiaFW_build_strings(){
 	StringsEN.myNewsDemoBtn = 'Open my personal news';
 	StringsEN.myRadioDemoBtn = 'Start my favorite radio station';
 	StringsEN.myToDoDemoBtn = 'Open my to-do list';
+	//Teach-UI
+	StringsEN.command = 'Command';
+	StringsEN.chooseCommand = 'Please choose a command.';
 
 	//--------------------------------------------------------
 	

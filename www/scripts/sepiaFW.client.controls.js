@@ -131,6 +131,7 @@ function sepiaFW_build_client_controls(){
             if (data.extras) dataObj.extras = data.extras;
             if (data.url) dataObj.url = data.url;
             if (data.package) dataObj.package = data.package;
+            if (data.chooser) dataObj.chooser = data.chooser;       //chooser: "Select application to share"
             window.plugins.intentShim.startActivity(dataObj, function(intent){
                 //console.log('Android intent success');
                 if (successCallback) successCallback(intent);
