@@ -162,10 +162,12 @@ function sepiaFW_build_animate(){
 	//audio player animations
 	
 	Animate.audio.playerActive = function(){
-		$("#sepiaFW-audio-ctrls-title").addClass("playerActive");
+		//$("#sepiaFW-audio-ctrls-title").addClass("playerActive");
+		$("#sepiaFW-audio-ctrls-soundbars").addClass("playerActive");
 	}
 	Animate.audio.playerIdle = function(){
-		$("#sepiaFW-audio-ctrls-title").removeClass("playerActive");
+		//$("#sepiaFW-audio-ctrls-title").removeClass("playerActive");
+		$("#sepiaFW-audio-ctrls-soundbars").removeClass("playerActive");
 	}
 	
 	return Animate;
