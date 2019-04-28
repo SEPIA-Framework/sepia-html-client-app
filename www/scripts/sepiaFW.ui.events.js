@@ -166,7 +166,8 @@ function sepiaFW_build_events(){
 				smallIcon: "res://ic_popup_reminder",
 				icon: "res://icon",
 				color: "303030",
-				data: noteData
+				data: noteData,
+				wakeup: false
 			}]);
 			addProActiveNotificationId(nid);
 			//prevent foreground execution
@@ -603,7 +604,8 @@ function sepiaFW_build_events(){
 				sound: "file://sounds/alarm.mp3",
 				smallIcon: "res://ic_popup_reminder",
 				color: "303030",
-				data: noteData
+				data: noteData,
+				wakeup: true
 			}]);
 			//console.log('addTimeEventNotificationId: ' + nid); 		//DEBUG
 			addTimeEventNotificationId(nid);
@@ -760,7 +762,8 @@ function sepiaFW_build_events(){
 				text: textS,
 				smallIcon: "res://ic_popup_reminder",
 				color: "303030",
-				data: (data? data : {})
+				data: (data? data : {}),
+				wakeup: false
 			}
 			//sound
 			if (soundFile && soundFile == 'null'){

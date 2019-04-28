@@ -171,7 +171,8 @@ function sepiaFW_build_ui_actions(){
 				//some special 'links': <inappbrowser-last>, <inappbrowser-home>, search.html
 			}
 		}else{
-			window.open(url, '_blank');
+			var newWindow = window.open(url, '_blank');
+			newWindow.opener = null;
 		}
 	}
 	

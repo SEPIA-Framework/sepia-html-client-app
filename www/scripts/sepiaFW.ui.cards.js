@@ -1016,7 +1016,7 @@ function sepiaFW_build_ui_cards(){
 		}
 		linkCardEle.innerHTML = leftElement
 								+ "<div class='linkCardCenter'>" + (data.title? ("<h3>" + data.title + "</h3>") : ("")) + "<p>" + data.desc + "</p></div>"
-								+ "<div class='linkCardRight'><a href='" + linkUrl + "' target='_blank'>" + "<i class='material-icons md-mnu'>&#xE895;</i>" + "</a></div>";
+								+ "<div class='linkCardRight'><a href='" + linkUrl + "' target='_blank' rel='noopener'>" + "<i class='material-icons md-mnu'>&#xE895;</i>" + "</a></div>";
 		//linkCardEle.setAttribute('data-element', JSON.stringify(cardElementInfo));
 		cardBody.appendChild(linkCardEle);
 		

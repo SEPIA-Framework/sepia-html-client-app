@@ -50,6 +50,10 @@ var app = {
 		
 		//local notification
 		cordova.plugins.notification.local.on("click", app.onLocalNotification, this);
+		cordova.plugins.notification.local.setDefaults({
+			group: "sepia-open-assistant",
+			wakeup: false
+		});
 		
 		//cordova info
 		document.getElementById('sepiaFW-cordova-starter').innerHTML += ("<p>" + device.platform + "</p>");
