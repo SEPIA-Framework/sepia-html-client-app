@@ -221,13 +221,13 @@ body {
 	color: #fff;
 	border-radius: 3px;
 	min-height: 40px;
-	max-height: 68vh;
+	max-height: 85%;
 	width:80%;
 	max-width: 350px;
 	padding: 16px;
 	top: 40%;
 	left: 50%;
-	transform: translate(-50%, -50%);
+	transform: translate(-50%, -45%);
 	text-align: center;
 	z-index: 90;
 	overflow: hidden;

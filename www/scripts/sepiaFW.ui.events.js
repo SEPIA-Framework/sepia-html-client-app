@@ -641,7 +641,7 @@ function sepiaFW_build_events(){
 						Events.setTimeEventBackgroundNotification(Timer);
 					}
 				});
-				callbackDone();
+				if (callbackDone) callbackDone();
 			});
 		}else{
 			if (callbackDone) callbackDone();

@@ -117,10 +117,11 @@ function sepiaFW_build_audio(){
 	
 	//connect / disconnect AudioContext
 	function connectAudioContext(){
-		//get audio context (for ios volume and spectrum analyzers)
-		if(AudioPlayer.useAudioContext && !gotPlayerAudioContext && ('webkitAudioContext' in window || 'AudioContext' in window) 
-								&& !((window.location.toString().indexOf('file') == 0) 
-									&& !SepiaFW.ui.isSafari && !SepiaFW.ui.isIOS)){
+		//get audio context (for ios volume and spectrum analyzers - TODO: why is '!SepiaFW.ui.isIOS' used? Didn't we deactivate the whole thing?)
+		if(AudioPlayer.useAudioContext && !gotPlayerAudioContext 
+					&& ('webkitAudioContext' in window || 'AudioContext' in window) 
+					&& !((window.location.toString().indexOf('file') == 0) 
+					&& !SepiaFW.ui.isSafari && !SepiaFW.ui.isIOS)){
 			player.crossOrigin = "anonymous";
 						
 			playerAudioContext = new (window.AudioContext || window.webkitAudioContext)();
@@ -225,6 +226,24 @@ function sepiaFW_build_audio(){
 			mainAudioStopRequested = true;		//We try to prevent the race-condition with that (1)
 			if (gotPlayerAudioContext) playerGainNode.gain.value = orgGain;
 			else audioPlayer.volume = orgVolume;
+		}
+		//Platform specific additional stop methods
+		if (SepiaFW.ui.isAndroid && audioPlayer == player){
+			//Android intent broadcast to stop all media
+			SepiaFW.client.controls.androidIntentBroadcast({
+				action: "android.intent.action.MEDIA_BUTTON",
+				extras: {
+					"android.intent.extra.KEY_EVENT": JSON.stringify({
+						"action": 0, 
+						"code": 85
+					})
+				}
+			});
+			/*
+			0: KeyEvent.ACTION_DOWN
+			1: KeyEvent.ACTION_UP
+			85: KEYCODE_MEDIA_PLAY_PAUSE
+			*/
 		}
 	}
 	

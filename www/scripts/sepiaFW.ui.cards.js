@@ -1339,7 +1339,7 @@ function sepiaFW_build_ui_cards(){
 				SepiaFW.ui.onclick(androidIntentBtn, function(){
 					//call intent
 					//$(contextMenu).fadeOut(500);	
-					SepiaFW.client.controls.androidIntentAction(intent, function(intent){
+					SepiaFW.client.controls.androidIntentActivity(intent, function(intent){
 						//Success
 					}, function(info){
 						//Error

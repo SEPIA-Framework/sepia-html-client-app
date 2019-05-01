@@ -116,13 +116,15 @@ function sepiaFW_build_client_controls(){
 
             //Android
             if (controlData.platform == "android" && SepiaFW.ui.isAndroid){
-                if (req.type == "androidIntent" && req.data){
-                    Controls.androidIntentAction(req.data);
+                if (req.type == "androidIntent" && req.data){       //Note: this type refers to 'startActivity'
+                    Controls.androidIntentActivity(req.data);
                 }
             }
+
+            //TODO: finish
         }
     }
-    Controls.androidIntentAction = function(data, successCallback, errorCallback){
+    Controls.androidIntentActivity = function(data, successCallback, errorCallback){
         if (data.action && ("plugins" in window) && window.plugins.intentShim){
             //TODO: what about safety here? Should we do a whitelist?
             var dataObj = {
@@ -133,22 +135,40 @@ function sepiaFW_build_client_controls(){
             if (data.package) dataObj.package = data.package;
             if (data.chooser) dataObj.chooser = data.chooser;       //chooser: "Select application to share"
             window.plugins.intentShim.startActivity(dataObj, function(intent){
-                //console.log('Android intent success');
+                SepiaFW.debug.log("Sent Android Activity-Intent '" + data.action);
                 if (successCallback) successCallback(intent);
-            
             }, function(info){
-                var infoString = "undefined";
-                if (info && typeof info == "object"){
-                    infoString = JSON.stringify(info);
-                }else if (info && typeof info == "string"){
-                    infoString = info;
-                }
-                var msg = "Tried to call intent '" + data.action + "' and failed with msg: " + infoString;
-                SepiaFW.debug.error(msg);
-                SepiaFW.ui.showInfo(msg);
-                if (errorCallback) errorCallback(info);
+                androidIntentFail(data, info, errorCallback)
             });
         }
+    }
+    Controls.androidIntentBroadcast = function(data, successCallback, errorCallback){
+        if (data.action && ("plugins" in window) && window.plugins.intentShim){
+            //TODO: what about safety here? Should we do a whitelist?
+            var dataObj = {
+                action: data.action
+            }
+            if (data.extras) dataObj.extras = data.extras;
+            if (data.url) dataObj.url = data.url;
+            window.plugins.intentShim.sendBroadcast(dataObj, function(intent){
+                SepiaFW.debug.log("Sent Android Broadcast-Intent '" + data.action);
+                if (successCallback) successCallback(intent);
+            }, function(info){
+                androidIntentFail(data, info, errorCallback)
+            });
+        }
+    }
+    function androidIntentFail(data, info, errorCallback){
+        var infoString = "undefined";
+        if (info && typeof info == "object"){
+            infoString = JSON.stringify(info);
+        }else if (info && typeof info == "string"){
+            infoString = info;
+        }
+        var msg = "Tried to call Android Intent '" + data.action + "' and failed with msg: " + infoString;
+        SepiaFW.debug.error(msg);
+        SepiaFW.ui.showInfo(msg);
+        if (errorCallback) errorCallback(info);
     }
 
     //CLEXI send
