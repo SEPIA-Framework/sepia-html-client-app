@@ -89,6 +89,48 @@ function sepiaFW_build_client_controls(){
         SepiaFW.audio.playerSetCurrentOrTargetVolume(newVol);       //value between 0.0-10.0
     }
 
+    //Stop playing media
+    Controls.stopMediaPlay = function(){
+        var player = SepiaFW.audio.getMusicPlayer();
+        if (!SepiaFW.audio.initAudio(function(){ SepiaFW.audio.stop(player); })){
+            SepiaFW.audio.stop(player);
+        }
+        //Platform specific additional stop methods
+        if (SepiaFW.ui.isAndroid){
+            //Android intent broadcast to stop all media
+            SepiaFW.client.controls.androidIntentBroadcast({
+                action: "android.intent.action.MEDIA_BUTTON",
+                extras: {
+                    "android.intent.extra.KEY_EVENT": JSON.stringify({
+                        "action": 0, 
+                        "code": 85
+                    })
+                }
+            });
+            /*
+            0: KeyEvent.ACTION_DOWN
+            1: KeyEvent.ACTION_UP
+            85: KEYCODE_MEDIA_PLAY_PAUSE
+            */
+        }
+        //TODO: add iOS and Windows?
+    }
+    //Search system for media
+    Controls.searchForMusic = function(controlData){
+        // DEBUG
+        console.log('Search: ' + controlData.search);
+        console.log('Artist: ' + controlData.artist);
+        console.log('Song: ' + controlData.song);
+        console.log('Album: ' + controlData.album);
+        console.log('Genre: ' + controlData.genre);
+        console.log('Playlist: ' + controlData.playlist);
+        console.log('Service: ' + controlData.service);
+        
+        if (controlData){
+            //TODO
+        }
+    }
+
     //AlwaysOn mode
     Controls.alwaysOn = function(controlData){
         //we ignore the control-data for now and just toggle

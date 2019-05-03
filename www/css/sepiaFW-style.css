@@ -258,8 +258,11 @@ body {
 #sepiaFW-popup-message i {
 	color: #ceff1a;
 }
-#sepiaFW-popup-message a {
+#sepiaFW-popup-message .accent {
 	color: #4ec48f;
+}
+#sepiaFW-popup-message a {
+	color: #91d5b6;
 }
 #sepiaFW-popup-message .scrollbox {
 	width: 100%;

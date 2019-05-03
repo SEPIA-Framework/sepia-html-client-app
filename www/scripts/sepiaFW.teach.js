@@ -236,6 +236,25 @@ function sepiaFW_build_teach(){
 			platform_controls : {
 				command : "platform_controls",
 				name : "Execute platform specific actions",
+				desc : "Use this command to create a single sentence that triggers different client actions for each device ID or platform type (e.g. call Intent in Android and URL in browser client).",
+				help : "<p><u><b>Example 1:</b></u></p>" 
+						+ "<i>When I say ...</i>" 
+						+ "<br>Play some music.<br><br>"
+						+ "<i>the assistant does ...</i><br>"
+						+ "Execute platform specific actions<br><br>"
+						+ "<i>Actions for specific device IDs (device_fun):</i><br>"
+						+ '{ "a1": {"type": "androidIntent", "data": {"action": "android.media.action.MEDIA_PLAY_FROM_SEARCH", "extras": {"query": "Paradise City"} }} }<br><br>'
+					+ "<p><u><b>Example 2:</b></u></p>" 
+						+ "<i>When I say ...</i>" 
+						+ "<br>Start my best playlist.<br><br>"
+						+ "<i>the assistant does ...</i><br>"
+						+ "Execute platform specific actions<br><br>"
+						+ "<i>Android specific Intent or URL (android_fun):</i><br>"
+						//TODO: fix
+						+ '{ "data": {"action": "android.media.action.MEDIA_PLAY_FROM_SEARCH", "extras": {"query": "Paradise City"} } }<br><br>'
+						+ "<i>Browser specific function or URL (browser_fun):</i><br>"
+						+ '{ "data": {"action": "android.media.action.MEDIA_PLAY_FROM_SEARCH", "extras": {"query": "Paradise City"} } }<br><br>'
+						,
 				parameters : [{
 					value : "device_fun",
 					name : "Actions for specific device IDs: "		//e.g.: { "a1": {"type": "androidIntent", "data": intentData} }
@@ -283,7 +302,7 @@ function sepiaFW_build_teach(){
 		var html = "<p><b>Command: " + cmd + "</b></p>";
 		if (services[cmd] && services[cmd].help){
 			if (services[cmd].desc){
-				html += "<p>" + services[cmd].desc + "</p>";
+				html += "<p class='accent'>" + services[cmd].desc + "</p>";
 			}
 			html += services[cmd].help;
 		}else{

@@ -12,6 +12,15 @@ function sepiaFW_build_audio(){
 	var speaker;			//Player for TTS
 	var doInitAudio = true;			//workaround to activate scripted audio on touch devices
 	var audioOnEndFired = false;	//state: prevent doublefireing of audio onend onpause
+	AudioPlayer.getMusicPlayer = function(){
+		return player;
+	}
+	AudioPlayer.getEffectsPlayer = function(){
+		return player2;
+	}
+	AudioPlayer.getTtsPlayer = function(){
+		return speaker;
+	}
 	
 	//AudioContext stuff:
 	AudioPlayer.useAudioContext = false;	//experimental feature for things like gain control and music visualization (unfortunately fails for quite a few radio streams)
@@ -86,8 +95,7 @@ function sepiaFW_build_audio(){
 		//get player controls
 		audioTitle = document.getElementById('sepiaFW-audio-ctrls-title');
 		audioStartBtn = document.getElementById('sepiaFW-audio-ctrls-start');
-		$(audioStartBtn).off();
-		$(audioStartBtn).on('click', function(){
+		$(audioStartBtn).off().on('click', function(){
 			//test: player.src = "sounds/coin.mp3";
 			//player.play();
 			if (!AudioPlayer.initAudio(function(){ AudioPlayer.playURL('', player); })){
@@ -95,20 +103,15 @@ function sepiaFW_build_audio(){
 			}
 		});
 		audioStopBtn = document.getElementById('sepiaFW-audio-ctrls-stop');
-		$(audioStopBtn).off();
-		$(audioStopBtn).on('click', function(){
-			if (!AudioPlayer.initAudio(function(){ AudioPlayer.stop(player); })){
-				AudioPlayer.stop(player);
-			}
+		$(audioStopBtn).off().on('click', function(){
+			SepiaFW.client.controls.stopMediaPlay();
 		});
 		audioVolUp = document.getElementById('sepiaFW-audio-ctrls-volup');
-		$(audioVolUp).off();
-		$(audioVolUp).on('click', function(){
+		$(audioVolUp).off().on('click', function(){
 			playerSetVolume(playerGetVolume() + 1.0);
 		});
 		audioVolDown = document.getElementById('sepiaFW-audio-ctrls-voldown');
-		$(audioVolDown).off();
-		$(audioVolDown).on('click', function(){
+		$(audioVolDown).off().on('click', function(){
 			playerSetVolume(playerGetVolume() - 1.0);
 		});
 		audioVol = document.getElementById('sepiaFW-audio-ctrls-vol');
@@ -227,24 +230,7 @@ function sepiaFW_build_audio(){
 			if (gotPlayerAudioContext) playerGainNode.gain.value = orgGain;
 			else audioPlayer.volume = orgVolume;
 		}
-		//Platform specific additional stop methods
-		if (SepiaFW.ui.isAndroid && audioPlayer == player){
-			//Android intent broadcast to stop all media
-			SepiaFW.client.controls.androidIntentBroadcast({
-				action: "android.intent.action.MEDIA_BUTTON",
-				extras: {
-					"android.intent.extra.KEY_EVENT": JSON.stringify({
-						"action": 0, 
-						"code": 85
-					})
-				}
-			});
-			/*
-			0: KeyEvent.ACTION_DOWN
-			1: KeyEvent.ACTION_UP
-			85: KEYCODE_MEDIA_PLAY_PAUSE
-			*/
-		}
+		//SEE AudioPlayer stop button for more, e.g. Android stop
 	}
 	
 	//Fade main audio source in and out and restart if needed

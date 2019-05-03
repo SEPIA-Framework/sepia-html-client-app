@@ -63,6 +63,16 @@ function sepiaFW_build_client_interface(){
 
 	//check server info
 	ClientInterface.getServerInfo = function(successCallback, errorCallback){
+		if (ClientInterface.isDemoMode()){
+			var serverInfo = {
+				name: "demo-mode",
+				version: "0.0.0",
+				signature: "",
+				privacy_policy: ""
+			};	
+			if (successCallback) successCallback(serverInfo);
+			return;
+		}
 		function success(data){
 			var serverInfo = {
 				name: data.server,
