@@ -104,7 +104,9 @@ function sepiaFW_build_audio(){
 		});
 		audioStopBtn = document.getElementById('sepiaFW-audio-ctrls-stop');
 		$(audioStopBtn).off().on('click', function(){
-			SepiaFW.client.controls.stopMediaPlay();
+			SepiaFW.client.controls.media({
+				action: "stop"
+			});
 		});
 		audioVolUp = document.getElementById('sepiaFW-audio-ctrls-volup');
 		$(audioVolUp).off().on('click', function(){

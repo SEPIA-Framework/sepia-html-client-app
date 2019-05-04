@@ -33,7 +33,7 @@ function sepiaFW_build_client_controls(){
                 SepiaFW.debug.error("Client controls - Unsupported action in 'settings': " + controlData.action);
             }
         }else{
-            SepiaFW.debug.error("Client controls - Missing 'controlData'!");
+            SepiaFW.debug.error("Client controls - Missing 'controlData' for 'settings'!");
         }
         return false;
     }
@@ -47,6 +47,21 @@ function sepiaFW_build_client_controls(){
     }
     function switchSettings(){
         $("#sepiaFW-nav-menu-btn").trigger('click', {bm_force : true});
+    }
+
+    //AlwaysOn mode
+    Controls.alwaysOn = function(controlData){
+        //we ignore the control-data for now and just toggle
+        if (SepiaFW.alwaysOn){
+            //open
+            if (!SepiaFW.alwaysOn.isOpen){
+                SepiaFW.ui.closeAllMenus();
+                SepiaFW.alwaysOn.start();
+            //close
+            }else{
+                SepiaFW.alwaysOn.stop();
+            }
+        }
     }
 
     //Music volume up/down
@@ -73,7 +88,7 @@ function sepiaFW_build_client_controls(){
                 SepiaFW.debug.error("Client controls - Unsupported action in 'settings': " + controlData.action);
             }
         }else{
-            SepiaFW.debug.error("Client controls - Missing 'controlData'!");
+            SepiaFW.debug.error("Client controls - Missing 'controlData' for 'volume'!");
         }
         return false;
     }
@@ -89,8 +104,20 @@ function sepiaFW_build_client_controls(){
         SepiaFW.audio.playerSetCurrentOrTargetVolume(newVol);       //value between 0.0-10.0
     }
 
+    //Media player controls
+    Controls.media = function(controlData){
+        if (controlData && controlData.action){
+            if (controlData.action == "stop"){
+                stopMediaPlay();
+            }else{
+                SepiaFW.debug.error("Client controls - Unsupported action in 'media': " + controlData.action);
+            }
+        }else{
+            SepiaFW.debug.error("Client controls - Missing 'controlData' for 'media'!");
+        }
+    }
     //Stop playing media
-    Controls.stopMediaPlay = function(){
+    function stopMediaPlay(){
         var player = SepiaFW.audio.getMusicPlayer();
         if (!SepiaFW.audio.initAudio(function(){ SepiaFW.audio.stop(player); })){
             SepiaFW.audio.stop(player);
@@ -115,35 +142,33 @@ function sepiaFW_build_client_controls(){
         }
         //TODO: add iOS and Windows?
     }
+
     //Search system for media
     Controls.searchForMusic = function(controlData){
-        // DEBUG
-        console.log('Search: ' + controlData.search);
-        console.log('Artist: ' + controlData.artist);
-        console.log('Song: ' + controlData.song);
-        console.log('Album: ' + controlData.album);
-        console.log('Genre: ' + controlData.genre);
-        console.log('Playlist: ' + controlData.playlist);
-        console.log('Service: ' + controlData.service);
-        
         if (controlData){
+            // DEBUG
+            console.log('Search: ' + controlData.search);
+            console.log('Artist: ' + controlData.artist);
+            console.log('Song: ' + controlData.song);
+            console.log('Album: ' + controlData.album);
+            console.log('Genre: ' + controlData.genre);
+            console.log('Playlist: ' + controlData.playlist);
+            console.log('Service: ' + controlData.service);
             //TODO
+        }else{
+            SepiaFW.debug.error("Client controls - Missing 'controlData' for 'searchForMusic'!");
         }
     }
 
-    //AlwaysOn mode
-    Controls.alwaysOn = function(controlData){
-        //we ignore the control-data for now and just toggle
-        if (SepiaFW.alwaysOn){
-            //open
-            if (!SepiaFW.alwaysOn.isOpen){
-                SepiaFW.ui.closeAllMenus();
-                SepiaFW.alwaysOn.start();
-            //close
-            }else{
-                SepiaFW.alwaysOn.stop();
-            }
+    //CLEXI send
+    Controls.clexi = function(controlData){
+        if (SepiaFW.clexi && controlData.action){
+            var req = parseAction(controlData.action);
+            //console.log(req);
+            SepiaFW.clexi.send(req.xtension, req.data);
+            return true;
         }
+        return false;
     }
 
     //Platform specific function like Android Intents
@@ -166,6 +191,8 @@ function sepiaFW_build_client_controls(){
             //TODO: finish
         }
     }
+
+    //Android Intent access
     Controls.androidIntentActivity = function(data, successCallback, errorCallback){
         if (data.action && ("plugins" in window) && window.plugins.intentShim){
             //TODO: what about safety here? Should we do a whitelist?
@@ -211,17 +238,6 @@ function sepiaFW_build_client_controls(){
         SepiaFW.debug.error(msg);
         SepiaFW.ui.showInfo(msg);
         if (errorCallback) errorCallback(info);
-    }
-
-    //CLEXI send
-    Controls.clexi = function(controlData){
-        if (SepiaFW.clexi && controlData.action){
-            var req = parseAction(controlData.action);
-            //console.log(req);
-            SepiaFW.clexi.send(req.xtension, req.data);
-            return true;
-        }
-        return false;
     }
 
     //Mesh-Node call

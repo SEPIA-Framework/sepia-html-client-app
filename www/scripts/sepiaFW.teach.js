@@ -226,7 +226,7 @@ function sepiaFW_build_teach(){
 					name : "Action (e.g.: &lt;on&gt;, &lt;increase&gt; or &lt;set&gt;): "
 				},{
 					value : "client_fun",
-					name : "Function (e.g.: settings, volume, alwaysOn, ...): "		//meshNode, clexi
+					name : "Function (e.g.: settings, volume, alwaysOn, ...): "		//meshNode, clexi, media
 				},{
 					value : "data",
 					name : "Additional data (e.g. JSON or number)",
