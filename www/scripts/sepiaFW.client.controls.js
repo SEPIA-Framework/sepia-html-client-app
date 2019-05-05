@@ -108,7 +108,20 @@ function sepiaFW_build_client_controls(){
     Controls.media = function(controlData){
         if (controlData && controlData.action){
             if (controlData.action == "stop"){
-                stopMediaPlay();
+                var player = SepiaFW.audio.getMusicPlayer();
+                if (!SepiaFW.audio.initAudio(function(){ SepiaFW.audio.stop(player); })){
+                    SepiaFW.audio.stop(player);
+                }
+                //Platform specific additional stop methods
+                if (SepiaFW.ui.isAndroid){
+                    SepiaFW.android.broadcastMediaButtonIntent(1, 85);
+                    /*
+                    0: KeyEvent.ACTION_DOWN
+                    1: KeyEvent.ACTION_UP
+                    85: KEYCODE_MEDIA_PLAY_PAUSE
+                    */
+                }
+                //TODO: add iOS and Windows?
             }else{
                 SepiaFW.debug.error("Client controls - Unsupported action in 'media': " + controlData.action);
             }
@@ -116,37 +129,12 @@ function sepiaFW_build_client_controls(){
             SepiaFW.debug.error("Client controls - Missing 'controlData' for 'media'!");
         }
     }
-    //Stop playing media
-    function stopMediaPlay(){
-        var player = SepiaFW.audio.getMusicPlayer();
-        if (!SepiaFW.audio.initAudio(function(){ SepiaFW.audio.stop(player); })){
-            SepiaFW.audio.stop(player);
-        }
-        //Platform specific additional stop methods
-        if (SepiaFW.ui.isAndroid){
-            //Android intent broadcast to stop all media
-            SepiaFW.client.controls.androidIntentBroadcast({
-                action: "android.intent.action.MEDIA_BUTTON",
-                extras: {
-                    "android.intent.extra.KEY_EVENT": JSON.stringify({
-                        "action": 0, 
-                        "code": 85
-                    })
-                }
-            });
-            /*
-            0: KeyEvent.ACTION_DOWN
-            1: KeyEvent.ACTION_UP
-            85: KEYCODE_MEDIA_PLAY_PAUSE
-            */
-        }
-        //TODO: add iOS and Windows?
-    }
 
     //Search system for media
     Controls.searchForMusic = function(controlData){
         if (controlData){
             // DEBUG
+            /*
             console.log('Search: ' + controlData.search);
             console.log('Artist: ' + controlData.artist);
             console.log('Song: ' + controlData.song);
@@ -154,7 +142,12 @@ function sepiaFW_build_client_controls(){
             console.log('Genre: ' + controlData.genre);
             console.log('Playlist: ' + controlData.playlist);
             console.log('Service: ' + controlData.service);
-            //TODO
+            */
+            //Android Intent music search
+            if (SepiaFW.ui.isAndroid){
+                var allowSpecificService = true;
+                SepiaFW.android.startMusicSearchActivity(controlData, allowSpecificService);
+            }
         }else{
             SepiaFW.debug.error("Client controls - Missing 'controlData' for 'searchForMusic'!");
         }
@@ -184,60 +177,23 @@ function sepiaFW_build_client_controls(){
             //Android
             if (controlData.platform == "android" && SepiaFW.ui.isAndroid){
                 if (req.type == "androidIntent" && req.data){       //Note: this type refers to 'startActivity'
-                    Controls.androidIntentActivity(req.data);
+                    SepiaFW.android.intentActivity(req.data);
+                
+                }else if (req.type == "url" && req.data){
+                    //TODO
+                    console.error("Missing 'platformFunction' support for: " + req.type);
                 }
-            }
+            //Common
+            }else if (req.type == "url" && req.data){
+                //TODO
+                console.error("Missing 'platformFunction' support for: " + req.type);
 
-            //TODO: finish
-        }
-    }
-
-    //Android Intent access
-    Controls.androidIntentActivity = function(data, successCallback, errorCallback){
-        if (data.action && ("plugins" in window) && window.plugins.intentShim){
-            //TODO: what about safety here? Should we do a whitelist?
-            var dataObj = {
-                action: data.action
+            //TODO:
+            }else{
+                console.error("Missing 'platformFunction' support for: " + req.type);
             }
-            if (data.extras) dataObj.extras = data.extras;
-            if (data.url) dataObj.url = data.url;
-            if (data.package) dataObj.package = data.package;
-            if (data.chooser) dataObj.chooser = data.chooser;       //chooser: "Select application to share"
-            window.plugins.intentShim.startActivity(dataObj, function(intent){
-                SepiaFW.debug.log("Sent Android Activity-Intent '" + data.action);
-                if (successCallback) successCallback(intent);
-            }, function(info){
-                androidIntentFail(data, info, errorCallback)
-            });
+            //TODO: iosIntent, windowsIntent, browserIntent, url
         }
-    }
-    Controls.androidIntentBroadcast = function(data, successCallback, errorCallback){
-        if (data.action && ("plugins" in window) && window.plugins.intentShim){
-            //TODO: what about safety here? Should we do a whitelist?
-            var dataObj = {
-                action: data.action
-            }
-            if (data.extras) dataObj.extras = data.extras;
-            if (data.url) dataObj.url = data.url;
-            window.plugins.intentShim.sendBroadcast(dataObj, function(intent){
-                SepiaFW.debug.log("Sent Android Broadcast-Intent '" + data.action);
-                if (successCallback) successCallback(intent);
-            }, function(info){
-                androidIntentFail(data, info, errorCallback)
-            });
-        }
-    }
-    function androidIntentFail(data, info, errorCallback){
-        var infoString = "undefined";
-        if (info && typeof info == "object"){
-            infoString = JSON.stringify(info);
-        }else if (info && typeof info == "string"){
-            infoString = info;
-        }
-        var msg = "Tried to call Android Intent '" + data.action + "' and failed with msg: " + infoString;
-        SepiaFW.debug.error(msg);
-        SepiaFW.ui.showInfo(msg);
-        if (errorCallback) errorCallback(info);
     }
 
     //Mesh-Node call

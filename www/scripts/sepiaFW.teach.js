@@ -236,24 +236,28 @@ function sepiaFW_build_teach(){
 			platform_controls : {
 				command : "platform_controls",
 				name : "Execute platform specific actions",
-				desc : "Use this command to create a single sentence that triggers different client actions for each device ID or platform type (e.g. call Intent in Android and URL in browser client).",
+				desc : "Use this command to create a single sentence that triggers different client actions for each device ID or platform type (e.g. call Intent in Android and URL in browser client). "
+						+ "Note: The device ID has highest priority, only if no device ID is given or no match is found the platform specific function will be called.",
 				help : "<p><u><b>Example 1:</b></u></p>" 
 						+ "<i>When I say ...</i>" 
-						+ "<br>Play some music.<br><br>"
+						+ "<br>Play Paradise City<br><br>"
 						+ "<i>the assistant does ...</i><br>"
 						+ "Execute platform specific actions<br><br>"
 						+ "<i>Actions for specific device IDs (device_fun):</i><br>"
 						+ '{ "a1": {"type": "androidIntent", "data": {"action": "android.media.action.MEDIA_PLAY_FROM_SEARCH", "extras": {"query": "Paradise City"} }} }<br><br>'
+						//TODO: add more
 					+ "<p><u><b>Example 2:</b></u></p>" 
 						+ "<i>When I say ...</i>" 
-						+ "<br>Start my best playlist.<br><br>"
+						+ "<br>Start Paradise City<br><br>"
 						+ "<i>the assistant does ...</i><br>"
 						+ "Execute platform specific actions<br><br>"
 						+ "<i>Android specific Intent or URL (android_fun):</i><br>"
 						//TODO: fix
-						+ '{ "data": {"action": "android.media.action.MEDIA_PLAY_FROM_SEARCH", "extras": {"query": "Paradise City"} } }<br><br>'
+						+ 'TODO<br><br>'
+						//+ '{"type": "androidIntent", "data": {"action": "android.media.action.MEDIA_PLAY_FROM_SEARCH", "extras": {"query": "Paradise City"} } }<br><br>'
 						+ "<i>Browser specific function or URL (browser_fun):</i><br>"
-						+ '{ "data": {"action": "android.media.action.MEDIA_PLAY_FROM_SEARCH", "extras": {"query": "Paradise City"} } }<br><br>'
+						//+ '{"type": "url", "data": {"url": "spotify:track:3YBZIN3rekqsKxbJc9FZko:play"} }<br><br>'
+						+ 'TODO<br><br>'
 						,
 				parameters : [{
 					value : "device_fun",
@@ -276,6 +280,28 @@ function sepiaFW_build_teach(){
 			mesh_node_plugin : {
 				command : "mesh_node_plugin",
 				name : "Call SEPIA Mesh-Node plugin",
+				desc : "Use this command to call a <a href='https://github.com/SEPIA-Framework/sepia-mesh-nodes' target='_blank'>SEPIA Mesh-Node</a> plugin via the SEPIA server. "
+						+ "In contrast to the client-controls version this command is secured by your SEPIA account and evaluated by the server which leads to some extra features. "
+						+ "Note that the given URL referes to a path relative to the server as well and can be an IP inside your private home network where your SEPIA server is located. "
+						+ "You can refer to results of the Mesh-Node plugin call inside your success or fail answers. To do this use the variable &lt;result_KEY&gt; where 'KEY' refers to a "
+						+ "data field in your plugin result data, e.g. 'hello' in the 'HelloPlugin' example."
+						,
+				help : "<p><u><b>Example:</b></u></p>" 
+						+ "<i>When I say ...</i>" 
+						+ "<br>Test the hello plugin<br><br>"
+						+ "<i>the assistant does ...</i><br>"
+						+ "Call SEPIA Mesh-Node plugin<br><br>"
+						+ "<i>Mesh-Node URL (node_url):</i><br>"
+						+ "http://localhost:20780<br><br>"
+						+ "<i>Name of plugin (node_plugin_name):</i><br>"
+						+ "HelloPlugin<br><br>"
+						+ "<i>JSON string sent to plugin (node_plugin_data):</i><br>"
+						+ '{"name":"Boss"}<br><br>'
+						+ "<i>Success answer (reply_success):</i><br>"
+						+ "Ok I understood &lt;result_hello&gt;<br><br>"
+						+ "<i>Fail answer (reply_fail):</i><br>"
+						+ "Sorry I could not get a result<br><br>"
+					,
 				parameters : [{
 					value : "node_url",
 					name : "Mesh-Node URL"

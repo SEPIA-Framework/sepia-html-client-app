@@ -33,7 +33,10 @@ function sepiaFW_build_clexi(){
     function clexiOnAction(){
         if (SepiaFW.clexi.isSupported && SepiaFW.clexi.doConnect){
             setTimeout(function(){
-                SepiaFW.clexi.setup();
+                //check first if already running
+                if (!Clexi.isConnected()){
+                    Clexi.setup();
+                }
             }, 500);
         }
     }
@@ -65,6 +68,10 @@ function sepiaFW_build_clexi(){
     var rgyIndicators = [];
     Clexi.addStateIndicatorRGY = function(sepiaIndicator){
         rgyIndicators.push(sepiaIndicator);
+    }
+
+    Clexi.isConnected = function(){
+        return ClexiJS.isConnected();
     }
 
     Clexi.connect = function(){

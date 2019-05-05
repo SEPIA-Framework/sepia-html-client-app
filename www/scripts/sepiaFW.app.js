@@ -42,6 +42,7 @@ SepiaFW.buildSepiaFwPlugins = function(){
 	SepiaFW.embedded.nlu = sepiaFW_build_embedded_nlu();
 	SepiaFW.embedded.services = sepiaFW_build_embedded_services();
 	SepiaFW.clexi = sepiaFW_build_clexi();
+	SepiaFW.android = sepiaFW_build_android();
 }
 
 //DATA STORAGE
