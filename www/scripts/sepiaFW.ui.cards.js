@@ -1012,6 +1012,9 @@ function sepiaFW_build_ui_cards(){
 			}else if (data.type == "default"){
 				//overwrite with default link icon
 				leftElement = "<div class='linkCardLogo'>" + "<i class='material-icons md-mnu'>link</i>" + "</div>";	//language
+			}else if (data.type == "musicSearch"){
+				//we could check the brand here: data.brand, e.g. Spotify, YouTube, ...
+				linkCardEle.className += (" " + data.brand);
 			}
 		}
 		linkCardEle.innerHTML = leftElement
