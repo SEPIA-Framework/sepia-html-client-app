@@ -14,6 +14,18 @@ function sepiaFW_build_client_controls(){
         return req;
     }
 
+    //Wait for opportunity and send a message (e.g. "some text" or "<error_client_control_0a>") and optionally show info fallback.
+    function sendFollowUpMessage(msgOrAnswerTag, info){
+        if (SepiaFW.assistant){
+            SepiaFW.assistant.waitForOpportunityAndSay(msgOrAnswerTag, function(){
+                //Fallback after max-wait:
+                if (info){
+                    SepiaFW.ui.showInfo(info);
+                }
+            }, 2000, 30000);    //min-wait, max-wait
+        }
+    }
+
     //Open/close settings menu
     Controls.settings = function(controlData){
         if (controlData && controlData.action){
@@ -142,11 +154,24 @@ function sepiaFW_build_client_controls(){
             console.log('Genre: ' + controlData.genre);
             console.log('Playlist: ' + controlData.playlist);
             console.log('Service: ' + controlData.service);
+            console.log('URI: ' + controlData.uri);
             */
+
             //Android Intent music search
-            if (SepiaFW.ui.isAndroid){
+            if (SepiaFW.ui.isAndroid && (!controlData.service || controlData.service.indexOf("_link") == -1)){
                 var allowSpecificService = true;
                 SepiaFW.android.startMusicSearchActivity(controlData, allowSpecificService);
+
+            //Common URI fallback or fail
+            }else{
+                //For now we can only fallback to URI
+                if (controlData.uri){
+                    SepiaFW.ui.actions.openUrlAutoTarget(controlData.uri);
+                }else{
+                    //Feedback (to server and user)
+                    sendFollowUpMessage("<music_0b>", SepiaFW.local.g('cant_execute'));        //<error_client_control_0a>
+                    SepiaFW.debug.error("Client controls - 'searchForMusic' is missing URI data and has no other options to search for music!");
+                }
             }
         }else{
             SepiaFW.debug.error("Client controls - Missing 'controlData' for 'searchForMusic'!");
@@ -173,26 +198,30 @@ function sepiaFW_build_client_controls(){
             console.log('Request type: ' + req.type);
             console.log('Request data: ' + JSON.stringify(req.data));
             */
-
+            if (!req || !req.type || !req.data){
+                SepiaFW.debug.error("Missing 'platformFunction' type or data for: " + controlData.data);
+                return;
+            }
             //Android
-            if (controlData.platform == "android" && SepiaFW.ui.isAndroid){
-                if (req.type == "androidIntent" && req.data){       //Note: this type refers to 'startActivity'
+            if (SepiaFW.ui.isAndroid && controlData.platform == "android" && req.type.indexOf("android") == 0){
+                if (req.type == "androidActivity"){
                     SepiaFW.android.intentActivity(req.data);
-                
-                }else if (req.type == "url" && req.data){
-                    //TODO
-                    console.error("Missing 'platformFunction' support for: " + req.type);
+                }else if (req.type == "androidBroadcast"){
+                    SepiaFW.android.intentBroadcast(req.data);
+                }else{
+                    SepiaFW.debug.error("Missing 'platformFunction' support for type: " + req.type);
                 }
             //Common
-            }else if (req.type == "url" && req.data){
-                //TODO
-                console.error("Missing 'platformFunction' support for: " + req.type);
-
-            //TODO:
+            }else if (req.type == "url" || req.type == "browserIntent"){
+                if (req.data.url){
+                    SepiaFW.ui.actions.openUrlAutoTarget(req.data.url);
+                }else{
+                    SepiaFW.debug.error("Missing 'platformFunction' support for type: " + req.type);
+                }
+            //TODO: iosIntent, windowsIntent, browserIntent (more?)
             }else{
-                console.error("Missing 'platformFunction' support for: " + req.type);
+                SepiaFW.debug.error("Missing 'platformFunction' support or data for: " + req.type);
             }
-            //TODO: iosIntent, windowsIntent, browserIntent, url
         }
     }
 
@@ -222,12 +251,7 @@ function sepiaFW_build_client_controls(){
             }
 
             //Feedback (to server and user ... server just loads a chat message in this case, but one could send real data back)
-            if (SepiaFW.assistant){
-                SepiaFW.assistant.waitForOpportunityAndSay("<error_client_control_0a>", function(){
-                    //Fallback after max-wait:
-                    SepiaFW.ui.showInfo(SepiaFW.local.g('mesh_node_fail'));
-                }, 2000, 30000);    //min-wait, max-wait
-            }
+            sendFollowUpMessage("<error_client_control_0a>", SepiaFW.local.g('mesh_node_fail'));
         });
         return true;
     }

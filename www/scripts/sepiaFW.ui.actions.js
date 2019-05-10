@@ -173,6 +173,12 @@ function sepiaFW_build_ui_actions(){
 		}else{
 			var newWindow = window.open(url, '_blank');
 			newWindow.opener = null;
+			//some special links that should not leave an empty browser tab
+			if (url.indexOf('spotify:') == 0){
+				setTimeout(function(){
+					newWindow.close();
+				}, 500);
+			}
 		}
 	}
 	

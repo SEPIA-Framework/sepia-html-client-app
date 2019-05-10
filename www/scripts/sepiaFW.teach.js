@@ -244,25 +244,22 @@ function sepiaFW_build_teach(){
 						+ "<i>the assistant does ...</i><br>"
 						+ "Execute platform specific actions<br><br>"
 						+ "<i>Actions for specific device IDs (device_fun):</i><br>"
-						+ '{ "a1": {"type": "androidIntent", "data": {"action": "android.media.action.MEDIA_PLAY_FROM_SEARCH", "extras": {"query": "Paradise City"} }} }<br><br>'
-						//TODO: add more
+						+ '{ "a1": {"type": "androidActivity", "data": {"action": "android.media.action.MEDIA_PLAY_FROM_SEARCH", "extras": {"query": "Paradise City"} }} }<br><br>'
+						//add more?
 					+ "<p><u><b>Example 2:</b></u></p>" 
 						+ "<i>When I say ...</i>" 
 						+ "<br>Start Paradise City<br><br>"
 						+ "<i>the assistant does ...</i><br>"
 						+ "Execute platform specific actions<br><br>"
 						+ "<i>Android specific Intent or URL (android_fun):</i><br>"
-						//TODO: fix
-						+ 'TODO<br><br>'
-						//+ '{"type": "androidIntent", "data": {"action": "android.media.action.MEDIA_PLAY_FROM_SEARCH", "extras": {"query": "Paradise City"} } }<br><br>'
+						+ '{"type": "androidActivity", "data": {"action": "android.media.action.MEDIA_PLAY_FROM_SEARCH", "extras": {"query": "Paradise City"} } }<br><br>'
 						+ "<i>Browser specific function or URL (browser_fun):</i><br>"
-						//+ '{"type": "url", "data": {"url": "spotify:track:3YBZIN3rekqsKxbJc9FZko:play"} }<br><br>'
-						+ 'TODO<br><br>'
+						+ '{"type": "url", "data": {"url": "spotify:track:3YBZIN3rekqsKxbJc9FZko:play"} }<br><br>'
 						,
 				parameters : [{
 					value : "device_fun",
-					name : "Actions for specific device IDs: "		//e.g.: { "a1": {"type": "androidIntent", "data": intentData} }
-					//function types: androidIntent, iosIntent, windowsIntent, browserIntent, url
+					name : "Actions for specific device IDs: "		//e.g.: { "a1": {"type": "androidActivity", "data": intentData} }
+					//function types: androidActivity, iosIntent, windowsIntent, browserIntent, url
 				},{
 					value : "android_fun",
 					name : "Android specific Intent or URL: "

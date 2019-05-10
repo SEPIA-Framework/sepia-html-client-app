@@ -209,6 +209,14 @@ function sepiaFW_build_config(){
 		if (SepiaFW.clexi){
 			SepiaFW.clexi.initialize();
 		}
+
+		//Android music app
+		if (SepiaFW.android){
+			var defaultMusicApp = SepiaFW.data.get('androidDefaultMusicApp');
+			if (defaultMusicApp){
+				SepiaFW.android.setDefaultMusicApp(defaultMusicApp);
+			}
+		}
 	}
 	
 	return Config;

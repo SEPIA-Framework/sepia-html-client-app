@@ -509,15 +509,17 @@ function sepiaFW_build_ui_build(){
 					+ "<li id='sepiaFW-menu-toggle-proactiveNotes-li' title='The assistant will remind you in a funny way to make a coffee break etc. :-)'><span>Well-being reminders: </span></li>"
 					+ "<li id='sepiaFW-menu-clear-app-cache-li'><span>Clear app data: </span></li>"
 					+ "<li id='sepiaFW-menu-toggle-channelMessages-li' title='Show status messages in chat like someone joined the channel?'><span>Channel status messages: </span></li>"
-					//NOTE: we show this only for Android:
-					+ "<li id='sepiaFW-menu-toggle-runBackgroundConnection-li' title='Try to keep connected in background?'><span>Allow background activity: </span></li>"
 					//NOTE: we show this only if battery status API supported:
 					+ "<li id='sepiaFW-menu-toggle-trackPowerStatus-li' title='Observe power plug and battery status?'><span>Track power status: </span></li>"
+					//---
 					+ "<li id='sepiaFW-menu-input-controls-li' title='Settings for remote input devices, e.g. gamepads'><span>Remote controls: </span></li>"
 					+ "<li id='sepiaFW-menu-assistant-host-li' title='Assistant hostname, e.g.: my.example.org/sepia, localhost or [IP]'>"
 						+ "<span>Hostname: </span>"
 						+ "<input id='sepiaFW-menu-assistant-host' type='url' placeholder='my.example.org/sepia' spellcheck='false'>"
 					+ "</li>"
+					//Android-only background connect:
+					+ "<li class='sepiaFW-android-settings' id='sepiaFW-menu-toggle-runBackgroundConnection-li' title='Try to keep connected in background?'><span>Allow background activity: </span></li>"
+					//---
 					+ "<li id='sepiaFW-menu-toggle-smartMic-li' title='Automatically activate mic input after voice based question?'><span>Smart microphone: </span></li>"
 					+ "<li id='sepiaFW-menu-toggle-wake-word-li' title='Use client wake-word detection?'><span>Hey SEPIA: </span></li>"
 					+ "<li id='sepiaFW-menu-select-stt-li' title='Speech recognition engine.'><span>ASR engine: </span></li>"
@@ -534,6 +536,9 @@ function sepiaFW_build_ui_build(){
 						+ "<span>" + "CLEXI ID" + ": </span>"
 						+ "<input id='sepiaFW-menu-clexi-server-id' type='url' spellcheck='false'>"
 					+ "</li>"
+					//Android-only music-app select:
+					+ "<li class='sepiaFW-android-settings' id='sepiaFW-menu-select-music-app-li' title='Select default music app for search intents.'><span>Default music app: </span></li>"
+					//---
 					+ "<li id='sepiaFW-menu-administration-li'>"
 						+ "<button id='sepiaFW-menu-ui-dataprivacy-btn'>" + SepiaFW.local.g('data_privacy') + "</button>"
 						+ "<button id='sepiaFW-menu-ui-license-btn'>" + SepiaFW.local.g('license') + "</button>"
@@ -849,10 +854,12 @@ function sepiaFW_build_ui_build(){
 					SepiaFW.debug.info("Channel status messages are deactivated");
 				}, SepiaFW.ui.showChannelStatusMessages)
 			);
-			//allow background activity
+			//Android only stuff
 			if (!SepiaFW.ui.isAndroid){
 				$('#sepiaFW-menu-toggle-runBackgroundConnection-li').remove();
+				$('#sepiaFW-menu-select-music-app-li').remove();
 			}else{
+				//allow background activity
 				document.getElementById('sepiaFW-menu-toggle-runBackgroundConnection-li').appendChild(Build.toggleButton('sepiaFW-menu-toggle-runBackgroundConnection', 
 					function(){
 						SepiaFW.client.allowBackgroundConnection = true;
@@ -864,6 +871,8 @@ function sepiaFW_build_ui_build(){
 						SepiaFW.debug.info("Background connection is NOT allowed");
 					}, SepiaFW.client.allowBackgroundConnection)
 				);
+				//music app selector
+				document.getElementById('sepiaFW-menu-select-music-app-li').appendChild(SepiaFW.android.getMusicAppSelector());
 			}
 			//track power status for special events - e.g. plug-in -> switch to AO-mode
 			if (!SepiaFW.alwaysOn || !SepiaFW.alwaysOn.isBatteryStatusSupported()){

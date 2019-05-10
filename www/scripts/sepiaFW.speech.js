@@ -21,6 +21,8 @@ function sepiaFW_build_speech(){
 	Speech.testAsrSupport();
 
 	//ASR - engine - currently: native (webSpeechKit or Cordova), socket (SEPIA server or e.g. Microsoft)
+	var engines = [];
+	var engineNames = {};
 	Speech.asrEngine = SepiaFW.data.get('speech-asr-engine') || '';
 	Speech.getAsrEngine = function(){
 		return Speech.asrEngine;

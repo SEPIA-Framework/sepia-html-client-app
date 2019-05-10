@@ -2,6 +2,63 @@
 
 function sepiaFW_build_android(){
     var Android = {};
+
+    //Collection of apps and their packages
+    Android.musicApps = {
+        "system": {name: "System", package: ""},
+        "select": {name: "Select", package: ""},
+        "spotify": {name: "Spotify", package: "com.spotify.music"},
+        "youtube": {name: "YouTube", package: "com.google.android.youtube"},
+        "apple_music": {name: "Apple Music", package: "com.apple.android.music"},
+        "amazon_music": {name: "Amazon Music", package: "com.amazon.mp3"},
+        "soundcloud": {name: "SoundCloud", package: "com.soundcloud.android"},
+        "deezer": {name: "Deezer", package: "deezer.android.app"},
+        "vlc_media_player": {name: "VLC", package: "org.videolan.vlc"}
+    }
+    var defaultMusicApp = "System";
+
+    Android.setDefaultMusicApp = function(appTag){
+        if (Android.musicApps[appTag]){
+            defaultMusicApp = appTag;
+            SepiaFW.data.set('androidDefaultMusicApp', appTag);
+            SepiaFW.debug.info("Android default music app is set to " + appTag);
+        }else{
+            SepiaFW.debug.error("Android app-name not found in list: " + appTag);
+        }
+    }
+    Android.getDefaultMusicApp = function(){
+        return defaultMusicApp;
+    }
+    Android.getDefaultMusicAppPackage = function(){
+        var app = Android.musicApps[defaultMusicApp];
+        if (app){
+            return app.package;
+        }else{
+            return "";
+        }
+    }
+
+    //Get music app selector
+    Android.getMusicAppSelector = function(){
+        var selector = document.getElementById('sepiaFW-menu-select-music-app') || document.createElement('select');
+        selector.id = 'sepiaFW-menu-select-music-app';
+        $(selector).find('option').remove();
+        //fill
+        Object.keys(Android.musicApps).forEach(function(appTag){
+            var option = document.createElement('option');
+            option.value = appTag;
+            option.innerHTML = Android.musicApps[appTag].name;
+            selector.appendChild(option);
+            if (appTag == defaultMusicApp){
+                option.selected = true;
+            }
+        });
+        //add button listener
+        $(selector).off().on('change', function() {
+            Android.setDefaultMusicApp($('#sepiaFW-menu-select-music-app').val());
+        });
+        return selector;
+    }
     
     //Broadcast a MEDIA_BUTTON event
     Android.broadcastMediaButtonIntent = function(action, code){
@@ -103,25 +160,23 @@ function sepiaFW_build_android(){
 
             //Add a specific service via package?
             if (allowSpecificService && controlData.service){
-                if (controlData.service == "spotify"){
-                    data.package = "com.spotify.music";
-                }else if (controlData.service == "youtube"){
-                    data.package = "com.google.android.youtube";
-                }else if (controlData.service == "apple_music"){
-                    data.package = "com.apple.android.music";
-                }else if (controlData.service == "amazon_music"){
-                    data.package = "com.amazon.mp3";
-                }else if (controlData.service == "soundcloud"){
-                    data.package = "com.soundcloud.android";
-                }else if (controlData.service == "deezer"){
-                    data.package = "deezer.android.app";
-                }else if (controlData.service == "vlc_media_player"){
-                    data.package = "org.videolan.vlc";
+                var app = Android.musicApps[controlData.service];
+                if (app){
+                    data.package = app.package;
+                }
+            }else{
+                var defaultApp = Android.getDefaultMusicApp();
+                if (defaultApp && defaultApp.name == "select"){
+                    data.chooser = "Select App";
+                }else if (defaultApp.package){
+                    data.package = defaultApp.package;
                 }
             }
 
             //Call activity
             Android.intentActivity(data);
+
+            //TODO: we don't know if the action succeeds :-( so we cannot send a message if it fails
 
         }else{
             SepiaFW.debug.error("Android music search - Missing support or data!");
