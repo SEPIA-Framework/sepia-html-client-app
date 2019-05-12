@@ -69,6 +69,7 @@ function sepiaFW_build_strings(){
 	StringsDE.exportToCalendar = '<i class="material-icons md-inherit">share</i>&nbsp;Kalender';
 	StringsDE.exportToAlarms = '<i class="material-icons md-inherit">share</i>&nbsp;Alarm</i>';
 	StringsDE.exportToUrl = '<i class="material-icons md-inherit">share</i>&nbsp;Link</i>';
+	StringsDE.copyUrl = '<i class="material-icons md-inherit">link</i>&nbsp;Kopieren</i>';
 	StringsDE.alarm = 'Wecker';
 	StringsDE.alarmClock = 'Wecker'; 		//name is title of UserDataList
 	StringsDE.timer = 'Timer';				//name is title of UserDataList
@@ -182,6 +183,7 @@ function sepiaFW_build_strings(){
 	StringsEN.exportToCalendar = '<i class="material-icons md-inherit">share</i>&nbsp;Calendar';
 	StringsEN.exportToAlarms = '<i class="material-icons md-inherit">share</i>&nbsp;Alarm</i>';
 	StringsEN.exportToUrl = '<i class="material-icons md-inherit">share</i>&nbsp;Link</i>';
+	StringsEN.copyUrl = '<i class="material-icons md-inherit">link</i>&nbsp;Copy</i>';
 	StringsEN.alarm = 'Alarm';
 	StringsEN.alarmClock = 'Alarm';		//name is title of UserDataList
 	StringsEN.timer = 'Timer';			//name is title of UserDataList

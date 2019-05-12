@@ -662,7 +662,12 @@ function sepiaFW_build_webSocket_client(){
 		}
 		//console.log(shareData);
 		if (shareData.type){
-			SepiaFW.ui.askForPermissionToExecute("Open shared data of type: " + shareData.type.toUpperCase(), function(){
+			var ask = "Open shared data of type: <b>" + shareData.type.toUpperCase() + "</b>";
+			if (shareData.type == SepiaFW.client.SHARE_TYPE_LINK && shareData.data){
+				ask += "<br><br><b>URL:</b> ";
+				ask += (shareData.data.url.length > 30)? (shareData.data.url.substring(0,29) + "...") : shareData.data.url;
+			}
+			SepiaFW.ui.askForPermissionToExecute(ask, function(){
 				//ALARM
 				if (shareData.type == SepiaFW.client.SHARE_TYPE_ALARM && shareData.data && shareData.data.beginTime){
 					var options = {};   //things like skipTTS etc. (see sendCommand function)

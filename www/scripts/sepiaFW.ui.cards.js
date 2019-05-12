@@ -1083,11 +1083,16 @@ function sepiaFW_build_ui_cards(){
 			buttonName: SepiaFW.local.g('exportToUrl'),
 			buttonTitle: "Copy SEPIA share link to clipboard."	//TODO: add local translation
 		}
+		var copyUrlButton = {
+			buttonName: SepiaFW.local.g('copyUrl'),
+			url: linkElementInfo.url
+		}
 		//context menu
 		var contextMenu = makeBodyElementContextMenu(flexCardId, cardBody, cardBodyItem, cardBodyItem.id, {
 			toggleButtonSelector: ".linkCardLogo",
 			newBodyClass: newBodyClass,
-			shareButton: shareButton
+			shareButton: shareButton,
+			copyUrlButton: copyUrlButton
 		});
 	}
 	
@@ -1423,6 +1428,31 @@ function sepiaFW_build_ui_cards(){
 				});
 			}, true);
 			cmList.appendChild(shareBtn);
+		}
+		//Copy link
+		if (menuConfig.copyUrlButton){
+			//create button
+			var copyUrlBtn = document.createElement('LI');
+			copyUrlBtn.className = "sepiaFW-cards-button sepiaFW-cards-list-contextMenu-copyUrlBtn";
+			copyUrlBtn.innerHTML = menuConfig.copyUrlButton.buttonName;
+			SepiaFW.ui.onclick(copyUrlBtn, function(){
+				//copy link
+				SepiaFW.ui.showPopup("Click OK to copy link to clipboard", {
+					inputLabelOne: "Link",
+					inputOneValue: menuConfig.copyUrlButton.url,
+					buttonOneName: "OK",
+					buttonOneAction: function(btn, linkValue, iv2, inputEle1, ie2){
+						if (linkValue && inputEle1){
+							//select text and copy
+							inputEle1.select();
+							document.execCommand("copy");
+						}
+					},
+					buttonTwoName: "ABORT",
+					buttonTwoAction: function(){}
+				});
+			}, true);
+			cmList.appendChild(copyUrlBtn);
 		}
 
 		//hide
