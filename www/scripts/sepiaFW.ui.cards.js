@@ -1320,7 +1320,21 @@ function sepiaFW_build_ui_cards(){
 		$(cardBodyItem).find(menuConfig.toggleButtonSelector).each(function(){
 			var that = this;
 			SepiaFW.ui.onclick(that, function(){
-				$(contextMenu).slideToggle(300);
+				var $contextMenu = $(contextMenu);
+				var animTime = 300;
+				$contextMenu.slideToggle(animTime);
+				//avoid that the menu is hidden behind control when at bottom of results view
+				if ($contextMenu.is(":last-child")){
+					var $container = $contextMenu.closest('.sepiaFW-cards-flexSize-container');
+					if ($container.is(":last-child")){
+						if ($container.parent().hasClass('.sepiaFW-results-container') || $container.parent().is(":last-child")){
+							//scroll down another 60px
+							var $scrollContainer = $container.closest('.sepiaFW-results-container');
+							var y = $scrollContainer.scrollTop(); 
+							$scrollContainer.animate({ scrollTop: y + 60 }, animTime);
+						}
+					}
+				}
 			});
 		});
 		

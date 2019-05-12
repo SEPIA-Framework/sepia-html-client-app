@@ -90,10 +90,10 @@ function sepiaFW_build_account(){
 		*/
 	}
 	function broadcastLogoutSuccess(){
-		if (SepiaFW.webSocket) SepiaFW.webSocket.client.closeConnection();
+		SepiaFW.client.closeClient();
 	}
 	function broadcastLogoutFail(){
-		if (SepiaFW.webSocket) SepiaFW.webSocket.client.closeConnection();
+		SepiaFW.client.closeClient();
 	}
 	
 	//----------------------

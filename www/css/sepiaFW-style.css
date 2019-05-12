@@ -200,7 +200,7 @@ body {
 	height: 24px;
 	margin-left: -12px;
 	margin-top: -12px;
-	border: 0;
+	border: 1px solid rgba(255, 255, 255, 0.25);
 	border-radius: 100px;
 	background: rgba(0, 0, 0, 0.25);
 	z-index: 99;
@@ -285,15 +285,15 @@ body {
 
 #sepiaFW-loader {
 	display: none;
-	height:15px;
-	width:15px;
+	height:14px;
+	width:14px;
 	border-radius:100%;
-	/*border: 1px solid rgba(255, 255, 255, 0.33);*/
+	border: 1px solid rgba(255, 255, 255, 0.33);
 	background:rgba(0, 0, 0, 0.33);
 	position:absolute;
 	/*margin-top: 50%;*/
-	left:50%;
-	transform: translate(-50%, -50%);
+	left: calc(50% - 7px);
+	/*transform: translate(-50%, -50%);*/
 	animation: sepiaFW-loader-ani-center 2s linear infinite;
 }
 #sepiaFW-loader:before, #sepiaFW-loader:after {
@@ -306,12 +306,12 @@ body {
 }
 #sepiaFW-loader:before{
 	left:-20px;
-	/*border: 1px solid rgba(255, 255, 255, 0.22);*/
+	border: 1px solid rgba(255, 255, 255, 0.22);
 	background:rgba(0, 0, 0, 0.22);
 }
 #sepiaFW-loader:after{
 	left:20px;
-	/*border: 1px solid rgba(255, 255, 255, 0.18);*/
+	border: 1px solid rgba(255, 255, 255, 0.18);
 	background:rgba(0, 0, 0, 0.11);
 }
 @keyframes sepiaFW-loader-ani-center {
@@ -1250,6 +1250,12 @@ body {
 	position: relative;
 	opacity: 0.66;
 }
+#sepiaFW-nav-label-online-status.offline {
+	opacity: 0.33;
+}
+#sepiaFW-nav-label-online-status.connecting {
+	opacity: 0.50;
+}
 #sepiaFW-nav-label-note{
 	display: flex;
     align-items: center;
@@ -1473,16 +1479,16 @@ body {
 }
 #sepiaFW-chat-controls-speech-box {
     display: flex;
-	position: absolute;
-	background: rgba(189, 189, 189, 0.66);
-	border-radius: 3px;
-	bottom: 57px;
-	z-index: 6;
-    left: 0;
-	width: calc(100% - 4px);
-	min-height: 35px;
-	margin: 2px;
-	padding: 2px;
+    position: absolute;
+    background: rgba(189, 189, 189, 0.66);
+    border-radius: 3px;
+    bottom: 58px;
+    z-index: 6;
+    left: 4px;
+    width: calc(100% - 12px);
+    min-height: 42px;
+    margin: 2px;
+    padding: 2px;
 }
 #sepiaFW-chat-controls-speech-box > div {
 	background: #2f3035;

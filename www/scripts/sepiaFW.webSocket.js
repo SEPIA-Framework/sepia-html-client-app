@@ -18,6 +18,7 @@ function sepiaFW_build_client_interface(){
 	ClientInterface.setDemoMode = SepiaFW.webSocket.client.setDemoMode;
 	ClientInterface.isDemoMode = SepiaFW.webSocket.client.isDemoMode;
 	
+	ClientInterface.closeClient = SepiaFW.webSocket.client.closeConnection;
 	ClientInterface.pauseClient = SepiaFW.webSocket.client.closeConnection;
 	ClientInterface.resumeClient = SepiaFW.webSocket.client.instaReconnect;
 	
@@ -127,13 +128,16 @@ function sepiaFW_build_client_interface(){
 	ClientInterface.broadcastConnectionStatus = function(status){
 		switch(status) {
 			case ClientInterface.STATUS_CONNECTING:
-				$('#sepiaFW-nav-label-online-status').html('Connecting...');
+				$('#sepiaFW-nav-label-online-status').removeClass("offline online").addClass("connecting").html('Connecting...');
+				$('#sepiaFW-secondary-online-status').html('Connecting...');
 				break;
 			case ClientInterface.STATUS_OPENED:
-				$('#sepiaFW-nav-label-online-status').html('Online');
+				$('#sepiaFW-nav-label-online-status').removeClass("offline connecting").addClass("online").html('Online');
+				$('#sepiaFW-secondary-online-status').html('Online');
 				break;
 			case ClientInterface.STATUS_CLOSED:
-				$('#sepiaFW-nav-label-online-status').html('Offline');
+				$('#sepiaFW-nav-label-online-status').removeClass("connecting online").addClass("offline").html('Offline');
+				$('#sepiaFW-secondary-online-status').html('Offline');
 				break;
 			case ClientInterface.STATUS_ERROR:
 				//ignore for now
@@ -1143,6 +1147,7 @@ function sepiaFW_build_webSocket_client(){
 	Client.connect = function(uri, onConnectedCallback){
 		tryReconnect = true;
 		clearTimeout(reconTimer);
+		clearTimeout(instaReconTimer);
 		
 		if (isConnecting){
 			SepiaFW.debug.log("WebSocket: already connecting!");
@@ -1173,6 +1178,8 @@ function sepiaFW_build_webSocket_client(){
 
 		webSocket.onopen = function () { 
 			SepiaFW.debug.log("WebSocket: connection open");
+			clearTimeout(reconTimer);
+			clearTimeout(instaReconTimer);
 			connectionIsOpen = true;
 			connectAttempts = 0;
 			isConnecting = false;
@@ -1197,6 +1204,9 @@ function sepiaFW_build_webSocket_client(){
 	Client.closeConnection = function(){
 		//TODO: consider tryReconnect here. When force close set it in the calling function.
 		tryReconnect = false;
+		clearTimeout(reconTimer);
+		clearTimeout(instaReconTimer);
+		connectAttempts = 0;
 		if (webSocket){
 			webSocket.close();
 		}
@@ -1206,6 +1216,7 @@ function sepiaFW_build_webSocket_client(){
 	var reconTimer;
 	Client.handleCloseEvent = function(){
 		clearTimeout(reconTimer);
+		clearTimeout(instaReconTimer);
 		var nextWaitDuration = Math.min(reconnectMaxWait, (connectAttempts * connectAttempts * nextReconnect));
 		if (tryReconnect && !neverReconnect && !Client.isDemoMode()){
 			reconTimer = setTimeout(function(){ 
@@ -1214,8 +1225,10 @@ function sepiaFW_build_webSocket_client(){
 		}
 	}
 	//instant reconnect
+	var instaReconTimer;
 	Client.instaReconnect = function(){
 		clearTimeout(reconTimer);
+		clearTimeout(instaReconTimer);
 		connectAttempts = 0;
 		if (!neverReconnect && !connectionIsOpen && !Client.isDemoMode()){
 			Client.connect(SepiaFW.config.webSocketURI);
@@ -1338,6 +1351,7 @@ function sepiaFW_build_webSocket_client(){
 
 	//Send a message if it's not empty
 	var sendFailedInRow = 0;
+	var messageQueue = {};
 	Client.sendMessage = function(message, retryNumber){
 		if (!retryNumber) retryNumber = 0;
 		if (message){
@@ -1364,7 +1378,32 @@ function sepiaFW_build_webSocket_client(){
 			}
 			webSocket.send(JSON.stringify(message));
 			//console.log('MSG: ' + JSON.stringify(message)); 		//DEBUG
+			observeMessage(message);
 			sendFailedInRow = 0;
+		}
+	}
+	function observeMessage(message){
+		if (message.msgId){
+			var id = message.msgId;
+			//var isMessageToAssistant = message.receiver && message.receiver == SepiaFW.assistant.id;
+			var isChat = message.data && (message.data.dataType == "openText" || message.data.dataType == "directCmd");
+			if (isChat){
+				messageQueue[id] = message;
+				//console.log(JSON.stringify(message));
+				setTimeout(function(){
+					//Message problems?
+					if (messageQueue[id]){
+						SepiaFW.animate.assistant.loading();
+						setTimeout(function(){
+							//Message lost?
+							if (messageQueue[id]){
+								//TODO: problems!
+								SepiaFW.debug.error("Message with ID '" + id + "' was not delivered (yet) after 7s!");
+							}
+						}, 3500);
+					}
+				}, 3500);
+			}
 		}
 	}
 	function refreshDataAndRetrySendMessage(message, nextRetryNumber){
@@ -1379,21 +1418,27 @@ function sepiaFW_build_webSocket_client(){
 	}
 	function handleSendMessageFail(message, retryNumber, note, showReloadOption, showLoginOption){
 		sendFailedInRow++;
-		if (!isConnecting && !connectionIsOpen){
-			//try to reconnect
-			setTimeout(function(){
-				Client.instaReconnect();
-			}, 30000);
-		}
 		if (retryNumber <= 1){
 			setTimeout(function(){
 				refreshDataAndRetrySendMessage(message, ++retryNumber);
 			}, 1500);
 		}else{
+			note += ("<br><br>Status: <span id='sepiaFW-secondary-online-status'></span>");
 			var config = {
 				buttonOneName : SepiaFW.local.g('tryAgain'),
 				buttonOneAction : function(){
-					refreshDataAndRetrySendMessage(message, 0);
+					if (!isConnecting && !connectionIsOpen){
+						//try to reconnect
+						clearTimeout(instaReconTimer);
+						instaReconTimer = setTimeout(function(){
+							Client.instaReconnect();
+							setTimeout(function(){
+								refreshDataAndRetrySendMessage(message, 0);
+							}, 1500);
+						}, 1000);
+					}else{
+						refreshDataAndRetrySendMessage(message, 0);
+					}
 				},
 				buttonFourName : SepiaFW.local.g('forget'),
 				buttonFourAction : function(){}
@@ -1524,6 +1569,9 @@ function sepiaFW_build_webSocket_client(){
 		
 		//console.log(msg);
 		//console.log(JSON.stringify(message));
+		if (message.msgId){
+			delete messageQueue[message.msgId];
+		}
 		
 		//userList submitted?
 		if (message.userList){

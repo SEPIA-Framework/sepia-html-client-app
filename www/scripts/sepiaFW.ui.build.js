@@ -228,6 +228,11 @@ function sepiaFW_build_ui_build(){
 			$(sepiaLabel).off();
 			SepiaFW.ui.longPressShortPressDoubleTap(sepiaLabel, function(){
 				//long-press
+				//e.g.: force reconnect
+				SepiaFW.client.closeClient();
+				setTimeout(function(){
+					SepiaFW.client.resumeClient();
+				}, 3000);
 			},'',function(){
 				//short press
 			},function(){
