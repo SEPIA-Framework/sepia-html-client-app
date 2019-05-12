@@ -519,7 +519,7 @@ function sepiaFW_build_account(){
 		//data privacy policy
 		var policyBtn = $("#sepiaFW-login-policy-btn").off().on("click", function(event){
 			event.preventDefault();
-			var policyUrl = SepiaFW.config.privacyPolicyUrl + "?host=" + encodeURI(SepiaFW.config.host);
+			var policyUrl = SepiaFW.config.privacyPolicyUrl + "?host=" + encodeURIComponent(SepiaFW.config.host);
 			SepiaFW.ui.actions.openUrlAutoTarget(policyUrl);
 		});
 		

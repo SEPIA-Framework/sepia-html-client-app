@@ -1007,7 +1007,7 @@ function sepiaFW_build_ui_build(){
 			document.getElementById("sepiaFW-menu-ui-dataprivacy-btn").addEventListener("click", function(){
 				SepiaFW.ui.closeAllMenus();
 				//SepiaFW.frames.open({ pageUrl: "data-policy.html" });
-				SepiaFW.ui.actions.openUrlAutoTarget(SepiaFW.config.privacyPolicyUrl + "?host=" + encodeURI(SepiaFW.config.host));
+				SepiaFW.ui.actions.openUrlAutoTarget(SepiaFW.config.privacyPolicyUrl + "?host=" + encodeURIComponent(SepiaFW.config.host));
 			});
 			//License
 			document.getElementById("sepiaFW-menu-ui-license-btn").addEventListener("click", function(){

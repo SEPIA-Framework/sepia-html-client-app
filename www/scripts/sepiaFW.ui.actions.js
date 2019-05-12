@@ -176,7 +176,7 @@ function sepiaFW_build_ui_actions(){
 			//some special links that should not leave an empty browser tab
 			if (url.indexOf('spotify:') == 0){
 				setTimeout(function(){
-					newWindow.close();
+					newWindow.close(); 		//NOTE: problem here is that app-request dissapears before user interaction if not already allowed by user
 				}, 500);
 			}
 		}

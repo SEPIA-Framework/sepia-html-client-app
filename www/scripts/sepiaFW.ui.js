@@ -1215,6 +1215,20 @@ function sepiaFW_build_ui(){
 		}
 	}
 
+	//Trigger a mouse event on a specific element or the element at x,y coordinates
+	UI.triggerMouseClick = function(el, x, y){
+		var ev = new MouseEvent('click', {
+			'view': window,
+			'bubbles': true,
+			'cancelable': true,
+			'screenX': x,
+			'screenY': y
+		});
+		if (!el) el = document.elementFromPoint(x, y);
+		console.log(el);
+		el.dispatchEvent(ev);
+	}
+
 	//make auto-resize swipe bar
 	UI.makeAutoResizeSwipeArea = function(selector, onClickCallback){
 		var $swipeArea = $(selector);

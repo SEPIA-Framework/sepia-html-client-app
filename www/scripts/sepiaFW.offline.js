@@ -4,6 +4,14 @@ function sepiaFW_build_offline(){
 		
 	//----- Offline answers and actions -----
 	
+	//Get action to open an URL
+	Offline.getUrlOpenAction = function(_url){
+		var action = {
+			type: "open_in_app_browser",
+			url: _url
+		}
+		return action;
+	}
 	//Get an action for an URL button
 	Offline.getUrlButtonAction = function(_url, _title){
 		var action = {
@@ -64,6 +72,31 @@ function sepiaFW_build_offline(){
 		return action;
 	}
 
+	//----- Cards builder -----
+
+	Offline.getLinkCard = function(url, title, description, imageUrl, imageBackground, data){
+		if (!data) data = {};
+		data.title = title || "Link Card";
+		data.desc = description || "Click to open";
+		if (!url) url = "https://sepia-framework.github.io/app/search.html";
+		/* other data content e.g.:
+		"type": "musicSearch",
+		"brand": "Spotify"
+		*/
+		var cardInfoItem = {
+			"cardType": "single",
+			"N": 1,
+			"info": [{
+				"image": imageUrl,
+				"imageBackground": imageBackground,
+				"data": data,
+				"type": "link",
+				"url": url
+			}]
+		};
+		return cardInfoItem;		//NOTE: it is ONE ITEM of the cardInfo-array! To build use e.g. [getLinkCard(...)]
+	}
+
 	//------------------ custom buttons -------------------
 
 	//Create a custom button object
@@ -94,7 +127,7 @@ function sepiaFW_build_offline(){
 			//...skip user output
 		}else{
 			//text command (or other?)
-			SepiaFW.ui.showCustomChatMessage(message.text, dataIn); 	//show in chat (usually this comes from server too as ping-pong (channel broadcast))
+			SepiaFW.ui.showCustomChatMessage(message.text, dataIn); 	//show input in chat (usually this comes from server too as ping-pong (channel broadcast))
 		}
 		if (message.text){
 			//try to get some result from offline interpreter
@@ -116,7 +149,7 @@ function sepiaFW_build_offline(){
 			//console.log(serviceResult); 						//DEBUG
 		}
 		var senderUiIdOrName = undefined;	//default
-		if (!serviceResult || !serviceResult.result == "success"){
+		if (!serviceResult || serviceResult.result != "success"){
 			//just repeat input for demo-mode
 			var command = "chat";
 			var answerText = message.text;
@@ -141,6 +174,7 @@ function sepiaFW_build_offline(){
 
 	//Send a message to regular message handler (where messages from the server usually end up)
 	Offline.sendToClienMessagetHandler = function(message){
+		//console.log("msg: " + JSON.stringify(message)); 		//DEBUG
 		SepiaFW.client.handleServerMessage(message);
 	}
 

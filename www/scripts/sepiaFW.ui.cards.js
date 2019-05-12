@@ -17,8 +17,11 @@ function sepiaFW_build_ui_cards(){
 	var LINK = "link";
 	
 	//states
-	Cards.currentCardId = 0;		//increasing id for every card element
+	Cards.currentCardId = 0;	//increasing id for every card element
 	var topIndexZ = 1;			//to get an active element to the top
+
+	//some specials
+	Cards.allowSpotifyWebPlayer = false;	//deactivated by default because it only works in desktop and gives no control over start/stop/volume
 	
 	//get a full card result as DOM element
 	Cards.get = function(assistAnswer, sender){
@@ -984,6 +987,8 @@ function sepiaFW_build_ui_cards(){
 	}
 	
 	//LINK
+
+	var currentLinkItemId = 0;
 	
 	function buildLinkElement(cardElementInfo){
 		var newId = ("sepiaFW-card-id-" + Cards.currentCardId++);
@@ -1000,6 +1005,7 @@ function sepiaFW_build_ui_cards(){
 		var linkLogoBack = cardElementInfo.imageBackground || '';
 		var linkCardEle = document.createElement('DIV');
 		linkCardEle.className = 'linkCard cardBodyItem';
+		linkCardEle.id = 'link-' + currentLinkItemId++;		//links have no database event ID (compare: time-events) so we just create one here to connect item and context-menu
 		var leftElement = "<div class='linkCardLogo' " + ((linkLogoBack)? ("style='background:" + linkLogoBack + ";'") : ("")) + "><img src='" + linkLogo + "' alt='logo'></div>";
 		if (data.type){
 			linkCardEle.className += (" " + data.type);
@@ -1016,12 +1022,29 @@ function sepiaFW_build_ui_cards(){
 				//we could check the brand here: data.brand, e.g. Spotify, YouTube, ...
 				linkCardEle.className += (" " + data.brand);
 			}
+		}else if (!linkLogo){
+			//overwrite with default link icon
+			leftElement = "<div class='linkCardLogo'>" + "<i class='material-icons md-mnu'>link</i>" + "</div>";	//language
 		}
+		var description = data.desc;
+		if (description && description.length > 120) description = description.substring(0, 119) + "...";
+
 		linkCardEle.innerHTML = leftElement
-								+ "<div class='linkCardCenter'>" + (data.title? ("<h3>" + data.title + "</h3>") : ("")) + "<p>" + data.desc + "</p></div>"
+								+ "<div class='linkCardCenter'>" + (data.title? ("<h3>" + data.title + "</h3>") : ("")) + "<p>" + description + "</p></div>"
 								+ "<div class='linkCardRight'><a href='" + linkUrl + "' target='_blank' rel='noopener'>" + "<i class='material-icons md-mnu'>&#xE895;</i>" + "</a></div>";
 		//linkCardEle.setAttribute('data-element', JSON.stringify(cardElementInfo));
 		cardBody.appendChild(linkCardEle);
+
+		//Experimenting with Spotify Web Player
+		if (!SepiaFW.ui.isMobile && data.type && data.type == "musicSearch" && data.brand == "Spotify" && linkUrl){
+			if (Cards.allowSpotifyWebPlayer){
+				var webPlayerDiv = document.createElement('DIV');
+				webPlayerDiv.className = "spotifyWebPlayer cardBodyItem fullWidthItem"
+				var contentUrl = "https://" + linkUrl.replace("spotify:", "open.spotify.com/embed/").replace(":play", "").replace(/:/g, "/").trim();
+				webPlayerDiv.innerHTML = '<iframe src="' + contentUrl + '" width="100%" height="80" frameborder="0" allowtransparency="true" allow="encrypted-media"></iframe>';
+				cardBody.appendChild(webPlayerDiv);
+			}
+		}
 		
 		//link button(s)
 		(function(linkUrl){
@@ -1037,6 +1060,7 @@ function sepiaFW_build_ui_cards(){
 		})(linkUrl);
 		
 		//extra buttons
+		/*
 		$(linkCardEle).find('.linkCardLogo').each(function(){
 			var that = this;
 			SepiaFW.ui.onclick(that, function(){
@@ -1044,9 +1068,27 @@ function sepiaFW_build_ui_cards(){
 				Cards.moveToMyViewOrDelete($(that).closest('.sepiaFW-cards-flexSize-container')[0]);
 			});
 		});
+		*/
+		makeLinkCardContextMenu(cardElement.id, cardBody, linkCardEle, cardElementInfo, data.type);
 		
 		cardElement.appendChild(cardBody);
 		return cardElement;
+	}
+	function makeLinkCardContextMenu(flexCardId, cardBody, cardBodyItem, linkElementInfo, linkElementType){
+		//some additional data
+		var newBodyClass = "sepiaFW-cards-list-body sepiaFW-cards-list-link";			//class in case we need to create new body
+		var shareButton = {
+			type: SepiaFW.client.SHARE_TYPE_LINK,
+			data: linkElementInfo,
+			buttonName: SepiaFW.local.g('exportToUrl'),
+			buttonTitle: "Copy SEPIA share link to clipboard."	//TODO: add local translation
+		}
+		//context menu
+		var contextMenu = makeBodyElementContextMenu(flexCardId, cardBody, cardBodyItem, cardBodyItem.id, {
+			toggleButtonSelector: ".linkCardLogo",
+			newBodyClass: newBodyClass,
+			shareButton: shareButton
+		});
 	}
 	
 	//----------------------------- common elements ---------------------------------
@@ -1367,7 +1409,7 @@ function sepiaFW_build_ui_cards(){
 				}
 				SepiaFW.ui.showPopup("Click OK to copy link to clipboard", {
 					inputLabelOne: "Link",
-					inputOneValue: (SepiaFW.client.deeplinkHostUrl + "?share=" + encodeURI(JSON.stringify(shareData))),
+					inputOneValue: (SepiaFW.client.deeplinkHostUrl + "?share=" + encodeURIComponent(JSON.stringify(shareData))),
 					buttonOneName: "OK",
 					buttonOneAction: function(btn, linkValue, iv2, inputEle1, ie2){
 						if (linkValue && inputEle1){

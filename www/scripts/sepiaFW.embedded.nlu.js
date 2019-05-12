@@ -45,17 +45,22 @@ function sepiaFW_build_embedded_nlu(){
 			//Mixed languages:
 
 			//Lists
-			if (text.match(/list|todo/gi)){
-				getListCmd(nluResult);
+			if (text.match(/(list|todo)/i)){
+				getListCmd(nluResult, text);
 			
 			//News
-			}else if (text.match(/news|nachrichten/gi)){
-				getNewsCmd(nluResult);
+			}else if (text.match(/(news|nachrichten)/i)){
+				getNewsCmd(nluResult, text);
 			
 			//Radio
-			}else if (text.match(/radio|music|musik/gi)){
-				getRadioCmd(nluResult);
+			}else if (text.match(/(radio|music|musik)/i)){
+				getRadioCmd(nluResult, text);
+			
+			//Websearch
+			}else if (text.match(/(search|find|such(e|)|finde|link|^http(s|):.*)\b/i)){
+				getOpenLinkCmd(nluResult, text);
 			}
+
 			return nluResult;
 		}else{
 			SepiaFW.debug.info("Embedded.Nlu - offline NLU cannot handle data-type: " + dataType);
@@ -63,8 +68,52 @@ function sepiaFW_build_embedded_nlu(){
 		return nluResult;
 	}
 
+	//--- Dummy results with optional "real" NLU ---
+
+	//Link
+	function getOpenLinkCmd(nluResult, inputText){
+		var iconUrl = "";
+		var title = "Link";
+		var desc = "Click to open";
+		var url = "https://sepia-framework.github.io/app/search.html";
+		var answer = "Ok";
+		if (inputText){
+			inputText = inputText.replace(/.*\b(for|nach|search|find|such(e|)|finde|link)\b/i, "").trim();
+		}
+		if (inputText && (inputText.indexOf('http:') == 0 || inputText.indexOf('https:') == 0)){
+			url = inputText;
+			title = "Link";
+			desc = "<i>" + inputText + "</i>";
+		}else if (inputText){
+			url = "https://www.google.com/search?q=" + encodeURIComponent(inputText);
+			title = "Google Search";
+			desc = "<i>" + inputText + "</i>";
+		}else{
+			iconUrl = "https://sepia-framework.github.io/img/icon.png";
+			title = "S.E.P.I.A.";
+			desc = "Your personal, private, open-source assistant";
+			url = "https://sepia-framework.github.io";
+			if (nluResult.language == "de"){
+				answer = "Kennst du eigentlich meine Homepage?";
+			}else if (nluResult.language == "en"){
+				answer = "Have you seen my homepage?";
+			}	
+		}
+		nluResult.result = "success";
+		nluResult.context = "open_link";
+		nluResult.parameters = {
+			"icon_url": iconUrl,
+			"answer_set": answer,
+			"description": desc,
+			"title": title,
+			"url": url
+		};
+		nluResult.command = "open_link";
+		return nluResult;
+	}
+
 	//List
-	function getListCmd(nluResult){
+	function getListCmd(nluResult, inputText){
 		nluResult.result = "success";
 		nluResult.context = "lists";
 		nluResult.parameters = {
@@ -78,7 +127,7 @@ function sepiaFW_build_embedded_nlu(){
 	}
 
 	//News
-	function getNewsCmd(nluResult){
+	function getNewsCmd(nluResult, inputText){
 		nluResult.result = "success";
 		nluResult.context = "news";
 		nluResult.parameters = {
@@ -92,7 +141,7 @@ function sepiaFW_build_embedded_nlu(){
 	}
 
 	//Radio
-	function getRadioCmd(nluResult){
+	function getRadioCmd(nluResult, inputText){
 		nluResult.result = "success";
 		nluResult.context = "music_radio";
 		nluResult.parameters = {

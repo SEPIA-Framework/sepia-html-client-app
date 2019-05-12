@@ -296,6 +296,17 @@
 	cursor: pointer;
 }
 
+/* --- Common --- */
+
+.sepiaFW-cards-list-body .fullWidthItem {
+	width: 100%;
+    padding: 5px 5px 0 5px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    align-content: center;
+}
+
 /* --- Radio --- */
 
 .sepiaFW-cards-list-radioStations {
@@ -613,10 +624,16 @@
 	font-size: 14px;
 	text-align: center;
 	cursor: pointer;
+	overflow: hidden;
 }
 .sepiaFW-cards-list-body .linkCard .linkCardCenter h3 {
 	margin: 5px 0 0 0;
 	font-size: 15px;
+	max-width: 100%;
+}
+.sepiaFW-cards-list-body .linkCard .linkCardCenter p {
+	word-wrap: break-word;
+	max-width: 100%;
 }
 .sepiaFW-cards-list-body .linkCard .linkCardRight {
 	display: flex;

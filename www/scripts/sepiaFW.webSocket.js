@@ -60,6 +60,7 @@ function sepiaFW_build_client_interface(){
 	//some constants for link sharing
 	ClientInterface.deeplinkHostUrl = "https://b07z.net/dl/sepia/index.html";
 	ClientInterface.SHARE_TYPE_ALARM = "alarm";
+	ClientInterface.SHARE_TYPE_LINK = "link";
 
 	//check server info
 	ClientInterface.getServerInfo = function(successCallback, errorCallback){
@@ -583,7 +584,7 @@ function sepiaFW_build_webSocket_client(){
 			actionsArray.push(SepiaFW.offline.getFrameViewButtonAction("tutorial.html", SepiaFW.local.g("tutorial")));
 			actionsArray.push(SepiaFW.offline.getUrlButtonAction("https://github.com/SEPIA-Framework/sepia-docs", "S.E.P.I.A. Docs"));
 			actionsArray.push(SepiaFW.offline.getUrlButtonAction(SepiaFW.config.clientLicenseUrl, SepiaFW.local.g("license")));
-			actionsArray.push(SepiaFW.offline.getUrlButtonAction(SepiaFW.config.privacyPolicyUrl + "?host=" + encodeURI(SepiaFW.config.host), SepiaFW.local.g("data_privacy")));
+			actionsArray.push(SepiaFW.offline.getUrlButtonAction(SepiaFW.config.privacyPolicyUrl + "?host=" + encodeURIComponent(SepiaFW.config.host), SepiaFW.local.g("data_privacy")));
 			if (!onlyOffline){
 				actionsArray.push(SepiaFW.offline.getHelpButtonAction()); 		//TODO: this will only work onActive
 			}
@@ -661,7 +662,7 @@ function sepiaFW_build_webSocket_client(){
 		}
 		//console.log(shareData);
 		if (shareData.type){
-			SepiaFW.ui.askForPermissionToExecute("Add shared data of type: " + shareData.type.toUpperCase(), function(){
+			SepiaFW.ui.askForPermissionToExecute("Open shared data of type: " + shareData.type.toUpperCase(), function(){
 				//ALARM
 				if (shareData.type == SepiaFW.client.SHARE_TYPE_ALARM && shareData.data && shareData.data.beginTime){
 					var options = {};   //things like skipTTS etc. (see sendCommand function)
@@ -676,6 +677,29 @@ function sepiaFW_build_webSocket_client(){
 					};
 					SepiaFW.client.sendCommand(dataset, options);
 					//TODO: note that name might be unreliable if it was a date and timezone changes
+				
+				//LINK
+				}else if (shareData.type == SepiaFW.client.SHARE_TYPE_LINK && shareData.data && SepiaFW.offline && SepiaFW.embedded){
+					//TODO					
+					var msgId = SepiaFW.client.getNewMessageId();
+					var nluInput = {
+						user: SepiaFW.account.getUserId(),
+						language: SepiaFW.config.appLanguage
+					}
+					var nluResult = {
+						command: "open_link"
+					}
+					var serviceResult = SepiaFW.embedded.services.link(nluInput, nluResult, shareData.data);
+					//serviceResult.answer = "";
+					//serviceResult.answer_clean = "";
+					var assistantIdOrName = ""; 	//SepiaFW.assistant.id
+					var receiverId = "";			//SepiaFW.account.getUserId()
+					var resultMessage = SepiaFW.offline.buildAssistAnswerMessageForHandler(msgId, serviceResult, assistantIdOrName, receiverId)
+					SepiaFW.client.handleServerMessage(resultMessage);
+				
+				//No handler
+				}else{
+					SepiaFW.debug.error("No handler for shared-link type: " + shareData.type);
 				}
 			}, function(){
 				//no

@@ -238,7 +238,8 @@ body {
 	margin: 8px 0 12px 0;
 	flex: 1 1 auto;
     /* max-height: calc(68vh - 66px); */
-    overflow-y: auto;
+	overflow-y: auto;
+	word-wrap: break-word;
 }
 #sepiaFW-popup-message-controls {
 	margin: 0px 0 0px 0;
@@ -1590,7 +1591,7 @@ body {
 	border-bottom: 0px solid rgba(0, 0, 0, 0.00); 
 	border-right: 0px solid rgba(0, 0, 0, 0.00);
     position: relative;
-	max-width: 95%;
+	max-width: calc(100% - 30px);
     word-wrap: break-word;
 	transition: all .5s;
 	text-align: left;
