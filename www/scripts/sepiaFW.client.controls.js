@@ -126,11 +126,10 @@ function sepiaFW_build_client_controls(){
                 }
                 //Platform specific additional stop methods
                 if (SepiaFW.ui.isAndroid){
-                    SepiaFW.android.broadcastMediaButtonIntent(1, 85);
+                    SepiaFW.android.broadcastMediaButtonIntent(0, 127);
                     /*
                     0: KeyEvent.ACTION_DOWN
-                    1: KeyEvent.ACTION_UP
-                    85: KEYCODE_MEDIA_PLAY_PAUSE
+                    127: KEYCODE_MEDIA_PAUSE
                     */
                 }
                 //TODO: add iOS and Windows?

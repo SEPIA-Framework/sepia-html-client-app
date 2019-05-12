@@ -15,7 +15,7 @@ function sepiaFW_build_android(){
         "deezer": {name: "Deezer", package: "deezer.android.app"},
         "vlc_media_player": {name: "VLC", package: "org.videolan.vlc"}
     }
-    var defaultMusicApp = "System";
+    var defaultMusicApp = "system";
 
     Android.setDefaultMusicApp = function(appTag){
         if (Android.musicApps[appTag]){
@@ -76,6 +76,8 @@ function sepiaFW_build_android(){
         0: KeyEvent.ACTION_DOWN
         1: KeyEvent.ACTION_UP
         85: KEYCODE_MEDIA_PLAY_PAUSE
+        127: KEYCODE_MEDIA_PAUSE
+        126: KEYCODE_MEDIA_PLAY
         */
     }
 
@@ -166,10 +168,13 @@ function sepiaFW_build_android(){
                 }
             }else{
                 var defaultApp = Android.getDefaultMusicApp();
-                if (defaultApp && defaultApp.name == "select"){
+                if (defaultApp && defaultApp == "select"){
                     data.chooser = "Select App";
-                }else if (defaultApp.package){
-                    data.package = defaultApp.package;
+                }else if (defaultApp && defaultApp != "system"){
+                    var app = Android.musicApps[defaultApp];
+                    if (app){
+                        data.package = app.package;
+                    }
                 }
             }
 
