@@ -277,11 +277,13 @@ function sepiaFW_build_ui_actions(){
 	}
 	//STOP AUDIO STREAM
 	Actions.stopAudio = function(action){
-		if (SepiaFW.audio){
-			SepiaFW.audio.stop();
-			//SepiaFW.debug.info("Action: type 'stop_audio_stream'.");
+		//SepiaFW.debug.info("Action: type 'stop_audio_stream'.");
+		if (SepiaFW.client.controls){
+			SepiaFW.client.controls.media({
+				action: "stop"
+			});
 		}else{
-			SepiaFW.debug.info("Action: type 'stop_audio_stream' is not supported yet.");
+			SepiaFW.audio.stop();
 		}
 	}
 	

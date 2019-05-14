@@ -54,12 +54,21 @@ var app = {
 				}
 			);
 			window.plugins.intentShim.onIntent(app.onAndroidIntent);
-			/*window.plugins.intentShim.registerBroadcastReceiver({
+			window.plugins.intentShim.registerBroadcastReceiver({
 				filterActions: [
-					'android.intent.action.INPUT_METHOD_CHANGED'		//example
+					//Supposed to work but no luck so far:
+					/*
+					'com.android.music.playstatechanged',
+					'com.spotify.mobile.android.metadatachanged',
+					'com.spotify.mobile.android.playbackstatechanged',
+                    'com.apple.android.music.playstatechanged',
+					'com.apple.android.music.metachanged'
+					*/
+					//VLC media player compatible:
+					'com.android.music.metachanged'
 				]},
-				app.onAndroidIntent
-			);*/
+				app.onAndroidBroadcast
+			);
 		}
 		
 		//local notification
@@ -177,6 +186,21 @@ var app = {
 			//let index.html appSetup() do the rest
 		});
 	},
+	//on Android Broadcast
+    onAndroidBroadcast: function(intent){
+        //check SEPIA state
+        activeOrLoggedInOrNothingYet(function(){
+            //user active (or demo-mode)
+			//console.log(JSON.stringify(intent));
+			if (intent && intent.action && intent.action.indexOf("music.metachanged") > 0){
+				SepiaFW.android.receiveMusicMetadataBroadcast(intent);
+			}
+        }, function(){
+            //user logged in but not active
+        }, function(){
+            //app not setup yet
+        });
+    },
 
 	//local notification events
 	onLocalNotification: function(notification, state) {

@@ -468,6 +468,7 @@ function sepiaFW_build_audio(){
 	AudioPlayer.setPlayerTitle = function(newTitle, audioPlayer){
 		if (!audioPlayer) audioPlayer = player;
 		audioPlayer.title = newTitle;
+		if (audioTitle) audioTitle.innerHTML = newTitle || "SepiaFW audio player";
 	}
 
 	//play audio by url

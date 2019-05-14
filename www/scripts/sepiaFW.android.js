@@ -3,6 +3,12 @@
 function sepiaFW_build_android(){
     var Android = {};
 
+    Android.lastRequestMediaAppPackage = "";
+    Android.lastRequestMediaAppTS = 0;
+    Android.lastReceivedMediaAppPackage = "";
+    Android.lastReceivedMediaAppTS = 0;
+    Android.lastReceivedMediaData;
+
     //Collection of apps and their packages
     Android.musicApps = {
         "system": {name: "System", package: ""},
@@ -63,7 +69,7 @@ function sepiaFW_build_android(){
     //Broadcast a MEDIA_BUTTON event
     Android.broadcastMediaButtonIntent = function(action, code){
         //Android intent broadcast to stop all media
-        Android.intentBroadcast({
+        var intent = {
             action: "android.intent.action.MEDIA_BUTTON",
             extras: {
                 "android.intent.extra.KEY_EVENT": JSON.stringify({
@@ -71,7 +77,7 @@ function sepiaFW_build_android(){
                     "code": code
                 })
             }
-        });
+        };
         /*
         0: KeyEvent.ACTION_DOWN
         1: KeyEvent.ACTION_UP
@@ -79,10 +85,51 @@ function sepiaFW_build_android(){
         127: KEYCODE_MEDIA_PAUSE
         126: KEYCODE_MEDIA_PLAY
         */
+        if (Android.lastRequestMediaAppPackage){
+            intent.package = Android.lastRequestMediaAppPackage;
+        }    
+        Android.intentBroadcast(intent);
+    }
+
+    //Receive a meta-data change BROADCAST from a music app
+    Android.receiveMusicMetadataBroadcast = function(intent){
+        /*{ -- e.g. VLC Media Player --
+            "extras": {
+                "duration ": 278539,
+                "artist ": "Eric Clapton",
+                "package ": "org.videolan.vlc ",
+                "playing ": false,
+                "album ": "Unplugged",
+                "track ": "Layla"
+            },
+            "action ": "com.android.music.metachanged",
+            "flags ": 16
+        }*/
+        if (intent.extras){
+            Android.lastReceivedMediaAppPackage = intent.extras.package;
+            Android.lastReceivedMediaAppTS = new Date().getTime();
+            Android.lastReceivedMediaData = {
+                duration: intent.extras.duration,
+                artist: intent.extras.artist,
+                album: intent.extras.album,
+                track: intent.extras.track,
+                playing: intent.extras.playing
+            }
+            if (intent.extras.playing){
+                if (intent.extras.artist && intent.extras.track){
+                    SepiaFW.audio.setPlayerTitle(intent.extras.artist + " - " + intent.extras.track, '');
+                }else if (intent.extras.track){
+                    SepiaFW.audio.setPlayerTitle(intent.extras.track, '');
+                }
+            }else{
+                SepiaFW.audio.setPlayerTitle('', '');
+            }
+            //TODO: add real "player active" state? ... it is not really the same ...
+        }
     }
 
     //Music search via Android Intent
-    Android.startMusicSearchActivity = function(controlData, allowSpecificService){
+    Android.startMusicSearchActivity = function(controlData, allowSpecificService, errorCallback){
         //Android Intent music search
         if (SepiaFW.ui.isAndroid && controlData){
             var intentAction = "android.media.action.MEDIA_PLAY_FROM_SEARCH";
@@ -177,16 +224,43 @@ function sepiaFW_build_android(){
                     }
                 }
             }
+            Android.lastRequestMediaAppPackage = data.package;
+            Android.lastRequestMediaAppTS = new Date().getTime();
 
             //Call activity
-            Android.intentActivity(data);
+            Android.intentActivity(data, function(){}, function(){
+                //error calling intent
+                if (errorCallback) errorCallback({
+                    error: "Failed to call Android Intent.",
+                    code: 1
+                });
+            });
 
-            //TODO: we don't know if the action succeeds :-( so we cannot send a message if it fails
+            //Try to wait for meta-data or player-state broadcast 
+            clearTimeout(musicSearchResultTimer);
+            var waitTime = 4000;
+            musicSearchResultTimer = setTimeout(function(){
+                var now = new Date().getTime();
+                if (Android.lastReceivedMediaAppTS && (now - Android.lastReceivedMediaAppTS) <=  waitTime){
+                    //there was an event
+                    if (!Android.lastReceivedMediaData.playing){
+                        //no media playing
+                        if (errorCallback) errorCallback({
+                            error: "Media player is not playing.",
+                            code: 2
+                        });
+                    }
+                }else{
+                    //no new event, ... but maybe the app just does not send any broadcast :-(
+                    //we skip the errorCalback because we are not sure
+                }
+            }, waitTime);
 
         }else{
             SepiaFW.debug.error("Android music search - Missing support or data!");
         }
     }
+    var musicSearchResultTimer = undefined;
 
     //Android Intent access
     Android.intentActivity = function(data, successCallback, errorCallback){
@@ -215,6 +289,7 @@ function sepiaFW_build_android(){
             }
             if (data.extras) dataObj.extras = data.extras;
             if (data.url) dataObj.url = data.url;
+            if (data.package) dataObj.package = data.package;
             window.plugins.intentShim.sendBroadcast(dataObj, function(intent){
                 SepiaFW.debug.log("Sent Android Broadcast-Intent '" + data.action);
                 if (successCallback) successCallback(intent);

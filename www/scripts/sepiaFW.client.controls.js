@@ -127,8 +127,12 @@ function sepiaFW_build_client_controls(){
                 //Platform specific additional stop methods
                 if (SepiaFW.ui.isAndroid){
                     SepiaFW.android.broadcastMediaButtonIntent(0, 127);
+                    setTimeout(function(){
+                        SepiaFW.android.broadcastMediaButtonIntent(1, 127);
+                    }, 250);
                     /*
                     0: KeyEvent.ACTION_DOWN
+                    1: KeyEvent.ACTION_UP
                     127: KEYCODE_MEDIA_PAUSE
                     */
                 }
@@ -159,7 +163,14 @@ function sepiaFW_build_client_controls(){
             //Android Intent music search
             if (SepiaFW.ui.isAndroid && (!controlData.service || controlData.service.indexOf("_link") == -1)){
                 var allowSpecificService = true;
-                SepiaFW.android.startMusicSearchActivity(controlData, allowSpecificService);
+                SepiaFW.android.startMusicSearchActivity(controlData, allowSpecificService, function(err){
+                    //error callback
+                    if (err.code == 1){
+                        sendFollowUpMessage("<error_client_control_0a>", SepiaFW.local.g('cant_execute'));    
+                    }else if (err.code == 2){
+                        sendFollowUpMessage("<music_0b>", SepiaFW.local.g('no_music_playing'));
+                    }
+                });
 
             //Common URI fallback or fail
             }else{

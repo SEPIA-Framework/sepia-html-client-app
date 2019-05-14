@@ -109,6 +109,7 @@ function sepiaFW_build_strings(){
 	StringsDE.cant_execute = "Sorry, aber es sieht so aus als könnte ich diese Aktion nicht ausführen.";
 	//Service and action texts
 	StringsDE.opening_link = "Link wird geöffnet.";
+	StringsDE.no_music_playing = "Kannst du was hören? Wahrscheinlich wurde keine Musik gefunden.";
 	//Offline demo texts
 	StringsDE.demoMode = 'Du befindest dich im Demo-Modus! In diesem Modus kannst du die Einstellungen ändern (z.B. hostname), das Tutorial anschauen und mit manchen(!) Teilen des Interfaces spielen. Um auf deinen Assistenten zuzugreifen melde dich bitte zuerst an.';
 	StringsDE.notPossibleInDemoMode = 'Sorry aber das geht noch nicht im Demo-Modus.';
@@ -223,6 +224,7 @@ function sepiaFW_build_strings(){
 	StringsEN.cant_execute = "Sorry, but it seems I can't execute the requested action.";
 	//Service and action texts
 	StringsEN.opening_link = "Opening link.";
+	StringsEN.no_music_playing = "Can you hear something? Probably no music found.";
 	//Offline demo texts
 	StringsEN.demoMode = 'You are in demo-mode! This mode only allows you to change settings (e.g. hostname), check out the tutorial and play with some(!) parts of the UI. To get access to your assistant please log-in first.';
 	StringsEN.notPossibleInDemoMode = 'Sorry this is not yet possible in demo-mode.';
