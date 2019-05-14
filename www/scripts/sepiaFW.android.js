@@ -21,6 +21,10 @@ function sepiaFW_build_android(){
         "deezer": {name: "Deezer", package: "deezer.android.app"},
         "vlc_media_player": {name: "VLC", package: "org.videolan.vlc"}
     }
+    Android.musicAppsThatBehaveByPackage = {
+        "org.videolan.vlc": {name: "VLC"}
+    }
+
     var defaultMusicApp = "system";
 
     Android.setDefaultMusicApp = function(appTag){
@@ -87,7 +91,7 @@ function sepiaFW_build_android(){
         */
         if (Android.lastRequestMediaAppPackage){
             intent.package = Android.lastRequestMediaAppPackage;
-        }    
+        }
         Android.intentBroadcast(intent);
     }
 
@@ -97,7 +101,7 @@ function sepiaFW_build_android(){
             "extras": {
                 "duration ": 278539,
                 "artist ": "Eric Clapton",
-                "package ": "org.videolan.vlc ",
+                "package ": "org.videolan.vlc",
                 "playing ": false,
                 "album ": "Unplugged",
                 "track ": "Layla"
@@ -252,7 +256,15 @@ function sepiaFW_build_android(){
                     }
                 }else{
                     //no new event, ... but maybe the app just does not send any broadcast :-(
-                    //we skip the errorCalback because we are not sure
+                    if (data.package && Android.musicAppsThatBehaveByPackage[data.package]){
+                        //This app is known to sent broadcasts reliably
+                        if (errorCallback) errorCallback({
+                            error: "Media player is not playing.",
+                            code: 2
+                        });
+                    }else{
+                        //we skip the errorCallback because we are not sure
+                    }
                 }
             }, waitTime);
 
