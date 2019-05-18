@@ -21,7 +21,7 @@ function sepiaFW_build_ui_cards(){
 	var topIndexZ = 1;			//to get an active element to the top
 
 	//some specials
-	Cards.allowSpotifyWebPlayer = false;	//deactivated by default because it only works in desktop and gives no control over start/stop/volume
+	Cards.allowWebPlayer = false;	//deactivated by default because it only works in desktop and gives no control over start/stop/volume
 	
 	//get a full card result as DOM element
 	Cards.get = function(assistAnswer, sender){
@@ -1037,11 +1037,25 @@ function sepiaFW_build_ui_cards(){
 
 		//Experimenting with Spotify Web Player
 		if (!SepiaFW.ui.isMobile && data.type && data.type == "musicSearch" && data.brand == "Spotify" && linkUrl){
-			if (Cards.allowSpotifyWebPlayer){
+			if (Cards.allowWebPlayer){
 				var webPlayerDiv = document.createElement('DIV');
 				webPlayerDiv.className = "spotifyWebPlayer cardBodyItem fullWidthItem"
 				var contentUrl = "https://" + linkUrl.replace("spotify:", "open.spotify.com/embed/").replace(":play", "").replace(/:/g, "/").trim();
 				webPlayerDiv.innerHTML = '<iframe src="' + contentUrl + '" width="100%" height="80" frameborder="0" allowtransparency="true" allow="encrypted-media"></iframe>';
+				cardBody.appendChild(webPlayerDiv);
+			}
+		}else if (!SepiaFW.ui.isMobile && data.type && data.type == "musicSearch" && data.brand == "Apple Music" && linkUrl){
+			if (Cards.allowWebPlayer){
+				var webPlayerDiv = document.createElement('DIV');
+				webPlayerDiv.className = "appleMusicWebPlayer cardBodyItem fullWidthItem"
+				webPlayerDiv.innerHTML = '<iframe '
+					+ 'allow="autoplay *; encrypted-media *;" frameborder="0" height="150" '
+					+ 'style="width:100%;max-width:660px;overflow:hidden;background:transparent;" '
+					+ 'sandbox="allow-forms allow-popups allow-same-origin allow-scripts ' 
+						+ ((SepiaFW.ui.isSafari)? 'allow-storage-access-by-user-activation' : '')
+						+ ' allow-top-navigation-by-user-activation" '
+					+ 'src="' + linkUrl.replace("itunes.", "embed.music.") + '">'
+				+ '</iframe>';
 				cardBody.appendChild(webPlayerDiv);
 			}
 		}

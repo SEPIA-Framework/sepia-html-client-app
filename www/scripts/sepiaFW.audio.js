@@ -15,6 +15,20 @@ function sepiaFW_build_audio(){
 	AudioPlayer.getMusicPlayer = function(){
 		return player;
 	}
+	AudioPlayer.isMusicPlayerStreaming = function(){
+		return player
+			&& player.currentTime > 0
+			&& !player.paused
+			&& !player.ended
+			&& player.readyState > 2;
+	}
+	AudioPlayer.startNextMusicStreamOfQueue = function(successCallback, errorCallback){
+		//TODO: Currently the only thing 'player' can do is stream radio or URL, so this will always return ERROR for now.
+		if (errorCallback) errorCallback({
+			error: "No next stream available",
+			status: 1
+		});
+	}
 	AudioPlayer.getEffectsPlayer = function(){
 		return player2;
 	}

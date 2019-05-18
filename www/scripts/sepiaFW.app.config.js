@@ -141,8 +141,38 @@ function sepiaFW_build_config(){
 		//log
 		SepiaFW.debug.log('Config: broadcasted deviceId=' + newDeviceId);
 	}
+
+	//------------ PLATFORM & APP CONNECTORS -------------
+
+	//Collection of universally supported apps and their names
+    Config.musicApps = {
+		"youtube": {name: "YouTube"},
+		"spotify_link": {name: "Spotify (URI)"},
+		"apple_music_link": {name: "Apple Music (URI)"}
+    }
+	var defaultMusicApp = "youtube";
+
+	Config.getMusicAppCollection = function(){
+		if (SepiaFW.ui.isAndroid){
+			return SepiaFW.android.musicApps;
+		}else{
+			return Config.musicApps;
+		}
+	}
+	Config.setDefaultMusicApp = function(appTag){
+        if (Config.getMusicAppCollection()[appTag]){
+            defaultMusicApp = appTag;
+            SepiaFW.data.set('defaultMusicApp', appTag);
+			SepiaFW.debug.info("Default music app is set to " + appTag);
+        }else{
+            SepiaFW.debug.error("Music app-name not found in list: " + appTag);
+        }
+    }
+    Config.getDefaultMusicApp = function(){
+        return defaultMusicApp;
+	}
 	
-	//------------------------------------------------
+	//----------------------------------------------
 
 	//link to URL parameter functions - TODO: can we remove this?
 	Config.getURLParameter = SepiaFW.tools.getURLParameter;
@@ -210,12 +240,10 @@ function sepiaFW_build_config(){
 			SepiaFW.clexi.initialize();
 		}
 
-		//Android music app
-		if (SepiaFW.android){
-			var defaultMusicApp = SepiaFW.data.get('androidDefaultMusicApp');
-			if (defaultMusicApp){
-				SepiaFW.android.setDefaultMusicApp(defaultMusicApp);
-			}
+		//Default music app
+		var defaultMusicAppStored = SepiaFW.data.get('defaultMusicApp');
+		if (defaultMusicAppStored){
+			Config.setDefaultMusicApp(defaultMusicAppStored);
 		}
 	}
 	

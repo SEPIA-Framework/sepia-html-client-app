@@ -119,28 +119,58 @@ function sepiaFW_build_client_controls(){
     //Media player controls
     Controls.media = function(controlData){
         if (controlData && controlData.action){
-            if (controlData.action == "stop"){
-                var player = SepiaFW.audio.getMusicPlayer();
-                if (!SepiaFW.audio.initAudio(function(){ SepiaFW.audio.stop(player); })){
-                    SepiaFW.audio.stop(player);
+            //STOP
+            if (controlData.action == "stop" || controlData.action == "pause"){
+                //Stop internal player
+                var isInternalPlayerStreaming = SepiaFW.audio.isMusicPlayerStreaming();
+                if (isInternalPlayerStreaming){
+                    SepiaFW.audio.stop(SepiaFW.audio.getMusicPlayer());    
                 }
-                //Platform specific additional stop methods
+                //Platform specific additional STOP methods
+                var sentAdditionalEvent = false;
                 if (SepiaFW.ui.isAndroid){
-                    SepiaFW.android.broadcastMediaButtonIntent(0, 127);
-                    setTimeout(function(){
-                        SepiaFW.android.broadcastMediaButtonIntent(1, 127);
-                    }, 250);
-                    /*
-                    0: KeyEvent.ACTION_DOWN
-                    1: KeyEvent.ACTION_UP
-                    127: KEYCODE_MEDIA_PAUSE
-                    */
+                    //we do this only if we have a recent Android media event - otherwhise it will activate all music apps
+                    var requireMediaAppPackage = true;
+                    sentAdditionalEvent = SepiaFW.android.broadcastMediaButtonDownUpIntent(127, requireMediaAppPackage);  
+                    //127: KEYCODE_MEDIA_PAUSE
                 }
                 //TODO: add iOS and Windows?
+                //TODO: we could use a Mesh-Node and the sendMessage API in Windows
+                if (!isInternalPlayerStreaming && !sentAdditionalEvent){
+                    //The user has probably tried to stop an external app but that was not possible
+                    sendFollowUpMessage(SepiaFW.local.g("tried_but_not_sure"), SepiaFW.local.g('result_unclear') + "Media: STOP");     //"<default_under_construction_0b>"
+                }
+
+            //NEXT
+            }else if (controlData.action == "next"){
+                SepiaFW.audio.startNextMusicStreamOfQueue(function(){}, function(err){
+                    //Failed to execute NEXT on internal player:
+                    
+                    //Platform specific additional NEXT methods
+                    if (SepiaFW.ui.isAndroid){
+                        //Stop internal player
+                        if (SepiaFW.audio.isMusicPlayerStreaming()){
+                            SepiaFW.audio.stop(SepiaFW.audio.getMusicPlayer());    
+                        }
+                        //we do this only if we have a recent Android media event - otherwhise it will activate all music apps
+                        var requireMediaAppPackage = true;
+                        SepiaFW.android.broadcastMediaButtonDownUpIntent(87, requireMediaAppPackage);   //87: KEYCODE_MEDIA_NEXT
+                    
+                    //Out of options ... for now
+                    }else{
+                        sendFollowUpMessage("<default_under_construction_0b>", SepiaFW.local.g('no_client_support'));
+                        SepiaFW.debug.error("Client controls - Unsupported action in 'media': " + controlData.action);
+                    }
+                    //TODO: add iOS and Windows?
+                    //TODO: we could use a Mesh-Node and the sendMessage API in Windows
+                });
+
             }else{
+                sendFollowUpMessage("<default_under_construction_0b>", SepiaFW.local.g('no_client_support'));
                 SepiaFW.debug.error("Client controls - Unsupported action in 'media': " + controlData.action);
             }
         }else{
+            sendFollowUpMessage("<error_client_control_0a>", SepiaFW.local.g('cant_execute'));
             SepiaFW.debug.error("Client controls - Missing 'controlData' for 'media'!");
         }
     }
@@ -160,17 +190,27 @@ function sepiaFW_build_client_controls(){
             console.log('URI: ' + controlData.uri);
             */
 
+            //Stop internal player
+            if (SepiaFW.audio.isMusicPlayerStreaming()){
+                SepiaFW.audio.stop(SepiaFW.audio.getMusicPlayer());    
+            }
+
             //Android Intent music search
             if (SepiaFW.ui.isAndroid && (!controlData.service || controlData.service.indexOf("_link") == -1)){
                 var allowSpecificService = true;
                 SepiaFW.android.startMusicSearchActivity(controlData, allowSpecificService, function(err){
                     //error callback
                     if (err.code == 1){
-                        sendFollowUpMessage("<error_client_control_0a>", SepiaFW.local.g('cant_execute'));    
+                        sendFollowUpMessage("<error_client_control_0a>", SepiaFW.local.g('cant_execute'));
                     }else if (err.code == 2){
                         sendFollowUpMessage("<music_0b>", SepiaFW.local.g('no_music_playing'));
                     }
                 });
+
+            //Supported app?
+            }else if (controlData.service && !SepiaFW.config.getMusicAppCollection()[controlData.service]){
+                sendFollowUpMessage(SepiaFW.local.g('cant_execute'), SepiaFW.local.g('cant_execute'));      //"<error_client_control_0a>"
+                SepiaFW.debug.error("Client controls - 'searchForMusic' is trying to use an app that is not supported by this client!");
 
             //Common URI fallback or fail
             }else{

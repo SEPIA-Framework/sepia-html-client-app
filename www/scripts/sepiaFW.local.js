@@ -107,6 +107,8 @@ function sepiaFW_build_strings(){
 	StringsDE.mesh_node_fail = 'Sorry, die Mesh-Node Funktion zeigte einen Fehler.';
 	StringsDE.no_client_support = 'Sorry, aber diese Version der App unterstütz die aufgerufene Aktion nicht.';
 	StringsDE.cant_execute = "Sorry, aber es sieht so aus als könnte ich diese Aktion nicht ausführen.";
+	StringsDE.tried_but_not_sure = "Hab's versucht aber bin nicht sicher ob es geklappt hat.";
+	StringsDE.result_unclear = "Das Ergebnis der folgenden Anfrage ist unklar.";
 	//Service and action texts
 	StringsDE.opening_link = "Link wird geöffnet.";
 	StringsDE.no_music_playing = "Kannst du was hören? Wahrscheinlich wurde keine Musik gefunden.";
@@ -222,8 +224,11 @@ function sepiaFW_build_strings(){
 	StringsEN.mesh_node_fail = 'Sorry, the Mesh-Node function showed an error.';
 	StringsEN.no_client_support = 'Sorry, but this version of the app does not support the requested action.';
 	StringsEN.cant_execute = "Sorry, but it seems I can't execute the requested action.";
+	StringsEN.tried_but_not_sure = "I've tried but I'm not sure if it worked.";
+	StringsEN.result_unclear = "The result of the following request is unclear.";
 	//Service and action texts
 	StringsEN.opening_link = "Opening link.";
+	StringsEN.no_music_playing = "Can you hear something? Probably no music found.";
 	StringsEN.no_music_playing = "Can you hear something? Probably no music found.";
 	//Offline demo texts
 	StringsEN.demoMode = 'You are in demo-mode! This mode only allows you to change settings (e.g. hostname), check out the tutorial and play with some(!) parts of the UI. To get access to your assistant please log-in first.';

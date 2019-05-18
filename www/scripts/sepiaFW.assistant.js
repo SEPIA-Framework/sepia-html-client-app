@@ -107,6 +107,12 @@ function sepiaFW_build_assistant(){
 		State.input_miss = input_miss;
 		State.dialog_stage = dialog_stage;
 
+		//custom data
+		var cd = {
+			defaultMusicApp: SepiaFW.config.getDefaultMusicApp()
+		};
+		State.custom_data = JSON.stringify(cd);
+
 		return State;
 	}
 	

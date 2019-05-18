@@ -13,9 +13,11 @@ function sepiaFW_build_android(){
     Android.musicApps = {
         "system": {name: "System", package: ""},
         "select": {name: "Select", package: ""},
-        "spotify": {name: "Spotify", package: "com.spotify.music"},
         "youtube": {name: "YouTube", package: "com.google.android.youtube"},
-        "apple_music": {name: "Apple Music", package: "com.apple.android.music"},
+        "spotify": {name: "Spotify App", package: "com.spotify.music"},
+        "spotify_link": {name: "Spotify URI"},
+        "apple_music": {name: "Apple Music App", package: "com.apple.android.music"},
+        "apple_music_link": {name: "Apple Music URI"},
         "amazon_music": {name: "Amazon Music", package: "com.amazon.mp3"},
         "soundcloud": {name: "SoundCloud", package: "com.soundcloud.android"},
         "deezer": {name: "Deezer", package: "deezer.android.app"},
@@ -25,53 +27,17 @@ function sepiaFW_build_android(){
         "org.videolan.vlc": {name: "VLC"}
     }
 
-    var defaultMusicApp = "system";
-
-    Android.setDefaultMusicApp = function(appTag){
-        if (Android.musicApps[appTag]){
-            defaultMusicApp = appTag;
-            SepiaFW.data.set('androidDefaultMusicApp', appTag);
-            SepiaFW.debug.info("Android default music app is set to " + appTag);
-        }else{
-            SepiaFW.debug.error("Android app-name not found in list: " + appTag);
-        }
-    }
-    Android.getDefaultMusicApp = function(){
-        return defaultMusicApp;
-    }
     Android.getDefaultMusicAppPackage = function(){
-        var app = Android.musicApps[defaultMusicApp];
+        var app = Android.musicApps[SepiaFW.config.getDefaultMusicApp()];
         if (app){
             return app.package;
         }else{
             return "";
         }
     }
-
-    //Get music app selector
-    Android.getMusicAppSelector = function(){
-        var selector = document.getElementById('sepiaFW-menu-select-music-app') || document.createElement('select');
-        selector.id = 'sepiaFW-menu-select-music-app';
-        $(selector).find('option').remove();
-        //fill
-        Object.keys(Android.musicApps).forEach(function(appTag){
-            var option = document.createElement('option');
-            option.value = appTag;
-            option.innerHTML = Android.musicApps[appTag].name;
-            selector.appendChild(option);
-            if (appTag == defaultMusicApp){
-                option.selected = true;
-            }
-        });
-        //add button listener
-        $(selector).off().on('change', function() {
-            Android.setDefaultMusicApp($('#sepiaFW-menu-select-music-app').val());
-        });
-        return selector;
-    }
     
     //Broadcast a MEDIA_BUTTON event
-    Android.broadcastMediaButtonIntent = function(action, code){
+    Android.broadcastMediaButtonIntent = function(action, code, requireMediaAppPackage){
         //Android intent broadcast to stop all media
         var intent = {
             action: "android.intent.action.MEDIA_BUTTON",
@@ -86,13 +52,31 @@ function sepiaFW_build_android(){
         0: KeyEvent.ACTION_DOWN
         1: KeyEvent.ACTION_UP
         85: KEYCODE_MEDIA_PLAY_PAUSE
+        87: KEYCODE_MEDIA_NEXT
+        88: KEYCODE_MEDIA_PREVIOUS
         127: KEYCODE_MEDIA_PAUSE
         126: KEYCODE_MEDIA_PLAY
         */
         if (Android.lastRequestMediaAppPackage){
             intent.package = Android.lastRequestMediaAppPackage;
         }
-        Android.intentBroadcast(intent);
+        if (requireMediaAppPackage && intent.package){
+            Android.intentBroadcast(intent);
+            return true;    //sent
+        }else if (!requireMediaAppPackage){
+            Android.intentBroadcast(intent);
+            return true;    //sent
+        }else{
+            return false;   //not sent
+        }
+    }
+    //Simulate donw-up key event (some apps won't accept only one event)
+    Android.broadcastMediaButtonDownUpIntent = function(code, requireMediaAppPackage){
+        var sent = Android.broadcastMediaButtonIntent(0, code, requireMediaAppPackage);
+        setTimeout(function(){
+            Android.broadcastMediaButtonIntent(1, code, requireMediaAppPackage);
+        }, 250);
+        return sent;    //if the first one was sent the 2nd will too
     }
 
     //Receive a meta-data change BROADCAST from a music app
@@ -214,16 +198,16 @@ function sepiaFW_build_android(){
             //Add a specific service via package?
             if (allowSpecificService && controlData.service){
                 var app = Android.musicApps[controlData.service];
-                if (app){
+                if (app && app.package){
                     data.package = app.package;
                 }
             }else{
-                var defaultApp = Android.getDefaultMusicApp();
+                var defaultApp = SepiaFW.config.getDefaultMusicApp();
                 if (defaultApp && defaultApp == "select"){
                     data.chooser = "Select App";
                 }else if (defaultApp && defaultApp != "system"){
                     var app = Android.musicApps[defaultApp];
-                    if (app){
+                    if (app && app.package){
                         data.package = app.package;
                     }
                 }

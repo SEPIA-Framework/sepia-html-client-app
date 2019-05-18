@@ -62,7 +62,9 @@ var app = {
 					'com.spotify.mobile.android.metadatachanged',
 					'com.spotify.mobile.android.playbackstatechanged',
                     'com.apple.android.music.playstatechanged',
-					'com.apple.android.music.metachanged'
+					'com.apple.android.music.metachanged',
+					'com.amazon.mp3.playstatechanged',
+    				'com.amazon.mp3.metachanged',
 					*/
 					//VLC media player compatible:
 					'com.android.music.metachanged'

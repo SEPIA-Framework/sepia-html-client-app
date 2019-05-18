@@ -541,9 +541,7 @@ function sepiaFW_build_ui_build(){
 						+ "<span>" + "CLEXI ID" + ": </span>"
 						+ "<input id='sepiaFW-menu-clexi-server-id' type='url' spellcheck='false'>"
 					+ "</li>"
-					//Android-only music-app select:
-					+ "<li class='sepiaFW-android-settings' id='sepiaFW-menu-select-music-app-li' title='Select default music app for search intents.'><span>Default music app: </span></li>"
-					//---
+					+ "<li id='sepiaFW-menu-select-music-app-li' title='Select default music app for search intents.'><span>Default music app: </span></li>"
 					+ "<li id='sepiaFW-menu-administration-li'>"
 						+ "<button id='sepiaFW-menu-ui-dataprivacy-btn'>" + SepiaFW.local.g('data_privacy') + "</button>"
 						+ "<button id='sepiaFW-menu-ui-license-btn'>" + SepiaFW.local.g('license') + "</button>"
@@ -771,6 +769,10 @@ function sepiaFW_build_ui_build(){
 				$('#sepiaFW-menu-toggle-clexi-li').remove();
 				$('#sepiaFW-menu-clexi-socket-url-li').remove();
 			}
+			
+			//Music app selector
+			document.getElementById('sepiaFW-menu-select-music-app-li').appendChild(Build.musicAppSelector(SepiaFW.config.getMusicAppCollection()));
+
 			//Wake-word stuff - Hey SEPIA
 			if (!SepiaFW.wakeTriggers){
 				$('#"sepiaFW-menu-toggle-wake-word-li"').remove();
@@ -862,7 +864,6 @@ function sepiaFW_build_ui_build(){
 			//Android only stuff
 			if (!SepiaFW.ui.isAndroid){
 				$('#sepiaFW-menu-toggle-runBackgroundConnection-li').remove();
-				$('#sepiaFW-menu-select-music-app-li').remove();
 			}else{
 				//allow background activity
 				document.getElementById('sepiaFW-menu-toggle-runBackgroundConnection-li').appendChild(Build.toggleButton('sepiaFW-menu-toggle-runBackgroundConnection', 
@@ -876,8 +877,6 @@ function sepiaFW_build_ui_build(){
 						SepiaFW.debug.info("Background connection is NOT allowed");
 					}, SepiaFW.client.allowBackgroundConnection)
 				);
-				//music app selector
-				document.getElementById('sepiaFW-menu-select-music-app-li').appendChild(SepiaFW.android.getMusicAppSelector());
 			}
 			//track power status for special events - e.g. plug-in -> switch to AO-mode
 			if (!SepiaFW.alwaysOn || !SepiaFW.alwaysOn.isBatteryStatusSupported()){
@@ -1064,6 +1063,28 @@ function sepiaFW_build_ui_build(){
 			}
 		}
 	}
+
+	//Build music app selector
+    Build.musicAppSelector = function(appCollection){
+        var selector = document.getElementById('sepiaFW-menu-select-music-app') || document.createElement('select');
+        selector.id = 'sepiaFW-menu-select-music-app';
+        $(selector).find('option').remove();
+        //fill
+        Object.keys(appCollection).forEach(function(appTag){
+            var option = document.createElement('option');
+            option.value = appTag;
+            option.innerHTML = appCollection[appTag].name;
+            selector.appendChild(option);
+            if (appTag == SepiaFW.config.getDefaultMusicApp()){
+                option.selected = true;
+            }
+        });
+        //add button listener
+        $(selector).off().on('change', function() {
+            SepiaFW.config.setDefaultMusicApp($('#sepiaFW-menu-select-music-app').val());
+        });
+        return selector;
+    }
 	
 	//User-List
 	Build.userList = function(userList, userName){
