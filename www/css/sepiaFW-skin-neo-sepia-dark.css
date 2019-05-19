@@ -154,7 +154,7 @@ html {
 }
 #sepiaFW-main-window .chat-buttons-area button {
     background: #2d3034 !important;
-	color: #fff !important
+	color: #fff !important;
 }
 #sepiaFW-main-window .chat-buttons-area .my-view-custom-button {
 	background-color: #08a0c8 !important;
@@ -166,7 +166,7 @@ html {
 }
 #sepiaFW-main-window #sepiaFW-myFirstStart-buttons button {
 	background: #beff1a !important;
-	color: #101418 !important
+	color: #101418 !important;
 }
 .sepiaFW-notouch-device #sepiaFW-main-window #sepiaFW-myFirstStart-buttons button:hover {
 	background: #7bed31 !important;
@@ -235,7 +235,6 @@ html {
 /*----- cards ------*/
 
 .sepiaFW-cards-flexSize-container {
-	/*background: rgba(255, 255, 255, 0.14);*/
 	background: rgba(21, 23, 26, 0.85);
 }
 
