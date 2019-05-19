@@ -95,16 +95,16 @@ html {
 }
 #sepiaFW-assist-btn-area {
 	border-color: #191919;
-	background: #F4F4F4;
+	background: #e0ed00;
 }
 #sepiaFW-assist-btn-area button {
-	border: 4px solid #cfcfcf;
+	border: 4px solid #556055;
 }
 #sepiaFW-assist-btn {
-	background: linear-gradient(to right, #eded00 0%, #e0ed00 100%) !important;
+	background: linear-gradient(to right, #F4F4F4 0%, #bbb 100%) !important;
 }
 .sepiaFW-notouch-device #sepiaFW-assist-btn:hover {
-	background: linear-gradient(to right, #F4F4F4 0%, #bbb 100%) !important;
+	background: linear-gradient(to right, #eded00 0%, #e0ed00 100%) !important;
 }
 #sepiaFW-assist-btn i {
 	display: none !important;

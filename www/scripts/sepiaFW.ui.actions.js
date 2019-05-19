@@ -164,6 +164,7 @@ function sepiaFW_build_ui_actions(){
 				|| (url.indexOf('http') !== 0 && !!url.match(/^\w+:/)) 		//TODO: keep an eye on this! Does it prevent some cool URL scheme features?
 				|| url.indexOf('https://maps.') === 0 || url.indexOf('http://maps.') === 0
 				|| url.indexOf('https://www.google.com/maps/') === 0 || url.indexOf('https://www.google.de/maps/') === 0
+				|| url.indexOf('https://itunes.apple.com/') === 0
 				){
 				cordova.InAppBrowser.open(url, '_system');
 			}else{

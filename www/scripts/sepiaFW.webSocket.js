@@ -26,6 +26,7 @@ function sepiaFW_build_client_interface(){
 	ClientInterface.onActive = SepiaFW.webSocket.client.onActive;
 	ClientInterface.addOnActiveAction = SepiaFW.webSocket.client.addOnActiveAction;
 	ClientInterface.addOnActiveOneTimeAction = SepiaFW.webSocket.client.addOnActiveOneTimeAction;
+	ClientInterface.addOnActivePreUpdateOneTimeAction = SepiaFW.webSocket.client.addOnActivePreUpdateOneTimeAction;
 	ClientInterface.getActiveChannel = SepiaFW.webSocket.client.getActiveChannel;
 	ClientInterface.switchChannel = SepiaFW.webSocket.client.switchChannel;
 	ClientInterface.switchChatPartner = SepiaFW.webSocket.client.switchChatPartner;
@@ -510,6 +511,16 @@ function sepiaFW_build_webSocket_client(){
 	Client.onActive = function(){
 		//LOAD SOME MORE STUFF that requires account verification:
 
+		//One-time actions that need to run before my-view update
+		onActivePreUpdateOneTimeActions.forEach(function(fun, index){
+			try{
+				fun();
+			}catch(e){
+				SepiaFW.debug.error("Client.onActive failed for 'onActivePreUpdateOneTimeActions' with index: " + index);
+			}
+		});
+		onActivePreUpdateOneTimeActions = [];
+
 		//update my-view
 		SepiaFW.ui.updateMyView(false, true, 'onActive');
 
@@ -544,8 +555,17 @@ function sepiaFW_build_webSocket_client(){
 			SepiaFW.debug.log("Added one-time onAction event of source: " + source);
 		}
 	}
+	Client.addOnActivePreUpdateOneTimeAction = function(actionFunction, source){
+		if ($.inArray(actionFunction, onActivePreUpdateOneTimeActions) == -1){
+			onActivePreUpdateOneTimeActions.push(actionFunction);
+		}
+		if (source){
+			SepiaFW.debug.log("Added pre-my-view-update one-time onAction event of source: " + source);
+		}
+	}
 	var onActiveActions = [];
 	var onActiveOneTimeActions = [];
+	var onActivePreUpdateOneTimeActions = [];
 	
 	//execute when UI is ready and user is logged in (usually)
 	Client.startClient = function(){

@@ -216,6 +216,9 @@ function sepiaFW_build_client_controls(){
             }else{
                 //For now we can only fallback to URI
                 if (controlData.uri){
+                    if (SepiaFW.ui.isAndroid){
+                        SepiaFW.android.setLastRequestedMediaApp(controlData.service);
+                    }
                     SepiaFW.ui.actions.openUrlAutoTarget(controlData.uri);
                 }else{
                     //Feedback (to server and user)

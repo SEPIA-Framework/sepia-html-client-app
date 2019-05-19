@@ -15,9 +15,9 @@ function sepiaFW_build_android(){
         "select": {name: "Select", package: ""},
         "youtube": {name: "YouTube", package: "com.google.android.youtube"},
         "spotify": {name: "Spotify App", package: "com.spotify.music"},
-        "spotify_link": {name: "Spotify URI"},
+        "spotify_link": {name: "Spotify URI", package: "com.spotify.music"},
         "apple_music": {name: "Apple Music App", package: "com.apple.android.music"},
-        "apple_music_link": {name: "Apple Music URI"},
+        "apple_music_link": {name: "Apple Music URI", package: "com.apple.android.music"},
         "amazon_music": {name: "Amazon Music", package: "com.amazon.mp3"},
         "soundcloud": {name: "SoundCloud", package: "com.soundcloud.android"},
         "deezer": {name: "Deezer", package: "deezer.android.app"},
@@ -33,6 +33,16 @@ function sepiaFW_build_android(){
             return app.package;
         }else{
             return "";
+        }
+    }
+
+    //Set the last requested media app via app-tag (service)
+    Android.setLastRequestedMediaApp = function(service){
+        if (service){
+            var app = Android.musicApps[service];
+            if (app && app.package){
+                Android.lastRequestMediaAppPackage = app.package;
+            }
         }
     }
     

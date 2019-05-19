@@ -467,6 +467,12 @@
 				}
 			});
 		});
+
+		//add one-time onActive actions that should run pre my-view update
+		SepiaFW.client.addOnActivePreUpdateOneTimeAction(function(){
+			//TODO: e.g. read-out of triggered events queue?
+			//compare to: handleDeeplinksIntentsAndNotifications
+		});
 		
 		//what happens after login?
 		SepiaFW.account.afterLogin = function(){
