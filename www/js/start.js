@@ -33,6 +33,7 @@ var app = {
 			localStorage.removeItem("sepia-deeplink-intent");
 			localStorage.removeItem("sepia-android-intent");
 			localStorage.removeItem("sepia-local-note");
+			localStorage.removeItem("sepia-local-notes-triggered");
 		}
 
 		//universal links
@@ -49,6 +50,7 @@ var app = {
 		}
 		
 		//local notification
+		cordova.plugins.notification.local.on("trigger", app.onLocalNotificationTriggered, this);
 		cordova.plugins.notification.local.on("click", app.onLocalNotification, this);
 		cordova.plugins.notification.local.setDefaults({
 			group: "sepia-open-assistant",
@@ -90,6 +92,22 @@ var app = {
 			localStorage.setItem("sepia-android-intent", JSON.stringify(intent));
 			localStorage.setItem("sepia-android-intent-ts", new Date().getTime());
 		}
+	},
+	//local notification triggered
+	onLocalNotificationTriggered: function(notification, state){
+		//NOTE: Actually this will not be called when the message is triggered but notes are buffered by the plugin until the app starts
+		if ("localStorage" in window){
+			if (notification && notification.data){
+				var triggeredEvents = localStorage.getItem("sepia-local-notes-triggered");
+				if (triggeredEvents && triggeredEvents.indexOf("[") == 0){
+					triggeredEvents = JSON.parse(triggeredEvents);
+				}else{
+					triggeredEvents = [];
+				}
+				triggeredEvents.push(notification);
+				localStorage.setItem("sepia-local-notes-triggered", JSON.stringify(triggeredEvents));
+			}
+        }
 	},
 	//local notification events
 	onLocalNotification: function(notification, state) {

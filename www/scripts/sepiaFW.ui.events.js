@@ -147,10 +147,10 @@ function sepiaFW_build_events(){
 			return;
 		}
 		/* action:
-		{"eventId":"randomMotivationMorning","info":"entertainWhileIdle","triggerIn":-22800000,"text":"Ach, ich wollte noch sagen, du bist cool! :-)","type":"schedule_msg"}
+		{"eventId":"randomMotivationMorning","info":"entertainWhileIdle","triggerIn":-22800000, "created": 1558379918970, "text":"Ach, ich wollte noch sagen, du bist cool! :-)","type":"schedule_msg"}
 		or e.g.: "info": "proActiveNote"
 		*/
-		var noteData = {"type" : action.info, "action" : "triggered", "data" : {"message" : action.text, "eventId" : action.eventId}};
+		var noteData = {"type": action.info, "action": "triggered", "data": {"message": action.text, "eventId": action.eventId, "created": action.created}};
 
 		if (SepiaFW.ui.isCordova){
 			var d = new Date((new Date().getTime() + action.triggerIn) + 1500);		//note: the delay is to handle the foreground activity (see below, 2nd timer)
@@ -199,6 +199,8 @@ function sepiaFW_build_events(){
 						Events.handleLocalNotificationClick(noteData);
 						SepiaFW.ui.updateMyView(false, true, 'localNotificationClick');
 					});
+					//trigger event
+					Events.trackLocalNotificationTrigger(noteData);
 				}
 			}, action.triggerIn);
 		}
@@ -797,6 +799,8 @@ function sepiaFW_build_events(){
 				}, function(note){
 					Events.handleLocalNotificationClose(data);
 				});
+				//trigger event
+				Events.trackLocalNotificationTrigger(data);
 				//sound
 				if (soundFile && soundFile != 'null'){
 					//TODO: add sound
@@ -852,6 +856,62 @@ function sepiaFW_build_events(){
 				}
 			}
 		}
+	}
+	
+	//track which notifications were triggered (received) to prevent repeated execution
+	Events.trackLocalNotificationTrigger = function(note){
+		//we are only interested in events with fix ID at the moment
+		//example eventIds: "randomMotivationMorning", "haveLunch", ...
+		if (note.type == "entertainWhileIdle" || note.type == "proActiveNote"){
+		    if (note.data && note.data.eventId && note.data.created){
+		        //get cleaned-up, recent, existing events
+		        var recentlyTriggeredProActiveEvents = Events.getCleanedUpRecentProActiveEvents(note.data.eventId);
+				var now = new Date().getTime();
+				var tooOld = getRecentProActiveEventsExpireTime();
+                //add new
+                if ((now - note.data.created) <= tooOld){
+                    recentlyTriggeredProActiveEvents.push({
+                        ts: note.data.created,
+                        eid: note.data.eventId
+                    });
+                }
+                //store modifications
+                SepiaFW.data.set('sepia-recent-pro-active-events', JSON.stringify(recentlyTriggeredProActiveEvents));
+		    }
+		}
+	}
+	Events.getCleanedUpRecentProActiveEvents = function(filterEvent){
+		//get existing
+		var recentlyTriggeredProActiveEvents = SepiaFW.data.get('sepia-recent-pro-active-events');
+		//console.log(recentlyTriggeredProActiveEvents);      //DEBUG
+		if (recentlyTriggeredProActiveEvents && recentlyTriggeredProActiveEvents.indexOf('[') == 0){
+			recentlyTriggeredProActiveEvents = JSON.parse(recentlyTriggeredProActiveEvents);
+		}else{
+			recentlyTriggeredProActiveEvents = [];
+		}
+		//clean-up old (and same)
+		var now = new Date().getTime();
+		var tooOld = getRecentProActiveEventsExpireTime();
+		var i = recentlyTriggeredProActiveEvents.length;
+		while (i--){
+			var ev = recentlyTriggeredProActiveEvents[i];
+			if (ev.eid == filterEvent || (now - ev.ts) > tooOld){
+				recentlyTriggeredProActiveEvents.splice(i, 1);
+			}
+		}
+		return recentlyTriggeredProActiveEvents;
+	}
+	Events.getRecentProActiveEventsReduced = function(){
+		var recentPAEvents = Events.getCleanedUpRecentProActiveEvents();
+		var now = new Date().getTime();
+		var recentPAEventsReduced = {};		//reduced to id:age
+		recentPAEvents.forEach(function(e){
+			recentPAEventsReduced[e.eid] = (now - e.ts);
+		});
+		return recentPAEventsReduced;
+	}
+	function getRecentProActiveEventsExpireTime(){
+		return (1000*60*60*13);     //13h
 	}
 	
 	return Events;

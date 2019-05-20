@@ -191,7 +191,7 @@ function sepiaFW_build_client_controls(){
             */
 
             //Stop internal player
-            if (SepiaFW.audio.isMusicPlayerStreaming()){
+            if (SepiaFW.audio.isMusicPlayerStreaming() || SepiaFW.audio.isMainOnHold()){
                 SepiaFW.audio.stop(SepiaFW.audio.getMusicPlayer());    
             }
 

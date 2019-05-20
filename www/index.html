@@ -382,6 +382,25 @@
 			}
 		}
 	}
+	function handleNotificationTriggers(isDemo){
+		//get some Cordova transfer stuff from localStorage
+		if (isCordova && "localStorage" in window){
+			//get
+			var triggeredLocalNotifications;
+			var lnString = localStorage.getItem("sepia-local-notes-triggered");
+			if (lnString && lnString.indexOf("[") == 0){
+				triggeredLocalNotifications = JSON.parse(lnString);
+				localStorage.removeItem("sepia-local-notes-triggered");
+			}
+			//handle
+			if (triggeredLocalNotifications){
+				//Call handler for each
+				triggeredLocalNotifications.forEach(function(notification){
+					app.onLocalNotificationTriggered(notification);
+				});
+			}
+		}
+	}
 
 	//define app setup (called either here (index.html) or in cordova device-ready (index.js)
 	function appSetup(){
@@ -468,10 +487,10 @@
 			});
 		});
 
-		//add one-time onActive actions that should run pre my-view update
+		//add one-time onActive actions that should run before my-view update
 		SepiaFW.client.addOnActivePreUpdateOneTimeAction(function(){
-			//TODO: e.g. read-out of triggered events queue?
-			//compare to: handleDeeplinksIntentsAndNotifications
+			//read-out of triggered events queue
+			handleNotificationTriggers(SepiaFW.client.isDemoMode());
 		});
 		
 		//what happens after login?

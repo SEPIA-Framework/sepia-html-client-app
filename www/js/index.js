@@ -74,6 +74,7 @@ var app = {
 		}
 		
 		//local notification
+		cordova.plugins.notification.local.on("trigger", app.onLocalNotificationTriggered, this);
 		cordova.plugins.notification.local.on("click", app.onLocalNotification, this);
 		cordova.plugins.notification.local.setDefaults({
 			group: "sepia-open-assistant",
@@ -204,7 +205,17 @@ var app = {
         });
     },
 
-	//local notification events
+	//local notification triggered
+	onLocalNotificationTriggered: function(notification, state){
+		//handle local notification trigger
+		if (SepiaFW.events && notification && notification.data){
+			if (typeof notification.data == "string" && notification.data.indexOf("{") == 0){
+				notification.data = JSON.parse(notification.data);
+			}
+			SepiaFW.events.trackLocalNotificationTrigger(notification.data);
+		}
+	},
+	//local notification clicked
 	onLocalNotification: function(notification, state) {
 		//clean up first to prevent double-call
 		if ("localStorage" in window){

@@ -109,7 +109,8 @@ function sepiaFW_build_assistant(){
 
 		//custom data
 		var cd = {
-			defaultMusicApp: SepiaFW.config.getDefaultMusicApp()
+			defaultMusicApp: SepiaFW.config.getDefaultMusicApp(),
+			recentPAE: (SepiaFW.events)? SepiaFW.events.getRecentProActiveEventsReduced() : ""
 		};
 		State.custom_data = JSON.stringify(cd);
 
