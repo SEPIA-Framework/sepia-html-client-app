@@ -180,7 +180,14 @@ function sepiaFW_build_events(){
 				//remove event before it can be triggered
 				if (SepiaFW.ui.isVisible()){
 					cordova.plugins.notification.local.cancel([nid], function(){
-						//confirm?
+						//send this instead
+						if (SepiaFW.alwaysOn && SepiaFW.alwaysOn.isOpen){
+							SepiaFW.assistant.waitForOpportunityAndSay(action.text, function(){}, 2000, 30000);
+						}else{
+							Events.handleLocalNotificationClick(noteData);
+						}
+						//trigger event
+						Events.trackLocalNotificationTrigger(noteData);
 					});
 				}
 			}, action.triggerIn);
@@ -199,6 +206,15 @@ function sepiaFW_build_events(){
 						Events.handleLocalNotificationClick(noteData);
 						SepiaFW.ui.updateMyView(false, true, 'localNotificationClick');
 					});
+					//trigger event
+					Events.trackLocalNotificationTrigger(noteData);
+				}else{
+					//send this instead
+					if (SepiaFW.alwaysOn && SepiaFW.alwaysOn.isOpen){
+						SepiaFW.assistant.waitForOpportunityAndSay(action.text, function(){}, 2000, 30000);
+					}else{
+						Events.handleLocalNotificationClick(noteData);
+					}
 					//trigger event
 					Events.trackLocalNotificationTrigger(noteData);
 				}

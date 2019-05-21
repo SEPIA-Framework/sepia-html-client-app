@@ -604,10 +604,12 @@ function sepiaFW_build_ui(){
 	}
 	
 	//Update myView
-	var myViewUpdateInterval = 15*60*1000; 		//<- automatic updates will not be done more than once within this interval
+	var myViewUpdateInterval = 15*60*1000; 		//<- updates will not be done more than once within this interval
+	UI.myViewAutoUpdateDelay = 60*60*1000;		//1h
 	var lastMyViewUpdate = 0;
 	var myViewPostponedUpdateTries = 0;
 	var myViewUpdateTimer;
+	var myViewAutoUpdateTimer;
 	var contextEventsLoadDelayTimer = undefined;
 	var timeEventsLoadDelayTimer = undefined;
 	UI.updateMyView = function(forceUpdate, checkGeolocationFirst, updateSource){
@@ -645,7 +647,7 @@ function sepiaFW_build_ui(){
 				UI.updateMyView(forceUpdate, false, 'geoCoderSkippedUpdate');		//TODO: should we use 'forceUpdate' variable instead of false?
 			}
 		
-		//without GPS
+		//without/after GPS
 		}else{
 			var now = new Date().getTime();
 			if (forceUpdate || ((now - lastMyViewUpdate) > myViewUpdateInterval)){
@@ -666,8 +668,22 @@ function sepiaFW_build_ui(){
 				if (SepiaFW.ui.customButtons){
 					SepiaFW.ui.customButtons.onMyViewRefresh();
 				}
+
+				//schedule the next update
+				scheduleNextMyViewAutoUpdate();
 			}
 		}
+	}
+	function scheduleNextMyViewAutoUpdate(overwriteDelay){
+		//schedule the next update
+		clearTimeout(myViewAutoUpdateTimer);
+		myViewAutoUpdateTimer = setTimeout(function(){
+			if (SepiaFW.client.isActive()){
+				UI.updateMyView(false, true, 'myViewAutoUpdate');
+			}else{
+				scheduleNextMyViewAutoUpdate(1000*60*15);	//try again in 15min
+			}
+		}, (overwriteDelay || UI.myViewAutoUpdateDelay));
 	}
 	//Update the timers shown on my-view (no database reload)
 	UI.updateMyTimers = function(maximumPreviewTargetTime){

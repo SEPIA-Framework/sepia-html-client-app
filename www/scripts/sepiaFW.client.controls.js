@@ -16,14 +16,12 @@ function sepiaFW_build_client_controls(){
 
     //Wait for opportunity and send a message (e.g. "some text" or "<error_client_control_0a>") and optionally show info fallback.
     function sendFollowUpMessage(msgOrAnswerTag, info){
-        if (SepiaFW.assistant){
-            SepiaFW.assistant.waitForOpportunityAndSay(msgOrAnswerTag, function(){
-                //Fallback after max-wait:
-                if (info){
-                    SepiaFW.ui.showInfo(info);
-                }
-            }, 2000, 30000);    //min-wait, max-wait
-        }
+        SepiaFW.assistant.waitForOpportunityAndSay(msgOrAnswerTag, function(){
+            //Fallback after max-wait:
+            if (info){
+                SepiaFW.ui.showInfo(info);
+            }
+        }, 2000, 30000);    //min-wait, max-wait
     }
 
     //Open/close settings menu
