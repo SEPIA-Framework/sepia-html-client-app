@@ -193,8 +193,8 @@ function sepiaFW_build_client_controls(){
                 SepiaFW.audio.stop(SepiaFW.audio.getMusicPlayer());    
             }
 
-            //Embedded Player
-            if (SepiaFW.ui.cards.allowWebPlayer || controlData.service.indexOf("_embedded") > 0){
+            //Embedded Player - TODO: check if service has web-player support
+            if (controlData.uri && (SepiaFW.ui.cards.allowWebPlayer || controlData.service.indexOf("_embedded") > 0)){
                 //just skip, cards will do the rest...
                 //YouTube
                 //if (controlData.service.indexOf("youtube") == 0){}
