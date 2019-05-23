@@ -1381,15 +1381,15 @@ function sepiaFW_build_ui_cards(){
 					//avoid that the menu is hidden behind control when at bottom of results view
 					if ($contextMenu.is(":last-child")){
 						var $container = $contextMenu.closest('.sepiaFW-cards-flexSize-container');
-						if ($container.is(":last-child")){
-							if ($container.parent().hasClass('.sepiaFW-results-container') || $container.parent().is(":last-child")){
-								//scroll down another 60px
-								setTimeout(function(){
-									var $scrollContainer = $container.closest('.sepiaFW-results-container');
-									var y = $scrollContainer.scrollTop(); 
-									$scrollContainer.animate({ scrollTop: y + 60 }, animTime);
-								}, animTime + 50);
-							}
+						var $lastVisibleChildInScrollParent = $container.closest('.sepiaFW-results-container').children().filter(":visible").last();
+						var $lastVisibleParentChild = $container.parent().children().filter(":visible").last();
+						if (($container.is($lastVisibleParentChild) && $container.parent().is($lastVisibleChildInScrollParent)) || $container.is($lastVisibleChildInScrollParent)){
+							//scroll down another 60px
+							setTimeout(function(){
+								var $scrollContainer = $container.closest('.sepiaFW-results-container');
+								var y = $scrollContainer.scrollTop(); 
+								$scrollContainer.animate({ scrollTop: y + 60 }, animTime);
+							}, animTime + 50);
 						}
 					}
 				}else{
