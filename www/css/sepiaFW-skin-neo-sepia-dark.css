@@ -116,7 +116,8 @@ html {
 	background: #101418;
 	max-width: none;
 }
-#sepiaFW-chat-controls-more-menu button {
+#sepiaFW-chat-controls-more-menu button,
+.sepiaFW-touch-device #sepiaFW-chat-controls-more-menu button:hover {
 	background: #beff1a;
 	color: #101418;
 }

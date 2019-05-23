@@ -541,7 +541,9 @@ function sepiaFW_build_ui_build(){
 						+ "<span>" + "CLEXI ID" + ": </span>"
 						+ "<input id='sepiaFW-menu-clexi-server-id' type='url' spellcheck='false'>"
 					+ "</li>"
-					+ "<li id='sepiaFW-menu-select-music-app-li' title='Select default music app for search intents.'><span>Default music app: </span></li>"
+					+ "<li id='sepiaFW-menu-select-music-app-li' title='Select default music app for search intents.'>"
+						+ "<span>Default music app: </span></li>"
+						//+ "<span id='sepiaFW-menu-toggle-music-cards-btn'><i class='material-icons'>art_track</i></span>"
 					+ "<li id='sepiaFW-menu-administration-li'>"
 						+ "<button id='sepiaFW-menu-ui-dataprivacy-btn'>" + SepiaFW.local.g('data_privacy') + "</button>"
 						+ "<button id='sepiaFW-menu-ui-license-btn'>" + SepiaFW.local.g('license') + "</button>"
@@ -772,6 +774,19 @@ function sepiaFW_build_ui_build(){
 			
 			//Music app selector
 			document.getElementById('sepiaFW-menu-select-music-app-li').appendChild(Build.musicAppSelector(SepiaFW.config.getMusicAppCollection()));
+			SepiaFW.ui.onShortLongPress($('#sepiaFW-menu-select-music-app-li').find('span').first()[0], function(){
+				//Short press
+			}, function(){
+				//Long press
+				if (SepiaFW.ui.cards.allowWebPlayer){
+					SepiaFW.ui.cards.allowWebPlayer = false;
+					SepiaFW.ui.showPopup("Music Cards deactivated");
+				}else{
+					SepiaFW.ui.cards.allowWebPlayer = true;
+					SepiaFW.ui.showPopup("Music Cards activated (for debugging)");
+				}				
+			}, true);
+			//$('#sepiaFW-menu-toggle-music-cards-btn').off().on('click', function(){});
 
 			//Wake-word stuff - Hey SEPIA
 			if (!SepiaFW.wakeTriggers){

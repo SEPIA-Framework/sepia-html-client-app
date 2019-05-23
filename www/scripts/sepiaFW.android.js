@@ -18,9 +18,9 @@ function sepiaFW_build_android(){
         "spotify_link": {name: "Spotify URI", package: "com.spotify.music"},
         "apple_music": {name: "Apple Music App", package: "com.apple.android.music"},
         "apple_music_link": {name: "Apple Music URI", package: "com.apple.android.music"},
-        "amazon_music": {name: "Amazon Music", package: "com.amazon.mp3"},
-        "soundcloud": {name: "SoundCloud", package: "com.soundcloud.android"},
-        "deezer": {name: "Deezer", package: "deezer.android.app"},
+        //"amazon_music": {name: "Amazon Music", package: "com.amazon.mp3"},
+        //"soundcloud": {name: "SoundCloud", package: "com.soundcloud.android"},
+        //"deezer": {name: "Deezer", package: "deezer.android.app"},
         "vlc_media_player": {name: "VLC", package: "org.videolan.vlc"}
     }
     Android.musicAppsThatBehaveByPackage = {

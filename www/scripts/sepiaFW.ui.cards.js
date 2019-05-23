@@ -989,6 +989,7 @@ function sepiaFW_build_ui_cards(){
 	//LINK
 
 	var currentLinkItemId = 0;
+	var youTubeMessageListenerExists = false;
 	
 	function buildLinkElement(cardElementInfo){
 		var newId = ("sepiaFW-card-id-" + Cards.currentCardId++);
@@ -1035,28 +1036,67 @@ function sepiaFW_build_ui_cards(){
 		//linkCardEle.setAttribute('data-element', JSON.stringify(cardElementInfo));
 		cardBody.appendChild(linkCardEle);
 
-		//Experimenting with Spotify Web Player
-		if (!SepiaFW.ui.isMobile && data.type && data.type == "musicSearch" && data.brand == "Spotify" && linkUrl){
-			if (Cards.allowWebPlayer){
+		//Experimenting with web players
+		if (Cards.allowWebPlayer || data.embedded){
+			//Spotify
+			if (data.type && data.type == "musicSearch" && data.brand == "Spotify" && linkUrl){
 				var webPlayerDiv = document.createElement('DIV');
-				webPlayerDiv.className = "spotifyWebPlayer cardBodyItem fullWidthItem"
-				var contentUrl = "https://" + linkUrl.replace("spotify:", "open.spotify.com/embed/").replace(":play", "").replace(/:/g, "/").trim();
+				webPlayerDiv.className = "spotifyWebPlayer cardBodyItem fullWidthItem";
+				var contentUrl = linkUrl.replace("spotify:", "https://open.spotify.com/embed/").replace(":play", "").replace(/:/g, "/").trim();
 				webPlayerDiv.innerHTML = '<iframe src="' + contentUrl + '" width="100%" height="80" frameborder="0" allowtransparency="true" allow="encrypted-media"></iframe>';
 				cardBody.appendChild(webPlayerDiv);
-			}
-		}else if (!SepiaFW.ui.isMobile && data.type && data.type == "musicSearch" && data.brand == "Apple Music" && linkUrl){
-			if (Cards.allowWebPlayer){
+			//Apple Music
+			}else if (data.type && data.type == "musicSearch" && data.brand == "Apple Music" && linkUrl){
 				var webPlayerDiv = document.createElement('DIV');
-				webPlayerDiv.className = "appleMusicWebPlayer cardBodyItem fullWidthItem"
+				webPlayerDiv.className = "appleMusicWebPlayer cardBodyItem fullWidthItem";
 				webPlayerDiv.innerHTML = '<iframe '
 					+ 'allow="autoplay *; encrypted-media *;" frameborder="0" height="150" '
 					+ 'style="width:100%;max-width:660px;overflow:hidden;background:transparent;" '
 					+ 'sandbox="allow-forms allow-popups allow-same-origin allow-scripts ' 
 						+ ((SepiaFW.ui.isSafari)? 'allow-storage-access-by-user-activation' : '')
 						+ ' allow-top-navigation-by-user-activation" '
-					+ 'src="' + linkUrl.replace("itunes.", "embed.music.") + '">'
+					+ 'src="' + linkUrl.replace(/^https:\/\/.*?\//, "https://embed.music.apple.com/") + '">'
 				+ '</iframe>';
 				cardBody.appendChild(webPlayerDiv);
+			//YouTube - TODO: improve server-side to give brand and correct URL and return data.embedded
+			}else if (linkUrl.indexOf('youtube')){
+				var webPlayerDiv = document.createElement('DIV');
+				var playerId = currentLinkItemId++;
+				webPlayerDiv.className = "youTubeWebPlayer cardBodyItem fullWidthItem"
+				var f = document.createElement('iframe');
+				f.id = 'youTubeWebPlayer-' + playerId;
+				f.allow = "autoplay; encrypted-media;";
+				f.frameBorder = 0;
+				f.style.width = "100%";		f.style.height = "280px";		f.style.overflow = "hidden";
+				f.style.border = "4px solid";	f.style.borderColor = "#212121";
+				f.onload = function(){
+					//API
+					if (!youTubeMessageListenerExists){
+						youTubeMessageListenerExists = true;
+						window.addEventListener('message', function(e){
+							if (e.origin == "https://www.youtube.com" && e.data && typeof e.data == "string" && e.data.indexOf("{") == 0){
+								var data = JSON.parse(e.data);
+								if (data && data.id){
+									//f.contentWindow.postMessage(JSON.stringify({event:'command', func:'stopVideo'}), "*"); //playVideo, paus.., stop.., next..,
+									if (data.event == 'onReady'){
+										$('#' + data.id)[0].contentWindow.postMessage(JSON.stringify({event:'command', func:'playVideo'}), "*");
+									}else if (data.event == 'infoDelivery' && data.info && data.info.playerState == -1){
+										//console.log(JSON.stringify(data));
+										//TODO: sometimes fails AND should not end up in an endless loop!
+										if (data.info.availableQualityLevels.length == 0){
+											$('#' + data.id)[0].contentWindow.postMessage(JSON.stringify({event:'command', func:'nextVideo'}), "*");
+										}
+									}
+								}
+							}
+						});
+					}
+					f.contentWindow.postMessage(JSON.stringify({event:'listening', id: f.id}), "*");
+				};
+				//https://www.youtube.com/results?search_query=purple+haze%2C+jimi+hendrix
+				f.src = "https://www.youtube.com/embed?autoplay=1&enablejsapi=1&listType=search&list=" + linkUrl.replace(/.*?search_query=/, "").trim();
+				cardBody.appendChild(webPlayerDiv);
+				webPlayerDiv.appendChild(f);
 			}
 		}
 		
@@ -1348,7 +1388,7 @@ function sepiaFW_build_ui_cards(){
 									var $scrollContainer = $container.closest('.sepiaFW-results-container');
 									var y = $scrollContainer.scrollTop(); 
 									$scrollContainer.animate({ scrollTop: y + 60 }, animTime);
-								}, animTime);
+								}, animTime + 50);
 							}
 						}
 					}
