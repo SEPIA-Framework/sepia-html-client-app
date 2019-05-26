@@ -778,12 +778,16 @@ function sepiaFW_build_ui_build(){
 				//Short press
 			}, function(){
 				//Long press
-				if (SepiaFW.ui.cards.allowWebPlayer){
-					SepiaFW.ui.cards.allowWebPlayer = false;
-					SepiaFW.ui.showPopup("Music Cards deactivated");
+				if (SepiaFW.ui.cards.canEmbedSpotify){
+					SepiaFW.ui.cards.canEmbedYouTube = false;
+					SepiaFW.ui.cards.canEmbedSpotify = false;
+					SepiaFW.ui.cards.canEmbedAppleMusic = false;
+					SepiaFW.ui.showPopup("All music cards deactivated");
 				}else{
-					SepiaFW.ui.cards.allowWebPlayer = true;
-					SepiaFW.ui.showPopup("Music Cards activated (for debugging)");
+					SepiaFW.ui.cards.canEmbedYouTube = true;
+					SepiaFW.ui.cards.canEmbedSpotify = true;
+					SepiaFW.ui.cards.canEmbedAppleMusic = true;
+					SepiaFW.ui.showPopup("All music cards activated (for debugging)");
 				}				
 			}, true);
 			//$('#sepiaFW-menu-toggle-music-cards-btn').off().on('click', function(){});
@@ -1329,16 +1333,6 @@ function sepiaFW_build_ui_build(){
 			*/
 		}
 		
-		//Actions
-		if (isAssistMsg && SepiaFW.ui.actions){
-			if (!options.skipActions){
-				SepiaFW.ui.actions.handle(msg.data.assistAnswer, block, sender, options);
-			}else if (options.skipNoneButtonActions){
-				options.doButtonsOnly = true;
-				SepiaFW.ui.actions.handle(msg.data.assistAnswer, block, sender, options);
-			}
-		}
-		
 		//add card-data
 		if (isAssistMsg && msg.data.assistAnswer.hasCard){
 			if (SepiaFW.ui.cards){
@@ -1388,6 +1382,16 @@ function sepiaFW_build_ui_build(){
 				}
 			}else{
 				//SepiaFW.debug.info('Cards are not supported');
+			}
+		}
+
+		//Actions
+		if (isAssistMsg && SepiaFW.ui.actions){
+			if (!options.skipActions){
+				SepiaFW.ui.actions.handle(msg.data.assistAnswer, block, sender, options);
+			}else if (options.skipNoneButtonActions){
+				options.doButtonsOnly = true;
+				SepiaFW.ui.actions.handle(msg.data.assistAnswer, block, sender, options);
 			}
 		}
 

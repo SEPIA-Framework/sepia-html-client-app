@@ -147,8 +147,8 @@ function sepiaFW_build_config(){
 	//Collection of universally supported apps and their names
     Config.musicApps = {
 		"youtube": {name: "YouTube"},
-		"spotify_link": {name: "Spotify (URI)"},
-		"apple_music_link": {name: "Apple Music (URI)"}
+		"spotify_link": {name: "Spotify"},
+		"apple_music_link": {name: "Apple Music"}
     }
 	var defaultMusicApp = "youtube";
 

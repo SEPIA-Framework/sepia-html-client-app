@@ -18,10 +18,32 @@ function sepiaFW_build_ui_cards(){
 	
 	//states
 	Cards.currentCardId = 0;	//increasing id for every card element
-	var topIndexZ = 1;			//to get an active element to the top
+	var topIndexZ = 1;			//to get an active element to the top (deprecated?)
 
 	//some specials
-	Cards.allowWebPlayer = false;	//deactivated by default because it only works in desktop and gives no control over start/stop/volume
+	Cards.canEmbedYouTube = true;
+	Cards.canEmbedSpotify = false;		//deactivated by default because it only works in desktop and gives no control over start/stop/volume
+	Cards.canEmbedAppleMusic = false;	//"" ""
+	Cards.canEmbedWebPlayer = function(service){
+		if (!service) return false;
+		service = service.toLowerCase().replace(/\s+/,"_"); 		//support brands too
+		if (service.indexOf("spotify") == 0){
+			return Cards.canEmbedSpotify;
+		}else if (service.indexOf("apple_music") == 0){
+			return Cards.canEmbedAppleMusic;
+		}else if (service.indexOf("youtube") == 0){
+			return Cards.canEmbedYouTube;
+		}else{
+			return false;
+		}
+	}
+	Cards.getSupportedWebPlayers = function(){
+		var players = [];
+		if (Cards.canEmbedYouTube) players.push("youtube");
+		if (Cards.canEmbedSpotify) players.push("spotify");
+		if (Cards.canEmbedAppleMusic) players.push("apple_music");
+		return players;
+	}
 	
 	//get a full card result as DOM element
 	Cards.get = function(assistAnswer, sender){
@@ -989,7 +1011,6 @@ function sepiaFW_build_ui_cards(){
 	//LINK
 
 	var currentLinkItemId = 0;
-	var youTubeMessageListenerExists = false;
 	
 	function buildLinkElement(cardElementInfo){
 		var newId = ("sepiaFW-card-id-" + Cards.currentCardId++);
@@ -1019,7 +1040,7 @@ function sepiaFW_build_ui_cards(){
 			}else if (data.type == "default"){
 				//overwrite with default link icon
 				leftElement = "<div class='linkCardLogo'>" + "<i class='material-icons md-mnu'>link</i>" + "</div>";	//language
-			}else if (data.type == "musicSearch"){
+			}else if (data.type == "musicSearch" || data.type == "videoSearch"){
 				//we could check the brand here: data.brand, e.g. Spotify, YouTube, ...
 				linkCardEle.className += (" " + data.brand);
 			}
@@ -1037,16 +1058,16 @@ function sepiaFW_build_ui_cards(){
 		cardBody.appendChild(linkCardEle);
 
 		//Experimenting with web players
-		if (Cards.allowWebPlayer || data.embedded){
+		if (Cards.canEmbedWebPlayer(data.brand) && linkUrl && data.type && (data.type == "musicSearch" || data.type == "videoSearch")){
 			//Spotify
-			if (data.type && data.type == "musicSearch" && data.brand == "Spotify" && linkUrl){
+			if (data.brand == "Spotify"){
 				var webPlayerDiv = document.createElement('DIV');
 				webPlayerDiv.className = "spotifyWebPlayer cardBodyItem fullWidthItem";
 				var contentUrl = linkUrl.replace("spotify:", "https://open.spotify.com/embed/").replace(":play", "").replace(/:/g, "/").trim();
 				webPlayerDiv.innerHTML = '<iframe src="' + contentUrl + '" width="100%" height="80" frameborder="0" allowtransparency="true" allow="encrypted-media"></iframe>';
 				cardBody.appendChild(webPlayerDiv);
 			//Apple Music
-			}else if (data.type && data.type == "musicSearch" && data.brand == "Apple Music" && linkUrl){
+			}else if (data.brand == "Apple Music"){
 				var webPlayerDiv = document.createElement('DIV');
 				webPlayerDiv.className = "appleMusicWebPlayer cardBodyItem fullWidthItem";
 				webPlayerDiv.innerHTML = '<iframe '
@@ -1059,7 +1080,7 @@ function sepiaFW_build_ui_cards(){
 				+ '</iframe>';
 				cardBody.appendChild(webPlayerDiv);
 			//YouTube - TODO: improve server-side to give brand and correct URL and return data.embedded
-			}else if (linkUrl.indexOf('youtube')){
+			}else if (data.brand == "YouTube"){
 				var webPlayerDiv = document.createElement('DIV');
 				var playerId = currentLinkItemId++;
 				webPlayerDiv.className = "youTubeWebPlayer cardBodyItem fullWidthItem"
@@ -1069,32 +1090,15 @@ function sepiaFW_build_ui_cards(){
 				f.frameBorder = 0;
 				f.style.width = "100%";		f.style.height = "280px";		f.style.overflow = "hidden";
 				f.style.border = "4px solid";	f.style.borderColor = "#212121";
-				f.onload = function(){
-					//API
-					if (!youTubeMessageListenerExists){
-						youTubeMessageListenerExists = true;
-						window.addEventListener('message', function(e){
-							if (e.origin == "https://www.youtube.com" && e.data && typeof e.data == "string" && e.data.indexOf("{") == 0){
-								var data = JSON.parse(e.data);
-								if (data && data.id){
-									//f.contentWindow.postMessage(JSON.stringify({event:'command', func:'stopVideo'}), "*"); //playVideo, paus.., stop.., next..,
-									if (data.event == 'onReady'){
-										$('#' + data.id)[0].contentWindow.postMessage(JSON.stringify({event:'command', func:'playVideo'}), "*");
-									}else if (data.event == 'infoDelivery' && data.info && data.info.playerState == -1){
-										//console.log(JSON.stringify(data));
-										//TODO: sometimes fails AND should not end up in an endless loop!
-										if (data.info.availableQualityLevels.length == 0){
-											$('#' + data.id)[0].contentWindow.postMessage(JSON.stringify({event:'command', func:'nextVideo'}), "*");
-										}
-									}
-								}
-							}
-						});
-					}
-					f.contentWindow.postMessage(JSON.stringify({event:'listening', id: f.id}), "*");
-				};
-				//https://www.youtube.com/results?search_query=purple+haze%2C+jimi+hendrix
-				f.src = "https://www.youtube.com/embed?autoplay=1&enablejsapi=1&listType=search&list=" + linkUrl.replace(/.*?search_query=/, "").trim();
+				if (data.autoplay){
+					addYouTubeControls(f);
+				}
+				if (linkUrl.indexOf("/embed") < 0){
+					//convert e.g.: https://www.youtube.com/results?search_query=purple+haze%2C+jimi+hendrix
+					f.src = "https://www.youtube.com/embed?autoplay=1&enablejsapi=1&playsinline=1&fs=1&listType=search&list=" + linkUrl.replace(/.*?search_query=/, "").trim();
+				}else{
+					f.src = linkUrl;
+				}
 				cardBody.appendChild(webPlayerDiv);
 				webPlayerDiv.appendChild(f);
 			}
@@ -1624,6 +1628,91 @@ function sepiaFW_build_ui_cards(){
 			}
 		}
 		return footer;
+	}
+
+	//--- YouTube Card Controls ---
+
+	var youTubeMessageListenerExists = false;
+	var youTubePlayersTriedToStart = {};
+	var youTubeLastActivePlayerId = undefined;
+	var youTubeLastActivePlayerState = undefined;
+
+	function addYouTubeControls(frameEle){
+		frameEle.onload = function(){
+			//API
+			if (!youTubeMessageListenerExists){
+				youTubeMessageListenerExists = true;
+				window.addEventListener('message', function(e){
+					if (e.origin == "https://www.youtube.com" && e.data && typeof e.data == "string" && e.data.indexOf("{") == 0){
+						var data = JSON.parse(e.data);
+						if (data && data.id){
+							var $player = $('#' + data.id);
+							//console.log("YouTube iframe event: " + data.event);
+							if ($player.length == 0){
+								return;
+							}
+							if (data.event == 'onReady'){
+								$player[0].contentWindow.postMessage(JSON.stringify({event:'command', func:'playVideo'}), "*");
+							}else if (data.event == 'infoDelivery' && data.info){
+								//console.log(JSON.stringify(data));
+								if (data.info.playerState != undefined) youTubeLastActivePlayerState = data.info.playerState;
+								if (data.info.playerState == -1){
+									//Skip if faulty
+									if (data.info.availableQualityLevels.length == 0 || data.info.videoBytesTotal == 1){
+										//console.log(data.info.playlist.length - 1);
+										//console.log(data.info.playlistIndex);
+										if (!youTubePlayersTriedToStart[data.id] && data.info.playlistIndex == 0){
+											youTubePlayersTriedToStart[data.id] = true;
+											$player[0].contentWindow.postMessage(JSON.stringify({event:'command', func:'nextVideo'}), "*");
+										}else if (data.info.playlist && data.info.playlist.length > 0){
+											if (data.info.playlistIndex != undefined && data.info.playlistIndex < (data.info.playlist.length - 1)){
+												//console.log('--- next ---');
+												$player[0].contentWindow.postMessage(JSON.stringify({event:'command', func:'nextVideo'}), "*");
+												delete youTubePlayersTriedToStart[data.id];
+											}
+										}
+									}
+								}else{
+									youTubeLastActivePlayerId = data.id;
+								}
+							}
+						}
+					}
+				});
+			}
+			frameEle.contentWindow.postMessage(JSON.stringify({event:'listening', id: frameEle.id}), "*");
+		};
+	}
+	Cards.youTubePlayerGetState = function(){
+		if (youTubeLastActivePlayerId){
+			var $player = $('#' + youTubeLastActivePlayerId);
+			if ($player.length == 0){
+				return 0;
+			}else{
+				return youTubeLastActivePlayerState;
+			}
+		}else{
+			return 0;
+		}
+	}
+	Cards.youTubePlayerControls = function(cmd){
+		if (youTubeLastActivePlayerId && youTubeLastActivePlayerState > 0){
+			var $player = $('#' + youTubeLastActivePlayerId);
+			if ($player.length == 0){
+				return 0;
+			}else{
+				if (cmd == "stop" || cmd == "pause"){
+					$player[0].contentWindow.postMessage(JSON.stringify({event:'command', func:'pauseVideo'}), "*"); 	//NOTE: we use pause for now because stop triggers next video
+					return 1;	
+				}else if (cmd == "next"){
+					$player[0].contentWindow.postMessage(JSON.stringify({event:'command', func:'nextVideo'}), "*");
+					return 1;	
+				}else{
+					return 0;
+				}
+				//frameEle.contentWindow.postMessage(JSON.stringify({event:'command', func:'stopVideo'}), "*"); //playVideo, paus.., stop.., next..,
+			}
+		}
 	}
 	
 	return Cards;

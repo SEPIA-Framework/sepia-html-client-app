@@ -120,13 +120,16 @@ function sepiaFW_build_client_controls(){
             //STOP
             if (controlData.action == "stop" || controlData.action == "pause"){
                 //Stop internal player
-                var isInternalPlayerStreaming = SepiaFW.audio.isMusicPlayerStreaming();
+                var isInternalPlayerStreaming = SepiaFW.audio.isMusicPlayerStreaming() || SepiaFW.audio.isMainOnHold();
                 if (isInternalPlayerStreaming){
                     SepiaFW.audio.stop(SepiaFW.audio.getMusicPlayer());    
                 }
-                //Platform specific additional STOP methods
+                //Player and platform specific additional STOP methods
                 var sentAdditionalEvent = false;
-                if (SepiaFW.ui.isAndroid){
+                if (SepiaFW.ui.cards.youTubePlayerGetState() == 1){
+                    //YouTube embedded player
+                    sentAdditionalEvent = (SepiaFW.ui.cards.youTubePlayerControls("stop") > 0);
+                }else if (SepiaFW.ui.isAndroid){
                     //we do this only if we have a recent Android media event - otherwhise it will activate all music apps
                     var requireMediaAppPackage = true;
                     sentAdditionalEvent = SepiaFW.android.broadcastMediaButtonDownUpIntent(127, requireMediaAppPackage);  
@@ -144,8 +147,12 @@ function sepiaFW_build_client_controls(){
                 SepiaFW.audio.startNextMusicStreamOfQueue(function(){}, function(err){
                     //Failed to execute NEXT on internal player:
                     
-                    //Platform specific additional NEXT methods
-                    if (SepiaFW.ui.isAndroid){
+                    //Player or platform specific additional NEXT methods
+                    if (SepiaFW.ui.cards.youTubePlayerGetState() > 0){
+                        //YouTube embedded player
+                        SepiaFW.ui.cards.youTubePlayerControls("next");
+
+                    }else if (SepiaFW.ui.isAndroid){
                         //Stop internal player
                         if (SepiaFW.audio.isMusicPlayerStreaming()){
                             SepiaFW.audio.stop(SepiaFW.audio.getMusicPlayer());    
@@ -194,7 +201,7 @@ function sepiaFW_build_client_controls(){
             }
 
             //Embedded Player - TODO: check if service has web-player support
-            if (controlData.uri && (SepiaFW.ui.cards.allowWebPlayer || controlData.service.indexOf("_embedded") > 0)){
+            if (controlData.uri && (SepiaFW.ui.cards.canEmbedWebPlayer(controlData.service) || controlData.service.indexOf("_embedded") > 0)){
                 //just skip, cards will do the rest...
                 //YouTube
                 //if (controlData.service.indexOf("youtube") == 0){}
