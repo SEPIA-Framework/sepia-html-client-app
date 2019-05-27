@@ -1668,7 +1668,9 @@ function sepiaFW_build_ui_cards(){
 								return;
 							}
 							if (data.event == 'onReady'){
-								$player[0].contentWindow.postMessage(JSON.stringify({event:'command', func:'playVideo'}), "*");
+                                setTimeout(function(){
+                                    $player[0].contentWindow.postMessage(JSON.stringify({event:'command', func:'playVideo'}), "*");
+                                }, 1000);
 							}else if (data.event == 'infoDelivery' && data.info){
 								//console.log(JSON.stringify(data));
 								if (data.info.playerState != undefined){
@@ -1679,6 +1681,7 @@ function sepiaFW_build_ui_cards(){
 									//Skip if faulty
 									youTubeSkipIfNotPlayed(data, $player);
 								}else if (data.info.playerState == 1){
+									clearTimeout(youtubeSkipTimer);
 									clearTimeout(youTubePlayConfirmTimer);
 								}
 							}
@@ -1689,6 +1692,7 @@ function sepiaFW_build_ui_cards(){
 			frameEle.contentWindow.postMessage(JSON.stringify({event:'listening', id: frameEle.id}), "*");
 		};
 	}
+	var youtubeSkipTimer = undefined;
 	function youTubeSkipIfNotPlayed(data, $player, skipFirstTest){
 		if (skipFirstTest || data.info.availableQualityLevels.length == 0){
 			//console.log(data.info.playlist.length - 1);
@@ -1696,16 +1700,23 @@ function sepiaFW_build_ui_cards(){
 			if (!youTubePlayersTriedToStart[data.id] && data.info.playlistIndex == 0){
 				youTubePlayersTriedToStart[data.id] = true;
 				//console.log('--- next A ---');
-				$player[0].contentWindow.postMessage(JSON.stringify({event:'command', func:'nextVideo'}), "*");
+				clearTimeout(youtubeSkipTimer);
+				youtubeSkipTimer = setTimeout(function(){
+                    $player[0].contentWindow.postMessage(JSON.stringify({event:'command', func:'nextVideo'}), "*");
+                }, 1000);
 			}else if (data.info.playlist && data.info.playlist.length > 0){
 				if (data.info.playlistIndex != undefined && data.info.playlistIndex < (data.info.playlist.length - 1)){
 					//console.log('--- next B ---');
-					$player[0].contentWindow.postMessage(JSON.stringify({event:'command', func:'nextVideo'}), "*");
+					clearTimeout(youtubeSkipTimer);
+					youtubeSkipTimer = setTimeout(function(){
+					    $player[0].contentWindow.postMessage(JSON.stringify({event:'command', func:'nextVideo'}), "*");
+                    }, 1000);
 					delete youTubePlayersTriedToStart[data.id];
 				}
 			}
 		}else{
 			//confirm play
+			clearTimeout(youtubeSkipTimer);
 			youTubeSetConfirmTimer(data, $player);
 		}
 	}
