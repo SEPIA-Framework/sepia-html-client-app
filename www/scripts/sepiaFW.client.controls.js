@@ -137,7 +137,7 @@ function sepiaFW_build_client_controls(){
                 }
                 //TODO: add iOS and Windows?
                 //TODO: we could use a Mesh-Node and the sendMessage API in Windows
-                if (!isInternalPlayerStreaming && !sentAdditionalEvent){
+                if (!isInternalPlayerStreaming && !sentAdditionalEvent && !controlData.skipFollowUp){
                     //The user has probably tried to stop an external app but that was not possible
                     sendFollowUpMessage(SepiaFW.local.g("tried_but_not_sure"), SepiaFW.local.g('result_unclear') + "Media: STOP");     //"<default_under_construction_0b>"
                 }
@@ -162,7 +162,7 @@ function sepiaFW_build_client_controls(){
                         SepiaFW.android.broadcastMediaButtonDownUpIntent(87, requireMediaAppPackage);   //87: KEYCODE_MEDIA_NEXT
                     
                     //Out of options ... for now
-                    }else{
+                    }else if (!controlData.skipFollowUp){
                         sendFollowUpMessage("<default_under_construction_0b>", SepiaFW.local.g('no_client_support'));
                         SepiaFW.debug.error("Client controls - Unsupported action in 'media': " + controlData.action);
                     }
@@ -195,10 +195,11 @@ function sepiaFW_build_client_controls(){
             console.log('URI: ' + controlData.uri);
             */
 
-            //Stop internal player
-            if (SepiaFW.audio.isMusicPlayerStreaming() || SepiaFW.audio.isMainOnHold()){
-                SepiaFW.audio.stop(SepiaFW.audio.getMusicPlayer());    
-            }
+            //Stop other players
+            Controls.media({
+                action: "stop",
+                skipFollowUp: true
+            });
 
             //Embedded Player - TODO: check if service has web-player support
             if (controlData.uri && (SepiaFW.ui.cards.canEmbedWebPlayer(controlData.service) || controlData.service.indexOf("_embedded") > 0)){

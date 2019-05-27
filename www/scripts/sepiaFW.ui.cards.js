@@ -1063,8 +1063,12 @@ function sepiaFW_build_ui_cards(){
 			if (data.brand == "Spotify"){
 				var webPlayerDiv = document.createElement('DIV');
 				webPlayerDiv.className = "spotifyWebPlayer cardBodyItem fullWidthItem";
-				var contentUrl = linkUrl.replace("spotify:", "https://open.spotify.com/embed/").replace(":play", "").replace(/:/g, "/").trim();
-				webPlayerDiv.innerHTML = '<iframe src="' + contentUrl + '" width="100%" height="80" frameborder="0" allowtransparency="true" allow="encrypted-media"></iframe>';
+				var contentUrl = "https://" + linkUrl.replace("spotify:", "open.spotify.com/embed/").replace(":play", "").replace(/:/g, "/").trim();
+				webPlayerDiv.innerHTML = '<iframe '
+					+ 'src="' + contentUrl + '" width="100%" height="80" frameborder="0" allowtransparency="true" '
+					+ 'allow="encrypted-media" '
+					+ 'sandbox="allow-forms allow-popups allow-same-origin allow-scripts" ' + '>'
+				+ '</iframe>';
 				cardBody.appendChild(webPlayerDiv);
 			//Apple Music
 			}else if (data.brand == "Apple Music"){
@@ -1087,15 +1091,26 @@ function sepiaFW_build_ui_cards(){
 				var f = document.createElement('iframe');
 				f.id = 'youTubeWebPlayer-' + playerId;
 				f.allow = "autoplay; encrypted-media;";
+				f.sandbox = "allow-same-origin allow-scripts allow-presentation"; 
 				f.frameBorder = 0;
 				f.style.width = "100%";		f.style.height = "280px";		f.style.overflow = "hidden";
 				f.style.border = "4px solid";	f.style.borderColor = "#212121";
 				if (data.autoplay){
+					//stop all previous audio first
+					if (SepiaFW.client.controls){
+						SepiaFW.client.controls.media({
+							action: "stop",
+							skipFollowUp: true
+						});
+					}else{
+						SepiaFW.audio.stop();
+					}
 					addYouTubeControls(f);
 				}
 				if (linkUrl.indexOf("/embed") < 0){
 					//convert e.g.: https://www.youtube.com/results?search_query=purple+haze%2C+jimi+hendrix
-					f.src = "https://www.youtube.com/embed?autoplay=1&enablejsapi=1&playsinline=1&fs=1&listType=search&list=" + linkUrl.replace(/.*?search_query=/, "").trim();
+					f.src = "https://www.youtube.com/embed?autoplay=1&enablejsapi=1&playsinline=1&iv_load_policy=3&fs=1&listType=search&list=" 
+						+ linkUrl.replace(/.*?search_query=/, "").trim();
 				}else{
 					f.src = linkUrl;
 				}
@@ -1630,12 +1645,13 @@ function sepiaFW_build_ui_cards(){
 		return footer;
 	}
 
-	//--- YouTube Card Controls ---
+	//------ YouTube Card Controls ------
 
 	var youTubeMessageListenerExists = false;
 	var youTubePlayersTriedToStart = {};
 	var youTubeLastActivePlayerId = undefined;
 	var youTubeLastActivePlayerState = undefined;
+	var youTubePlayConfirmTimer = undefined;
 
 	function addYouTubeControls(frameEle){
 		frameEle.onload = function(){
@@ -1655,25 +1671,15 @@ function sepiaFW_build_ui_cards(){
 								$player[0].contentWindow.postMessage(JSON.stringify({event:'command', func:'playVideo'}), "*");
 							}else if (data.event == 'infoDelivery' && data.info){
 								//console.log(JSON.stringify(data));
-								if (data.info.playerState != undefined) youTubeLastActivePlayerState = data.info.playerState;
+								if (data.info.playerState != undefined){
+									youTubeLastActivePlayerState = data.info.playerState;
+								}
+								youTubeLastActivePlayerId = data.id;
 								if (data.info.playerState == -1){
 									//Skip if faulty
-									if (data.info.availableQualityLevels.length == 0 || data.info.videoBytesTotal == 1){
-										//console.log(data.info.playlist.length - 1);
-										//console.log(data.info.playlistIndex);
-										if (!youTubePlayersTriedToStart[data.id] && data.info.playlistIndex == 0){
-											youTubePlayersTriedToStart[data.id] = true;
-											$player[0].contentWindow.postMessage(JSON.stringify({event:'command', func:'nextVideo'}), "*");
-										}else if (data.info.playlist && data.info.playlist.length > 0){
-											if (data.info.playlistIndex != undefined && data.info.playlistIndex < (data.info.playlist.length - 1)){
-												//console.log('--- next ---');
-												$player[0].contentWindow.postMessage(JSON.stringify({event:'command', func:'nextVideo'}), "*");
-												delete youTubePlayersTriedToStart[data.id];
-											}
-										}
-									}
-								}else{
-									youTubeLastActivePlayerId = data.id;
+									youTubeSkipIfNotPlayed(data, $player);
+								}else if (data.info.playerState == 1){
+									clearTimeout(youTubePlayConfirmTimer);
 								}
 							}
 						}
@@ -1682,6 +1688,36 @@ function sepiaFW_build_ui_cards(){
 			}
 			frameEle.contentWindow.postMessage(JSON.stringify({event:'listening', id: frameEle.id}), "*");
 		};
+	}
+	function youTubeSkipIfNotPlayed(data, $player, skipFirstTest){
+		if (skipFirstTest || data.info.availableQualityLevels.length == 0){
+			//console.log(data.info.playlist.length - 1);
+			//console.log(data.info.playlistIndex);
+			if (!youTubePlayersTriedToStart[data.id] && data.info.playlistIndex == 0){
+				youTubePlayersTriedToStart[data.id] = true;
+				//console.log('--- next A ---');
+				$player[0].contentWindow.postMessage(JSON.stringify({event:'command', func:'nextVideo'}), "*");
+			}else if (data.info.playlist && data.info.playlist.length > 0){
+				if (data.info.playlistIndex != undefined && data.info.playlistIndex < (data.info.playlist.length - 1)){
+					//console.log('--- next B ---');
+					$player[0].contentWindow.postMessage(JSON.stringify({event:'command', func:'nextVideo'}), "*");
+					delete youTubePlayersTriedToStart[data.id];
+				}
+			}
+		}else{
+			//confirm play
+			youTubeSetConfirmTimer(data, $player);
+		}
+	}
+	function youTubeSetConfirmTimer(data, $player){
+		clearTimeout(youTubePlayConfirmTimer);
+		youTubePlayConfirmTimer = setTimeout(function(){
+			//console.log('--- confirm check ---');
+			if (Cards.youTubePlayerGetState() != 1){
+				data.info.playlistIndex++;
+				youTubeSkipIfNotPlayed(data, $player, true);
+			}
+		}, 3000);
 	}
 	Cards.youTubePlayerGetState = function(){
 		if (youTubeLastActivePlayerId){
@@ -1696,6 +1732,7 @@ function sepiaFW_build_ui_cards(){
 		}
 	}
 	Cards.youTubePlayerControls = function(cmd){
+		clearTimeout(youTubePlayConfirmTimer);
 		if (youTubeLastActivePlayerId && youTubeLastActivePlayerState > 0){
 			var $player = $('#' + youTubeLastActivePlayerId);
 			if ($player.length == 0){
