@@ -229,10 +229,7 @@ function sepiaFW_build_ui_build(){
 			SepiaFW.ui.longPressShortPressDoubleTap(sepiaLabel, function(){
 				//long-press
 				//e.g.: force reconnect
-				SepiaFW.client.closeClient();
-				setTimeout(function(){
-					SepiaFW.client.resumeClient();
-				}, 3000);
+				SepiaFW.client.closeClient(true, SepiaFW.client.resumeClient);
 			},'',function(){
 				//short press
 			},function(){
@@ -396,7 +393,13 @@ function sepiaFW_build_ui_build(){
 			if (buttonEle){
 				$(buttonEle).off();
 				SepiaFW.ui.longPressShortPressDoubleTap(buttonEle, function(){
-					SepiaFW.ui.resetMicButton();
+					//switch issue
+					if (SepiaFW.client.isMessagePending){
+						//e.g.: force reconnect
+						SepiaFW.client.closeClient(true, SepiaFW.client.resumeClient);
+					}else{
+						SepiaFW.ui.resetMicButton();
+					}
 					//custom
 					if (customCallbackLong) customCallbackLong();
 				},'',function(){

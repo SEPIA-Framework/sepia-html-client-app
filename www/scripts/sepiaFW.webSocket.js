@@ -18,7 +18,7 @@ function sepiaFW_build_client_interface(){
 	ClientInterface.setDemoMode = SepiaFW.webSocket.client.setDemoMode;
 	ClientInterface.isDemoMode = SepiaFW.webSocket.client.isDemoMode;
 	
-	ClientInterface.closeClient = SepiaFW.webSocket.client.closeConnection;
+	ClientInterface.closeClient = SepiaFW.webSocket.client.closeConnection; 	//argument: forceReset, forceResetCallback
 	ClientInterface.pauseClient = SepiaFW.webSocket.client.closeConnection;
 	ClientInterface.resumeClient = SepiaFW.webSocket.client.instaReconnect;
 	
@@ -58,6 +58,7 @@ function sepiaFW_build_client_interface(){
 	
 	//states and settings
 	ClientInterface.allowBackgroundConnection = false;
+	ClientInterface.isMessagePending = false;
 
 	//some constants for link sharing
 	ClientInterface.deeplinkHostUrl = "https://b07z.net/dl/sepia/index.html";
@@ -1200,6 +1201,7 @@ function sepiaFW_build_webSocket_client(){
 			SepiaFW.debug.log("WebSocket: connection open");
 			clearTimeout(reconTimer);
 			clearTimeout(instaReconTimer);
+			clearTimeout(closeConnectionTimer);
 			connectionIsOpen = true;
 			connectAttempts = 0;
 			isConnecting = false;
@@ -1221,7 +1223,7 @@ function sepiaFW_build_webSocket_client(){
 	}
 
 	//close connection
-	Client.closeConnection = function(){
+	Client.closeConnection = function(forceReset, forceResetCallback){
 		//TODO: consider tryReconnect here. When force close set it in the calling function.
 		tryReconnect = false;
 		clearTimeout(reconTimer);
@@ -1230,7 +1232,19 @@ function sepiaFW_build_webSocket_client(){
 		if (webSocket){
 			webSocket.close();
 		}
+		if (forceReset){
+			clearTimeout(closeConnectionTimer);
+			closeConnectionTimer = setTimeout(function(){
+				if (isConnecting || connectionIsOpen){
+					webSocket.onclose();
+					if (forceResetCallback) forceResetCallback();
+				}else{
+					if (forceResetCallback) forceResetCallback();
+				}
+			}, 3000);
+		}
 	}
+	var closeConnectionTimer = undefined;
 	
 	//reconnect on close
 	var reconTimer;
@@ -1418,9 +1432,14 @@ function sepiaFW_build_webSocket_client(){
 							//Message lost?
 							if (messageQueue[id]){
 								//TODO: problems!
+								SepiaFW.client.isMessagePending = true;
 								SepiaFW.debug.error("Message with ID '" + id + "' was not delivered (yet) after 7s!");
+							}else{
+								SepiaFW.client.isMessagePending = false;
 							}
 						}, 3500);
+					}else{
+						SepiaFW.client.isMessagePending = false;
 					}
 				}, 3500);
 			}
