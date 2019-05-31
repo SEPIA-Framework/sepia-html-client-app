@@ -116,7 +116,8 @@ html {
 	background: #101418;
 	max-width: none;
 }
-#sepiaFW-chat-controls-more-menu button {
+#sepiaFW-chat-controls-more-menu button,
+.sepiaFW-touch-device #sepiaFW-chat-controls-more-menu button:hover {
 	background: #beff1a;
 	color: #101418;
 }
@@ -154,7 +155,7 @@ html {
 }
 #sepiaFW-main-window .chat-buttons-area button {
     background: #2d3034 !important;
-	color: #fff !important
+	color: #fff !important;
 }
 #sepiaFW-main-window .chat-buttons-area .my-view-custom-button {
 	background-color: #08a0c8 !important;
@@ -166,7 +167,7 @@ html {
 }
 #sepiaFW-main-window #sepiaFW-myFirstStart-buttons button {
 	background: #beff1a !important;
-	color: #101418 !important
+	color: #101418 !important;
 }
 .sepiaFW-notouch-device #sepiaFW-main-window #sepiaFW-myFirstStart-buttons button:hover {
 	background: #7bed31 !important;
@@ -215,7 +216,8 @@ html {
 }
 
 #sepiaFW-chat-controls-swipe-area .sepiaFW-swipeBar-switchable {
-	background: #08a0c8;
+	/*background: #08a0c8;*/
+	background: #24262a;
 	color: #fff;
 }
 
@@ -234,12 +236,17 @@ html {
 /*----- cards ------*/
 
 .sepiaFW-cards-flexSize-container {
-	/*background: rgba(255, 255, 255, 0.14);*/
 	background: rgba(21, 23, 26, 0.85);
 }
 
 .sepiaFW-help-view {
     background: rgba(33, 33, 33, 0.75);
+}
+
+.sepiaFW-cards-button,
+.sepiaFW-notouch-device .sepiaFW-cards-button:hover {
+	background: #BEFF1A;
+    color: #121212;
 }
 
 .sepiaFW-cards-list-title {
@@ -280,12 +287,15 @@ html {
 	background: #08a0c8;
 }
 .sepiaFW-cards-list-title.newsHeader {
-    background: #08a0c8;
-	color: #ECEBE7;
+    background: #ECEBE7;
+	color: #212327;
 }
 .sepiaFW-cards-list-title.newsHeader span {
 	text-shadow: 1px 1px 0 #ECEBE7, 1px -1px 0 #ECEBE7, -1px 1px 0 #ECEBE7, -1px -1px 0 #ECEBE7, 
 					1px 1px 0 #ECEBE7, 0px 1px 0 #ECEBE7, -1px 0px 0 #ECEBE7, 0px -1px 0 #ECEBE7;
+}
+.sepiaFW-cards-list-title.newsHeader button {
+	color: #101418 !important;
 }
 
 /*----- teachUI -----*/

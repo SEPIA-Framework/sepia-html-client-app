@@ -3,6 +3,7 @@ function sepiaFW_build_clexi(){
 
     Clexi.isSupported = ('ClexiJS' in window);
     Clexi.socketURI = "";       //default CLEXI server: wss://raspberrypi.local:8443
+    Clexi.serverId = "";
     Clexi.doConnect = false;
 
     Clexi.numOfSendRetries = 10;
@@ -11,16 +12,36 @@ function sepiaFW_build_clexi(){
         SepiaFW.data.set('clexiSocketURI', newURI);
         Clexi.socketURI = newURI;
     }
+    Clexi.setServerId = function(newId){
+        SepiaFW.data.set('clexiServerId', newId);
+        Clexi.serverId = newId;
+        ClexiJS.serverId = Clexi.serverId;
+    }
 
     Clexi.initialize = function(){
         Clexi.socketURI = SepiaFW.data.get('clexiSocketURI') || "";
+        Clexi.serverId = SepiaFW.data.get('clexiServerId') || "";
+        ClexiJS.serverId = Clexi.serverId;
         
         var useClexi = SepiaFW.data.get('clexiConnect');
         if (useClexi != undefined) Clexi.doConnect = useClexi;
         SepiaFW.debug.info("CLEXI support is " + ((Clexi.isSupported && Clexi.doConnect)? "ENABLED" : "DISABLED"));
+
+        //Add onActive action:
+        SepiaFW.client.addOnActiveAction(clexiOnAction);
+    }
+    function clexiOnAction(){
+        if (SepiaFW.clexi.isSupported && SepiaFW.clexi.doConnect){
+            setTimeout(function(){
+                //check first if already running
+                if (!Clexi.isConnected()){
+                    Clexi.setup();
+                }
+            }, 500);
+        }
     }
 
-    //This is called after user login inside 'Client.onActive'
+    //This is called after user login via 'Client.onActive' (see above)
     Clexi.setup = function(){
         //Logging
         ClexiJS.onLog = SepiaFW.debug.log;
@@ -44,30 +65,52 @@ function sepiaFW_build_clexi(){
         }
     }
 
+    var rgyIndicators = [];
+    Clexi.addStateIndicatorRGY = function(sepiaIndicator){
+        rgyIndicators.push(sepiaIndicator);
+    }
+
+    Clexi.isConnected = function(){
+        return ClexiJS.isConnected();
+    }
+
     Clexi.connect = function(){
         ClexiJS.connect(Clexi.socketURI, function(e){
             //connected
+            rgyIndicators.forEach(function(indi){
+                indi.setState("g");
+            });
 
             //subscribe
             subscribeToBeaconScanner();
             //subscribeToBroadcaster();
+            subscribeToHttpEvents();
 
             //request some states
             Clexi.requestBleBeaconScannerState();       //TODO: repeat from time to time or at least on error?
             
         }, function(e){
             //closed
-            removeBeaconScannerSubscription();
-            //removeBroadcasterSubscription();
+            rgyIndicators.forEach(function(indi){
+                indi.setState("r");
+            });
+            removeAllSubscriptions();
             
         }, function(err){
             //error
-            removeBeaconScannerSubscription();
-            //removeBroadcasterSubscription();
+            removeAllSubscriptions();
+        
+        }, function(){
+            //connecting
+            rgyIndicators.forEach(function(indi){
+                indi.setState("y");
+            });
         });
     }
     Clexi.close = function(){
         ClexiJS.close();
+        var useClexi = SepiaFW.data.get('clexiConnect');
+        if (useClexi != undefined) Clexi.doConnect = useClexi;
     }
 
     Clexi.send = function(extensionName, data, numOfRetries){
@@ -100,6 +143,31 @@ function sepiaFW_build_clexi(){
     }
     function removeBroadcasterSubscription(){
         ClexiJS.removeSubscription('clexi-broadcaster');
+    }
+
+    //CLEXI Http-Events:
+
+    function subscribeToHttpEvents(){
+        ClexiJS.subscribeTo('clexi-http-events', function(e){
+            //console.log('HTTP-Event: ' + JSON.stringify(e));
+            var event = new CustomEvent('clexi-http-events-msg', {detail: e});
+            document.dispatchEvent(event);
+        }, 
+        //This is actually not used by the HTTP-Events extension
+        function(e){
+            console.log('HTTP-Event response: ' + JSON.stringify(e));
+        }, function(e){
+            console.log('HTTP-Event error: ' + JSON.stringify(e));
+        });
+    }
+    function removeHttpEventsSubscription(){
+        ClexiJS.removeSubscription('clexi-http-events');
+    }
+    Clexi.addHttpEventsListener = function(callback){
+        document.addEventListener('clexi-http-events-msg', callback);
+    }
+    Clexi.removeHttpEventsListener = function(callback){
+        document.removeEventListener('clexi-http-events-msg', callback);
     }
 
     //CLEXI ble beacon scanner
@@ -173,6 +241,12 @@ function sepiaFW_build_clexi(){
     }
     function removeBeaconScannerSubscription(){
         ClexiJS.removeSubscription('ble-beacon-scanner');
+    }
+
+    function removeAllSubscriptions(){
+        removeBeaconScannerSubscription();
+        removeBroadcasterSubscription();
+        removeHttpEventsSubscription();
     }
 
     return Clexi;

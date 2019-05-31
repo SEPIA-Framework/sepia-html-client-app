@@ -60,6 +60,15 @@ function sepiaFW_build_teach(){
 			chat : {
 				command : "chat",
 				name : "Chat/smalltalk",
+				desc : "Use this command to define a simple reply to any input.",
+				help : "<p><u><b>Example:</b></u></p>" 
+						+ "<i>When I say ...</i>" 
+						+ "<br>What did the Buddhist say to the hot dog vendor?<br><br>"
+						+ "<i>the assistant does ...</i><br>"
+						+ "Chat/smalltalk<br><br>"
+						+ "<i>and says ... (reply):</i><br>"
+						+ "Make me one with everything.<br><br>"
+					,
 				parameters : [{
 					value : "reply",
 					name : "and says ..."
@@ -68,6 +77,17 @@ function sepiaFW_build_teach(){
 			open_link : {
 				command : "open_link",
 				name : "Open link/website",
+				desc : "Use this command to open a website or any URL.",
+				help : "<p><u><b>Example:</b></u></p>" 
+						+ "<i>When I say ...</i>" 
+						+ "<br>Open the SEPIA homepage<br><br>"
+						+ "<i>the assistant does ...</i><br>"
+						+ "Open link/website<br><br>"
+						+ "<i>with URL ... (url):</i><br>"
+						+ "https://sepia-framework.github.io<br><br>"
+						+ "<i>and says ... (answer_set):</i><br>"
+						+ "Here is my homepage.<br><br>"
+					,
 				parameters : [{
 					value : "url",
 					name : "with URL ..."
@@ -91,6 +111,15 @@ function sepiaFW_build_teach(){
 			music_radio : {
 				command : "music_radio",
 				name : "Open music stream",
+				desc : "Use this command to start/stop a radio station, play a radio with a certain genre or start an audio stream (URL).",
+				help : "<p><u><b>Example:</b></u></p>" 
+						+ "<i>When I say ...</i>" 
+						+ "<br>Play my station<br><br>"
+						+ "<i>the assistant does ...</i><br>"
+						+ "Open music stream<br><br>"
+						+ "<i>Radio station ... (radio_station):</i><br>"
+						+ "EgoFM Pure<br><br>"
+					,
 				parameters : [{
 					value : "radio_station",
 					name : "Radio station ..."
@@ -111,6 +140,38 @@ function sepiaFW_build_teach(){
 			sentence_connect : {
 				command : "sentence_connect",
 				name : "Execute command(s)",
+				desc : "Use this command to define an alias for one or more other commands. If you define more than one sentence (seperated by '.') they will be called one after the other. "
+						+ "This command supports 5 special flexible input parameters: &lt;var1&gt; ... &lt;var5&gt;, see example 2. "
+						+ "Each 'var' represents exactly one word, consecutive 'var' are combined to one parameter (e.g. you need '&lt;var1&gt; &lt;var1&gt; &lt;var1&gt;' to match 'Statue of Liberty'), see example 3. "
+						+ "Note: you cannot use sentences that you've previously defined yourself.",
+				help : "<p><u><b>Example 1:</b></u></p>" 
+						+ "<i>When I say ...</i>" 
+						+ "<br>Morning briefing<br><br>"
+						+ "<i>the assistant does ...</i><br>"
+						+ "Execute command(s)<br><br>"
+						+ "<i>using these sentences ... (sentences):</i><br>"
+						+ "Start radio You FM just music. Open the tech news. How is the weather.<br><br>"
+						+ "<i>and says ... (reply):</i><br>"
+						+ "Here is your morning briefing.<br><br>"
+					+ "<p><u><b>Example 2:</b></u></p>" 
+						+ "<i>When I say ...</i>" 
+						+ "<br>Show me &lt;var1&gt; by &lt;var2&gt;<br><br>"
+						+ "<i>the assistant does ...</i><br>"
+						+ "Execute command(s)<br><br>"
+						+ "<i>using these sentences ... (sentences):</i><br>"
+						+ "Search videos of &lt;var2&gt; &lt;var1&gt;.<br><br>"
+						+ "<i>and says ... (reply):</i><br>"
+						+ "Searching videos.<br><br>"
+					+ "<p><u><b>Example 3:</b></u></p>" 
+						+ "<i>When I say ...</i>" 
+						+ "<br>Show me information about the &lt;var1&gt; &lt;var1&gt; &lt;var1&gt;<br><br>"
+						+ "<i>the assistant does ...</i><br>"
+						+ "Execute command(s)<br><br>"
+						+ "<i>using these sentences ... (sentences):</i><br>"
+						+ "What is &lt;var1&gt;. Where is &lt;var1&gt;.<br><br>"
+						+ "<i>and says ... (reply):</i><br>"
+						+ "Searching information.<br><br>"
+					,
 				parameters : [{
 					value : "sentences",
 					name : "using these sentences ..."
@@ -123,21 +184,121 @@ function sepiaFW_build_teach(){
 			client_controls : {
 				command : "client_controls",
 				name : "Execute a client control function",
+				desc : "Use this command to call a client control function like 'set sound volume' or 'open settings'. "
+						+ "You can also call external tools like <a href='https://www.npmjs.com/package/clexi' target='_blank'>CLEXI</a> (clexi) or "
+						+ "a <a href='https://github.com/SEPIA-Framework/sepia-mesh-nodes' target='_blank'>SEPIA Mesh-Node</a> (meshNode) with specific data directly from this client.",
+				help : "<p><u><b>Example 1:</b></u></p>" 
+						+ "<i>When I say ...</i>" 
+						+ "<br>Rock!<br><br>"
+						+ "<i>the assistant does ...</i><br>"
+						+ "Execute a client control function<br><br>"
+						+ "<i>Action (action):</i><br>"
+						+ "&lt;set&gt;<br><br>"
+						+ "<i>Function (client_fun):</i><br>"
+						+ "volume<br><br>"
+						+ "<i>Additional data (data):</i><br>"
+						+ "11<br><br>"
+					+ "<p><u><b>Example 2:</b></u></p>" 
+						+ "<i>When I say ...</i>" 
+						+ "<br>Call my node plugin<br><br>"
+						+ "<i>the assistant does ...</i><br>"
+						+ "Execute a client control function<br><br>"
+						+ "<i>Action (action):</i><br>"
+						+ "&lt;on&gt;<br><br>"
+						+ "<i>Function (client_fun):</i><br>"
+						+ "meshNode<br><br>"
+						+ "<i>Additional data (data):</i><br>"
+						+ '{ "url": "http://localhost:20780", "plugin": "RuntimePlugin", "data": {"command": ["echo", "test"] } }<br><br>'
+					+ "<p><u><b>Example 3:</b></u></p>" 
+						+ "<i>When I say ...</i>" 
+						+ "<br>Broadcast hello with CLEXI<br><br>"
+						+ "<i>the assistant does ...</i><br>"
+						+ "Execute a client control function<br><br>"
+						+ "<i>Action (action):</i><br>"
+						+ "&lt;on&gt;<br><br>"
+						+ "<i>Function (client_fun):</i><br>"
+						+ "clexi<br><br>"
+						+ "<i>Additional data (data):</i><br>"
+						+ '{ "xtension": "clexi-broadcaster", "data": { "text": "Hello", "sender": "Me" } }<br><br>'
+					,
 				parameters : [{
 					value : "action",
-					name : "Action (e.g.: &lt;on&gt; or &lt;increase&gt;): "
+					name : "Action (e.g.: &lt;on&gt;, &lt;increase&gt; or &lt;set&gt;): "
 				},{
 					value : "client_fun",
-					name : "Function (e.g.: settings, volume, meshNode, ...): "		//alwaysOn, clexi
+					name : "Function (e.g.: settings, volume, alwaysOn, ...): "		//meshNode, clexi, media
 				},{
 					value : "data",
-					name : "Additional data (e.g. JSON)",
+					name : "Additional data (e.g. JSON or number)",
 					optional : true
+				}]
+			},
+			platform_controls : {
+				command : "platform_controls",
+				name : "Execute platform specific actions",
+				desc : "Use this command to create a single sentence that triggers different client actions for each device ID or platform type (e.g. call Intent in Android and URL in browser client). "
+						+ "Note: The device ID has highest priority, only if no device ID is given or no match is found the platform specific function will be called.",
+				help : "<p><u><b>Example 1:</b></u></p>" 
+						+ "<i>When I say ...</i>" 
+						+ "<br>Play Paradise City<br><br>"
+						+ "<i>the assistant does ...</i><br>"
+						+ "Execute platform specific actions<br><br>"
+						+ "<i>Actions for specific device IDs (device_fun):</i><br>"
+						+ '{ "a1": {"type": "androidActivity", "data": {"action": "android.media.action.MEDIA_PLAY_FROM_SEARCH", "extras": {"query": "Paradise City"} }} }<br><br>'
+						//add more?
+					+ "<p><u><b>Example 2:</b></u></p>" 
+						+ "<i>When I say ...</i>" 
+						+ "<br>Start Paradise City<br><br>"
+						+ "<i>the assistant does ...</i><br>"
+						+ "Execute platform specific actions<br><br>"
+						+ "<i>Android specific Intent or URL (android_fun):</i><br>"
+						+ '{"type": "androidActivity", "data": {"action": "android.media.action.MEDIA_PLAY_FROM_SEARCH", "extras": {"query": "Paradise City"} } }<br><br>'
+						+ "<i>Browser specific function or URL (browser_fun):</i><br>"
+						+ '{"type": "url", "data": {"url": "spotify:track:3YBZIN3rekqsKxbJc9FZko:play"} }<br><br>'
+						,
+				parameters : [{
+					value : "device_fun",
+					name : "Actions for specific device IDs: "		//e.g.: { "a1": {"type": "androidActivity", "data": intentData} }
+					//function types: androidActivity, iosIntent, windowsIntent, browserIntent, url
+				},{
+					value : "android_fun",
+					name : "Android specific Intent or URL: "
+				},{
+					value : "ios_fun",
+					name : "iOS specific action: "
+				},{
+					value : "browser_fun",
+					name : "Browser specific function or URL: "
+				},{
+					value : "windows_fun",
+					name : "Windows specific action: "
 				}]
 			},
 			mesh_node_plugin : {
 				command : "mesh_node_plugin",
 				name : "Call SEPIA Mesh-Node plugin",
+				desc : "Use this command to call a <a href='https://github.com/SEPIA-Framework/sepia-mesh-nodes' target='_blank'>SEPIA Mesh-Node</a> plugin via the SEPIA server. "
+						+ "In contrast to the client-controls version this command is secured by your SEPIA account and evaluated by the server which leads to some extra features. "
+						+ "Note that the given URL referes to a path relative to the server as well and can be an IP inside your private home network where your SEPIA server is located. "
+						+ "You can refer to results of the Mesh-Node plugin call inside your success or fail answers. To do this use the variable &lt;result_KEY&gt; where 'KEY' refers to a "
+						+ "data field in your plugin result data, e.g. 'hello' in the 'HelloPlugin' example."
+						,
+				help : "<p><u><b>Example:</b></u></p>" 
+						+ "<i>When I say ...</i>" 
+						+ "<br>Test the hello plugin<br><br>"
+						+ "<i>the assistant does ...</i><br>"
+						+ "Call SEPIA Mesh-Node plugin<br><br>"
+						+ "<i>Mesh-Node URL (node_url):</i><br>"
+						+ "http://localhost:20780<br><br>"
+						+ "<i>Name of plugin (node_plugin_name):</i><br>"
+						+ "HelloPlugin<br><br>"
+						+ "<i>JSON string sent to plugin (node_plugin_data):</i><br>"
+						+ '{"name":"Boss"}<br><br>'
+						+ "<i>Success answer (reply_success):</i><br>"
+						+ "Ok I understood &lt;result_hello&gt;<br><br>"
+						+ "<i>Fail answer (reply_fail):</i><br>"
+						+ "Sorry I could not get a result<br><br>"
+					,
 				parameters : [{
 					value : "node_url",
 					name : "Mesh-Node URL"
@@ -159,6 +320,18 @@ function sepiaFW_build_teach(){
 				}]
 			},
 		};
+	}
+	function buildCommandHelpPopup(cmd){
+		var html = "<p><b>Command: " + cmd + "</b></p>";
+		if (services[cmd] && services[cmd].help){
+			if (services[cmd].desc){
+				html += "<p class='accent'>" + services[cmd].desc + "</p>";
+			}
+			html += services[cmd].help;
+		}else{
+			html += "<p>Sorry, no help available for this command.</p>";
+		}
+		return html;
 	}
 	
 	Teach.setup = function(finishCallback){
@@ -244,7 +417,26 @@ function sepiaFW_build_teach(){
 			});
 			//-SERVICE HELP
 			$('#sepiaFW-teachUI-command-help').on('click', function(){
-				SepiaFW.ui.showPopup('Soon you will see more info about each service here ;-)');
+				var cmd = $('#sepiaFW-teach-commands').val();
+				if (cmd){
+					SepiaFW.ui.showPopup(buildCommandHelpPopup(cmd), {
+						buttonOneName : SepiaFW.local.g('ok'),
+						buttonOneAction : function(){},
+						buttonTwoName : SepiaFW.local.g('more'),
+						buttonTwoAction : function(){
+							SepiaFW.ui.actions.openUrlAutoTarget("https://github.com/SEPIA-Framework/sepia-html-client-app/blob/master/TEACH-UI.md");
+						}
+					});
+				}else{
+					SepiaFW.ui.showPopup(SepiaFW.local.g('chooseCommand'), {
+						buttonOneName : SepiaFW.local.g('ok'),
+						buttonOneAction : function(){},
+						buttonTwoName : SepiaFW.local.g('more'),
+						buttonTwoAction : function(){
+							SepiaFW.ui.actions.openUrlAutoTarget("https://github.com/SEPIA-Framework/sepia-html-client-app/blob/master/TEACH-UI.md");
+						}
+					});
+				}
 			});
 			
 			//-LOAD commands
@@ -419,7 +611,7 @@ function sepiaFW_build_teach(){
 		var newCard = document.createElement('DIV');
 		newCard.className = 'sepiaFW-command-card';
 		newCard.innerHTML = "<div class='cmdLabel'>"
-								+ "<span>" + (sentence.text || sentence.tagged_text) + "</span>"
+								+ "<span>" + (sentence.text.replace(/</g, "&lt;") || sentence.tagged_text.replace(/</g, "&lt;")) + "</span>"
 							+ "</div>"
 							+ "<div class='cmdRemoveBtn'>"
 								+ "<span>" + "<i class='material-icons md-24'>&#xE15B;</i>" + "</span>"
@@ -484,8 +676,19 @@ function sepiaFW_build_teach(){
 		submit.environment = env;
 		submit.language = language;
 		submit.user_location = userLocation || "";
-		submit.sentence = txt;
-		submit.tagged_sentence = '';			//TODO
+		if (!!txt.match(/<\w+>/)){
+			//we allow this currently only for sentence_connect - TODO: add more
+			if (cmd == "sentence_connect"){
+				submit.sentence = txt;
+				submit.tagged_sentence = txt;
+			}else{
+				submit.sentence = '';
+				submit.tagged_sentence = txt;
+			}
+		}else{
+			submit.sentence = txt;
+			submit.tagged_sentence = '';
+		}
 		submit.params = JSON.stringify(parameters);
 		submit.command = cmd;
 		submit.cmd_summary = cmdSum;

@@ -109,11 +109,15 @@ function sepiaFW_build_ui_custom_buttons(){
         var resultViewInfo = SepiaFW.ui.getResultViewByName("myView");
         var resView = document.getElementById(resultViewInfo.target);
         var buttonsBox = CustomButtons.buildMyCustomButtonsBox(resView);
-        $.each(customButtons, function(i, button){
-            //console.log(JSON.stringify(button));
-            var button = buildCustomButton(button);
-            buttonsBox.appendChild(button);
-        });
+        if (customButtons.length > 0){
+            $.each(customButtons, function(i, button){
+                //console.log(JSON.stringify(button));
+                var button = buildCustomButton(button);
+                buttonsBox.appendChild(button);
+            });
+        }else{
+            $(buttonsBox).hide();
+        }
         //UI.scrollToTop(resView);
     }
 
@@ -125,7 +129,8 @@ function sepiaFW_build_ui_custom_buttons(){
         if (buttonData.icon){
             button.innerHTML = '<i class="material-icons md-24">' + buttonData.icon + '</i><span>' + buttonData.name + '</span>';
         }else{
-            button.innerHTML = '<span>' + buttonData.name + '</span>';
+            //button.innerHTML = '<span>' + buttonData.name + '</span>';
+            button.innerHTML = '<span class="sepia-icon-font sepia-icon-sepia_bw"><span class="path1"></span><span class="path2"></span></span><span>' + buttonData.name + '</span>';
         }
         
         //Action

@@ -19,6 +19,12 @@
     font-weight: 300;
 }
 
+.sepiaFW-cards-button,
+.sepiaFW-notouch-device .sepiaFW-cards-button:hover {
+	background: #2f3035;
+	color: #fcfcfc;
+}
+
 /* --- Help view --- */
 
 .sepiaFW-help-view {
@@ -78,9 +84,8 @@
 	flex-wrap: wrap;
 	justify-content: space-between;
 	position: relative;
-	/*background: rgba(205, 235, 205, 0.90);*/
-	background: rgba(235, 235, 255, 0.95);
-	/*color: #fff;*/
+	background: #973a5f;
+	color: #fcfcfc;
 	/*border-radius: 3px 3px 0 0;*/
 	border-radius: 3px;
 	margin: 0px 5px 0px 5px;
@@ -119,16 +124,38 @@
 	width: 100%;
     order: 4;
 }
+.sepiaFW-cards-contextMenu-single {
+	/* NOTE: this is added '..list-contextMenu' */
+	margin: 0px 5px 0px 5px;
+    width: calc(100% - 10px);
+    border-radius: 3px 3px 3px 3px;
+    background: inherit !important;
+    color: inherit !important;
+}
+/*.sepiaFW-cards-contextMenu-single:last-of-type {
+	margin: 0px 5px 0px 5px;
+}*/
 .sepiaFW-cards-list-contextMenu > ul {
 	display: flex;
 	flex-wrap: wrap;
 	justify-content: space-between;
 }
+.sepiaFW-cards-contextMenu-single > ul {
+	justify-content: space-evenly;
+	padding-top: 0;
+}
 .sepiaFW-cards-list-contextMenu li {
 	padding: 2px 6px;
 	display: flex;
     justify-content: center;
-    align-items: center;
+	align-items: center;
+	min-width: 55px;
+}
+.sepiaFW-cards-contextMenu-single li {
+	margin: 8px 4px 0px 4px !important;
+}
+#sepiaFW-my-view .sepiaFW-cards-list-contextMenu .sepiaFW-cards-list-moveBtn {
+	display: none;
 }
 /*.sepiaFW-cards-list-contextMenu li:first-of-type{
 	margin-top: 0px;
@@ -259,8 +286,6 @@
 /* footer */
 .sepiaFW-cards-list-footer {
 	display: inline-block;
-    /*background: rgba(235, 235, 255, 0.33);*/
-	/*background: rgba(170, 170, 180, 0.33);*/
 	/*background: #d2d2dd;*/
 	background: #eff1ff;
 	border-radius: 3px;
@@ -269,6 +294,17 @@
     padding: 5px;
     width: calc(100% - 10px);
 	cursor: pointer;
+}
+
+/* --- Common --- */
+
+.sepiaFW-cards-list-body .fullWidthItem {
+	width: 100%;
+    padding: 5px 5px 0 5px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    align-content: center;
 }
 
 /* --- Radio --- */
@@ -366,6 +402,7 @@
 	font-size: 15px;
 	background: transparent;
 	padding-top: 2px;
+	padding-bottom: 2px;
 }
 .sepiaFW-cards-list-body .timeEvent .timeEventCenter .sepiaFW-timer-indicator {
 	font-size: 15px;
@@ -444,7 +481,7 @@
 	flex-direction: column;
     align-items: center;
     justify-content: center;
-	min-width: 65px;
+	min-width: 61px;
 	max-width: 65px;
 	margin: 5px 0px 0px 5px;
 	padding: 5px;
@@ -455,7 +492,7 @@
 	color: #fff;
 }
 .sepiaFW-cards-list-body .weatherNowSmall .weatherNowSmallImage img{
-	max-width: 50px;
+	max-width: 45px;
 }
 .sepiaFW-cards-list-body .weatherNowSmall .weatherNowSmallData {
 	/*width: calc(100% - 80px);*/
@@ -480,6 +517,9 @@
 	font-size: 14px;
 	text-align: center;
 }
+.sepiaFW-cards-list-body .weatherNowSmall .weatherNowSmallIntro b {
+	font-size: 15px;
+}
 @media screen and (max-width: 359px) {
 	.sepiaFW-cards-list-body .weatherNowSmall .weatherNowSmallIntro {
 		display: none;
@@ -491,11 +531,12 @@
 	text-align: center;
 }
 .sepiaFW-cards-list-body .weatherNowSmall .weatherNowSmallData h3 {
-	font-size: 20px;
-	margin: 5px;
+	font-size: 18px;
+	margin: 5px 0 0 0;
 }
 .sepiaFW-cards-list-body .weatherNowSmall .weatherNowSmallData p {
 	font-size: 14px;
+	margin-top: 2px
 }
 .sepiaFW-cards-list-body .weatherNowDetails ul {
 	background: transparent;
@@ -552,18 +593,22 @@
     align-items: center;
     justify-content: center;
 	border-radius: 3px;
-	min-width: 60px;
+	min-width: 50px;
 	max-width: 60px;
 	margin: 5px 5px 0px 5px;
-	padding: 5px;
+	padding: 0px;
 	user-select: none;
 	cursor: pointer;
 	text-align: center;
 	/*background: transparent;*/
-	color: #fff;
+	/*color: #fff;*/
 }
-.sepiaFW-cards-list-body .linkCard .linkCardLogo img{
+.sepiaFW-cards-list-body .linkCard .linkCardLogo img {
 	max-width: 50px;
+	border-radius: 3px;
+}
+.sepiaFW-cards-list-body .linkCard.locationCustom .linkCardLogo img {
+	max-width: 45px;
 }
 .sepiaFW-cards-list-body .linkCard .linkCardCenter {
 	display: flex;
@@ -572,16 +617,23 @@
 	flex: 1 1 auto;
 	/*max-width: 120px;*/
 	margin: 5px 0px 0px 0px;
-	padding: 0 8px 0 8px;
+	padding: 2px 8px 2px 8px;
 	display: flex;
     align-items: center;
     justify-content: center;
 	font-size: 14px;
 	text-align: center;
 	cursor: pointer;
+	overflow: hidden;
 }
 .sepiaFW-cards-list-body .linkCard .linkCardCenter h3 {
 	margin: 5px 0 0 0;
+	font-size: 15px;
+	max-width: 100%;
+}
+.sepiaFW-cards-list-body .linkCard .linkCardCenter p {
+	word-wrap: break-word;
+	max-width: 100%;
 }
 .sepiaFW-cards-list-body .linkCard .linkCardRight {
 	display: flex;

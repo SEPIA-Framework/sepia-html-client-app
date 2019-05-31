@@ -40,6 +40,7 @@
 	<link rel="stylesheet" href="css/sepiaFW-style.css" title='main'>
 	<link rel="stylesheet" href="css/sepiaFW-style-tiny.css" title='main'>
 	<!-- FOR MORE STYLESHEETS SEE END-OF-BODY -->
+	<script src="scripts/sepiaFW.app.config.js"></script>
 	<script src="scripts/sepiaFW.app.js"></script>
 	<script src="scripts/sepiaFW.local.js"></script>
 	<!-- FOR MORE JS SEE END-OF-BODY -->
@@ -114,6 +115,11 @@
 				<div id='sepiaFW-audio-ctrls-title-container'>
 					<div id='sepiaFW-audio-ctrls-title'>SepiaFW audio player</div>
 					<canvas id='sepiaFW-audio-ctrls-canvas'></canvas>
+					<div id="sepiaFW-audio-ctrls-soundbars">
+						<div class="sepiaFW-audio-soundbar"></div>
+						<div class="sepiaFW-audio-soundbar"></div>
+						<div class="sepiaFW-audio-soundbar"></div>
+					</div>
 				</div>
 				<div id='sepiaFW-audio-ctrls-buttons-container'>
 					<button id='sepiaFW-audio-ctrls-voldown'><i class="material-icons md-24">&#xE04D;</i><div id="sepiaFW-audio-ctrls-vol">10</div></button>
@@ -148,7 +154,7 @@
 			<button id="sepiaFW-nav-menu-go-left">•</button>
 			<div id="sepiaFW-nav-label-box">
 				<div id="sepiaFW-nav-label">S.E.P.I.A.</div><span id='sepiaFW-nav-label-note' style='display:none;'>...</span>
-				<div id="sepiaFW-nav-label-online-status">offline</div>
+				<div id="sepiaFW-nav-label-online-status" class="offline">offline</div>
 			</div>
 			<button id="sepiaFW-nav-menu-go-right">•</button>
 			<button id="sepiaFW-nav-users-btn"><i class="material-icons md-btn2">&#xE7FB;</i></button>
@@ -175,7 +181,7 @@
 			</div>
 			<div id="sepiaFW-chat-controls-form">
 				<button id="sepiaFW-chat-send" class="sButton"><i class="material-icons md-btn">&#xE163;</i></button>
-				<input id="sepiaFW-chat-input" placeholder="" aria-label="Message">
+				<input id="sepiaFW-chat-input" placeholder="" aria-label="Message" autocomplete="off">
 				<div id="sepiaFW-chat-controls-swipe-area">
 					<div id="sepiaFW-swipeBar-chat-controls" class='sepiaFW-swipeBar-switchable'><span>TOUCH-BAR</span></div>
 					<div id="sepiaFW-swipeBar-menu-controls" class='sepiaFW-swipeBar-switchable'><span>MENUE-BAR</span></div>
@@ -195,12 +201,16 @@
 		</div>
 		<!-- message popup -->
 		<div id='sepiaFW-cover-layer'></div>
-		<div id='sepiaFW-popup-message'>
+		<div id='sepiaFW-popup-message' style="display: none;">
 			<div id='sepiaFW-popup-message-content'></div>
-			<button id='sepiaFW-popup-message-btn-one'>OK</button>
-			<button id='sepiaFW-popup-message-btn-two'>ABORT</button>
-			<button id='sepiaFW-popup-message-btn-three'>RETRY</button>
-			<button id='sepiaFW-popup-message-btn-four'>IGNORE</button>
+			<div id='sepiaFW-popup-message-controls'>
+				<input id='sepiaFW-popup-message-input-one'>
+				<input id='sepiaFW-popup-message-input-two'>
+				<button id='sepiaFW-popup-message-btn-one'>OK</button>
+				<button id='sepiaFW-popup-message-btn-two'>ABORT</button>
+				<button id='sepiaFW-popup-message-btn-three'>RETRY</button>
+				<button id='sepiaFW-popup-message-btn-four'>IGNORE</button>
+			</div>
 		</div>
 	</div>
 	<!-- Swipe bars -->
@@ -239,6 +249,7 @@
 	</div>
 <!-- LOW PRIO STYLESHEETS -->
 <link rel="stylesheet" href="css/googleMaterialIcons.css">
+<link rel="stylesheet" href="css/sepiaFW-font.css">
 <link rel="stylesheet" href="css/sepiaFW-cards.css">
 <link rel="stylesheet" href="css/sepiaFW-teachUI.css">
 <link rel="stylesheet" href="css/sepiaFW-frames.css">
@@ -267,6 +278,8 @@
 <link rel="stylesheet alternate" href="css/sepiaFW-skin-odyssey2.css" class='sepiaFW-style-skin' title='' data-name='Odyssey2'>
 <link rel="stylesheet alternate" href="css/sepiaFW-skin-malachite.css" class='sepiaFW-style-skin' title='' data-name='Malachite'>
 <link rel="stylesheet alternate" href="css/sepiaFW-skin-neon.css" class='sepiaFW-style-skin' title='' data-name='Nightlife'>
+<link rel="stylesheet alternate" href="css/sepiaFW-skin-spot.css" class='sepiaFW-style-skin' title='' data-name='Spots'>
+<link rel="stylesheet alternate" href="css/sepiaFW-skin-canary-dark.css" class='sepiaFW-style-skin' title='' data-name='DarkCanary'>
 <!-- START JS -->
 <script src="scripts/jquery-3.1.1.min.js"></script>
 <!--<script src="https://code.jquery.com/jquery-3.1.1.min.js" integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8=" crossorigin="anonymous"></script>-->
@@ -274,7 +287,7 @@
 <script src="scripts/recorder.js"></script>
 <script src="scripts/hammer.min.js"></script>
 <script src="scripts/hammer-time.min.js"></script>
-<script src="scripts/clexi-0.7.0.js"></script>
+<script src="scripts/clexi-0.8.0.js"></script>
 <script src="scripts/sepiaFW.ui.js"></script>
 <script src="scripts/sepiaFW.ui.build.js"></script>
 <script src="scripts/sepiaFW.ui.animate.js"></script>
@@ -303,21 +316,104 @@
 <script src="scripts/sepiaFW.wakeWordSettings.js"></script>
 <script src="scripts/sepiaFW.embedded.nlu.js"></script>
 <script src="scripts/sepiaFW.embedded.services.js"></script>
+<script src="scripts/sepiaFW.android.js"></script>
 <script src="scripts/sepiaFW.client.controls.js"></script>
 <script src="scripts/sepiaFW.clexi.js"></script>
 <script type="text/javascript">
 
-	//get some settings via URL parameters
+	//get cordova via URL parameter
 	var isCordova = SepiaFW.tools.getURLParameter('cordova') + '';
-	var isTest = SepiaFW.tools.getURLParameter('isTest');
-	var hostParam = SepiaFW.tools.getURLParameter('host');
-	var requestViaUrl = SepiaFW.tools.getURLParameter('q');
-	var openView = SepiaFW.tools.getURLParameter('view');
+
+	//start-up actions (and buffered local notifications)
+	function handleUrlParameterActions(isDemo){
+		//get
+		var requestViaUrl = SepiaFW.tools.getURLParameter('q');
+		var shareViaUrl = SepiaFW.tools.getURLParameter('share');
+		var openView = SepiaFW.tools.getURLParameter('view');
+
+		//Url request (q)
+		if (requestViaUrl){
+			SepiaFW.client.handleRequestViaUrl(requestViaUrl);
+		}
+		//Share data (share)
+		if (shareViaUrl){
+			SepiaFW.client.handleShareViaUrl(shareViaUrl);
+		}
+		//Open view or frame (view)
+		if (openView){
+			SepiaFW.ui.openViewOrFrame(openView);
+		}
+		//NOTE: compare to deeplinks in index.js
+	}
+	function handleDeeplinksIntentsAndNotifications(isDemo){
+		//get some Cordova transfer stuff from localStorage
+		if (isCordova && "localStorage" in window){
+			//get
+			var deeplinkAction;
+			var dlActionString = localStorage.getItem("sepia-deeplink-intent");
+			if (dlActionString){
+				deeplinkAction = JSON.parse(dlActionString);
+				localStorage.removeItem("sepia-deeplink-intent");
+			}
+			var localNotification;
+			var lnString = localStorage.getItem("sepia-local-note");
+			if (lnString){
+				localNotification = JSON.parse(lnString);
+				localStorage.removeItem("sepia-local-note");
+			}
+			var androidIntent;
+			var andiString = localStorage.getItem("sepia-android-intent");
+			if (andiString){
+				androidIntent = JSON.parse(andiString);
+				localStorage.removeItem("sepia-android-intent");
+			}
+			//handle
+			if (deeplinkAction){
+				//Deeplink
+				app.onUniversalLink(deeplinkAction);
+			}
+			if (androidIntent){
+				//Android Intent
+				app.onAndroidIntent(androidIntent);
+			}
+			if (localNotification){
+				//Local notification
+				app.onLocalNotification(localNotification);
+			}
+		}
+	}
+	function handleNotificationTriggers(isDemo){
+		//get some Cordova transfer stuff from localStorage
+		if (isCordova && "localStorage" in window){
+			//get
+			var triggeredLocalNotifications;
+			var lnString = localStorage.getItem("sepia-local-notes-triggered");
+			if (lnString && lnString.indexOf("[") == 0){
+				triggeredLocalNotifications = JSON.parse(lnString);
+				localStorage.removeItem("sepia-local-notes-triggered");
+			}
+			//handle
+			if (triggeredLocalNotifications){
+				//Call handler for each
+				triggeredLocalNotifications.forEach(function(notification){
+					app.onLocalNotificationTriggered(notification);
+				});
+			}
+		}
+	}
 
 	//define app setup (called either here (index.html) or in cordova device-ready (index.js)
 	function appSetup(){
+		//get some more settings via URL parameters
+		var isCordova = SepiaFW.tools.getURLParameter('cordova') + '';
+		var isTest = SepiaFW.tools.getURLParameter('isTest');
+		var hostParam = SepiaFW.tools.getURLParameter('host');
+
 		//prepare plugins
 		SepiaFW.buildSepiaFwPlugins();
+
+		//host URL for deeplinks
+		SepiaFW.client.deeplinkHostUrl = "https://b07z.net/dl/sepia/index.html";
 
 		//set specific language dependent frames (pages)
 		SepiaFW.frames.setLocalPage('tutorial.html', "de", 'tutorial-de.html');
@@ -363,46 +459,59 @@
 			config.webSocketAPI = http + cleanHost + "/chat/";
 		}
 		SepiaFW.config.setEndPoints(config);
+
+		//Before setup - to get e.g. app type (Android, iOS etc.)
+		SepiaFW.ui.beforeSetup();
 		
 		//Device ID
-		var restoreDeviceIdOrDefault = SepiaFW.data.getPermanent('deviceId') || "";
+		var restoreDeviceIdOrDefault = SepiaFW.data.getPermanent('deviceId') || SepiaFW.ui.getDefaultDeviceId();
 		SepiaFW.config.setDeviceId(restoreDeviceIdOrDefault, true);
 				
 		//set privacy policy link
 		SepiaFW.config.privacyPolicyUrl = document.getElementById("sepiaFW-login-policy-btn").href;
+
+		//add one-time onActive actions (actions triggered after client is ready, e.g. user has chat-channel)
+        SepiaFW.client.addOnActiveOneTimeAction(function(){
+			//Url actions
+			handleUrlParameterActions(SepiaFW.client.isDemoMode());
+			//Deeplinks and local notifications
+			handleDeeplinksIntentsAndNotifications(SepiaFW.client.isDemoMode());
+			//check server version
+			SepiaFW.client.getServerInfo(function(info){
+				if (!SepiaFW.client.checkServerVersion(info)){
+					SepiaFW.ui.showInfo(SepiaFW.local.g('serverVersionTooLow') + " Target: v" + SepiaFW.ui.requiresServerVersion + ", found: v" + info.version);
+					SepiaFW.debug.error("SEPIA Assist-Server version (low): " + info.version + " < " + SepiaFW.ui.requiresServerVersion);
+				}else{
+					SepiaFW.debug.log("SEPIA Assist-Server version (good): " + info.version);
+				}
+			});
+		});
+
+		//add one-time onActive actions that should run before my-view update
+		SepiaFW.client.addOnActivePreUpdateOneTimeAction(function(){
+			//read-out of triggered events queue
+			handleNotificationTriggers(SepiaFW.client.isDemoMode());
+		});
 		
 		//what happens after login?
 		SepiaFW.account.afterLogin = function(){
 			if (SepiaFW.client.isDemoMode()){
 				//SepiaFW.ui.showInfo(SepiaFW.local.g('demoMode'), true);
-				SepiaFW.ui.showCustomChatMessage(SepiaFW.local.g('demoMode'));
-				//pseudo client
+				SepiaFW.ui.showCustomChatMessage(SepiaFW.local.g('demoMode'), { 
+					channelId: 'info'
+				});
+				//pseudo client - usually handled by client.startClient()
 				SepiaFW.client.buildUI();
 				SepiaFW.client.onActive();
 				SepiaFW.client.welcomeActions(true);
-				//Url action?
-				if (requestViaUrl){
-					SepiaFW.client.handleRequestViaUrl(requestViaUrl);
-				}
-				//Open view or frame?
-				if (openView){
-					SepiaFW.ui.openViewOrFrame(openView);
-				}
 			}else{
 				SepiaFW.client.ping(
 					//success
 					function(data){
-						//TODO: startClient is a required method, maybe move it to core and replace it with 'client.onActive'?
-						SepiaFW.client.startClient(); 		//includes: buildUI, onActive and welcomeActions
-						if (requestViaUrl){
-							SepiaFW.client.handleRequestViaUrl(requestViaUrl);
-						}
-						//Open view or frame - move outside?
-						if (openView){
-							SepiaFW.ui.openViewOrFrame(openView);
-						}
 						//Hide debug stuff O_O
 						$('#sepiaFW-colorRefBox').hide();
+						//TODO: startClient is a required method, maybe move it to core and replace it with 'client.onActive'?
+						SepiaFW.client.startClient(); 		//includes: buildUI, onActive and welcomeActions
 					},
 					//fail: no connection to chat-server - note: on mobile this might trigger although network in general is down
 					function(data){ doThisOnConnectionFail(data) },
@@ -421,7 +530,9 @@
 				buttonTwoName : SepiaFW.local.g('continueOffline'),
 				buttonTwoAction : function(){
 					//offline notice
-					SepiaFW.ui.showCustomChatMessage(SepiaFW.local.g('noConnectionToAssistant'));
+					SepiaFW.ui.showCustomChatMessage(SepiaFW.local.g('noConnectionToAssistant'), { 
+						channelId: 'info'
+					});
 				}
 			});
 			//get offline welcome help anyway

@@ -184,14 +184,14 @@ body {
 	min-height: 5px;
 	float: right;
 }
-#sepiaFW-pC 	 { background-color: #ceff1a; }
-#sepiaFW-sC 	 { background-color: #2f3035; }
-#sepiaFW-sC2 { background-color: rgba(235, 235, 255, 0.97); 	}
-#sepiaFW-aC 	 { background-color: rgba(145, 47, 86, 0.97); 	}
-#sepiaFW-aC2 { background-color: rgba(21, 171, 195, 0.97); /*rgba(11, 122, 117, 0.95); rgba(86, 47, 145, 0.95);*/ }
-#sepiaFW-asC { background-color: #ceff1a; 	}
-#sepiaFW-adC { background-color: gold; 	}
-#sepiaFW-lC 	 { background-color: rgba(30, 30, 30, 0.50); 	}
+#sepiaFW-pC 	{ background-color: #ceff1a; }
+#sepiaFW-sC 	{ background-color: #2f3035; }
+#sepiaFW-sC2 	{ background-color: #e5e5e5; }
+#sepiaFW-aC 	{ background-color: #94365b; }
+#sepiaFW-aC2 	{ background-color: #1caec5; /*rgba(11, 122, 117, 0.95); rgba(86, 47, 145, 0.95);*/ }
+#sepiaFW-asC 	{ background-color: #ceff1a; }
+#sepiaFW-adC 	{ background-color: gold; }
+#sepiaFW-lC 	{ background-color: rgba(30, 30, 30, 0.50); }
 .sepiaFW-long-press-indicator {
 	position: fixed;
 	top: -100px;
@@ -200,7 +200,7 @@ body {
 	height: 24px;
 	margin-left: -12px;
 	margin-top: -12px;
-	border: 0;
+	border: 1px solid rgba(255, 255, 255, 0.25);
 	border-radius: 100px;
 	background: rgba(0, 0, 0, 0.25);
 	z-index: 99;
@@ -216,23 +216,34 @@ body {
 }
 
 #sepiaFW-popup-message {
-	display: none;
 	position: absolute;
 	background: #2f3035;
 	color: #fff;
 	border-radius: 3px;
 	min-height: 40px;
+	max-height: 85%;
 	width:80%;
-	max-width: 300px;
+	max-width: 350px;
 	padding: 16px;
 	top: 40%;
-	left:50%;
-	transform: translate(-50%, -50%);
+	left: 50%;
+	transform: translate(-50%, -45%);
 	text-align: center;
 	z-index: 90;
+	overflow: hidden;
+	display: flex;
+    flex-direction: column;
 }
 #sepiaFW-popup-message-content {
 	margin: 8px 0 12px 0;
+	flex: 1 1 auto;
+    /* max-height: calc(68vh - 66px); */
+	overflow-y: auto;
+	word-wrap: break-word;
+}
+#sepiaFW-popup-message-controls {
+	margin: 0px 0 0px 0;
+	flex: 1 0 auto;
 }
 #sepiaFW-popup-message button {
 	background-color: #fff !important;
@@ -241,6 +252,25 @@ body {
 #sepiaFW-popup-message button:hover {
 	background-color: #888 !important;
 	color: #fff !important;
+}
+#sepiaFW-popup-message input {
+	width: 100%;
+}
+#sepiaFW-popup-message i {
+	color: #ceff1a;
+}
+#sepiaFW-popup-message .accent {
+	color: #4ec48f;
+}
+#sepiaFW-popup-message a {
+	color: #91d5b6;
+}
+#sepiaFW-popup-message .scrollbox {
+	width: 100%;
+	max-height: 100%;
+	margin: 0;
+	padding: 0;
+	overflow-y: auto;
 }
 #sepiaFW-cover-layer {
 	display: none;
@@ -255,15 +285,15 @@ body {
 
 #sepiaFW-loader {
 	display: none;
-	height:15px;
-	width:15px;
+	height:14px;
+	width:14px;
 	border-radius:100%;
-	/*border: 1px solid rgba(255, 255, 255, 0.33);*/
+	border: 1px solid rgba(255, 255, 255, 0.33);
 	background:rgba(0, 0, 0, 0.33);
 	position:absolute;
 	/*margin-top: 50%;*/
-	left:50%;
-	transform: translate(-50%, -50%);
+	left: calc(50% - 7px);
+	/*transform: translate(-50%, -50%);*/
 	animation: sepiaFW-loader-ani-center 2s linear infinite;
 }
 #sepiaFW-loader:before, #sepiaFW-loader:after {
@@ -276,12 +306,12 @@ body {
 }
 #sepiaFW-loader:before{
 	left:-20px;
-	/*border: 1px solid rgba(255, 255, 255, 0.22);*/
+	border: 1px solid rgba(255, 255, 255, 0.22);
 	background:rgba(0, 0, 0, 0.22);
 }
 #sepiaFW-loader:after{
 	left:20px;
-	/*border: 1px solid rgba(255, 255, 255, 0.18);*/
+	border: 1px solid rgba(255, 255, 255, 0.18);
 	background:rgba(0, 0, 0, 0.11);
 }
 @keyframes sepiaFW-loader-ani-center {
@@ -650,7 +680,7 @@ body {
 	margin-bottom: 8px;
 }
 */
-.sepiaFW-notouch-device .sepiaFW-menu li:hover{
+.sepiaFW-notouch-device .sepiaFW-menu li:not(.sepiaFW-cards-button):hover{
 	background: rgba(255, 255, 255, 0.33) !important;
 }
 
@@ -808,6 +838,10 @@ body {
 		font-size: 14px;
 	}
 }
+.sepiaFW-menu-experimental {
+	display: none;
+	margin-left: 16px !important;
+}
 #sepiaFW-chat-menu li span {
 	float: left;
 	padding-right: 8px;
@@ -822,6 +856,7 @@ body {
 #sepiaFW-chat-menu li .sepiaFW-button-inline {
 	float: right;
 	margin: 0;
+	margin-left: 4px;
 	height: 28px;
 	padding: 0px 10px;
 	display: flex;
@@ -867,6 +902,26 @@ body {
     margin: 0px;
     padding: 0px;
 	float: left;
+}
+.sepiaFW-indicator-rgy {
+	background: #888;
+	border-radius: 10px;
+	height: 16px;
+    width: 16px;
+    margin: 6px 8px 6px 8px;
+	padding: 0px;
+}
+.sepiaFW-indicator-rgy.red {
+	background: #f00;
+}
+.sepiaFW-indicator-rgy.yellow {
+	background: #ff0;
+}
+.sepiaFW-indicator-rgy.green {
+	background: #0f0;
+}
+#sepiaFW-chat-menu li .sepiaFW-indicator-rgy {
+	float: right;
 }
 .sepiaFW-menu-addresses-list {
 }
@@ -980,7 +1035,7 @@ body {
 	background: rgba(255, 255, 255, 0.00);
 	border: 1px solid;
 	border-radius: 3px;
-	padding: 5px 8px;
+	padding: 5px 22px;
 	/*max-width: 220px;*/
 	min-width: 100px;
 	max-height: 50px;
@@ -1008,7 +1063,44 @@ body {
 	50% {	background: rgba(255, 255, 255, 0.55); 	}
     to 	{ 	background: rgba(255, 255, 255, 0.00); 	}
 }
-#sepiaFW-audio-ctrls-volup {}
+
+#sepiaFW-audio-ctrls-soundbars {
+    height: calc(100% - 8px);
+    left: 0;
+    margin: 4px;
+    position: absolute;
+    top: 0;
+	width: 13px;
+	display: none;
+}
+#sepiaFW-audio-ctrls-soundbars.playerActive {
+	display: block;
+}
+.sepiaFW-audio-soundbar {
+   	background: #666;
+    bottom: 1px;
+    height: 0%;
+    position: absolute;
+    width: 3px;      
+    animation: sepiaFW-audio-soundbar-anim 0ms -800ms linear infinite alternate;
+}
+.sepiaFW-audio-soundbar:nth-child(1)  { left: 1px; animation-duration: 474ms; }
+.sepiaFW-audio-soundbar:nth-child(2)  { left: 5px; animation-duration: 433ms; }
+.sepiaFW-audio-soundbar:nth-child(3)  { left: 9px; animation-duration: 407ms; }
+@keyframes sepiaFW-audio-soundbar-anim {
+    0% {
+       opacity: .35;
+        height: 10%; 
+    }
+    100% {
+        opacity: 1;       
+        height: 93%;        
+    }
+}
+
+#sepiaFW-audio-ctrls-volup {
+	position: relative;
+}
 #sepiaFW-audio-ctrls-voldown {
 	position: relative;
 }
@@ -1161,6 +1253,12 @@ body {
 	font-size: 8px;
 	position: relative;
 	opacity: 0.66;
+}
+#sepiaFW-nav-label-online-status.offline {
+	opacity: 0.33;
+}
+#sepiaFW-nav-label-online-status.connecting {
+	opacity: 0.50;
 }
 #sepiaFW-nav-label-note{
 	display: flex;
@@ -1344,7 +1442,7 @@ body {
 }
 #sepiaFW-assist-btn-area button {
 	border-radius: 23px;
-	border: 4px solid rgba(235, 235, 255, 0.95);
+	border: 4px solid #e1e1f5;
 	margin: 0px;
 	padding: 0px;
 	width: 37px;
@@ -1385,16 +1483,16 @@ body {
 }
 #sepiaFW-chat-controls-speech-box {
     display: flex;
-	position: absolute;
-	background: rgba(189, 189, 189, 0.66);
-	border-radius: 3px;
-	bottom: 57px;
-	z-index: 6;
-    left: 0;
-	width: calc(100% - 4px);
-	min-height: 35px;
-	margin: 2px;
-	padding: 2px;
+    position: absolute;
+    background: rgba(189, 189, 189, 0.66);
+    border-radius: 3px;
+    bottom: 58px;
+    z-index: 6;
+    left: 4px;
+    width: calc(100% - 12px);
+    min-height: 42px;
+    margin: 2px;
+    padding: 2px;
 }
 #sepiaFW-chat-controls-speech-box > div {
 	background: #2f3035;
@@ -1503,7 +1601,7 @@ body {
 	border-bottom: 0px solid rgba(0, 0, 0, 0.00); 
 	border-right: 0px solid rgba(0, 0, 0, 0.00);
     position: relative;
-	max-width: 95%;
+	max-width: calc(100% - 30px);
     word-wrap: break-word;
 	transition: all .5s;
 	text-align: left;
@@ -1594,7 +1692,6 @@ body {
 }
 .sepiaFW-results-container article.chatMe,
 #sepiaFW-chat-output article.chatMe{
-	/*background: rgba(235, 235, 255, 0.95);*/
 	background: #ceff1a;
 	color: #2f3035;
 	margin: 0 2px 4px 30px;
@@ -1655,7 +1752,10 @@ body {
 }
 #sepiaFW-my-view > .sepiaFW-cards-flexSize-container {
 	padding-bottom: 5px !important;
-	margin-bottom: 10px;
+	margin-bottom: 5px; /* we make this smaller (prev. it was 10px ...) */
+}
+#sepiaFW-my-view > .sepiaFW-cards-flexSize-container + div:not(.sepiaFW-cards-flexSize-container) {
+	margin-top: 10px;	/* ... and we add it here on every direct sibling that is not a card container */
 }
 #sepiaFW-my-view > .sepiaFW-cards-flexSize-container > :last-child {
 	margin-bottom: 0px !important;
@@ -1691,7 +1791,7 @@ body {
 #sepiaFW-myCustom-buttons button,
 #sepiaFW-myCustom-buttons-replaced button {
 	padding: 10px 15px;
-    background-color: rgba(235, 235, 255, 0.95);
+    background-color: #e5e5e5;
 	flex: 1 0 auto;
 }
 .sepiaFW-myEvents-dateHeader {

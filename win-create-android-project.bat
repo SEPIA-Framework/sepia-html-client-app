@@ -38,6 +38,9 @@ cordova plugin add cordova-android-support-gradle-release |more
 cordova plugin add phonegap-plugin-media-stream |more
 cordova plugin add https://github.com/EddyVerbruggen/Insomnia-PhoneGap-Plugin.git |more
 cordova plugin add cordova-plugin-eddystone |more
+cordova plugin add cordova-plugin-navigationbar-color |more
+REM NOTE: add before intent plugin if you use: plugin add cordova-plugin-camera
+cordova plugin add com-darryncampbell-cordova-plugin-intent |more
 REM
 REM overwrite plugin mods
 sleep 2
@@ -61,7 +64,8 @@ echo "#Replacing icons ..."
 xcopy "resources\icons\android\notifications\res" "platforms\android\res" /e /h /y |more
 xcopy "resources\themes\android\background_splash.xml" "platforms\android\res\drawable" |more
 xcopy "resources\themes\android\launch_screen.png" "platforms\android\res\drawable" |more
-xcopy "resources\themes\android\styles.xml" "platforms\android\res\values" |more
+xcopy "resources\themes\android\values" "platforms\android\res\values" |more
+xcopy "resources\themes\android\values-v21" "platforms\android\res\values-v21" /i |more
 echo "#DONE"
 echo "If everything worked out fine the next step would be to build the app from the %APP_NAME% folder: cordova build android"
 pause

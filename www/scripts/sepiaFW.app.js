@@ -42,6 +42,7 @@ SepiaFW.buildSepiaFwPlugins = function(){
 	SepiaFW.embedded.nlu = sepiaFW_build_embedded_nlu();
 	SepiaFW.embedded.services = sepiaFW_build_embedded_services();
 	SepiaFW.clexi = sepiaFW_build_clexi();
+	SepiaFW.android = sepiaFW_build_android();
 }
 
 //DATA STORAGE
@@ -160,6 +161,9 @@ function sepiaFW_build_dataService(){
 		load();
 		return (data && (key in data)) ? data[key] : undefined;
 	}
+	DataService.getAll = function(){
+		return load();
+	}
 	DataService.set = function(key, value){
 		if (!data) data = {};
 		data[key] = value;
@@ -168,6 +172,9 @@ function sepiaFW_build_dataService(){
 	DataService.getPermanent = function(key){
 		load(true);
 		return (dataPermanent && (key in dataPermanent)) ? dataPermanent[key] : undefined;
+	}
+	DataService.getAllPermanent = function(){
+		return load(true);
 	}
 	DataService.setPermanent = function(key, value){
 		if (!dataPermanent) dataPermanent = {};
@@ -246,156 +253,6 @@ function sepiaFW_build_dataService(){
 	}
 	
 	return DataService;
-}
-
-//CONFIG
-function sepiaFW_build_config(){
-	var Config = {};
-	
-	Config.clientInfo = "web_app_v1.0.0";	//defined by client properties
-	var deviceId = "";						//set in settings and freely chosen by user to address his devices directly
-	var deviceIdClean = "";					//clean version of device ID (no spaces, only alphanumeric, lower-case)
-	Config.environment = "default";			//default for now - switched to "avatar_display" in AO-Mode
-	
-	//set client info
-	Config.setClientInfo = function(clientInfo){
-		Config.clientInfo = clientInfo;
-		SepiaFW.debug.log('Config: clientInfo=' + Config.clientInfo);
-	}
-	//get client-device info (for server communication etc.)
-	Config.getClientDeviceInfo = function(){
-		if (deviceIdClean){
-			return (deviceIdClean + "_" + Config.clientInfo);
-		}else{
-			return (Config.clientInfo);
-		}
-	}
-	//set device ID			
-	Config.setDeviceId = function(newDeviceId, skipReload){
-		deviceId = newDeviceId.replace(/[\W]+/g, " ").replace(/\s+/g, " ").trim();
-		deviceIdClean = deviceId.split(" ").join("_").toLowerCase();
-		SepiaFW.data.setPermanent('deviceId', deviceId);
-		Config.broadcastDeviceId(deviceId);
-		if (!skipReload){
-			logoutAndReload();
-		}
-	}
-	//get device ID
-	Config.getDeviceId = function(){
-		return deviceId;
-	}
-	//set hostname
-	Config.setHostName = function(hostName, skipReload){
-		if (hostName){
-			Config.host = hostName;
-			SepiaFW.data.setPermanent("host-name", Config.host);
-			Config.broadcastHostName(Config.host);
-			if (!skipReload){
-				logoutAndReload();
-			}
-		}
-	}
-	
-	//language
-	var lang = SepiaFW.tools.getURLParameter("lang") || SepiaFW.data.get('app-language') || navigator.language || navigator.userLanguage;
-	if (lang && lang.toLowerCase().indexOf('de') === 0){
-		lang = 'de';
-	}else{
-		lang = 'en';
-	}
-	Config.appLanguage = lang; 
-	SepiaFW.debug.log('Config: language=' + Config.appLanguage);
-	
-	//set API URLs
-	Config.host = "localhost:20726/sepia"; 	//location.hostname + ":" + location.port
-	Config.assistAPI = "http://" + Config.host + "/assist/";
-	Config.teachAPI = "http://" + Config.host + "/teach/";
-	Config.webSocketURI = "ws://" + Config.host + "/chat/messages/";
-	Config.webSocketAPI = "http://" + Config.host + "/chat/";
-		
-	//set base URLs to end-points
-	Config.setEndPoints = function(apiURLs){
-		if (apiURLs.assistAPI){
-			Config.assistAPI = apiURLs.assistAPI;
-			SepiaFW.debug.log('Config: assistAPI=' + apiURLs.assistAPI);
-		}
-		if (apiURLs.teachAPI) Config.teachAPI = apiURLs.teachAPI;
-		if (apiURLs.webSocketURI) Config.webSocketURI = apiURLs.webSocketURI;
-		if (apiURLs.webSocketAPI) Config.webSocketAPI = apiURLs.webSocketAPI;
-	}
-	
-	//set policy and license links
-	Config.privacyPolicyUrl = "https://sepia-framework.github.io/privacy-policy.html";
-	Config.clientLicenseUrl = "license.html";
-	
-	//some settings require app-reload
-	function logoutAndReload() {
-		setTimeout(function(){
-			var config = {
-				buttonOneName : SepiaFW.local.g('doit'),
-				buttonOneAction : function(){ 
-					SepiaFW.account.afterLogout = function(){
-						location.reload();
-					}
-					SepiaFW.account.logoutAction();
-				},
-				buttonTwoName : SepiaFW.local.g('back'),
-				buttonTwoAction : function(){}
-			};
-			SepiaFW.ui.showPopup(SepiaFW.local.g("logoutAndReload"), config);
-		}, 500);
-	}
-	
-	//------------ broadcasting functions --------------
-	//TODO: they are sometimes called from other modules which makes them 
-	//kind of setter functions too, ... we should change that
-	
-	//add everything here that needs to be refreshed after host change
-	Config.broadcastHostName = function(hostName){
-		//log
-		SepiaFW.debug.log('Config: broadcasted host=' + hostName);
-	}
-	//add everything here that needs to be refreshed after language change
-	Config.broadcastLanguage = function(language){
-		//app
-		Config.appLanguage = language; 		//TODO: interface reload to set texts?
-		//speech
-		if (SepiaFW.speech){ 	
-			SepiaFW.speech.language = language;
-			SepiaFW.speech.refreshVoice();
-		}
-		//geocoder
-		if (SepiaFW.geocoder) 	SepiaFW.geocoder.setLanguage(language);
-		//menue
-		$('#sepiaFW-menu-account-language-li').find('select').val(language);
-		//log and save
-		SepiaFW.data.updateAccount('language', language);
-		SepiaFW.data.set('app-language', language);
-		SepiaFW.debug.log('Config: broadcasted language=' + language);
-	}
-	//broadcast-event when userName (really the name not the id) is changed
-	Config.broadcastUserName = function(userName){
-		//menue
-		$('#sepiaFW-menu-account-nickname').val(userName);
-		//log and save
-		SepiaFW.data.updateAccount('userName', userName);
-		SepiaFW.debug.log('Config: broadcasted userName=' + userName);
-	}
-	//broadcast-event when deviceId changed
-	Config.broadcastDeviceId = function(newDeviceId){
-		//menue
-		$('#sepiaFW-menu-deviceId').val(newDeviceId);
-		//log
-		SepiaFW.debug.log('Config: broadcasted deviceId=' + newDeviceId);
-	}
-	
-	//------------------------------------------------
-
-	//link to URL parameter functions - TODO: can we remove this?
-	Config.getURLParameter = SepiaFW.tools.getURLParameter;
-	Config.setParameterInURL = SepiaFW.tools.setParameterInURL;
-	
-	return Config;
 }
 
 //TOOLS
@@ -598,6 +455,30 @@ function sepiaFW_build_tools(){
 	//convert RGB color value to HEX
 	Tools.rgbToHex = function(r, g, b){
 		return "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
+	}
+
+	//Encryption basics
+	Tools.encryptBasic = function(password, data){
+		var dataIn = (typeof data == "object")? JSON.stringify(data) : data;
+		var encryptedData = JSON.parse(sjcl.encrypt(password, dataIn));
+		return {
+			iv: encryptedData.iv,
+			salt: encryptedData.salt,
+			ct: encryptedData.ct
+		}
+	}
+	Tools.decryptBasic = function(password, basicEncryptedData){
+		var dataIn = (typeof basicEncryptedData == "object")? JSON.stringify(basicEncryptedData) : basicEncryptedData;
+		try {
+			var decryptedData = sjcl.decrypt(password, dataIn);
+			if (decryptedData.indexOf("{") == 0){ 		//this might be a bit weak contidion ^^
+				return JSON.parse(decryptedData);
+			}else{
+				return decryptedData;
+			}
+		} catch (e) {
+			return "";
+		}
 	}
 	
 	return Tools;

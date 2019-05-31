@@ -178,7 +178,7 @@ function sepiaFW_build_speechWebSocket(){
 		//stopWebSocket();
 		//Speech.stopRecording();
 		
-		var language = SepiaFW.speech.getLongLanguageCode(SepiaFW.speech.language);
+		var language = SepiaFW.speech.getLanguageForASR();
 		
 		//WebSocket URI - TODO: handle parameters variable
 		var uri = Speech.socketURI + ('?language=' + language);

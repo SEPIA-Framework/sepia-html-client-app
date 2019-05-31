@@ -28,11 +28,34 @@ var app = {
     },
     // deviceready Event Handler
     onDeviceReady: function() {
+		//clean up some old stuff just to be sure
+		if ("localStorage" in window){
+			localStorage.removeItem("sepia-deeplink-intent");
+			localStorage.removeItem("sepia-android-intent");
+			localStorage.removeItem("sepia-local-note");
+			localStorage.removeItem("sepia-local-notes-triggered");
+		}
+
 		//universal links
-		universalLinks.subscribe('universalLinkTest', app.onUniversalLink);
+		universalLinks.subscribe('universalLinks', app.onUniversalLink);
+
+		//android intents
+		if ('plugins' in window && window.plugins.intentShim){
+		    window.plugins.intentShim.getIntent(
+		        app.onAndroidIntent,
+		        function(){
+					console.log('window.plugins.intentShim.getIntent - Failed to get Android launch intent.');
+				}
+            );
+		}
 		
 		//local notification
+		cordova.plugins.notification.local.on("trigger", app.onLocalNotificationTriggered, this);
 		cordova.plugins.notification.local.on("click", app.onLocalNotification, this);
+		cordova.plugins.notification.local.setDefaults({
+			group: "sepia-open-assistant",
+			wakeup: false
+		});
 		
 		//cordova info
 		document.getElementById('sepiaFW-cordova-starter').innerHTML += ("<p>" + device.platform + "</p>");
@@ -54,17 +77,45 @@ var app = {
 			redirect();
 		}
     },
-	// openNewsListPage Event Handler
-	onUniversalLink: function(eventData) {
-		//handle universal link
-		//alert('Universal link test successful! :-) (start)');
-		//TODO: use localstorage for intent transfer
+	//universal link events
+	onUniversalLink: function(eventData){
+		//store deep-link and handle in index.html appSetup()
+		if ("localStorage" in window){
+			localStorage.setItem("sepia-deeplink-intent", JSON.stringify(eventData));
+			localStorage.setItem("sepia-deeplink-intent-ts", new Date().getTime());
+		}
 	},
-	//openLocalNotification
+	//Android intent events
+	onAndroidIntent: function(intent) {
+		//store intent and handle in index.html appSetup()
+		if ("localStorage" in window){
+			localStorage.setItem("sepia-android-intent", JSON.stringify(intent));
+			localStorage.setItem("sepia-android-intent-ts", new Date().getTime());
+		}
+	},
+	//local notification triggered
+	onLocalNotificationTriggered: function(notification, state){
+		//NOTE: Actually this will not be called when the message is triggered but notes are buffered by the plugin until the app starts
+		if ("localStorage" in window){
+			if (notification && notification.data){
+				var triggeredEvents = localStorage.getItem("sepia-local-notes-triggered");
+				if (triggeredEvents && triggeredEvents.indexOf("[") == 0){
+					triggeredEvents = JSON.parse(triggeredEvents);
+				}else{
+					triggeredEvents = [];
+				}
+				triggeredEvents.push(notification);
+				localStorage.setItem("sepia-local-notes-triggered", JSON.stringify(triggeredEvents));
+			}
+        }
+	},
+	//local notification events
 	onLocalNotification: function(notification, state) {
-		//handle local notification
-		//alert('Local notification test successful! :-) (start)');
-		//TODO: use localstorage for intent transfer
+		//store notification and handle in index.html appSetup()
+		if ("localStorage" in window){
+			localStorage.setItem("sepia-local-note", JSON.stringify(notification));
+			localStorage.setItem("sepia-local-note-ts", new Date().getTime());
+		}
 	}
 };
 

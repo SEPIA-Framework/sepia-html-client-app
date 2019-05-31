@@ -136,7 +136,7 @@ function ready(){
 	document.getElementById('google').addEventListener("click", function(){
 		var q = document.getElementById('q');
 		if(q){
-			location.href = "https://www.google.com/search?q=" + encodeURI(q.value);
+			location.href = "https://www.google.com/search?q=" + encodeURIComponent(q.value);
 		}else{
 			location.href = "https://www.google.com";
 		}
@@ -144,7 +144,7 @@ function ready(){
 	document.getElementById('bing').addEventListener("click", function(){
 		var q = document.getElementById('q');
 		if(q){
-			location.href = "https://www.bing.com/search?q=" + encodeURI(q.value);
+			location.href = "https://www.bing.com/search?q=" + encodeURIComponent(q.value);
 		}else{
 			location.href = "https://www.bing.com";
 		}
@@ -152,7 +152,7 @@ function ready(){
 	document.getElementById('yahoo').addEventListener("click", function(){
 		var q = document.getElementById('q');
 		if(q){
-			location.href = "https://search.yahoo.com/search;?p=" + encodeURI(q.value);
+			location.href = "https://search.yahoo.com/search;?p=" + encodeURIComponent(q.value);
 		}else{
 			location.href = "https://www.yahoo.com";
 		}
@@ -160,7 +160,7 @@ function ready(){
 	document.getElementById('duckduck').addEventListener("click", function(){
 		var q = document.getElementById('q');
 		if(q){
-			location.href = "https://duckduckgo.com/?kae=d&k7=%23000000&k9=007AFF&k1=-1&q=" + encodeURI(q.value);
+			location.href = "https://duckduckgo.com/?kae=d&k7=%23000000&k9=007AFF&k1=-1&q=" + encodeURIComponent(q.value);
 		}else{
 			location.href = "https://duckduckgo.com";
 		}

@@ -1,0 +1,14 @@
+{
+  "applinks": {
+    "apps": [],
+    "details": [
+      {
+        "appID": "ID.org.example.sepia.app.web",
+        "paths": [
+          "/sepia/*",
+		  "/dl/sepia/*"
+        ]
+      }
+    ]
+  }
+}

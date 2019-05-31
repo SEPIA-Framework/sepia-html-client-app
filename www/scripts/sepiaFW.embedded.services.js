@@ -32,7 +32,7 @@ function sepiaFW_build_embedded_services(){
 	//Get answer to nluResult
 	Services.answerMessage = function(nluInput, nluResult){
 		var serviceResult = {};
-		if (nluResult.result = "success"){
+		if (nluResult.result == "success"){
 			//Lists
 			if (nluResult.command == "lists"){
 				serviceResult = Services.lists(nluInput, nluResult);
@@ -44,6 +44,10 @@ function sepiaFW_build_embedded_services(){
 				}else{
 					//not yet supported
 				}
+
+			//Link
+			}else if (nluResult.command == "open_link"){
+				serviceResult = Services.link(nluInput, nluResult);
 
 			//My-Events
 			}else if (nluResult.command == "events_personal"){
@@ -118,6 +122,58 @@ function sepiaFW_build_embedded_services(){
 		return serviceResult;
 	}
 
+	//Embedded link service
+	Services.link = function(nluInput, nluResult, customCardData){
+		//Dummy data
+		var imageUrl = "";
+		var imageBackground = "";
+		var title = "Link";
+		var description = "Click to open";
+		var url = "https://sepia-framework.github.io/app/search.html";
+		var answerText = SepiaFW.local.g('opening_link');
+		var data = {
+			type: "websearch"
+		};
+		
+		//Overwrite with custom data ... if available
+		if (customCardData){
+			imageUrl = customCardData.image;
+			imageBackground = customCardData.imageBackground;
+			url = customCardData.url;
+			if (customCardData.data){
+				data = customCardData.data;
+				title = customCardData.data.title;
+				description = customCardData.data.desc;
+			}
+
+		}else if (nluResult && nluResult.parameters){
+			imageUrl = nluResult.parameters.icon_url;
+			//imageBackground = nluResult.parameters.???
+			title = nluResult.parameters.title;
+			description = nluResult.parameters.description;
+			url = nluResult.parameters.url;
+			answerText = nluResult.parameters.answer_set;
+			if (answerText){
+				var answers = answerText.split("||"); 
+				var randN = Math.floor(Math.random() * answers.length);
+				answerText = answers[randN]; 		//TODO: test
+			}
+		}
+
+		//Get list service-result
+		var serviceResult;
+		if (SepiaFW.offline){
+			var cardInfo = [SepiaFW.offline.getLinkCard(url, title, description, imageUrl, imageBackground, data)];
+			var actionInfo = [SepiaFW.offline.getUrlOpenAction(url)];
+			var htmlInfo = "";
+			serviceResult = Services.buildServiceResult(
+				nluInput.user, nluInput.language, 
+				nluResult.command, answerText, cardInfo, actionInfo, htmlInfo
+			);
+		}
+		return serviceResult;
+	}
+
 	//----- Actions builder -----
 
 	Services.buildPersonalEventsActionDummy = function(){
@@ -141,7 +197,7 @@ function sepiaFW_build_embedded_services(){
 		return actionInfo;
 	}
 
-	//----- Cards builder -----
+	//----- Cards dummy data -----
 
 	//Build a list with custom or dummy data
 	Services.buildListCardInfoDummy = function(id, title, section, indexType, group, listData){

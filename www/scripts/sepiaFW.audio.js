@@ -12,6 +12,29 @@ function sepiaFW_build_audio(){
 	var speaker;			//Player for TTS
 	var doInitAudio = true;			//workaround to activate scripted audio on touch devices
 	var audioOnEndFired = false;	//state: prevent doublefireing of audio onend onpause
+	AudioPlayer.getMusicPlayer = function(){
+		return player;
+	}
+	AudioPlayer.isMusicPlayerStreaming = function(){
+		return player
+			&& player.currentTime > 0
+			&& !player.paused
+			&& !player.ended
+			&& player.readyState > 2;
+	}
+	AudioPlayer.startNextMusicStreamOfQueue = function(successCallback, errorCallback){
+		//TODO: Currently the only thing 'player' can do is stream radio or URL, so this will always return ERROR for now.
+		if (errorCallback) errorCallback({
+			error: "No next stream available",
+			status: 1
+		});
+	}
+	AudioPlayer.getEffectsPlayer = function(){
+		return player2;
+	}
+	AudioPlayer.getTtsPlayer = function(){
+		return speaker;
+	}
 	
 	//AudioContext stuff:
 	AudioPlayer.useAudioContext = false;	//experimental feature for things like gain control and music visualization (unfortunately fails for quite a few radio streams)
@@ -86,8 +109,7 @@ function sepiaFW_build_audio(){
 		//get player controls
 		audioTitle = document.getElementById('sepiaFW-audio-ctrls-title');
 		audioStartBtn = document.getElementById('sepiaFW-audio-ctrls-start');
-		$(audioStartBtn).off();
-		$(audioStartBtn).on('click', function(){
+		$(audioStartBtn).off().on('click', function(){
 			//test: player.src = "sounds/coin.mp3";
 			//player.play();
 			if (!AudioPlayer.initAudio(function(){ AudioPlayer.playURL('', player); })){
@@ -95,20 +117,17 @@ function sepiaFW_build_audio(){
 			}
 		});
 		audioStopBtn = document.getElementById('sepiaFW-audio-ctrls-stop');
-		$(audioStopBtn).off();
-		$(audioStopBtn).on('click', function(){
-			if (!AudioPlayer.initAudio(function(){ AudioPlayer.stop(player); })){
-				AudioPlayer.stop(player);
-			}
+		$(audioStopBtn).off().on('click', function(){
+			SepiaFW.client.controls.media({
+				action: "stop"
+			});
 		});
 		audioVolUp = document.getElementById('sepiaFW-audio-ctrls-volup');
-		$(audioVolUp).off();
-		$(audioVolUp).on('click', function(){
+		$(audioVolUp).off().on('click', function(){
 			playerSetVolume(playerGetVolume() + 1.0);
 		});
 		audioVolDown = document.getElementById('sepiaFW-audio-ctrls-voldown');
-		$(audioVolDown).off();
-		$(audioVolDown).on('click', function(){
+		$(audioVolDown).off().on('click', function(){
 			playerSetVolume(playerGetVolume() - 1.0);
 		});
 		audioVol = document.getElementById('sepiaFW-audio-ctrls-vol');
@@ -117,10 +136,11 @@ function sepiaFW_build_audio(){
 	
 	//connect / disconnect AudioContext
 	function connectAudioContext(){
-		//get audio context (for ios volume and spectrum analyzers)
-		if(AudioPlayer.useAudioContext && !gotPlayerAudioContext && ('webkitAudioContext' in window || 'AudioContext' in window) 
-								&& !((window.location.toString().indexOf('file') == 0) 
-									&& !SepiaFW.ui.isSafari && !SepiaFW.ui.isIOS)){
+		//get audio context (for ios volume and spectrum analyzers - TODO: why is '!SepiaFW.ui.isIOS' used? Didn't we deactivate the whole thing?)
+		if(AudioPlayer.useAudioContext && !gotPlayerAudioContext 
+					&& ('webkitAudioContext' in window || 'AudioContext' in window) 
+					&& !((window.location.toString().indexOf('file') == 0) 
+					&& !SepiaFW.ui.isSafari && !SepiaFW.ui.isIOS)){
 			player.crossOrigin = "anonymous";
 						
 			playerAudioContext = new (window.AudioContext || window.webkitAudioContext)();
@@ -226,6 +246,7 @@ function sepiaFW_build_audio(){
 			if (gotPlayerAudioContext) playerGainNode.gain.value = orgGain;
 			else audioPlayer.volume = orgVolume;
 		}
+		//SEE AudioPlayer stop button for more, e.g. Android stop
 	}
 	
 	//Fade main audio source in and out and restart if needed
@@ -427,7 +448,7 @@ function sepiaFW_build_audio(){
 							"&format=" + encodeURIComponent(sound_format) +
 							//general stuff
 							"&env=" + encodeURIComponent(SepiaFW.config.environment) +
-							"&lang=" + encodeURIComponent((SepiaFW.speech)? SepiaFW.speech.language : SepiaFW.config.appLanguage) +
+							"&lang=" + encodeURIComponent((SepiaFW.speech)? SepiaFW.speech.getLanguage() : SepiaFW.config.appLanguage) +
 							"&KEY=" + encodeURIComponent(SepiaFW.account.getKey()) +
 							"&client=" + encodeURIComponent(SepiaFW.config.clientInfo),
 			timeout: 10000,
@@ -461,6 +482,7 @@ function sepiaFW_build_audio(){
 	AudioPlayer.setPlayerTitle = function(newTitle, audioPlayer){
 		if (!audioPlayer) audioPlayer = player;
 		audioPlayer.title = newTitle;
+		if (audioTitle) audioTitle.innerHTML = newTitle || "SepiaFW audio player";
 	}
 
 	//play audio by url

@@ -3,7 +3,8 @@ function sepiaFW_build_ui(){
 	var UI = {};
 	
 	//some constants
-	UI.version = "v0.17.0";
+	UI.version = "v0.18.0";
+	UI.requiresServerVersion = "2.2.2";
 	UI.JQ_RES_VIEW_IDS = "#sepiaFW-result-view, #sepiaFW-chat-output, #sepiaFW-my-view";	//a selector to get all result views e.g. $(UI.JQ_RES_VIEW_IDS).find(...) - TODO: same as $('.sepiaFW-results-container') ??
 	UI.JQ_ALL_MAIN_VIEWS = "#sepiaFW-result-view, #sepiaFW-chat-output, #sepiaFW-my-view, #sepiaFW-teachUI-editor, #sepiaFW-teachUI-manager, #sepiaFW-frame-page-1, #sepiaFW-frame-page-2"; 	//TODO: frames can have more ...
 	UI.JQ_ALL_SETTINGS_VIEWS = ".sepiaFW-chat-menu-list-container";
@@ -79,11 +80,11 @@ function sepiaFW_build_ui(){
 	
 	UI.primaryColor = '#ceff1a';
 	UI.secondaryColor = '#2f3035';
-	UI.secondaryColor2 = 'rgba(235, 235, 255, 0.95)';
-	UI.accentColor = 'rgba(145, 47, 86, 0.95)';
-	UI.accentColor2 = 'rgba(11, 122, 117, 0.95)'; //'rgba(86, 47, 145, 0.95)';
+	UI.secondaryColor2 = '#f0f0fa';
+	UI.accentColor = '#94365b';
+	UI.accentColor2 = '#16817b'; 	//'rgba(86, 47, 145, 0.95)';
 	UI.awaitDialogColor = 'gold';
-	UI.loadingColor = 'rgba(180, 180, 180, 1.0)';
+	UI.loadingColor = '#b4b4b4';
 	UI.assistantColor = '';
 	UI.micBackgroundColor = '#fff';  //reassigned during UI setup
 	
@@ -120,12 +121,21 @@ function sepiaFW_build_ui(){
 			if (SepiaFW.tools.getBestContrast(colorString) === 'white'){
 				StatusBar.backgroundColorByHexString(colorString);
 				StatusBar.styleLightContent();
+				if ('NavigationBar' in window){
+                    NavigationBar.backgroundColorByHexString(colorString);
+                }
 			}else{
 				if (UI.isAndroid){
 					StatusBar.backgroundColorByHexString('#000000');
+					if ('NavigationBar' in window){
+                        NavigationBar.backgroundColorByHexString('#000000');
+                    }
 				}else{
 					StatusBar.backgroundColorByHexString(colorString);
 					StatusBar.styleDefault();
+					if ('NavigationBar' in window){
+                        NavigationBar.backgroundColorByHexString(colorString);
+                    }
 				}
 			}
 		}
@@ -181,7 +191,7 @@ function sepiaFW_build_ui(){
 	//make an info message
 	UI.showInfo = function(text, isErrorMessage, customTag){
 		if (UI.build){
-			var message = UI.build.makeMessageObject(text, 'UI', 'client', '');
+			var message = UI.build.makeMessageObject(text, 'UI', 'client', '', 'info'); 	//note: channelId=info will use the active channel or user-channel
 			var sEntry = UI.build.statusMessage(message, 'username', true);		//we handle UI messages as errors for now
 			if (customTag){
 				sEntry.dataset.msgCustomTag = customTag;
@@ -203,10 +213,15 @@ function sepiaFW_build_ui(){
 		var sender = data.sender || 'UI';
 		var senderType = data.senderType || 'client';
 		var receiver = data.receiver || '';
-		var message = UI.build.makeMessageObject(text, sender, senderType, receiver);
+		var channelId = data.channelId || ((SepiaFW.client.isDemoMode())? "info" : "");
+		var message = UI.build.makeMessageObject(text, sender, senderType, receiver, channelId);
 		var cOptions = options.buildOptions || {};
 		//build entry
 		var cEntry = UI.build.chatEntry(message, 'username', cOptions);
+		if (!cEntry){
+			SepiaFW.debug.error('Failed to show custom chat-entry, data was invalid! ChannelId issue?');
+			return;
+		}
 		//get right view
 		var targetViewName = cOptions.targetView || "chat";
 		var resultView = UI.getResultViewByName(targetViewName);
@@ -342,9 +357,9 @@ function sepiaFW_build_ui(){
 	}
 	
 	//-------- SETUP --------
-	
-	//setup UI components and client variables
-	UI.setup = function(){
+
+	//setup device properties and stuff
+	UI.beforeSetup = function(){
 		//is touch device?
 		if ("ontouchstart" in document.documentElement){
 			UI.isTouchDevice = true;
@@ -354,7 +369,7 @@ function sepiaFW_build_ui(){
 			document.documentElement.className += " sepiaFW-notouch-device";
 		}
 		
-		//is Android or Chrome?
+		//is Android or Chrome? - TODO: what about Chromium?
 		UI.isAndroid = (UI.isCordova)? (device.platform === "Android") : (navigator.userAgent.match(/(Android)/ig)? true : false);
 		UI.isChrome = (/Chrome/gi.test(navigator.userAgent)) && !(/Edge/gi.test(navigator.userAgent));
 		//is iOS or Safari?
@@ -404,6 +419,23 @@ function sepiaFW_build_ui(){
 			return urlParam;
 		}
 		UI.isTinyApp = isTinyApp();
+	}
+
+	//get default device ID
+	UI.getDefaultDeviceId = function(){
+		if (UI.isIOS){
+			return "i1";
+		}else if (UI.isAndroid){
+			return "a1";
+		}else if (UI.isStandaloneWebApp){
+			return "o1";
+		}else{
+			return "b1";
+		}
+	}
+	
+	//setup UI components and client variables - requires UI.beforeSetup() !
+	UI.setup = function(){
 		
 		//client
 		SepiaFW.config.setClientInfo(((UI.isIOS)? 'iOS_' : '') 
@@ -412,7 +444,9 @@ function sepiaFW_build_ui(){
 							+ ((UI.isEdge)? 'edge_' : '')
 							+ ((UI.isSafari)? 'safari_' : '')
 							+ ((UI.isStandaloneWebApp)? "app_" : "browser_") + UI.version);
-							
+		
+		//---------------------- LOAD other SETTINGS before building the UI:
+
 		//load skin
 		var lastSkin = SepiaFW.data.get('activeSkin');
 		if (lastSkin){
@@ -422,6 +456,11 @@ function sepiaFW_build_ui(){
 			UI.refreshSkinColors();
 		}
 		
+		//module specific settings
+		SepiaFW.config.loadAppSettings();
+
+		//-------------------------------------------------------------------------------------------------
+
 		//set assist-button defaults
 		UI.assistBtn = document.getElementById("sepiaFW-assist-btn") || document.createElement("BUTTON");
 		UI.assistBtnArea = document.getElementById("sepiaFW-assist-btn-area") || document.createElement("DIV");
@@ -434,68 +473,6 @@ function sepiaFW_build_ui(){
 		UI.assistIconRec = '<i class="material-icons md-mic">&#xE1B8;</i>';
 		UI.assistIconStop = '<i class="material-icons md-mic">&#xE034;</i>';
 		UI.assistIconAwaitAnswer = '<i class="material-icons md-mic-dia">&#xE0B7;</i>';  //&#xE90F;
-		
-		//---------------------- LOAD other SETTINGS before building the UI:
-		//TODO: this should be simplified with a service! ... for the start we could move it to the 'data' module
-		
-		//TTS
-		if (SepiaFW.speech){
-			var storedValue = SepiaFW.data.get('skipTTS');
-			if (typeof storedValue != 'undefined') SepiaFW.speech.skipTTS = storedValue;
-			SepiaFW.debug.info("TTS is " + ((SepiaFW.speech.skipTTS)? "OFF" : "ON"));
-		}
-		//GPS
-		if (SepiaFW.geocoder){
-			var storedValue = SepiaFW.data.get('autoGPS');
-			if (typeof storedValue != 'undefined') SepiaFW.geocoder.autoGPS = storedValue;
-			SepiaFW.debug.info("GPS is in " + ((SepiaFW.geocoder.autoGPS)? "AUTO" : "MANUAL") + " mode.");
-		}
-		//Proactive notes
-		if (SepiaFW.assistant){
-			var storedValue = SepiaFW.data.get('proactiveNotes');
-			if (typeof storedValue != 'undefined') SepiaFW.assistant.isProActive = storedValue;
-			SepiaFW.debug.info("Proactive notes are " + ((SepiaFW.assistant.isProActive)? "ON" : "OFF"));
-		}
-		//Channel status messages
-		UI.showChannelStatusMessages = SepiaFW.data.get('channelStatusMessages');
-			if (typeof UI.showChannelStatusMessages == 'undefined') UI.showChannelStatusMessages = true;
-			SepiaFW.debug.info("Channel status messages are " + ((UI.showChannelStatusMessages)? "ON" : "OFF"));
-		//Allow background connection
-		if (SepiaFW.client){
-			SepiaFW.client.allowBackgroundConnection = SepiaFW.data.get('allowBackgroundConnection');
-			if (typeof SepiaFW.client.allowBackgroundConnection == 'undefined') SepiaFW.client.allowBackgroundConnection = false;
-			SepiaFW.debug.info("Background connections are " + ((SepiaFW.client.allowBackgroundConnection)? "ALLOWED" : "NOT ALLOWED"));
-		}
-		//Allow power status tracking (e.g. power plugIn event)
-		if (SepiaFW.alwaysOn){
-			SepiaFW.alwaysOn.trackPowerStatus = SepiaFW.data.get('trackPowerStatus');
-			if (typeof SepiaFW.alwaysOn.trackPowerStatus == 'undefined') SepiaFW.alwaysOn.trackPowerStatus = false;
-			if (SepiaFW.alwaysOn.trackPowerStatus){
-				SepiaFW.alwaysOn.setupBatteryStatus();
-			}
-			SepiaFW.debug.info("Power-status tracking is " + ((SepiaFW.alwaysOn.trackPowerStatus)? "ALLOWED" : "NOT ALLOWED"));
-		}
-		//Gamepad, Hotkeys and BLE-Beacon support
-		if (SepiaFW.inputControls){
-			SepiaFW.inputControls.initializeGamepads();
-			SepiaFW.inputControls.initializeBluetoothBeacons();
-		}
-		//Wake-word trigger
-		if (SepiaFW.wakeTriggers){
-			SepiaFW.wakeTriggers.initialize();
-		}
-		//Smart microphone toggle
-		if (SepiaFW.speech){
-			SepiaFW.speech.useSmartMicToggle = SepiaFW.data.get('useSmartMicToggle');
-			if (typeof SepiaFW.speech.useSmartMicToggle == 'undefined') SepiaFW.speech.useSmartMicToggle = true;
-			SepiaFW.debug.info("Smart microphone toggle is " + ((SepiaFW.speech.useSmartMicToggle)? "ON" : "OFF"));
-		}
-		//CLEXI.js support
-		if (SepiaFW.clexi){
-			SepiaFW.clexi.initialize();
-		}
-
-		//-------------------------------------------------------------------------------------------------
 		
 		//build UI logic and general buttons
 		UI.build.uiButtonsAndLogic();
@@ -627,10 +604,12 @@ function sepiaFW_build_ui(){
 	}
 	
 	//Update myView
-	var myViewUpdateInterval = 15*60*1000; 		//<- automatic updates will not be done more than once within this interval
+	var myViewUpdateInterval = 15*60*1000; 		//<- updates will not be done more than once within this interval
+	UI.myViewAutoUpdateDelay = 60*60*1000;		//1h
 	var lastMyViewUpdate = 0;
 	var myViewPostponedUpdateTries = 0;
 	var myViewUpdateTimer;
+	var myViewAutoUpdateTimer;
 	var contextEventsLoadDelayTimer = undefined;
 	var timeEventsLoadDelayTimer = undefined;
 	UI.updateMyView = function(forceUpdate, checkGeolocationFirst, updateSource){
@@ -668,7 +647,7 @@ function sepiaFW_build_ui(){
 				UI.updateMyView(forceUpdate, false, 'geoCoderSkippedUpdate');		//TODO: should we use 'forceUpdate' variable instead of false?
 			}
 		
-		//without GPS
+		//without/after GPS
 		}else{
 			var now = new Date().getTime();
 			if (forceUpdate || ((now - lastMyViewUpdate) > myViewUpdateInterval)){
@@ -689,8 +668,22 @@ function sepiaFW_build_ui(){
 				if (SepiaFW.ui.customButtons){
 					SepiaFW.ui.customButtons.onMyViewRefresh();
 				}
+
+				//schedule the next update
+				scheduleNextMyViewAutoUpdate();
 			}
 		}
+	}
+	function scheduleNextMyViewAutoUpdate(overwriteDelay){
+		//schedule the next update
+		clearTimeout(myViewAutoUpdateTimer);
+		myViewAutoUpdateTimer = setTimeout(function(){
+			if (SepiaFW.client.isActive()){
+				UI.updateMyView(false, true, 'myViewAutoUpdate');
+			}else{
+				scheduleNextMyViewAutoUpdate(1000*60*15);	//try again in 15min
+			}
+		}, (overwriteDelay || UI.myViewAutoUpdateDelay));
 	}
 	//Update the timers shown on my-view (no database reload)
 	UI.updateMyTimers = function(maximumPreviewTargetTime){
@@ -932,52 +925,66 @@ function sepiaFW_build_ui(){
 	
 	//Show message popup
 	UI.showPopup = function(content, config){
-		var buttonOneName, buttonOneAction, buttonTwoName, buttonTwoAction, buttonThreeName, buttonThreeAction, buttonFourName, buttonFourAction;
-		var primaryColor, secondaryColor;
-		if (config){
-			buttonOneName = config.buttonOneName;
-			buttonOneAction = config.buttonOneAction;
-			buttonTwoName = config.buttonTwoName;
-			buttonTwoAction = config.buttonTwoAction;
-			buttonThreeName = config.buttonThreeName;
-			buttonThreeAction = config.buttonThreeAction;
-			buttonFourName = config.buttonFourName;
-			buttonFourAction = config.buttonFourAction;
-			primaryColor = config.primaryColor;
-			secondaryColor = config.secondaryColor;
+		//var primaryColor, secondaryColor; 		//could be added as config variables
+		if (!config) config = {};
+		var $input1 = $('#sepiaFW-popup-message-input-one');
+		var $input2 = $('#sepiaFW-popup-message-input-two');
+		if (config.inputLabelOne){
+			$input1.val(config.inputOneValue || "").attr("placeholder", config.inputLabelOne).show();
+		}else{
+			$input1.val("").attr("placeholder", "").hide();
 		}
-		if (buttonOneName && buttonOneAction){
+		if (config.inputLabelTwo){
+			$input2.val(config.inputTwoValue || "").attr("placeholder", config.inputLabelTwo).show();
+		}else{
+			$input2.val("").attr("placeholder", "").hide();
+		}
+		//NOTE: currently only button one and two receive the input data
+		if (config.buttonOneName && config.buttonOneAction){
 			var btn1 = $('#sepiaFW-popup-message-btn-one');
-			btn1.html(buttonOneName);	
-			btn1.off();		
-			btn1.on('click', function(){	buttonOneAction(this); 	UI.hidePopup();		});
+			btn1.html(config.buttonOneName);	
+			btn1.off().on('click', function(){	
+				config.buttonOneAction(
+					this, 
+					$input1.val(), 
+					$input2.val(),
+					$input1[0],
+					$input2[0]
+				); 	
+				UI.hidePopup();		
+			});
 		}else{
 			var btn1 = $('#sepiaFW-popup-message-btn-one');
 			btn1.html('OK');			
-			btn1.off();
-			btn1.on('click', function(){	UI.hidePopup();		});
+			btn1.off().on('click', function(){	UI.hidePopup();		});
 		}
-		if (buttonTwoName && buttonTwoAction){
+		if (config.buttonTwoName && config.buttonTwoAction){
 			var btn2 = $('#sepiaFW-popup-message-btn-two');
-			btn2.html(buttonTwoName).show();	
-			btn2.off();		
-			btn2.on('click', function(){	buttonTwoAction(this); 	UI.hidePopup();		});
+			btn2.html(config.buttonTwoName).show();	
+			btn2.off().on('click', function(){	
+				config.buttonTwoAction(
+					this, 
+					$input1.val(), 
+					$input2.val(),
+					$input1[0],
+					$input2[0]
+				); 	
+				UI.hidePopup();		
+			});
 		}else{
 			$('#sepiaFW-popup-message-btn-two').off().hide();
 		}
-		if (buttonThreeName && buttonThreeAction){
+		if (config.buttonThreeName && config.buttonThreeAction){
 			var btn3 = $('#sepiaFW-popup-message-btn-three');
-			btn3.html(buttonThreeName).show();	
-			btn3.off();		
-			btn3.on('click', function(){	buttonThreeAction(this); 	UI.hidePopup();		});
+			btn3.html(config.buttonThreeName).show();	
+			btn3.off().on('click', function(){	config.buttonThreeAction(this); 	UI.hidePopup();		});
 		}else{
 			$('#sepiaFW-popup-message-btn-three').off().hide();
 		}
-		if (buttonFourName && buttonFourAction){
+		if (config.buttonFourName && config.buttonFourAction){
 			var btn4 = $('#sepiaFW-popup-message-btn-four');
-			btn4.html(buttonFourName).show();	
-			btn4.off();		
-			btn4.on('click', function(){	buttonFourAction(this); 	UI.hidePopup();		});
+			btn4.html(config.buttonFourName).show();	
+			btn4.off().on('click', function(){	config.buttonFourAction(this); 	UI.hidePopup();		});
 		}else{
 			$('#sepiaFW-popup-message-btn-four').off().hide();
 		}
@@ -1224,6 +1231,20 @@ function sepiaFW_build_ui(){
 		}
 	}
 
+	//Trigger a mouse event on a specific element or the element at x,y coordinates
+	UI.triggerMouseClick = function(el, x, y){
+		var ev = new MouseEvent('click', {
+			'view': window,
+			'bubbles': true,
+			'cancelable': true,
+			'screenX': x,
+			'screenY': y
+		});
+		if (!el) el = document.elementFromPoint(x, y);
+		console.log(el);
+		el.dispatchEvent(ev);
+	}
+
 	//make auto-resize swipe bar
 	UI.makeAutoResizeSwipeArea = function(selector, onClickCallback){
 		var $swipeArea = $(selector);
@@ -1346,6 +1367,14 @@ function sepiaFW_build_ui(){
 				$(scrollViewEle).finish().animate({ scrollTop: $(targetEle).offset().top - $(scrollViewEle).offset().top + $(scrollViewEle).scrollTop()}, 250);
 			}, (delay? delay : 330));
 		}
+	}
+
+	//Is the top of the child (+offset) visible inside a scrollable element - TODO: will only work if child disappears above (not below)
+	UI.isTopOfChildVisibleInsideScrollable = function(childElement, scrollableElement, childOffset){
+		var offset = childElement.offsetTop + childOffset;
+		var scrollTop = scrollableElement.scrollTop;
+		var isScrollable = scrollableElement.scrollHeight > scrollableElement.clientHeight;
+		return (!isScrollable || (offset > scrollTop));		//TODO: take scrollableElement.clientHeight and child.clientHeight into account for "below" case
 	}
 	
 	//do these elements collide?
@@ -1490,6 +1519,12 @@ function sepiaFW_build_ui(){
 			$('.sepiaFW-carousel-pane').removeClass('full-screen');
 			$('#sepiaFW-chat-menu').removeClass('full-screen');
 			$('#sepiaFW-chat-controls').removeClass('full-screen');
+			/*if ('StatusBar' in window){
+                StatusBar.show();
+            }*/
+            if ('NavigationBar' in window){
+                NavigationBar.show();
+			}
 			UI.isInterfaceFullscreen = false;
 		}else{
 			$navBar.fadeOut(300);
@@ -1497,6 +1532,12 @@ function sepiaFW_build_ui(){
 			$('.sepiaFW-carousel-pane').addClass('full-screen');
 			$('#sepiaFW-chat-menu').addClass('full-screen');
 			$('#sepiaFW-chat-controls').addClass('full-screen');
+			/*if ('StatusBar' in window){
+                StatusBar.hide();
+            }*/
+            if ('NavigationBar' in window){
+                NavigationBar.hide();
+            }
 			UI.isInterfaceFullscreen = true;
 		}
 		setTimeout(function(){

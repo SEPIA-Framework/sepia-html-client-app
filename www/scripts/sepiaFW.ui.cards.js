@@ -17,8 +17,33 @@ function sepiaFW_build_ui_cards(){
 	var LINK = "link";
 	
 	//states
-	Cards.currentCardId = 0;		//increasing id for every card element
-	var topIndexZ = 1;			//to get an active element to the top
+	Cards.currentCardId = 0;	//increasing id for every card element
+	var topIndexZ = 1;			//to get an active element to the top (deprecated?)
+
+	//some specials
+	Cards.canEmbedYouTube = true;
+	Cards.canEmbedSpotify = false;		//deactivated by default because it only works in desktop and gives no control over start/stop/volume
+	Cards.canEmbedAppleMusic = false;	//"" ""
+	Cards.canEmbedWebPlayer = function(service){
+		if (!service) return false;
+		service = service.toLowerCase().replace(/\s+/,"_"); 		//support brands too
+		if (service.indexOf("spotify") == 0){
+			return Cards.canEmbedSpotify;
+		}else if (service.indexOf("apple_music") == 0){
+			return Cards.canEmbedAppleMusic;
+		}else if (service.indexOf("youtube") == 0){
+			return Cards.canEmbedYouTube;
+		}else{
+			return false;
+		}
+	}
+	Cards.getSupportedWebPlayers = function(){
+		var players = [];
+		if (Cards.canEmbedYouTube) players.push("youtube");
+		if (Cards.canEmbedSpotify) players.push("spotify");
+		if (Cards.canEmbedAppleMusic) players.push("apple_music");
+		return players;
+	}
 	
 	//get a full card result as DOM element
 	Cards.get = function(assistAnswer, sender){
@@ -100,7 +125,7 @@ function sepiaFW_build_ui_cards(){
 	
 	//Move cards
 	var isFirstMove = true;
-	Cards.moveToMyViewOrDelete = function(eleOrCard){
+	Cards.moveToMyViewOrDelete = function(eleOrCard, forceDelete){
 		var ele = $(eleOrCard);
 		var myViewParent = ele.closest('#sepiaFW-my-view');
 		var isAlreadyHidden = false;
@@ -126,7 +151,7 @@ function sepiaFW_build_ui_cards(){
 				}
 			}
 			//if the view is myView then end here
-			if (myViewParent.length > 0){
+			if (forceDelete || myViewParent.length > 0){
 				return;
 			}
 			//check for flex card container and add one if missing
@@ -193,6 +218,8 @@ function sepiaFW_build_ui_cards(){
 	var INDEX_TYPE_NEWS_FAVORITES = "newsFavorites";
 	var INDEX_TYPE_UNKNOWN = "unknown";
 
+	var SECTION_TIME_EVENTS = "timeEvents";
+
 	//Default sort-drag-options
 	var udListCheckablesDragOptions = {
 		allowCrossContainerDrag: true,
@@ -256,9 +283,9 @@ function sepiaFW_build_ui_cards(){
 		delete cardElementInfo.data;					//... and remove it from info ...
 		cardElement.setAttribute('data-list', JSON.stringify(cardElementInfo)); //... so we have a small basic set here
 		
-		var indexType = cardElementInfo.indexType;
 		var titleName = cardElementInfo.title;
-		var isTimerAndAlarmsList = (indexType === INDEX_TYPE_ALARMS); 	//Note: section === "timeEvents" might even be better here
+		//var isTimerAndAlarmsList = (cardElementInfo.indexType === INDEX_TYPE_ALARMS); 	//Note: section === "timeEvents" might even be better here
+		var isTimerAndAlarmsList = (cardElementInfo.section === SECTION_TIME_EVENTS);
 		if (isTimerAndAlarmsList){
 			sortData = true;	//NOTE: maybe we should read this value from the list info itself ... maybe it is already sorted ...
 
@@ -275,7 +302,7 @@ function sepiaFW_build_ui_cards(){
 		var headerConfig = {
 			"name" : titleName,
 			"isEditable" : !isTimerAndAlarmsList,
-			"addDeleteListButton" : true,
+			"addDeleteListButton" : !isTimerAndAlarmsList,
 			"addSaveListButton" : true
 		};
 		if (!isTimerAndAlarmsList){
@@ -296,23 +323,21 @@ function sepiaFW_build_ui_cards(){
 			
 			//timer element
 			if (elementsData[i].eleType === "timer"){
-				var listEle = makeTimerElement(elementsData[i]);
-				cardBody.appendChild(listEle);
+				var listEle = makeTimerElement(elementsData[i], cardElement.id, cardBody);		//make AND add
 				if (hasTimer === 0) { hasTimer = 1;	cardBody.className = "sepiaFW-cards-list-body sepiaFW-cards-list-timers"; }
 				//refresh interval actions
 				SepiaFW.events.addOrRefreshTimeEvent(elementsData[i].targetTimeUnix, elementsData[i].eleType, elementsData[i]);
 			
 			//alarm element
 			}else if (elementsData[i].eleType === "alarm"){
-				var listEle = makeAlarmElement(elementsData[i]);
-				cardBody.appendChild(listEle);
+				var listEle = makeAlarmElement(elementsData[i], cardElement.id, cardBody);		//make AND add
 				if (hasAlarm === 0) { hasAlarm = 1; cardBody.className = "sepiaFW-cards-list-body sepiaFW-cards-list-alarms"; }
 				//refresh interval actions
 				SepiaFW.events.addOrRefreshTimeEvent(elementsData[i].targetTimeUnix, elementsData[i].eleType, elementsData[i]);
 			
 			//default: checkable element (default list element)
 			}else{
-				var listEle = makeUserDataListElement(elementsData[i], cardElementInfo);
+				var listEle = makeUserDataListElement(elementsData[i], cardElementInfo); 	//just make (add self)
 				cardBody.appendChild(listEle);
 				if (hasCheckable === 0) { hasCheckable = 1; cardBody.className = "sepiaFW-cards-list-body sepiaFW-cards-list-checkables"; }
 				setupUserDataListElementButtons(listEle); 		//we do this as last step, after classes are set and ele ist appended!
@@ -562,19 +587,17 @@ function sepiaFW_build_ui_cards(){
 		if (eventType === SepiaFW.events.TIMER){
 			//TIMER
 			cardBody.className = "sepiaFW-cards-list-body sepiaFW-cards-list-timers";
-			timeEvent = makeTimerElement(actionInfoI);
+			timeEvent = makeTimerElement(actionInfoI, cardElement.id, cardBody);
 		}else{
 			//ALARM
 			cardBody.className = "sepiaFW-cards-list-body sepiaFW-cards-list-alarms";
-			timeEvent = makeAlarmElement(actionInfoI);
+			timeEvent = makeAlarmElement(actionInfoI, cardElement.id, cardBody);
 		}
-		cardBody.appendChild(timeEvent);
-		
 		cardElement.appendChild(cardBody);
 		return cardElement;
 	}
 	//timeEvent elements
-	function makeTimerElement(actionInfoI){ 	//actionInfoI can also be the data of an list element, should be compatible (in the most important fields)!
+	function makeTimerElement(actionInfoI, flexCardId, cardBody, skipAdd){ 	//actionInfoI can also be the data of an list element, should be compatible (in the most important fields)!
 		var timeEvent = document.createElement('DIV');
 		timeEvent.className = 'timeEvent cardBodyItem';
 		timeEvent.innerHTML = "<div class='timeEventLeft'><i class='material-icons md-24'>&#xE425;</i></div>"
@@ -587,11 +610,15 @@ function sepiaFW_build_ui_cards(){
 		timeEvent.setAttribute('data-id', actionInfoI.eventId);
 		//buttons
 		makeTimeEventNameEditable(timeEvent);
-		makeTimeEventRemoveButton(timeEvent);
-		makeTimeEventToMyViewButton(timeEvent, SepiaFW.events.TIMER);
+		makeTimeEventRemoveButton(timeEvent, cardBody);
+		//makeTimeEventToMyViewButton(timeEvent, SepiaFW.events.TIMER);
+		if (!skipAdd){
+			cardBody.appendChild(timeEvent);
+		}
+		makeTimeEventContextMenu(flexCardId, cardBody, timeEvent, actionInfoI, SepiaFW.events.TIMER);
 		return timeEvent;
 	}
-	function makeAlarmElement(actionInfoI){		//actionInfoI can also be the data of an list element, should be compatible (in the most important fields)!
+	function makeAlarmElement(actionInfoI, flexCardId, cardBody, skipAdd){		//actionInfoI can also be the data of an list element, should be compatible (in the most important fields)!
 		var timeEvent = document.createElement('DIV');
 		timeEvent.className = 'timeEvent cardBodyItem';
 		timeEvent.innerHTML = "<div class='timeEventLeft'><i class='material-icons md-24'>&#xE855;</i></div>"
@@ -604,8 +631,12 @@ function sepiaFW_build_ui_cards(){
 		timeEvent.setAttribute('data-id', actionInfoI.eventId);
 		//buttons
 		makeTimeEventNameEditable(timeEvent);
-		makeTimeEventRemoveButton(timeEvent);
-		makeTimeEventToMyViewButton(timeEvent, SepiaFW.events.ALARM);
+		makeTimeEventRemoveButton(timeEvent, cardBody);
+		//makeTimeEventToMyViewButton(timeEvent, SepiaFW.events.ALARM);
+		if (!skipAdd){
+			cardBody.appendChild(timeEvent);
+		}
+		makeTimeEventContextMenu(flexCardId, cardBody, timeEvent, actionInfoI, SepiaFW.events.ALARM);
 		return timeEvent;
 	}
 	//buttons
@@ -644,11 +675,76 @@ function sepiaFW_build_ui_cards(){
 			}
 		});
 	}
+	function makeTimeEventContextMenu(flexCardId, cardBody, cardBodyItem, event, eventType){
+		//some additional data
+		var newBodyClass;			//class in case we need to create new body
+		var androidIntentButtons;	//Android intent action buttons
+		var shareButton;			//button to share event as SEPIA link
+		//console.log(event);
+		var d = new Date(event.targetTimeUnix);
+		if (eventType === SepiaFW.events.TIMER){
+			//TIMER
+			newBodyClass = "sepiaFW-cards-list-body sepiaFW-cards-list-timers";
+			//Android export buttons
+			androidIntentButtons = [{
+				//add to alarms
+				action: "android.intent.action.SET_ALARM",
+				extras: {
+					"android.intent.extra.alarm.HOUR": d.getHours(),
+					"android.intent.extra.alarm.MINUTES": d.getMinutes()
+				},
+				buttonName: SepiaFW.local.g('exportToAlarms'),
+				buttonTitle: "Export event to system alarms."	//TODO: add local translation
+			}];
+		}else{
+			//ALARM - REMINDER
+			newBodyClass = "sepiaFW-cards-list-body sepiaFW-cards-list-alarms";
+			//Android export buttons
+			androidIntentButtons = [{
+				//add to calendar
+				action: "android.intent.action.INSERT",
+				extras: {
+					"beginTime": event.targetTimeUnix,
+					"title": event.name
+				},
+				url: "content://com.android.calendar/events",
+				buttonName: SepiaFW.local.g('exportToCalendar'),
+				buttonTitle: "Export event to system calendar."	//TODO: add local translation
+			},{
+				//add to alarms
+				action: "android.intent.action.SET_ALARM",
+				extras: {
+					"android.intent.extra.alarm.HOUR": d.getHours(),
+					"android.intent.extra.alarm.MINUTES": d.getMinutes()
+				},
+				buttonName: SepiaFW.local.g('exportToAlarms'),
+				buttonTitle: "Export event to system alarms."	//TODO: add local translation
+			}];
+		}
+		//Link button
+		shareButton = {
+			type: SepiaFW.client.SHARE_TYPE_ALARM,
+			data: {
+				"beginTime": event.targetTimeUnix,
+				"title": event.name
+			},
+			buttonName: SepiaFW.local.g('exportToUrl'),
+			buttonTitle: "Copy SEPIA share link to clipboard."	//TODO: add local translation
+		}
+		//context menu
+		var contextMenu = makeBodyElementContextMenu(flexCardId, cardBody, cardBodyItem, event.eventId, {
+			toggleButtonSelector: ".timeEventLeft",
+			newBodyClass: newBodyClass,
+			androidIntentButtons: androidIntentButtons,
+			shareButton: shareButton
+		});
+	}
+	//NOTE: replaced by context menu
 	function makeTimeEventToMyViewButton(timeEvent, eventType){
 		$(timeEvent).find('.timeEventLeft').each(function(){
 			var that = this;
+
 			SepiaFW.ui.onclick(that, function(){
-			//$(this).on('click', function(){
 				var flexCard = $(that).closest(".sepiaFW-cards-flexSize-container");
 				var title = flexCard.find('.sepiaFW-cards-list-title');
 				if (title.length > 0){
@@ -687,21 +783,21 @@ function sepiaFW_build_ui_cards(){
 			});
 		});
 	}
-	function makeTimeEventRemoveButton(timeEvent){
-		$(timeEvent).find('.timeEventRight').each(function(){
-			var that = this;
+	function makeTimeEventRemoveButton(timeEvent, cardBody){
+		$button = $(timeEvent).find('.timeEventRight');
+		if ($button.length > 0){
+			var that = $button[0];
 			SepiaFW.ui.onclick(that, function(){
-			//$(this).on('click', function(){
-				var timeEventEle = $(that).parent(); 		//TODO: potential to fail if DOM structure changed (use closest(...))
+				var $timeEvent = $(timeEvent);
 				//delete event
 				var Timer = '';
-				if (timeEventEle[0].hasAttribute('data-element')){
-					//var event = JSON.parse(timeEventEle.attr('data-element'));
-					var eventId = timeEventEle.attr('data-id');
+				var eventId = $timeEvent.attr('data-id');
+				if (timeEvent.hasAttribute('data-element')){
+					//var event = JSON.parse($timeEvent.attr('data-element'));
 					Timer = SepiaFW.events.getRunningOrActivatedTimeEventById(eventId);
 					if (Timer){
 						var resyncList = true;
-						SepiaFW.events.removeTimeEvent(Timer.name, resyncList);		//timeEventEle[0].id
+						SepiaFW.events.removeTimeEvent(Timer.name, resyncList);		//timeEvent.id
 					}
 				}
 				//stop alarm and remove 
@@ -711,29 +807,37 @@ function sepiaFW_build_ui_cards(){
 				//remove DOM element and parent if emtpy
 				if (Timer){
 					$(SepiaFW.ui.JQ_RES_VIEW_IDS).find('[data-id="' + Timer.data.eventId + '"]').each(function(){
-						removeTimeEventElement(this);
+						removeTimeEventElement(this, Timer.data.eventId);
 					});
 					//linked messages:
 					$(SepiaFW.ui.JQ_RES_VIEW_IDS).find('[data-msg-custom-tag="' + Timer.data.eventId + '"]').each(function(){
 						this.remove();
 					});
 				}else{
-					removeTimeEventElement(timeEventEle[0]);
+					removeTimeEventElement(timeEvent, eventId);
 				}
 			});
-		});
+		};
 	}	
 	//remove element and parent if possible
-	function removeTimeEventElement(timeEventEle){
-		var flexCardBody = $(timeEventEle).parent();
-		var flexCard = flexCardBody.parent();
+	function removeTimeEventElement(timeEventEle, eventId){
+		var $flexCardBody = $(timeEventEle).closest(".sepiaFW-cards-list-body");
+		var $flexCard = $flexCardBody.closest('.sepiaFW-cards-flexSize-container');
+		if (eventId && $flexCard.length > 0 && $flexCard[0].id){
+			//could use: $("[id$=" + eventId + "]")
+			//or: var contextMenuSelector = "#" + $flexCard[0].id + "-contextMenu-id-" + eventId;
+			if (timeEventEle.nextSibling && timeEventEle.nextSibling.id && timeEventEle.nextSibling.id.indexOf(eventId)){
+				//$flexCardBody.find(contextMenuSelector).remove();
+				$(timeEventEle.nextSibling).remove();
+			}
+		}
 		$(timeEventEle).remove();
-		if (flexCardBody.children().length == 0 && flexCard.children().length == 1){
+		if ($flexCardBody.children().length == 0 && $flexCard.children().length == 1){
 			//only empty body left (no title / header)
-			flexCard.remove();
+			$flexCard.remove();
 		}else{
 			//assume list update so activate save button
-			var saveBtn = flexCard.find('.sepiaFW-cards-list-saveBtn');
+			var saveBtn = $flexCard.find('.sepiaFW-cards-list-saveBtn');
 			saveBtn.addClass('active');	
 			//note: deleted time events are resynchronized automatically after 5s (which should make the button inactive again)
 		}
@@ -840,6 +944,9 @@ function sepiaFW_build_ui_cards(){
 		cardBody.appendChild(weatherNowTmoDetails);
 		
 		cardElement.appendChild(cardBody);
+
+		//context menu - TODO: add?
+		//var contextMenu = makeBodyElementContextMenu(cardBody, {});
 		
 		//footer
 		var footerConfig = {
@@ -855,7 +962,6 @@ function sepiaFW_build_ui_cards(){
 		$(weatherNowTmoSmall).find('.weatherNowSmallImage').each(function(){
 			var that = this;
 			SepiaFW.ui.onclick(that, function(){
-			//$(this).on('click', function(){
 				Cards.moveToMyViewOrDelete($(that).parent().parent().parent()[0]);
 			});
 		});
@@ -903,6 +1009,8 @@ function sepiaFW_build_ui_cards(){
 	}
 	
 	//LINK
+
+	var currentLinkItemId = 0;
 	
 	function buildLinkElement(cardElementInfo){
 		var newId = ("sepiaFW-card-id-" + Cards.currentCardId++);
@@ -919,11 +1027,103 @@ function sepiaFW_build_ui_cards(){
 		var linkLogoBack = cardElementInfo.imageBackground || '';
 		var linkCardEle = document.createElement('DIV');
 		linkCardEle.className = 'linkCard cardBodyItem';
-		linkCardEle.innerHTML = "<div class='linkCardLogo' " + ((linkLogoBack)? ("style='background:" + linkLogoBack + ";'") : ("")) + "><img src='" + cardElementInfo.image + "' alt='logo'></div>"
-								+ "<div class='linkCardCenter'>" + (data.title? ("<h3>" + data.title + "</h3>") : ("")) + "<p>" + data.desc + "</p></div>"
-								+ "<div class='linkCardRight'><a href='" + linkUrl + "' target='_blank'>" + "<i class='material-icons md-mnu'>&#xE895;</i>" + "</a></div>";
+		linkCardEle.id = 'link-' + currentLinkItemId++;		//links have no database event ID (compare: time-events) so we just create one here to connect item and context-menu
+		var leftElement = "<div class='linkCardLogo' " + ((linkLogoBack)? ("style='background:" + linkLogoBack + ";'") : ("")) + "><img src='" + linkLogo + "' alt='logo'></div>";
+		if (data.type){
+			linkCardEle.className += (" " + data.type);
+			if (data.type == "websearch"){
+				//overwrite with websearch icon
+				leftElement = "<div class='linkCardLogo'>" + "<i class='material-icons md-mnu'>search</i>" + "</div>";
+			}else if (data.type == "locationDefault"){
+				//overwrite with default map icon
+				leftElement = "<div class='linkCardLogo'>" + "<i class='material-icons md-mnu'>room</i>" + "</div>";
+			}else if (data.type == "default"){
+				//overwrite with default link icon
+				leftElement = "<div class='linkCardLogo'>" + "<i class='material-icons md-mnu'>link</i>" + "</div>";	//language
+			}else if (data.type == "musicSearch" || data.type == "videoSearch"){
+				//we could check the brand here: data.brand, e.g. Spotify, YouTube, ...
+				linkCardEle.className += (" " + data.brand);
+			}
+		}else if (!linkLogo){
+			//overwrite with default link icon
+			leftElement = "<div class='linkCardLogo'>" + "<i class='material-icons md-mnu'>link</i>" + "</div>";	//language
+		}
+		var description = data.desc;
+		if (description && description.length > 120) description = description.substring(0, 119) + "...";
+
+		linkCardEle.innerHTML = leftElement
+								+ "<div class='linkCardCenter'>" + (data.title? ("<h3>" + data.title + "</h3>") : ("")) + "<p>" + description + "</p></div>"
+								+ "<div class='linkCardRight'><a href='" + linkUrl + "' target='_blank' rel='noopener'>" + "<i class='material-icons md-mnu'>&#xE895;</i>" + "</a></div>";
 		//linkCardEle.setAttribute('data-element', JSON.stringify(cardElementInfo));
 		cardBody.appendChild(linkCardEle);
+
+		//Experimenting with web players - note: use data.embedded ?
+		if (Cards.canEmbedWebPlayer(data.brand) && linkUrl && data.type && (data.type == "musicSearch" || data.type == "videoSearch")){
+			//Spotify
+			if (data.brand == "Spotify"){
+				var webPlayerDiv = document.createElement('DIV');
+				webPlayerDiv.className = "spotifyWebPlayer cardBodyItem fullWidthItem";
+				var contentUrl = "https://" + linkUrl.replace("spotify:", "open.spotify.com/embed/").replace(":play", "").replace(/:/g, "/").trim();
+				webPlayerDiv.innerHTML = '<iframe '
+					+ 'src="' + contentUrl + '" width="100%" height="80" frameborder="0" allowtransparency="true" '
+					+ 'allow="encrypted-media" '
+					+ 'sandbox="allow-forms allow-popups allow-same-origin allow-scripts" ' + '>'
+				+ '</iframe>';
+				cardBody.appendChild(webPlayerDiv);
+			//Apple Music
+			}else if (data.brand == "Apple Music"){
+				var webPlayerDiv = document.createElement('DIV');
+				webPlayerDiv.className = "appleMusicWebPlayer cardBodyItem fullWidthItem";
+				var contentUrl;
+				if (linkUrl.indexOf("/artist/") > 0){
+					contentUrl = linkUrl.replace(/^https:\/\/.*?\//, "https://geo.itunes.apple.com/");		//TODO: basically not working
+				}else{
+					contentUrl = linkUrl.replace(/^https:\/\/.*?\//, "https://embed.music.apple.com/");
+				}
+				webPlayerDiv.innerHTML = '<iframe '
+					+ 'allow="autoplay *; encrypted-media *;" frameborder="0" height="150" '
+					+ 'style="width:100%;max-width:660px;overflow:hidden;background:transparent;" '
+					+ 'sandbox="allow-forms allow-popups allow-same-origin allow-scripts ' 
+						+ ((SepiaFW.ui.isSafari)? 'allow-storage-access-by-user-activation' : '')
+						+ ' allow-top-navigation-by-user-activation" '
+					+ 'src="' + contentUrl + '">'
+				+ '</iframe>';
+				cardBody.appendChild(webPlayerDiv);
+			//YouTube
+			}else if (data.brand == "YouTube"){
+				var webPlayerDiv = document.createElement('DIV');
+				var playerId = currentLinkItemId++;
+				webPlayerDiv.className = "youTubeWebPlayer cardBodyItem fullWidthItem"
+				var f = document.createElement('iframe');
+				f.id = 'youTubeWebPlayer-' + playerId;
+				f.allow = "autoplay; encrypted-media;";
+				f.sandbox = "allow-same-origin allow-scripts allow-presentation"; 
+				f.frameBorder = 0;
+				f.style.width = "100%";		f.style.height = "280px";		f.style.overflow = "hidden";
+				f.style.border = "4px solid";	f.style.borderColor = "#212121";
+				if (data.autoplay){
+					//stop all previous audio first
+					if (SepiaFW.client.controls){
+						SepiaFW.client.controls.media({
+							action: "stop",
+							skipFollowUp: true
+						});
+					}else{
+						SepiaFW.audio.stop();
+					}
+					addYouTubeControls(f);
+				}
+				if (linkUrl.indexOf("/embed") < 0){
+					//convert e.g.: https://www.youtube.com/results?search_query=purple+haze%2C+jimi+hendrix
+					f.src = "https://www.youtube.com/embed?autoplay=1&enablejsapi=1&playsinline=1&iv_load_policy=3&fs=1&listType=search&list=" 
+						+ linkUrl.replace(/.*?search_query=/, "").trim();
+				}else{
+					f.src = linkUrl;
+				}
+				cardBody.appendChild(webPlayerDiv);
+				webPlayerDiv.appendChild(f);
+			}
+		}
 		
 		//link button(s)
 		(function(linkUrl){
@@ -939,6 +1139,7 @@ function sepiaFW_build_ui_cards(){
 		})(linkUrl);
 		
 		//extra buttons
+		/*
 		$(linkCardEle).find('.linkCardLogo').each(function(){
 			var that = this;
 			SepiaFW.ui.onclick(that, function(){
@@ -946,9 +1147,32 @@ function sepiaFW_build_ui_cards(){
 				Cards.moveToMyViewOrDelete($(that).closest('.sepiaFW-cards-flexSize-container')[0]);
 			});
 		});
+		*/
+		makeLinkCardContextMenu(cardElement.id, cardBody, linkCardEle, cardElementInfo, data.type);
 		
 		cardElement.appendChild(cardBody);
 		return cardElement;
+	}
+	function makeLinkCardContextMenu(flexCardId, cardBody, cardBodyItem, linkElementInfo, linkElementType){
+		//some additional data
+		var newBodyClass = "sepiaFW-cards-list-body sepiaFW-cards-list-link";			//class in case we need to create new body
+		var shareButton = {
+			type: SepiaFW.client.SHARE_TYPE_LINK,
+			data: linkElementInfo,
+			buttonName: SepiaFW.local.g('exportToUrl'),
+			buttonTitle: "Copy SEPIA share link to clipboard."	//TODO: add local translation
+		}
+		var copyUrlButton = {
+			buttonName: SepiaFW.local.g('copyUrl'),
+			url: linkElementInfo.url
+		}
+		//context menu
+		var contextMenu = makeBodyElementContextMenu(flexCardId, cardBody, cardBodyItem, cardBodyItem.id, {
+			toggleButtonSelector: ".linkCardLogo",
+			newBodyClass: newBodyClass,
+			shareButton: shareButton,
+			copyUrlButton: copyUrlButton
+		});
 	}
 	
 	//----------------------------- common elements ---------------------------------
@@ -1013,8 +1237,9 @@ function sepiaFW_build_ui_cards(){
 		
 		//move to my view
 		var moveToMyViewBtn = document.createElement('LI');
-		moveToMyViewBtn.className = "sepiaFW-cards-list-addBtn";
-		moveToMyViewBtn.innerHTML = SepiaFW.local.g('moveToMyView');
+		moveToMyViewBtn.className = "sepiaFW-cards-list-moveBtn";
+		moveToMyViewBtn.innerHTML = '<i class="material-icons md-24">add_to_home_screen</i>'; //SepiaFW.local.g('moveToMyView');
+		moveToMyViewBtn.title = SepiaFW.local.g('moveToMyView');
 		SepiaFW.ui.onclick(moveToMyViewBtn, function(){
 			var flexBox = $(moveToMyViewBtn).closest('.sepiaFW-cards-flexSize-container');
 			Cards.moveToMyViewOrDelete(flexBox[0]);
@@ -1029,6 +1254,7 @@ function sepiaFW_build_ui_cards(){
 			var addItemBtn = document.createElement('LI');
 			addItemBtn.className = "sepiaFW-cards-list-addBtn";
 			addItemBtn.innerHTML = '<i class="material-icons md-24">add_circle_outline</i>'; //SepiaFW.local.g('addItem');
+			addItemBtn.title = SepiaFW.local.g('addItem');
 			SepiaFW.ui.onclick(addItemBtn, function(){
 				var listContainer = $(addItemBtn).closest('.sepiaFW-cards-flexSize-container').get(0);
 				var listInfoObj = getUserDataList(listContainer);
@@ -1052,7 +1278,8 @@ function sepiaFW_build_ui_cards(){
 		//hide
 		var cmHideBtn = document.createElement('LI');
 		cmHideBtn.className = "sepiaFW-cards-list-contextMenu-hideBtn";
-		cmHideBtn.innerHTML = SepiaFW.local.g('hideItem');
+		cmHideBtn.innerHTML = '<i class="material-icons md-24">visibility_off</i>'; //SepiaFW.local.g('hideItem');
+		cmHideBtn.title = SepiaFW.local.g('hideItem');
 		SepiaFW.ui.onclick(cmHideBtn, function(){
 			$(cmHideBtn).closest('.sepiaFW-cards-flexSize-container').fadeOut(300, function(){
 				$(this).remove();
@@ -1065,6 +1292,7 @@ function sepiaFW_build_ui_cards(){
 			var cmDelBtn = document.createElement('LI');
 			cmDelBtn.className = "sepiaFW-cards-list-contextMenu-delBtn";
 			cmDelBtn.innerHTML = '<i class="material-icons md-24">delete</i>'; //SepiaFW.local.g('deleteItem');
+			cmDelBtn.title = SepiaFW.local.g('deleteItem');
 			SepiaFW.ui.onclick(cmDelBtn, function(){
 				var listInfo = JSON.parse(cmDelBtn.parentElement.parentElement.parentElement.parentElement.getAttribute('data-list')); 		//TODO: replace with $().closest('...')
 				var parentCard = $(cmDelBtn).parent().parent().parent().parent();															//TODO: replace with $().closest('...')
@@ -1135,7 +1363,7 @@ function sepiaFW_build_ui_cards(){
 		SepiaFW.ui.onclick(contextMenuBtn, function(){
 			var title = $(contextMenuBtn).parent();
 			var flexBox = title.closest('.sepiaFW-cards-flexSize-container');
-			var menu = flexBox.find(".sepiaFW-cards-list-contextMenu");
+			var menu = flexBox.find(".sepiaFW-cards-list-contextMenu:not(.sepiaFW-cards-contextMenu-single)").first();
 			/*
 			//flexBox.css({"z-index" : topIndexZ++});			//old overlay style
 			var menuHeight = menu.innerHeight();
@@ -1159,6 +1387,209 @@ function sepiaFW_build_ui_cards(){
 		
 		return title;
 	}
+
+	//Card body element context menu
+	function makeBodyElementContextMenu(flexCardId, cardBody, cardBodyItem, cardBodyItemId, menuConfig, skipAdd){
+		//-context menu
+		var contextMenu = document.createElement('DIV');
+		contextMenu.className = "sepiaFW-cards-list-contextMenu sepiaFW-cards-contextMenu-single sepiaFW-menu"; 	//we simply keep the cards-list style here
+		contextMenu.id = (flexCardId + "-contextMenu-id-" + cardBodyItemId);
+		var cmList = document.createElement('UL');
+
+		$(cardBodyItem).find(menuConfig.toggleButtonSelector).each(function(){
+			var that = this;
+			SepiaFW.ui.onclick(that, function(){
+				var $contextMenu = $(contextMenu);
+				var animTime = 300;
+				if ($contextMenu.css("display") == "none"){
+					$contextMenu.slideToggle(animTime);
+					//avoid that the menu is hidden behind control when at bottom of results view
+					if ($contextMenu.is(":last-child")){
+						var $container = $contextMenu.closest('.sepiaFW-cards-flexSize-container');
+						var $lastVisibleChildInScrollParent = $container.closest('.sepiaFW-results-container').children().filter(":visible").last();
+						var $lastVisibleParentChild = $container.parent().children().filter(":visible").last();
+						if (($container.is($lastVisibleParentChild) && $container.parent().is($lastVisibleChildInScrollParent)) || $container.is($lastVisibleChildInScrollParent)){
+							//scroll down another 60px
+							setTimeout(function(){
+								var $scrollContainer = $container.closest('.sepiaFW-results-container');
+								var y = $scrollContainer.scrollTop(); 
+								$scrollContainer.animate({ scrollTop: y + 60 }, animTime);
+							}, animTime + 50);
+						}
+					}
+				}else{
+					$contextMenu.slideToggle(animTime);
+				}
+			});
+		});
+		
+		//move to my view
+		if (menuConfig.myViewButton == undefined || menuConfig.myViewButton == true){
+			var moveToMyViewBtn = document.createElement('LI');
+			moveToMyViewBtn.className = "sepiaFW-cards-button sepiaFW-cards-list-moveBtn"; 		//will be surpressed inside '#sepiaFW-my-view' via CSS (here we have no destination yet)
+			moveToMyViewBtn.innerHTML = SepiaFW.local.g('moveToMyView'); //'<i class="material-icons md-24">add_to_home_screen</i>';
+			moveToMyViewBtn.title = SepiaFW.local.g('moveToMyView');
+			SepiaFW.ui.onclick(moveToMyViewBtn, function(){
+				var flexCard = $(moveToMyViewBtn).closest(".sepiaFW-cards-flexSize-container");
+				var title = flexCard.find('.sepiaFW-cards-list-title');
+				if (title.length > 0){
+					//single element?
+					/*
+					var isOnlyElement = false;
+					if (flexCard.find('.sepiaFW-cards-list-body').children().length == 1){
+						isOnlyElement = true;
+					}
+					*/
+					//hide save button (just to be sure the user does not save an incomplete list)
+					title.find(".sepiaFW-cards-list-saveBtn").animate({ opacity: 0.0 }, 500, function(){
+						$(this).css({opacity: 0.5, visibility: "hidden"});
+					});
+					//create new body for element
+					var cardBody = document.createElement('DIV');
+					cardBody.className = menuConfig.newBodyClass;
+					//fade out the element, add it to new body and then move it over
+					$(cardBodyItem).fadeOut(500, function(){
+						var parentN = cardBodyItem.parentNode;
+						parentN.removeChild(cardBodyItem);
+						parentN.removeChild(contextMenu);
+						$(cardBodyItem).fadeIn(0);
+						cardBody.style.display = "none";
+						cardBody.appendChild(cardBodyItem);
+						cardBody.appendChild(contextMenu);
+						//update id
+						//contextMenu.id = (flexCardId + "-contextMenu-id-" + cardBodyItemId);
+						Cards.moveToMyViewOrDelete(cardBody);
+					});
+				}else{
+					Cards.moveToMyViewOrDelete(flexCard[0]);
+				}
+				$(contextMenu).hide();
+				$('#sepiaFW-main-window').trigger(('sepiaFwClose-' + contextMenu.id));
+				$(moveToMyViewBtn).remove(); 		//we will try to surpress this via CSS inside '#sepiaFW-my-view' as well
+			}, true);
+			cmList.appendChild(moveToMyViewBtn);
+		}
+
+		//Android intents
+		if (SepiaFW.ui.isAndroid && menuConfig.androidIntentButtons && menuConfig.androidIntentButtons.length > 0){
+			menuConfig.androidIntentButtons.forEach(function(intent){
+				/*intent = {
+					action: "...",
+					extras: {"query": "...", ...},
+					url: "content://...",
+					buttonName: "...",
+					buttonTitle: "..."
+				}*/
+				//create button
+				var androidIntentBtn = document.createElement('LI');
+				androidIntentBtn.className = "sepiaFW-cards-button sepiaFW-cards-list-contextMenu-androidIntentBtn";
+				androidIntentBtn.innerHTML = intent.buttonName || 'Android';
+				if (intent.buttonTitle) androidIntentBtn.title = intent.buttonTitle;
+				SepiaFW.ui.onclick(androidIntentBtn, function(){
+					//call intent
+					//$(contextMenu).fadeOut(500);	
+					SepiaFW.android.intentActivity(intent, function(intent){
+						//Success
+					}, function(info){
+						//Error
+					});
+				}, true);
+				cmList.appendChild(androidIntentBtn);
+			});
+		}
+
+		//share link
+		if (menuConfig.shareButton){
+			//create button
+			var shareBtn = document.createElement('LI');
+			shareBtn.className = "sepiaFW-cards-button sepiaFW-cards-list-contextMenu-shareBtn";
+			shareBtn.innerHTML = menuConfig.shareButton.buttonName;
+			SepiaFW.ui.onclick(shareBtn, function(){
+				//copy link
+				//$(contextMenu).fadeOut(500);
+				var shareData = {
+					type: menuConfig.shareButton.type,
+					data: menuConfig.shareButton.data
+				}
+				SepiaFW.ui.showPopup("Click OK to copy link to clipboard", {
+					inputLabelOne: "Link",
+					inputOneValue: (SepiaFW.client.deeplinkHostUrl + "?share=" + encodeURIComponent(JSON.stringify(shareData))),
+					buttonOneName: "OK",
+					buttonOneAction: function(btn, linkValue, iv2, inputEle1, ie2){
+						if (linkValue && inputEle1){
+							//select text and copy
+							inputEle1.select();
+							document.execCommand("copy");
+						}
+					},
+					buttonTwoName: "ABORT",
+					buttonTwoAction: function(){}
+				});
+			}, true);
+			cmList.appendChild(shareBtn);
+		}
+		//Copy link
+		if (menuConfig.copyUrlButton){
+			//create button
+			var copyUrlBtn = document.createElement('LI');
+			copyUrlBtn.className = "sepiaFW-cards-button sepiaFW-cards-list-contextMenu-copyUrlBtn";
+			copyUrlBtn.innerHTML = menuConfig.copyUrlButton.buttonName;
+			SepiaFW.ui.onclick(copyUrlBtn, function(){
+				//copy link
+				SepiaFW.ui.showPopup("Click OK to copy link to clipboard", {
+					inputLabelOne: "Link",
+					inputOneValue: menuConfig.copyUrlButton.url,
+					buttonOneName: "OK",
+					buttonOneAction: function(btn, linkValue, iv2, inputEle1, ie2){
+						if (linkValue && inputEle1){
+							//select text and copy
+							inputEle1.select();
+							document.execCommand("copy");
+						}
+					},
+					buttonTwoName: "ABORT",
+					buttonTwoAction: function(){}
+				});
+			}, true);
+			cmList.appendChild(copyUrlBtn);
+		}
+
+		//hide
+		if (menuConfig.hideButton == undefined || menuConfig.hideButton == true){
+			var cmHideBtn = document.createElement('LI');
+			cmHideBtn.className = "sepiaFW-cards-button sepiaFW-cards-list-contextMenu-hideBtn";
+			cmHideBtn.innerHTML = SepiaFW.local.g('hideItem'); //'<i class="material-icons md-24">visibility_off</i>';
+			cmHideBtn.title = SepiaFW.local.g('hideItem');
+			SepiaFW.ui.onclick(cmHideBtn, function(){
+				var flexCard = $(cmHideBtn).closest(".sepiaFW-cards-flexSize-container");
+				var title = flexCard.find('.sepiaFW-cards-list-title');
+				if (title.length > 0){
+					//hide save button (just to be sure the user does not save an incomplete list)
+					title.find(".sepiaFW-cards-list-saveBtn").animate({ opacity: 0.0 }, 500, function(){
+						$(this).css({opacity: 0.5, visibility: "hidden"});
+					});
+					$(contextMenu).fadeOut(480);
+					$(cardBodyItem).fadeOut(500, function(){
+						if (flexCard.find('.cardBodyItem').filter(":visible").length == 0){
+							flexCard.remove();
+						}
+					});
+				}else{
+					flexCard.fadeOut(500, function(){
+						flexCard.remove();
+					});
+				}
+			}, true);
+			cmList.appendChild(cmHideBtn);
+		}
+
+		contextMenu.appendChild(cmList);
+		if (!skipAdd){
+			cardBody.appendChild(contextMenu);
+		}
+
+		return contextMenu;
+	}
 	
 	//Card footer
 	function makeFooter(footerConfig){
@@ -1174,10 +1605,10 @@ function sepiaFW_build_ui_cards(){
 		if (type === 'showHideButton'){
 			footer.innerHTML = "<i class='material-icons md-txt'>&#xE5CF;</i>";
 			SepiaFW.ui.onclick(footer, function(){
-			//$(footer).on('click', function(){
-				if (!$(footer).attr('data-extended') || $(footer).attr('data-extended') == 'off'){
-					$(footer).attr('data-extended', 'on');
-					$(footer).html("<i class='material-icons md-txt'>&#xE5CE;</i>");
+				var $footer = $(footer);
+				if (!$footer.attr('data-extended') || $footer.attr('data-extended') == 'off'){
+					$footer.attr('data-extended', 'on');
+					$footer.html("<i class='material-icons md-txt'>&#xE5CE;</i>");
 					//$(footerConfig.cardBody).find('.itemHidden').removeClass('itemHidden').addClass('itemVisible');
 					$(footerConfig.cardBody).find('.itemHidden').each(function(index){
 						var self = $(this);
@@ -1186,14 +1617,27 @@ function sepiaFW_build_ui_cards(){
 						}, 25*index);
 					});
 				}else{
-					$(footer).attr('data-extended','off');
-					$(footer).html("<i class='material-icons md-txt'>&#xE5CF;</i>");
+					$footer.attr('data-extended','off');
+					$footer.html("<i class='material-icons md-txt'>&#xE5CF;</i>");
 					//Refresh first N items visibility (in case list was re-ordered)
 					var $items = $(footerConfig.cardBody).find('.cardBodyItem').removeClass('itemVisible itemHidden');
 					if (visibleItems >= 0){
 						$items.slice(visibleItems).addClass('itemHidden');
 					}
 					//$(footerConfig.cardBody).find('.itemVisible').removeClass('itemVisible').addClass('itemHidden');
+					//footer.scrollIntoView({block: 'center', inline: 'nearest'}); 
+					var $scrollBody = $footer.closest(SepiaFW.ui.JQ_RES_VIEW_IDS);
+					var $card = $footer.closest('.sepiaFW-cards-flexSize-container');
+					var $msg = $footer.closest('.chatMsg');
+					//var $title = $card.find('.sepiaFW-cards-list-title');
+					var offset = 0;
+					if ($msg.length > 0){
+						offset = $msg[0].offsetTop;
+					}
+					if (!SepiaFW.ui.isTopOfChildVisibleInsideScrollable($card[0], $scrollBody[0], offset)){
+						SepiaFW.ui.scrollToElement($card[0], $scrollBody[0], 50);
+					}
+					SepiaFW.animate.flashObj(footer);
 				}
 			});
 		}else{
@@ -1205,6 +1649,124 @@ function sepiaFW_build_ui_cards(){
 			}
 		}
 		return footer;
+	}
+
+	//------ YouTube Card Controls ------
+
+	var youTubeMessageListenerExists = false;
+	var youTubePlayersTriedToStart = {};
+	var youTubeLastActivePlayerId = undefined;
+	var youTubeLastActivePlayerState = undefined;
+	var youTubePlayConfirmTimer = undefined;
+
+	function addYouTubeControls(frameEle){
+		frameEle.onload = function(){
+			//API
+			if (!youTubeMessageListenerExists){
+				youTubeMessageListenerExists = true;
+				window.addEventListener('message', function(e){
+					if (e.origin == "https://www.youtube.com" && e.data && typeof e.data == "string" && e.data.indexOf("{") == 0){
+						var data = JSON.parse(e.data);
+						if (data && data.id){
+							var $player = $('#' + data.id);
+							//console.log("YouTube iframe event: " + data.event);
+							if ($player.length == 0){
+								return;
+							}
+							if (data.event == 'onReady'){
+                                setTimeout(function(){
+                                    $player[0].contentWindow.postMessage(JSON.stringify({event:'command', func:'playVideo'}), "*");
+                                }, 1000);
+							}else if (data.event == 'infoDelivery' && data.info){
+								//console.log(JSON.stringify(data));
+								if (data.info.playerState != undefined){
+									youTubeLastActivePlayerState = data.info.playerState;
+								}
+								youTubeLastActivePlayerId = data.id;
+								if (data.info.playerState == -1){
+									//Skip if faulty
+									youTubeSkipIfNotPlayed(data, $player);
+								}else if (data.info.playerState == 1){
+									clearTimeout(youtubeSkipTimer);
+									clearTimeout(youTubePlayConfirmTimer);
+								}
+							}
+						}
+					}
+				});
+			}
+			frameEle.contentWindow.postMessage(JSON.stringify({event:'listening', id: frameEle.id}), "*");
+		};
+	}
+	var youtubeSkipTimer = undefined;
+	function youTubeSkipIfNotPlayed(data, $player, skipFirstTest){
+		if (skipFirstTest || data.info.availableQualityLevels.length == 0){
+			//console.log(data.info.playlist.length - 1);
+			//console.log(data.info.playlistIndex);
+			if (!youTubePlayersTriedToStart[data.id] && data.info.playlistIndex == 0){
+				youTubePlayersTriedToStart[data.id] = true;
+				//console.log('--- next A ---');
+				clearTimeout(youtubeSkipTimer);
+				youtubeSkipTimer = setTimeout(function(){
+                    $player[0].contentWindow.postMessage(JSON.stringify({event:'command', func:'nextVideo'}), "*");
+                }, 1000);
+			}else if (data.info.playlist && data.info.playlist.length > 0){
+				if (data.info.playlistIndex != undefined && data.info.playlistIndex < (data.info.playlist.length - 1)){
+					//console.log('--- next B ---');
+					clearTimeout(youtubeSkipTimer);
+					youtubeSkipTimer = setTimeout(function(){
+					    $player[0].contentWindow.postMessage(JSON.stringify({event:'command', func:'nextVideo'}), "*");
+                    }, 1000);
+					delete youTubePlayersTriedToStart[data.id];
+				}
+			}
+		}else{
+			//confirm play
+			clearTimeout(youtubeSkipTimer);
+			youTubeSetConfirmTimer(data, $player);
+		}
+	}
+	function youTubeSetConfirmTimer(data, $player){
+		clearTimeout(youTubePlayConfirmTimer);
+		youTubePlayConfirmTimer = setTimeout(function(){
+			//console.log('--- confirm check ---');
+			if (Cards.youTubePlayerGetState() != 1){
+				data.info.playlistIndex++;
+				youTubeSkipIfNotPlayed(data, $player, true);
+			}
+		}, 3000);
+	}
+	Cards.youTubePlayerGetState = function(){
+		if (youTubeLastActivePlayerId){
+			var $player = $('#' + youTubeLastActivePlayerId);
+			if ($player.length == 0){
+				return 0;
+			}else{
+				return youTubeLastActivePlayerState;
+			}
+		}else{
+			return 0;
+		}
+	}
+	Cards.youTubePlayerControls = function(cmd){
+		clearTimeout(youTubePlayConfirmTimer);
+		if (youTubeLastActivePlayerId && youTubeLastActivePlayerState > 0){
+			var $player = $('#' + youTubeLastActivePlayerId);
+			if ($player.length == 0){
+				return 0;
+			}else{
+				if (cmd == "stop" || cmd == "pause"){
+					$player[0].contentWindow.postMessage(JSON.stringify({event:'command', func:'pauseVideo'}), "*"); 	//NOTE: we use pause for now because stop triggers next video
+					return 1;	
+				}else if (cmd == "next"){
+					$player[0].contentWindow.postMessage(JSON.stringify({event:'command', func:'nextVideo'}), "*");
+					return 1;	
+				}else{
+					return 0;
+				}
+				//frameEle.contentWindow.postMessage(JSON.stringify({event:'command', func:'stopVideo'}), "*"); //playVideo, paus.., stop.., next..,
+			}
+		}
 	}
 	
 	return Cards;

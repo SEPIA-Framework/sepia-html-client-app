@@ -221,6 +221,12 @@ html {
     background: rgba(33, 33, 33, 0.75);
 }
 
+.sepiaFW-cards-button, 
+.sepiaFW-notouch-device .sepiaFW-cards-button:hover {
+    background: #ededed;
+    color: #222222;
+}
+
 .sepiaFW-cards-list-title {
 	color: #222;
     background: #BAB5A4;

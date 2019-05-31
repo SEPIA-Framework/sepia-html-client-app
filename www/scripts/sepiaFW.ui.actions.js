@@ -161,15 +161,26 @@ function sepiaFW_build_ui_actions(){
 			
 		}else if (SepiaFW.ui.isCordova){
 			if (forceExternal 
+				|| (url.indexOf('http') !== 0 && !!url.match(/^\w+:/)) 		//TODO: keep an eye on this! Does it prevent some cool URL scheme features?
 				|| url.indexOf('https://maps.') === 0 || url.indexOf('http://maps.') === 0
 				|| url.indexOf('https://www.google.com/maps/') === 0 || url.indexOf('https://www.google.de/maps/') === 0
+				|| url.indexOf('https://itunes.apple.com/') === 0 || url.indexOf('https://music.apple.com/') === 0 || url.indexOf('https://geo.itunes.apple.com/') === 0
+				|| url.indexOf('https://open.spotify.com/') === 0
 				){
 				cordova.InAppBrowser.open(url, '_system');
 			}else{
 				cordova.InAppBrowser.open(url, '_blank', inAppBrowserOptions);
+				//some special 'links': <inappbrowser-last>, <inappbrowser-home>, search.html
 			}
 		}else{
-			window.open(url, '_blank');
+			var newWindow = window.open(url, '_blank');
+			newWindow.opener = null;
+			//some special links that should not leave an empty browser tab
+			if (url.indexOf('spotify:') == 0 || url.indexOf('itmss:') == 0 || url.indexOf('musics:') == 0){
+				setTimeout(function(){
+					newWindow.close(); 		//NOTE: problem here is that app-request dissapears before user interaction if not already allowed by user
+				}, 500);
+			}
 		}
 	}
 	
@@ -268,18 +279,20 @@ function sepiaFW_build_ui_actions(){
 	}
 	//STOP AUDIO STREAM
 	Actions.stopAudio = function(action){
-		if (SepiaFW.audio){
-			SepiaFW.audio.stop();
-			//SepiaFW.debug.info("Action: type 'stop_audio_stream'.");
+		//SepiaFW.debug.info("Action: type 'stop_audio_stream'.");
+		if (SepiaFW.client.controls){
+			SepiaFW.client.controls.media({
+				action: "stop"
+			});
 		}else{
-			SepiaFW.debug.info("Action: type 'stop_audio_stream' is not supported yet.");
+			SepiaFW.audio.stop();
 		}
 	}
 	
 	//SCHEDULE Messages
 	Actions.scheduleMessage = function(action, parentBlock){
 		//TODO: distinguish between proActive-background and other types of messages
-		if (action.info && action.info === "entertainWhileIdle"){
+		if (action.info && (action.info === "entertainWhileIdle" || action.info === "proActiveNote")){
 			SepiaFW.events.setProActiveBackgroundNotification(action);
 		}else{
 			SepiaFW.debug.info("Action: type '" + action.type + "' with info '" + action.info + "' is not supported yet.");
@@ -375,13 +388,17 @@ function sepiaFW_build_ui_actions(){
 		//header
 		var titleNote = document.createElement('P');
 		titleNote.className = 'sepiaFW-myEvents-titleNote';
-		titleNote.innerHTML = SepiaFW.local.g('recommendationsFor') + " " + SepiaFW.account.getUserName() + ":";
+		/*titleNote.innerHTML = SepiaFW.local.g('recommendationsFor') + " " + SepiaFW.account.getUserName() + ":";
 		var dateNote = document.createElement('DIV');
 		dateNote.className = 'sepiaFW-myEvents-dateHeader';
 		var d = new Date();
 		dateNote.innerHTML = (SepiaFW.local.g('lastUpdate') + ": " 
 			+ d.toLocaleDateString() + " - " + d.toLocaleTimeString([], {hour: 'numeric', minute:'2-digit'}));
-		$(aButtonsArea).prepend(dateNote);
+		$(aButtonsArea).prepend(dateNote);*/
+		var d = new Date();
+		titleNote.innerHTML = SepiaFW.local.g('recommendationsFor') + " " 
+			+ SepiaFW.account.getUserName() + " " + SepiaFW.local.g('from') + " "
+			+ d.toLocaleTimeString([], {hour: 'numeric', minute:'2-digit'}) + " " + SepiaFW.local.g('oclock') + ":";
 		$(aButtonsArea).prepend(titleNote);
 		
 		//show again on top

@@ -140,18 +140,24 @@
 	});
 	$('#tutorial-test-mic').off().on('click', function(){
 		if (SepiaFW.speech){
-			SepiaFW.ui.showPopup('Start speaking...');
+			SepiaFW.ui.showPopup('Sag etwas...');
 			SepiaFW.speech.toggleRecognition(
-				function(msg){ SepiaFW.ui.showPopup('You said: <br>' + msg); }, 
+				function(msg){ SepiaFW.ui.showPopup('Du hast gesagt: <br>' + msg); }, 
 				function(msg){ /*interrim result*/ }, 
-				function(msg){ SepiaFW.ui.showPopup('Seems it did not work: <br>' + msg); }
+				function(msg){ SepiaFW.ui.showPopup('Sieht so aus als hätte es nicht funktioniert: <br>' + msg); }
 			);
 		}
 	});
 	$('#tutorial-test-note').off().on('click', function(){
 		//simulate 'untrusted' event
+		var msg = "Hello World! Dies ist eine lokale (offline) Notification die z.B. für Nachrichten und Timer genutzt werden kann.";
 		SepiaFW.files.fetch('credits.html', function(){
-			if (SepiaFW.events) SepiaFW.events.showSimpleSilentNotification("S.E.P.I.A. says:", "Hello World! This is a local (offline) notification that can be used for things like messages and alarms.", {});
+			if (SepiaFW.events) SepiaFW.events.showSimpleSilentNotification("S.E.P.I.A. sagt:", msg, {
+				type: "entertainWhileIdle",
+				data: {
+					message: msg
+				}
+			});
 		});
 	});
 	$('#tutorial-test-popup').off().on('click', function(){

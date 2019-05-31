@@ -71,7 +71,7 @@
 			Depending on the list type each item can have <b>2-3 different states</b>. For to-do-lists tap the check-button to switch between open (no color), in-progress (yellow) and done (green).
 			</p>
 			<p>
-			Items in your list can be moved by activating the drag & drop mode. To do this <b>press-and-hold the check-button</b>. The list item will quickly flash and slightly transparent.
+			Items in your list can be moved by activating the drag & drop mode. To do this <b>press-and-hold the check-button</b>. The list item will quickly flash and become slightly transparent.
 			Release the check-button and <b>then use it again to drag the item</b> around, drop it at its new position or even move it to a different list. 
 			After 3s of inactivity the drag & drop mode will automatically switch off.
 			</p>
@@ -150,8 +150,14 @@
 	});
 	$('#tutorial-test-note').off().on('click', function(){
 		//simulate 'untrusted' event
+		var msg = "Hello World! This is a local (offline) notification that can be used for things like messages and alarms.";
 		SepiaFW.files.fetch('credits.html', function(){
-			if (SepiaFW.events) SepiaFW.events.showSimpleSilentNotification("S.E.P.I.A. says:", "Hello World! This is a local (offline) notification that can be used for things like messages and alarms.", {});
+			if (SepiaFW.events) SepiaFW.events.showSimpleSilentNotification("S.E.P.I.A. says:", msg, {
+				type: "entertainWhileIdle",
+				data: {
+					message: msg
+				}
+			});
 		});
 	});
 	$('#tutorial-test-popup').off().on('click', function(){

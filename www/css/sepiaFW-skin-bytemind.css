@@ -170,6 +170,11 @@ html {
 	background: #44c8be;
 	color: #fff;
 }
+.sepiaFW-cards-button,
+.sepiaFW-notouch-device .sepiaFW-cards-button:hover {
+	background: #44c8be;
+    color: #fff;
+}
 .sepiaFW-cards-list-body .listElement .checked {
     background: #44c8be;
 }

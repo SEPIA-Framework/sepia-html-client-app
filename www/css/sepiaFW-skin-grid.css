@@ -15,7 +15,7 @@ html {
 
 #sepiaFW-pC 	{ background-color: #102030; }
 #sepiaFW-sC 	{ background-color: #15abc3; }
-#sepiaFW-sC2 	{ background-color: rgba(235, 235, 255, 0.95); }
+#sepiaFW-sC2 	{ background-color: #dfe0f5; }
 #sepiaFW-aC 	{ background-color: #ff0000; }
 #sepiaFW-aC2 	{ background-color: #dfe0f5; }
 #sepiaFW-asC 	{ background-color: #15abc3; }
@@ -293,6 +293,14 @@ html {
 
 .sepiaFW-help-view {
     background: rgba(33, 33, 33, 0.75);
+}
+
+.sepiaFW-cards-button,
+.sepiaFW-notouch-device .sepiaFW-cards-button:hover {
+	background: rgba(20, 163, 187, 0.66);
+    color: #fff !important;
+    box-shadow: 0 0 5px #15abc3;
+	border: 1px solid #15abc3;
 }
 
 .sepiaFW-cards-list-title {

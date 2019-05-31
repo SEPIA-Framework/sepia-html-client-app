@@ -7,13 +7,13 @@ html {
 	border: 4px solid transparent;
 }
 
-#sepiaFW-pC 	 { background-color: #fff; }
-#sepiaFW-sC 	 { background-color: #027BFF; }
-#sepiaFW-sC2 { background-color: rgba(235, 235, 255, 0.96); 	}
-#sepiaFW-aC 	 { background-color: rgba(166, 58, 80, 1.0); 	}
-#sepiaFW-aC2 { background-color: #ceff1a; }
-#sepiaFW-asC { background-color: #000;	}
-#sepiaFW-adC { background-color: gold; 	}
+#sepiaFW-pC 	{ background-color: #fff; }
+#sepiaFW-sC 	{ background-color: #027BFF; }
+#sepiaFW-sC2 	{ background-color: #66add7; 	}
+#sepiaFW-aC 	{ background-color: rgba(166, 58, 80, 1.0); 	}
+#sepiaFW-aC2 	{ background-color: #ceff1a; }
+#sepiaFW-asC 	{ background-color: #000;	}
+#sepiaFW-adC 	{ background-color: gold; 	}
 
 #sepiaFW-login-box input, #sepiaFW-main-window input {
 	border: 1px solid #EBEBFF;
@@ -38,8 +38,11 @@ html {
 	color: #fff;
 }
 #sepiaFW-login-box button:hover {
-	background: #EBEBFF;
-	color: #000;
+	background-color: #eee !important;
+	color: #000 !important;
+}
+#sepiaFW-login-box #sepiaFW-login-extend-btn:hover {
+	background-color: transparent !important;
 }
 .sepiaFW-touch-device #sepiaFW-login-box button {
 	background: #027BFF;
@@ -82,7 +85,7 @@ html {
 	color: #fff !important;
 }
 .sepiaFW-menu button:hover{
-	background: #fff !important;
+	background: #eee !important;
 	color: #000 !important;
 }
 .sepiaFW-touch-device .sepiaFW-menu button:hover{
@@ -91,7 +94,10 @@ html {
 }
 .sepiaFW-menu input {
 	border: 0px !important;
-	border-bottom: 1px solid white !important;
+	border-bottom: 1px solid #ddd !important;
+}
+.sepiaFW-toggle-btn {
+    border: 1px solid #ddd;
 }
 #sepiaFW-chat-menu:not(.full-screen) {
 	border-top: 0;
@@ -107,22 +113,24 @@ html {
 	border-bottom: 0;
 }
 
-#sepiaFW-nav-label-note{
+#sepiaFW-nav-label-note {
     border: 1px solid rgba(166, 58, 80, 1.0);
 }
 
 #sepiaFW-chat-output article {
-    background: rgba(235, 235, 255, 0.96);
-	color: #000;
+    border: 1px solid #dfdfdf;
+	background: rgba(235, 235, 235, 0.66);
+	color: #2f3035;
+	padding-left: 9px;
 }
-#sepiaFW-chat-output article.chatMe{
+#sepiaFW-chat-output article.chatMe {
 	background: #027BFF;
 	color: #fff;
 }
-#sepiaFW-chat-output article.chatMe b{
+#sepiaFW-chat-output article.chatMe b {
 	color: #fff;
 }
-#sepiaFW-chat-output article.chatMe span{
+#sepiaFW-chat-output article.chatMe span {
 	color: #fff;
 }
 #sepiaFW-chat-output article.chatAssistant {
@@ -131,18 +139,18 @@ html {
 	color: #2f3035;
 	padding-left: 9px;
 }
-#sepiaFW-chat-output article.chatAssistant b{
+#sepiaFW-chat-output article.chatAssistant b {
 	color: #2f3035;
 }
-#sepiaFW-chat-output article.chatAssistant.chatPm{
+#sepiaFW-chat-output article.chatAssistant.chatPm {
 	border-left-color: rgba(0, 100, 0, 0.15);
 	border-left-width: 5px;
 	padding-left: 5px;
 }
-#sepiaFW-chat-output article.chatMe.chatPm{
+#sepiaFW-chat-output article.chatMe.chatPm {
 	border-left-color: rgba(255, 255, 255, 0.50);
 }
-#sepiaFW-chat-output article.chatOther.chatPm{
+#sepiaFW-chat-output article.chatOther.chatPm {
 	border-left-color: rgba(0, 0, 0, 0.15);
 }
 .chat-buttons-area button {
@@ -170,19 +178,36 @@ html {
 /*----- cards ------*/
 
 .sepiaFW-cards-flexSize-container {
-    background: rgba(0, 0, 0, 0.07);
+    background: rgba(0, 0, 0, 0.03);
+}
+
+.sepiaFW-cards-button, 
+.sepiaFW-notouch-device .sepiaFW-cards-button:hover {
+    background: rgba(255, 255, 255, 0.90);
+	color: #000;
+	border: 1px solid #e5e5e5;
+}
+.sepiaFW-cards-list-contextMenu,
+.sepiaFW-cards-contextMenu-single {
+	background: transparent !important;
+	border: 0;
 }
 
 .sepiaFW-cards-list-title {
 	background: rgba(255, 255, 255, 0.90);
 	/*background: rgba(15, 230, 15, 0.55);*/
 	color: #000;
+	border: 1px solid #e5e5e5;
 }
 .sepiaFW-cards-list-title.newsHeader button {
 	color: #027BFF !important;
 }
 .sepiaFW-cards-list-footer {
 	background: rgba(255, 255, 255, 0.90);
+	border: 1px solid #e5e5e5;
+}
+.sepiaFW-cards-list-body .listElement div {
+	border: 1px solid #e5e5e5;
 }
 .sepiaFW-cards-list-body .listElement .listRight {
     border-color: #ededed;
@@ -190,6 +215,32 @@ html {
 	color: #000;
 }
 
+.sepiaFW-cards-list-body .timeEvent > div,
+.sepiaFW-cards-list-body .radioStation > div,
+.sepiaFW-cards-list-body .weatherNowSmall > div,
+.sepiaFW-cards-list-body .linkCard > div {
+    border: 1px solid #e5e5e5;
+}
+
 .sepiaFW-cards-list-body .weatherNowSmall .weatherNowSmallImage {
 	background: #027BFF;
+}
+
+/*----- teachUI -----*/
+
+#sepiaFW-teachUI-nav-bar {
+    background: #027BFF;
+    color: #fff;
+}
+#sepiaFW-teachUI-view {
+	background: #2f3035;
+	color: #fff;
+}
+#sepiaFW-teachUI-view label {
+    color: #027BFF;
+}
+#sepiaFW-teachUI-editor button, 
+#sepiaFW-teachUI-manager button {
+    background: #027BFF !important;
+    color: #fff !important;
 }

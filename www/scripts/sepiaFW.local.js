@@ -9,6 +9,8 @@ function sepiaFW_build_strings(){
 	//GERMAN
 	StringsDE.welcome = 'Willkommen';
 	StringsDE.help = 'Hilfe';
+	StringsDE.ok = 'Ok';
+	StringsDE.more = 'Mehr';
 	StringsDE.username = 'Username';
 	StringsDE.nickname = 'Spitzname';
 	StringsDE.password = 'Passwort';
@@ -35,6 +37,7 @@ function sepiaFW_build_strings(){
 	StringsDE.noConnectionToServer = 'Es tut mir leid, aber ich konnte keine Verbindung zum Server herstellen :-(';
 	StringsDE.noConnectionToAssistant = 'Dein Assistent macht gerade Kaffeepause, ist sicher gleich zurück! (hoffentlich)';
 	StringsDE.noConnectionOrNoCredentials = 'Verbindung ist verloren gegangen oder die Login Daten sind abgelaufen. Du kannst warten und es noch einmal versuchen, die App neu laden oder dich erneut einloggen.';
+	StringsDE.messageLost = 'Die letzte Nachricht konnte nicht zugestellt werden';
 	StringsDE.noAsrSupport = 'Es tut mir leid, aber dieser Client unterstütz die Spracherkennung leider nicht :-(';
 	StringsDE.asrMissingServer = 'Mir fehlen noch Server Informationen um diese Spracherkennungsengine nutzen zu können, check noch mal die Settings bitte (ASR server).';
 	StringsDE.asrSettingsProblem = 'Mikrofon nicht richtig erkannt oder Zugriff verweigert.';
@@ -48,7 +51,10 @@ function sepiaFW_build_strings(){
 	StringsDE.back = 'Zurück';
 	StringsDE.next = 'Weiter';
 	StringsDE.save = 'Speichern';
+	StringsDE.store = 'Speichern';
+	StringsDE.load = 'Laden';
 	StringsDE.tryAgain = 'Nochmal versuchen';
+	StringsDE.tryReconnect = 'Neu verbinden';
 	StringsDE.wait = 'Warten';
 	StringsDE.forget = 'Vergessen';
 	StringsDE.abort = 'Abbrechen';
@@ -62,6 +68,10 @@ function sepiaFW_build_strings(){
 	StringsDE.hideItem = 'Verstecken';
 	StringsDE.addItem = 'Item hinzufügen';
 	StringsDE.moveToMyView = '← MyView';
+	StringsDE.exportToCalendar = '<i class="material-icons md-inherit">share</i>&nbsp;Kalender';
+	StringsDE.exportToAlarms = '<i class="material-icons md-inherit">share</i>&nbsp;Alarm</i>';
+	StringsDE.exportToUrl = '<i class="material-icons md-inherit">share</i>&nbsp;Link</i>';
+	StringsDE.copyUrl = '<i class="material-icons md-inherit">link</i>&nbsp;Kopieren</i>';
 	StringsDE.alarm = 'Wecker';
 	StringsDE.alarmClock = 'Wecker'; 		//name is title of UserDataList
 	StringsDE.timer = 'Timer';				//name is title of UserDataList
@@ -91,9 +101,19 @@ function sepiaFW_build_strings(){
 	StringsDE.data_privacy = 'Datenschutz';
 	StringsDE.tutorial = 'Tutorial';
 	StringsDE.way_home = 'Weg nach Hause';
+	//Fill words
+	StringsDE.from = 'von';
+	StringsDE.atClock = 'um';
 	//More errors
+	StringsDE.serverVersionTooLow = 'Beachte: Deine SEPIA Server Version ist niedrig und manche Features des Clients funktionieren eventuell nicht wie erwartet. Bitte führe ein Server Update durch, wenn möglich!';
 	StringsDE.mesh_node_fail = 'Sorry, die Mesh-Node Funktion zeigte einen Fehler.';
 	StringsDE.no_client_support = 'Sorry, aber diese Version der App unterstütz die aufgerufene Aktion nicht.';
+	StringsDE.cant_execute = "Sorry, aber es sieht so aus als könnte ich diese Aktion nicht ausführen.";
+	StringsDE.tried_but_not_sure = "Hab's versucht aber bin nicht sicher ob es geklappt hat.";
+	StringsDE.result_unclear = "Das Ergebnis der folgenden Anfrage ist unklar.";
+	//Service and action texts
+	StringsDE.opening_link = "Link wird geöffnet.";
+	StringsDE.no_music_playing = "Kannst du was hören? Wahrscheinlich wurde keine Musik gefunden.";
 	//Offline demo texts
 	StringsDE.demoMode = 'Du befindest dich im Demo-Modus! In diesem Modus kannst du die Einstellungen ändern (z.B. hostname), das Tutorial anschauen und mit manchen(!) Teilen des Interfaces spielen. Um auf deinen Assistenten zuzugreifen melde dich bitte zuerst an.';
 	StringsDE.notPossibleInDemoMode = 'Sorry aber das geht noch nicht im Demo-Modus.';
@@ -101,10 +121,20 @@ function sepiaFW_build_strings(){
 	StringsDE.myNewsDemoBtn = 'Öffne meine persönlichen News';
 	StringsDE.myRadioDemoBtn = 'Starte mein Lieblingsradio';
 	StringsDE.myToDoDemoBtn = 'Öffne meine To-Do Liste';
+	//Connection status
+	StringsDE.status_connecting = "Wird verbunden...";
+	StringsDE.status_opened = "Online";
+	StringsDE.status_closed = "Offline";
+	StringsDE.status_error = "Error";
+	//Teach-UI
+	StringsDE.command = 'Befehl';
+	StringsDE.chooseCommand = 'Bitte wähle einen Befehl.';
 	
 	//ENGLISH
 	StringsEN.welcome = 'Welcome';
 	StringsEN.help = 'Help';
+	StringsEN.ok = 'Ok';
+	StringsEN.more = 'More';
 	StringsEN.username = 'Username';
 	StringsEN.nickname = 'Nickname';
 	StringsEN.password = 'Password';
@@ -131,6 +161,7 @@ function sepiaFW_build_strings(){
 	StringsEN.noConnectionToServer = 'I\'m sorry but I could not establish a connection to the server :-(';
 	StringsEN.noConnectionToAssistant = 'Your assistant is taking a coffee break, will be right back! (hopefully)';
 	StringsEN.noConnectionOrNoCredentials = 'Connection was lost or credentials became invalid. You can wait and try it again, reload the app or login again.';
+	StringsEN.messageLost = 'The last message could not be delivered';
 	StringsEN.noAsrSupport = 'I\'m sorry but this client does not support speech recognition :-(';
 	StringsEN.asrMissingServer = 'I\'m missing some server info to user this speech recognition engine, please check the settings again (ASR server).';
 	StringsEN.asrSettingsProblem = 'Microphone has not been recognized properly or access was denied.';
@@ -144,7 +175,10 @@ function sepiaFW_build_strings(){
 	StringsEN.back = 'Back';
 	StringsEN.next = 'Next';
 	StringsEN.save = 'Save';
+	StringsEN.store = 'Store';
+	StringsEN.load = 'Load';
 	StringsEN.tryAgain = 'Try again';
+	StringsEN.tryReconnect = 'Try reconnect';
 	StringsEN.wait = 'Wait';
 	StringsEN.forget = 'Forget';
 	StringsEN.abort = 'Abort';
@@ -158,6 +192,10 @@ function sepiaFW_build_strings(){
 	StringsEN.hideItem = 'Hide';
 	StringsEN.addItem = 'Add item';
 	StringsEN.moveToMyView = '← MyView';
+	StringsEN.exportToCalendar = '<i class="material-icons md-inherit">share</i>&nbsp;Calendar';
+	StringsEN.exportToAlarms = '<i class="material-icons md-inherit">share</i>&nbsp;Alarm</i>';
+	StringsEN.exportToUrl = '<i class="material-icons md-inherit">share</i>&nbsp;Link</i>';
+	StringsEN.copyUrl = '<i class="material-icons md-inherit">link</i>&nbsp;Copy</i>';
 	StringsEN.alarm = 'Alarm';
 	StringsEN.alarmClock = 'Alarm';		//name is title of UserDataList
 	StringsEN.timer = 'Timer';			//name is title of UserDataList
@@ -187,9 +225,20 @@ function sepiaFW_build_strings(){
 	StringsEN.data_privacy = 'Data privacy';
 	StringsEN.tutorial = 'Tutorial';
 	StringsEN.way_home = 'Way home';
+	//Fill words
+	StringsEN.from = 'from';
+	StringsEN.atClock = 'at';
 	//More errors
+	StringsEN.serverVersionTooLow = 'Note: Your SEPIA server version is low and some features of the client might not work as expected. Please update the server when possible!';
 	StringsEN.mesh_node_fail = 'Sorry, the Mesh-Node function showed an error.';
 	StringsEN.no_client_support = 'Sorry, but this version of the app does not support the requested action.';
+	StringsEN.cant_execute = "Sorry, but it seems I can't execute the requested action.";
+	StringsEN.tried_but_not_sure = "I've tried but I'm not sure if it worked.";
+	StringsEN.result_unclear = "The result of the following request is unclear.";
+	//Service and action texts
+	StringsEN.opening_link = "Opening link.";
+	StringsEN.no_music_playing = "Can you hear something? Probably no music found.";
+	StringsEN.no_music_playing = "Can you hear something? Probably no music found.";
 	//Offline demo texts
 	StringsEN.demoMode = 'You are in demo-mode! This mode only allows you to change settings (e.g. hostname), check out the tutorial and play with some(!) parts of the UI. To get access to your assistant please log-in first.';
 	StringsEN.notPossibleInDemoMode = 'Sorry this is not yet possible in demo-mode.';
@@ -197,6 +246,14 @@ function sepiaFW_build_strings(){
 	StringsEN.myNewsDemoBtn = 'Open my personal news';
 	StringsEN.myRadioDemoBtn = 'Start my favorite radio station';
 	StringsEN.myToDoDemoBtn = 'Open my to-do list';
+	//Connection status
+	StringsEN.status_connecting = "Connecting...";
+	StringsEN.status_opened = "Online";
+	StringsEN.status_closed = "Offline";
+	StringsEN.status_error = "Error";
+	//Teach-UI
+	StringsEN.command = 'Command';
+	StringsEN.chooseCommand = 'Please choose a command.';
 
 	//--------------------------------------------------------
 	
@@ -215,6 +272,37 @@ function sepiaFW_build_strings(){
 	//write string
 	StringsLocale.w = function(name){
 		document.write(StringsLocale[name]);
+	}
+
+	//-------------- Languages --------------
+
+	StringsLocale.getSupportedAppLanguages = function(){
+		return [
+			{value:"de", name:"&nbsp;DE&nbsp;"},
+			{value:"en", name:"&nbsp;EN&nbsp;"},
+		];
+	}
+	StringsLocale.getExperimentalAsrLanguages = function(){
+		return [
+			{value:"", name:"Default (app lang.)"},
+			{value:"en-AU", name:"Australia (en-AU)"},
+			{value:"en-CA", name:"Canada (en-CA)"},
+			{value:"fr-FR", name:"France (fr-FR)"},
+			{value:"el-GR", name:"Greece (el-GR)"},
+			{value:"en-IE", name:"Ireland (en-IE)"},
+			{value:"it-IT", name:"Italy (it-IT)"},
+			{value:"ja-JP", name:"Japan (ja-JP)"},
+			{value:"nl-NL", name:"Netherlands (nl-NL)"},
+			{value:"en-NZ", name:"New Zealand (en-NZ)"},
+			{value:"pt-PT", name:"Portugal (pt-PT)"},
+			{value:"ru-RU", name:"Russia (ru-RU)"},
+			{value:"en-ZA", name:"South Africa (en-ZA)"},
+			{value:"af-ZA", name:"South Africa (af-ZA)"},
+			{value:"es-ES", name:"Spain (es-ES)"},
+			{value:"sv-SE", name:"Sweden (sv-SE)"},
+			{value:"tr-TR", name:"Turkey (tr-TR)"},
+			{value:"en-GB", name:"United Kingdom (en-GB)"}
+		];
 	}
 	
 	return StringsLocale;

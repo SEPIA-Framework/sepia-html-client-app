@@ -65,6 +65,15 @@ html {
 .sepiaFW-myCustomButtons-titleNote {
     font-weight: 300 !important;
 }
+@media (max-width: 480px) {
+	#sepiaFW-main-output-carousel .sepiaFW-carousel-pane {
+		border-color: transparent;
+	}
+	#sepiaFW-teachUI-view .sepiaFW-carousel-pane,
+	#sepiaFW-frames-view .sepiaFW-carousel-pane {
+		border-color: transparent;
+	}
+}
 
 #sepiaFW-main-window button,
 .sepiaFW-touch-device #sepiaFW-main-window button:hover {
@@ -264,11 +273,18 @@ html {
 /*----- cards ------*/
 
 .sepiaFW-cards-flexSize-container {
-    background: #121212;
+    background: #151516;
 }
 
 .sepiaFW-help-view {
-    background: #121212;
+    background: #151516;
+}
+
+.sepiaFW-cards-button, 
+.sepiaFW-notouch-device .sepiaFW-cards-button:hover {
+    background: rgba(216, 250, 0, 0.20);
+    color: #eeeeee;
+    border: 1px solid #ceff1a;
 }
 
 .sepiaFW-cards-list-title {

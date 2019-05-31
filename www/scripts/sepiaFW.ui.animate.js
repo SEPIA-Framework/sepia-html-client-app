@@ -37,7 +37,10 @@ function sepiaFW_build_animate(){
 		}
 	}
 	function possibilityToSwitchOnWakeWordListener(source){
-		//console.log('Wake-word window - source: ' + source); 						//TODO: implement
+		if (SepiaFW.wakeTriggers.useWakeWord && SepiaFW.wakeTriggers.engineLoaded && !SepiaFW.wakeTriggers.isListening()){
+			//console.log('Wake-word window - source: ' + source); 					//TODO: implement
+			SepiaFW.wakeTriggers.listenToWakeWords();
+		}
 	}
 	function possibilityToCleanCommandQueue(){
 		var action = SepiaFW.client.getAndRemoveNextCommandInQueue();
@@ -159,10 +162,12 @@ function sepiaFW_build_animate(){
 	//audio player animations
 	
 	Animate.audio.playerActive = function(){
-		$("#sepiaFW-audio-ctrls-title").addClass("playerActive");
+		//$("#sepiaFW-audio-ctrls-title").addClass("playerActive");
+		$("#sepiaFW-audio-ctrls-soundbars").addClass("playerActive");
 	}
 	Animate.audio.playerIdle = function(){
-		$("#sepiaFW-audio-ctrls-title").removeClass("playerActive");
+		//$("#sepiaFW-audio-ctrls-title").removeClass("playerActive");
+		$("#sepiaFW-audio-ctrls-soundbars").removeClass("playerActive");
 	}
 	
 	return Animate;

@@ -99,12 +99,21 @@ function sepiaFW_build_assistant(){
 		State.moodState = moodState; 	//for the UI only (til now)
 		State.context = context;
 		State.env = SepiaFW.config.environment;
+		State.device_id = SepiaFW.config.getDeviceId();
 		
 		State.last_cmd = last_command;
 		State.last_cmd_N = last_command_N;
 		State.input_type = input_type;
 		State.input_miss = input_miss;
 		State.dialog_stage = dialog_stage;
+
+		//custom data
+		var cd = {
+			defaultMusicApp: SepiaFW.config.getDefaultMusicApp(),
+			recentPAE: ((SepiaFW.events)? SepiaFW.events.getRecentProActiveEventsReduced() : ""),
+			embeddedPlayers: SepiaFW.ui.cards.getSupportedWebPlayers()
+		};
+		State.custom_data = JSON.stringify(cd);
 
 		return State;
 	}

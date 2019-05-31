@@ -14,6 +14,16 @@ function sepiaFW_build_client_controls(){
         return req;
     }
 
+    //Wait for opportunity and send a message (e.g. "some text" or "<error_client_control_0a>") and optionally show info fallback.
+    function sendFollowUpMessage(msgOrAnswerTag, info){
+        SepiaFW.assistant.waitForOpportunityAndSay(msgOrAnswerTag, function(){
+            //Fallback after max-wait:
+            if (info){
+                SepiaFW.ui.showInfo(info);
+            }
+        }, 2000, 30000);    //min-wait, max-wait
+    }
+
     //Open/close settings menu
     Controls.settings = function(controlData){
         if (controlData && controlData.action){
@@ -33,7 +43,7 @@ function sepiaFW_build_client_controls(){
                 SepiaFW.debug.error("Client controls - Unsupported action in 'settings': " + controlData.action);
             }
         }else{
-            SepiaFW.debug.error("Client controls - Missing 'controlData'!");
+            SepiaFW.debug.error("Client controls - Missing 'controlData' for 'settings'!");
         }
         return false;
     }
@@ -47,6 +57,21 @@ function sepiaFW_build_client_controls(){
     }
     function switchSettings(){
         $("#sepiaFW-nav-menu-btn").trigger('click', {bm_force : true});
+    }
+
+    //AlwaysOn mode
+    Controls.alwaysOn = function(controlData){
+        //we ignore the control-data for now and just toggle
+        if (SepiaFW.alwaysOn){
+            //open
+            if (!SepiaFW.alwaysOn.isOpen){
+                SepiaFW.ui.closeAllMenus();
+                SepiaFW.alwaysOn.start();
+            //close
+            }else{
+                SepiaFW.alwaysOn.stop();
+            }
+        }
     }
 
     //Music volume up/down
@@ -73,7 +98,7 @@ function sepiaFW_build_client_controls(){
                 SepiaFW.debug.error("Client controls - Unsupported action in 'settings': " + controlData.action);
             }
         }else{
-            SepiaFW.debug.error("Client controls - Missing 'controlData'!");
+            SepiaFW.debug.error("Client controls - Missing 'controlData' for 'volume'!");
         }
         return false;
     }
@@ -89,18 +114,132 @@ function sepiaFW_build_client_controls(){
         SepiaFW.audio.playerSetCurrentOrTargetVolume(newVol);       //value between 0.0-10.0
     }
 
-    //AlwaysOn mode
-    Controls.alwaysOn = function(controlData){
-        //we ignore the control-data for now and just toggle
-        if (SepiaFW.alwaysOn){
-            //open
-            if (!SepiaFW.alwaysOn.isOpen){
-                SepiaFW.ui.closeAllMenus();
-                SepiaFW.alwaysOn.start();
-            //close
+    //Media player controls
+    Controls.media = function(controlData){
+        if (controlData && controlData.action){
+            //STOP
+            if (controlData.action == "stop" || controlData.action == "pause" || controlData.action == "close"){
+                //Stop internal player
+                var isInternalPlayerStreaming = SepiaFW.audio.isMusicPlayerStreaming() || SepiaFW.audio.isMainOnHold();
+                if (isInternalPlayerStreaming){
+                    SepiaFW.audio.stop(SepiaFW.audio.getMusicPlayer());    
+                }
+                //Player and platform specific additional STOP methods
+                var sentAdditionalEvent = false;
+                if (SepiaFW.ui.cards.youTubePlayerGetState() == 1){
+                    //YouTube embedded player
+                    sentAdditionalEvent = (SepiaFW.ui.cards.youTubePlayerControls("stop") > 0);
+                }else if (SepiaFW.ui.isAndroid){
+                    //we do this only if we have a recent Android media event - otherwhise it will activate all music apps
+                    var requireMediaAppPackage = true;
+                    sentAdditionalEvent = SepiaFW.android.broadcastMediaButtonDownUpIntent(127, requireMediaAppPackage);  
+                    //127: KEYCODE_MEDIA_PAUSE
+                }
+                //TODO: add iOS and Windows?
+                //TODO: we could use a Mesh-Node and the sendMessage API in Windows
+                if (!isInternalPlayerStreaming && !sentAdditionalEvent && !controlData.skipFollowUp){
+                    //The user has probably tried to stop an external app but that was not possible
+                    sendFollowUpMessage(SepiaFW.local.g("tried_but_not_sure"), SepiaFW.local.g('result_unclear') + "Media: STOP");     //"<default_under_construction_0b>"
+                }
+
+            //NEXT
+            }else if (controlData.action == "next"){
+                SepiaFW.audio.startNextMusicStreamOfQueue(function(){}, function(err){
+                    //Failed to execute NEXT on internal player:
+                    
+                    //Player or platform specific additional NEXT methods
+                    if (SepiaFW.ui.cards.youTubePlayerGetState() > 0){
+                        //YouTube embedded player
+                        SepiaFW.ui.cards.youTubePlayerControls("next");
+
+                    }else if (SepiaFW.ui.isAndroid){
+                        //Stop internal player
+                        if (SepiaFW.audio.isMusicPlayerStreaming()){
+                            SepiaFW.audio.stop(SepiaFW.audio.getMusicPlayer());    
+                        }
+                        //we do this only if we have a recent Android media event - otherwhise it will activate all music apps
+                        var requireMediaAppPackage = true;
+                        SepiaFW.android.broadcastMediaButtonDownUpIntent(87, requireMediaAppPackage);   //87: KEYCODE_MEDIA_NEXT
+                    
+                    //Out of options ... for now
+                    }else if (!controlData.skipFollowUp){
+                        sendFollowUpMessage("<default_under_construction_0b>", SepiaFW.local.g('no_client_support'));
+                        SepiaFW.debug.error("Client controls - Unsupported action in 'media': " + controlData.action);
+                    }
+                    //TODO: add iOS and Windows?
+                    //TODO: we could use a Mesh-Node and the sendMessage API in Windows
+                });
+
             }else{
-                SepiaFW.alwaysOn.stop();
+                sendFollowUpMessage("<default_under_construction_0b>", SepiaFW.local.g('no_client_support'));
+                SepiaFW.debug.error("Client controls - Unsupported action in 'media': " + controlData.action);
             }
+        }else{
+            sendFollowUpMessage("<error_client_control_0a>", SepiaFW.local.g('cant_execute'));
+            SepiaFW.debug.error("Client controls - Missing 'controlData' for 'media'!");
+        }
+    }
+
+    //Search system for media
+    Controls.searchForMusic = function(controlData){
+        if (controlData){
+            // DEBUG
+            /*
+            console.log('Search: ' + controlData.search);
+            console.log('Artist: ' + controlData.artist);
+            console.log('Song: ' + controlData.song);
+            console.log('Album: ' + controlData.album);
+            console.log('Genre: ' + controlData.genre);
+            console.log('Playlist: ' + controlData.playlist);
+            console.log('Service: ' + controlData.service);
+            console.log('URI: ' + controlData.uri);
+            */
+
+            //Stop other players
+            Controls.media({
+                action: "stop",
+                skipFollowUp: true
+            });
+
+            //Embedded Player - TODO: check if service has web-player support
+            if (controlData.uri && (SepiaFW.ui.cards.canEmbedWebPlayer(controlData.service) || controlData.service.indexOf("_embedded") > 0)){
+                //just skip, cards will do the rest...
+                //YouTube
+                //if (controlData.service.indexOf("youtube") == 0){}
+
+            //Android Intent music search
+            }else if (SepiaFW.ui.isAndroid && (!controlData.service || controlData.service.indexOf("_link") == -1)){
+                var allowSpecificService = true;
+                SepiaFW.android.startMusicSearchActivity(controlData, allowSpecificService, function(err){
+                    //error callback
+                    if (err.code == 1){
+                        sendFollowUpMessage("<error_client_control_0a>", SepiaFW.local.g('cant_execute'));
+                    }else if (err.code == 2){
+                        sendFollowUpMessage("<music_0b>", SepiaFW.local.g('no_music_playing'));
+                    }
+                });
+
+            //Supported app?
+            }else if (controlData.service && !SepiaFW.config.getMusicAppCollection()[controlData.service]){
+                sendFollowUpMessage(SepiaFW.local.g('cant_execute'), SepiaFW.local.g('cant_execute'));      //"<error_client_control_0a>"
+                SepiaFW.debug.error("Client controls - 'searchForMusic' is trying to use an app that is not supported by this client!");
+
+            //Common URI fallback or fail
+            }else{
+                //For now we can only fallback to URI
+                if (controlData.uri){
+                    if (SepiaFW.ui.isAndroid){
+                        SepiaFW.android.setLastRequestedMediaApp(controlData.service);
+                    }
+                    SepiaFW.ui.actions.openUrlAutoTarget(controlData.uri);
+                }else{
+                    //Feedback (to server and user)
+                    sendFollowUpMessage("<music_0b>", SepiaFW.local.g('cant_execute'));        //<error_client_control_0a>
+                    SepiaFW.debug.error("Client controls - 'searchForMusic' is missing URI data and has no other options to search for music!");
+                }
+            }
+        }else{
+            SepiaFW.debug.error("Client controls - Missing 'controlData' for 'searchForMusic'!");
         }
     }
 
@@ -113,6 +252,42 @@ function sepiaFW_build_client_controls(){
             return true;
         }
         return false;
+    }
+
+    //Platform specific function like Android Intents
+    Controls.platformFunction = function(controlData){
+        if (controlData && controlData.platform){
+            var req = parseAction(controlData.data);
+            /* DEBUG
+            console.log('Platform: ' + controlData.platform);
+            console.log('Request type: ' + req.type);
+            console.log('Request data: ' + JSON.stringify(req.data));
+            */
+            if (!req || !req.type || !req.data){
+                SepiaFW.debug.error("Missing 'platformFunction' type or data for: " + controlData.data);
+                return;
+            }
+            //Android
+            if (SepiaFW.ui.isAndroid && controlData.platform == "android" && req.type.indexOf("android") == 0){
+                if (req.type == "androidActivity"){
+                    SepiaFW.android.intentActivity(req.data);
+                }else if (req.type == "androidBroadcast"){
+                    SepiaFW.android.intentBroadcast(req.data);
+                }else{
+                    SepiaFW.debug.error("Missing 'platformFunction' support for type: " + req.type);
+                }
+            //Common
+            }else if (req.type == "url" || req.type == "browserIntent"){
+                if (req.data.url){
+                    SepiaFW.ui.actions.openUrlAutoTarget(req.data.url);
+                }else{
+                    SepiaFW.debug.error("Missing 'platformFunction' support for type: " + req.type);
+                }
+            //TODO: iosIntent, windowsIntent, browserIntent (more?)
+            }else{
+                SepiaFW.debug.error("Missing 'platformFunction' support or data for: " + req.type);
+            }
+        }
     }
 
     //Mesh-Node call
@@ -141,12 +316,7 @@ function sepiaFW_build_client_controls(){
             }
 
             //Feedback (to server and user ... server just loads a chat message in this case, but one could send real data back)
-            if (SepiaFW.assistant){
-                SepiaFW.assistant.waitForOpportunityAndSay("<error_client_control_0a>", function(){
-                    //Fallback after max-wait:
-                    SepiaFW.ui.showInfo(SepiaFW.local.g('mesh_node_fail'));
-                }, 2000, 30000);    //min-wait, max-wait
-            }
+            sendFollowUpMessage("<error_client_control_0a>", SepiaFW.local.g('mesh_node_fail'));
         });
         return true;
     }

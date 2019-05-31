@@ -8,7 +8,7 @@ html {
 
 #sepiaFW-pC  { background-color: #000; 		}
 #sepiaFW-sC  { background-color: #ceff1a; 	}
-#sepiaFW-sC2 { background-color: rgba(235, 235, 255, 0.95); }
+#sepiaFW-sC2 { background-color: #e2e2f5; 	}
 #sepiaFW-aC  { background-color: rgba(166, 58, 80, 1.0); }
 #sepiaFW-aC2 { background-color: #3399ff; 	}
 #sepiaFW-asC { background-color: #ceff1a;	}
@@ -46,12 +46,11 @@ html {
 }
 
 .sepiaFW-menu {
-	/*background: rgba(206, 255, 26, 0.95);*/
-	background: rgba(222, 222, 240, 0.95);
+	background: rgba(206, 255, 26, 0.95);
 	color: #000;
 }
 #sepiaFW-chat-menu {
-	background: rgba(235, 235, 255, 1.00);
+	background: #e2e2f5;
 	color: #000;
 }
 #sepiaFW-chat-menu button {
@@ -66,12 +65,12 @@ html {
 	color: #000 !important;
 }
 #sepiaFW-myEvents-buttons button:hover {
-	background-color: rgba(235, 235, 255, 0.95) !important;
+	background-color: #e2e2f5 !important;
 	color: #000 !important;
 }
 #sepiaFW-main-window .chat-buttons-area button,
 .sepiaFW-touch-device #sepiaFW-main-window .chat-buttons-area button {
-	background: rgba(225, 225, 245, 0.96);
+	background: #e2e2f5;
 	color: #000;
 }
 #sepiaFW-main-window .chat-buttons-area button:hover {
@@ -88,7 +87,7 @@ html {
 }
 
 #sepiaFW-chat-output article {
-    background: rgb(255, 177, 80); /*rgba(235, 235, 255, 0.94);*/
+    background: rgb(255, 177, 80);
 }
 #sepiaFW-chat-output article.chatMe{
 	background: #3399ff;
@@ -136,6 +135,11 @@ html {
 .sepiaFW-cards-list-title {
 	background: rgb(255, 177, 80);
 	color: #fff;
+}
+.sepiaFW-cards-button,
+.sepiaFW-notouch-device .sepiaFW-cards-button:hover {
+	background: #000;
+    color: #fff;
 }
 .sepiaFW-cards-list-body .listElement .inProgress {
     background: #CEFF1A;

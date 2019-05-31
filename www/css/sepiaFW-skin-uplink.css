@@ -13,7 +13,7 @@ html {
 
 #sepiaFW-pC  { background-color: #283059; }
 #sepiaFW-sC  { background-color: #1BFFE6; }
-#sepiaFW-sC2 { background-color: rgba(235, 235, 255, 0.95); 	}
+#sepiaFW-sC2 { background-color: #ececff; 	}
 #sepiaFW-aC  { background-color: rgba(250, 48, 85, 1); 	}
 #sepiaFW-aC2 { background-color: #4470ae; }
 #sepiaFW-asC { background-color: #1BFFE6;	}
@@ -103,7 +103,7 @@ html {
 }
 
 #sepiaFW-chat-output article {
-    background: rgba(235, 235, 255, 0.95);
+    background: #ececff;
 	color: #232323;
 }
 #sepiaFW-chat-output article.chatMe{
@@ -157,6 +157,12 @@ html {
 }
 
 /*----- cards ------*/
+
+.sepiaFW-cards-button, 
+.sepiaFW-notouch-device .sepiaFW-cards-button:hover {
+    background: #1bffe6;
+    color: #283059;
+}
 
 .sepiaFW-cards-list-title {
 	background: #4470ae;

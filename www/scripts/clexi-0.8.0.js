@@ -1,8 +1,9 @@
-/* CLEXI - Client Extension Interface v0.9.0 */
+/* CLEXI - Client Extension Interface */
 var ClexiJS = (function(){
 	var Clexi = {};
 	
-	Clexi.version = "0.7.0";
+	Clexi.version = "0.8.0";
+	Clexi.serverId = "";		//if you set this the client will check the server ID on welcome event and close connection if not identical
 	
 	//Extension subscriptions
 	var subscriptions = {};
@@ -17,6 +18,7 @@ var ClexiJS = (function(){
 	var reconnectTry = 0;
 	var reconnectTimer = undefined;
 	var requestedClose = false;
+	var readyToAcceptEvents = false; 	//the welcome event will set this to true and allow subscriptions (if data is correct)
 	
 	var isConnected = false;
 	Clexi.isConnected = function(){
@@ -33,7 +35,35 @@ var ClexiJS = (function(){
 	
 	Clexi.availableXtensions = {};
 	
-	Clexi.connect = function(host, onOpen, onClose, onError){
+	Clexi.pingAndConnect = function(host, onPingOrIdError, onOpen, onClose, onError, onConnecting){
+		var url;
+		if (!host) url = location.origin;
+		else url = host.replace(/^wss/, 'https').replace(/^ws/, 'http');
+		Clexi.httpRequest("GET", url + "/ping", function(data){
+			//Success
+			if (typeof data == "string" && data.indexOf("{") == 0){
+				data = JSON.parse(data);
+			}
+			//console.log(data);
+			//check ID
+			if (data.id && data.id == Clexi.serverId){
+				Clexi.connect(host, onOpen, onClose, onError, onConnecting);
+			}else{
+				if (onPingOrIdError) onPingOrIdError({
+					code: 418,
+					msg:"CLEXI connection aborted due to wrong server ID."
+				});
+			}
+		}, function(){
+			//Error
+			if (onPingOrIdError) onPingOrIdError({
+				code: 404,
+				msg:"CLEXI connection failed! Server not reached."
+			});
+		});
+	}
+	
+	Clexi.connect = function(host, onOpen, onClose, onError, onConnecting){
 		//URL
 		if (host){
 			//given URL
@@ -50,7 +80,9 @@ var ClexiJS = (function(){
 		//Connect
 		ws = new WebSocket(hostURL);
 		requestedClose = false;
+		readyToAcceptEvents = false;
 		if (Clexi.onLog) Clexi.onLog('CLEXI connecting ...');
+		if (onConnecting) onConnecting();
 		
 		//Events:
 		
@@ -68,7 +100,9 @@ var ClexiJS = (function(){
 			//console.log(me);
 			msg = JSON.parse(me.data);
 			if (Clexi.onDebug) Clexi.onDebug('CLEXI received msg of type: ' + msg.type);
-			if (subscriptions[msg.type]){
+			
+			//check xtensions first
+			if (readyToAcceptEvents && subscriptions[msg.type]){
 				if (msg.data){
 					//Extension event
 					subscriptions[msg.type].onEvent(msg.data);
@@ -79,9 +113,17 @@ var ClexiJS = (function(){
 					//Extension error
 					subscriptions[msg.type].onError(msg.error);
 				}
+			
+			//was welcome message?
 			}else if (msg.type == "welcome"){
 				if (msg.info && msg.info.xtensions) Clexi.availableXtensions = msg.info.xtensions;
 				if (Clexi.onLog) Clexi.onLog('CLEXI server says welcome. Info: ' + JSON.stringify(msg.info));
+				//check server ID
+				if (Clexi.serverId && (Clexi.serverId != msg.info.id)){
+					Clexi.close();
+				}else{
+					readyToAcceptEvents = true;
+				}
 			}
 		};
 		
@@ -100,7 +142,7 @@ var ClexiJS = (function(){
 			if (!requestedClose){
 				//try reconnect?
 				if (Clexi.doAutoReconnect){
-					autoReconnect(host, onOpen, onClose, onError);
+					autoReconnect(host, onOpen, onClose, onError, onConnecting);
 				}
 			}else{
 				if (reconnectTimer) clearTimeout(reconnectTimer);
@@ -111,20 +153,21 @@ var ClexiJS = (function(){
 	
 	Clexi.close = function(){
 		if (reconnectTimer) clearTimeout(reconnectTimer);
+		requestedClose = true;
 		if (ws && isConnected){
-			requestedClose = true;
 			ws.close();
 		}
 	}
 	
-	function autoReconnect(host, onOpen, onClose, onError){
+	function autoReconnect(host, onOpen, onClose, onError, onConnecting){
 		reconnectTry++;
 		var delay = Math.min(reconnectTry*reconnectTry*reconnectBaseDelay, reconnectMaxDelay);
 		//TODO: we could/should check navigator.onLine here ...
+		if (reconnectTimer) clearTimeout(reconnectTimer);
 		reconnectTimer = setTimeout(function(){
-			if (!isConnected){
+			if (!isConnected && !requestedClose){
 				if (Clexi.onLog) Clexi.onLog('CLEXI reconnecting after unexpected close. Try: ' + reconnectTry);
-				Clexi.connect(host, onOpen, onClose, onError);
+				Clexi.connect(host, onOpen, onClose, onError, onConnecting);
 			}
 		}, delay);
 	}
@@ -174,6 +217,30 @@ var ClexiJS = (function(){
 	}
 	Clexi.removeSubscription = function(extensionName){
 		delete subscriptions[extensionName];
+	}
+	
+	/**
+	* A vanillaJS version of jQuery ajax call for HTTP GET. TODO: extend for POST.
+	*/
+	Clexi.httpRequest = function(method, url, successCallback, errorCallback, connectErrorCallback){
+		var request = new XMLHttpRequest();
+		request.open(method, url, true);
+		request.onload = function(){
+			if (request.status >= 200 && request.status < 400) {
+				//Success!
+				var res = request.responseText;
+				if (successCallback) successCallback(res);
+			}else{
+				//Server Error
+				if (errorCallback) errorCallback();
+			}
+		};
+		request.onerror = function(){
+			//Connection Error
+			if (connectErrorCallback) connectErrorCallback();
+			else if (errorCallback) errorCallback();
+		};
+		request.send();
 	}
 	
 	return Clexi;

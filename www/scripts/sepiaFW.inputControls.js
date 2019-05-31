@@ -8,16 +8,13 @@ function sepiaFW_build_input_controls() {
     //---- Initializers ----
 
     InputControls.initializeGamepads = function(){
+        //NOTE: this currently also applies to Hotkeys and CLEXI buttons
         InputControls.useGamepads = SepiaFW.data.get('useGamepads');
 		if (typeof InputControls.useGamepads == 'undefined') InputControls.useGamepads = false;
         SepiaFW.debug.info("Gamepads are " + ((InputControls.useGamepads)? "SUPPORTED" : "NOT SUPPORTED"));
         
-        if (InputControls.useGamepads){
-            //wait a bit
-            setTimeout(function(){
-                InputControls.setup();
-            }, 2000);
-        }
+        //Add onActive action:
+        SepiaFW.client.addOnActiveOneTimeAction(inputControlsOnActiveActionPadAndKeys);
     }
     InputControls.initializeBluetoothBeacons = function(){
         if (InputControls.areBluetoothBeaconsSupported()){
@@ -33,12 +30,24 @@ function sepiaFW_build_input_controls() {
             if (typeof InputControls.useBluetoothBeaconsOnlyWithPower == 'undefined') InputControls.useBluetoothBeaconsOnlyWithPower = false;
             SepiaFW.debug.info("Bluetooth Beacons 'only with power plug' is " + ((InputControls.useBluetoothBeaconsOnlyWithPower)? "TRUE" : "FALSE"));
 
-            if (InputControls.useBluetoothBeacons && !InputControls.useBluetoothBeaconsInAoModeOnly){
-                //wait a bit
-                setTimeout(function(){
-                    InputControls.listenToBluetoothBeacons();
-                }, 3000);
-            }
+            //Add onActive action:
+            SepiaFW.client.addOnActiveOneTimeAction(inputControlsOnActiveActionBeacons);
+        }
+    }
+    function inputControlsOnActiveActionPadAndKeys(){
+        if (InputControls.useGamepads){
+            //wait a bit
+            setTimeout(function(){
+                InputControls.setup();
+            }, 1000);
+        }
+    }
+    function inputControlsOnActiveActionBeacons(){
+        if (InputControls.useBluetoothBeacons && !InputControls.useBluetoothBeaconsInAoModeOnly){
+            //wait a bit
+            setTimeout(function(){
+                InputControls.listenToBluetoothBeacons();
+            }, 2000);
         }
     }
 
@@ -48,11 +57,12 @@ function sepiaFW_build_input_controls() {
         //console.log('Input controls setup');
         InputControls.listenToGamepadConnectEvent();
         InputControls.listenToGlobalHotkeys();
+        InputControls.listenToClexiButtons();
         //Import settings
         InputControls.importMappings();
     }
 
-    InputControls.useGamepads = false;          //switchable in settings
+    InputControls.useGamepads = false;          //switchable in settings    -   NOTE: this currently also applies to Hotkeys and CLEXI buttons
     InputControls.useHotkeysInAlwaysOn = true;  //hardcoded here for now
     InputControls.useBluetoothBeacons = false;  //switchable in settings
     InputControls.useBluetoothBeaconsInAoModeOnly = false;  //switchable in settings
@@ -243,6 +253,37 @@ function sepiaFW_build_input_controls() {
         }
     }
 
+    //-------------- shared event handler ---------------
+
+    function handleRemoteInputEvent(e){
+        if (!e) return;        
+        //MIC with permission check
+        if (e == "F4"){
+            if (SepiaFW.wakeTriggers && SepiaFW.wakeTriggers.useWakeWord){
+                toggleMicrophone();
+            }else{
+                SepiaFW.debug.log("InputControls remoteAction - NOT ALLOWED to use remote wake-word! Key: " + e);    
+            }
+        //MIC
+        }else if (e == "mic"){
+            toggleMicrophone();
+        //BACK
+        }else if (e == "back"){
+            backButton();
+        //AO-Mode
+        }else if (e == "ao"){
+            openAlwaysOn();
+        //Next and previous view
+        }else if (e == "next"){
+            nextChatView();
+        }else if (e == "prev"){
+            previousChatView();
+        //Unknown
+        }else{
+            SepiaFW.debug.log("InputControls remoteAction - no handler yet for key: " + e);
+        }
+    }
+
     //---------------- Bluetooth Beacons ----------------
 
     var isScannigBeacons = false;
@@ -349,21 +390,8 @@ function sepiaFW_build_input_controls() {
                 blockAllFurtherBeaconEvents = false;
             }
             var e = getBeaconEvent(beaconData);
-            //MIC
-            if (e == "mic"){
-                toggleMicrophone();
-            //BACK
-            }else if (e == "back"){
-                backButton();
-            //AO-Mode
-            }else if (e == "ao"){
-                openAlwaysOn();
-            //Next and previous view
-            }else if (e == "next"){
-                nextChatView();
-            }else if (e == "prev"){
-                previousChatView();
-            }
+            handleRemoteInputEvent(e);
+
             blockAllFurtherBeaconEvents = true;
         }
     }
@@ -373,19 +401,21 @@ function sepiaFW_build_input_controls() {
         if (deviceId){
             baseUrl += ("/" + deviceId);
         }
+        baseUrl = baseUrl.toLowerCase();
+        var beaconDataUrlLower = (beaconData.url)? beaconData.url.toLowerCase() : "";
         //MIC
-        if (beaconData.url.indexOf(baseUrl + "/mic") >= 0){
+        if (beaconDataUrlLower.indexOf(baseUrl + "/mic") >= 0){
             return "mic";
         //BACK
-        }else if (beaconData.url.indexOf(baseUrl + "/back") >= 0){
+        }else if (beaconDataUrlLower.indexOf(baseUrl + "/back") >= 0){
             return "back";
         //AO-mode
-        }else if (beaconData.url.indexOf(baseUrl + "/ao") >= 0){
+        }else if (beaconDataUrlLower.indexOf(baseUrl + "/ao") >= 0){
             return "ao";
         //Next & previous
-        }else if (beaconData.url.indexOf(baseUrl + "/next") >= 0){
+        }else if (beaconDataUrlLower.indexOf(baseUrl + "/next") >= 0){
             return "next";
-        }else if (beaconData.url.indexOf(baseUrl + "/prev") >= 0){
+        }else if (beaconDataUrlLower.indexOf(baseUrl + "/prev") >= 0){
             return "prev";
         }else{
             return "";
@@ -403,20 +433,32 @@ function sepiaFW_build_input_controls() {
         }
     }
 
-    //----------------- Remote Hotkeys ------------------
+    //----------------- Remote Hotkeys/Buttons ------------------
 
+    //This will be sent over the chat-server connection
     InputControls.handleRemoteHotkeys = function(data){
-        //activate microphone for this user
-        if (data.key === "F4"){
-            if (SepiaFW.wakeTriggers && SepiaFW.wakeTriggers.useWakeWord){
-                toggleMicrophone();
-            }else{
-                SepiaFW.debug.log("InputControls remoteAction - NOT ALLOWED to use remote wake-word! Key: " + data.key);    
+        handleRemoteInputEvent(data.key);
+    }
+
+    //This will be received via CLEXI connection
+    InputControls.handleClexiRemoteButton = function(data){
+        if (data.detail){
+            //console.log(data.detail);
+            if (data.detail.name == "remoteButton"){
+                var remoteData = data.detail.data;
+                var deviceId = SepiaFW.config.getDeviceId();
+                if (remoteData && remoteData.deviceId && remoteData.deviceId.toLowerCase() == deviceId){
+                    handleRemoteInputEvent(remoteData.button);
+                }
             }
-        
-        //no handler
+        }
+    }
+    //This will listen to the proper event
+    InputControls.listenToClexiButtons = function(){
+        if (InputControls.useGamepads && SepiaFW.clexi){
+            SepiaFW.clexi.addHttpEventsListener(InputControls.handleClexiRemoteButton);
         }else{
-            SepiaFW.debug.log("InputControls remoteAction - no handler yet for key: " + data.key);
+            SepiaFW.clexi.removeHttpEventsListener(InputControls.handleClexiRemoteButton);
         }
     }
 

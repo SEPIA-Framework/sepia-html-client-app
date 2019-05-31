@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<link rel="alternate" href="android-app://de.bytemind.sepia.app.web/https/b07z.net/dl/sepia/.*" />
+	<!-- web app settings -->
+	<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=0">
+	<title>S.E.P.I.A.</title>
+	<meta name="application-name" content="S.E.P.I.A."/>
+	<meta name="apple-mobile-web-app-title" content="S.E.P.I.A.">
+	<meta name="description" content="S.E.P.I.A. Universal-Links Page.">
+	<meta name="theme-color" content="#000">
+	<!-- open graph settings -->
+	<meta property="og:title" content="S.E.P.I.A."/>
+	<meta property="og:determiner" content="the" />
+	<meta property="og:url" content="https://sepia-framework.github.io/app/"/>
+	<meta property="og:description" content="S.E.P.I.A. Universal-Links Page.">
+	<meta property="og:image" content="https://sepia-framework.github.io/img/logo.png"/>
+	<meta property="og:image:width" content="960"/>
+	<meta property="og:image:height" content="960"/>
+	<meta property="og:image:type" content="image/png"/>
+	<meta property="og:image:alt" content="SEPIA Logo"/>
+	<meta property="og:image" content="https://sepia-framework.github.io/app/img/icon.png"/>
+	<meta property="og:image:width" content="192"/>
+	<meta property="og:image:height" content="192"/>
+	<meta property="og:image:type" content="image/png"/>
+	<meta property="og:image:alt" content="SEPIA Icon"/>
+	
+	<style>
+		body {
+			background: #000; 
+			color: #ceff1a;
+			font-family: sans-serif;
+		}
+		.redirect-button {
+			display: inline-block;
+			margin: 4px 8px;
+			padding: 4px 8px;
+			background: #ceff1a;
+			border-radius: 3px;
+		}
+		a {
+			color: #000;
+			text-decoration: none;
+		}
+		h3 {
+			color: white;
+		}
+	</style>
+</head>
+	<body>
+		<h3>SEPIA Framework - Universal links page</h3>
+		<p>This page should automatically redirect you to a SEPIA client,</p>
+		<p>if not please click one of the following links:</p>
+		<div class="redirect-button" id="redirect-link-browser"></div>
+		<div class="redirect-button" id="redirect-link-app"></div>
+		<script>
+			var redirectLinkBrowser = 'https://sepia-framework.github.io/app/index.html' + document.location.search;
+			var redirectLinkApp = 'https://b07z.net/dl/sepia/index.html' + document.location.search;
+			document.getElementById('redirect-link-browser').innerHTML = ("<a href='" + redirectLinkBrowser + "'>Browser</a>");
+			document.getElementById('redirect-link-app').innerHTML = ("<a href='" + redirectLinkApp + "'>App</a>");
+			//document.location.href = redirectLinkBrowser;
+		</script>
+	</body>
+</html>

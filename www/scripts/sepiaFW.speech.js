@@ -6,7 +6,38 @@ function sepiaFW_build_speech(){
 	//Parameters and states
 	
 	//Common
-	Speech.language = SepiaFW.config.appLanguage;
+	var speechLanguage = SepiaFW.config.appLanguage;
+	var speechCountryCode = "";
+	Speech.getLanguage = function(){
+		return speechLanguage;
+	}
+	Speech.setLanguage = function(newLang){
+		speechLanguage = newLang;
+	}
+	Speech.setCountryCode = function(countryCode){
+		speechCountryCode = countryCode;
+	}
+	//it might be necessary to use the long codes
+	function getLongLanguageCode(langCodeShort){
+		if (langCodeShort.length === 2){
+			if (langCodeShort.toLowerCase() === "de"){
+				return "de-DE";
+			}else{
+				return "en-US";
+			}
+		}
+	}
+	function getLanguageForASR(){
+		if (speechCountryCode){
+			return speechCountryCode;
+		}else if (speechLanguage === "de"){
+			return "de-DE";
+		}else{
+			return "en-US";
+		}
+	}
+	Speech.getLongLanguageCode = getLongLanguageCode;
+	Speech.getLanguageForASR = getLanguageForASR;
 		
 	//ASR
 	Speech.testAsrSupport = function(){
@@ -21,6 +52,8 @@ function sepiaFW_build_speech(){
 	Speech.testAsrSupport();
 
 	//ASR - engine - currently: native (webSpeechKit or Cordova), socket (SEPIA server or e.g. Microsoft)
+	var engines = [];
+	var engineNames = {};
 	Speech.asrEngine = SepiaFW.data.get('speech-asr-engine') || '';
 	Speech.getAsrEngine = function(){
 		return Speech.asrEngine;
@@ -254,6 +287,17 @@ function sepiaFW_build_speech(){
 
 	//start speech recognition for a single sentence - submit callbacks
 	Speech.toggleRecognition = function (callback_final, callback_interim, error_callback, log_callback){
+		if (SepiaFW.wakeTriggers && SepiaFW.wakeTriggers.isListening()){
+			SepiaFW.animate.assistant.loading();
+			SepiaFW.wakeTriggers.stopListeningToWakeWords(function(){
+				//Use the success-callback here to introduce a proper wait
+				Speech.toggleRecognition(callback_final, callback_interim, error_callback, log_callback);
+			}, function(e){
+				//Error
+				if (error_callback) error_callback(e);
+			});
+			return;
+		}
 		if (isSpeaking){
 			Speech.stopSpeech();	//note: this is in the client button action aswell, I'll leave it here just in case
 		}
@@ -350,18 +394,6 @@ function sepiaFW_build_speech(){
 	}
 	
 	//----------helpers-----------
-	
-	//it might be necessary to use the long codes
-	function getLongLanguageCode(langCodeShort){
-		if (langCodeShort.length === 2){
-			if (langCodeShort.toLowerCase() === "de"){
-				return "de-DE";
-			}else{
-				return "en-US";
-			}
-		}
-	}
-	Speech.getLongLanguageCode = getLongLanguageCode;
 
 	//auto stopping of speech recognition after a period of no results
 	function autoStopASR(){
@@ -474,10 +506,10 @@ function sepiaFW_build_speech(){
 				//reset recognizer
 				resetsOnUnexpectedEnd();
 
-				if (!event){
-					SepiaFW.debug.err('ASR: unknown ERROR!');
-					//TODO: do something here!	
-					before_error(error_callback, 'E0? - unknown error!');
+				if (event == undefined){
+					//No event likely just means no result due to abort
+					SepiaFW.debug.err('ASR: unknown ERROR, no error event data!');
+					before_error(error_callback, 'E0? - unknown ERROR, no error event data!');
 					return;
 				}
 				var orgEvent = event;
@@ -507,8 +539,16 @@ function sepiaFW_build_speech(){
 					}
 				}
 				else {
-					SepiaFW.debug.err('ASR: unknown ERROR!');
-					console.log(orgEvent);
+					if (orgEvent && typeof orgEvent == "object"){
+						var err = JSON.stringify(orgEvent);
+						if (err != '{"type":"error"}'){		//usually happens when you simply abort recording
+							SepiaFW.debug.err('ASR: unknown ERROR!');
+							console.log(err);
+						}
+					}else{
+						SepiaFW.debug.err('ASR: unknown ERROR!');
+					    console.log(orgEvent);
+					}
 					//TODO: do something here!	
 					before_error(error_callback, 'E0? - unknown error!');
 					return;
@@ -640,7 +680,7 @@ function sepiaFW_build_speech(){
 				callback_interim(interim_transcript);
 			};
 			
-			recognition.lang = getLongLanguageCode(Speech.language);
+			recognition.lang = getLanguageForASR();
 			recognition.maxAlternatives = 1;
 			recognition.start();
 		}
@@ -749,7 +789,7 @@ function sepiaFW_build_speech(){
 				if (selectedVoiceObject.name){
 					$('#sepiaFW-menu-select-voice').val(selectedVoice);
 				}
-				SepiaFW.data.setPermanent(Speech.language + "-voice", selectedVoice);
+				SepiaFW.data.setPermanent(Speech.getLanguage() + "-voice", selectedVoice);
 			}
 		}
 	}
@@ -799,7 +839,7 @@ function sepiaFW_build_speech(){
 			onTtsStart(event, startedCallback, errorCallback);
 			TTS.speak({
 				text: text,
-				locale: getLongLanguageCode(Speech.language),
+				locale: getLongLanguageCode(Speech.getLanguage()),
 				rate: 1.00
 				
 			}, function () {
@@ -818,7 +858,7 @@ function sepiaFW_build_speech(){
 			window.sepia_tts_utterances = []; 		//This is a bug-fix to prevent utterance from getting garbage collected
 			var utterance = new SpeechSynthesisUtterance();
 			utterance.text = text;
-			utterance.lang = getLongLanguageCode(Speech.language);
+			utterance.lang = getLongLanguageCode(Speech.getLanguage());
 			if (selectedVoice) utterance.voice = selectedVoiceObject;
 			utterance.pitch = 1.0;  	//accepted values: 0-2 inclusive, default value: 1
 			utterance.rate = 1.0; 		//accepted values: 0.1-10 inclusive, default value: 1
@@ -976,7 +1016,7 @@ function sepiaFW_build_speech(){
 	//set a preselected voice (e.g. in Edge)
 	function setVoiceOnce(){
 		//stored?
-		var storedVoice = SepiaFW.data.getPermanent(Speech.language + "-voice");
+		var storedVoice = SepiaFW.data.getPermanent(Speech.getLanguage() + "-voice");
 		if (storedVoice){
 			Speech.setVoice(storedVoice);
 
