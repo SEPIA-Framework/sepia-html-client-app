@@ -6,7 +6,38 @@ function sepiaFW_build_speech(){
 	//Parameters and states
 	
 	//Common
-	Speech.language = SepiaFW.config.appLanguage;
+	var speechLanguage = SepiaFW.config.appLanguage;
+	var speechCountryCode = "";
+	Speech.getLanguage = function(){
+		return speechLanguage;
+	}
+	Speech.setLanguage = function(newLang){
+		speechLanguage = newLang;
+	}
+	Speech.setCountryCode = function(countryCode){
+		speechCountryCode = countryCode;
+	}
+	//it might be necessary to use the long codes
+	function getLongLanguageCode(langCodeShort){
+		if (langCodeShort.length === 2){
+			if (langCodeShort.toLowerCase() === "de"){
+				return "de-DE";
+			}else{
+				return "en-US";
+			}
+		}
+	}
+	function getLanguageForASR(){
+		if (speechCountryCode){
+			return speechCountryCode;
+		}else if (speechLanguage === "de"){
+			return "de-DE";
+		}else{
+			return "en-US";
+		}
+	}
+	Speech.getLongLanguageCode = getLongLanguageCode;
+	Speech.getLanguageForASR = getLanguageForASR;
 		
 	//ASR
 	Speech.testAsrSupport = function(){
@@ -363,18 +394,6 @@ function sepiaFW_build_speech(){
 	}
 	
 	//----------helpers-----------
-	
-	//it might be necessary to use the long codes
-	function getLongLanguageCode(langCodeShort){
-		if (langCodeShort.length === 2){
-			if (langCodeShort.toLowerCase() === "de"){
-				return "de-DE";
-			}else{
-				return "en-US";
-			}
-		}
-	}
-	Speech.getLongLanguageCode = getLongLanguageCode;
 
 	//auto stopping of speech recognition after a period of no results
 	function autoStopASR(){
@@ -661,7 +680,7 @@ function sepiaFW_build_speech(){
 				callback_interim(interim_transcript);
 			};
 			
-			recognition.lang = getLongLanguageCode(Speech.language);
+			recognition.lang = getLanguageForASR();
 			recognition.maxAlternatives = 1;
 			recognition.start();
 		}
@@ -770,7 +789,7 @@ function sepiaFW_build_speech(){
 				if (selectedVoiceObject.name){
 					$('#sepiaFW-menu-select-voice').val(selectedVoice);
 				}
-				SepiaFW.data.setPermanent(Speech.language + "-voice", selectedVoice);
+				SepiaFW.data.setPermanent(Speech.getLanguage() + "-voice", selectedVoice);
 			}
 		}
 	}
@@ -820,7 +839,7 @@ function sepiaFW_build_speech(){
 			onTtsStart(event, startedCallback, errorCallback);
 			TTS.speak({
 				text: text,
-				locale: getLongLanguageCode(Speech.language),
+				locale: getLongLanguageCode(Speech.getLanguage()),
 				rate: 1.00
 				
 			}, function () {
@@ -839,7 +858,7 @@ function sepiaFW_build_speech(){
 			window.sepia_tts_utterances = []; 		//This is a bug-fix to prevent utterance from getting garbage collected
 			var utterance = new SpeechSynthesisUtterance();
 			utterance.text = text;
-			utterance.lang = getLongLanguageCode(Speech.language);
+			utterance.lang = getLongLanguageCode(Speech.getLanguage());
 			if (selectedVoice) utterance.voice = selectedVoiceObject;
 			utterance.pitch = 1.0;  	//accepted values: 0-2 inclusive, default value: 1
 			utterance.rate = 1.0; 		//accepted values: 0.1-10 inclusive, default value: 1
@@ -997,7 +1016,7 @@ function sepiaFW_build_speech(){
 	//set a preselected voice (e.g. in Edge)
 	function setVoiceOnce(){
 		//stored?
-		var storedVoice = SepiaFW.data.getPermanent(Speech.language + "-voice");
+		var storedVoice = SepiaFW.data.getPermanent(Speech.getLanguage() + "-voice");
 		if (storedVoice){
 			Speech.setVoice(storedVoice);
 

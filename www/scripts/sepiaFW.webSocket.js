@@ -127,7 +127,9 @@ function sepiaFW_build_client_interface(){
 	ClientInterface.STATUS_OPENED = "status_opened";
 	ClientInterface.STATUS_CLOSED = "status_closed";
 	ClientInterface.STATUS_ERROR = "status_error";
+	ClientInterface.lastKnownConnectionStatus = ClientInterface.STATUS_CLOSED;
 	ClientInterface.broadcastConnectionStatus = function(status){
+		ClientInterface.lastKnownConnectionStatus = status;
 		switch(status) {
 			case ClientInterface.STATUS_CONNECTING:
 				$('#sepiaFW-nav-label-online-status').removeClass("offline online").addClass("connecting").html('Connecting...');
@@ -1072,7 +1074,7 @@ function sepiaFW_build_webSocket_client(){
 	Client.asrCallbackFinal = function(text){
 		//text optimizations
 		var textRaw = text;
-		if (optimizeAsrResult && (SepiaFW.speech.language === "de") && text && text.match(/^(GTA|GPA|PPA|WPA|dpa|liebherr)( ).+/ig)){
+		if (optimizeAsrResult && (SepiaFW.speech.getLanguage() === "de") && text && text.match(/^(GTA|GPA|PPA|WPA|dpa|liebherr)( ).+/ig)){
 			text = text.replace(/^(GTA|GPA|PPA|WPA|dpa|liebherr)( )/i, "Sepia ");
 		}
 
@@ -1400,27 +1402,31 @@ function sepiaFW_build_webSocket_client(){
 				return;
 			//Still connecting
 			}else if (isConnecting || !connectionIsOpen){
-				handleSendMessageFail(message, retryNumber, SepiaFW.local.g('stillConnecting'), (sendFailedInRow>3), false);
+				handleSendMessageFail(message, retryNumber, SepiaFW.local.g('stillConnecting'), (sendFailedInRow>3), false, false);
 				return;
 			//User not active
 			}else if (!activeChannelId){
 				//check auth. status, but only if this message itselve is not an auth. or join channel request
 				if (!message.data || !(message.data.dataType === "authenticate" || message.data.dataType === "joinChannel")){
-					handleSendMessageFail(message, retryNumber, SepiaFW.local.g('noConnectionOrNoCredentials'), true, true);
+					handleSendMessageFail(message, retryNumber, SepiaFW.local.g('noConnectionOrNoCredentials'), true, true, false);
 					return;
 				}
 			}
-			webSocket.send(JSON.stringify(message));
+			if (!Client.fakeConnectionLoss){
+				webSocket.send(JSON.stringify(message));
+			}
 			//console.log('MSG: ' + JSON.stringify(message)); 		//DEBUG
 			observeMessage(message);
 			sendFailedInRow = 0;
 		}
 	}
+	//check if message was successfully received by server and returned with confirmation
 	function observeMessage(message){
 		if (message.msgId){
 			var id = message.msgId;
 			//var isMessageToAssistant = message.receiver && message.receiver == SepiaFW.assistant.id;
 			var isChat = message.data && (message.data.dataType == "openText" || message.data.dataType == "directCmd");
+			//console.log(id + " - " + message.data.dataType);
 			if (isChat){
 				messageQueue[id] = message;
 				//console.log(JSON.stringify(message));
@@ -1431,9 +1437,13 @@ function sepiaFW_build_webSocket_client(){
 						setTimeout(function(){
 							//Message lost?
 							if (messageQueue[id]){
-								//TODO: problems!
+								//problems!
 								SepiaFW.client.isMessagePending = true;
 								SepiaFW.debug.error("Message with ID '" + id + "' was not delivered (yet) after 7s!");
+								//clean-up and show reconnect/send again pop-up
+								delete messageQueue[id];
+								handleSendMessageFail(message, 2, SepiaFW.local.g('messageLost'), false, false, true);
+								//TODO: can we use 'isMessagePending' in a smart way to block messageQueue spamming?
 							}else{
 								SepiaFW.client.isMessagePending = false;
 							}
@@ -1455,14 +1465,14 @@ function sepiaFW_build_webSocket_client(){
 		}
 		Client.sendMessage(message, nextRetryNumber);
 	}
-	function handleSendMessageFail(message, retryNumber, note, showReloadOption, showLoginOption){
+	function handleSendMessageFail(message, retryNumber, note, showReloadOption, showLoginOption, showForceReconnectOption){
 		sendFailedInRow++;
 		if (retryNumber <= 1){
 			setTimeout(function(){
 				refreshDataAndRetrySendMessage(message, ++retryNumber);
 			}, 1500);
 		}else{
-			note += ("<br><br>Status: <span id='sepiaFW-secondary-online-status'></span>");
+			note += ("<br><br>Status: <span id='sepiaFW-secondary-online-status'>" + SepiaFW.local.g(SepiaFW.client.lastKnownConnectionStatus) + "</span>");
 			var config = {
 				buttonOneName : SepiaFW.local.g('tryAgain'),
 				buttonOneAction : function(){
@@ -1475,6 +1485,10 @@ function sepiaFW_build_webSocket_client(){
 								refreshDataAndRetrySendMessage(message, 0);
 							}, 1500);
 						}, 1000);
+					}else if (!activeChannelId){
+						//try auth. again then send message again
+						sendAuthenticationRequest();
+						refreshDataAndRetrySendMessage(message, 0);
 					}else{
 						refreshDataAndRetrySendMessage(message, 0);
 					}
@@ -1495,6 +1509,15 @@ function sepiaFW_build_webSocket_client(){
 						location.reload();
 					}
 					SepiaFW.account.logoutAction();
+				}
+			}else if (showForceReconnectOption){
+				config.buttonThreeName = SepiaFW.local.g('tryReconnect');
+				config.buttonThreeAction = function(){
+					SepiaFW.client.closeClient(true, function(){
+						SepiaFW.client.resumeClient();
+						SepiaFW.client.isMessagePending = false;
+						refreshDataAndRetrySendMessage(message, 0);
+					});
 				}
 			}
 			SepiaFW.ui.showPopup(note, config);
@@ -1610,6 +1633,7 @@ function sepiaFW_build_webSocket_client(){
 		//console.log(JSON.stringify(message));
 		if (message.msgId){
 			delete messageQueue[message.msgId];
+			SepiaFW.client.isMessagePending = false;
 		}
 		
 		//userList submitted?
@@ -1633,14 +1657,7 @@ function sepiaFW_build_webSocket_client(){
 			//authenticate
 			if (message.sender === serverName && message.data.dataType === "authenticate"){
 				//send credentials and then wait until the server sends channel info
-				SepiaFW.debug.log("WebSocket: authenticating ...");
-				var data = new Object();
-				data.dataType = "authenticate";
-				data.deviceId = SepiaFW.config.getDeviceId();
-				data = addCredentialsAndParametersToData(data);
-				var newId = ("auth" + "-" + ++msgId);
-				var msg = buildSocketMessage(username, serverName, "", "", data, "", newId, "");		//note: no channel during auth.
-				Client.sendMessage(msg);
+				sendAuthenticationRequest();
 
 				/*
 				if ('isAuthenticated' in message.data){
@@ -1755,6 +1772,18 @@ function sepiaFW_build_webSocket_client(){
 			//build list
 			SepiaFW.ui.build.userList(userList, username);
 		}
+	}
+
+	//-- send authentication request
+	function sendAuthenticationRequest(){
+		SepiaFW.debug.log("WebSocket: authenticating ...");
+		var data = new Object();
+		data.dataType = "authenticate";
+		data.deviceId = SepiaFW.config.getDeviceId();
+		data = addCredentialsAndParametersToData(data);
+		var newId = ("auth" + "-" + ++msgId);
+		var msg = buildSocketMessage(username, serverName, "", "", data, "", newId, "");		//note: no channel during auth.
+		Client.sendMessage(msg);
 	}
 	
 	//-- publish a status message

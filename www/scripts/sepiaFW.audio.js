@@ -448,7 +448,7 @@ function sepiaFW_build_audio(){
 							"&format=" + encodeURIComponent(sound_format) +
 							//general stuff
 							"&env=" + encodeURIComponent(SepiaFW.config.environment) +
-							"&lang=" + encodeURIComponent((SepiaFW.speech)? SepiaFW.speech.language : SepiaFW.config.appLanguage) +
+							"&lang=" + encodeURIComponent((SepiaFW.speech)? SepiaFW.speech.getLanguage() : SepiaFW.config.appLanguage) +
 							"&KEY=" + encodeURIComponent(SepiaFW.account.getKey()) +
 							"&client=" + encodeURIComponent(SepiaFW.config.clientInfo),
 			timeout: 10000,

@@ -37,6 +37,7 @@ function sepiaFW_build_strings(){
 	StringsDE.noConnectionToServer = 'Es tut mir leid, aber ich konnte keine Verbindung zum Server herstellen :-(';
 	StringsDE.noConnectionToAssistant = 'Dein Assistent macht gerade Kaffeepause, ist sicher gleich zurück! (hoffentlich)';
 	StringsDE.noConnectionOrNoCredentials = 'Verbindung ist verloren gegangen oder die Login Daten sind abgelaufen. Du kannst warten und es noch einmal versuchen, die App neu laden oder dich erneut einloggen.';
+	StringsDE.messageLost = 'Die letzte Nachricht konnte nicht zugestellt werden';
 	StringsDE.noAsrSupport = 'Es tut mir leid, aber dieser Client unterstütz die Spracherkennung leider nicht :-(';
 	StringsDE.asrMissingServer = 'Mir fehlen noch Server Informationen um diese Spracherkennungsengine nutzen zu können, check noch mal die Settings bitte (ASR server).';
 	StringsDE.asrSettingsProblem = 'Mikrofon nicht richtig erkannt oder Zugriff verweigert.';
@@ -53,6 +54,7 @@ function sepiaFW_build_strings(){
 	StringsDE.store = 'Speichern';
 	StringsDE.load = 'Laden';
 	StringsDE.tryAgain = 'Nochmal versuchen';
+	StringsDE.tryReconnect = 'Neu verbinden';
 	StringsDE.wait = 'Warten';
 	StringsDE.forget = 'Vergessen';
 	StringsDE.abort = 'Abbrechen';
@@ -119,6 +121,11 @@ function sepiaFW_build_strings(){
 	StringsDE.myNewsDemoBtn = 'Öffne meine persönlichen News';
 	StringsDE.myRadioDemoBtn = 'Starte mein Lieblingsradio';
 	StringsDE.myToDoDemoBtn = 'Öffne meine To-Do Liste';
+	//Connection status
+	StringsDE.status_connecting = "Wird verbunden...";
+	StringsDE.status_opened = "Online";
+	StringsDE.status_closed = "Offline";
+	StringsDE.status_error = "Error";
 	//Teach-UI
 	StringsDE.command = 'Befehl';
 	StringsDE.chooseCommand = 'Bitte wähle einen Befehl.';
@@ -154,6 +161,7 @@ function sepiaFW_build_strings(){
 	StringsEN.noConnectionToServer = 'I\'m sorry but I could not establish a connection to the server :-(';
 	StringsEN.noConnectionToAssistant = 'Your assistant is taking a coffee break, will be right back! (hopefully)';
 	StringsEN.noConnectionOrNoCredentials = 'Connection was lost or credentials became invalid. You can wait and try it again, reload the app or login again.';
+	StringsEN.messageLost = 'The last message could not be delivered';
 	StringsEN.noAsrSupport = 'I\'m sorry but this client does not support speech recognition :-(';
 	StringsEN.asrMissingServer = 'I\'m missing some server info to user this speech recognition engine, please check the settings again (ASR server).';
 	StringsEN.asrSettingsProblem = 'Microphone has not been recognized properly or access was denied.';
@@ -170,6 +178,7 @@ function sepiaFW_build_strings(){
 	StringsEN.store = 'Store';
 	StringsEN.load = 'Load';
 	StringsEN.tryAgain = 'Try again';
+	StringsEN.tryReconnect = 'Try reconnect';
 	StringsEN.wait = 'Wait';
 	StringsEN.forget = 'Forget';
 	StringsEN.abort = 'Abort';
@@ -237,6 +246,11 @@ function sepiaFW_build_strings(){
 	StringsEN.myNewsDemoBtn = 'Open my personal news';
 	StringsEN.myRadioDemoBtn = 'Start my favorite radio station';
 	StringsEN.myToDoDemoBtn = 'Open my to-do list';
+	//Connection status
+	StringsEN.status_connecting = "Connecting...";
+	StringsEN.status_opened = "Online";
+	StringsEN.status_closed = "Offline";
+	StringsEN.status_error = "Error";
 	//Teach-UI
 	StringsEN.command = 'Command';
 	StringsEN.chooseCommand = 'Please choose a command.';
@@ -258,6 +272,37 @@ function sepiaFW_build_strings(){
 	//write string
 	StringsLocale.w = function(name){
 		document.write(StringsLocale[name]);
+	}
+
+	//-------------- Languages --------------
+
+	StringsLocale.getSupportedAppLanguages = function(){
+		return [
+			{value:"de", name:"&nbsp;DE&nbsp;"},
+			{value:"en", name:"&nbsp;EN&nbsp;"},
+		];
+	}
+	StringsLocale.getExperimentalAsrLanguages = function(){
+		return [
+			{value:"", name:"Default (app lang.)"},
+			{value:"en-AU", name:"Australia (en-AU)"},
+			{value:"en-CA", name:"Canada (en-CA)"},
+			{value:"fr-FR", name:"France (fr-FR)"},
+			{value:"el-GR", name:"Greece (el-GR)"},
+			{value:"en-IE", name:"Ireland (en-IE)"},
+			{value:"it-IT", name:"Italy (it-IT)"},
+			{value:"ja-JP", name:"Japan (ja-JP)"},
+			{value:"nl-NL", name:"Netherlands (nl-NL)"},
+			{value:"en-NZ", name:"New Zealand (en-NZ)"},
+			{value:"pt-PT", name:"Portugal (pt-PT)"},
+			{value:"ru-RU", name:"Russia (ru-RU)"},
+			{value:"en-ZA", name:"South Africa (en-ZA)"},
+			{value:"af-ZA", name:"South Africa (af-ZA)"},
+			{value:"es-ES", name:"Spain (es-ES)"},
+			{value:"sv-SE", name:"Sweden (sv-SE)"},
+			{value:"tr-TR", name:"Turkey (tr-TR)"},
+			{value:"en-GB", name:"United Kingdom (en-GB)"}
+		];
 	}
 	
 	return StringsLocale;

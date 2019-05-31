@@ -838,6 +838,10 @@ body {
 		font-size: 14px;
 	}
 }
+.sepiaFW-menu-experimental {
+	display: none;
+	margin-left: 16px !important;
+}
 #sepiaFW-chat-menu li span {
 	float: left;
 	padding-right: 8px;

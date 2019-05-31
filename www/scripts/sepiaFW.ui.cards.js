@@ -1057,7 +1057,7 @@ function sepiaFW_build_ui_cards(){
 		//linkCardEle.setAttribute('data-element', JSON.stringify(cardElementInfo));
 		cardBody.appendChild(linkCardEle);
 
-		//Experimenting with web players
+		//Experimenting with web players - note: use data.embedded ?
 		if (Cards.canEmbedWebPlayer(data.brand) && linkUrl && data.type && (data.type == "musicSearch" || data.type == "videoSearch")){
 			//Spotify
 			if (data.brand == "Spotify"){
@@ -1074,16 +1074,22 @@ function sepiaFW_build_ui_cards(){
 			}else if (data.brand == "Apple Music"){
 				var webPlayerDiv = document.createElement('DIV');
 				webPlayerDiv.className = "appleMusicWebPlayer cardBodyItem fullWidthItem";
+				var contentUrl;
+				if (linkUrl.indexOf("/artist/") > 0){
+					contentUrl = linkUrl.replace(/^https:\/\/.*?\//, "https://geo.itunes.apple.com/");		//TODO: basically not working
+				}else{
+					contentUrl = linkUrl.replace(/^https:\/\/.*?\//, "https://embed.music.apple.com/");
+				}
 				webPlayerDiv.innerHTML = '<iframe '
 					+ 'allow="autoplay *; encrypted-media *;" frameborder="0" height="150" '
 					+ 'style="width:100%;max-width:660px;overflow:hidden;background:transparent;" '
 					+ 'sandbox="allow-forms allow-popups allow-same-origin allow-scripts ' 
 						+ ((SepiaFW.ui.isSafari)? 'allow-storage-access-by-user-activation' : '')
 						+ ' allow-top-navigation-by-user-activation" '
-					+ 'src="' + linkUrl.replace(/^https:\/\/.*?\//, "https://embed.music.apple.com/") + '">'
+					+ 'src="' + contentUrl + '">'
 				+ '</iframe>';
 				cardBody.appendChild(webPlayerDiv);
-			//YouTube - TODO: improve server-side to give brand and correct URL and return data.embedded
+			//YouTube
 			}else if (data.brand == "YouTube"){
 				var webPlayerDiv = document.createElement('DIV');
 				var playerId = currentLinkItemId++;

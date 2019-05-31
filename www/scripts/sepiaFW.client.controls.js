@@ -118,7 +118,7 @@ function sepiaFW_build_client_controls(){
     Controls.media = function(controlData){
         if (controlData && controlData.action){
             //STOP
-            if (controlData.action == "stop" || controlData.action == "pause"){
+            if (controlData.action == "stop" || controlData.action == "pause" || controlData.action == "close"){
                 //Stop internal player
                 var isInternalPlayerStreaming = SepiaFW.audio.isMusicPlayerStreaming() || SepiaFW.audio.isMainOnHold();
                 if (isInternalPlayerStreaming){
