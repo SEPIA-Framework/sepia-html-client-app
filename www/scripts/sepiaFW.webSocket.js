@@ -819,9 +819,6 @@ function sepiaFW_build_webSocket_client(){
 			var screenBtn = document.getElementById("sepiaFW-fullsize-btn");
 			if (screenBtn){
 				$(screenBtn).off();
-				/*$(screenBtn).on("click", function () {
-					SepiaFW.ui.toggleInterfaceFullscreen();
-				});*/
 				SepiaFW.ui.longPressShortPressDoubleTap(screenBtn, function(){
 					//long-press
 				},'',function(){
@@ -1918,6 +1915,18 @@ function sepiaFW_build_webSocket_client(){
 		}else{
 			if (message.senderType === "assistant"){
 				//finished - same callback as above
+			}
+		}
+		//show results in frame as well? (SHOW ONLY!)
+		if (!options.skipInsert && message.senderType === "assistant" && messageTextSpeak){
+			//some exceptions
+			if (messageTextSpeak != '<silent>'){
+				if (SepiaFW.frames && SepiaFW.frames.isOpen && SepiaFW.frames.canShowChatOutput()){
+					//console.log('Plot Text: ' + messageTextSpeak);
+					SepiaFW.frames.handleChatOutput({
+						"text": messageTextSpeak
+					});
+				}
 			}
 		}
 	}
