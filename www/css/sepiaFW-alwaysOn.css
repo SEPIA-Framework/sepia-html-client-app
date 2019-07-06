@@ -225,6 +225,7 @@
 	display: flex;
 	flex-direction: column-reverse;
 	background: #000;
+	z-index: 10;
 }
 #sepiaFW-alwaysOn-stt-out {
     color: #ceff1a;

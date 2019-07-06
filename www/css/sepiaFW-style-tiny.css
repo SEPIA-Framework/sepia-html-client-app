@@ -67,7 +67,17 @@
 	width: 190px;
 	height: 190px;
 	left: calc(50% - 95px);
-    top: calc(50% - 95px);
+    top: calc(50% - 57px);
+}
+
+.sepiaFW-tiny-app #sepiaFW-alwaysOn-stt-out {
+	bottom: 0px;
+}
+.sepiaFW-tiny-app #sepiaFW-alwaysOn-tts-out {
+	top: 8px;
+}
+.sepiaFW-tiny-app .sepiaFW-alwaysOn-text-block {
+    font-size: 14px;
 }
 
 .sepiaFW-tiny-app #sepiaFW-login-box {
