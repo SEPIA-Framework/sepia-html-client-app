@@ -33,6 +33,17 @@ html {
 	background: #ceff1a;
 	color: #000;
 }
+/* inverted for menu button */
+#sepiaFW-main-window #sepiaFW-chat-controls-more-btn {
+	background: #ceff1a;
+	color: #000;
+	border-radius: 28px;
+}
+.sepiaFW-notouch-device #sepiaFW-main-window #sepiaFW-chat-controls-more-btn:hover {
+	background: #ffb150;
+	color: #fff;
+}
+
 #sepiaFW-assist-btn-area {
 	border-color: #000;
 }

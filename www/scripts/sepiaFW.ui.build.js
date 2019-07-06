@@ -594,7 +594,10 @@ function sepiaFW_build_ui_build(){
 					+ "</li>"
 					+ "<div id='sepiaFW-menu-ui-refresh-box'>"
 						+ "<p id='sepiaFW-menu-ui-refresh-info'>" + SepiaFW.local.g('refreshUI_info') + ":</p>"
-						+ "<button id='sepiaFW-menu-ui-refresh-btn'>" + SepiaFW.local.g('refreshUI') + "</button>"
+						+ "<div style='display:flex; justify-content:center;'>"
+							+ "<button id='sepiaFW-menu-ui-refresh-btn'>" + SepiaFW.local.g('refreshUI') + "</button>"
+							+ "<button id='sepiaFW-menu-ui-new-sepia-popup-btn'>" + SepiaFW.local.g('newSepiaWindow') + "</button>"
+						+ "</div>"
 					+ "</div>"
 				+ "</ul>";
 			centerCarouselPane.appendChild(centerPage3);
@@ -1014,6 +1017,13 @@ function sepiaFW_build_ui_build(){
 			//Reload app
 			document.getElementById("sepiaFW-menu-ui-refresh-btn").addEventListener("click", function(){
 				window.location.reload(true);
+			});
+			//Pop-up window
+			document.getElementById("sepiaFW-menu-ui-new-sepia-popup-btn").addEventListener("click", function(){
+				var h = Math.min(window.screen.availHeight, 800);
+				var w = Math.min(window.screen.availWidth, 480);
+				window.open(window.location.href, "SEPIA", "width=" + w + ",height=" + h + ",top=0,left=0");
+				//check window.location.origin before?
 			});
 			//Address home toggle
 			$('#sepiaFW-menu-adr-home').hide();

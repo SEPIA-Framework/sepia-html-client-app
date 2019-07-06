@@ -5,7 +5,22 @@
 	<!-- web app settings -->
 	<meta name="apple-mobile-web-app-capable" content="yes">
 	<meta name="mobile-web-app-capable" content="yes">
-	<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=0">
+	<meta name="viewport" id="sepia-viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=0">
+	<script>
+		function sepiaFW_scale_viewport(refSize){
+			if (!refSize) refSize = 240;
+			if (window.screen.width < refSize && window.matchMedia("(orientation: portrait)").matches){
+				var mvp = document.getElementById('sepia-viewport');
+				//mvp.setAttribute('content','initial-scale=' + screen.width/340);
+				mvp.setAttribute('content','width=' + refSize + ', initial-scale=' + window.screen.width/refSize + ', user-scalable=0');
+			}
+		}
+		if (window.location.href.indexOf('isTiny=true') > 0){
+			sepiaFW_scale_viewport(240);
+		}else{
+			sepiaFW_scale_viewport(320);
+		}
+	</script>
 	<title>S.E.P.I.A.</title>
 	<meta name="application-name" content="S.E.P.I.A."/>
 	<meta name="apple-mobile-web-app-title" content="S.E.P.I.A.">
@@ -38,7 +53,7 @@
 	<!--<link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">-->
 	<!-- <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,600" rel="stylesheet"> -->
 	<link rel="stylesheet" href="css/sepiaFW-style.css" title='main'>
-	<link rel="stylesheet" href="css/sepiaFW-style-tiny.css" title='main'>
+	<link rel="stylesheet" href="css/sepiaFW-style-tiny.css" title='main'>	<!-- TODO: we should load this only when needed -->
 	<!-- FOR MORE STYLESHEETS SEE END-OF-BODY -->
 	<script src="scripts/sepiaFW.app.config.js"></script>
 	<script src="scripts/sepiaFW.app.js"></script>
