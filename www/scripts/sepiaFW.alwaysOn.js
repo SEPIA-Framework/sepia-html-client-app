@@ -210,7 +210,7 @@ function sepiaFW_build_always_on(){
         }
     }
     function buildChatOutputText(fullTextArray, intermediateText, index){
-        var avgCharacterLength = 57;
+        var avgCharacterLength = 57;    //milliseconds  - NOTE: this is a wild guess, we could improve this during runtime by measuring the actual time
         ttsLastText = fullTextArray;
         if (fullTextArray && index < fullTextArray.length){
             intermediateText = (intermediateText + " " + fullTextArray[index]).trim();

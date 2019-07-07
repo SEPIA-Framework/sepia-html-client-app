@@ -1922,9 +1922,8 @@ function sepiaFW_build_webSocket_client(){
 			//some exceptions
 			if (messageTextSpeak != '<silent>'){
 				if (SepiaFW.frames && SepiaFW.frames.isOpen && SepiaFW.frames.canShowChatOutput()){
-					//console.log('Plot Text: ' + messageTextSpeak);
 					SepiaFW.frames.handleChatOutput({
-						"text": messageTextSpeak
+						"text": messageTextSpeak 	//NOTE: this text can be longer than the actual TTS text that gets trimmed sometimes
 					});
 				}
 			}

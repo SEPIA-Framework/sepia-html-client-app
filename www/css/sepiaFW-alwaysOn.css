@@ -228,10 +228,10 @@
 	z-index: 10;
 }
 #sepiaFW-alwaysOn-stt-out {
-    color: #ceff1a;
-	bottom: 12px;
+	color: #ceff1a;
+	top: 32px;
 }
 #sepiaFW-alwaysOn-tts-out {
     color: #2196f3;
-	top: 32px;
+	bottom: 12px;
 }

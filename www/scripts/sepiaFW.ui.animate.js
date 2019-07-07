@@ -57,7 +57,7 @@ function sepiaFW_build_animate(){
 	}
 	function possibilityToFadeInBackgroundAudio(){
 		if (SepiaFW.audio){
-			SepiaFW.audio.fadeInMainIfOnHold();
+			SepiaFW.audio.fadeInIfOnHold();
 		}
 	}
 

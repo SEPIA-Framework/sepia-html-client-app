@@ -292,6 +292,60 @@ function sepiaFW_build_audio(){
 			}
 		}*/
 	}
+	//More general functions for fading
+	AudioPlayer.isOnHold = function(id){
+		return (audioFadeListeners[id]? audioFadeListeners[id].isOnHold() : false);
+	}
+	AudioPlayer.fadeOut = function(force){
+		if ((AudioPlayer.isPlaying && !mainAudioStopRequested) || force){
+			AudioPlayer.fadeOutMain(force);
+		}else{
+			//Check manually registered players
+			var customPlayerIds = Object.keys(audioFadeListeners);
+			for (var i=0; i<customPlayerIds.length; i++){
+				//stop on first fade out? There should not be more than one active player
+				if (audioFadeListeners[customPlayerIds[i]].onFadeOutRequest(force)){
+					break;
+				}
+			}
+		}
+	}
+	AudioPlayer.fadeInIfOnHold = function(){
+		if (mainAudioIsOnHold){
+			AudioPlayer.fadeInMainIfOnHold();
+		}else{
+			//Check manually registered players
+			var customPlayerIds = Object.keys(audioFadeListeners);
+			for (var i=0; i<customPlayerIds.length; i++){
+				//stop on first fade in? There should not be more than one active player
+				if (audioFadeListeners[customPlayerIds[i]].onFadeInRequest){
+					if (audioFadeListeners[customPlayerIds[i]].isOnHold()){
+						audioFadeListeners[customPlayerIds[i]].onFadeInRequest()
+						break;
+					}
+				}
+			}
+		}
+	}
+	//Register additional fade listeners
+	AudioPlayer.registerNewFadeListener = function(callbackObject){
+		if (!callbackObject.id){
+			SepiaFW.debug.error("AudioPlayer.registerNewFadeListener - not a valid object to register!");
+			//valid obejct example:
+			/* {
+				id: "youtube",
+				isOnHold: myFunA,			(return true/false)
+				onFadeOutRequest: myFunB,	(return true/false, param: force)
+				onFadeInRequest: myFunC		(return true/false)
+			} */
+		}else{
+			audioFadeListeners[callbackObject.id] = callbackObject;
+		}
+	}
+	AudioPlayer.removeFadeListener = function(id){
+		delete audioFadeListeners[id];
+	}
+	var audioFadeListeners = {};
 	
 	//player specials
 
@@ -483,6 +537,20 @@ function sepiaFW_build_audio(){
 		if (!audioPlayer) audioPlayer = player;
 		audioPlayer.title = newTitle;
 		if (audioTitle) audioTitle.innerHTML = newTitle || "SepiaFW audio player";
+	}
+
+	//get the stream last played
+	AudioPlayer.getLastAudioStream = function(){
+		return lastAudioStream;
+	}
+	//resume last stream
+	AudioPlayer.resumeLastAudioStream = function(){
+		if (AudioPlayer.getLastAudioStream()){
+			AudioPlayer.playURL('', player);
+			return true;
+		}else{
+			return false;
+		}
 	}
 
 	//play audio by url

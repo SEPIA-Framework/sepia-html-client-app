@@ -117,6 +117,12 @@ function sepiaFW_build_client_controls(){
     //Media player controls
     Controls.media = function(controlData){
         if (controlData && controlData.action){
+            //TODO: this should be rewritten to work with event listeners and broadcasting - See also: Sepia.audio.registerNewFadeListener(..)
+            //We should introduce 3 types: 
+            //1) app player (full control including fade on STT, TTS) 
+            //2) client player (outside app but with full or partial fade support)
+            //3) remote player (no fade control, but start/stop etc.)
+
             //STOP
             if (controlData.action == "stop" || controlData.action == "pause" || controlData.action == "close"){
                 //Stop internal player
@@ -126,7 +132,7 @@ function sepiaFW_build_client_controls(){
                 }
                 //Player and platform specific additional STOP methods
                 var sentAdditionalEvent = false;
-                if (SepiaFW.ui.cards.youTubePlayerGetState() == 1){
+                if (SepiaFW.ui.cards.youTubePlayerGetState() == 1 || SepiaFW.ui.cards.youTubePlayerIsOnHold()){
                     //YouTube embedded player
                     sentAdditionalEvent = (SepiaFW.ui.cards.youTubePlayerControls("stop") > 0);
                 }else if (SepiaFW.ui.isAndroid){
@@ -140,6 +146,36 @@ function sepiaFW_build_client_controls(){
                 if (!isInternalPlayerStreaming && !sentAdditionalEvent && !controlData.skipFollowUp){
                     //The user has probably tried to stop an external app but that was not possible
                     sendFollowUpMessage(SepiaFW.local.g("tried_but_not_sure"), SepiaFW.local.g('result_unclear') + "Media: STOP");     //"<default_under_construction_0b>"
+                }
+
+            //RESUME
+            }else if (controlData.action == "resume"){
+                //TODO: only working for YouTube and Android(?) right now
+                var isInternalPlayerStreaming = SepiaFW.audio.isMusicPlayerStreaming() || SepiaFW.audio.isMainOnHold();
+                if (!isInternalPlayerStreaming){
+                    //Player and platform specific additional RESUME methods
+                    var sentAdditionalEvent = false;
+
+                    if (SepiaFW.ui.cards.youTubePlayerGetState() == 2){     //2: paused
+                        //YouTube embedded player
+                        sentAdditionalEvent = (SepiaFW.ui.cards.youTubePlayerControls("resume") > 0);
+                    
+                    }else if (SepiaFW.ui.isAndroid){
+                        //we do this only if we have a recent Android media event - otherwhise it will activate all music apps
+                        var requireMediaAppPackage = true;
+                        sentAdditionalEvent = SepiaFW.android.broadcastMediaButtonDownUpIntent(126, requireMediaAppPackage);  
+                        //126: KEYCODE_MEDIA_PLAY
+                    
+                    //Last try is internal player
+                    }else{
+                        sentAdditionalEvent = SepiaFW.audio.resumeLastAudioStream();
+                    }
+                }
+                //TODO: add iOS and Windows?
+                //TODO: we could use a Mesh-Node and the sendMessage API in Windows
+                if (!isInternalPlayerStreaming && !sentAdditionalEvent && !controlData.skipFollowUp){
+                    //The user has probably tried to resume an external app but that was not possible
+                    sendFollowUpMessage(SepiaFW.local.g("tried_but_not_sure"), SepiaFW.local.g('result_unclear') + "Media: RESUME");     //"<default_under_construction_0b>"
                 }
 
             //NEXT

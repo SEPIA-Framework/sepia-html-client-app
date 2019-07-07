@@ -440,7 +440,7 @@ function sepiaFW_build_ui_build(){
 				SepiaFW.audio.stopAlarmSound();
 			}
 			//fade audio
-			SepiaFW.audio.fadeOutMain();
+			SepiaFW.audio.fadeOut();
 			//confirmation sound?
 			if (useConfirmationSound == undefined){
 				useConfirmationSound = SepiaFW.speech.shouldPlayConfirmation();

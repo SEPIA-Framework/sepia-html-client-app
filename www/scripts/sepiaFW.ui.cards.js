@@ -1658,8 +1658,12 @@ function sepiaFW_build_ui_cards(){
 	var youTubeLastActivePlayerId = undefined;
 	var youTubeLastActivePlayerState = undefined;
 	var youTubePlayConfirmTimer = undefined;
+	var youTubePlayerIsOnHold = false;
 
 	function addYouTubeControls(frameEle){
+		//reset some stuff first
+		youTubePlayerIsOnHold = false;
+		//add interface
 		frameEle.onload = function(){
 			//API
 			if (!youTubeMessageListenerExists){
@@ -1697,6 +1701,8 @@ function sepiaFW_build_ui_cards(){
 			}
 			frameEle.contentWindow.postMessage(JSON.stringify({event:'listening', id: frameEle.id}), "*");
 		};
+		//set/update fade listener
+		youTubeRegisterFadeInOutListener();
 	}
 	var youtubeSkipTimer = undefined;
 	function youTubeSkipIfNotPlayed(data, $player, skipFirstTest){
@@ -1737,6 +1743,7 @@ function sepiaFW_build_ui_cards(){
 		}, 3000);
 	}
 	Cards.youTubePlayerGetState = function(){
+		//States I know: 0-off, 1-playing, 2-paused (??)
 		if (youTubeLastActivePlayerId){
 			var $player = $('#' + youTubeLastActivePlayerId);
 			if ($player.length == 0){
@@ -1748,8 +1755,14 @@ function sepiaFW_build_ui_cards(){
 			return 0;
 		}
 	}
+	Cards.youTubePlayerIsOnHold = function(){
+		return youTubePlayerIsOnHold;
+	}
 	Cards.youTubePlayerControls = function(cmd){
+		//reset some stuff first
+		youTubePlayerIsOnHold = false;			//NOTE: we assume any interaction with the player resets this to false
 		clearTimeout(youTubePlayConfirmTimer);
+
 		if (youTubeLastActivePlayerId && youTubeLastActivePlayerState > 0){
 			var $player = $('#' + youTubeLastActivePlayerId);
 			if ($player.length == 0){
@@ -1758,6 +1771,9 @@ function sepiaFW_build_ui_cards(){
 				if (cmd == "stop" || cmd == "pause"){
 					$player[0].contentWindow.postMessage(JSON.stringify({event:'command', func:'pauseVideo'}), "*"); 	//NOTE: we use pause for now because stop triggers next video
 					return 1;	
+				}else if (cmd == "resume" && Cards.youTubePlayerGetState() == 2){
+					$player[0].contentWindow.postMessage(JSON.stringify({event:'command', func:'playVideo'}), "*");
+					return 1;
 				}else if (cmd == "next"){
 					$player[0].contentWindow.postMessage(JSON.stringify({event:'command', func:'nextVideo'}), "*");
 					return 1;	
@@ -1767,6 +1783,35 @@ function sepiaFW_build_ui_cards(){
 				//frameEle.contentWindow.postMessage(JSON.stringify({event:'command', func:'stopVideo'}), "*"); //playVideo, paus.., stop.., next..,
 			}
 		}
+	}
+
+	//Register new audio fade (stop/start) handler for YouTube
+	function youTubeRegisterFadeInOutListener(){
+		//NOTE: will always overwrite old ones if existing (same ID for every player, we control only last one)
+		SepiaFW.audio.registerNewFadeListener({
+			id: "youtube",
+			isOnHold: function(){
+				return Cards.youTubePlayerIsOnHold();
+			},
+			onFadeOutRequest: function(force){
+				//TODO: check if player is playing
+				if (Cards.youTubePlayerGetState() == 1){
+					Cards.youTubePlayerControls("pause");
+					youTubePlayerIsOnHold = true;
+					return true;
+				}else{
+					return false;
+				}
+			},
+			onFadeInRequest: function(){
+				if (Cards.youTubePlayerIsOnHold() && Cards.youTubePlayerGetState() == 2){
+					Cards.youTubePlayerControls("resume");
+					return true;
+				}else{
+					return false;
+				}
+			}
+		});
 	}
 	
 	return Cards;
