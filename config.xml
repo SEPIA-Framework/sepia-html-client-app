@@ -52,7 +52,7 @@
 		<!--config stuff-->
 		<preference name="AndroidLaunchMode" value="singleTask" />
 		<preference name="android-minSdkVersion" value="19" /><!-- Android 4.4+ -->
-		<preference name="android-targetSdkVersion" value="26" /><!-- Android 8.0 -->
+		<preference name="android-targetSdkVersion" value="28" /><!-- Android 9.0 -->
 		<preference name="android-windowSoftInputMode" value="adjustSize" />
 		<!-- custom manifest changes -->
 		<custom-preference name="android-manifest/application/activity/@android:theme" value="@style/SplashTheme"/> <!-- Theme mainly for splash screen or background colors -->
