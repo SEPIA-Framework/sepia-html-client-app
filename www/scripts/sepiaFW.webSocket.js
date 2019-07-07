@@ -65,6 +65,11 @@ function sepiaFW_build_client_interface(){
 	ClientInterface.SHARE_TYPE_ALARM = "alarm";
 	ClientInterface.SHARE_TYPE_LINK = "link";
 
+	//DeepLink builder
+	ClientInterface.buildDeepLinkFromText = function(text){
+		return (ClientInterface.deeplinkHostUrl + "?q=" + encodeURIComponent("i18n:" + SepiaFW.config.appLanguage + " " + text));
+	}
+
 	//check server info
 	ClientInterface.getServerInfo = function(successCallback, errorCallback){
 		if (ClientInterface.isDemoMode()){
