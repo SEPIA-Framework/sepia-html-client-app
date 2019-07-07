@@ -233,11 +233,14 @@ function sepiaFW_build_webSocket_client(){
 	//special input commands
 	var CMD_SAYTHIS = "saythis";
 	var CMD_LINKSHARE = "linkshare";
+	var CMD_CLIENT_I18N = "i18n";		//this runs inside client (server support might not be available yet - SEPIA Home v2.2.2)
 	//var CMD_HTTP = "http";
 	Client.inputHasSpecialCommand = function(inputText){
-		var regEx = new RegExp('(^' + SepiaFW.assistant.name + ' |^|\)' + '(' + CMD_SAYTHIS + '|' + CMD_LINKSHARE +') ', "i");
+		var regEx = new RegExp('(^' + SepiaFW.assistant.name + ' |^|\)' + '(' + CMD_SAYTHIS + '|' + CMD_LINKSHARE + '|' + CMD_CLIENT_I18N +')(:\\w+|\\s)', "i");
 		var checkRes = inputText.match(regEx);
-		if (checkRes && checkRes[2]){
+		if (checkRes && checkRes[2] && checkRes[3]){
+			return (checkRes[2] + checkRes[3]).trim();
+		}else if (checkRes && checkRes[2]){
 			return checkRes[2];
 		}else{
 			return "";
@@ -1285,6 +1288,20 @@ function sepiaFW_build_webSocket_client(){
 		//prep text
 		var text = inputText || document.getElementById("sepiaFW-chat-controls-speech-box-bubble").innerHTML || document.getElementById("sepiaFW-chat-input").value;
 		if (text && text.trim()){
+			//specials?
+			var inputSpecialCommand = Client.inputHasSpecialCommand(text);
+			var hasSpecialCommand = !!inputSpecialCommand;
+			var specialOptions = {};
+			if (hasSpecialCommand && inputSpecialCommand.indexOf(CMD_CLIENT_I18N) == 0){
+				//handle CMD_CLIENT_I18N here, don't send to server
+				text = text.replace(/^.*?(\s|$)/, "");
+				if (inputSpecialCommand.indexOf(":") > 0){
+					var modLang = inputSpecialCommand.split(":")[1];
+					specialOptions.requestLanguageModifier = modLang;
+				}
+			}
+
+			//prep. request
 			text = text.trim();
 			SepiaFW.ui.lastInput = text;
 			var receiver = "";
@@ -1302,7 +1319,7 @@ function sepiaFW_build_webSocket_client(){
 				text = res.join(" ");
 			
 			//locked receiver overwrite
-			}else if (activeChatPartner && !Client.inputHasSpecialCommand(text)){
+			}else if (activeChatPartner && !hasSpecialCommand){
 				//console.log('send to: ' + activeChatPartner);
 				receiver = activeChatPartner;
 			}
@@ -1331,6 +1348,13 @@ function sepiaFW_build_webSocket_client(){
 			var data = new Object();
 			data.dataType = "openText";
 			data = addCredentialsAndParametersToData(data);
+			
+			//special command modifiers
+			if (specialOptions.requestLanguageModifier && specialOptions.requestLanguageModifier.length == 2){
+				data.parameters.lang = specialOptions.requestLanguageModifier;
+				SepiaFW.debug.log("Client.sendInputText - modified language for request: " + data.parameters.lang);
+			}
+
 			var newId = (username + "-" + ++msgId);
 			msg = buildSocketMessage(username, receiver, text, "", data, "", newId, activeChannelId);
 

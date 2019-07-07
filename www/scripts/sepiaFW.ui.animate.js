@@ -89,7 +89,7 @@ function sepiaFW_build_animate(){
 				possibilityToSwitchOnWakeWordListener(source);
 			}
 			//Avatar
-			if (SepiaFW.alwaysOn){
+			if (SepiaFW.alwaysOn && SepiaFW.alwaysOn.isOpen){
 				SepiaFW.alwaysOn.avatarIdle();
 			}
 			//Dispatch - NOTE: this will also trigger the timer for idle-time events (see: Client.queueIdleTimeEvent)
