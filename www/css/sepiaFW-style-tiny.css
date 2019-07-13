@@ -71,10 +71,10 @@
 }
 
 .sepiaFW-tiny-app #sepiaFW-alwaysOn-stt-out {
-	bottom: 0px;
+	top: 0px;
 }
 .sepiaFW-tiny-app #sepiaFW-alwaysOn-tts-out {
-	top: 8px;
+	bottom: 8px;
 }
 .sepiaFW-tiny-app .sepiaFW-alwaysOn-text-block {
     font-size: 14px;
