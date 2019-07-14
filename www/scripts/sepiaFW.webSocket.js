@@ -235,18 +235,18 @@ function sepiaFW_build_webSocket_client(){
 			return false;
 		}
 	}
-	//special input commands
-	var CMD_SAYTHIS = "saythis";
-	var CMD_LINKSHARE = "linkshare";
-	var CMD_CLIENT_I18N = "i18n";		//this runs inside client (server support might not be available yet - SEPIA Home v2.2.2)
-	//var CMD_HTTP = "http";
+	//special input commands (slash-command) and modifiers (input-modifier)
+	var CMD_SAYTHIS = "saythis";		//slash-command
+	var CMD_LINKSHARE = "linkshare";	//slash-command
+	var CMD_CLIENT_I18N = "i18n";		//input-modifier - NOTE: this usually runs client-side
+	//var CMD_HTTP = "http";			//slash-command - NOTE: this is checked server-side only
 	Client.inputHasSpecialCommand = function(inputText){
-		var regEx = new RegExp('(^' + SepiaFW.assistant.name + ' |^|\)' + '(' + CMD_SAYTHIS + '|' + CMD_LINKSHARE + '|' + CMD_CLIENT_I18N +')(:\\w+|\\s)', "i");
+		var regEx = new RegExp('(^' + SepiaFW.assistant.name + ' |^|\)' + '(' + CMD_SAYTHIS + '|' + CMD_LINKSHARE + '|' + CMD_CLIENT_I18N + ')(:\\w+\\s|\\s)', "i");
 		var checkRes = inputText.match(regEx);
 		if (checkRes && checkRes[2] && checkRes[3]){
 			return (checkRes[2] + checkRes[3]).trim();
 		}else if (checkRes && checkRes[2]){
-			return checkRes[2];
+			return checkRes[2].trim();
 		}else{
 			return "";
 		}
@@ -1355,7 +1355,8 @@ function sepiaFW_build_webSocket_client(){
 			data = addCredentialsAndParametersToData(data);
 			
 			//special command modifiers
-			if (specialOptions.requestLanguageModifier && specialOptions.requestLanguageModifier.length == 2){
+			if (specialOptions.requestLanguageModifier && specialOptions.requestLanguageModifier.length == 2 
+					&& specialOptions.requestLanguageModifier != data.parameters.lang){
 				data.parameters.lang = specialOptions.requestLanguageModifier;
 				SepiaFW.debug.log("Client.sendInputText - modified language for request: " + data.parameters.lang);
 			}
@@ -1573,6 +1574,11 @@ function sepiaFW_build_webSocket_client(){
 			//console.log("options " + JSON.stringify(dataset.options));
 		}
 		data = addCredentialsAndParametersToData(data);
+		//special command modifiers
+		if (dataset.lang && dataset.lang != data.parameters.lang){
+			data.parameters.lang = dataset.lang;
+			SepiaFW.debug.log("Client.sendCommand - modified language for request: " + dataset.lang);
+		}
 		if (isDirectCmd){
 			//SepiaFW.assistant.setDirectCmd();
 			data.parameters.input_type = "direct_cmd"; //switch state temporary only for this command

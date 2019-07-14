@@ -104,7 +104,7 @@ function sepiaFW_build_animate(){
 		SepiaFW.ui.assistBtnArea.style.backgroundColor = SepiaFW.ui.loadingColor;
 		$("#sepiaFW-assist-btn-orbiters").removeClass("sepiaFW-animation-pause");
 		//Avatar
-		if (SepiaFW.alwaysOn){
+		if (SepiaFW.alwaysOn && SepiaFW.alwaysOn.isOpen){
 			SepiaFW.alwaysOn.avatarLoading();
 		}
 		//Dispatch
@@ -115,7 +115,7 @@ function sepiaFW_build_animate(){
 		SepiaFW.ui.assistBtn.innerHTML = SepiaFW.ui.assistIconSpeak;
 		SepiaFW.ui.assistBtnArea.style.backgroundColor = SepiaFW.ui.accentColor2;
 		$("#sepiaFW-assist-btn-orbiters").removeClass("sepiaFW-animation-pause");
-		if (SepiaFW.alwaysOn){
+		if (SepiaFW.alwaysOn && SepiaFW.alwaysOn.isOpen){
 			SepiaFW.alwaysOn.avatarSpeaking();
 		}
 	}
@@ -126,7 +126,7 @@ function sepiaFW_build_animate(){
 		//extra input box
 		SepiaFW.ui.showLiveSpeechInputBox();
 		//Avatar
-		if (SepiaFW.alwaysOn){
+		if (SepiaFW.alwaysOn && SepiaFW.alwaysOn.isOpen){
 			SepiaFW.alwaysOn.avatarListening();
 		}
 		//Dispatch
@@ -138,7 +138,7 @@ function sepiaFW_build_animate(){
 		SepiaFW.ui.assistBtnArea.style.backgroundColor = SepiaFW.ui.awaitDialogColor;
 		$("#sepiaFW-assist-btn-orbiters").removeClass("sepiaFW-animation-pause");
 		//Avatar
-		if (SepiaFW.alwaysOn){
+		if (SepiaFW.alwaysOn && SepiaFW.alwaysOn.isOpen){
 			SepiaFW.alwaysOn.avatarAwaitingInput();
 		}
 		//Dispatch
