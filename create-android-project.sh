@@ -62,7 +62,7 @@ echo "#Preparing build ..."
 cordova prepare android
 # overwrite icons (this will be replaced with a proper implementation)
 sleep 2
-echo "#Replacing icons and theme with launch screen ..."
+echo "#Adding or overwriting resources, e.g. icons, themes, xml ..."
 cp -r -f "resources/icons/android/notifications/res/" "platforms/android/res/"
 cp -r "resources/themes/android/background_splash.xml" "platforms/android/res/drawable/background_splash.xml"
 cp -r "resources/themes/android/launch_screen.png" "platforms/android/res/drawable/launch_screen.png"
@@ -70,5 +70,6 @@ cp -r "resources/themes/android/launch_screen.png" "platforms/android/res/drawab
 cp -r "resources/themes/android/values/" "platforms/android/res/values/"
 mkdir -p "platforms/android/res/values-v21"
 cp -r "resources/themes/android/values-v21/" "platforms/android/res/values-v21/"
+cp -r "resources/config/android/xml/" "platforms/android/res/xml/"
 echo "#DONE"
 echo "If everything worked out fine the next step would be to build the app from the %APP_NAME% folder: cordova build android"

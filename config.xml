@@ -57,6 +57,7 @@
 		<!-- custom manifest changes -->
 		<custom-preference name="android-manifest/application/activity/@android:theme" value="@style/SplashTheme"/> <!-- Theme mainly for splash screen or background colors -->
 		<custom-preference name="android-manifest/application/activity/@android:configChanges" value="orientation|keyboardHidden|keyboard|screenSize|locale|navigation"/> <!-- Navigation is for bluetooth restart! -->
+		<custom-preference name="android-manifest/application/@android:networkSecurityConfig" value="@xml/network_security_config"/> <!-- Network security config (e.g. to whitelist non-SSL domains for audio stream) -->
 		
 		<!--intents-->
         <allow-intent href="market:*" />
