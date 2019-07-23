@@ -150,6 +150,7 @@ function sepiaFW_build_ui_actions(){
 	}
 	var inAppBrowserOptions = 'location=yes,toolbar=yes,mediaPlaybackRequiresUserAction=yes,allowInlineMediaPlayback=yes,hardwareback=yes,disableswipenavigation=no,clearsessioncache=no,clearcache=no';
 	Actions.openUrlAutoTarget = function(url, forceExternal){
+		var urlLower = url.toLowerCase();
 		if (SepiaFW.ui.isTinyApp){
 			//Tiny app usually has no ability to open in-app browser
 			if (SepiaFW.assistant){
@@ -161,11 +162,11 @@ function sepiaFW_build_ui_actions(){
 			
 		}else if (SepiaFW.ui.isCordova){
 			if (forceExternal 
-				|| (url.indexOf('http') !== 0 && !!url.match(/^\w+:/)) 		//TODO: keep an eye on this! Does it prevent some cool URL scheme features?
-				|| url.indexOf('https://maps.') === 0 || url.indexOf('http://maps.') === 0
-				|| url.indexOf('https://www.google.com/maps/') === 0 || url.indexOf('https://www.google.de/maps/') === 0
-				|| url.indexOf('https://itunes.apple.com/') === 0 || url.indexOf('https://music.apple.com/') === 0 || url.indexOf('https://geo.itunes.apple.com/') === 0
-				|| url.indexOf('https://open.spotify.com/') === 0
+				|| (urlLower.indexOf('http') !== 0 && !!urlLower.match(/^\w+:/)) 		//TODO: keep an eye on this! Does it prevent some cool URL scheme features?
+				|| urlLower.indexOf('https://maps.') === 0 || urlLower.indexOf('http://maps.') === 0
+				|| urlLower.indexOf('https://www.google.com/maps/') === 0 || urlLower.indexOf('https://www.google.de/maps/') === 0
+				|| urlLower.indexOf('https://itunes.apple.com/') === 0 || urlLower.indexOf('https://music.apple.com/') === 0 || urlLower.indexOf('https://geo.itunes.apple.com/') === 0
+				|| urlLower.indexOf('https://open.spotify.com/') === 0
 				){
 				cordova.InAppBrowser.open(url, '_system');
 			}else{
@@ -176,7 +177,7 @@ function sepiaFW_build_ui_actions(){
 			var newWindow = window.open(url, '_blank');
 			newWindow.opener = null;
 			//some special links that should not leave an empty browser tab
-			if (url.indexOf('spotify:') == 0 || url.indexOf('itmss:') == 0 || url.indexOf('musics:') == 0){
+			if (urlLower.indexOf('spotify:') == 0 || urlLower.indexOf('itmss:') == 0 || urlLower.indexOf('musics:') == 0){
 				setTimeout(function(){
 					newWindow.close(); 		//NOTE: problem here is that app-request dissapears before user interaction if not already allowed by user
 				}, 500);
