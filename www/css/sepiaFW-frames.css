@@ -75,6 +75,14 @@
 	color: #000 !important;
 }
 
+.sepiaFW-frames-page .info-text {
+	color: #4ec48f;
+	margin: 12px 0;
+}
+.sepiaFW-frames-page.dark .info-text {
+	color: #ceff1a;
+}
+
 .sepiaFW-frames-page .group-container {
 	display: flex; 
 	justify-content: center;
@@ -87,6 +95,16 @@
 	align-items: center;
 	margin: 8px;
 }
+.sepiaFW-frames-page .group.column {
+	flex-direction: column;
+}
+.sepiaFW-frames-page .group.center {
+	justify-content: center; 
+}
+.sepiaFW-frames-page .group.extra-space-tb {
+	margin-top: 16px; 
+	margin-bottom: 16px;
+}
 .sepiaFW-frames-page .group label {
 	margin: 0 8px;
 }
@@ -96,4 +114,18 @@
 .sepiaFW-frames-page .group .sepiaFW-toggle-btn {
 	border: 1px solid;
 	border-color: inherit;
+}
+
+#sepiaFW-frames-view .sepiaFW-frames-page .group-container input {
+	margin: 0px 0px 0px 0px;
+    padding: 0px 5px 3px 5px;
+    cursor: pointer;
+	background: transparent;
+	border: 1px solid transparent;
+    border-bottom: 1px solid #000;
+    color: inherit;
+    text-align: center;
+}
+#sepiaFW-frames-view .sepiaFW-frames-page.dark .group-container input {
+	border-bottom: 1px solid #fff;
 }

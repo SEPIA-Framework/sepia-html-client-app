@@ -1811,7 +1811,7 @@ function sepiaFW_build_webSocket_client(){
 		SepiaFW.debug.log("WebSocket: authenticating ...");
 		var data = new Object();
 		data.dataType = "authenticate";
-		data.deviceId = SepiaFW.config.getDeviceId();
+		data.deviceId = SepiaFW.config.getDeviceId(); 		//NOTE: this is kind of redundant since it is included as data.parameters.device_id as well
 		data = addCredentialsAndParametersToData(data);
 		var newId = ("auth" + "-" + ++msgId);
 		var msg = buildSocketMessage(username, serverName, "", "", data, "", newId, "");		//note: no channel during auth.

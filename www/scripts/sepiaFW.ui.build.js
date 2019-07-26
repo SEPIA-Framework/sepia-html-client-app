@@ -592,6 +592,9 @@ function sepiaFW_build_ui_build(){
 						+ "<button id='sepiaFW-menu-ui-signoutall-btn'>" + SepiaFW.local.g('sign_out_all') + "</button>"
 						+ "<button id='sepiaFW-menu-ui-admin-tools-btn'>" + SepiaFW.local.g('apps_admin') + "</button>"
 					+ "</li>"
+					+ "<li id='sepiaFW-menu-account-pwd-reset-li'>"
+						+ "<button id='sepiaFW-menu-account-pwd-reset-btn'>" + SepiaFW.local.g('change_account_password') + "</button>"
+					+ "</li>"
 					+ "<div id='sepiaFW-menu-ui-refresh-box'>"
 						+ "<p id='sepiaFW-menu-ui-refresh-info'>" + SepiaFW.local.g('refreshUI_info') + ":</p>"
 						+ "<div style='display:flex; justify-content:center;'>"
@@ -1013,6 +1016,18 @@ function sepiaFW_build_ui_build(){
 			//Admin tools
 			document.getElementById("sepiaFW-menu-ui-admin-tools-btn").addEventListener("click", function(){
 				SepiaFW.frames.open({pageUrl: "admin.html"});
+			});
+			//Account Password reset
+			document.getElementById("sepiaFW-menu-account-pwd-reset-btn").addEventListener("click", function(){
+				SepiaFW.frames.open({
+					pageUrl: "password-reset.html",
+					theme: "dark",
+					onOpen: function(){ 
+						$('#sepiaFW-pwd-reset-view').find('input').val(''); 
+						$('#sepiaFW-pwd-reset-uid').val(SepiaFW.account.getUserId());
+					},
+					onClose: function(){ $('#sepiaFW-pwd-reset-view').find('input').val(''); }
+				});
 			});
 			//Reload app
 			document.getElementById("sepiaFW-menu-ui-refresh-btn").addEventListener("click", function(){

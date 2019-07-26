@@ -25,6 +25,7 @@ function sepiaFW_build_strings(){
 	StringsDE.logout = 'Logout';
 	StringsDE.closeLogin = 'Weiter ohne Login';
 	StringsDE.info_and_help = 'Infos und Support';
+	StringsDE.change_account_password = "Account Passwort ändern";
 	//StringsDE.chatInputPlaceholder = 'Deine Nachricht ...';
 	StringsDE.chatInputPlaceholder = '';
 	StringsDE.loginFailedPlain = 'Login fehlgeschlagen!';
@@ -150,6 +151,7 @@ function sepiaFW_build_strings(){
 	StringsEN.logout = 'Logout';
 	StringsEN.closeLogin = 'Continue without login';
 	StringsEN.info_and_help = 'Info and support';
+	StringsEN.change_account_password = "Change account password";
 	//StringsEN.chatInputPlaceholder = 'Your message ...';
 	StringsEN.chatInputPlaceholder = '';
 	StringsEN.loginFailedPlain = 'Login failed!';
