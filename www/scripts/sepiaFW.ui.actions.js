@@ -360,7 +360,39 @@ function sepiaFW_build_ui_actions(){
 	//SWITCH LANGUAGE
 	Actions.switchLanguage = function(action){
 		if (action.language_code){
-			SepiaFW.config.broadcastLanguage(action.language_code);
+			var lang, region;
+			if (action.language_code.indexOf("-") == 2){
+				var langAndRegion = action.language_code.split("-");
+				lang = langAndRegion[0].toLowerCase();
+				region = langAndRegion[1].toUpperCase();
+			}else if (action.language_code.length == 2){
+				lang = action.language_code;
+			}else{
+				SepiaFW.debug.error("language-switch action FAILED. Wrong language code: " + action.language_code);
+				return;
+			}
+			//TODO: should we delay this until the anser is finished?
+			if (lang){
+				var suppLangs = SepiaFW.local.getSupportedAppLanguages();
+				suppLangs.forEach(function(sl){
+					if (sl.value == lang){
+						SepiaFW.debug.log("language-switch action - app lang.: " + lang);
+						SepiaFW.config.broadcastLanguage(lang);
+						return;
+					}
+				});
+				if (region){
+					var suppBcp47 = SepiaFW.local.getExperimentalAsrLanguages();
+					var bcp47 = (lang + "-" + region);
+					suppBcp47.forEach(function(sbcp47){
+						if (sbcp47.value == bcp47){
+							SepiaFW.debug.log("language-switch action - speech lang.: " + bcp47);
+							SepiaFW.speech.setCountryCode(bcp47);
+							return;
+						}
+					});
+				}
+			}
 		}
 	}
 	

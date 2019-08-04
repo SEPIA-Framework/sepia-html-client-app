@@ -280,12 +280,14 @@ function sepiaFW_build_strings(){
 
 	//-------------- Languages --------------
 
+	//ISO639-1 language codes
 	StringsLocale.getSupportedAppLanguages = function(){
 		return [
 			{value:"de", name:"&nbsp;DE&nbsp;"},
 			{value:"en", name:"&nbsp;EN&nbsp;"},
 		];
 	}
+	//BCP47 language-REGION codes
 	StringsLocale.getExperimentalAsrLanguages = function(){
 		return [
 			{value:"", name:"Default (app lang.)"},
