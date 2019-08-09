@@ -178,9 +178,14 @@ function sepiaFW_build_webSocket_common(){
 		msg.timeUNIX = tsUNIX;
 		if (receiver){
 			msg.receiver = receiver;
-			//TODO: a specific workaround for missing device ID. Make it more general!
+			//Auto-fill missing device ID
 			if (msg.receiver == SepiaFW.assistant.id){
 				msg.receiverDeviceId = SepiaFW.assistant.deviceId;
+			}else{
+				var activeChatPartner = SepiaFW.client.getActiveChatPartner();
+				if (activeChatPartner && receiver == activeChatPartner.id){
+					msg.receiverDeviceId = activeChatPartner.deviceId;
+				}
 			}
 		}
 		if (text) msg.text = text;
@@ -222,8 +227,8 @@ function sepiaFW_build_webSocket_client(){
 	var serverName = ""; 				//synced during server ping
 	var username = "";					//synced during account validation
 	var userList;
-	var activeChatPartner = "";
-	var lastActivatedChatPartner = "";
+	var activeChatPartner;
+	var lastActivatedChatPartner;
 	var activeChannelId = "";			//set on "joinChannel" event
 	var lastActivatedChannelId = "";	//last actively chosen channel
 	var channelList = [
@@ -451,16 +456,16 @@ function sepiaFW_build_webSocket_client(){
 		Client.onActive();
 	}
 	
-	function broadcastChatPartnerSwitch(partnerId){
+	function broadcastChatPartnerSwitch(userObject){
 		//removed lock
-		if (!partnerId){
+		if (!userObject){
 			//set channel as label
 			SepiaFW.ui.setLabel((activeChannelId == username)? "" : activeChannelId);
 			
 		//set lock
 		}else{
 			//set user as label
-			SepiaFW.ui.setLabel(Client.getNameFromUserList(partnerId));
+			SepiaFW.ui.setLabel(Client.getNameFromUserList(userObject.id));
 		}
 		//TODO: this is a workaround to set the proper UI state
 		SepiaFW.ui.build.userList(userList, username);
@@ -1209,7 +1214,7 @@ function sepiaFW_build_webSocket_client(){
 			isConnecting = false;
 			username = "";
 			activeChannelId = "";
-			activeChatPartner = "";
+			activeChatPartner = undefined;
 			SepiaFW.client.broadcastConnectionStatus(SepiaFW.client.STATUS_CLOSED);
 			Client.handleCloseEvent();
 		};
@@ -1320,6 +1325,7 @@ function sepiaFW_build_webSocket_client(){
 			text = text.trim();
 			SepiaFW.ui.lastInput = text;
 			var receiver = "";
+			var receiverDeviceId = "";
 			var msg;
 			//manual receiver overwrite
 			if (text.substring(0, 1) === "@" && (text.indexOf(" ") > 0)){
@@ -1335,8 +1341,9 @@ function sepiaFW_build_webSocket_client(){
 			
 			//locked receiver overwrite
 			}else if (activeChatPartner && !hasSpecialCommand){
-				//console.log('send to: ' + activeChatPartner);
-				receiver = activeChatPartner;
+				//console.log('send to: ' + JSON.stringify(activeChatPartner));
+				receiver = activeChatPartner.id;
+				receiverDeviceId = activeChatPartner.deviceId;
 			}
 
 			//track last source (and reset state)
@@ -1373,6 +1380,8 @@ function sepiaFW_build_webSocket_client(){
 
 			var newId = (username + "-" + ++msgId);
 			msg = buildSocketMessage(username, receiver, text, "", data, "", newId, activeChannelId);
+			msg.receiverDeviceId = receiverDeviceId;
+			//console.log(JSON.stringify(msg)); 		//DEBUG
 
 			//add source?
 			if (Client.lastInputSourceWasAsr) msg.inputViaAsr = true;
@@ -1498,7 +1507,8 @@ function sepiaFW_build_webSocket_client(){
 			message.channelId = activeChannelId;
 		}
 		if ((activeChatPartner && !lastActivatedChatPartner) || (lastActivatedChatPartner && (lastActivatedChatPartner == activeChatPartner))){
-			message.receiver = activeChatPartner;
+			message.receiver = activeChatPartner.id;
+			message.receiverDeviceId = activeChatPartner.deviceId;
 		}
 		Client.sendMessage(message, nextRetryNumber);
 	}
@@ -1643,20 +1653,20 @@ function sepiaFW_build_webSocket_client(){
 		return channelHasUser;
 	}
 	
-	Client.switchChatPartner = function(partnerId){
-		if (!partnerId){
-			lastActivatedChatPartner = "";
-			activeChatPartner = "";
+	Client.switchChatPartner = function(userObject){
+		if (!userObject){
+			lastActivatedChatPartner = undefined;
+			activeChatPartner = undefined;
 			SepiaFW.debug.log("WebSocket: removed private chat partner lock.");
 			broadcastChatPartnerSwitch('');
 			return;
 		}
 		//check if ID is in current channel
-		if (Client.hasChannelUser(partnerId)){
-			SepiaFW.debug.log("WebSocket: switched chat partner to: " + partnerId);
-			lastActivatedChatPartner = partnerId;
-			activeChatPartner = partnerId;
-			broadcastChatPartnerSwitch(partnerId);
+		if (Client.hasChannelUser(userObject.id)){
+			SepiaFW.debug.log("WebSocket: switched chat partner to: " + userObject.id);
+			lastActivatedChatPartner = userObject;
+			activeChatPartner = userObject;
+			broadcastChatPartnerSwitch(userObject);
 		}
 	}
 	Client.getActiveChatPartner = function(){

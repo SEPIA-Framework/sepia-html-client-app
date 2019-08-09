@@ -1177,7 +1177,7 @@ function sepiaFW_build_ui_build(){
     }
 	
 	//User-List
-	Build.userList = function(userList, userName){
+	Build.userList = function(userList, userId, deviceId){
 		var userListEle = document.getElementById("sepiaFW-chat-userlist");
 		if (!userList && userListEle){
 			userListEle.innerHTML = '';
@@ -1191,15 +1191,21 @@ function sepiaFW_build_ui_build(){
 			var activeChatPartner = SepiaFW.client.getActiveChatPartner();
 			userList.forEach(function (user) {
 				//if (user.isActive){
-				if ($.inArray(user.id, avoidDoubles) == -1){		//TODO: as soon as it makes sense we should split the users again and offer individual device targeting
-					if (user.id === userName){
-						SepiaFW.ui.insert("sepiaFW-chat-userlist", "<li class='me' data-user-entry='" + JSON.stringify(user) + "' title='" + user.id + "'>" + user.name + "</li>");
-					}else if (activeChatPartner && (activeChatPartner == user.id)){
-						SepiaFW.ui.insert("sepiaFW-chat-userlist", "<li class='user active' data-user-entry='" + JSON.stringify(user) + "' title='" + user.id + "'>" + user.name + "</li>");
+				if ($.inArray(user.id + "_" + user.deviceId, avoidDoubles) == -1){
+					if (user.id === userId && user.deviceId === deviceId){
+						SepiaFW.ui.insert("sepiaFW-chat-userlist", "<li class='me' data-user-entry='" + JSON.stringify(user) + "' title='" + user.id + "'>" 
+							+ user.name + "</li>");
+					}else if (user.id === userId){
+						SepiaFW.ui.insert("sepiaFW-chat-userlist", "<li class='me' data-user-entry='" + JSON.stringify(user) + "' title='" + user.id + "'>" 
+							+ user.name + " (" + user.deviceId + ")" + "</li>");
+					}else if (activeChatPartner && (activeChatPartner.id == user.id)){
+						SepiaFW.ui.insert("sepiaFW-chat-userlist", "<li class='user active' data-user-entry='" + JSON.stringify(user) + "' title='" + user.id + "'>" 
+							+ user.name + "</li>");
 					}else{
-						SepiaFW.ui.insert("sepiaFW-chat-userlist", "<li class='user' data-user-entry='" + JSON.stringify(user) + "' title='" + user.id + "'>" + user.name + "</li>");
+						SepiaFW.ui.insert("sepiaFW-chat-userlist", "<li class='user' data-user-entry='" + JSON.stringify(user) + "' title='" + user.id + "'>" 
+							+ user.name + "</li>");
 					}
-					avoidDoubles.push(user.id);
+					avoidDoubles.push(user.id + "_" + user.deviceId);
 				}
 			});
 			//add onclick again - @user to input
@@ -1212,7 +1218,7 @@ function sepiaFW_build_ui_build(){
 						$(this).removeClass('active');
 					});
 					var thisUser = JSON.parse($(this).attr('data-user-entry'));
-					SepiaFW.client.switchChatPartner(thisUser.id);
+					SepiaFW.client.switchChatPartner(thisUser);
 					$(this).addClass('active');
 				}
 								
