@@ -28,6 +28,8 @@ function sepiaFW_build_client_interface(){
 	ClientInterface.addOnActiveOneTimeAction = SepiaFW.webSocket.client.addOnActiveOneTimeAction;
 	ClientInterface.addOnActivePreUpdateOneTimeAction = SepiaFW.webSocket.client.addOnActivePreUpdateOneTimeAction;
 	ClientInterface.getActiveChannel = SepiaFW.webSocket.client.getActiveChannel;
+	ClientInterface.getActiveChannelUsers = SepiaFW.webSocket.client.getActiveChannelUsers;
+	ClientInterface.getAllChannels = SepiaFW.webSocket.client.getAllChannels;
 	ClientInterface.switchChannel = SepiaFW.webSocket.client.switchChannel;
 	ClientInterface.switchChatPartner = SepiaFW.webSocket.client.switchChatPartner;
 	ClientInterface.getActiveChatPartner = SepiaFW.webSocket.client.getActiveChatPartner;
@@ -172,8 +174,15 @@ function sepiaFW_build_webSocket_common(){
 		msg.msgId = msgId;
 		msg.channelId = channelId;
 		msg.sender = sender;
+		msg.senderDeviceId = (data && data.parameters)? data.parameters.device_id : "";
 		msg.timeUNIX = tsUNIX;
-		if (receiver) msg.receiver = receiver;
+		if (receiver){
+			msg.receiver = receiver;
+			//TODO: a specific workaround for missing device ID. Make it more general!
+			if (msg.receiver == SepiaFW.assistant.id){
+				msg.receiverDeviceId = SepiaFW.assistant.deviceId;
+			}
+		}
 		if (text) msg.text = text;
 		if (html) msg.html = html;
 		if (data) msg.data = data;
@@ -1166,7 +1175,8 @@ function sepiaFW_build_webSocket_client(){
 			data.credentials.pwd = SepiaFW.account.getToken();
 		}
 		data.parameters = SepiaFW.assistant.getState();
-		data.parameters.client = SepiaFW.config.getClientDeviceInfo(); //SepiaFW.config.clientInfo;
+		data.parameters.client = SepiaFW.config.getClientDeviceInfo(); 	//SepiaFW.config.clientInfo;
+		data.parameters.device_id = SepiaFW.config.getDeviceId();
 		
 		return data;
 	}
@@ -1616,6 +1626,12 @@ function sepiaFW_build_webSocket_client(){
 	Client.getActiveChannel = function(){
 		return activeChannelId;
 	}
+	Client.getAllChannels = function(){
+		return channelList;
+	}
+	Client.getActiveChannelUsers = function(){
+		return userList;
+	}
 	Client.hasChannelUser = function(checkUserId){
 		var channelHasUser = false;
 		$.each(userList, function(index, user) {
@@ -1677,7 +1693,7 @@ function sepiaFW_build_webSocket_client(){
 			if (userList){
 				$.each(userList, function(index, entry){
 					if (entry.role && entry.role == "assistant"){
-						SepiaFW.assistant.updateInfo(entry.id, entry.name);
+						SepiaFW.assistant.updateInfo(entry);
 					}
 				});
 			}

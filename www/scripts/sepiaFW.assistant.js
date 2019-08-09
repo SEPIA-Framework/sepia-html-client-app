@@ -5,6 +5,7 @@ function sepiaFW_build_assistant(){
 	//some global settings
 	Assistant.name = "Sepia"; 	//this should be received from server to prevent confusion with Usernames
 	Assistant.id = ""; 			//this should be received from server because it works as receiver for action-commands (buttons etc.)
+	Assistant.deviceId = "";
 
 	//control settings
 	Assistant.autoCloseAwaitDialog = true;
@@ -12,21 +13,24 @@ function sepiaFW_build_assistant(){
 	var autoCloseAwaitDialogTimer;
 	
 	//set assistant info received from server
-	Assistant.updateInfo = function(id, name){
-		if (id){
-			if (id != Assistant.id){
-				Assistant.id = id;
-				if (name){ 
-					Assistant.name = name;
+	Assistant.updateInfo = function(info){
+		if (info.id){
+			if (info.id != Assistant.id){
+				Assistant.id = info.id;
+				if (info.name){ 
+					Assistant.name = info.name;
 				}else{
 					Assistant.name = "Unknown";
-					SepiaFW.debug.err("Assistant: missing name for ID '" + id + "'!");
+					SepiaFW.debug.err("Assistant: missing name for ID '" + info.id + "'!");
+				}
+				if (info.deviceId){
+					Assistant.deviceId = info.deviceId;
 				}
 				//Update my-view events
 				SepiaFW.ui.updateMyView(true, false, 'assistantInfoUpdate');
 			}
 		}
-		SepiaFW.debug.log("Assistant: active assistant is '" + name + "' (" + id + ")");
+		SepiaFW.debug.log("Assistant: active assistant is '" + info.name + "' (" + info.id + ")");
 	}
 	
 	Assistant.isProActive = false;	//will send entertaining notifications and stuff?
