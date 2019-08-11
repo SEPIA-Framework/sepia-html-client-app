@@ -670,9 +670,9 @@ function sepiaFW_build_account(){
 		//try logout - fails silently (low prio, good idea???)
 		if (userId && userToken){
 			if (logoutAll){
-				Account.logoutAll((userId + ";" + userToken), onLogoutSuccess, onLogoutFail, onLogoutDebug);
+				Account.logoutAll(Account.getKey(), onLogoutSuccess, onLogoutFail, onLogoutDebug);
 			}else{
-				Account.logout((userId + ";" + userToken), onLogoutSuccess, onLogoutFail, onLogoutDebug);
+				Account.logout(Account.getKey(), onLogoutSuccess, onLogoutFail, onLogoutDebug);
 			}
 		}else{
 			Account.finishedLogoutActionSection('Server-logout', true);
@@ -824,7 +824,7 @@ function sepiaFW_build_account(){
 			type: "oldPassword",
 			authKey: data.authKey
 		}
-		authApiCall("requestPasswordChange", (userId + ";" + userToken), requestBody, successCallback, errorCallback, debugCallback);
+		authApiCall("requestPasswordChange", Account.getKey(), requestBody, successCallback, errorCallback, debugCallback);
 	}
 	Account.changePassword = function(data, successCallback, errorCallback, debugCallback){
 		authApiCall("changePassword", '', data, successCallback, errorCallback, debugCallback);
@@ -934,7 +934,7 @@ function sepiaFW_build_account(){
 		if (key){
 			data.KEY = key;
 		}else if (userId && userToken){
-			data.KEY = (userId + ";" + userToken);
+			data.KEY = Account.getKey();
 		}else{
 			if (errorCallback) errorCallback("Data transfer failed! Not authorized or missing 'KEY'");
 			return;

@@ -3,7 +3,7 @@ function sepiaFW_build_ui(){
 	var UI = {};
 	
 	//some constants
-	UI.version = "v0.18.1";
+	UI.version = "v0.19.0";
 	UI.requiresServerVersion = "2.3.0";
 	UI.JQ_RES_VIEW_IDS = "#sepiaFW-result-view, #sepiaFW-chat-output, #sepiaFW-my-view";	//a selector to get all result views e.g. $(UI.JQ_RES_VIEW_IDS).find(...) - TODO: same as $('.sepiaFW-results-container') ??
 	UI.JQ_ALL_MAIN_VIEWS = "#sepiaFW-result-view, #sepiaFW-chat-output, #sepiaFW-my-view, #sepiaFW-teachUI-editor, #sepiaFW-teachUI-manager, #sepiaFW-frame-page-1, #sepiaFW-frame-page-2"; 	//TODO: frames can have more ...
@@ -75,7 +75,7 @@ function sepiaFW_build_ui(){
 		//Frame
 		}else{
 			if (SepiaFW.frames) SepiaFW.frames.open({pageUrl: (openView + ".html")});
-			//NOTE: this will currently ignore all open-options for frames like onOpen callbacks and theme etc.
+			//TODO: this will currently ignore all open-options for frames like onOpen callbacks and theme etc.
 		}
 	}
 	
