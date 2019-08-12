@@ -1,0 +1,65 @@
+<div id='sepiaFW-frame-carousel' class="sepiaFW-inner-container sepiaFW-carousel">
+	<div class='sepiaFW-carousel-pane-container'>
+		<!-- Page 1 -->
+		<div id="sepiaFW-frame-page-1" class='sepiaFW-frames-page sepiaFW-carousel-pane'>
+			<div id="sepiaFW-channel-manager-view" class="group-container">
+				<div class="group column">
+					<h2>Channel Manager</h2>
+					<p class="info-text" style="margin-bottom: 0;">Here you can create, join and edit chat channels.</p>
+				</div>
+				<div class="group column">
+					<h3>Channel Name:</h3>
+					<input id="sepiaFW-channel-manager-cname" placeholder="My new channel">
+				</div>
+				<div class="group column">
+					<h3>Current Password:</h3>
+					<input id="sepiaFW-pwd-reset-old-pwd" type="password">
+					<h3>New Password:</h3>
+					<input id="sepiaFW-pwd-reset-new-pwd" type="password">
+					<h3>Repeat New Password:</h3>
+					<input id="sepiaFW-pwd-reset-new-pwd-match" type="password">
+				</div>
+				<div class="group center extra-space-tb">
+					<button id="sepiaFW-pwd-reset-send-btn">REQUEST NEW</button>
+					<button id="sepiaFW-pwd-reset-forgot-btn">FORGOT ALL</button>
+				</div>
+			</div>
+		</div>
+		<!-- Page 2 -->
+		<!-- <div id="sepiaFW-frame-page-2" class='sepiaFW-frames-page sepiaFW-carousel-pane'>
+		</div> -->
+	</div>
+</div>
+<div id="sepiaFW-frames-nav-bar" class='sepiaFW-layer-header'>
+	<button id="sepiaFW-frames-close" class='entry'>
+		<i class="material-icons md-btn2">&#xE5CD;</i>
+	</button>
+	<!--<button id="sepiaFW-frames-show-prev-page" class='entry'>
+		<i class="material-icons md-btn2">keyboard_arrow_left</i><span data-localize="back">back</span>
+	</button>
+	<button id="sepiaFW-frames-show-next-page" class='entry'>
+		<span data-localize="next">next</span><i class="material-icons md-btn2">keyboard_arrow_right</i>
+	</button>
+	<div id="sepiaFW-frames-nav-bar-page-indicator"><div>&nbsp;</div><div>&nbsp;</div></div>-->
+	<div id="sepiaFW-frames-nav-bar-page-indicator"><div>&nbsp;</div></div>
+</div>
+<script>
+	$('[data-localize]').each(function(){
+		$(this).html(SepiaFW.local.g(this.dataset.localize));
+	});
+
+	/*
+	<input id="sepiaFW-custom-channel-input" placeholder="Add channel" aria-label="CustomChannel">
+	<button id="sepiaFW-custom-channel-connect">+</button>
+
+	$(channelCustomInput).off().on("keypress", function(e){
+		if (e.keyCode === 13){
+			//Return-Key
+			addToChannelList();
+		}
+	});
+	$(channelCustomInputButton).off().on("click", function(){
+		addToChannelList();
+	});
+	*/
+</script>

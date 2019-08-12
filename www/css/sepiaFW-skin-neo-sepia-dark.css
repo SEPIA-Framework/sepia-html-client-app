@@ -298,6 +298,12 @@ html {
 	color: #101418 !important;
 }
 
+/*----- channels -----*/
+
+#sepiaFW-chat-channel-controls button {
+	color: #beff1a;
+}
+
 /*----- teachUI -----*/
 
 #sepiaFW-teachUI-nav-bar {

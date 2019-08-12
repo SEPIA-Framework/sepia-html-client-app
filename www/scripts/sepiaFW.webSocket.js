@@ -232,9 +232,9 @@ function sepiaFW_build_webSocket_client(){
 	var activeChannelId = "";			//set on "joinChannel" event
 	var lastActivatedChannelId = "";	//last actively chosen channel
 	var channelList = [
-		{"id" : "openWorld"}
+		{"id" : "openWorld", "name" : "Open World"}
 	];
-	function pushToChannelList(newId){
+	Client.pushToChannelList = function(newId, channelName){
 		var exists = false;
 		$.each(channelList, function(index, entry){
 			if (entry.id === newId){
@@ -243,7 +243,7 @@ function sepiaFW_build_webSocket_client(){
 			}
 		});
 		if (!exists){
-			channelList.push({"id":newId});
+			channelList.push({"id":newId, "name":channelName});
 			return true;
 		}else{
 			return false;
@@ -429,12 +429,14 @@ function sepiaFW_build_webSocket_client(){
 			//Client.onActive();
 		}
 		
-		//update and build channel list
-		pushToChannelList(channelId);
-		SepiaFW.ui.build.channelList(channelList, activeChannelId);
+		//update and build channel list - Note: this moved to actual channel-join message (before broadcast)
+		//Client.pushToChannelList(channelId);
+		//SepiaFW.ui.build.channelList(channelList, activeChannelId);
+		var channelData = Client.getChannelDataById(channelId);
+		var channelName = channelData.name || channelId;
 		
 		//set label
-		SepiaFW.ui.setLabel((activeChannelId == username)? "" : activeChannelId);
+		SepiaFW.ui.setLabel((activeChannelId == username)? "" : channelName);
 		
 		//switch visibility of messages in chat view
 		SepiaFW.ui.switchChannelView(channelId);
@@ -803,25 +805,14 @@ function sepiaFW_build_webSocket_client(){
 		}
 		
 		//CHANNELS
-		var channelCustomInput = document.getElementById("sepiaFW-custom-channel-input");
-		var channelCustomInputButton = document.getElementById("sepiaFW-custom-channel-connect");
-		function addToChannelList(){
-			var newChannel = $(channelCustomInput).val();
-			if (newChannel){
-				if (pushToChannelList(newChannel)){
-					SepiaFW.ui.build.channelList(channelList, activeChannelId);
-				}
-				$(channelCustomInput).val("");
-			}
-		}
-		$(channelCustomInput).off().on("keypress", function(e){
-			if (e.keyCode === 13){
-				//Return-Key
-				addToChannelList();
-			}
-		});
-		$(channelCustomInputButton).off().on("click", function(){
-			addToChannelList();
+		var channelManagerButton = document.getElementById("sepiaFW-chat-channel-manager-btn");
+		$(channelManagerButton).off().on("click", function(){
+			SepiaFW.frames.open({
+				pageUrl: "channel-manager.html",
+				theme: "dark",
+				onOpen: function(){},
+				onClose: function(){}
+			});
 		});
 		
 		//CHAT CONTROLS
@@ -1639,6 +1630,17 @@ function sepiaFW_build_webSocket_client(){
 	Client.getAllChannels = function(){
 		return channelList;
 	}
+	Client.getChannelDataById = function(channelId){
+		var channelData;
+		for (var i=0; i<channelList.length; i++){
+			var channel = channelList[i];
+			if (channel.id == channelId){
+				channelData = channel;
+				break;
+			}
+		}
+		return channelData;
+	}
 	Client.getActiveChannelUsers = function(){
 		return userList;
 	}
@@ -1731,11 +1733,14 @@ function sepiaFW_build_webSocket_client(){
 			//get channel-join confirmation of server
 			}else if (message.sender === serverName && message.data.dataType === "joinChannel"){
 				activeChannelId = message.data.channelId;
-				//var givenName = message.data.givenName; 		//might be useful
-				SepiaFW.debug.log("WebSocket: switched channel to: " + message.data.channelId);
+				var channelName = message.data.channelName;		//an arbitrary name given to this channel
+				//var givenName = message.data.givenName; 		//user name - might be useful but you should know your name ^^
+				SepiaFW.debug.log("WebSocket: switched channel to: " + message.data.channelName + " - id: " + message.data.channelId);
 				
-				//re-build channel list - TODO: improve!
-				//var channelList = ???
+				//re-build channel list
+				if (Client.pushToChannelList(activeChannelId, channelName)){
+					SepiaFW.ui.build.channelList(channelList, activeChannelId);
+				}
 				
 				//broadcastChannelJoin(activeChannelId);  //moved to welcome message so that we can update userList first
 				

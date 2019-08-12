@@ -56,8 +56,8 @@ html {
 	margin: 4px;
 }
 .sepiaFW-notouch-device #sepiaFW-main-window .chat-buttons-area button:hover {
-    border: 0px solid #cb7b65;
-	margin: 5px;
+    border: 1px solid #cb7b65;
+	margin: 4px;
 }
 #sepiaFW-main-window .chat-buttons-area .my-view-custom-button {
 	background-color: #C74927;

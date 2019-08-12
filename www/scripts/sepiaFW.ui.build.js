@@ -580,6 +580,7 @@ function sepiaFW_build_ui_build(){
 			centerPage3.className = "sepiaFW-chat-menu-list-container sepiaFW-carousel-pane";
 			centerPage3.innerHTML = ""
 				+ "<ul class='sepiaFW-menu-settings-list'>"
+					+ "<li id='sepiaFW-menu-account-my-id-li'><span>" + "User ID" + ": </span>" + SepiaFW.account.getUserId() + "</li>"
 					+ "<li id='sepiaFW-menu-account-language-li'><span>" + SepiaFW.local.g('language') + ": </span></li>"
 					+ "<li id='sepiaFW-menu-account-nickname-li'><span>" + SepiaFW.local.g('nickname') + ": </span><input id='sepiaFW-menu-account-nickname' type='text' maxlength='24'></li>"
 					+ "<li id='sepiaFW-menu-store-load-app-settings-li'>"
