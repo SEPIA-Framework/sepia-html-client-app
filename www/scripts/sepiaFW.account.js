@@ -30,16 +30,22 @@ function sepiaFW_build_account(){
 	function broadcastEnterWithoutLogin(){
 		//TODO: this should prepare demo-mode ...
 		SepiaFW.client.setDemoMode(true);
+		//set user ID indicator
+		$('#sepiaFW-menu-account-my-id').html("Demo");
 	}
 	
 	function broadcastLoginRestored(){
 		//first app visit of this user?
 		checkClientFirstVisit();
+		//set user ID indicator
+		$('#sepiaFW-menu-account-my-id').html(userId);
 	}
 	
 	function broadcastLoginSuccess(){
 		//first app visit of this user?
 		checkClientFirstVisit();
+		//set user ID indicator
+		$('#sepiaFW-menu-account-my-id').html(userId);
 	}
 	function broadcastLoginFail(){
 	}

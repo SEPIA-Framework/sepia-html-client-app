@@ -74,13 +74,21 @@
 	background: #ceff1a !important;
 	color: #000 !important;
 }
+.sepiaFW-frames-page button.dangerous {
+	background: #f33 !important;
+	color: #fff !important;
+}
 
 .sepiaFW-frames-page .info-text {
 	color: #4ec48f;
 	margin: 12px 0;
+	font-size: 14px;
 }
 .sepiaFW-frames-page.dark .info-text {
 	color: #ceff1a;
+}
+.sepiaFW-frames-page .info-text.centered {
+	text-align: center;
 }
 
 .sepiaFW-frames-page .group-container {
@@ -94,6 +102,13 @@
 	justify-content: space-between; 
 	align-items: center;
 	margin: 8px;
+}
+.sepiaFW-frames-page .subgroup {
+	display: flex; 
+	justify-content: space-between; 
+	align-items: center;
+	padding: 4px;
+    min-width: 160px;
 }
 .sepiaFW-frames-page .group.column {
 	flex-direction: column;
@@ -128,4 +143,11 @@
 }
 #sepiaFW-frames-view .sepiaFW-frames-page.dark .group-container input {
 	border-bottom: 1px solid #fff;
+}
+#sepiaFW-frames-view .sepiaFW-frames-page .group-container input[type='checkbox'] {
+	min-width: 15px;
+	min-height: 15px;
+    padding: 0;
+	margin: 4px;
+	border-bottom: 0;
 }

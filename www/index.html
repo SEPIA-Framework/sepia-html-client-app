@@ -110,15 +110,16 @@
 		<div id="sepiaFW-chat-menu" class="sepiaFW-menu" style="display:none;"><!-- Dynamic content --></div>
 		<div id="sepiaFW-chat-channel-view" class="sepiaFW-menu" style="display:none;">
 			<div class="left">
-				<h2>Channels</h2>
+				<h2><i class="material-icons md-txt">rss_feed</i>&nbsp;<script>SepiaFW.local.w('channels')</script></h2>
 				<ul id="sepiaFW-chat-channellist"><!-- Dynamic content --></ul>
 			</div>
 			<div class="right">
-				<h2>Active users</h2>
+				<h2><i class="material-icons md-txt">people</i>&nbsp;<script>SepiaFW.local.w('active_users')</script></h2>
 				<ul id="sepiaFW-chat-userlist"><!-- Dynamic content --></ul>
 			</div>
 			<div id="sepiaFW-chat-channel-controls">
-				<button id="sepiaFW-chat-channel-manager-btn">Edit Channels</button>
+				<button id="sepiaFW-chat-channel-manager-btn"><script>SepiaFW.local.w('edit_chat_channels')</script></button>
+				<button id="sepiaFW-chat-logout-btn"><script>SepiaFW.local.w('sign_out')</script></button>
 			</div>
 		</div>
 		<div id="sepiaFW-chat-controls-more-menu" class="sepiaFW-menu">
@@ -145,7 +146,7 @@
 			</div>
 			<div id="sepiaFW-more-menu-shortcuts">
 				<button id='sepiaFW-shortcut-btn-shop'><i class="material-icons md-24">&#xE8CC;</i></button>
-				<button id='sepiaFW-shortcut-btn-todo'><i class="material-icons md-24">&#xE85D;</i></button>
+				<button id='sepiaFW-shortcut-btn-todo'><i class="material-icons md-24">assignment</i></button> <!-- ballot -->
 				<button id='sepiaFW-shortcut-btn-radio'><i class="material-icons md-24">&#xE03E;</i></button>
 				<button id='sepiaFW-shortcut-btn-timer'><i class="material-icons md-24">timer</i></button> <!-- av_timer -->
 				<button id='sepiaFW-shortcut-btn-alarm'><i class="material-icons md-24">alarm</i></button>
@@ -156,7 +157,7 @@
 			</div>
 			<div id="sepiaFW-more-menu-actions">
 				<li id='sepiaFW-history-btn'><script>SepiaFW.local.w('clearHistory')</script>&nbsp;<i class="material-icons md-txt">&#xE889;</i></li>
-				<li id='sepiaFW-saythis-btn'>Broadcast&nbsp;<i class="material-icons md-txt">rss_feed</i></li>
+				<li id='sepiaFW-saythis-btn'>Broadcast&nbsp;<i class="material-icons md-txt">record_voice_over</i></li>
 				<li id='sepiaFW-teachUI-open'>Teach&nbsp;<i class="material-icons md-txt">&#xE87B;</i></li>
 				<li id='sepiaFW-fullsize-btn'>Screen&nbsp;<i class="material-icons md-txt">&#xE56B;</i></li>
 				<li id='sepiaFW-alwaysOn-btn'>Always On&nbsp;<i class="material-icons md-txt">mobile_friendly</i></li>
@@ -172,7 +173,7 @@
 				<div id="sepiaFW-nav-label-online-status" class="offline">offline</div>
 			</div>
 			<button id="sepiaFW-nav-menu-go-right">•</button>
-			<button id="sepiaFW-nav-users-btn"><i class="material-icons md-btn2">&#xE7FB;</i></button>
+			<button id="sepiaFW-nav-users-btn"><i class="material-icons md-btn2">speaker_notes</i></button>
 			<div id="sepiaFW-nav-bar-page-indicator"><div>&nbsp;</div><div>&nbsp;</div><div>&nbsp;</div></div>
 		</div>
 		<!-- Output views -->

@@ -373,10 +373,8 @@ body {
 	/* skins should write main-window modifications to this class */
 }
 
-#sepiaFW-main-window input, #sepiaFW-login-box input {
-	-moz-appearance: none;
-	-webkit-appearance: none;
-	appearance: none;
+#sepiaFW-main-window input, 
+#sepiaFW-login-box input {
 	border: 1px solid transparent;
 	border-radius: 0;
     width: 100%;
@@ -384,6 +382,12 @@ body {
 	min-height: 33px;
     margin: 5px 0;
 	font-size: 15px;
+}
+#sepiaFW-main-window input:not([type='checkbox']), 
+#sepiaFW-login-box input:not([type='checkbox']) {
+	-moz-appearance: none;
+	-webkit-appearance: none;
+	appearance: none;
 }
 #sepiaFW-main-window b, #sepiaFW-login-box b, #sepiaFW-main-window strong, #sepiaFW-login-box strong {
 	font-weight: 600;
@@ -672,6 +676,11 @@ body {
 .sepiaFW-menu li.button  {
 	cursor: pointer;
 }
+.sepiaFW-menu li.channel {
+	white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+}
 /*
 .sepiaFW-menu li:first-of-type {
 	margin-top: 8px;
@@ -737,6 +746,13 @@ body {
     color: inherit;
     text-align: center;
     font-size: 15px;
+}
+#sepiaFW-chat-menu input[type='checkbox'] {
+	min-width: 15px;
+	min-height: 15px;
+    padding: 0;
+	margin: 8px;
+	border-bottom: 0;
 }
 #sepiaFW-menu-ui-refresh-box {
     display: inline-block;
@@ -1131,7 +1147,7 @@ body {
 	margin: 0;
     width: calc(100%/2 - 240px - 16px);
 	min-width: 100px;
-	max-width: 320px;
+	max-width: 420px;
 	max-height: calc(100% - 128px);
 	z-index: 4;
 	display: flex;
@@ -1148,7 +1164,7 @@ body {
 	font-size: 16px;
     margin: 16px 12px 16px 16px;
 }
-@media screen and (max-width: 1100px) {
+@media screen and (max-width: 1150px) {
 	#sepiaFW-chat-channel-view {
 		border-radius: 0px 0px 3px 3px;
 		position: absolute;
@@ -1239,6 +1255,9 @@ body {
 	padding-top: 3px;
 	font-size: 16px;
 	position: relative;
+	overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
 }
 #sepiaFW-nav-label-online-status {
 	width: 90px;

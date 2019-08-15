@@ -580,7 +580,7 @@ function sepiaFW_build_ui_build(){
 			centerPage3.className = "sepiaFW-chat-menu-list-container sepiaFW-carousel-pane";
 			centerPage3.innerHTML = ""
 				+ "<ul class='sepiaFW-menu-settings-list'>"
-					+ "<li id='sepiaFW-menu-account-my-id-li'><span>" + "User ID" + ": </span>" + SepiaFW.account.getUserId() + "</li>"
+					+ "<li id='sepiaFW-menu-account-my-id-li'><span>" + "User ID" + ": </span><span id='sepiaFW-menu-account-my-id' style='float: right;'></span></li>"
 					+ "<li id='sepiaFW-menu-account-language-li'><span>" + SepiaFW.local.g('language') + ": </span></li>"
 					+ "<li id='sepiaFW-menu-account-nickname-li'><span>" + SepiaFW.local.g('nickname') + ": </span><input id='sepiaFW-menu-account-nickname' type='text' maxlength='24'></li>"
 					+ "<li id='sepiaFW-menu-store-load-app-settings-li'>"
@@ -1242,28 +1242,42 @@ function sepiaFW_build_ui_build(){
 	}
 	
 	//Channel-List
-	Build.channelList = function(channelList, activeChannel){
+	Build.channelList = function(channelList, activeChannelId){
 		var channelListEle = document.getElementById("sepiaFW-chat-channellist");
 		if (channelList && channelListEle){
 			//clear all old listeners
 			$('#sepiaFW-chat-channellist li').off();
 			//create new list
 			channelListEle.innerHTML = "";
-			channelList.forEach(function (channel) {
-				if (channel.id === activeChannel){
-					SepiaFW.ui.insert("sepiaFW-chat-channellist", "<li class='channel active' data-channel-entry='" + JSON.stringify(channel) + "'>" + channel.id + "</li>");
+			channelList.forEach(function(channel){
+				if (channel.id === activeChannelId){
+					SepiaFW.ui.insert("sepiaFW-chat-channellist", 
+						"<li class='channel active' data-channel-entry='" + JSON.stringify(channel) + "' title='" + channel.name + "'>" + channel.name + "</li>"
+					);
 				}else{
-					SepiaFW.ui.insert("sepiaFW-chat-channellist", "<li class='channel' data-channel-entry='" + JSON.stringify(channel) + "'>" + channel.id + "</li>");
+					SepiaFW.ui.insert("sepiaFW-chat-channellist", 
+						"<li class='channel' data-channel-entry='" + JSON.stringify(channel) + "' title='" + channel.name + "'>" + channel.name + "</li>"
+					);
 				}
 			});
 			//add on click again - @user to input
-			$('#sepiaFW-chat-channellist li.channel').on( "click", function() {
+			$('#sepiaFW-chat-channellist li.channel').on( "click", function(){
 				var thisChannel = JSON.parse($(this).attr('data-channel-entry'));
 				//reset active chat partner
 				SepiaFW.client.switchChatPartner('');
 				SepiaFW.client.switchChannel(thisChannel.id); 		//there is also a key-option, but the server currently does it by userId check
 			});
 		}
+	}
+	Build.updateChannelList = function(activeChannelId){
+		$("#sepiaFW-chat-channellist li.channel").each(function(){
+			var thisChannel = JSON.parse($(this).attr('data-channel-entry'));
+			if (thisChannel.id === activeChannelId){
+				$(this).addClass('active');
+			}else{
+				$(this).removeClass('active');
+			}
+		});
 	}
 	
 	//make message object

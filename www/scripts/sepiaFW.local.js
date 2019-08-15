@@ -26,6 +26,9 @@ function sepiaFW_build_strings(){
 	StringsDE.closeLogin = 'Weiter ohne Login';
 	StringsDE.info_and_help = 'Infos und Support';
 	StringsDE.change_account_password = "Account Passwort ändern";
+	StringsDE.channels = "Kanäle";
+	StringsDE.active_users = "Aktive User";
+	StringsDE.edit_chat_channels = "Kanäle bearbeiten";
 	//StringsDE.chatInputPlaceholder = 'Deine Nachricht ...';
 	StringsDE.chatInputPlaceholder = '';
 	StringsDE.loginFailedPlain = 'Login fehlgeschlagen!';
@@ -152,6 +155,9 @@ function sepiaFW_build_strings(){
 	StringsEN.closeLogin = 'Continue without login';
 	StringsEN.info_and_help = 'Info and support';
 	StringsEN.change_account_password = "Change account password";
+	StringsEN.channels = "Channels";
+	StringsEN.active_users = "Active Users";
+	StringsEN.edit_chat_channels = "Edit Channels";
 	//StringsEN.chatInputPlaceholder = 'Your message ...';
 	StringsEN.chatInputPlaceholder = '';
 	StringsEN.loginFailedPlain = 'Login failed!';

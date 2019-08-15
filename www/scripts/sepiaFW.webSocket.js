@@ -27,12 +27,19 @@ function sepiaFW_build_client_interface(){
 	ClientInterface.addOnActiveAction = SepiaFW.webSocket.client.addOnActiveAction;
 	ClientInterface.addOnActiveOneTimeAction = SepiaFW.webSocket.client.addOnActiveOneTimeAction;
 	ClientInterface.addOnActivePreUpdateOneTimeAction = SepiaFW.webSocket.client.addOnActivePreUpdateOneTimeAction;
+	
 	ClientInterface.getActiveChannel = SepiaFW.webSocket.client.getActiveChannel;
 	ClientInterface.getActiveChannelUsers = SepiaFW.webSocket.client.getActiveChannelUsers;
 	ClientInterface.getAllChannels = SepiaFW.webSocket.client.getAllChannels;
 	ClientInterface.switchChannel = SepiaFW.webSocket.client.switchChannel;
 	ClientInterface.switchChatPartner = SepiaFW.webSocket.client.switchChatPartner;
 	ClientInterface.getActiveChatPartner = SepiaFW.webSocket.client.getActiveChatPartner;
+	ClientInterface.createChannel = SepiaFW.webSocket.channels.create;
+	ClientInterface.joinNewChannel = SepiaFW.webSocket.channels.join;
+	ClientInterface.deleteChannel = SepiaFW.webSocket.channels.delete;
+	ClientInterface.editChannel = SepiaFW.webSocket.channels.edit;
+	ClientInterface.pushToChannelList = SepiaFW.webSocket.client.pushToChannelList;
+	ClientInterface.refreshChannelList = SepiaFW.webSocket.client.refreshChannelList;
 
 	ClientInterface.getNewMessageId = SepiaFW.webSocket.client.getNewMessageId;
 	ClientInterface.handleServerMessage = SepiaFW.webSocket.client.handleServerMessage;
@@ -234,7 +241,9 @@ function sepiaFW_build_webSocket_client(){
 	var channelList = [
 		{"id" : "openWorld", "name" : "Open World"}
 	];
-	Client.pushToChannelList = function(newId, channelName){
+	Client.pushToChannelList = function(channelData){
+		var newId = channelData.id;
+		var channelName = channelData.name || channelData.id;
 		var exists = false;
 		$.each(channelList, function(index, entry){
 			if (entry.id === newId){
@@ -248,6 +257,9 @@ function sepiaFW_build_webSocket_client(){
 		}else{
 			return false;
 		}
+	}
+	Client.refreshChannelList = function(){
+		SepiaFW.ui.build.channelList(channelList, activeChannelId);
 	}
 	//special input commands (slash-command) and modifiers (input-modifier)
 	var CMD_SAYTHIS = "saythis";		//slash-command
@@ -453,6 +465,9 @@ function sepiaFW_build_webSocket_client(){
 		if (lastActivatedChatPartner && (activeChatPartner !== lastActivatedChatPartner)){
 			Client.switchChatPartner(lastActivatedChatPartner);
 		}
+
+		//Update channel list - basically this just sets the correct active channel
+		SepiaFW.ui.build.updateChannelList(activeChannelId);
 
 		//always call onActive
 		Client.onActive();
@@ -813,6 +828,10 @@ function sepiaFW_build_webSocket_client(){
 				onOpen: function(){},
 				onClose: function(){}
 			});
+		});
+		var channelLogoutButton = document.getElementById("sepiaFW-chat-logout-btn");
+		$(channelLogoutButton).off().on("click", function(){
+			SepiaFW.account.logoutAction();
 		});
 		
 		//CHAT CONTROLS
@@ -1738,8 +1757,11 @@ function sepiaFW_build_webSocket_client(){
 				SepiaFW.debug.log("WebSocket: switched channel to: " + message.data.channelName + " - id: " + message.data.channelId);
 				
 				//re-build channel list
-				if (Client.pushToChannelList(activeChannelId, channelName)){
-					SepiaFW.ui.build.channelList(channelList, activeChannelId);
+				if (Client.pushToChannelList({
+					id: activeChannelId,
+					name: channelName
+				})){
+					Client.refreshChannelList();
 				}
 				
 				//broadcastChannelJoin(activeChannelId);  //moved to welcome message so that we can update userList first
