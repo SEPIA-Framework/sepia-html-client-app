@@ -45,8 +45,8 @@
 					<h3>Channel ID:</h3>
 					<input id="sepiaFW-channel-manager-cid" placeholder="">
 					<br>
-					<h3>Channel Key:</h3>
-					<input id="sepiaFW-channel-manager-ckey" type="password">
+					<h3>Access Key (for user):</h3>
+					<input id="sepiaFW-channel-manager-key">
 				</div>
 				<div class="group center extra-space-tb">
 					<button id="sepiaFW-channel-manager-join-btn">JOIN</button>
@@ -101,6 +101,9 @@
 	
 	//Create channel
 	$("#sepiaFW-channel-manager-create-btn").off().on("click", function(){
+		createChannel();
+	});
+	function createChannel(){
 		//get data
 		var channelData = {};
 		
@@ -129,6 +132,54 @@
 
 		//send request
 		//console.log(JSON.stringify(channelData));
-		SepiaFW.client.createChannel(channelData);
+		SepiaFW.client.createChannel(channelData, function(res){
+			//additional onSuccess
+			resetChannelCreateFields();
+			SepiaFW.ui.showPopup("You have successfully created a new channel:"
+				+ "<br>Name: " + res.channelName
+				//+ "<br>Id: " + res.channelId
+				//+ "<br>Key: " + res.key		//we don't show this here
+			);
+		});
+	}
+	function resetChannelCreateFields(){
+		$('#sepiaFW-channel-manager-cname').val('');
+		$('#sepiaFW-channel-manager-cmembers').val('');
+		document.getElementById("sepiaFW-channel-manager-is-public").checked = false;
+		document.getElementById("sepiaFW-channel-manager-add-assist").checked = true;
+	}
+
+	//Join channel
+	$("#sepiaFW-channel-manager-join-btn").off().on("click", function(){
+		joinChannel();
 	});
+	function joinChannel(){
+		//get data
+		var channelData = {};
+		
+		var channelId = $('#sepiaFW-channel-manager-cid').val();
+		var key = $('#sepiaFW-channel-manager-key').val();
+		if (!channelId || !key){
+			SepiaFW.ui.showPopup("Please enter a channel ID and key first.");
+			return;
+		}
+		channelData.id = channelId;
+		channelData.key = key;
+
+		//send request
+		//console.log(JSON.stringify(channelData));
+		SepiaFW.client.joinNewChannel(channelData, function(res){
+			//additional onSuccess
+			resetChannelJoinFields();
+			SepiaFW.ui.showPopup("You have successfully joined a new channel:"
+				+ "<br>Name: " + res.channelName
+				//+ "<br>Id: " + res.channelId
+			);
+		});
+	}
+	function resetChannelJoinFields(){
+		$('#sepiaFW-channel-manager-cid').val('');
+		$('#sepiaFW-channel-manager-key').val('');
+	}
+
 </script>

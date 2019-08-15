@@ -31,6 +31,7 @@ function sepiaFW_build_client_interface(){
 	ClientInterface.getActiveChannel = SepiaFW.webSocket.client.getActiveChannel;
 	ClientInterface.getActiveChannelUsers = SepiaFW.webSocket.client.getActiveChannelUsers;
 	ClientInterface.getAllChannels = SepiaFW.webSocket.client.getAllChannels;
+	ClientInterface.getChannelDataById = SepiaFW.webSocket.client.getChannelDataById;
 	ClientInterface.switchChannel = SepiaFW.webSocket.client.switchChannel;
 	ClientInterface.switchChatPartner = SepiaFW.webSocket.client.switchChatPartner;
 	ClientInterface.getActiveChatPartner = SepiaFW.webSocket.client.getActiveChatPartner;
@@ -239,11 +240,11 @@ function sepiaFW_build_webSocket_client(){
 	var activeChannelId = "";			//set on "joinChannel" event
 	var lastActivatedChannelId = "";	//last actively chosen channel
 	var channelList = [
-		{"id" : "openWorld", "name" : "Open World"}
+		{id: "openWorld", name: "Open World"}
 	];
 	Client.pushToChannelList = function(channelData){
 		var newId = channelData.id;
-		var channelName = channelData.name || channelData.id;
+		if (!channelData.name) channelData.name = newId;	//take ID if name is missing
 		var exists = false;
 		$.each(channelList, function(index, entry){
 			if (entry.id === newId){
@@ -252,7 +253,7 @@ function sepiaFW_build_webSocket_client(){
 			}
 		});
 		if (!exists){
-			channelList.push({"id":newId, "name":channelName});
+			channelList.push(channelData);		//TODO: should we filter?
 			return true;
 		}else{
 			return false;

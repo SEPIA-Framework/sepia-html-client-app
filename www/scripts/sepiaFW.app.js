@@ -364,6 +364,11 @@ function sepiaFW_build_tools(){
 		return url;
 	}
 
+	//get pure SHA256 hash
+	Tools.getSHA256Hash = function(data){
+		return sjcl.codec.hex.fromBits(sjcl.hash.sha256.hash(data));
+	}
+
 	//load script to element (body by default)
 	Tools.loadJS = function(url, successCallback, domParent){
 		if (!domParent) domParent = document.body;
