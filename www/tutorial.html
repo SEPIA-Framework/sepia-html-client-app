@@ -129,41 +129,49 @@
 	<div id="sepiaFW-frames-nav-bar-page-indicator"><div>&nbsp;</div><div>&nbsp;</div><div>&nbsp;</div><div>&nbsp;</div><div>&nbsp;</div></div>
 </div>
 <script>
-	$('[data-localize]').each(function(){
+	$('#sepiaFW-frame-carousel').find('[data-localize]').each(function(){
 		$(this).html(SepiaFW.local.g(this.dataset.localize));
 	});
-	$('[data-proceed-btn]').each(function(){
-		$(this).css({"cursor":"pointer"});
-		$(this).off().on('click', function(){
-			SepiaFW.frames.uic.next();
-		});
-	});
-	$('#tutorial-test-mic').off().on('click', function(){
-		if (SepiaFW.speech){
-			SepiaFW.ui.showPopup('Start speaking...');
-			SepiaFW.speech.toggleRecognition(
-				function(msg){ SepiaFW.ui.showPopup('You said: <br>' + msg); }, 
-				function(msg){ /*interrim result*/ }, 
-				function(msg){ SepiaFW.ui.showPopup('Seems it did not work: <br>' + msg); }
-			);
-		}
-	});
-	$('#tutorial-test-note').off().on('click', function(){
-		//simulate 'untrusted' event
-		var msg = "Hello World! This is a local (offline) notification that can be used for things like messages and alarms.";
-		SepiaFW.files.fetch('credits.html', function(){
-			if (SepiaFW.events) SepiaFW.events.showSimpleSilentNotification("S.E.P.I.A. says:", msg, {
-				type: "entertainWhileIdle",
-				data: {
-					message: msg
+
+	//Define scope
+	SepiaFW.frames.currentScope = {
+		//Load scope (default method)
+		load: function(){
+			$('#sepiaFW-frame-carousel').find('[data-proceed-btn]').each(function(){
+				$(this).css({"cursor":"pointer"});
+				$(this).off().on('click', function(){
+					SepiaFW.frames.uic.next();
+				});
+			});
+			$('#sepiaFW-frame-carousel').find('#tutorial-test-mic').off().on('click', function(){
+				if (SepiaFW.speech){
+					SepiaFW.ui.showPopup('Start speaking...');
+					SepiaFW.speech.toggleRecognition(
+						function(msg){ SepiaFW.ui.showPopup('You said: <br>' + msg); }, 
+						function(msg){ /*interrim result*/ }, 
+						function(msg){ SepiaFW.ui.showPopup('Seems it did not work: <br>' + msg); }
+					);
 				}
 			});
-		});
-	});
-	$('#tutorial-test-popup').off().on('click', function(){
-		//simulate 'untrusted' event
-		SepiaFW.files.fetch('credits.html', function(){
-			if (SepiaFW.ui.actions) SepiaFW.ui.actions.openUrlAutoTarget("https://sepia-framework.github.io", true);
-		});
-	});
+			$('#sepiaFW-frame-carousel').find('#tutorial-test-note').off().on('click', function(){
+				//simulate 'untrusted' event
+				var msg = "Hello World! This is a local (offline) notification that can be used for things like messages and alarms.";
+				SepiaFW.files.fetch('credits.html', function(){
+					if (SepiaFW.events) SepiaFW.events.showSimpleSilentNotification("S.E.P.I.A. says:", msg, {
+						type: "entertainWhileIdle",
+						data: {
+							message: msg
+						}
+					});
+				});
+			});
+			$('#sepiaFW-frame-carousel').find('#tutorial-test-popup').off().on('click', function(){
+				//simulate 'untrusted' event
+				SepiaFW.files.fetch('credits.html', function(){
+					if (SepiaFW.ui.actions) SepiaFW.ui.actions.openUrlAutoTarget("https://sepia-framework.github.io", true);
+				});
+			});
+		}
+	}
+	SepiaFW.frames.currentScope.load();
 </script>

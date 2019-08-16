@@ -103,13 +103,6 @@
 	align-items: center;
 	margin: 8px;
 }
-.sepiaFW-frames-page .subgroup {
-	display: flex; 
-	justify-content: space-between; 
-	align-items: center;
-	padding: 4px;
-    min-width: 160px;
-}
 .sepiaFW-frames-page .group.column {
 	flex-direction: column;
 }
@@ -129,6 +122,30 @@
 .sepiaFW-frames-page .group .sepiaFW-toggle-btn {
 	border: 1px solid;
 	border-color: inherit;
+}
+
+.sepiaFW-frames-page .subgroup {
+	display: flex; 
+	justify-content: space-between; 
+	align-items: center;
+	padding: 4px;
+    min-width: 160px;
+}
+.sepiaFW-frames-page .subgroup.menu-button {
+	font-size: 21px;
+	cursor: pointer;
+	color: #4ec48f;
+	padding: 8px;
+    min-width: 66%;
+}
+.sepiaFW-frames-page .subgroup.menu-button:hover {
+	color: #000;
+}
+.sepiaFW-frames-page.dark .subgroup.menu-button {
+	color: #ceff1a;
+}
+.sepiaFW-frames-page.dark .subgroup.menu-button:hover {
+	color: #fff;
 }
 
 #sepiaFW-frames-view .sepiaFW-frames-page .group-container input {

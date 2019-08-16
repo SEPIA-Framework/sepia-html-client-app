@@ -217,8 +217,8 @@ body {
 
 #sepiaFW-popup-message {
 	position: absolute;
-	background: #2f3035;
-	color: #fff;
+	background: #222;
+	color: #eee;
 	border-radius: 3px;
 	min-height: 40px;
 	max-height: 85%;
@@ -1164,7 +1164,7 @@ body {
 	font-size: 16px;
     margin: 16px 12px 16px 16px;
 }
-@media screen and (max-width: 1150px) {
+@media screen and (max-width: 1265px) {
 	#sepiaFW-chat-channel-view {
 		border-radius: 0px 0px 3px 3px;
 		position: absolute;
@@ -1178,10 +1178,19 @@ body {
 #sepiaFW-chat-channel-controls {
 	width: 100%;
 	padding: 0 12px 6px 12px;
-	text-align: center;
+	display: flex;
+	flex-wrap: wrap;
+    justify-content: space-between;
 }
 #sepiaFW-chat-channel-controls button {
 	margin-top: 16px;
+}
+@media screen and (max-width: 375px) {
+	#sepiaFW-chat-channel-controls button {
+		font-size: 10px;
+		display: flex;
+		align-items: center;
+	}
 }
 #sepiaFW-chat-userlist {
     padding: 4px 8px;

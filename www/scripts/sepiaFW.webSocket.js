@@ -41,6 +41,7 @@ function sepiaFW_build_client_interface(){
 	ClientInterface.editChannel = SepiaFW.webSocket.channels.edit;
 	ClientInterface.pushToChannelList = SepiaFW.webSocket.client.pushToChannelList;
 	ClientInterface.refreshChannelList = SepiaFW.webSocket.client.refreshChannelList;
+	ClientInterface.openChannelManager = SepiaFW.webSocket.client.openChannelManager;
 
 	ClientInterface.getNewMessageId = SepiaFW.webSocket.client.getNewMessageId;
 	ClientInterface.handleServerMessage = SepiaFW.webSocket.client.handleServerMessage;
@@ -821,13 +822,38 @@ function sepiaFW_build_webSocket_client(){
 		}
 		
 		//CHANNELS
-		var channelManagerButton = document.getElementById("sepiaFW-chat-channel-manager-btn");
-		$(channelManagerButton).off().on("click", function(){
+		Client.openChannelManager = function(data){
 			SepiaFW.frames.open({
 				pageUrl: "channel-manager.html",
 				theme: "dark",
-				onOpen: function(){},
+				onOpen: function(){
+					if (data){
+						if (data.page != undefined){
+							SepiaFW.frames.uic.showPane(data.page);
+						}
+					}else{
+						var channel = SepiaFW.client.getChannelDataById(activeChannelId);
+						var userId = SepiaFW.account.getUserId();
+						//open edit-page for all owned channels except private one
+						if (channel && channel.owner && channel.owner == userId && channel.id != userId){
+							SepiaFW.frames.currentScope.loadEditData(channel);
+						//open front-page for all others
+						}else{
+							SepiaFW.frames.uic.showPane(0);
+						}
+					}
+				},
 				onClose: function(){}
+			});
+		}
+		var channelManagerButton = document.getElementById("sepiaFW-chat-channel-manager-btn");
+		$(channelManagerButton).off().on("click", function(){
+			Client.openChannelManager();
+		});
+		var channelInviteButton = document.getElementById("sepiaFW-chat-invite-btn");
+		$(channelInviteButton).off().on("click", function(){
+			Client.openChannelManager({
+				page: 3
 			});
 		});
 		var channelLogoutButton = document.getElementById("sepiaFW-chat-logout-btn");

@@ -118,8 +118,15 @@
 				<ul id="sepiaFW-chat-userlist"><!-- Dynamic content --></ul>
 			</div>
 			<div id="sepiaFW-chat-channel-controls">
-				<button id="sepiaFW-chat-channel-manager-btn"><script>SepiaFW.local.w('edit_chat_channels')</script></button>
-				<button id="sepiaFW-chat-logout-btn"><script>SepiaFW.local.w('sign_out')</script></button>
+				<button id="sepiaFW-chat-channel-manager-btn" class="sepiaFW-chat-channel-controls-btn">
+					<i class="material-icons md-txt">rss_feed</i>&nbsp;<script>SepiaFW.local.w('edit')</script>
+				</button>
+				<button id="sepiaFW-chat-invite-btn" class="sepiaFW-chat-channel-controls-btn non-private-channels">
+					<i class="material-icons md-txt">person_add</i>&nbsp;<script>SepiaFW.local.w('invite')</script>
+				</button>
+				<button id="sepiaFW-chat-logout-btn" class="sepiaFW-chat-channel-controls-btn">
+					<i class="material-icons md-txt">person_outline</i>&nbsp;<script>SepiaFW.local.w('sign_out')</script>
+				</button>
 			</div>
 		</div>
 		<div id="sepiaFW-chat-controls-more-menu" class="sepiaFW-menu">

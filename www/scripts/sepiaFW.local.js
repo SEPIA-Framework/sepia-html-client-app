@@ -29,6 +29,8 @@ function sepiaFW_build_strings(){
 	StringsDE.channels = "Kanäle";
 	StringsDE.active_users = "Aktive User";
 	StringsDE.edit_chat_channels = "Kanäle bearbeiten";
+	StringsDE.invite_user = "User einladen";
+	StringsDE.invite = "Einladen";
 	//StringsDE.chatInputPlaceholder = 'Deine Nachricht ...';
 	StringsDE.chatInputPlaceholder = '';
 	StringsDE.loginFailedPlain = 'Login fehlgeschlagen!';
@@ -57,6 +59,7 @@ function sepiaFW_build_strings(){
 	StringsDE.save = 'Speichern';
 	StringsDE.store = 'Speichern';
 	StringsDE.load = 'Laden';
+	StringsDE.edit = 'Bearbeiten';
 	StringsDE.tryAgain = 'Nochmal versuchen';
 	StringsDE.tryReconnect = 'Neu verbinden';
 	StringsDE.wait = 'Warten';
@@ -158,6 +161,8 @@ function sepiaFW_build_strings(){
 	StringsEN.channels = "Channels";
 	StringsEN.active_users = "Active Users";
 	StringsEN.edit_chat_channels = "Edit Channels";
+	StringsEN.invite_user = "Invite User";
+	StringsEN.invite = "Invite";
 	//StringsEN.chatInputPlaceholder = 'Your message ...';
 	StringsEN.chatInputPlaceholder = '';
 	StringsEN.loginFailedPlain = 'Login failed!';
@@ -186,6 +191,7 @@ function sepiaFW_build_strings(){
 	StringsEN.save = 'Save';
 	StringsEN.store = 'Store';
 	StringsEN.load = 'Load';
+	StringsEN.edit = 'Edit';
 	StringsEN.tryAgain = 'Try again';
 	StringsEN.tryReconnect = 'Try reconnect';
 	StringsEN.wait = 'Wait';

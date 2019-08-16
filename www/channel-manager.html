@@ -1,12 +1,35 @@
 <div id='sepiaFW-frame-carousel' class="sepiaFW-inner-container sepiaFW-carousel">
 	<div class='sepiaFW-carousel-pane-container'>
+		<!-- Page 0 -->
+		<div id="sepiaFW-frame-page-1" class='sepiaFW-frames-page sepiaFW-carousel-pane'>
+			<div id="sepiaFW-channel-manager-view-0" class="group-container">
+				<div class="group column">
+					<h2>Channel Manager</h2>
+				</div>
+				<div class="group column">
+					<h2 style="font-weight: normal;">Options</h2>
+				</div>
+				<div class="group column">
+					<div class="subgroup menu-button" onclick="SepiaFW.frames.uic.showPane(1);">
+						<span>Create</span><i class="material-icons md-mnu">play_circle_filled</i>
+					</div>
+					<div class="subgroup menu-button" onclick="SepiaFW.frames.uic.showPane(2);">
+						<span>Join</span><i class="material-icons md-mnu">play_circle_filled</i>
+					</div>
+					<div class="subgroup menu-button" onclick="SepiaFW.frames.uic.showPane(3);">
+						<span>Edit</span><i class="material-icons md-mnu">play_circle_filled</i>
+					</div>
+				</div>
+			</div>
+		</div>
 		<!-- Page 1 -->
 		<div id="sepiaFW-frame-page-1" class='sepiaFW-frames-page sepiaFW-carousel-pane'>
-			<div id="sepiaFW-channel-manager-view" class="group-container">
+			<div id="sepiaFW-channel-manager-view-1" class="group-container">
 				<div class="group column">
 					<h2>Channel Manager</h2>
 					<p class="info-text centered" style="margin-bottom: 0;">
-						<b>Create new chat channel:</b> Choose a name (max. 26 characters), add some initial members (user IDs), add an assistant to the channel
+						Create new chat channel<br><br>
+						Choose a name (max. 26 characters), add some initial members (user IDs), add an assistant to the channel
 						and make it public (anybody can join) if you like.
 					</p>
 				</div>
@@ -33,12 +56,13 @@
 		</div>
 		<!-- Page 2 -->
 		<div id="sepiaFW-frame-page-2" class='sepiaFW-frames-page sepiaFW-carousel-pane'>
-			<div id="sepiaFW-channel-manager-view" class="group-container">
+			<div id="sepiaFW-channel-manager-view-2" class="group-container">
 				<div class="group column">
 					<h2>Channel Manager</h2>
 					<p class="info-text centered" style="margin-bottom: 0;">
-						<b>Join chat channel:</b> Get its ID and access key from the channel owner, enter the data and hit 'join'. 
-						If the channel is public leave the key field empty.
+						Join chat channel<br><br>
+						Get the channel ID and access key from the channel owner, enter the data and hit 'join'. 
+						If the channel is public and not yet in your list enter the ID and "open" as key.
 					</p>
 				</div>
 				<div class="group column">
@@ -47,6 +71,7 @@
 					<br>
 					<h3>Access Key (for user):</h3>
 					<input id="sepiaFW-channel-manager-key">
+					<br>
 				</div>
 				<div class="group center extra-space-tb">
 					<button id="sepiaFW-channel-manager-join-btn">JOIN</button>
@@ -55,19 +80,28 @@
 		</div>
 		<!-- Page 3 -->
 		<div id="sepiaFW-frame-page-3" class='sepiaFW-frames-page sepiaFW-carousel-pane'>
-			<div id="sepiaFW-channel-manager-view" class="group-container">
+			<div id="sepiaFW-channel-manager-view-3" class="group-container">
 				<div class="group column">
 					<h2>Channel Manager</h2>
 					<p class="info-text centered" style="margin-bottom: 0;">
-						<b>Delete chat channel:</b> Enter its ID and hit 'delete'. Please note that you can only delete channels that you own AND
-						that all members will be kicked out of the channel when you delete it!
+						Edit chat channel<br><br>
+						Enter channel ID of a channel that you OWN then 'edit' members or hit 'delete'. 
+						Please note that all content will be removed and all members will be kicked out of a channel when you delete it!
 					</p>
 				</div>
 				<div class="group column">
 					<h3>Channel ID:</h3>
-					<input id="sepiaFW-channel-manager-cid-delete" placeholder="">
+					<input id="sepiaFW-channel-manager-cid-edit" placeholder="">
+					<br>
+					<h3>Channel Name:</h3>
+					<input id="sepiaFW-channel-manager-cname-edit" placeholder="">
+					<br>
+					<h3>Edit Members:</h3>
+					<input id="sepiaFW-channel-manager-cmembers-edit" placeholder="User-ID-1, User-ID-2, ...">
+					<br>
 				</div>
 				<div class="group center extra-space-tb">
+					<button id="sepiaFW-channel-manager-edit-btn">EDIT</button>
 					<button id="sepiaFW-channel-manager-delete-btn" class="dangerous">DELETE</button>
 				</div>
 			</div>
@@ -84,102 +118,163 @@
 	<button id="sepiaFW-frames-show-next-page" class='entry'>
 		<span data-localize="next">next</span><i class="material-icons md-btn2">keyboard_arrow_right</i>
 	</button>
-	<div id="sepiaFW-frames-nav-bar-page-indicator"><div>&nbsp;</div><div>&nbsp;</div><div>&nbsp;</div></div>
+	<div id="sepiaFW-frames-nav-bar-page-indicator"><div>&nbsp;</div><div>&nbsp;</div><div>&nbsp;</div><div>&nbsp;</div></div>
 	<!--<div id="sepiaFW-frames-nav-bar-page-indicator"><div>&nbsp;</div></div>-->
 </div>
 <script>
-	$('[data-localize]').each(function(){
+	$('#sepiaFW-frame-carousel').find('[data-localize]').each(function(){
 		$(this).html(SepiaFW.local.g(this.dataset.localize));
 	});
 
-	//Input handling
-	$('#sepiaFW-channel-manager-cname').off().on("change", function(){
-		if (this.value){
-			this.value = this.value.replace(/[^\w\s#-\?!\.]/gi,"").replace(/\s+/gi, " ").substring(0, 26);
-		}
-	});
-	
-	//Create channel
-	$("#sepiaFW-channel-manager-create-btn").off().on("click", function(){
-		createChannel();
-	});
-	function createChannel(){
-		//get data
-		var channelData = {};
-		
-		var name = $('#sepiaFW-channel-manager-cname').val();
-		if (!name){
-			SepiaFW.ui.showPopup("Please enter a name for the new channel first.");
-			return;
-		}
-		channelData.name = name;
+	//Define scope
+	SepiaFW.frames.currentScope = {
 
-		var membersString = $('#sepiaFW-channel-manager-cmembers').val();
-		var members = [];
-		if (membersString){
-			membersString.split(",").forEach(function(m){
-				m = m.trim();
-				if (m.match(/^[A-Za-z]+\d+$/)){
-					members.push(m);
-				}else{
-					SepiaFW.debug.error("Removed from members array due to invalid format: " + m);
+		//Load data to edit page
+		loadEditData: function(channel){
+			if (channel.owner == SepiaFW.account.getUserId()){
+				$('#sepiaFW-channel-manager-cid-edit').val(channel.id);
+				$('#sepiaFW-channel-manager-cname-edit').val(channel.name);
+			}
+			SepiaFW.frames.uic.showPane(3);
+		},
+
+		//Load scope (default method)
+		load: function(){
+			//Input handling
+			$('#sepiaFW-channel-manager-cname').off().on("change", function(){
+				if (this.value){
+					this.value = this.value.replace(/[^\w\s#-\?!\.]/gi,"").replace(/\s+/gi, " ").substring(0, 26);
 				}
 			});
+			
+			//Create channel
+			$("#sepiaFW-channel-manager-create-btn").off().on("click", function(){
+				createChannel();
+			});
+			function createChannel(){
+				//get data
+				var channelData = {};
+				
+				var name = $('#sepiaFW-channel-manager-cname').val();
+				if (!name){
+					SepiaFW.ui.showPopup("Please enter a name for the new channel first.");
+					return;
+				}
+				channelData.name = name;
+
+				var membersString = $('#sepiaFW-channel-manager-cmembers').val();
+				var members = [];
+				if (membersString){
+					membersString.split(",").forEach(function(m){
+						m = m.trim();
+						if (m.match(/^[A-Za-z]+\d+$/)){
+							members.push(m);
+						}else{
+							SepiaFW.debug.error("Removed from members array due to invalid format: " + m);
+						}
+					});
+				}
+				channelData.members = members;
+				channelData.isPublic = $('#sepiaFW-channel-manager-is-public').is(':checked');
+				channelData.addAssistant = $('#sepiaFW-channel-manager-add-assist').is(':checked');
+
+				//send request
+				//console.log(JSON.stringify(channelData));
+				SepiaFW.client.createChannel(channelData, function(res){
+					//additional onSuccess
+					resetChannelCreateFields();
+					SepiaFW.ui.showPopup("You have successfully created a new channel:"
+						+ "<br>Name: " + res.channelName
+						//+ "<br>Id: " + res.channelId
+						//+ "<br>Key: " + res.key		//we don't show this here
+					);
+				});
+			}
+			function resetChannelCreateFields(){
+				$('#sepiaFW-channel-manager-cname').val('');
+				$('#sepiaFW-channel-manager-cmembers').val('');
+				document.getElementById("sepiaFW-channel-manager-is-public").checked = false;
+				document.getElementById("sepiaFW-channel-manager-add-assist").checked = true;
+			}
+
+			//Join channel
+			$("#sepiaFW-channel-manager-join-btn").off().on("click", function(){
+				joinChannel();
+			});
+			function joinChannel(){
+				//get data
+				var channelData = {};
+				
+				var channelId = $('#sepiaFW-channel-manager-cid').val();
+				var key = $('#sepiaFW-channel-manager-key').val();
+				if (!channelId || !key){
+					SepiaFW.ui.showPopup("Please enter a channel ID and key first.");
+					return;
+				}
+				channelData.id = channelId;
+				channelData.key = key;
+
+				//send request
+				//console.log(JSON.stringify(channelData));
+				SepiaFW.client.joinNewChannel(channelData, function(res){
+					//additional onSuccess
+					resetChannelJoinFields();
+					SepiaFW.ui.showPopup("You have successfully joined a new channel:"
+						+ "<br>Name: " + res.channelName
+						//+ "<br>Id: " + res.channelId
+					);
+				});
+			}
+			function resetChannelJoinFields(){
+				$('#sepiaFW-channel-manager-cid').val('');
+				$('#sepiaFW-channel-manager-key').val('');
+			}
+
+			//Delete channel
+			$("#sepiaFW-channel-manager-delete-btn").off().on("click", function(){
+				//show warning
+				var config = {
+					buttonOneName: "Yes, I'm sure",
+					buttonOneAction: function(){
+						setTimeout(function(){
+							deleteChannel();
+						}, 500);
+					},
+					buttonTwoName: "No, maybe later",
+					buttonTwoAction: function(){}
+				};
+				SepiaFW.ui.showPopup("Are you sure you want to permanently delete this channel? No user will be able to continue using it afterwards!", config);
+			});
+			function deleteChannel(){
+				//get data
+				var channelData = {};
+				var channelId = $('#sepiaFW-channel-manager-cid-edit').val();
+				if (!channelId){
+					SepiaFW.ui.showPopup("Please enter a channel ID first.");
+					return;
+				}
+				channelData.id = channelId;
+
+				//send request
+				//console.log(JSON.stringify(channelData));
+				SepiaFW.client.deleteChannel(channelData, function(res){
+					//additional onSuccess
+					resetChannelDeleteFields();
+					SepiaFW.ui.showPopup("You have successfully deleted channel:"
+						+ "<br>Name: " + res.channelName
+						//+ "<br>Id: " + res.channelId
+					);
+				});
+			}
+			function resetChannelDeleteFields(){
+				$('#sepiaFW-channel-manager-cid-delete').val('');
+			}
+
+			//Edit channel
+			$("#sepiaFW-channel-manager-edit-btn").off().on("click", function(){
+				SepiaFW.ui.showPopup("Under construction");
+			});
 		}
-		channelData.members = members;
-		channelData.isPublic = $('#sepiaFW-channel-manager-is-public').is(':checked');
-		channelData.addAssistant = $('#sepiaFW-channel-manager-add-assist').is(':checked');
-
-		//send request
-		//console.log(JSON.stringify(channelData));
-		SepiaFW.client.createChannel(channelData, function(res){
-			//additional onSuccess
-			resetChannelCreateFields();
-			SepiaFW.ui.showPopup("You have successfully created a new channel:"
-				+ "<br>Name: " + res.channelName
-				//+ "<br>Id: " + res.channelId
-				//+ "<br>Key: " + res.key		//we don't show this here
-			);
-		});
 	}
-	function resetChannelCreateFields(){
-		$('#sepiaFW-channel-manager-cname').val('');
-		$('#sepiaFW-channel-manager-cmembers').val('');
-		document.getElementById("sepiaFW-channel-manager-is-public").checked = false;
-		document.getElementById("sepiaFW-channel-manager-add-assist").checked = true;
-	}
-
-	//Join channel
-	$("#sepiaFW-channel-manager-join-btn").off().on("click", function(){
-		joinChannel();
-	});
-	function joinChannel(){
-		//get data
-		var channelData = {};
-		
-		var channelId = $('#sepiaFW-channel-manager-cid').val();
-		var key = $('#sepiaFW-channel-manager-key').val();
-		if (!channelId || !key){
-			SepiaFW.ui.showPopup("Please enter a channel ID and key first.");
-			return;
-		}
-		channelData.id = channelId;
-		channelData.key = key;
-
-		//send request
-		//console.log(JSON.stringify(channelData));
-		SepiaFW.client.joinNewChannel(channelData, function(res){
-			//additional onSuccess
-			resetChannelJoinFields();
-			SepiaFW.ui.showPopup("You have successfully joined a new channel:"
-				+ "<br>Name: " + res.channelName
-				//+ "<br>Id: " + res.channelId
-			);
-		});
-	}
-	function resetChannelJoinFields(){
-		$('#sepiaFW-channel-manager-cid').val('');
-		$('#sepiaFW-channel-manager-key').val('');
-	}
-
+	SepiaFW.frames.currentScope.load();
 </script>

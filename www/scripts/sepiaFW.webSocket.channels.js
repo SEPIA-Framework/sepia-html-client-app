@@ -62,8 +62,7 @@ function sepiaFW_build_webSocket_channels(){
 
 			if (additionalSuccessCallback) additionalSuccessCallback(res);
 		}, 
-			defaultchannelApiErrorCallback,
-			console.log
+			defaultchannelApiErrorCallback
 		);
 	}
 
@@ -74,7 +73,24 @@ function sepiaFW_build_webSocket_channels(){
 
 	//Delete
 	Channels.delete = function(channelData, additionalSuccessCallback){
-		console.error('Channel delete is not yet implemented!');
+		if (!channelData.id || channelData.id == SepiaFW.account.getUserId()){
+			SepiaFW.debug.error("Failed to delete channel - Missing or invalid channel 'id'.");
+			return;
+		}
+		channelApiCall("deleteChannel", {
+			channelId: channelData.id
+		}, function(res){
+			//SUCCESS
+			console.error(JSON.stringify(res));	//DEBUG
+			SepiaFW.debug.log("Channel has been deleted: " + res.channelName + " with ID: " + res.channelId);
+			
+			//re-build channel list
+			SepiaFW.client.refreshChannelList();
+
+			if (additionalSuccessCallback) additionalSuccessCallback(res);
+		}, 
+			defaultchannelApiErrorCallback
+		);
 	}
 
 	//Create channel invite data
