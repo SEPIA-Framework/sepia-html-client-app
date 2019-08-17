@@ -85,7 +85,7 @@ function sepiaFW_build_client_interface(){
 		return (ClientInterface.deeplinkHostUrl + "?q=" + encodeURIComponent("i18n:" + SepiaFW.config.appLanguage + " " + text));
 	}
 	ClientInterface.buildDeepLinkForSharePath = function(shareData){
-		return (SepiaFW.client.deeplinkHostUrl + "?share=" + encodeURIComponent(JSON.stringify(shareData)));
+		return (SepiaFW.client.deeplinkHostUrl + "?share=" + encodeURIComponent(btoa(JSON.stringify(shareData))));
 	}
 	ClientInterface.getDeepLinkDataFromShareLink = function(shareLink){
 		if (shareLink.indexOf("?share=") >= 0){
@@ -96,7 +96,12 @@ function sepiaFW_build_client_interface(){
 		}
 	}
 	ClientInterface.getDeepLinkDataFromEncodedShareData = function(shareData){
-		return shareData;		//no encoding currently (besides URI component which was decoded already)
+		try {
+			return JSON.parse(atob(shareData));		//no encoding currently (besides URI component which was decoded already)
+		}catch(e){
+			SepiaFW.debug.error("Failed to parse URL data: " + shareData);
+			return;
+		}
 	}
 
 	//check server info
@@ -710,7 +715,8 @@ function sepiaFW_build_webSocket_client(){
 	}
 	function handleUrlMessageRequest(requestMsg){
 		//ask user if he wants to do this before actually doing it!
-		SepiaFW.ui.askForPermissionToExecute(requestMsg, function(){
+		var ask = "<p>" + requestMsg.replace(/^i18n:(\w+)\s/, "($1) ") + "</p>";
+		SepiaFW.ui.askForPermissionToExecute(ask, function(){
 			//yes
 			SepiaFW.debug.log("Executing request via URL: " + requestMsg);
 			setTimeout(function(){
@@ -724,7 +730,7 @@ function sepiaFW_build_webSocket_client(){
 		//decode base64 string
 		requestMsg = atob(requestMsg);
 		var ask = requestMsg.replace(/;;(\w+)=/gi, ", <b>$1:</b> ");
-		SepiaFW.ui.askForPermissionToExecute("<b>cmd: </b>" + ask, function(){
+		SepiaFW.ui.askForPermissionToExecute("<p><b>cmd: </b>" + ask + "</p>", function(){
 			//yes
 			SepiaFW.debug.log("Executing command via URL: " + requestMsg);
 			//TODO: test
@@ -753,18 +759,35 @@ function sepiaFW_build_webSocket_client(){
 			}else{
 				shareData = SepiaFW.client.getDeepLinkDataFromEncodedShareData(shareData);
 			}
+			if (!shareData) return;
 		}
 		//console.log(shareData);
-		if (shareData.type){
-			var ask = "Open shared data of type: <b>" + shareData.type.toUpperCase() + "</b>";
-			//TODO: give more info
-			if (shareData.type == SepiaFW.client.SHARE_TYPE_LINK && shareData.data){
-				ask += "<br><br><b>URL:</b> ";
-				ask += (shareData.data.url.length > 30)? (shareData.data.url.substring(0,29) + "...") : shareData.data.url;
+		if (shareData.type && shareData.data){
+			var ask;
+			//give more info
+			if (shareData.type == SepiaFW.client.SHARE_TYPE_LINK){
+				//Link
+				ask = "<p><b>" + SepiaFW.local.g('link_open_url') + "</b></p>";
+				ask += "<b>URL:</b> ";
+				if (shareData.data.url){
+					ask += (shareData.data.url.length > 30)? (shareData.data.url.substring(0,29) + "...") : shareData.data.url;
+				}
+			}else if (shareData.type == SepiaFW.client.SHARE_TYPE_CHANNEL_INVITE){
+				//Channel Invite
+				ask = "<p><b>" + SepiaFW.local.g('link_join_channel') + "</b></p>";
+				ask += "<b>Channel Name:</b> " + shareData.data.name + "<br>";
+				ask += "<b>Channel Owner:</b> " + shareData.data.owner;
+			}else if (shareData.type == SepiaFW.client.SHARE_TYPE_ALARM){
+				//Alarm
+				ask = "<p><b>" + SepiaFW.local.g('link_create_reminder') + "</b></p>";
+				ask += "<b>Title:</b> " + shareData.data.title;
+			}else{
+				//Other
+				ask = "<p>Shared data of type: <b>" + shareData.type.toUpperCase() + "</b></p>";
 			}
 			SepiaFW.ui.askForPermissionToExecute(ask, function(){
 				//ALARM
-				if (shareData.type == SepiaFW.client.SHARE_TYPE_ALARM && shareData.data && shareData.data.beginTime){
+				if (shareData.type == SepiaFW.client.SHARE_TYPE_ALARM && shareData.data.beginTime){
 					var options = {};   //things like skipTTS etc. (see sendCommand function)
 					var dataset = {
 						info: "direct_cmd",
@@ -779,7 +802,7 @@ function sepiaFW_build_webSocket_client(){
 					//TODO: note that name might be unreliable if it was a date and timezone changes
 				
 				//LINK CARD
-				}else if (shareData.type == SepiaFW.client.SHARE_TYPE_LINK && shareData.data && SepiaFW.offline && SepiaFW.embedded){
+				}else if (shareData.type == SepiaFW.client.SHARE_TYPE_LINK && SepiaFW.offline && SepiaFW.embedded){
 					//TODO					
 					var msgId = SepiaFW.client.getNewMessageId();
 					var nluInput = {
@@ -798,7 +821,7 @@ function sepiaFW_build_webSocket_client(){
 					SepiaFW.client.handleServerMessage(resultMessage);
 
 				//CHANNEL INVITE
-				}else if (shareData.type == SepiaFW.client.SHARE_TYPE_CHANNEL_INVITE && shareData.data){
+				}else if (shareData.type == SepiaFW.client.SHARE_TYPE_CHANNEL_INVITE){
 					//send request
 					SepiaFW.client.joinNewChannel(shareData.data, function(res){
 						//additional onSuccess

@@ -124,7 +124,9 @@ function sepiaFW_build_webSocket_channels(){
 			var userKey = SepiaFW.tools.getSHA256Hash(userId + channelData.key);
 			return {
 				id: channelId,
-				key: userKey
+				key: userKey,
+				name: channelData.name,
+				owner: channelData.owner
 			}
 		}else{
 			return;

@@ -1013,7 +1013,7 @@ function sepiaFW_build_ui(){
 
 	//Use pop-up to ask for permission
 	UI.askForPermissionToExecute = function(question, allowedCallback, refusedCallback){
-		var request = SepiaFW.local.g('allowedToExecuteThisCommand') + "<br><br>" + question;
+		var request = SepiaFW.local.g('allowedToExecuteThisCommand') + "<br>" + question;
 		UI.showPopup(request, {
 			buttonOneName : SepiaFW.local.g('looksGood'),
 			buttonOneAction : function(){
