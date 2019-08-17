@@ -1286,6 +1286,14 @@ function sepiaFW_build_ui_build(){
 			}
 		});
 	}
+	Build.updateChannelControlButtons = function(activeChannelData){
+		//hide all contextual buttons
+		$('#sepiaFW-chat-channel-controls').find(".sepiaFW-chat-channel-controls-btn.contextual").hide();
+		//show by context
+		if (activeChannelData.owner && activeChannelData.owner != activeChannelData.id && activeChannelData.owner == SepiaFW.account.getUserId()){
+			$('#sepiaFW-chat-invite-btn').show();
+		}
+	}
 	
 	//make message object
 	Build.makeMessageObject = function(text, sender, senderType, receiver, channelId){

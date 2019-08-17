@@ -139,6 +139,14 @@
 				$('#sepiaFW-channel-manager-cid-edit').val(channel.id);
 				$('#sepiaFW-channel-manager-cname-edit').val(channel.name);
 			}
+		},
+		clearEditData: function(channel){
+			$('#sepiaFW-channel-manager-cid-edit').val("");
+			$('#sepiaFW-channel-manager-cname-edit').val("");
+		},
+
+		//Open certain pages
+		openInvitePage: function(){
 			SepiaFW.frames.uic.showPane(3);
 		},
 

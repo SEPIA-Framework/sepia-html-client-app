@@ -490,6 +490,9 @@ function sepiaFW_build_webSocket_client(){
 		//Update channel list - basically this just sets the correct active channel
 		SepiaFW.ui.build.updateChannelList(activeChannelId);
 
+		//update channel control buttons
+		SepiaFW.ui.build.updateChannelControlButtons(channelData);
+
 		//always call onActive
 		Client.onActive();
 	}
@@ -796,8 +799,14 @@ function sepiaFW_build_webSocket_client(){
 
 				//CHANNEL INVITE
 				}else if (shareData.type == SepiaFW.client.SHARE_TYPE_CHANNEL_INVITE && shareData.data){
-					//TODO:
-					console.error('implement: ' + JSON.stringify(shareData));
+					//send request
+					SepiaFW.client.joinNewChannel(shareData.data, function(res){
+						//additional onSuccess
+						SepiaFW.ui.showPopup("You have successfully joined a new channel:"
+							+ "<br>Name: " + res.channelName
+							//+ "<br>Id: " + res.channelId
+						);
+					});
 				
 				//No handler
 				}else{
@@ -856,17 +865,19 @@ function sepiaFW_build_webSocket_client(){
 				pageUrl: "channel-manager.html",
 				theme: "dark",
 				onOpen: function(){
-					if (data){
-						if (data.page != undefined){
-							SepiaFW.frames.uic.showPane(data.page);
-						}
+					var channel = SepiaFW.client.getChannelDataById(activeChannelId);
+					var userId = SepiaFW.account.getUserId();
+					var canEdit = false;
+					//open edit-page for all owned channels except private one
+					if (channel && channel.owner && channel.owner == userId && channel.id != userId){
+						SepiaFW.frames.currentScope.loadEditData(channel);
+						canEdit = true;
 					}else{
-						var channel = SepiaFW.client.getChannelDataById(activeChannelId);
-						var userId = SepiaFW.account.getUserId();
-						//open edit-page for all owned channels except private one
-						if (channel && channel.owner && channel.owner == userId && channel.id != userId){
-							SepiaFW.frames.currentScope.loadEditData(channel);
-						//open front-page for all others
+						SepiaFW.frames.currentScope.clearEditData();
+					}
+					if (data){
+						if (data.page && data.page == "invite"){
+							SepiaFW.frames.currentScope.openInvitePage();
 						}else{
 							SepiaFW.frames.uic.showPane(0);
 						}
@@ -882,7 +893,7 @@ function sepiaFW_build_webSocket_client(){
 		var channelInviteButton = document.getElementById("sepiaFW-chat-invite-btn");
 		$(channelInviteButton).off().on("click", function(){
 			Client.openChannelManager({
-				page: 3
+				page: "invite"
 			});
 		});
 		var channelLogoutButton = document.getElementById("sepiaFW-chat-logout-btn");
@@ -1901,17 +1912,31 @@ function sepiaFW_build_webSocket_client(){
 		
 		//html - TODO: support special HTML message?
 		if (notAnsweredYet && message.html){
+			/*
 			SepiaFW.ui.insert("sepiaFW-chat-output", message.html);
 			SepiaFW.ui.scrollToBottom("sepiaFW-chat-output");
+			*/
+			SepiaFW.ui.showPopup(
+				"The message you've received included raw HTML code. This feature is currently disabled for security reasons! "
+				+ "<br>Sender: " + message.sender
+			);
 		
 		//text
 		}else if (notAnsweredYet && message.text){
 			//status update
 			if (message.textType && message.textType === "status"){
+				//publish
 				publishStatusMessage(message, username);
 			
 			//chat
 			}else{
+				//check if text is a URL and this URL points to a SEPIA deep-link
+				if (message.text.indexOf(SepiaFW.client.deeplinkHostUrl) == 0){
+					//TODO: handle
+					console.error('found deeplink to own app');
+				}
+
+				//publish
 				publishChatMessage(message, username);
 			}
 		}

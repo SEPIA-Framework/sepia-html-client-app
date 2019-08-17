@@ -18,7 +18,7 @@ function sepiaFW_build_webSocket_channels(){
 			addAssistant: channelData.addAssistant
 		}, function(res){
 			//SUCCESS
-			console.error(JSON.stringify(res));	//DEBUG
+			//console.error(JSON.stringify(res));	//DEBUG
 			SepiaFW.debug.log("Created new channel: " + res.channelName + " with ID: " + res.channelId);
 			
 			//re-build channel list
@@ -48,7 +48,7 @@ function sepiaFW_build_webSocket_channels(){
 			userKey: channelData.key		//Note: must be userKey NOT channelKey
 		}, function(res){
 			//SUCCESS
-			console.error(JSON.stringify(res));	//DEBUG
+			//console.error(JSON.stringify(res));	//DEBUG
 			SepiaFW.debug.log("Joined new channel: " + res.channelName + " with ID: " + res.channelId);
 			
 			//re-build channel list
@@ -81,7 +81,7 @@ function sepiaFW_build_webSocket_channels(){
 			channelId: channelData.id
 		}, function(res){
 			//SUCCESS
-			console.error(JSON.stringify(res));	//DEBUG
+			//console.error(JSON.stringify(res));	//DEBUG
 			SepiaFW.debug.log("Channel has been deleted: " + res.channelName + " with ID: " + res.channelId);
 			
 			//re-build channel list
@@ -101,7 +101,7 @@ function sepiaFW_build_webSocket_channels(){
 			includePublic: includePublic
 		}, function(res){
 			//SUCCESS
-			console.error(JSON.stringify(res));	//DEBUG
+			//console.error(JSON.stringify(res));	//DEBUG
 			SepiaFW.debug.log("Available channels have been loaded: " + res.channels.length);
 			
 			//re-build channel list
