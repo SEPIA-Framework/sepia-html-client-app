@@ -339,6 +339,14 @@ function sepiaFW_build_tools(){
 	Tools.getURLParameter = function(name){
 		return decodeURIComponent((new RegExp('[?|&]' + name + '=' + '([^&;]+?)(&|#|;|$)').exec(location.search)||[,""])[1].replace(/\+/g, '%20'))||null
 	}
+	Tools.getURLParameterFromUrl = function(url, name){
+		if (url.indexOf("?") < 0){
+			return;
+		}else{
+			var search = url.replace(/.*?(\?.*)/, "$1");
+			return decodeURIComponent((new RegExp('[?|&]' + name + '=' + '([^&;]+?)(&|#|;|$)').exec(search)||[,""])[1].replace(/\+/g, '%20'))||null
+		}
+	}
 	//set or add a parameter of a given URL with encoding and return modified url
 	Tools.setParameterInURL = function(url, parameter, value){
 		if ((url.indexOf('?' + parameter + '=') > -1) || (url.indexOf('&' + parameter + '=') > -1)){

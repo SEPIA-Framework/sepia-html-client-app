@@ -1211,6 +1211,9 @@ body {
 #sepiaFW-chat-userlist .active::before { 
     content: "→ ";
 }
+#sepiaFW-chat-userlist .assistant::after { 
+    content: " \2660";
+}
 
 #sepiaFW-chat-channellist {
     padding: 5px 10px;
@@ -1223,6 +1226,9 @@ body {
 }
 #sepiaFW-chat-channellist .active::before { 
     content: "→ ";
+}
+#sepiaFW-chat-channellist .my-channel::after { 
+    content: " \2660"; /*221E, 00A9*/
 }
 
 .sepiaFW-layer-header,

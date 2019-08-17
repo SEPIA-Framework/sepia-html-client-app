@@ -1513,7 +1513,7 @@ function sepiaFW_build_ui_cards(){
 				}
 				SepiaFW.ui.showPopup("Click OK to copy link to clipboard", {
 					inputLabelOne: "Link",
-					inputOneValue: (SepiaFW.client.deeplinkHostUrl + "?share=" + encodeURIComponent(JSON.stringify(shareData))),
+					inputOneValue: SepiaFW.client.buildDeepLinkForSharePath(shareData),
 					buttonOneName: "OK",
 					buttonOneAction: function(btn, linkValue, iv2, inputEle1, ie2){
 						if (linkValue && inputEle1){

@@ -161,6 +161,14 @@
 #sepiaFW-frames-view .sepiaFW-frames-page.dark .group-container input {
 	border-bottom: 1px solid #fff;
 }
+#sepiaFW-frames-view .sepiaFW-frames-page .group-container input:disabled {
+	opacity: 0.66;
+	color: #4ec48f;
+    cursor: not-allowed;
+}
+#sepiaFW-frames-view .sepiaFW-frames-page.dark .group-container input:disabled {
+	color: #ceff1a;
+}
 #sepiaFW-frames-view .sepiaFW-frames-page .group-container input[type='checkbox'] {
 	min-width: 15px;
 	min-height: 15px;

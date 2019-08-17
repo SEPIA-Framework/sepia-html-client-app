@@ -38,7 +38,7 @@
 					<input id="sepiaFW-channel-manager-cname" placeholder="My new channel">
 					<br>
 					<h3>Initial Members:</h3>
-					<input id="sepiaFW-channel-manager-cmembers" placeholder="User-ID-1, User-ID-2, ...">
+					<input id="sepiaFW-channel-manager-cmembers" placeholder="User-ID-1, User-ID-2, ..." spellcheck="false">
 					<br><br>
 					<div class="subgroup">
 						<label>Is Public?</label>
@@ -62,15 +62,15 @@
 					<p class="info-text centered" style="margin-bottom: 0;">
 						Join chat channel<br><br>
 						Get the channel ID and access key from the channel owner, enter the data and hit 'join'. 
-						If the channel is public and not yet in your list enter the ID and "open" as key.
+						If the channel is public or you are already a member but it is not yet in your list enter the ID and "open" as key.
 					</p>
 				</div>
 				<div class="group column">
 					<h3>Channel ID:</h3>
-					<input id="sepiaFW-channel-manager-cid" placeholder="">
+					<input id="sepiaFW-channel-manager-cid" placeholder="" spellcheck="false">
 					<br>
 					<h3>Access Key (for user):</h3>
-					<input id="sepiaFW-channel-manager-key">
+					<input id="sepiaFW-channel-manager-key" spellcheck="false">
 					<br>
 				</div>
 				<div class="group center extra-space-tb">
@@ -91,18 +91,22 @@
 				</div>
 				<div class="group column">
 					<h3>Channel ID:</h3>
-					<input id="sepiaFW-channel-manager-cid-edit" placeholder="">
+					<input id="sepiaFW-channel-manager-cid-edit" placeholder="" spellcheck="false">
 					<br>
 					<h3>Channel Name:</h3>
-					<input id="sepiaFW-channel-manager-cname-edit" placeholder="">
+					<input id="sepiaFW-channel-manager-cname-edit" placeholder="" disabled>
 					<br>
-					<h3>Edit Members:</h3>
+					<!--<h3>Members:</h3>
 					<input id="sepiaFW-channel-manager-cmembers-edit" placeholder="User-ID-1, User-ID-2, ...">
+					<br>-->
+					<h3>Invite User:</h3>
+					<input id="sepiaFW-channel-manager-invite-user" placeholder="User-ID" spellcheck="false">
 					<br>
 				</div>
 				<div class="group center extra-space-tb">
-					<button id="sepiaFW-channel-manager-edit-btn">EDIT</button>
-					<button id="sepiaFW-channel-manager-delete-btn" class="dangerous">DELETE</button>
+					<!--<button id="sepiaFW-channel-manager-edit-btn">EDIT</button>-->
+					<button id="sepiaFW-channel-manager-invite-btn">INVITE</button>
+					<button id="sepiaFW-channel-manager-delete-btn" class="dangerous">DELETE CHANNEL</button>
 				</div>
 			</div>
 		</div>
@@ -143,7 +147,7 @@
 			//Input handling
 			$('#sepiaFW-channel-manager-cname').off().on("change", function(){
 				if (this.value){
-					this.value = this.value.replace(/[^\w\s#-\?!\.]/gi,"").replace(/\s+/gi, " ").substring(0, 26);
+					this.value = this.value.replace(/[^\w\s#\-\+&\?!\.]/gi,"").replace(/\s+/gi, " ").substring(0, 26);
 				}
 			});
 			
@@ -230,7 +234,21 @@
 				$('#sepiaFW-channel-manager-key').val('');
 			}
 
-			//Delete channel
+			//Edit and Delete channel
+			
+			//reload channel name when ID changes
+			$('#sepiaFW-channel-manager-cid-edit').off().on('change', function(){
+				//reset name
+				$('#sepiaFW-channel-manager-cname-edit').val('');
+				//load channel name
+				if (this.value){
+					var channelData = SepiaFW.client.getChannelDataById(this.value);
+					if (channelData && channelData.name){
+						$('#sepiaFW-channel-manager-cname-edit').val(channelData.name);
+					}
+				}
+			});
+
 			$("#sepiaFW-channel-manager-delete-btn").off().on("click", function(){
 				//show warning
 				var config = {
@@ -259,16 +277,54 @@
 				//console.log(JSON.stringify(channelData));
 				SepiaFW.client.deleteChannel(channelData, function(res){
 					//additional onSuccess
-					resetChannelDeleteFields();
+					resetChannelEditFields();
 					SepiaFW.ui.showPopup("You have successfully deleted channel:"
 						+ "<br>Name: " + res.channelName
 						//+ "<br>Id: " + res.channelId
 					);
 				});
 			}
-			function resetChannelDeleteFields(){
-				$('#sepiaFW-channel-manager-cid-delete').val('');
+			function resetChannelEditFields(){
+				$('#sepiaFW-channel-manager-cid-edit').val('');
+				$('#sepiaFW-channel-manager-cname-edit').val('');
+				$('#sepiaFW-channel-manager-invite-user').val('');
 			}
+
+			//Invite user
+			$("#sepiaFW-channel-manager-invite-btn").off().on("click", function(){
+				//generate link (requires to be channel owner and have key available)
+				var userId = $('#sepiaFW-channel-manager-invite-user').val();
+				var channelId = $('#sepiaFW-channel-manager-cid-edit').val();
+				if (!userId || !channelId){
+					SepiaFW.ui.showPopup(
+						"Please enter a channel ID and a user ID to create an invite link."
+					);
+					return;
+				}
+				var link = SepiaFW.client.getChannelInviteLink(userId, channelId);
+				if (!link){
+					SepiaFW.ui.showPopup(
+						"Sorry but it seems an invite link for this channel cannot be created. " +
+						"Only channel owners can create this link. If you are one please reload the app and try again."
+					);
+					return;
+				}
+				//copy link
+				SepiaFW.ui.showPopup("Share the link with the user you want to invite. Note that only THIS user can use it to join the channel!", {
+					inputLabelOne: "Link",
+					inputOneValue: link,
+					buttonOneName: "COPY",
+					buttonOneAction: function(btn, linkValue, iv2, inputEle1, ie2){
+						if (linkValue && inputEle1){
+							//select text and copy
+							inputEle1.select();
+							document.execCommand("copy");
+						}
+					},
+					buttonTwoName: "ABORT",
+					buttonTwoAction: function(){}
+				});
+			});
 
 			//Edit channel
 			$("#sepiaFW-channel-manager-edit-btn").off().on("click", function(){

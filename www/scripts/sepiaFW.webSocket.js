@@ -35,13 +35,16 @@ function sepiaFW_build_client_interface(){
 	ClientInterface.switchChannel = SepiaFW.webSocket.client.switchChannel;
 	ClientInterface.switchChatPartner = SepiaFW.webSocket.client.switchChatPartner;
 	ClientInterface.getActiveChatPartner = SepiaFW.webSocket.client.getActiveChatPartner;
+
+	ClientInterface.openChannelManager = SepiaFW.webSocket.client.openChannelManager;
 	ClientInterface.createChannel = SepiaFW.webSocket.channels.create;
 	ClientInterface.joinNewChannel = SepiaFW.webSocket.channels.join;
 	ClientInterface.deleteChannel = SepiaFW.webSocket.channels.delete;
 	ClientInterface.editChannel = SepiaFW.webSocket.channels.edit;
+	ClientInterface.loadAvailableChannels = SepiaFW.webSocket.channels.loadAvailableChannels;	//Note: loads data from server
 	ClientInterface.pushToChannelList = SepiaFW.webSocket.client.pushToChannelList;
-	ClientInterface.refreshChannelList = SepiaFW.webSocket.client.refreshChannelList;
-	ClientInterface.openChannelManager = SepiaFW.webSocket.client.openChannelManager;
+	ClientInterface.refreshChannelList = SepiaFW.webSocket.client.refreshChannelList;			//Note: refreshes UI (not data)
+	ClientInterface.getChannelInviteLink = SepiaFW.webSocket.channels.getChannelInviteLink;
 
 	ClientInterface.getNewMessageId = SepiaFW.webSocket.client.getNewMessageId;
 	ClientInterface.handleServerMessage = SepiaFW.webSocket.client.handleServerMessage;
@@ -73,12 +76,27 @@ function sepiaFW_build_client_interface(){
 
 	//some constants for link sharing
 	ClientInterface.deeplinkHostUrl = "https://b07z.net/dl/sepia/index.html";
-	ClientInterface.SHARE_TYPE_ALARM = "alarm";
-	ClientInterface.SHARE_TYPE_LINK = "link";
+	ClientInterface.SHARE_TYPE_ALARM = "alarm";		//parameters: beginTime, title
+	ClientInterface.SHARE_TYPE_LINK = "link";		//parameters: see card elements (cardElementInfo?)
+	ClientInterface.SHARE_TYPE_CHANNEL_INVITE = "channel_invite";	//parameters: id, key
 
 	//DeepLink builder
 	ClientInterface.buildDeepLinkFromText = function(text){
 		return (ClientInterface.deeplinkHostUrl + "?q=" + encodeURIComponent("i18n:" + SepiaFW.config.appLanguage + " " + text));
+	}
+	ClientInterface.buildDeepLinkForSharePath = function(shareData){
+		return (SepiaFW.client.deeplinkHostUrl + "?share=" + encodeURIComponent(JSON.stringify(shareData)));
+	}
+	ClientInterface.getDeepLinkDataFromShareLink = function(shareLink){
+		if (shareLink.indexOf("?share=") >= 0){
+			var shareDataEncoded = SepiaFW.tools.getURLParameterFromUrl(shareLink, "share");
+			return ClientInterface.getDeepLinkDataFromShareData(shareDataEncoded);
+		}else{
+			return;
+		}
+	}
+	ClientInterface.getDeepLinkDataFromEncodedShareData = function(shareData){
+		return shareData;		//no encoding currently (besides URI component which was decoded already)
 	}
 
 	//check server info
@@ -260,7 +278,8 @@ function sepiaFW_build_webSocket_client(){
 			return false;
 		}
 	}
-	Client.refreshChannelList = function(){
+	Client.refreshChannelList = function(newChannelList){
+		if (newChannelList) channelList = newChannelList;
 		SepiaFW.ui.build.channelList(channelList, activeChannelId);
 	}
 	//special input commands (slash-command) and modifiers (input-modifier)
@@ -725,12 +744,17 @@ function sepiaFW_build_webSocket_client(){
 			window.history.replaceState(history.state, document.title, url);
 		}
 		//2nd: check data and build
-		if (typeof shareData == "string" && shareData.indexOf("{") == 0){
-			shareData = JSON.parse(shareData);
+		if (typeof shareData == "string"){
+			if (shareData.indexOf("{") == 0){
+				shareData = JSON.parse(shareData);
+			}else{
+				shareData = SepiaFW.client.getDeepLinkDataFromEncodedShareData(shareData);
+			}
 		}
 		//console.log(shareData);
 		if (shareData.type){
 			var ask = "Open shared data of type: <b>" + shareData.type.toUpperCase() + "</b>";
+			//TODO: give more info
 			if (shareData.type == SepiaFW.client.SHARE_TYPE_LINK && shareData.data){
 				ask += "<br><br><b>URL:</b> ";
 				ask += (shareData.data.url.length > 30)? (shareData.data.url.substring(0,29) + "...") : shareData.data.url;
@@ -751,7 +775,7 @@ function sepiaFW_build_webSocket_client(){
 					SepiaFW.client.sendCommand(dataset, options);
 					//TODO: note that name might be unreliable if it was a date and timezone changes
 				
-				//LINK
+				//LINK CARD
 				}else if (shareData.type == SepiaFW.client.SHARE_TYPE_LINK && shareData.data && SepiaFW.offline && SepiaFW.embedded){
 					//TODO					
 					var msgId = SepiaFW.client.getNewMessageId();
@@ -769,6 +793,11 @@ function sepiaFW_build_webSocket_client(){
 					var receiverId = "";			//SepiaFW.account.getUserId()
 					var resultMessage = SepiaFW.offline.buildAssistAnswerMessageForHandler(msgId, serviceResult, assistantIdOrName, receiverId)
 					SepiaFW.client.handleServerMessage(resultMessage);
+
+				//CHANNEL INVITE
+				}else if (shareData.type == SepiaFW.client.SHARE_TYPE_CHANNEL_INVITE && shareData.data){
+					//TODO:
+					console.error('implement: ' + JSON.stringify(shareData));
 				
 				//No handler
 				}else{
@@ -1797,6 +1826,14 @@ function sepiaFW_build_webSocket_client(){
 			}else if (message.sender === serverName && message.data.dataType === "welcome"){
 				broadcastChannelJoin(activeChannelId);
 
+			//get new data
+			}else if (message.sender === serverName && message.data.dataType === "updateData"){
+				if (message.data && message.data.updateData){
+					handleUpdateRequest(message.data);
+				}else{
+					SepiaFW.debug.error("WebSocket: 'updateData' message had no data attached or missing parameters.");
+				}
+
 			//assistant answer
 			}else if (message.data.dataType === "assistAnswer"){
 				publishChatMessage(message, username);
@@ -2043,6 +2080,20 @@ function sepiaFW_build_webSocket_client(){
 				}
 			}
 		}
+	}
+
+	//handle the updateData channel message
+	function handleUpdateRequest(msgData){
+		if (msgData.updateData == "availableChannels"){
+			if (msgData.data){
+				//apply
+				SepiaFW.client.refreshChannelList(msgData.data);
+			}else{
+				//request
+				SepiaFW.client.loadAvailableChannels();
+			}
+		}
+		//TODO: add 'events' refresh request
 	}
 	
 	return Client;

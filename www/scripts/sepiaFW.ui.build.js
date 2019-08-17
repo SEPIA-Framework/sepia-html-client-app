@@ -1191,21 +1191,24 @@ function sepiaFW_build_ui_build(){
 			var avoidDoubles = [];
 			var activeChatPartner = SepiaFW.client.getActiveChatPartner();
 			userList.forEach(function (user) {
-				//if (user.isActive){
+				var entryClass = "";
+				var name = user.name;
 				if ($.inArray(user.id + "_" + user.deviceId, avoidDoubles) == -1){
 					if (user.id === userId && user.deviceId === deviceId){
-						SepiaFW.ui.insert("sepiaFW-chat-userlist", "<li class='me' data-user-entry='" + JSON.stringify(user) + "' title='" + user.id + "'>" 
-							+ user.name + "</li>");
+						entryClass = "me";
 					}else if (user.id === userId){
-						SepiaFW.ui.insert("sepiaFW-chat-userlist", "<li class='me' data-user-entry='" + JSON.stringify(user) + "' title='" + user.id + "'>" 
-							+ user.name + " (" + user.deviceId + ")" + "</li>");
+						entryClass = "me";
+						name = name + " (" + user.deviceId + ")";
 					}else if (activeChatPartner && (activeChatPartner.id == user.id)){
-						SepiaFW.ui.insert("sepiaFW-chat-userlist", "<li class='user active' data-user-entry='" + JSON.stringify(user) + "' title='" + user.id + "'>" 
-							+ user.name + "</li>");
+						entryClass = "user active";
 					}else{
-						SepiaFW.ui.insert("sepiaFW-chat-userlist", "<li class='user' data-user-entry='" + JSON.stringify(user) + "' title='" + user.id + "'>" 
-							+ user.name + "</li>");
+						entryClass = "user";
 					}
+					if (user.id == SepiaFW.assistant.id){
+						entryClass += " assistant";
+					}
+					SepiaFW.ui.insert("sepiaFW-chat-userlist", "<li class='" + entryClass + "' data-user-entry='" + JSON.stringify(user) + "' title='" + user.id + "'>" 
+							+ name + "</li>");
 					avoidDoubles.push(user.id + "_" + user.deviceId);
 				}
 			});
@@ -1250,15 +1253,19 @@ function sepiaFW_build_ui_build(){
 			//create new list
 			channelListEle.innerHTML = "";
 			channelList.forEach(function(channel){
-				if (channel.id === activeChannelId){
-					SepiaFW.ui.insert("sepiaFW-chat-channellist", 
-						"<li class='channel active' data-channel-entry='" + JSON.stringify(channel) + "' title='" + channel.name + "'>" + channel.name + "</li>"
-					);
-				}else{
-					SepiaFW.ui.insert("sepiaFW-chat-channellist", 
-						"<li class='channel' data-channel-entry='" + JSON.stringify(channel) + "' title='" + channel.name + "'>" + channel.name + "</li>"
-					);
+				var entryClass = "channel";
+				if (channel.name.indexOf("<assistant_name>") >= 0){
+					channel.name = channel.name.replace("<assistant_name>", SepiaFW.assistant.name); 
 				}
+				if (channel.id == SepiaFW.account.getUserId()){
+					entryClass += " my-channel";
+				}
+				if (channel.id === activeChannelId){
+					entryClass += " active";	
+				}
+				SepiaFW.ui.insert("sepiaFW-chat-channellist", 
+					"<li class='" + entryClass + "' data-channel-entry='" + JSON.stringify(channel) + "' title='" + channel.name + "'>" + channel.name + "</li>"
+				);
 			});
 			//add on click again - @user to input
 			$('#sepiaFW-chat-channellist li.channel').on( "click", function(){

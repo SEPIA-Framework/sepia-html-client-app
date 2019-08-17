@@ -93,6 +93,29 @@ function sepiaFW_build_webSocket_channels(){
 		);
 	}
 
+	//Get channels available to specific user
+	Channels.loadAvailableChannels = function(includePublic, additionalSuccessCallback){
+		if (includePublic == undefined) includePublic = true;
+
+		channelApiCall("getAvailableChannels", {
+			includePublic: includePublic
+		}, function(res){
+			//SUCCESS
+			console.error(JSON.stringify(res));	//DEBUG
+			SepiaFW.debug.log("Available channels have been loaded: " + res.channels.length);
+			
+			//re-build channel list
+			res.channels.forEach(function(c){
+				SepiaFW.client.pushToChannelList(c);	//NOTE: we can use the raw data of the channel object here, it is in client format
+			});
+			SepiaFW.client.refreshChannelList();
+			
+			if (additionalSuccessCallback) additionalSuccessCallback(res);
+		}, 
+			defaultchannelApiErrorCallback
+		);
+	}
+
 	//Create channel invite data
 	Channels.getChannelInviteData = function(userId, channelId){
 		var channelData = SepiaFW.client.getChannelDataById(channelId);
@@ -104,7 +127,19 @@ function sepiaFW_build_webSocket_channels(){
 				key: userKey
 			}
 		}else{
-			return undefined;
+			return;
+		}
+	}
+	Channels.getChannelInviteLink = function(userId, channelId){
+		var inviteData = Channels.getChannelInviteData(userId, channelId);
+		if (inviteData){
+			var shareData = {
+				type: SepiaFW.client.SHARE_TYPE_CHANNEL_INVITE,
+				data: inviteData
+			}
+			return SepiaFW.client.buildDeepLinkForSharePath(shareData);
+		}else{
+			return;
 		}
 	}
 
