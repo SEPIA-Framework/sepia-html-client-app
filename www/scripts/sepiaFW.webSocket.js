@@ -478,6 +478,9 @@ function sepiaFW_build_webSocket_client(){
 		
 		//switch visibility of messages in chat view
 		SepiaFW.ui.switchChannelView(channelId);
+
+		//unmark channel
+		SepiaFW.webSocket.channels.unmarkChannelEntry(channelId);
 		
 		//reset activeChatPartner - moved to button press of channel switch
 		//Client.switchChatPartner('');

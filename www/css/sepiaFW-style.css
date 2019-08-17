@@ -1152,6 +1152,8 @@ body {
 	z-index: 4;
 	display: flex;
 	flex-wrap: wrap;
+	overflow-y: auto;
+	overflow-x: hidden;
 }
 #sepiaFW-chat-channel-view div.left,
 #sepiaFW-chat-channel-view div.right {
@@ -1185,7 +1187,7 @@ body {
 #sepiaFW-chat-channel-controls button {
 	margin-top: 16px;
 }
-@media screen and (max-width: 375px) {
+@media screen and (max-width: 374px) {
 	#sepiaFW-chat-channel-controls button {
 		font-size: 10px;
 		display: flex;
@@ -1229,6 +1231,13 @@ body {
 }
 #sepiaFW-chat-channellist .my-channel::after { 
     content: " \2660"; /*221E, 00A9*/
+}
+#sepiaFW-chat-channellist .public::after { 
+    content: " \221E"; /*221E, 00A9*/
+}
+#sepiaFW-chat-channellist span.marked::before { 
+	content: " \2022  ";
+	color: #ff2550;
 }
 
 .sepiaFW-layer-header,
@@ -1309,6 +1318,14 @@ body {
 }
 #sepiaFW-nav-users-btn {
 	float: right;
+	position: relative;
+}
+#sepiaFW-nav-users-btn.marked::after {
+	content: " \2022 ";
+    color: #ff2550;
+    position: absolute;
+    top: 11px;
+    left: 26px;
 }
 #sepiaFW-nav-bar-page-indicator {
 	position: absolute;

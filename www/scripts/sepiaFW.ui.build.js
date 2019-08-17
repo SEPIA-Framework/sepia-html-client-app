@@ -1261,10 +1261,14 @@ function sepiaFW_build_ui_build(){
 					entryClass += " my-channel";
 				}
 				if (channel.id === activeChannelId){
-					entryClass += " active";	
+					entryClass += " active";
+				}
+				if (channel.isOpen || channel.isPublic){
+					entryClass += " public";
 				}
 				SepiaFW.ui.insert("sepiaFW-chat-channellist", 
-					"<li class='" + entryClass + "' data-channel-entry='" + JSON.stringify(channel) + "' title='" + channel.name + "'>" + channel.name + "</li>"
+					"<li class='" + entryClass + "' data-channel-entry='" + JSON.stringify(channel) + "' title='" + channel.name + "'>"
+					+ "<span data-channel-id='" + channel.id + "'>" + channel.name + "</span></li>"
 				);
 			});
 			//add on click again - @user to input

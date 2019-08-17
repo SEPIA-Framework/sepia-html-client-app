@@ -223,6 +223,12 @@ html {
 #sepiaFW-chat-channel-controls button {
 	color: #CEFF1A;
 }
+#sepiaFW-chat-channellist .my-channel::after,
+#sepiaFW-chat-channellist .public::after,
+#sepiaFW-chat-userlist .assistant::after,
+#sepiaFW-chat-channellist .active::before {
+    color: #CEFF1A;
+}
 
 /*----- teachUI -----*/
 
