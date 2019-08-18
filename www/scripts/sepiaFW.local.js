@@ -60,6 +60,8 @@ function sepiaFW_build_strings(){
 	StringsDE.store = 'Speichern';
 	StringsDE.load = 'Laden';
 	StringsDE.edit = 'Bearbeiten';
+	StringsDE.copy = 'Kopieren';
+	StringsDE.show = 'Anzeigen';
 	StringsDE.tryAgain = 'Nochmal versuchen';
 	StringsDE.tryReconnect = 'Neu verbinden';
 	StringsDE.wait = 'Warten';
@@ -196,6 +198,8 @@ function sepiaFW_build_strings(){
 	StringsEN.store = 'Store';
 	StringsEN.load = 'Load';
 	StringsEN.edit = 'Edit';
+	StringsEN.copy = 'Copy';
+	StringsEN.show = 'Show';
 	StringsEN.tryAgain = 'Try again';
 	StringsEN.tryReconnect = 'Try reconnect';
 	StringsEN.wait = 'Wait';

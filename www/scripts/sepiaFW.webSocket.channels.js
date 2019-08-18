@@ -145,28 +145,6 @@ function sepiaFW_build_webSocket_channels(){
 		}
 	}
 
-	//set states for missed off-channel messages
-	var markedChannels = new Set();
-
-	Channels.setStateCheckChannels = function(){
-		$('#sepiaFW-nav-users-btn').addClass('marked');
-	}
-	Channels.clearStateCheckChannels = function(){
-		$('#sepiaFW-nav-users-btn').removeClass('marked');
-	}
-	Channels.markChannelEntry = function(channelId){
-		$('#sepiaFW-chat-channel-view').find('[data-channel-id="' + channelId + '"]').addClass('marked');
-		markedChannels.add(channelId);
-		Channels.setStateCheckChannels();
-	}
-	Channels.unmarkChannelEntry = function(channelId){
-		$('#sepiaFW-chat-channel-view').find('[data-channel-id="' + channelId + '"]').removeClass('marked');
-		markedChannels.delete(channelId);
-		if (markedChannels.size == 0){
-			Channels.clearStateCheckChannels();
-		}
-	}
-
 	//--- general call to channel APIs ---
 
 	function defaultchannelApiErrorCallback(e){

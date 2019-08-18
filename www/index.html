@@ -349,11 +349,20 @@
 	var isCordova = SepiaFW.tools.getURLParameter('cordova') + '';
 
 	//start-up actions (and buffered local notifications)
-	function handleUrlParameterActions(isDemo){
+	function handleUrlParameterActions(isDemo, url){
 		//get
-		var requestViaUrl = SepiaFW.tools.getURLParameter('q');
-		var shareViaUrl = SepiaFW.tools.getURLParameter('share');
-		var openView = SepiaFW.tools.getURLParameter('view');
+		var requestViaUrl;
+		var shareViaUrl;
+		var openView;
+		if (url){
+			requestViaUrl = SepiaFW.tools.getURLParameterFromUrl(url, 'q');
+			shareViaUrl = SepiaFW.tools.getURLParameterFromUrl(url, 'share');
+			openView = SepiaFW.tools.getURLParameterFromUrl(url, 'view');
+		}else{
+			requestViaUrl = SepiaFW.tools.getURLParameter('q');
+			shareViaUrl = SepiaFW.tools.getURLParameter('share');
+			openView = SepiaFW.tools.getURLParameter('view');
+		}
 
 		//Url request (q)
 		if (requestViaUrl){
@@ -438,6 +447,7 @@
 
 		//host URL for deeplinks
 		SepiaFW.client.deeplinkHostUrl = "https://b07z.net/dl/sepia/index.html";
+		SepiaFW.client.handleUrlParameterActions = handleUrlParameterActions;
 
 		//set specific language dependent frames (pages)
 		SepiaFW.frames.setLocalPage('tutorial.html', "de", 'tutorial-de.html');

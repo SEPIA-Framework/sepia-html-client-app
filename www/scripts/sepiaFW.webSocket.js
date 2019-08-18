@@ -76,6 +76,7 @@ function sepiaFW_build_client_interface(){
 
 	//some constants for link sharing
 	ClientInterface.deeplinkHostUrl = "https://b07z.net/dl/sepia/index.html";
+	ClientInterface.handleUrlParameterActions = function(){ alert('handleUrlParameterActions has to be defined in app setup first!'); };
 	ClientInterface.SHARE_TYPE_ALARM = "alarm";		//parameters: beginTime, title
 	ClientInterface.SHARE_TYPE_LINK = "link";		//parameters: see card elements (cardElementInfo?)
 	ClientInterface.SHARE_TYPE_CHANNEL_INVITE = "channel_invite";	//parameters: id, key
@@ -263,6 +264,7 @@ function sepiaFW_build_webSocket_client(){
 	var lastActivatedChatPartner;
 	var activeChannelId = "";			//set on "joinChannel" event
 	var lastActivatedChannelId = "";	//last actively chosen channel
+	var lastChannelMessageTimestamps = {};		//track when a channel received the last message
 	var channelList = [
 		{id: "openWorld", name: "Open World"}
 	];
@@ -480,7 +482,7 @@ function sepiaFW_build_webSocket_client(){
 		SepiaFW.ui.switchChannelView(channelId);
 
 		//unmark channel
-		SepiaFW.webSocket.channels.unmarkChannelEntry(channelId);
+		SepiaFW.animate.channels.unmarkChannelEntry(channelId);
 		
 		//reset activeChatPartner - moved to button press of channel switch
 		//Client.switchChatPartner('');
@@ -1794,8 +1796,8 @@ function sepiaFW_build_webSocket_client(){
 		}
 		Client.handleMessage(message);
 	}
-	//Handle message received from chat server and update the chat-panel, and the list of connected users
-	//Note: This also includes (and handles) messages sent by the user since the server bounces them back to confirm them
+	//Handle message received from chat server, update the chat-panel and the list of connected users
+	//Note: This also includes (and handles) messages sent by the user since the server lets them bounce back to confirm transfer
 	Client.handleMessage = function(msg) {
 		var message = (typeof msg.data === 'string')? JSON.parse(msg.data) : msg.data;
 		var refreshUsers = false;
@@ -1806,6 +1808,11 @@ function sepiaFW_build_webSocket_client(){
 		if (message.msgId){
 			delete messageQueue[message.msgId];
 			SepiaFW.client.isMessagePending = false;
+		}
+
+		//log last transmission TS if channel is given
+		if (message.channelId){
+			lastChannelMessageTimestamps[message.channelId] = new Date().getTime();
 		}
 		
 		//userList submitted?
@@ -1825,7 +1832,7 @@ function sepiaFW_build_webSocket_client(){
 		
 		//data
 		if (message.data){
-			
+
 			//authenticate
 			if (message.sender === serverName && message.data.dataType === "authenticate"){
 				//send credentials and then wait until the server sends channel info
@@ -1956,14 +1963,8 @@ function sepiaFW_build_webSocket_client(){
 			
 			//chat
 			}else{
-				//check if text is a URL and this URL points to a SEPIA deep-link
-				if (message.text.indexOf(SepiaFW.client.deeplinkHostUrl) == 0){
-					//TODO: handle
-					console.error('found deeplink to own app');
-				}
-
-				//publish
-				publishChatMessage(message, username);
+				//optimize and publish
+				Client.optimizeAndPublishChatMessage(message, username);
 			}
 		}
 
@@ -1971,6 +1972,42 @@ function sepiaFW_build_webSocket_client(){
 		if (refreshUsers){
 			//build list
 			SepiaFW.ui.build.userList(userList, username);
+		}
+	}
+
+	//optimize message, e.g. identify deep-links before publish etc. and publish
+	Client.optimizeAndPublishChatMessage = function(message, username){
+		//check if text is a URL and this URL points to a SEPIA deep-link
+		var deepLinkInMessage;
+		if (message.text.indexOf(SepiaFW.client.deeplinkHostUrl) == 0){
+			//extract first link and shorten original link
+			deepLinkInMessage = message.text.replace(/\s.*/,"").trim();
+			message.text = message.text.replace(deepLinkInMessage, deepLinkInMessage.substring(0, 49) + "...");
+		}
+
+		//publish
+		var chatMessageEntry = publishChatMessage(message, username);
+
+		//modify?
+		if (deepLinkInMessage){
+			//Universal Link support
+			var buttonTitle1 = "Universal Link";
+			var action1 = SepiaFW.offline.getCustomFunctionButtonAction(function(){
+				//handle internally
+				SepiaFW.client.handleUrlParameterActions(SepiaFW.client.isDemoMode(), deepLinkInMessage);
+
+			}, buttonTitle1);
+			var buttonTitle2 = SepiaFW.local.g('show');
+			var action2 = SepiaFW.offline.getCustomFunctionButtonAction(function(){
+				//Show to copy
+				SepiaFW.ui.showPopup(deepLinkInMessage);
+
+			}, buttonTitle2);
+			var options = {};
+			var deepLinkActionData = {
+				actionInfo: [action1, action2]
+			};
+			SepiaFW.ui.actions.handle(deepLinkActionData, chatMessageEntry, message.sender, options);
 		}
 	}
 
@@ -2131,6 +2168,8 @@ function sepiaFW_build_webSocket_client(){
 				}
 			}
 		}
+
+		return cEntry;
 	}
 
 	//handle the updateData channel message

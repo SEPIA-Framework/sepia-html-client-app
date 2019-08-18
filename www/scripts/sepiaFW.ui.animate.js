@@ -3,6 +3,7 @@ function sepiaFW_build_animate(){
 	var Animate = {};
 	Animate.assistant = {};
 	Animate.audio = {};
+	Animate.channels = {};
 	
 	//general animations
 	
@@ -168,6 +169,31 @@ function sepiaFW_build_animate(){
 	Animate.audio.playerIdle = function(){
 		//$("#sepiaFW-audio-ctrls-title").removeClass("playerActive");
 		$("#sepiaFW-audio-ctrls-soundbars").removeClass("playerActive");
+	}
+
+	//channel animations for missed off-channel messages
+
+	var markedChannels = new Set();
+	Animate.channels.setStateCheckChannels = function(){
+		$('#sepiaFW-nav-users-btn').addClass('marked');
+	}
+	Animate.channels.clearStateCheckChannels = function(){
+		$('#sepiaFW-nav-users-btn').removeClass('marked');
+	}
+	Animate.channels.markChannelEntry = function(channelId){
+		var $channelEntry = $('#sepiaFW-chat-channel-view').find('[data-channel-id="' + channelId + '"]');
+		if ($channelEntry.length > 0){
+			$channelEntry.addClass('marked');
+			markedChannels.add(channelId);
+			Animate.channels.setStateCheckChannels();
+		}
+	}
+	Animate.channels.unmarkChannelEntry = function(channelId){
+		$('#sepiaFW-chat-channel-view').find('[data-channel-id="' + channelId + '"]').removeClass('marked');
+		markedChannels.delete(channelId);
+		if (markedChannels.size == 0){
+			Animate.channels.clearStateCheckChannels();
+		}
 	}
 	
 	return Animate;

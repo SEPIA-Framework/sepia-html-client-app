@@ -593,6 +593,9 @@ body {
 #sepiaFW-chat-output .chat-buttons-area {
 	justify-content: flex-start;
 }
+#sepiaFW-chat-output .right .chat-buttons-area {
+	justify-content: flex-end;
+}
 #sepiaFW-chat-output .chat-buttons-area button {
 	flex: 0 0 auto;
 }
@@ -1295,7 +1298,7 @@ body {
 #sepiaFW-nav-label-online-status.connecting {
 	opacity: 0.50;
 }
-#sepiaFW-nav-label-note{
+#sepiaFW-nav-label-note {
 	display: flex;
     align-items: center;
     justify-content: center;
@@ -1325,7 +1328,9 @@ body {
     color: #ff2550;
     position: absolute;
     top: 11px;
-    left: 26px;
+	left: 26px;
+	-webkit-animation: sepiaFW-animation-blink 4.5s 3;
+            animation: sepiaFW-animation-blink 4.5s 3;
 }
 #sepiaFW-nav-bar-page-indicator {
 	position: absolute;
