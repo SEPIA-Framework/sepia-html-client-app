@@ -83,9 +83,19 @@ function sepiaFW_build_webSocket_channels(){
 			//SUCCESS
 			//console.error(JSON.stringify(res));	//DEBUG
 			SepiaFW.debug.log("Channel has been deleted: " + res.channelName + " with ID: " + res.channelId);
+
+			//switch to private channel if currently in this one
+			if (SepiaFW.client.getActiveChannel() == res.channelId){
+				setTimeout(function(){
+					SepiaFW.client.switchChannel(SepiaFW.account.getUserId());
+				}, 0);
+			}
 			
 			//re-build channel list
-			SepiaFW.client.refreshChannelList();
+			var cleanedList = SepiaFW.client.getAllChannels().filter(function(channel, index){
+				return channel.id != res.channelId;
+			});
+			SepiaFW.client.refreshChannelList(cleanedList);
 
 			if (additionalSuccessCallback) additionalSuccessCallback(res);
 		}, 

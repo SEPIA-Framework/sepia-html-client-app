@@ -1435,11 +1435,12 @@ function sepiaFW_build_webSocket_client(){
 			//manual receiver overwrite
 			if (text.substring(0, 1) === "@" && (text.indexOf(" ") > 0)){
 				var res = text.split(" ");
-				var possibleReceivers = Client.getUserId(res[0].substring(1, res[0].length));
+				var possibleReceivers = Client.getActiveChannelUsersByIdOrName(res[0].substring(1, res[0].length));
 				if (possibleReceivers.length > 0){
 					//console.log(possibleReceivers); 		//DEBUG
 					//TODO: since names are not unique but chosen by users it can happen that we get the same name multiple times here ... what then?
-					receiver = possibleReceivers[0];
+					receiver = possibleReceivers[0].id;
+					receiverDeviceId = possibleReceivers[0].deviceId;
 				}
 				res.shift();
 				text = res.join(" ");
@@ -1512,12 +1513,12 @@ function sepiaFW_build_webSocket_client(){
 		if (speechBubble) speechBubble.innerHTML = "";
 	}
 	
-	Client.getUserId = function(nameOrId){
+	Client.getActiveChannelUsersByIdOrName = function(nameOrId){
 		var receivers = [];
 		if (nameOrId){
 			$.each(userList, function(index, u){
 				if (nameOrId.toLowerCase() === u.name.toLowerCase() || nameOrId.toLowerCase() === u.id.toLowerCase()){
-					receivers.push(userList[index].id);
+					receivers.push(u);
 				}
 			});
 		}
@@ -1528,7 +1529,7 @@ function sepiaFW_build_webSocket_client(){
 		if (id){
 			$.each(userList, function(index, u){
 				if (id.toLowerCase() === u.id.toLowerCase()){
-					name = userList[index].name;
+					name = u.name;
 					return false;
 				}
 			});
@@ -2014,10 +2015,15 @@ function sepiaFW_build_webSocket_client(){
 	//-- send authentication request
 	function sendAuthenticationRequest(){
 		SepiaFW.debug.log("WebSocket: authenticating ...");
+		//build data
 		var data = new Object();
 		data.dataType = "authenticate";
 		data.deviceId = SepiaFW.config.getDeviceId(); 		//NOTE: this is kind of redundant since it is included as data.parameters.device_id as well
 		data = addCredentialsAndParametersToData(data);
+		//add channel info
+		/* data.channelInfo = {
+			lastReceivedMessages: lastChannelMessageTimestamps
+		} */
 		var newId = ("auth" + "-" + ++msgId);
 		var msg = buildSocketMessage(username, serverName, "", "", data, "", newId, "");		//note: no channel during auth.
 		Client.sendMessage(msg);
@@ -2182,6 +2188,18 @@ function sepiaFW_build_webSocket_client(){
 				//request
 				SepiaFW.client.loadAvailableChannels();
 			}
+		}else if (msgData.updateData == "missedChannelMessage"){
+			if (msgData.data){
+				//apply
+				msgData.data.forEach(function(info){
+					SepiaFW.animate.channels.markChannelEntry(info.channelId);
+				});
+			}else{
+				//request
+				//TODO: implement request
+			}
+		}else{
+			SepiaFW.debug.error("Missing handler for message updateData-type: " + JSON.stringify(msgData));
 		}
 		//TODO: add 'events' refresh request
 	}

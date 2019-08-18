@@ -1192,7 +1192,7 @@ function sepiaFW_build_ui_build(){
 			var activeChatPartner = SepiaFW.client.getActiveChatPartner();
 			userList.forEach(function (user) {
 				var entryClass = "";
-				var name = user.name;
+				var name = user.name; 		//TODO: distinguish identical names
 				if ($.inArray(user.id + "_" + user.deviceId, avoidDoubles) == -1){
 					if (user.id === userId && user.deviceId === deviceId){
 						entryClass = "me";
