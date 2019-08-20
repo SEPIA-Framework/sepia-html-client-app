@@ -41,9 +41,10 @@ function sepiaFW_build_client_interface(){
 	ClientInterface.joinNewChannel = SepiaFW.webSocket.channels.join;
 	ClientInterface.deleteChannel = SepiaFW.webSocket.channels.delete;
 	ClientInterface.editChannel = SepiaFW.webSocket.channels.edit;
-	ClientInterface.loadAvailableChannels = SepiaFW.webSocket.channels.loadAvailableChannels;	//Note: loads data from server
+	ClientInterface.loadAvailableChannels = SepiaFW.webSocket.channels.loadAvailableChannels;	//Note: loads data from server (see below)
+	ClientInterface.loadChannelsWithMissedMessages = SepiaFW.webSocket.channels.loadChannelsWithMissedMessages;
 	ClientInterface.pushToChannelList = SepiaFW.webSocket.client.pushToChannelList;
-	ClientInterface.refreshChannelList = SepiaFW.webSocket.client.refreshChannelList;			//Note: refreshes UI (not data)
+	ClientInterface.refreshChannelList = SepiaFW.webSocket.client.refreshChannelList;			//Note: refreshes UI (not data, see above)
 	ClientInterface.getChannelInviteLink = SepiaFW.webSocket.channels.getChannelInviteLink;
 
 	ClientInterface.getNewMessageId = SepiaFW.webSocket.client.getNewMessageId;
@@ -53,6 +54,7 @@ function sepiaFW_build_client_interface(){
 	ClientInterface.sendInputText = SepiaFW.webSocket.client.sendInputText;
 	ClientInterface.sendMessage = SepiaFW.webSocket.client.sendMessage;
 	ClientInterface.sendCommand = SepiaFW.webSocket.client.sendCommand;
+	ClientInterface.requestDataUpdate = SepiaFW.webSocket.client.requestDataUpdate;
 	
 	ClientInterface.queueCommand = SepiaFW.webSocket.client.queueCommand;
 	ClientInterface.getAndRemoveNextCommandInQueue = SepiaFW.webSocket.client.getAndRemoveNextCommandInQueue;
@@ -1275,7 +1277,7 @@ function sepiaFW_build_webSocket_client(){
 	}
 	
 	//add credentials and parameters
-	function addCredentialsAndParametersToData(data){
+	function addCredentialsAndParametersToData(data, skipAssistantState){
 		//NOTE: compare to 'Assistant.getParametersForActionCall'
 		
 		if (SepiaFW.account.getUserId() && SepiaFW.account.getToken()){
@@ -1284,7 +1286,11 @@ function sepiaFW_build_webSocket_client(){
 			data.credentials.userId = SepiaFW.account.getUserId();
 			data.credentials.pwd = SepiaFW.account.getToken();
 		}
-		data.parameters = SepiaFW.assistant.getState();
+		if (!skipAssistantState){
+			data.parameters = SepiaFW.assistant.getState();
+		}else{
+			data.parameters = {};
+		}
 		data.parameters.client = SepiaFW.config.getClientDeviceInfo(); 	//SepiaFW.config.clientInfo;
 		data.parameters.device_id = SepiaFW.config.getDeviceId();
 		
@@ -1716,6 +1722,26 @@ function sepiaFW_build_webSocket_client(){
 			//console.log("msg-id: " + newId + " - options " + JSON.stringify(options)); 		//DEBUG
 			Client.setMessageIdOptions(newId, options);
 		}
+		Client.sendMessage(msg);
+	}
+
+	//Request data update via Socket connection (alternative to HTTP request to server endpoint)
+	Client.requestDataUpdate = function(updateData, dataObj){
+		//build data
+		var data = new Object();
+		data.dataType = "updateData";
+		data = addCredentialsAndParametersToData(data, true);	//true: skip assistant state data
+		//updateData object
+		data.updateData = updateData;
+		if (dataObj){
+			data.data = dataObj;
+		}
+		//add channel info
+		/* data.channelInfo = {
+			lastReceivedMessages: lastChannelMessageTimestamps
+		} */
+		var newId = ("update" + "-" + ++msgId);
+		var msg = buildSocketMessage(username, serverName, "", "", data, "", newId, activeChannelId);
 		Client.sendMessage(msg);
 	}
 	
@@ -2184,11 +2210,14 @@ function sepiaFW_build_webSocket_client(){
 			if (msgData.data){
 				//apply
 				SepiaFW.client.refreshChannelList(msgData.data);
+				//load set of channels with missed messages
+				SepiaFW.client.loadChannelsWithMissedMessages();
 			}else{
-				//request
+				//request (includes check for missed messages)
 				SepiaFW.client.loadAvailableChannels();
 			}
 		}else if (msgData.updateData == "missedChannelMessage"){
+			console.log(msgData.data); 		//DEBUG
 			if (msgData.data){
 				//apply
 				msgData.data.forEach(function(info){

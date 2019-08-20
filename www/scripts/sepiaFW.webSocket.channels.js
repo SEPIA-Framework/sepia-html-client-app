@@ -119,11 +119,38 @@ function sepiaFW_build_webSocket_channels(){
 				SepiaFW.client.pushToChannelList(c);	//NOTE: we can use the raw data of the channel object here, it is in client format
 			});
 			SepiaFW.client.refreshChannelList();
+
+			//get set of channels that might contain missed messages
+			Channels.loadChannelsWithMissedMessages();
 			
 			if (additionalSuccessCallback) additionalSuccessCallback(res);
 		}, 
 			defaultchannelApiErrorCallback
 		);
+	}
+
+	//Get set of channels that might contain missed messages
+	Channels.loadChannelsWithMissedMessages = function(){
+		//we use the socket connection to get this data:
+		SepiaFW.client.requestDataUpdate("missedChannelMessage");
+		/* --- Endpoint version (got some endless loader issues with this): ---
+		channelApiCall("getChannelsWithMissedMessages", {}, function(res){
+			//SUCCESS
+			console.error(JSON.stringify(res));	//DEBUG
+			SepiaFW.debug.log("Got list of channels that should be checked for messages: " + res.channels);
+			
+			//mark channels
+			if (res.channels){
+				res.channels.forEach(function(channelId){
+					SepiaFW.animate.channels.markChannelEntry(channelId);
+				});
+			}
+			
+			if (additionalSuccessCallback) additionalSuccessCallback(res);
+		}, 
+			defaultchannelApiErrorCallback
+		);
+		*/
 	}
 
 	//Create channel invite data
