@@ -1890,6 +1890,21 @@ function sepiaFW_build_webSocket_client(){
 				})){
 					Client.refreshChannelList();
 				}
+
+				//rebuild channel history data
+				if (message.data.channelHistory && message.data.channelHistory.length){
+					//clean channel
+					$("#sepiaFW-chat-output").find('[data-channel-id=' + message.data.channelId + ']').remove();
+					//rebuild
+					/*
+					console.error("Channel History:");
+					console.error(JSON.stringify(message.data.channelHistory));
+					console.error("Size: " + message.data.channelHistory.length);
+					*/
+					message.data.channelHistory.forEach(function(msg){
+						SepiaFW.ui.showCustomChatMessage(msg.text, msg); 
+					});
+				}
 				
 				//broadcastChannelJoin(activeChannelId);  //moved to welcome message so that we can update userList first
 				
@@ -2217,7 +2232,7 @@ function sepiaFW_build_webSocket_client(){
 				SepiaFW.client.loadAvailableChannels();
 			}
 		}else if (msgData.updateData == "missedChannelMessage"){
-			console.log(msgData.data); 		//DEBUG
+			//console.log(msgData.data); 		//DEBUG
 			if (msgData.data){
 				//apply
 				msgData.data.forEach(function(info){
