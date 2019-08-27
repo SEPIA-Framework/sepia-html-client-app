@@ -308,7 +308,7 @@ function sepiaFW_build_strings(){
 
 	//specials:
 
-	var weekdayDE = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+	var weekdayEN = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 	var weekdayDE = ["Sonntag", "Montag", "Dienstag", "Mittwoch", "Donnerstag", "Freitag", "Samstag"];
 
 	StringsLocale.getWeekdayName = function(dayIndex){
