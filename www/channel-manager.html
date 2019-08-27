@@ -309,6 +309,12 @@
 					);
 					return;
 				}
+				if (!userId.match(/^\w+\d+$/)){
+					SepiaFW.ui.showPopup(
+						"Please enter only one user ID at a time."
+					);
+					return;
+				}
 				var link = SepiaFW.client.getChannelInviteLink(userId, channelId);
 				if (!link){
 					SepiaFW.ui.showPopup(

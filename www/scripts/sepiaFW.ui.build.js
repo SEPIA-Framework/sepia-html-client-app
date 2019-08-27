@@ -286,8 +286,9 @@ function sepiaFW_build_ui_build(){
 		var chatInput = document.getElementById("sepiaFW-chat-input");
 		if (chatInput){
 			chatInput.placeholder = SepiaFW.local.chatInputPlaceholder;
-			$(chatInput).off();
-			$(chatInput).on("keypress", function(e){
+			$(chatInput).off()
+			//pressed RETURN
+			.on("keypress", function(e){
 				if (e.keyCode === 13){
 					//Return-Key
 					if (SepiaFW.audio && SepiaFW.audio.initAudio(SepiaFW.client.sendInputText)){
@@ -296,14 +297,25 @@ function sepiaFW_build_ui_build(){
 						SepiaFW.client.sendInputText();
 					}
 				}
-			});
-			$(chatInput).on("keydown", function(e){
+			})
+			//press UP
+			.on("keydown", function(e){
 				if (e.keyCode === 38){
 					//Up
 					chatInput.value = SepiaFW.ui.lastInput;
 				}else if (e.keyCode === 40){
 					//Down
 					chatInput.value = '';
+				}
+			})
+			//prevent input blur by send button (on mobile)
+			.on('focusout', function(e){
+				if (e.relatedTarget && (e.relatedTarget.id == 'sepiaFW-chat-send')){	// || e.relatedTarget.id == 'sepiaFW-assist-btn'
+					if (SepiaFW.ui.isMobile){
+						setTimeout(function(){
+							$('#sepiaFW-chat-input').get(0).focus();
+						}, 0);
+					}
 				}
 			});
 		}
@@ -1323,7 +1335,8 @@ function sepiaFW_build_ui_build(){
 		var senderText = (senderName)? senderName : sender;
 		var receiver = msg.receiver;
 		var receiverName = (SepiaFW.webSocket)? SepiaFW.webSocket.client.getNameFromUserList(receiver) : "";	//TODO: Rename and add to ClientInterface
-		var time = SepiaFW.tools.getLocalTime();	//msg.time; 	//for display we just take the client recieve time
+		//we try to show the original time in local client format if possible OR we just take the client recieve time
+		var time = (msg.timeUNIX != undefined)? SepiaFW.tools.getLocalTime(undefined, msg.timeUNIX) : SepiaFW.tools.getLocalTime();	//msg.time;
 		//var timeUNIX = msg.timeUNIX;
 		
 		if (!text)	options.skipText = true;

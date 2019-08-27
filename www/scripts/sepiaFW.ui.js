@@ -190,10 +190,10 @@ function sepiaFW_build_ui(){
 	//Note: for label button actions see ui.build module
 	
 	//make an info message
-	UI.showInfo = function(text, isErrorMessage, customTag){
+	UI.showInfo = function(text, isErrorMessage, customTag, beSilent){
 		if (UI.build){
 			var message = UI.build.makeMessageObject(text, 'UI', 'client', '', 'info'); 	//note: channelId=info will use the active channel or user-channel
-			var sEntry = UI.build.statusMessage(message, 'username', true);		//we handle UI messages as errors for now
+			var sEntry = UI.build.statusMessage(message, 'username', true);		//we handle UI messages as errors for now - TODO: add non-error msg
 			if (customTag){
 				sEntry.dataset.msgCustomTag = customTag;
 			}
@@ -201,7 +201,7 @@ function sepiaFW_build_ui(){
 			var targetViewName = "chat";
 			var resultView = UI.getResultViewByName(targetViewName);
 			//add to view
-			UI.addDataToResultView(resultView, sEntry);
+			UI.addDataToResultView(resultView, sEntry, beSilent);
 					
 		}else{
 			alert(text);
@@ -216,9 +216,11 @@ function sepiaFW_build_ui(){
 		var receiver = data.receiver || '';
 		var channelId = data.channelId || ((SepiaFW.client.isDemoMode())? "info" : "");
 		var message = UI.build.makeMessageObject(text, sender, senderType, receiver, channelId);
+		message.timeUNIX = data.timeUNIX;
 		var cOptions = options.buildOptions || {};
 		//build entry
-		var cEntry = UI.build.chatEntry(message, 'username', cOptions);
+		var userId = SepiaFW.account.getUserId() || 'username';
+		var cEntry = UI.build.chatEntry(message, userId, cOptions);
 		if (!cEntry){
 			SepiaFW.debug.error('Failed to show custom chat-entry, data was invalid! ChannelId issue?');
 			return;

@@ -311,28 +311,36 @@ function sepiaFW_build_dataService(){
 function sepiaFW_build_tools(){
 	var Tools = {};
 	
-	//get server default local date/timeout - TODO: note that this needs to be adjusted to server settings
-	Tools.getLocalDateTime = function(){
-		var d = new Date();
+	//get client default local date/time or date/time of certain UNIX timestamp in 'server-default-format'
+	Tools.getLocalDateTime = function(unixTimeMs){
+		var d = (unixTimeMs != undefined)? new Date(unixTimeMs) : new Date();
 		var HH = addZero(d.getHours());
 		var mm = addZero(d.getMinutes());
 		var ss = addZero(d.getSeconds());
 		var dd = addZero(d.getDate());
 		var MM = addZero(d.getMonth() + 1);
 		var yyyy = d.getFullYear();
-		return '' + yyyy + '.' + MM + '.' + dd + '_' + HH + ':' + mm + ':' + ss;
+		return yyyy + '.' + MM + '.' + dd + '_' + HH + ':' + mm + ':' + ss;
 	}
-	//get server default time (only) - TODO: note that this needs to be adjusted to server settings
-	Tools.getLocalTime = function(short){
-		var d = new Date();
+	//get client default time or certain time of given UNIX timestamp in 'server-default-format'
+	Tools.getLocalTime = function(short, unixTimeMs){
+		var d = (unixTimeMs != undefined)? new Date(unixTimeMs) : new Date();
 		var HH = addZero(d.getHours());
 		var mm = addZero(d.getMinutes());
 		if (!short){
 			var ss = addZero(d.getSeconds());
-			return '' + HH + ':' + mm + ':' + ss;
+			return HH + ':' + mm + ':' + ss;		//this basically is: d.toLocaleTimeString()
 		}else{
-			return '' + HH + ':' + mm;
+			return HH + ':' + mm;
 		}
+	}
+	//get client default date or certain date of given UNIX timestamp with user-defined separator
+	Tools.getLocalDateWithCustomSeparator = function(separator, unixTimeMs){
+		var d = (unixTimeMs != undefined)? new Date(unixTimeMs) : new Date();
+		var dd = addZero(d.getDate());
+		var MM = addZero(d.getMonth() + 1);
+		var yyyy = d.getFullYear();
+		return yyyy + separator + MM + separator + dd;
 	}
 	
 	//get URL parameters

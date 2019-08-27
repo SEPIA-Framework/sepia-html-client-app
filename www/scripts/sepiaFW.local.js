@@ -62,6 +62,7 @@ function sepiaFW_build_strings(){
 	StringsDE.edit = 'Bearbeiten';
 	StringsDE.copy = 'Kopieren';
 	StringsDE.show = 'Anzeigen';
+	StringsDE.new = 'Neu';
 	StringsDE.tryAgain = 'Nochmal versuchen';
 	StringsDE.tryReconnect = 'Neu verbinden';
 	StringsDE.wait = 'Warten';
@@ -88,6 +89,7 @@ function sepiaFW_build_strings(){
 	StringsDE.expired = 'abgelaufen';
 	StringsDE.missed = 'Verpasst';
 	StringsDE.clearHistory = 'Verlauf löschen';
+	StringsDE.history = 'Verlauf';
 	StringsDE.reload = 'Neu laden';
 	StringsDE.refreshUI = 'Interface neu laden';
 	StringsDE.refreshUI_info = 'Um Änderungen, die hier gemacht wurden zu <u>sehen</u> muss das Interface neu geladen werden';
@@ -200,6 +202,7 @@ function sepiaFW_build_strings(){
 	StringsEN.edit = 'Edit';
 	StringsEN.copy = 'Copy';
 	StringsEN.show = 'Show';
+	StringsEN.new = 'New';
 	StringsEN.tryAgain = 'Try again';
 	StringsEN.tryReconnect = 'Try reconnect';
 	StringsEN.wait = 'Wait';
@@ -226,6 +229,7 @@ function sepiaFW_build_strings(){
 	StringsEN.expired = 'expired';
 	StringsEN.missed = 'Missed';
 	StringsEN.clearHistory = 'Clear history';
+	StringsEN.history = 'History';
 	StringsEN.reload = 'Reload';
 	StringsEN.refreshUI = 'Refresh interface';
 	StringsEN.refreshUI_info = 'To <u>see</u> changes you made here you need to refresh the interface';
@@ -300,6 +304,19 @@ function sepiaFW_build_strings(){
 	//write string
 	StringsLocale.w = function(name){
 		document.write(StringsLocale[name]);
+	}
+
+	//specials:
+
+	var weekdayDE = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+	var weekdayDE = ["Sonntag", "Montag", "Dienstag", "Mittwoch", "Donnerstag", "Freitag", "Samstag"];
+
+	StringsLocale.getWeekdayName = function(dayIndex){
+		if (SepiaFW.config.appLanguage.toLowerCase() === "de"){
+			return weekdayDE[dayIndex];
+		}else{
+			return weekdayEN[dayIndex];
+		}
 	}
 
 	//-------------- Languages --------------
