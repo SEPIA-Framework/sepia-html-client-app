@@ -1047,12 +1047,16 @@ function sepiaFW_build_ui_build(){
 				window.location.reload(true);
 			});
 			//Pop-up window
-			document.getElementById("sepiaFW-menu-ui-new-sepia-popup-btn").addEventListener("click", function(){
-				var h = Math.min(window.screen.availHeight, 800);
-				var w = Math.min(window.screen.availWidth, 480);
-				window.open(window.location.href, "SEPIA", "width=" + w + ",height=" + h + ",top=0,left=0");
-				//check window.location.origin before?
-			});
+			if (SepiaFW.ui.isCordova){
+				$('#sepiaFW-menu-ui-new-sepia-popup-btn').hide();
+			}else{
+				document.getElementById("sepiaFW-menu-ui-new-sepia-popup-btn").addEventListener("click", function(){
+					var h = Math.min(window.screen.availHeight, 800);
+					var w = Math.min(window.screen.availWidth, 480);
+					window.open(window.location.href, "SEPIA", "width=" + w + ",height=" + h + ",top=0,left=0");
+					//check window.location.origin before?
+				});
+			}
 			//Address home toggle
 			$('#sepiaFW-menu-adr-home').hide();
 			var firstAdrHomeOpen = true;

@@ -93,8 +93,10 @@ function sepiaFW_build_assistant(){
 	//get current state
 	Assistant.getState = function(){
 		var State = new Object();
+		var now = new Date().getTime();
+		var isOld = (now - lastGetState) > getStateIsOldTime;
 		
-		State.time = new Date().getTime();
+		State.time = now;
 		State.time_local = SepiaFW.tools.getLocalDateTime(); 
 		State.lang = SepiaFW.config.appLanguage;
 		State.user_location = user_location;
@@ -105,8 +107,8 @@ function sepiaFW_build_assistant(){
 		State.env = SepiaFW.config.environment;
 		State.device_id = SepiaFW.config.getDeviceId();
 		
-		State.last_cmd = last_command;
-		State.last_cmd_N = last_command_N;
+		State.last_cmd = (isOld)? '' : last_command;			//TODO: use SepiaFW.ui.getIdleTime() to clear this?
+		State.last_cmd_N = (isOld)? 0 : last_command_N;
 		State.input_type = input_type;
 		State.input_miss = input_miss;
 		State.dialog_stage = dialog_stage;
@@ -119,8 +121,11 @@ function sepiaFW_build_assistant(){
 		};
 		State.custom_data = JSON.stringify(cd);
 
+		lastGetState = now;
 		return State;
 	}
+	var lastGetState = 0;
+	var getStateIsOldTime = 60000;
 	
 	//evaluate result and store states
 	Assistant.setState = function(result, returnToIdle){
