@@ -55,6 +55,8 @@ function sepiaFW_build_client_interface(){
 	ClientInterface.sendMessage = SepiaFW.webSocket.client.sendMessage;
 	ClientInterface.sendCommand = SepiaFW.webSocket.client.sendCommand;
 	ClientInterface.requestDataUpdate = SepiaFW.webSocket.client.requestDataUpdate;
+
+	ClientInterface.optimizeAndPublishChatMessage = SepiaFW.webSocket.client.optimizeAndPublishChatMessage;
 	
 	ClientInterface.queueCommand = SepiaFW.webSocket.client.queueCommand;
 	ClientInterface.getAndRemoveNextCommandInQueue = SepiaFW.webSocket.client.getAndRemoveNextCommandInQueue;
@@ -267,6 +269,7 @@ function sepiaFW_build_webSocket_client(){
 	var activeChannelId = "";			//set on "joinChannel" event
 	var lastActivatedChannelId = "";	//last actively chosen channel
 	var lastChannelMessageTimestamps = {};		//track when a channel received the last message
+	var lastChannelJoinTimestamps = {};			//track when a channel was last joined (NOTE: this is volatile by intention, don't store it unless u store channel history as well)
 	var lastChannelMessageDataStoreTimer;			//a timer that prevents too many consecutive calls to store channel data in local DB
 	var lastChannelMessageDataStoreDelay = 6000;	//... not more often than every N seconds
 	var channelList = [
@@ -649,6 +652,9 @@ function sepiaFW_build_webSocket_client(){
 	
 	//execute when UI is ready and user is logged in (usually)
 	Client.startClient = function(){
+		//Load some stuff
+		lastChannelMessageTimestamps = SepiaFW.data.get("lastChannelMessageTimestamps");
+
 		//Establish the WebSocket connection and set up event handlers
 		Client.connect(SepiaFW.config.webSocketURI);
 		
@@ -1443,12 +1449,15 @@ function sepiaFW_build_webSocket_client(){
 			//manual receiver overwrite
 			if (text.substring(0, 1) === "@" && (text.indexOf(" ") > 0)){
 				var res = text.split(" ");
-				var possibleReceivers = Client.getActiveChannelUsersByIdOrName(res[0].substring(1, res[0].length));
+				var recUid = res[0].substring(1, res[0].length);
+				var possibleReceivers = Client.getActiveChannelUsersByIdOrName(recUid);
 				if (possibleReceivers.length > 0){
 					//console.log(possibleReceivers); 		//DEBUG
 					//TODO: since names are not unique but chosen by users it can happen that we get the same name multiple times here ... what then?
 					receiver = possibleReceivers[0].id;
 					receiverDeviceId = possibleReceivers[0].deviceId;
+				}else{
+					receiver = recUid;		//we should set receiver in any case to prevent a public message
 				}
 				res.shift();
 				text = res.join(" ");
@@ -1762,8 +1771,16 @@ function sepiaFW_build_webSocket_client(){
 		data.credentials.channelId = channelId;
 		if (channelKey) data.credentials.channelKey = channelKey;
 		//filters for channel history
+		var notOlderThanFilter;
+		if (!lastChannelJoinTimestamps[channelId]){
+			//force fully history when channel was never joined
+			notOlderThanFilter = 0;
+		}else{
+			//take TS if available
+			notOlderThanFilter = lastChannelMessageTimestamps[channelId] || 0;
+		}
 		data.channelHistoryFilter = {
-			notOlderThan: lastChannelMessageTimestamps[channelId] || 0
+			notOlderThan: notOlderThanFilter
 		}
 		var receiver = serverName;
 		var newId = (username + "-" + ++msgId);
@@ -1842,18 +1859,6 @@ function sepiaFW_build_webSocket_client(){
 			delete messageQueue[message.msgId];
 			SepiaFW.client.isMessagePending = false;
 		}
-
-		//log last transmission TS if channel is given
-		if (message.channelId){
-			//buffer
-			lastChannelMessageTimestamps[message.channelId] = new Date().getTime();
-			
-			//store locally
-			if (lastChannelMessageDataStoreTimer) clearTimeout(lastChannelMessageDataStoreTimer);
-			lastChannelMessageDataStoreTimer = setTimeout(function(){
-				SepiaFW.data.set("lastChannelMessageTimestamps", lastChannelMessageTimestamps);
-			}, lastChannelMessageDataStoreDelay);
-		}
 		
 		//userList submitted?
 		if (message.userList){
@@ -1904,6 +1909,9 @@ function sepiaFW_build_webSocket_client(){
 					Client.refreshChannelList();
 				}
 
+				//register join (we could/should move this to the 'welcome' event maybe?)
+				lastChannelJoinTimestamps[message.data.channelId] = new Date().getTime();
+
 				//clean channel
 				$("#sepiaFW-chat-output").find('[data-channel-id=' + message.data.channelId + ']').filter('[data-msg-custom-tag=unread-note]').remove();
 
@@ -1921,18 +1929,6 @@ function sepiaFW_build_webSocket_client(){
 					var day = undefined;
 					var showedNew = false;
 					var lastMsgTS = lastChannelMessageTimestamps[message.data.channelId];
-					var loadedFullHistory = (lastMsgTS == undefined);
-					if (loadedFullHistory){
-						//we selectively restore these entries so we can handle the channel history better
-						var storedLastMessageTimestamps = SepiaFW.data.get("lastChannelMessageTimestamps");
-						if (storedLastMessageTimestamps && storedLastMessageTimestamps[message.data.channelId]){
-							lastChannelMessageTimestamps[message.data.channelId] = storedLastMessageTimestamps[message.data.channelId];
-							lastMsgTS = lastChannelMessageTimestamps[message.data.channelId];
-						}
-						//console.error('loaded full history, new since: ' + lastMsgTS);
-					}else{
-						//console.error('loaded history since: ' + lastMsgTS);
-					}
 					message.data.channelHistory.forEach(function(msg){
 						if (msg.timeUNIX){
 							//add day name
@@ -2066,10 +2062,22 @@ function sepiaFW_build_webSocket_client(){
 			//build list
 			SepiaFW.ui.build.userList(userList, username);
 		}
+
+		//log last transmission TS if channel is given
+		if (message.channelId){
+			//buffer
+			lastChannelMessageTimestamps[message.channelId] = new Date().getTime();
+			
+			//store locally
+			if (lastChannelMessageDataStoreTimer) clearTimeout(lastChannelMessageDataStoreTimer);
+			lastChannelMessageDataStoreTimer = setTimeout(function(){
+				SepiaFW.data.set("lastChannelMessageTimestamps", lastChannelMessageTimestamps);
+			}, lastChannelMessageDataStoreDelay);
+		}
 	}
 
 	//optimize message, e.g. identify deep-links before publish etc. and publish
-	Client.optimizeAndPublishChatMessage = function(message, username){
+	Client.optimizeAndPublishChatMessage = function(message, username, customPublishMethod){
 		//check if text is a URL and this URL points to a SEPIA deep-link
 		var deepLinkInMessage;
 		if (message.text.indexOf(SepiaFW.client.deeplinkHostUrl) == 0){
@@ -2079,10 +2087,15 @@ function sepiaFW_build_webSocket_client(){
 		}
 
 		//publish
-		var chatMessageEntry = publishChatMessage(message, username);
+		var chatMessageEntry;
+		if (customPublishMethod){
+			chatMessageEntry = customPublishMethod(message, username);
+		}else{
+			chatMessageEntry = publishChatMessage(message, username);
+		}
 
 		//modify?
-		if (deepLinkInMessage){
+		if (chatMessageEntry && deepLinkInMessage){
 			//Universal Link support
 			var buttonTitle1 = "Universal Link";
 			var action1 = SepiaFW.offline.getCustomFunctionButtonAction(function(){

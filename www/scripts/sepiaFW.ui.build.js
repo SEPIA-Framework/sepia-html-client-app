@@ -1500,55 +1500,51 @@ function sepiaFW_build_ui_build(){
 			*/
 		}
 		
-		//add card-data
-		if (isAssistMsg && msg.data.assistAnswer.hasCard){
-			if (SepiaFW.ui.cards){
-				var card = SepiaFW.ui.cards.get(msg.data.assistAnswer, sender);
-				//TODO: handle both? Right now its 'take inline if you can and ignore fullscreen'
-				
-				//Inline data
-				if (card.dataInline && card.dataInline.length>0){
-					for (i=0; i<card.dataInline.length; i++){
-						block.appendChild(card.dataInline[i]);
-					}
-					
-				//Full screen cards
-				}else if (card.dataFullScreen && card.dataFullScreen.length>0){
-					//This is a bit quirky, since the parent function should decide how to handle the block ...
-					//... but we currently depend on the card-handler method that can overwrite the target-view options
-
-					/* -- this is how it should be, but for big-results there should be no text-message or action-buttons included --
-					for (i=0; i<card.dataFullScreen.length; i++){
-						block.appendChild(card.dataFullScreen[i]);
-					}
-					*/
-					
-					//... this is how we need it currently ... but at least we should check the options.skipInsert
-					if (!options.skipInsert){
-						var bigResultView = document.getElementById('sepiaFW-result-view');
-						bigResultView.innerHTML = '';
-						for (i=0; i<card.dataFullScreen.length; i++){
-							bigResultView.appendChild(card.dataFullScreen[i]);
-						}
-						if (SepiaFW.ui.moc){
-							setTimeout(function(){
-								SepiaFW.ui.moc.showPane(2);
-							}, 500);
-						}
-					}
-					
-				//Unknown
-				}else{
-					var info;
-					try{
-						info = msg.data.assistAnswer.resultInfo.cmd;
-					}catch(err){
-						info = 'unknown';
-					}
-					SepiaFW.debug.info('Card: type not supported yet for cmd=' + info);
+		//add card-data - NOTE: we allow this even if isAssistMsg=false
+		if (msg.data && msg.data.assistAnswer && msg.data.assistAnswer.hasCard){
+			var card = SepiaFW.ui.cards.get(msg.data.assistAnswer, sender);
+			//TODO: handle both? Right now its 'take inline if you can and ignore fullscreen'
+			
+			//Inline data
+			if (card.dataInline && card.dataInline.length>0){
+				for (i=0; i<card.dataInline.length; i++){
+					block.appendChild(card.dataInline[i]);
 				}
+				
+			//Full screen cards
+			}else if (card.dataFullScreen && card.dataFullScreen.length>0){
+				//This is a bit quirky, since the parent function should decide how to handle the block ...
+				//... but we currently depend on the card-handler method that can overwrite the target-view options
+
+				/* -- this is how it should be, but for big-results there should be no text-message or action-buttons included --
+				for (i=0; i<card.dataFullScreen.length; i++){
+					block.appendChild(card.dataFullScreen[i]);
+				}
+				*/
+				
+				//... this is how we need it currently ... but at least we should check the options.skipInsert
+				if (!options.skipInsert){
+					var bigResultView = document.getElementById('sepiaFW-result-view');
+					bigResultView.innerHTML = '';
+					for (i=0; i<card.dataFullScreen.length; i++){
+						bigResultView.appendChild(card.dataFullScreen[i]);
+					}
+					if (SepiaFW.ui.moc){
+						setTimeout(function(){
+							SepiaFW.ui.moc.showPane(2);
+						}, 500);
+					}
+				}
+				
+			//Unknown
 			}else{
-				//SepiaFW.debug.info('Cards are not supported');
+				var info;
+				try{
+					info = msg.data.assistAnswer.resultInfo.cmd;
+				}catch(err){
+					info = 'unknown';
+				}
+				SepiaFW.debug.info('Card: type not supported yet for cmd=' + info);
 			}
 		}
 

@@ -209,6 +209,7 @@ function sepiaFW_build_ui(){
 	}
 	//make a chat message - compared to the publish methods in 'Client' this only creates a simple chat-bubble (no note, no voice, etc.)
 	UI.showCustomChatMessage = function(text, data, options){
+		//build message object
 		if (!options) options = {};
 		if (!data) data = {};
 		var sender = data.sender || 'UI';
@@ -217,28 +218,34 @@ function sepiaFW_build_ui(){
 		var channelId = data.channelId || ((SepiaFW.client.isDemoMode())? "info" : "");
 		var message = UI.build.makeMessageObject(text, sender, senderType, receiver, channelId);
 		message.timeUNIX = data.timeUNIX;
+		message.data = data.data;
 		var cOptions = options.buildOptions || {};
-		//build entry
 		var userId = SepiaFW.account.getUserId() || 'username';
-		var cEntry = UI.build.chatEntry(message, userId, cOptions);
-		if (!cEntry){
-			SepiaFW.debug.error('Failed to show custom chat-entry, data was invalid! ChannelId issue?');
-			return;
-		}
-		//get right view
-		var targetViewName = cOptions.targetView || "chat";
-		var resultView = UI.getResultViewByName(targetViewName);
-		//add to view
-		UI.addDataToResultView(resultView, cEntry);
+		
+		//build entry
+		SepiaFW.client.optimizeAndPublishChatMessage(message, userId, function(){
 
-		//show results in frame as well? (SHOW ONLY!)
-		if (message.senderType === "assistant"){
-			if (SepiaFW.frames && SepiaFW.frames.isOpen && SepiaFW.frames.canShowChatOutput()){
-				SepiaFW.frames.handleChatOutput({
-					"text": message.text
-				});
+			var cEntry = UI.build.chatEntry(message, userId, cOptions);
+			if (!cEntry){
+				SepiaFW.debug.error('Failed to show custom chat-entry, data was invalid! ChannelId issue?');
+				return;
 			}
-		}
+			//get right view
+			var targetViewName = cOptions.targetView || "chat";
+			var resultView = UI.getResultViewByName(targetViewName);
+			//add to view
+			UI.addDataToResultView(resultView, cEntry);
+
+			//show results in frame as well? (SHOW ONLY!)
+			if (message.senderType === "assistant"){
+				if (SepiaFW.frames && SepiaFW.frames.isOpen && SepiaFW.frames.canShowChatOutput()){
+					SepiaFW.frames.handleChatOutput({
+						"text": message.text
+					});
+				}
+			}
+			return cEntry;
+		});
 	}
 	
 	//get/switch/show/hide active swipe-bars - TODO: can we get rid of the hard-coded dom ids?
