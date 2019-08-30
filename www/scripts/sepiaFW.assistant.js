@@ -28,6 +28,14 @@ function sepiaFW_build_assistant(){
 				}
 				//Update my-view events
 				SepiaFW.ui.updateMyView(true, false, 'assistantInfoUpdate');
+
+				//Add to contacts-from-chat if possible
+				if (SepiaFW.account && SepiaFW.account.contacts){
+					SepiaFW.account.contacts.addContactFromChat({
+						id: Assistant.id,
+						name: Assistant.name
+					});
+				}
 			}
 		}
 		SepiaFW.debug.log("Assistant: active assistant is '" + info.name + "' (" + info.id + ")");

@@ -36,10 +36,11 @@
 				<div class="group column">
 					<h3>Channel Name:</h3>
 					<input id="sepiaFW-channel-manager-cname" placeholder="My new channel">
-					<br>
+					<div class="spacer"></div>
 					<h3>Initial Members:</h3>
 					<input id="sepiaFW-channel-manager-cmembers" placeholder="User-ID-1, User-ID-2, ..." spellcheck="false">
-					<br><br>
+					<div class="spacer"></div>
+					<div class="spacer"></div>
 					<div class="subgroup">
 						<label>Is Public?</label>
 						<input type="checkbox" id="sepiaFW-channel-manager-is-public">
@@ -68,10 +69,10 @@
 				<div class="group column">
 					<h3>Channel ID:</h3>
 					<input id="sepiaFW-channel-manager-cid" placeholder="" spellcheck="false">
-					<br>
+					<div class="spacer"></div>
 					<h3>Access Key (for user):</h3>
 					<input id="sepiaFW-channel-manager-key" spellcheck="false">
-					<br>
+					<div class="spacer"></div>
 				</div>
 				<div class="group center extra-space-tb">
 					<button id="sepiaFW-channel-manager-join-btn">JOIN</button>
@@ -92,16 +93,19 @@
 				<div class="group column">
 					<h3>Channel ID:</h3>
 					<input id="sepiaFW-channel-manager-cid-edit" placeholder="" spellcheck="false">
-					<br>
+					<div class="spacer"></div>
 					<h3>Channel Name:</h3>
 					<input id="sepiaFW-channel-manager-cname-edit" placeholder="" disabled>
-					<br>
+					<div class="spacer"></div>
 					<!--<h3>Members:</h3>
 					<input id="sepiaFW-channel-manager-cmembers-edit" placeholder="User-ID-1, User-ID-2, ...">
 					<br>-->
 					<h3>Invite User:</h3>
-					<input id="sepiaFW-channel-manager-invite-user" placeholder="User-ID" spellcheck="false">
-					<br>
+					<div style="position: relative;">
+						<input id="sepiaFW-channel-manager-invite-user" placeholder="User-ID" spellcheck="false" style="padding-right: 20px; padding-left: 20px; width: 204px !important;">
+						<button id="sepiaFW-channel-manager-user-select-btn" class="inside-button">&#x2315;</button>
+					</div>
+					<div class="spacer"></div>
 				</div>
 				<div class="group center extra-space-tb">
 					<!--<button id="sepiaFW-channel-manager-edit-btn">EDIT</button>-->
@@ -195,8 +199,8 @@
 				SepiaFW.client.createChannel(channelData, function(res){
 					//additional onSuccess
 					resetChannelCreateFields();
-					SepiaFW.ui.showPopup("You have successfully created a new channel:"
-						+ "<br>Name: " + res.channelName
+					SepiaFW.ui.showPopup(SepiaFW.local.g('createdChannel') + ":"
+						+ "<br><br><b>Name:</b> " + res.channelName
 						//+ "<br>Id: " + res.channelId
 						//+ "<br>Key: " + res.key		//we don't show this here
 					);
@@ -231,8 +235,8 @@
 				SepiaFW.client.joinNewChannel(channelData, function(res){
 					//additional onSuccess
 					resetChannelJoinFields();
-					SepiaFW.ui.showPopup("You have successfully joined a new channel:"
-						+ "<br>Name: " + res.channelName
+					SepiaFW.ui.showPopup(SepiaFW.local.g('joinedChannel') + ":"
+						+ "<br><br><b>Name:</b> " + res.channelName
 						//+ "<br>Id: " + res.channelId
 					);
 				});
@@ -286,8 +290,8 @@
 				SepiaFW.client.deleteChannel(channelData, function(res){
 					//additional onSuccess
 					resetChannelEditFields();
-					SepiaFW.ui.showPopup("You have successfully deleted channel:"
-						+ "<br>Name: " + res.channelName
+					SepiaFW.ui.showPopup(SepiaFW.local.g('deletedChannel') + ":"
+						+ "<br><br><b>Name:</b> " + res.channelName
 						//+ "<br>Id: " + res.channelId
 					);
 				});
@@ -297,6 +301,38 @@
 				$('#sepiaFW-channel-manager-cname-edit').val('');
 				$('#sepiaFW-channel-manager-invite-user').val('');
 			}
+
+			//Get users to select from
+			$("#sepiaFW-channel-manager-user-select-btn").off().on("click", function(){
+				var contactsFromChat = SepiaFW.account.contacts.getContactsFromChat();
+				if (contactsFromChat){
+					var ids = Object.keys(contactsFromChat);
+					if (ids.length > 0){
+						var note = document.createElement("div");
+						var info = document.createElement("p");
+						info.innerHTML = "Users you've recently interacted with:";
+						var list = document.createElement("div");
+						list.className = "chooseBox";
+						ids.forEach(function(id){
+							var c = contactsFromChat[id];
+							var entry = document.createElement("div");
+							entry.className = "entry";
+							entry.dataset.id = c.id;
+							entry.innerHTML = c.name + " (" + c.id + ")";
+							list.appendChild(entry);
+							$(entry).on('click', function(){
+								$('#sepiaFW-channel-manager-invite-user').val(this.dataset.id);
+								SepiaFW.ui.hidePopup();
+							});
+						});
+						note.appendChild(info);
+						note.appendChild(list);
+						SepiaFW.ui.showPopup(note);
+						return;
+					}
+				}
+				SepiaFW.ui.showPopup("Sorry but your list of suggestions is empty. Usually this list will show users you've recently interacted with (e.g. via PM) on this client.");
+			});
 
 			//Invite user
 			$("#sepiaFW-channel-manager-invite-btn").off().on("click", function(){

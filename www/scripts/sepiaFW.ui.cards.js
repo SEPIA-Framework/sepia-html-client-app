@@ -1335,15 +1335,21 @@ function sepiaFW_build_ui_cards(){
 				var listInfoObj = getUserDataList(listContainer);
 				//check user
 				if (SepiaFW.account && (SepiaFW.account.getUserId() !== listInfoObj.user)){
-					//different user
-					SepiaFW.ui.build.askConfirm(SepiaFW.local.g('copyList'), function(){
-						//ok
-						delete listInfoObj.user;
-						delete listInfoObj._id;
-						storeFun(listInfoObj);
-					}, function(){
-						//abort
-					});
+					//check type of list
+					if (listInfoObj.section == "productivity"){
+						//different user
+						SepiaFW.ui.build.askConfirm(SepiaFW.local.g('copyList'), function(){
+							//ok
+							delete listInfoObj.user;
+							delete listInfoObj._id;
+							storeFun(listInfoObj);
+						}, function(){
+							//abort
+						});
+					}else{
+						//e.g. "timeEvents"
+						SepiaFW.ui.showPopup(SepiaFW.local.g('cantCopyList'));
+					}
 				}else{
 					//same user
 					storeFun(listInfoObj);

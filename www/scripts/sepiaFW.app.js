@@ -9,6 +9,7 @@ SepiaFW.config = sepiaFW_build_config();
 //"Interface" modules - NOTE: this happens after cordova's deviceReady
 SepiaFW.buildSepiaFwPlugins = function(){
 	SepiaFW.account = sepiaFW_build_account();
+	SepiaFW.account.contacts = sepiaFW_build_account_contacts();
 	SepiaFW.assistant = sepiaFW_build_assistant();
 	SepiaFW.ui = sepiaFW_build_ui();
 	SepiaFW.animate = sepiaFW_build_animate();

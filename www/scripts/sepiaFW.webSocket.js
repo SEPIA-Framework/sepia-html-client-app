@@ -30,6 +30,8 @@ function sepiaFW_build_client_interface(){
 	
 	ClientInterface.getActiveChannel = SepiaFW.webSocket.client.getActiveChannel;
 	ClientInterface.getActiveChannelUsers = SepiaFW.webSocket.client.getActiveChannelUsers;
+	ClientInterface.getActiveChannelUsersByIdOrName = SepiaFW.webSocket.client.getActiveChannelUsersByIdOrName;
+	ClientInterface.getFirstActiveChannelUserById = SepiaFW.webSocket.client.getFirstActiveChannelUserById;
 	ClientInterface.getAllChannels = SepiaFW.webSocket.client.getAllChannels;
 	ClientInterface.getChannelDataById = SepiaFW.webSocket.client.getChannelDataById;
 	ClientInterface.switchChannel = SepiaFW.webSocket.client.switchChannel;
@@ -220,8 +222,20 @@ function sepiaFW_build_webSocket_common(){
 				msg.receiverDeviceId = SepiaFW.assistant.deviceId;
 			}else{
 				var activeChatPartner = SepiaFW.client.getActiveChatPartner();
+				if (!activeChatPartner){
+					var chatPartnersWithId = SepiaFW.client.getActiveChannelUsersByIdOrName(receiver);
+					if (chatPartnersWithId){
+						activeChatPartner = chatPartnersWithId[0];		//TODO: just assume first?
+					}
+				}
 				if (activeChatPartner && receiver == activeChatPartner.id){
+					//add device ID (required to find correct receiver)
 					msg.receiverDeviceId = activeChatPartner.deviceId;
+					
+					//add to contacts-from-chat if possible
+					if (SepiaFW.account && SepiaFW.account.contacts){
+						SepiaFW.account.contacts.addContactFromChat(activeChatPartner);
+					}
 				}
 			}
 		}
@@ -268,7 +282,7 @@ function sepiaFW_build_webSocket_client(){
 	var lastActivatedChatPartner;
 	var activeChannelId = "";			//set on "joinChannel" event
 	var lastActivatedChannelId = "";	//last actively chosen channel
-	var lastChannelMessageTimestamps = {};		//track when a channel received the last message
+	var lastChannelMessageTimestamps;		//track when a channel received the last message
 	var lastChannelJoinTimestamps = {};			//track when a channel was last joined (NOTE: this is volatile by intention, don't store it unless u store channel history as well)
 	var lastChannelMessageDataStoreTimer;			//a timer that prevents too many consecutive calls to store channel data in local DB
 	var lastChannelMessageDataStoreDelay = 6000;	//... not more often than every N seconds
@@ -518,7 +532,9 @@ function sepiaFW_build_webSocket_client(){
 		//removed lock
 		if (!userObject){
 			//set channel as label
-			SepiaFW.ui.setLabel((activeChannelId == username)? "" : activeChannelId);
+			var channelData = Client.getChannelDataById(activeChannelId);
+			var channelName = channelData.name || channelId;
+			SepiaFW.ui.setLabel((activeChannelId == username)? "" : channelName);
 			
 		//set lock
 		}else{
@@ -653,7 +669,7 @@ function sepiaFW_build_webSocket_client(){
 	//execute when UI is ready and user is logged in (usually)
 	Client.startClient = function(){
 		//Load some stuff
-		lastChannelMessageTimestamps = SepiaFW.data.get("lastChannelMessageTimestamps");
+		lastChannelMessageTimestamps = SepiaFW.data.get("lastChannelMessageTimestamps") || {};
 
 		//Establish the WebSocket connection and set up event handlers
 		Client.connect(SepiaFW.config.webSocketURI);
@@ -840,8 +856,8 @@ function sepiaFW_build_webSocket_client(){
 					//send request
 					SepiaFW.client.joinNewChannel(shareData.data, function(res){
 						//additional onSuccess
-						SepiaFW.ui.showPopup("You have successfully joined a new channel:"
-							+ "<br>Name: " + res.channelName
+						SepiaFW.ui.showPopup(SepiaFW.local.g('joinedChannel') + ":"
+							+ "<br><br><b>Name:</b> " + res.channelName
 							//+ "<br>Id: " + res.channelId
 						);
 					});
@@ -1541,6 +1557,18 @@ function sepiaFW_build_webSocket_client(){
 		}
 		return receivers;
 	}
+	Client.getFirstActiveChannelUserById = function(id){
+		var user;
+		if (id){
+			$.each(userList, function(index, u){
+				if (id.toLowerCase() === u.id.toLowerCase()){
+					user = u;
+					return false;
+				}
+			});
+		}
+		return user;
+	}
 	Client.getNameFromUserList = function(id){
 		var name = "";
 		if (id){
@@ -1939,13 +1967,13 @@ function sepiaFW_build_webSocket_client(){
 								var customTag = "weekday-note-" + SepiaFW.tools.getLocalDateWithCustomSeparator("-");
 								//... but only if we haven't already
 								if ($("#sepiaFW-chat-output").find('[data-channel-id=' + message.data.channelId + ']').filter('[data-msg-custom-tag=' + customTag + ']').length == 0){
-									var weekdayName = SepiaFW.local.getWeekdayName(day) + " - " + d.toLocaleDateString();
-									SepiaFW.ui.showInfo(SepiaFW.local.g('history') + " - " + weekdayName, false, customTag, true);
+									var weekdayName = SepiaFW.local.getWeekdayName(day) + " " + d.toLocaleDateString();
+									SepiaFW.ui.showInfo(weekdayName, false, customTag, true);	//SepiaFW.local.g('history')
 								}
 							}
 							//add unread note - TODO: place this at correct position
 							if (!showedNew && (!lastMsgTS || msg.timeUNIX > lastMsgTS)){
-								SepiaFW.ui.showInfo(SepiaFW.local.g('history') + " - " + SepiaFW.local.g('new'), false, "unread-note", true);
+								SepiaFW.ui.showInfo(SepiaFW.local.g('newMessages'), false, "unread-note", true);
 								showedNew = true;
 							}
 						}

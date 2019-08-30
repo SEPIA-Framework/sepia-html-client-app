@@ -73,6 +73,7 @@ function sepiaFW_build_strings(){
 	StringsDE.deviceId = 'Geräte ID';
 	StringsDE.allowedToExecuteThisCommand = 'Darf ich diesen Befehl ausführen: ';
 	StringsDE.copyList = 'Diese Liste gehört einem anderen User, möchtest du sie in deinen Account kopieren?';
+	StringsDE.cantCopyList = 'Diese Liste gehört einem anderen User und kann nicht gespeichert werden, aber du kannst eventuell einzelne Einträge via share-Funktion kopieren.';
 	StringsDE.deleteItemConfirm = 'Bist du sicher, dass du das löschen möchtest?';
 	StringsDE.deleteItem = 'Löschen';
 	StringsDE.hideItem = 'Verstecken';
@@ -90,6 +91,7 @@ function sepiaFW_build_strings(){
 	StringsDE.missed = 'Verpasst';
 	StringsDE.clearHistory = 'Verlauf löschen';
 	StringsDE.history = 'Verlauf';
+	StringsDE.newMessages = 'Neue Nachrichten';
 	StringsDE.reload = 'Neu laden';
 	StringsDE.refreshUI = 'Interface neu laden';
 	StringsDE.refreshUI_info = 'Um Änderungen, die hier gemacht wurden zu <u>sehen</u> muss das Interface neu geladen werden';
@@ -145,6 +147,10 @@ function sepiaFW_build_strings(){
 	//Teach-UI
 	StringsDE.command = 'Befehl';
 	StringsDE.chooseCommand = 'Bitte wähle einen Befehl.';
+	//Channels
+	StringsDE.createdChannel = 'Neuer Kanal wurde erfolgreich erstellt';
+	StringsDE.joinedChannel = 'Du bist erfolgreich einem neuen Kanal beigetreten';
+	StringsDE.deletedChannel = 'Der Kanal wurde erfolgreich gelöscht';
 	
 	//ENGLISH
 	StringsEN.welcome = 'Welcome';
@@ -213,6 +219,7 @@ function sepiaFW_build_strings(){
 	StringsEN.deviceId = 'Device ID';
 	StringsEN.allowedToExecuteThisCommand = 'Am I allowed to send this request: ';
 	StringsEN.copyList = 'This list belongs to another user, do you want to copy it to your account?';
+	StringsEN.cantCopyList = 'This list belongs to another user and cannot be stored, but you might be able to copy single items with the share function.';
 	StringsEN.deleteItemConfirm = 'Are you sure you want to delete this?';
 	StringsEN.deleteItem = 'Delete';
 	StringsEN.hideItem = 'Hide';
@@ -230,6 +237,7 @@ function sepiaFW_build_strings(){
 	StringsEN.missed = 'Missed';
 	StringsEN.clearHistory = 'Clear history';
 	StringsEN.history = 'History';
+	StringsEN.newMessages = "New messages";
 	StringsEN.reload = 'Reload';
 	StringsEN.refreshUI = 'Refresh interface';
 	StringsEN.refreshUI_info = 'To <u>see</u> changes you made here you need to refresh the interface';
@@ -286,6 +294,10 @@ function sepiaFW_build_strings(){
 	//Teach-UI
 	StringsEN.command = 'Command';
 	StringsEN.chooseCommand = 'Please choose a command.';
+	//Channels
+	StringsEN.createdChannel = 'You have successfully created a new channel';
+	StringsEN.joinedChannel = 'You have successfully joined a new channel';
+	StringsEN.deletedChannel = 'You have successfully deleted the channel';
 
 	//--------------------------------------------------------
 	

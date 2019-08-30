@@ -196,6 +196,10 @@ function sepiaFW_build_ui(){
 			var sEntry = UI.build.statusMessage(message, 'username', true);		//we handle UI messages as errors for now - TODO: add non-error msg
 			if (customTag){
 				sEntry.dataset.msgCustomTag = customTag;
+				//weekday indicator
+				if (customTag.indexOf("weekday-note") == 0 || customTag.indexOf("unread-note") == 0){
+					sEntry.classList.add("chat-history-note");
+				}
 			}
 			//get right view
 			var targetViewName = "chat";

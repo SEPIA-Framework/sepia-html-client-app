@@ -89,6 +89,12 @@
 }
 .sepiaFW-frames-page .info-text.centered {
 	text-align: center;
+	max-width: 100%;
+}
+
+.sepiaFW-frames-page .spacer {
+	width: 100%;
+	height: 18px;
 }
 
 .sepiaFW-frames-page .group-container {
@@ -122,6 +128,16 @@
 .sepiaFW-frames-page .group .sepiaFW-toggle-btn {
 	border: 1px solid;
 	border-color: inherit;
+}
+.sepiaFW-frames-page .group .inside-button {
+	position: absolute;
+    right: 0;
+    top: 5px;
+    background: transparent !important;
+    color: inherit !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    font-size: 18px !important;
 }
 
 .sepiaFW-frames-page .subgroup {

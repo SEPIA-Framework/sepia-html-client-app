@@ -1335,10 +1335,10 @@ function sepiaFW_build_ui_build(){
 		var type = msg.senderType;
 		var text = (isAssistMsg)? msg.data.assistAnswer.answer : msg.text;
 		var sender = msg.sender;
-		var senderName = (SepiaFW.webSocket)? SepiaFW.webSocket.client.getNameFromUserList(sender) : ""; 		//TODO: Rename and add to ClientInterface
+		var senderName = SepiaFW.account.contacts.getNameOfUser(sender) || "";
 		var senderText = (senderName)? senderName : sender;
 		var receiver = msg.receiver;
-		var receiverName = (SepiaFW.webSocket)? SepiaFW.webSocket.client.getNameFromUserList(receiver) : "";	//TODO: Rename and add to ClientInterface
+		var receiverName = SepiaFW.account.contacts.getNameOfUser(receiver) || "";
 		//we try to show the original time in local client format if possible OR we just take the client recieve time
 		var time = (msg.timeUNIX != undefined)? SepiaFW.tools.getLocalTime(undefined, msg.timeUNIX) : SepiaFW.tools.getLocalTime();	//msg.time;
 		//var timeUNIX = msg.timeUNIX;
@@ -1566,7 +1566,7 @@ function sepiaFW_build_ui_build(){
 		var type = msg.senderType;
 		var text = msg.text;
 		var sender = msg.sender;
-		var senderName = (SepiaFW.webSocket)? SepiaFW.webSocket.client.getNameFromUserList(sender) : "";	//TODO: Rename and add to ClientInterface
+		var senderName = SepiaFW.account.contacts.getNameOfUser(sender) || "";
 		var senderText = (senderName)? senderName : sender;
 		var time = SepiaFW.tools.getLocalTime();	//msg.time; 	//for display we just take the client recieve time
 		//var timeUNIX = msg.timeUNIX;
