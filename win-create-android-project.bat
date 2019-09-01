@@ -25,8 +25,8 @@ cordova plugin add cordova-plugin-tts |more
 cordova plugin add cordova-plugin-whitelist |more
 cordova plugin add cordova-universal-links-plugin |more
 cordova plugin add cordova-plugin-statusbar |more
-REM cordova plugin add cordova-plugin-splashscreen |more -- NOTE: the GitHub version has some required bugfixes
-cordova plugin add https://github.com/apache/cordova-plugin-splashscreen.git |more
+cordova plugin add cordova-plugin-splashscreen |more
+REM cordova plugin add https://github.com/apache/cordova-plugin-splashscreen.git |more -- NOTE: use this in case releases are too old
 cordova plugin add cordova-plugin-cache-clear |more
 cordova plugin add cordova-custom-config |more
 cordova plugin add plugin_mods/speechrecognition/org.apache.cordova.speech.speechrecognition |more
