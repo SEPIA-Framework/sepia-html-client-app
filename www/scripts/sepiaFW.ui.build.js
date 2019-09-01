@@ -1331,6 +1331,7 @@ function sepiaFW_build_ui_build(){
 	//chat entry block
 	Build.chatEntry = function(msg, username, options){
 		var isAssistMsg = (msg.data && (msg.data.dataType === "assistAnswer" || msg.data.dataType === "assistFollowUp"));
+		var isSafeMsg = false;		//a safe message is a message sent by an assistant to the user specifically or in a private channel
 		
 		var type = msg.senderType;
 		var text = (isAssistMsg)? msg.data.assistAnswer.answer : msg.text;
@@ -1361,6 +1362,7 @@ function sepiaFW_build_ui_build(){
 		else if (receiver === username){
 			senderText += " to me";
 			if (msg.senderType === "assistant"){
+				isSafeMsg = true;
 				type = "pm-assistant";
 				classes += ' chatAssistant';
 				classes += ' chatPm';
@@ -1387,6 +1389,9 @@ function sepiaFW_build_ui_build(){
 		}
 		if (!msg.channelId){
 			msg.channelId = SepiaFW.account.getUserId() || ""; 		//TODO: what shall we do without channel ID?
+			isSafeMsg = true;
+		}else if (msg.channelId == SepiaFW.account.getUserId()){
+			isSafeMsg = true;
 		}
 		if (!msg.channelId && !SepiaFW.client.isDemoMode()){		//Demo-mode allows empty channel
 			//still no channel ID? then abort
@@ -1502,7 +1507,7 @@ function sepiaFW_build_ui_build(){
 		
 		//add card-data - NOTE: we allow this even if isAssistMsg=false
 		if (msg.data && msg.data.assistAnswer && msg.data.assistAnswer.hasCard){
-			var card = SepiaFW.ui.cards.get(msg.data.assistAnswer, sender);
+			var card = SepiaFW.ui.cards.get(msg.data.assistAnswer, sender, isSafeMsg);
 			//TODO: handle both? Right now its 'take inline if you can and ignore fullscreen'
 			
 			//Inline data
@@ -1550,11 +1555,12 @@ function sepiaFW_build_ui_build(){
 
 		//Actions
 		if (isAssistMsg && SepiaFW.ui.actions){
-			if (!options.skipActions){
-				SepiaFW.ui.actions.handle(msg.data.assistAnswer, block, sender, options);
-			}else if (options.skipNoneButtonActions){
+			//skip auto-executed actions?
+			if (options.skipNoneButtonActions){
 				options.doButtonsOnly = true;
-				SepiaFW.ui.actions.handle(msg.data.assistAnswer, block, sender, options);
+			}
+			if (!options.skipActions || options.skipNoneButtonActions){		//NOTE: skipNoneButtonActions is allowed to overwrite skipAction ... I guess ^^
+				SepiaFW.ui.actions.handle(msg.data.assistAnswer, block, sender, options, isSafeMsg);
 			}
 		}
 
@@ -1635,11 +1641,12 @@ function sepiaFW_build_ui_build(){
 		
 		//Actions
 		if (SepiaFW.ui.actions){
-			if (!options.skipActions){
-				SepiaFW.ui.actions.handle(assistAnswer, block, sender, options);
-			}else if (options.skipNoneButtonActions){
+			var isSafe = true;		//this is triggered by user and thus safe by default
+			if (options.skipNoneButtonActions){
 				options.doButtonsOnly = true;
-				SepiaFW.ui.actions.handle(assistAnswer, block, sender, options);
+			}
+			if (!options.skipActions || options.skipNoneButtonActions){		//NOTE: skipNoneButtonActions is allowed to overwrite skipAction ... I guess ^^
+				SepiaFW.ui.actions.handle(assistAnswer, block, sender, options, isSafe);
 			}
 		}
 		return block;

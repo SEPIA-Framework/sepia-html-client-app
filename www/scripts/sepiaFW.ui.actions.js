@@ -476,11 +476,11 @@ function sepiaFW_build_ui_actions(){
 	}
 	
 	//-----Handler-----
-	Actions.handle = function(data, parentBlock, sender, handleOptions){
+	Actions.handle = function(data, parentBlock, sender, handleOptions, isSafeSource){
 		if (data.actionInfo){
 			//handle options
 			if (!handleOptions) handleOptions = {};
-			var doButtonsOnly = handleOptions.doButtonsOnly;
+			var doButtonsOnly = handleOptions.doButtonsOnly || !isSafeSource;
 			
 			//buttons will be collected here:
 			var aButtonsArea = document.createElement('DIV');
@@ -492,7 +492,8 @@ function sepiaFW_build_ui_actions(){
 				//run through all actions
 				if (type){
 					if (doButtonsOnly){
-						if (!type.indexOf('button_') === 0){
+						if (type.indexOf('button_') !== 0){
+							SepiaFW.debug.log("Skipped action due to unsafe trigger (or by request): " + type);		//DEBUG
 							continue;
 						}
 					}

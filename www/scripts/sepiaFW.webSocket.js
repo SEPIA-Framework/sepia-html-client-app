@@ -283,6 +283,7 @@ function sepiaFW_build_webSocket_client(){
 	var activeChannelId = "";			//set on "joinChannel" event
 	var lastActivatedChannelId = "";	//last actively chosen channel
 	var lastChannelMessageTimestamps;		//track when a channel received the last message
+	var lastChannelHistoryClearTimestamps;	//track when a channel history was last cleared
 	var lastChannelJoinTimestamps = {};			//track when a channel was last joined (NOTE: this is volatile by intention, don't store it unless u store channel history as well)
 	var lastChannelMessageDataStoreTimer;			//a timer that prevents too many consecutive calls to store channel data in local DB
 	var lastChannelMessageDataStoreDelay = 6000;	//... not more often than every N seconds
@@ -670,6 +671,7 @@ function sepiaFW_build_webSocket_client(){
 	Client.startClient = function(){
 		//Load some stuff
 		lastChannelMessageTimestamps = SepiaFW.data.get("lastChannelMessageTimestamps") || {};
+		lastChannelHistoryClearTimestamps = SepiaFW.data.get("lastChannelHistoryClearTimestamps") || {};
 
 		//Establish the WebSocket connection and set up event handlers
 		Client.connect(SepiaFW.config.webSocketURI);
@@ -1039,6 +1041,8 @@ function sepiaFW_build_webSocket_client(){
 									$(this).remove();
 								}
 							});
+							lastChannelHistoryClearTimestamps[activeChannelId] = new Date().getTime();
+							SepiaFW.data.set("lastChannelHistoryClearTimestamps", lastChannelHistoryClearTimestamps);
 						}else{
 							$("#sepiaFW-result-view").html('');
 						}
@@ -1801,11 +1805,17 @@ function sepiaFW_build_webSocket_client(){
 		//filters for channel history
 		var notOlderThanFilter;
 		if (!lastChannelJoinTimestamps[channelId]){
-			//force fully history when channel was never joined
-			notOlderThanFilter = 0;
+			//force full history or time of last history clear when channel was never joined
+			notOlderThanFilter = lastChannelHistoryClearTimestamps[channelId] || 0;
 		}else{
-			//take TS if available
-			notOlderThanFilter = lastChannelMessageTimestamps[channelId] || 0;
+			//take TS if available or last history clear (depending on what is more recent)
+			if (lastChannelHistoryClearTimestamps[channelId] && lastChannelMessageTimestamps[channelId]){
+				notOlderThanFilter = Math.max(lastChannelHistoryClearTimestamps[channelId], lastChannelMessageTimestamps[channelId]);	
+			}else if (lastChannelMessageTimestamps[channelId]){
+				notOlderThanFilter = lastChannelMessageTimestamps[channelId] || 0;
+			}else{
+				notOlderThanFilter = lastChannelHistoryClearTimestamps[channelId] || 0;
+			}
 		}
 		data.channelHistoryFilter = {
 			notOlderThan: notOlderThanFilter
@@ -1997,14 +2007,14 @@ function sepiaFW_build_webSocket_client(){
 
 			//assistant answer
 			}else if (message.data.dataType === "assistAnswer"){
-				publishChatMessage(message, username);
+				Client.optimizeAndPublishChatMessage(message, username);
 				notAnsweredYet = false;
 
 			//assistant follow up message
 			}else if (message.data.dataType === "assistFollowUp"){
 				//TODO: should we wait for idle time here? I guess so ..., on the other hand TTS (if active) will be queued anyway
 				//console.log(message);
-				publishChatMessage(message, username); 		
+				Client.optimizeAndPublishChatMessage(message, username); 		
 				//TODO: the msg ID will be the one of the initial request ... is this an unhandled problem later? msg options (e.g. skipTTS) might be lost ...
 				notAnsweredYet = false;
 			
@@ -2108,7 +2118,7 @@ function sepiaFW_build_webSocket_client(){
 	Client.optimizeAndPublishChatMessage = function(message, username, customPublishMethod){
 		//check if text is a URL and this URL points to a SEPIA deep-link
 		var deepLinkInMessage;
-		if (message.text.indexOf(SepiaFW.client.deeplinkHostUrl) == 0){
+		if (message.text && message.text.indexOf(SepiaFW.client.deeplinkHostUrl) == 0){
 			//extract first link and shorten original link
 			deepLinkInMessage = message.text.replace(/\s.*/,"").trim();
 			message.text = message.text.replace(deepLinkInMessage, deepLinkInMessage.substring(0, 49) + "...");
@@ -2141,7 +2151,8 @@ function sepiaFW_build_webSocket_client(){
 			var deepLinkActionData = {
 				actionInfo: [action1, action2]
 			};
-			SepiaFW.ui.actions.handle(deepLinkActionData, chatMessageEntry, message.sender, options);
+			var isSafe = true;
+			SepiaFW.ui.actions.handle(deepLinkActionData, chatMessageEntry, message.sender, options, isSafe);
 		}
 	}
 

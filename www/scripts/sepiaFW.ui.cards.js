@@ -46,7 +46,7 @@ function sepiaFW_build_ui_cards(){
 	}
 	
 	//get a full card result as DOM element
-	Cards.get = function(assistAnswer, sender){
+	Cards.get = function(assistAnswer, sender, isSafeSource){
 		var card = {};
 		if (assistAnswer.hasCard){
 			card.dataInline = [];
@@ -109,7 +109,7 @@ function sepiaFW_build_ui_cards(){
 						}
 						//Link
 						else if (elementType === LINK){
-							var cardElement = buildLinkElement(cardInfoI.info[j]);
+							var cardElement = buildLinkElement(cardInfoI.info[j], isSafeSource);
 							if (cardInfo.length <= 3){
 								card.dataInline.push(cardElement);
 							}else{
@@ -1012,7 +1012,7 @@ function sepiaFW_build_ui_cards(){
 
 	var currentLinkItemId = 0;
 	
-	function buildLinkElement(cardElementInfo){
+	function buildLinkElement(cardElementInfo, isSafeSource){
 		var newId = ("sepiaFW-card-id-" + Cards.currentCardId++);
 		var cardElement = document.createElement('DIV');
 		cardElement.className = "sepiaFW-cards-flexSize-container oneElement addSpacer";
@@ -1059,6 +1059,12 @@ function sepiaFW_build_ui_cards(){
 
 		//Experimenting with web players - note: use data.embedded ?
 		if (Cards.canEmbedWebPlayer(data.brand) && linkUrl && data.type && (data.type == "musicSearch" || data.type == "videoSearch")){
+			var allowIframe;
+			if (isSafeSource){
+				allowIframe = 'autoplay *; encrypted-media *;';
+			}else{
+				allowIframe = 'encrypted-media *;';
+			}
 			//Spotify
 			if (data.brand == "Spotify"){
 				var webPlayerDiv = document.createElement('DIV');
@@ -1066,7 +1072,7 @@ function sepiaFW_build_ui_cards(){
 				var contentUrl = "https://" + linkUrl.replace("spotify:", "open.spotify.com/embed/").replace(":play", "").replace(/:/g, "/").trim();
 				webPlayerDiv.innerHTML = '<iframe '
 					+ 'src="' + contentUrl + '" width="100%" height="80" frameborder="0" allowtransparency="true" '
-					+ 'allow="encrypted-media" '
+					+ 'allow="' + allowIframe + '" '
 					+ 'sandbox="allow-forms allow-popups allow-same-origin allow-scripts" ' + '>'
 				+ '</iframe>';
 				cardBody.appendChild(webPlayerDiv);
@@ -1081,7 +1087,8 @@ function sepiaFW_build_ui_cards(){
 					contentUrl = linkUrl.replace(/^https:\/\/.*?\//, "https://embed.music.apple.com/");
 				}
 				webPlayerDiv.innerHTML = '<iframe '
-					+ 'allow="autoplay *; encrypted-media *;" frameborder="0" height="150" '
+					+ 'allow="' + allowIframe + '" '
+					+ 'frameborder="0" height="150" '
 					+ 'style="width:100%;max-width:660px;overflow:hidden;background:transparent;" '
 					+ 'sandbox="allow-forms allow-popups allow-same-origin allow-scripts ' 
 						+ ((SepiaFW.ui.isSafari)? 'allow-storage-access-by-user-activation' : '')
@@ -1096,22 +1103,28 @@ function sepiaFW_build_ui_cards(){
 				webPlayerDiv.className = "youTubeWebPlayer cardBodyItem fullWidthItem"
 				var f = document.createElement('iframe');
 				f.id = 'youTubeWebPlayer-' + playerId;
-				f.allow = "autoplay; encrypted-media;";
+				f.allow = allowIframe;
 				f.sandbox = "allow-same-origin allow-scripts allow-presentation"; 
 				f.frameBorder = 0;
 				f.style.width = "100%";		f.style.height = "280px";		f.style.overflow = "hidden";
 				f.style.border = "4px solid";	f.style.borderColor = "#212121";
 				if (data.autoplay){
-					//stop all previous audio first
-					if (SepiaFW.client.controls){
-						SepiaFW.client.controls.media({
-							action: "stop",
-							skipFollowUp: true
-						});
+					if (isSafeSource){
+						//stop all previous audio first
+						if (SepiaFW.client.controls){
+							SepiaFW.client.controls.media({
+								action: "stop",
+								skipFollowUp: true
+							});
+						}else{
+							SepiaFW.audio.stop();
+						}
+						//add controls and start
+						addYouTubeControls(f, true);
 					}else{
-						SepiaFW.audio.stop();
+						//add controls only
+						addYouTubeControls(f, false);
 					}
-					addYouTubeControls(f);
 				}
 				if (linkUrl.indexOf("/embed") < 0){
 					//convert e.g.: https://www.youtube.com/results?search_query=purple+haze%2C+jimi+hendrix
@@ -1119,6 +1132,10 @@ function sepiaFW_build_ui_cards(){
 						+ linkUrl.replace(/.*?search_query=/, "").trim();
 				}else{
 					f.src = linkUrl;
+				}
+				if (!isSafeSource){
+					//remove autoplay flag
+					f.src = f.src.replace("autoplay=1", "autoplay=0");
 				}
 				cardBody.appendChild(webPlayerDiv);
 				webPlayerDiv.appendChild(f);
@@ -1665,15 +1682,20 @@ function sepiaFW_build_ui_cards(){
 	var youTubeLastActivePlayerState = undefined;
 	var youTubePlayConfirmTimer = undefined;
 	var youTubePlayerIsOnHold = false;
+	var youTubePlayerAutoPlay = true;
 
-	function addYouTubeControls(frameEle){
+	function addYouTubeControls(frameEle, startWhenReady){
 		//reset some stuff first
 		youTubePlayerIsOnHold = false;
 		//add interface
 		frameEle.onload = function(){
 			//API
-			if (!youTubeMessageListenerExists){
+			if (youTubeMessageListenerExists){
+				//just reset auto-play
+				youTubePlayerAutoPlay = startWhenReady;
+			}else{
 				youTubeMessageListenerExists = true;
+				youTubePlayerAutoPlay = startWhenReady;
 				window.addEventListener('message', function(e){
 					if (e.origin == "https://www.youtube.com" && e.data && typeof e.data == "string" && e.data.indexOf("{") == 0){
 						var data = JSON.parse(e.data);
@@ -1684,9 +1706,11 @@ function sepiaFW_build_ui_cards(){
 								return;
 							}
 							if (data.event == 'onReady'){
-                                setTimeout(function(){
-                                    $player[0].contentWindow.postMessage(JSON.stringify({event:'command', func:'playVideo'}), "*");
-                                }, 1000);
+								if (youTubePlayerAutoPlay){
+									setTimeout(function(){
+										$player[0].contentWindow.postMessage(JSON.stringify({event:'command', func:'playVideo'}), "*");
+									}, 1000);
+								}
 							}else if (data.event == 'infoDelivery' && data.info){
 								//console.log(JSON.stringify(data));
 								if (data.info.playerState != undefined){
@@ -1695,7 +1719,9 @@ function sepiaFW_build_ui_cards(){
 								youTubeLastActivePlayerId = data.id;
 								if (data.info.playerState == -1){
 									//Skip if faulty
-									youTubeSkipIfNotPlayed(data, $player);
+									if (youTubePlayerAutoPlay){
+										youTubeSkipIfNotPlayed(data, $player); 		//TODO: this is tricky, we should reactivate this when user presses play
+									}
 								}else if (data.info.playerState == 1){
 									clearTimeout(youtubeSkipTimer);
 									clearTimeout(youTubePlayConfirmTimer);
