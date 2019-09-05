@@ -332,7 +332,7 @@ function sepiaFW_build_ui(){
 	//switch channel view (show messages of specific channel)
 	UI.switchChannelView = function(channelId){
 		//hide all messages with channelId but wrong one
-		$('#sepiaFW-chat-output').find("[data-channel-id]").not("[data-channel-id='" + channelId + "']").each(function(){
+		$('#sepiaFW-chat-output').find("[data-channel-id]").not("[data-channel-id='" + channelId + "']").not("[data-channel-id='info']").each(function(){
 			//$(this).fadeOut(150);
 			$(this).addClass('hidden-by-channel');
 		});

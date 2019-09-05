@@ -1385,7 +1385,7 @@ function sepiaFW_build_ui_build(){
 		//find correct channel
 		var activeChannel = SepiaFW.client.getActiveChannel();
 		if (msg.channelId && msg.channelId == "info"){
-			msg.channelId = activeChannel;
+			if (activeChannel) msg.channelId = activeChannel;		//try active channel - if we don't have one stick with 'info'
 		}
 		if (!msg.channelId){
 			msg.channelId = SepiaFW.account.getUserId() || ""; 		//TODO: what shall we do without channel ID?
@@ -1576,13 +1576,17 @@ function sepiaFW_build_ui_build(){
 		var senderText = (senderName)? senderName : sender;
 		var time = SepiaFW.tools.getLocalTime();	//msg.time; 	//for display we just take the client recieve time
 		//var timeUNIX = msg.timeUNIX;
+		var channelId = msg.channelId || SepiaFW.client.getActiveChannel();
+		if (!channelId){
+			channelId = 'info';		//TODO: do we want that here?
+		}
 		
 		//type analysis
 		var classes = type || ''; 	//assistant, client, server
 		
 		var block = document.createElement('DIV');
 		block.className = 'statusMsg';
-		block.dataset.channelId = SepiaFW.client.getActiveChannel(); 		//TODO: do we want that here?
+		block.dataset.channelId = channelId;
 		var article = document.createElement('ARTICLE');
 		article.className = 'statusUpdate';
 		if (isErrorMessage){
