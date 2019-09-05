@@ -1978,12 +1978,12 @@ function sepiaFW_build_webSocket_client(){
 								//... but only if we haven't already
 								if ($("#sepiaFW-chat-output").find('[data-channel-id=' + message.data.channelId + ']').filter('[data-msg-custom-tag=' + customTag + ']').length == 0){
 									var weekdayName = SepiaFW.local.getWeekdayName(day) + " " + d.toLocaleDateString();
-									SepiaFW.ui.showInfo(weekdayName, false, customTag, true);	//SepiaFW.local.g('history')
+									SepiaFW.ui.showInfo(weekdayName, false, customTag, true, message.data.channelId);	//SepiaFW.local.g('history')
 								}
 							}
 							//add unread note - TODO: place this at correct position
 							if (!showedNew && (!lastMsgTS || msg.timeUNIX > lastMsgTS)){
-								SepiaFW.ui.showInfo(SepiaFW.local.g('newMessages'), false, "unread-note", true);
+								SepiaFW.ui.showInfo(SepiaFW.local.g('newMessages'), false, "unread-note", true, message.data.channelId);
 								showedNew = true;
 							}
 						}

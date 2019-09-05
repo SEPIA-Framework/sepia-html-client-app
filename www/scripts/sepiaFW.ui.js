@@ -207,9 +207,10 @@ function sepiaFW_build_ui(){
 	//Note: for label button actions see ui.build module
 	
 	//make an info message
-	UI.showInfo = function(text, isErrorMessage, customTag, beSilent){
+	UI.showInfo = function(text, isErrorMessage, customTag, beSilent, channelId){
 		if (UI.build){
-			var message = UI.build.makeMessageObject(text, 'UI', 'client', '', 'info'); 	//note: channelId=info will use the active channel or user-channel
+			if (channelId == undefined) channelId = 'info';		//note: channelId=info will use the active channel or user-channel
+			var message = UI.build.makeMessageObject(text, 'UI', 'client', '', channelId);
 			var sEntry = UI.build.statusMessage(message, 'username', true);		//we handle UI messages as errors for now - TODO: add non-error msg
 			if (customTag){
 				sEntry.dataset.msgCustomTag = customTag;
