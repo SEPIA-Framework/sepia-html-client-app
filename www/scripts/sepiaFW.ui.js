@@ -20,6 +20,18 @@ function sepiaFW_build_ui(){
 	UI.isChromeDesktop = false;
 	UI.isSafari = false;
 	UI.isEdge = false;
+
+	UI.getPreferredColorScheme = function(){
+		if ('matchMedia' in window){
+			if (window.matchMedia('(prefers-color-scheme: dark)').matches){
+				return "dark";
+			}else if (window.matchMedia('(prefers-color-scheme: light)').matches){
+				return "light";
+			}
+		}
+		return "";
+	}
+	UI.preferredColorScheme = UI.getPreferredColorScheme();
 	
 	UI.windowExpectedSize = window.innerHeight;
 	var windowSizeDifference = 0;
@@ -143,11 +155,14 @@ function sepiaFW_build_ui(){
 	}
 	
 	//set skin
-	UI.setSkin = function(newIndex){
+	UI.setSkin = function(newIndex, rememberSelection){
+		if (rememberSelection == undefined) rememberSelection = true;
 		var skins = $('.sepiaFW-style-skin');
 		if (newIndex == 0){
 			activeSkin = 0;
-			SepiaFW.data.set('activeSkin', activeSkin);
+			if (rememberSelection){
+				SepiaFW.data.set('activeSkin', activeSkin);
+			}
 		}
 		skins.each(function(index){
 			if (index == (newIndex-1)){	
@@ -155,7 +170,9 @@ function sepiaFW_build_ui(){
 				$(this).prop('disabled', false);
 				SepiaFW.debug.log("UI active skin: " + $(this).attr('href'));
 				activeSkin = newIndex;
-				SepiaFW.data.set('activeSkin', activeSkin);
+				if (rememberSelection){
+					SepiaFW.data.set('activeSkin', activeSkin);
+				}
 			}else{
 				$(this).prop('title', '');
 				$(this).prop('disabled', true);
@@ -477,8 +494,12 @@ function sepiaFW_build_ui(){
 		//load skin
 		var lastSkin = SepiaFW.data.get('activeSkin');
 		if (lastSkin){
-			UI.setSkin(lastSkin);
+			UI.setSkin(lastSkin, false);
 		}else{
+			//get user preferred color scheme
+			if (UI.preferredColorScheme == "dark"){
+				UI.setSkin(2, false);
+			}
 			//get skin colors
 			UI.refreshSkinColors();
 		}
