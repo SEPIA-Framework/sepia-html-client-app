@@ -298,6 +298,19 @@ html {
 	color: #101418 !important;
 }
 
+/*----- channels -----*/
+
+#sepiaFW-chat-channel-controls button {
+	color: #beff1a;
+}
+
+#sepiaFW-chat-channellist .my-channel::after,
+#sepiaFW-chat-channellist .public::after,
+#sepiaFW-chat-userlist .assistant::after,
+#sepiaFW-chat-channellist .active::before {
+    color: #beff1a;
+}
+
 /*----- teachUI -----*/
 
 #sepiaFW-teachUI-nav-bar {

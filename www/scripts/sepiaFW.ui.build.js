@@ -286,8 +286,9 @@ function sepiaFW_build_ui_build(){
 		var chatInput = document.getElementById("sepiaFW-chat-input");
 		if (chatInput){
 			chatInput.placeholder = SepiaFW.local.chatInputPlaceholder;
-			$(chatInput).off();
-			$(chatInput).on("keypress", function(e){
+			$(chatInput).off()
+			//pressed RETURN
+			.on("keypress", function(e){
 				if (e.keyCode === 13){
 					//Return-Key
 					if (SepiaFW.audio && SepiaFW.audio.initAudio(SepiaFW.client.sendInputText)){
@@ -296,14 +297,25 @@ function sepiaFW_build_ui_build(){
 						SepiaFW.client.sendInputText();
 					}
 				}
-			});
-			$(chatInput).on("keydown", function(e){
+			})
+			//press UP
+			.on("keydown", function(e){
 				if (e.keyCode === 38){
 					//Up
 					chatInput.value = SepiaFW.ui.lastInput;
 				}else if (e.keyCode === 40){
 					//Down
 					chatInput.value = '';
+				}
+			})
+			//prevent input blur by send button (on mobile)
+			.on('focusout', function(e){
+				if (e.relatedTarget && (e.relatedTarget.id == 'sepiaFW-chat-send')){	// || e.relatedTarget.id == 'sepiaFW-assist-btn'
+					if (SepiaFW.ui.isMobile){
+						setTimeout(function(){
+							$('#sepiaFW-chat-input').get(0).focus();
+						}, 0);
+					}
 				}
 			});
 		}
@@ -440,7 +452,7 @@ function sepiaFW_build_ui_build(){
 				SepiaFW.audio.stopAlarmSound();
 			}
 			//fade audio
-			SepiaFW.audio.fadeOutMain();
+			SepiaFW.audio.fadeOut();
 			//confirmation sound?
 			if (useConfirmationSound == undefined){
 				useConfirmationSound = SepiaFW.speech.shouldPlayConfirmation();
@@ -580,6 +592,7 @@ function sepiaFW_build_ui_build(){
 			centerPage3.className = "sepiaFW-chat-menu-list-container sepiaFW-carousel-pane";
 			centerPage3.innerHTML = ""
 				+ "<ul class='sepiaFW-menu-settings-list'>"
+					+ "<li id='sepiaFW-menu-account-my-id-li'><span>" + "User ID" + ": </span><span id='sepiaFW-menu-account-my-id' style='float: right;'></span></li>"
 					+ "<li id='sepiaFW-menu-account-language-li'><span>" + SepiaFW.local.g('language') + ": </span></li>"
 					+ "<li id='sepiaFW-menu-account-nickname-li'><span>" + SepiaFW.local.g('nickname') + ": </span><input id='sepiaFW-menu-account-nickname' type='text' maxlength='24'></li>"
 					+ "<li id='sepiaFW-menu-store-load-app-settings-li'>"
@@ -592,9 +605,15 @@ function sepiaFW_build_ui_build(){
 						+ "<button id='sepiaFW-menu-ui-signoutall-btn'>" + SepiaFW.local.g('sign_out_all') + "</button>"
 						+ "<button id='sepiaFW-menu-ui-admin-tools-btn'>" + SepiaFW.local.g('apps_admin') + "</button>"
 					+ "</li>"
+					+ "<li id='sepiaFW-menu-account-pwd-reset-li'>"
+						+ "<button id='sepiaFW-menu-account-pwd-reset-btn'>" + SepiaFW.local.g('change_account_password') + "</button>"
+					+ "</li>"
 					+ "<div id='sepiaFW-menu-ui-refresh-box'>"
 						+ "<p id='sepiaFW-menu-ui-refresh-info'>" + SepiaFW.local.g('refreshUI_info') + ":</p>"
-						+ "<button id='sepiaFW-menu-ui-refresh-btn'>" + SepiaFW.local.g('refreshUI') + "</button>"
+						+ "<div style='display:flex; justify-content:center;'>"
+							+ "<button id='sepiaFW-menu-ui-refresh-btn'>" + SepiaFW.local.g('refreshUI') + "</button>"
+							+ "<button id='sepiaFW-menu-ui-new-sepia-popup-btn'>" + SepiaFW.local.g('newSepiaWindow') + "</button>"
+						+ "</div>"
 					+ "</div>"
 				+ "</ul>";
 			centerCarouselPane.appendChild(centerPage3);
@@ -1011,10 +1030,33 @@ function sepiaFW_build_ui_build(){
 			document.getElementById("sepiaFW-menu-ui-admin-tools-btn").addEventListener("click", function(){
 				SepiaFW.frames.open({pageUrl: "admin.html"});
 			});
+			//Account Password reset
+			document.getElementById("sepiaFW-menu-account-pwd-reset-btn").addEventListener("click", function(){
+				SepiaFW.frames.open({
+					pageUrl: "password-reset.html",
+					theme: "dark",
+					onOpen: function(){ 
+						$('#sepiaFW-pwd-reset-view').find('input').val(''); 
+						$('#sepiaFW-pwd-reset-uid').val(SepiaFW.account.getUserId());
+					},
+					onClose: function(){ $('#sepiaFW-pwd-reset-view').find('input').val(''); }
+				});
+			});
 			//Reload app
 			document.getElementById("sepiaFW-menu-ui-refresh-btn").addEventListener("click", function(){
 				window.location.reload(true);
 			});
+			//Pop-up window
+			if (SepiaFW.ui.isCordova){
+				$('#sepiaFW-menu-ui-new-sepia-popup-btn').hide();
+			}else{
+				document.getElementById("sepiaFW-menu-ui-new-sepia-popup-btn").addEventListener("click", function(){
+					var h = Math.min(window.screen.availHeight, 800);
+					var w = Math.min(window.screen.availWidth, 480);
+					window.open(window.location.href, "SEPIA", "width=" + w + ",height=" + h + ",top=0,left=0");
+					//check window.location.origin before?
+				});
+			}
 			//Address home toggle
 			$('#sepiaFW-menu-adr-home').hide();
 			var firstAdrHomeOpen = true;
@@ -1152,7 +1194,7 @@ function sepiaFW_build_ui_build(){
     }
 	
 	//User-List
-	Build.userList = function(userList, userName){
+	Build.userList = function(userList, userId, deviceId){
 		var userListEle = document.getElementById("sepiaFW-chat-userlist");
 		if (!userList && userListEle){
 			userListEle.innerHTML = '';
@@ -1165,16 +1207,25 @@ function sepiaFW_build_ui_build(){
 			var avoidDoubles = [];
 			var activeChatPartner = SepiaFW.client.getActiveChatPartner();
 			userList.forEach(function (user) {
-				//if (user.isActive){
-				if ($.inArray(user.id, avoidDoubles) == -1){		//TODO: as soon as it makes sense we should split the users again and offer individual device targeting
-					if (user.id === userName){
-						SepiaFW.ui.insert("sepiaFW-chat-userlist", "<li class='me' data-user-entry='" + JSON.stringify(user) + "' title='" + user.id + "'>" + user.name + "</li>");
-					}else if (activeChatPartner && (activeChatPartner == user.id)){
-						SepiaFW.ui.insert("sepiaFW-chat-userlist", "<li class='user active' data-user-entry='" + JSON.stringify(user) + "' title='" + user.id + "'>" + user.name + "</li>");
+				var entryClass = "";
+				var name = user.name; 		//TODO: distinguish identical names
+				if ($.inArray(user.id + "_" + user.deviceId, avoidDoubles) == -1){
+					if (user.id === userId && user.deviceId === deviceId){
+						entryClass = "me";
+					}else if (user.id === userId){
+						entryClass = "me";
+						name = name + " (" + user.deviceId + ")";
+					}else if (activeChatPartner && (activeChatPartner.id == user.id)){
+						entryClass = "user active";
 					}else{
-						SepiaFW.ui.insert("sepiaFW-chat-userlist", "<li class='user' data-user-entry='" + JSON.stringify(user) + "' title='" + user.id + "'>" + user.name + "</li>");
+						entryClass = "user";
 					}
-					avoidDoubles.push(user.id);
+					if (user.id == SepiaFW.assistant.id){
+						entryClass += " assistant";
+					}
+					SepiaFW.ui.insert("sepiaFW-chat-userlist", "<li class='" + entryClass + "' data-user-entry='" + JSON.stringify(user) + "' title='" + user.id + "'>" 
+							+ name + "</li>");
+					avoidDoubles.push(user.id + "_" + user.deviceId);
 				}
 			});
 			//add onclick again - @user to input
@@ -1187,7 +1238,7 @@ function sepiaFW_build_ui_build(){
 						$(this).removeClass('active');
 					});
 					var thisUser = JSON.parse($(this).attr('data-user-entry'));
-					SepiaFW.client.switchChatPartner(thisUser.id);
+					SepiaFW.client.switchChatPartner(thisUser);
 					$(this).addClass('active');
 				}
 								
@@ -1210,27 +1261,57 @@ function sepiaFW_build_ui_build(){
 	}
 	
 	//Channel-List
-	Build.channelList = function(channelList, activeChannel){
+	Build.channelList = function(channelList, activeChannelId){
 		var channelListEle = document.getElementById("sepiaFW-chat-channellist");
 		if (channelList && channelListEle){
 			//clear all old listeners
 			$('#sepiaFW-chat-channellist li').off();
 			//create new list
 			channelListEle.innerHTML = "";
-			channelList.forEach(function (channel) {
-				if (channel.id === activeChannel){
-					SepiaFW.ui.insert("sepiaFW-chat-channellist", "<li class='channel active' data-channel-entry='" + JSON.stringify(channel) + "'>" + channel.id + "</li>");
-				}else{
-					SepiaFW.ui.insert("sepiaFW-chat-channellist", "<li class='channel' data-channel-entry='" + JSON.stringify(channel) + "'>" + channel.id + "</li>");
+			channelList.forEach(function(channel){
+				var entryClass = "channel";
+				if (channel.name.indexOf("<assistant_name>") >= 0){
+					channel.name = channel.name.replace("<assistant_name>", SepiaFW.assistant.name); 
 				}
+				if (channel.id == SepiaFW.account.getUserId()){
+					entryClass += " my-channel";
+				}
+				if (channel.id === activeChannelId){
+					entryClass += " active";
+				}
+				if (channel.isOpen || channel.isPublic){
+					entryClass += " public";
+				}
+				SepiaFW.ui.insert("sepiaFW-chat-channellist", 
+					"<li class='" + entryClass + "' data-channel-entry='" + JSON.stringify(channel) + "' title='" + channel.name + "'>"
+					+ "<span data-channel-id='" + channel.id + "'>" + channel.name + "</span></li>"
+				);
 			});
 			//add on click again - @user to input
-			$('#sepiaFW-chat-channellist li.channel').on( "click", function() {
+			$('#sepiaFW-chat-channellist li.channel').on( "click", function(){
 				var thisChannel = JSON.parse($(this).attr('data-channel-entry'));
 				//reset active chat partner
 				SepiaFW.client.switchChatPartner('');
 				SepiaFW.client.switchChannel(thisChannel.id); 		//there is also a key-option, but the server currently does it by userId check
 			});
+		}
+	}
+	Build.updateChannelList = function(activeChannelId){
+		$("#sepiaFW-chat-channellist li.channel").each(function(){
+			var thisChannel = JSON.parse($(this).attr('data-channel-entry'));
+			if (thisChannel.id === activeChannelId){
+				$(this).addClass('active');
+			}else{
+				$(this).removeClass('active');
+			}
+		});
+	}
+	Build.updateChannelControlButtons = function(activeChannelData){
+		//hide all contextual buttons
+		$('#sepiaFW-chat-channel-controls').find(".sepiaFW-chat-channel-controls-btn.contextual").hide();
+		//show by context
+		if (activeChannelData.owner && activeChannelData.owner != activeChannelData.id && activeChannelData.owner == SepiaFW.account.getUserId()){
+			$('#sepiaFW-chat-invite-btn').show();
 		}
 	}
 	
@@ -1250,15 +1331,17 @@ function sepiaFW_build_ui_build(){
 	//chat entry block
 	Build.chatEntry = function(msg, username, options){
 		var isAssistMsg = (msg.data && (msg.data.dataType === "assistAnswer" || msg.data.dataType === "assistFollowUp"));
+		var isSafeMsg = false;		//a safe message is a message sent by an assistant to the user specifically or in a private channel
 		
 		var type = msg.senderType;
 		var text = (isAssistMsg)? msg.data.assistAnswer.answer : msg.text;
 		var sender = msg.sender;
-		var senderName = (SepiaFW.webSocket)? SepiaFW.webSocket.client.getNameFromUserList(sender) : ""; 		//TODO: Rename and add to ClientInterface
+		var senderName = SepiaFW.account.contacts.getNameOfUser(sender) || "";
 		var senderText = (senderName)? senderName : sender;
 		var receiver = msg.receiver;
-		var receiverName = (SepiaFW.webSocket)? SepiaFW.webSocket.client.getNameFromUserList(receiver) : "";	//TODO: Rename and add to ClientInterface
-		var time = SepiaFW.tools.getLocalTime();	//msg.time; 	//for display we just take the client recieve time
+		var receiverName = SepiaFW.account.contacts.getNameOfUser(receiver) || "";
+		//we try to show the original time in local client format if possible OR we just take the client recieve time
+		var time = (msg.timeUNIX != undefined)? SepiaFW.tools.getLocalTime(undefined, msg.timeUNIX) : SepiaFW.tools.getLocalTime();	//msg.time;
 		//var timeUNIX = msg.timeUNIX;
 		
 		if (!text)	options.skipText = true;
@@ -1279,6 +1362,7 @@ function sepiaFW_build_ui_build(){
 		else if (receiver === username){
 			senderText += " to me";
 			if (msg.senderType === "assistant"){
+				isSafeMsg = true;
 				type = "pm-assistant";
 				classes += ' chatAssistant';
 				classes += ' chatPm';
@@ -1301,10 +1385,13 @@ function sepiaFW_build_ui_build(){
 		//find correct channel
 		var activeChannel = SepiaFW.client.getActiveChannel();
 		if (msg.channelId && msg.channelId == "info"){
-			msg.channelId = activeChannel;
+			if (activeChannel) msg.channelId = activeChannel;		//try active channel - if we don't have one stick with 'info'
 		}
 		if (!msg.channelId){
 			msg.channelId = SepiaFW.account.getUserId() || ""; 		//TODO: what shall we do without channel ID?
+			isSafeMsg = true;
+		}else if (msg.channelId == SepiaFW.account.getUserId()){
+			isSafeMsg = true;
 		}
 		if (!msg.channelId && !SepiaFW.client.isDemoMode()){		//Demo-mode allows empty channel
 			//still no channel ID? then abort
@@ -1342,10 +1429,49 @@ function sepiaFW_build_ui_build(){
 		
 			//add quick private message button
 			SepiaFW.ui.longPressShortPressDoubleTab(msgHead, function(){
-				//long-press - copy name to input
-				if (sender){
-					$('#sepiaFW-chat-input').val("@" + sender + " ");
-					$('#sepiaFW-chat-input').focus();
+				//different available options:
+				var copyTextButton = {
+					inputLabelOne: "Text",
+					inputOneValue: text,
+					buttonOneName: "Copy text",
+					buttonOneAction: function(btn, v1, v2, inputEle1, ie2){
+						//select text and copy
+						inputEle1.select();
+						document.execCommand("copy");
+					}
+				};
+				var copyUrlButton = {
+					buttonTwoName: "Copy share link",
+					buttonTwoAction: function(btn, v1, v2, inputEle1, ie2){
+						//build link, set it, select it and copy
+						inputEle1.value = SepiaFW.client.buildDeepLinkFromText(text);
+						inputEle1.select();
+						document.execCommand("copy");
+					}
+				};
+				var replyButton = {
+					buttonThreeName: "Reply",
+					buttonThreeAction: function(){
+						if (sender){
+							$('#sepiaFW-chat-input').val("@" + sender + " ");
+							$('#sepiaFW-chat-input').focus();
+						}
+					}
+				};
+				var abortButton = {
+					buttonFourName: "Abort",
+					buttonFourAction: function(){}
+				};
+				//long-press - copy or reply stuff
+				if (sender == SepiaFW.assistant.id){
+					//Assistant answer
+					SepiaFW.ui.showPopup("Select:", $.extend(true, {}, copyTextButton, replyButton, abortButton));
+				}else if (sender == SepiaFW.account.getUserId()){
+					//User text
+					SepiaFW.ui.showPopup("Select:", $.extend(true, {}, copyTextButton, copyUrlButton, abortButton));
+				}else{
+					//Other user
+					SepiaFW.ui.showPopup("Select:", $.extend(true, {}, copyTextButton, copyUrlButton, replyButton, abortButton));
 				}
 			},'',function(){
 				//short-press
@@ -1379,65 +1505,62 @@ function sepiaFW_build_ui_build(){
 			*/
 		}
 		
-		//add card-data
-		if (isAssistMsg && msg.data.assistAnswer.hasCard){
-			if (SepiaFW.ui.cards){
-				var card = SepiaFW.ui.cards.get(msg.data.assistAnswer, sender);
-				//TODO: handle both? Right now its 'take inline if you can and ignore fullscreen'
-				
-				//Inline data
-				if (card.dataInline && card.dataInline.length>0){
-					for (i=0; i<card.dataInline.length; i++){
-						block.appendChild(card.dataInline[i]);
-					}
-					
-				//Full screen cards
-				}else if (card.dataFullScreen && card.dataFullScreen.length>0){
-					//This is a bit quirky, since the parent function should decide how to handle the block ...
-					//... but we currently depend on the card-handler method that can overwrite the target-view options
-
-					/* -- this is how it should be, but for big-results there should be no text-message or action-buttons included --
-					for (i=0; i<card.dataFullScreen.length; i++){
-						block.appendChild(card.dataFullScreen[i]);
-					}
-					*/
-					
-					//... this is how we need it currently ... but at least we should check the options.skipInsert
-					if (!options.skipInsert){
-						var bigResultView = document.getElementById('sepiaFW-result-view');
-						bigResultView.innerHTML = '';
-						for (i=0; i<card.dataFullScreen.length; i++){
-							bigResultView.appendChild(card.dataFullScreen[i]);
-						}
-						if (SepiaFW.ui.moc){
-							setTimeout(function(){
-								SepiaFW.ui.moc.showPane(2);
-							}, 500);
-						}
-					}
-					
-				//Unknown
-				}else{
-					var info;
-					try{
-						info = msg.data.assistAnswer.resultInfo.cmd;
-					}catch(err){
-						info = 'unknown';
-					}
-					SepiaFW.debug.info('Card: type not supported yet for cmd=' + info);
+		//add card-data - NOTE: we allow this even if isAssistMsg=false
+		if (msg.data && msg.data.assistAnswer && msg.data.assistAnswer.hasCard){
+			var card = SepiaFW.ui.cards.get(msg.data.assistAnswer, sender, isSafeMsg);
+			//TODO: handle both? Right now its 'take inline if you can and ignore fullscreen'
+			
+			//Inline data
+			if (card.dataInline && card.dataInline.length>0){
+				for (i=0; i<card.dataInline.length; i++){
+					block.appendChild(card.dataInline[i]);
 				}
+				
+			//Full screen cards
+			}else if (card.dataFullScreen && card.dataFullScreen.length>0){
+				//This is a bit quirky, since the parent function should decide how to handle the block ...
+				//... but we currently depend on the card-handler method that can overwrite the target-view options
+
+				/* -- this is how it should be, but for big-results there should be no text-message or action-buttons included --
+				for (i=0; i<card.dataFullScreen.length; i++){
+					block.appendChild(card.dataFullScreen[i]);
+				}
+				*/
+				
+				//... this is how we need it currently ... but at least we should check the options.skipInsert
+				if (!options.skipInsert){
+					var bigResultView = document.getElementById('sepiaFW-result-view');
+					bigResultView.innerHTML = '';
+					for (i=0; i<card.dataFullScreen.length; i++){
+						bigResultView.appendChild(card.dataFullScreen[i]);
+					}
+					if (SepiaFW.ui.moc){
+						setTimeout(function(){
+							SepiaFW.ui.moc.showPane(2);
+						}, 500);
+					}
+				}
+				
+			//Unknown
 			}else{
-				//SepiaFW.debug.info('Cards are not supported');
+				var info;
+				try{
+					info = msg.data.assistAnswer.resultInfo.cmd;
+				}catch(err){
+					info = 'unknown';
+				}
+				SepiaFW.debug.info('Card: type not supported yet for cmd=' + info);
 			}
 		}
 
 		//Actions
 		if (isAssistMsg && SepiaFW.ui.actions){
-			if (!options.skipActions){
-				SepiaFW.ui.actions.handle(msg.data.assistAnswer, block, sender, options);
-			}else if (options.skipNoneButtonActions){
+			//skip auto-executed actions?
+			if (options.skipNoneButtonActions){
 				options.doButtonsOnly = true;
-				SepiaFW.ui.actions.handle(msg.data.assistAnswer, block, sender, options);
+			}
+			if (!options.skipActions || options.skipNoneButtonActions){		//NOTE: skipNoneButtonActions is allowed to overwrite skipAction ... I guess ^^
+				SepiaFW.ui.actions.handle(msg.data.assistAnswer, block, sender, options, isSafeMsg);
 			}
 		}
 
@@ -1449,17 +1572,21 @@ function sepiaFW_build_ui_build(){
 		var type = msg.senderType;
 		var text = msg.text;
 		var sender = msg.sender;
-		var senderName = (SepiaFW.webSocket)? SepiaFW.webSocket.client.getNameFromUserList(sender) : "";	//TODO: Rename and add to ClientInterface
+		var senderName = SepiaFW.account.contacts.getNameOfUser(sender) || "";
 		var senderText = (senderName)? senderName : sender;
 		var time = SepiaFW.tools.getLocalTime();	//msg.time; 	//for display we just take the client recieve time
 		//var timeUNIX = msg.timeUNIX;
+		var channelId = msg.channelId || SepiaFW.client.getActiveChannel();
+		if (!channelId){
+			channelId = 'info';		//TODO: do we want that here?
+		}
 		
 		//type analysis
 		var classes = type || ''; 	//assistant, client, server
 		
 		var block = document.createElement('DIV');
 		block.className = 'statusMsg';
-		block.dataset.channelId = SepiaFW.client.getActiveChannel(); 		//TODO: do we want that here?
+		block.dataset.channelId = channelId;
 		var article = document.createElement('ARTICLE');
 		article.className = 'statusUpdate';
 		if (isErrorMessage){
@@ -1518,11 +1645,12 @@ function sepiaFW_build_ui_build(){
 		
 		//Actions
 		if (SepiaFW.ui.actions){
-			if (!options.skipActions){
-				SepiaFW.ui.actions.handle(assistAnswer, block, sender, options);
-			}else if (options.skipNoneButtonActions){
+			var isSafe = true;		//this is triggered by user and thus safe by default
+			if (options.skipNoneButtonActions){
 				options.doButtonsOnly = true;
-				SepiaFW.ui.actions.handle(assistAnswer, block, sender, options);
+			}
+			if (!options.skipActions || options.skipNoneButtonActions){		//NOTE: skipNoneButtonActions is allowed to overwrite skipAction ... I guess ^^
+				SepiaFW.ui.actions.handle(assistAnswer, block, sender, options, isSafe);
 			}
 		}
 		return block;

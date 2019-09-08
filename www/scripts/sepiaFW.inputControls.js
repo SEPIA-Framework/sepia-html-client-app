@@ -372,7 +372,7 @@ function sepiaFW_build_input_controls() {
                 settingsAppendDebug("Beacon URL: " + beaconData.url + ", distance: " + distance);
             }else if (bleBeaconInterface == "clexi"){
                 //debug
-                console.log(beaconData);
+                //console.log(beaconData);
                 settingsAppendDebug("Beacon URL: " + beaconData.url);
             }
         }else{
@@ -396,26 +396,40 @@ function sepiaFW_build_input_controls() {
         }
     }
     function getBeaconEvent(beaconData){
-        var baseUrl = "b07z.net/BT";
+        //Examples (device ID A1, case insensitive):
+        //https://b07z.net/BT/A1/mic0
+        //https://b07z.net/_A1/r
+        //https://b07z.net/A1/back
+        var baseUrl = "b07z.net";
+        var basePath = "BT/";
         var deviceId = SepiaFW.config.getDeviceId();
         if (deviceId){
-            baseUrl += ("/" + deviceId);
+            basePath = (deviceId + "/");
         }
         baseUrl = baseUrl.toLowerCase();
+        basePath = basePath.toLowerCase();
         var beaconDataUrlLower = (beaconData.url)? beaconData.url.toLowerCase() : "";
-        //MIC
-        if (beaconDataUrlLower.indexOf(baseUrl + "/mic") >= 0){
+        if (beaconDataUrlLower.indexOf(baseUrl + "/") < 0){
+            //Not an accepted SEPIA URL
+            return "";
+        }
+        if (beaconDataUrlLower.indexOf("/" + basePath) < 0 && beaconDataUrlLower.indexOf("_" + basePath + "/") < 0){
+            //Not a valid URL path (should be e.g.: /BT/ or /A1/ or _A1)
+            return "";
+        }
+        //MIC (Record)
+        if (beaconDataUrlLower.indexOf(basePath + "mic") >= 0 || beaconDataUrlLower.indexOf(basePath + "r") >= 0){
             return "mic";
         //BACK
-        }else if (beaconDataUrlLower.indexOf(baseUrl + "/back") >= 0){
+        }else if (beaconDataUrlLower.indexOf(basePath + "back") >= 0 || beaconDataUrlLower.indexOf(basePath + "b") >= 0){
             return "back";
         //AO-mode
-        }else if (beaconDataUrlLower.indexOf(baseUrl + "/ao") >= 0){
+        }else if (beaconDataUrlLower.indexOf(basePath + "ao") >= 0){
             return "ao";
         //Next & previous
-        }else if (beaconDataUrlLower.indexOf(baseUrl + "/next") >= 0){
+        }else if (beaconDataUrlLower.indexOf(basePath + "next") >= 0 || beaconDataUrlLower.indexOf(basePath + "nx") >= 0){
             return "next";
-        }else if (beaconDataUrlLower.indexOf(baseUrl + "/prev") >= 0){
+        }else if (beaconDataUrlLower.indexOf(basePath + "prev") >= 0 || beaconDataUrlLower.indexOf(basePath + "pr") >= 0){
             return "prev";
         }else{
             return "";

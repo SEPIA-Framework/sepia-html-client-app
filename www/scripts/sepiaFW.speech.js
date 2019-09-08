@@ -254,7 +254,7 @@ function sepiaFW_build_speech(){
 		//EXAMPLE: 
 		SepiaFW.animate.assistant.loading();
 		if (SepiaFW.audio){
-			SepiaFW.audio.fadeOutMain();
+			SepiaFW.audio.fadeOut();
 		}
 	}
 	function broadcastTtsFinished(){
@@ -817,7 +817,7 @@ function sepiaFW_build_speech(){
 		}
 		clearTimeout(stopSpeechTimeout);
 		
-		//chunk text if there is a limit
+		//chunk text if there is a limit - TODO: 'isChromeDesktop' is not the entire truth, it depends on the selected voice!
 		if (SepiaFW.ui.isChromeDesktop && text && !Speech.skipTTS && Speech.isTtsSupported){
 			text = chunkUtterance(text);
 		}

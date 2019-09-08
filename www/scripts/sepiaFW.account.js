@@ -30,16 +30,22 @@ function sepiaFW_build_account(){
 	function broadcastEnterWithoutLogin(){
 		//TODO: this should prepare demo-mode ...
 		SepiaFW.client.setDemoMode(true);
+		//set user ID indicator
+		$('#sepiaFW-menu-account-my-id').html("Demo");
 	}
 	
 	function broadcastLoginRestored(){
 		//first app visit of this user?
 		checkClientFirstVisit();
+		//set user ID indicator
+		$('#sepiaFW-menu-account-my-id').html(userId);
 	}
 	
 	function broadcastLoginSuccess(){
 		//first app visit of this user?
 		checkClientFirstVisit();
+		//set user ID indicator
+		$('#sepiaFW-menu-account-my-id').html(userId);
 	}
 	function broadcastLoginFail(){
 	}
@@ -670,9 +676,9 @@ function sepiaFW_build_account(){
 		//try logout - fails silently (low prio, good idea???)
 		if (userId && userToken){
 			if (logoutAll){
-				Account.logoutAll((userId + ";" + userToken), onLogoutSuccess, onLogoutFail, onLogoutDebug);
+				Account.logoutAll(Account.getKey(), onLogoutSuccess, onLogoutFail, onLogoutDebug);
 			}else{
-				Account.logout((userId + ";" + userToken), onLogoutSuccess, onLogoutFail, onLogoutDebug);
+				Account.logout(Account.getKey(), onLogoutSuccess, onLogoutFail, onLogoutDebug);
 			}
 		}else{
 			Account.finishedLogoutActionSection('Server-logout', true);
@@ -799,15 +805,40 @@ function sepiaFW_build_account(){
 	
 	//LOGOUT
 	Account.logout = function(key, successCallback, errorCallback, debugCallback){
-		authApiCall("logout", key, successCallback, errorCallback, debugCallback);
+		var modifiedErrorCallback = function(err){
+			if (errorCallback && typeof err == 'object'){
+				errorCallback('Sorry, but the log-out process failed! Please log-in again to overwrite old token.');
+			}else if (errorCallback){
+				errorCallback(err);
+			}
+		}
+		authApiCall("logout", key, '', successCallback, modifiedErrorCallback, debugCallback);
 	}
 	Account.logoutAll = function(key, successCallback, errorCallback, debugCallback){
-		authApiCall("logoutAllClients", key, successCallback, errorCallback, debugCallback);
+		var modifiedErrorCallback = function(err){
+			if (errorCallback && typeof err == 'object'){
+				errorCallback('Sorry, but the log-out process failed! Please log-in again to overwrite old token.');
+			}else if (errorCallback){
+				errorCallback(err);
+			}
+		}
+		authApiCall("logoutAllClients", key, '', successCallback, modifiedErrorCallback, debugCallback);
 	}
-	function authApiCall(action, key, successCallback, errorCallback, debugCallback){
+	Account.requestPasswordChange = function(data, successCallback, errorCallback, debugCallback){
+		var requestBody = {
+			userid: data.targetUserId,
+			type: "oldPassword",
+			authKey: data.authKey
+		}
+		authApiCall("requestPasswordChange", Account.getKey(), requestBody, successCallback, errorCallback, debugCallback);
+	}
+	Account.changePassword = function(data, successCallback, errorCallback, debugCallback){
+		authApiCall("changePassword", '', data, successCallback, errorCallback, debugCallback);
+	}
+	function authApiCall(action, key, requestBody, successCallback, errorCallback, debugCallback){
 		SepiaFW.ui.showLoader();
 		var apiUrl = SepiaFW.config.assistAPI + "authentication";
-		var dataBody = new Object();
+		var dataBody = requestBody || new Object();
 		dataBody.action = action;
 		dataBody.KEY = key;
 		dataBody.client = SepiaFW.config.getClientDeviceInfo(); //SepiaFW.config.clientInfo;
@@ -824,7 +855,7 @@ function sepiaFW_build_account(){
 				SepiaFW.ui.hideLoader();
 				if (debugCallback) debugCallback(data);
 				if (data.result && data.result === "fail"){
-					if (errorCallback) errorCallback('Sorry, but the log-out process failed! Please log-in again to overwrite old token.');
+					if (errorCallback) errorCallback(data);
 					return;
 				}
 				//--callback--
@@ -833,9 +864,9 @@ function sepiaFW_build_account(){
 			error: function(data) {
 				SepiaFW.ui.hideLoader();
 				SepiaFW.client.checkNetwork(function(){
-					if (errorCallback) errorCallback('Sorry, but the logout process failed because the server could not be reached :-( Please wait a bit and then log-in again to overwrite old token!');
+					if (errorCallback) errorCallback('Sorry, but the process failed because the server could not be reached :-( Please wait a bit and then try again!');
 				}, function(){
-					if (errorCallback) errorCallback('Sorry, but the logout process failed because it seems you are offline :-( Please wait for a connection and then simply log-in again.');
+					if (errorCallback) errorCallback('Sorry, but the process failed because it seems you are offline :-( Please wait for a connection and then try again.');
 				});
 				if (debugCallback) debugCallback(data);
 			}
@@ -909,7 +940,7 @@ function sepiaFW_build_account(){
 		if (key){
 			data.KEY = key;
 		}else if (userId && userToken){
-			data.KEY = (userId + ";" + userToken);
+			data.KEY = Account.getKey();
 		}else{
 			if (errorCallback) errorCallback("Data transfer failed! Not authorized or missing 'KEY'");
 			return;
@@ -965,6 +996,9 @@ function sepiaFW_build_account(){
 	//sha256 hash + salt
 	function getSHA256(data){
 		return sjcl.codec.hex.fromBits(sjcl.hash.sha256.hash(data + "salty1"));
+	}
+	Account.hashPassword = function(pwd){
+		return getSHA256(pwd);
 	}
 	
 	//-------------------------------------

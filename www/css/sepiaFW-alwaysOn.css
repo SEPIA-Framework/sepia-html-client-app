@@ -41,6 +41,28 @@
 	height: 175px;
 	z-index: 99;
 }
+#sepiaFW-alwaysOn-info-box {
+	position: absolute;
+	bottom: 0;
+	font-size: 14px;
+	color: #ccc;
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: space-evenly;
+	align-items: center;
+	width: 100%;
+}
+#sepiaFW-alwaysOn-info-box > div {
+	padding: 4px;
+}
+@media screen and (max-height: 400px) {
+	#sepiaFW-alwaysOn-avatar {
+		top: calc(50% - 75px);
+	}
+	#sepiaFW-alwaysOn-info-box {
+		bottom: 40px;
+	}
+}
 
 .sepiaFW-alwaysOn-alarm-anim {
 	animation: alarm 1s infinite ease-in;
@@ -192,31 +214,24 @@
 	background: #333;
 }
 
-#sepiaFW-alwaysOn-info-box {
-	position: absolute;
-	bottom: 0;
-	font-size: 14px;
-	color: #ccc;
-	display: flex;
-	flex-wrap: wrap;
-	justify-content: space-evenly;
-	align-items: center;
-	width: 100%;
-}
-#sepiaFW-alwaysOn-info-box > div {
-	padding: 4px;
-}
-
-#sepiaFW-alwaysOn-stt-out {
-	height: 42px;
+.sepiaFW-alwaysOn-text-block {
+	max-height: 64px;
     width: 100%;
-    text-align: center;
-    color: #ceff1a;
-    padding: 0px 24px;
-    position: absolute;
-	bottom: 12px;
+	text-align: center;
+	padding: 0px 24px;
+	position: absolute;
 	font-size: 18px;
 	overflow: hidden;
 	display: flex;
-    flex-direction: column-reverse;
+	flex-direction: column-reverse;
+	background: #000;
+	z-index: 10;
+}
+#sepiaFW-alwaysOn-stt-out {
+	color: #ceff1a;
+	top: 32px;
+}
+#sepiaFW-alwaysOn-tts-out {
+    color: #2196f3;
+	bottom: 12px;
 }

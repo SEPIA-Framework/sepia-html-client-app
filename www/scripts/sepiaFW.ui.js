@@ -3,10 +3,10 @@ function sepiaFW_build_ui(){
 	var UI = {};
 	
 	//some constants
-	UI.version = "v0.18.0";
-	UI.requiresServerVersion = "2.2.2";
+	UI.version = "v0.19.0";
+	UI.requiresServerVersion = "2.3.0";
 	UI.JQ_RES_VIEW_IDS = "#sepiaFW-result-view, #sepiaFW-chat-output, #sepiaFW-my-view";	//a selector to get all result views e.g. $(UI.JQ_RES_VIEW_IDS).find(...) - TODO: same as $('.sepiaFW-results-container') ??
-	UI.JQ_ALL_MAIN_VIEWS = "#sepiaFW-result-view, #sepiaFW-chat-output, #sepiaFW-my-view, #sepiaFW-teachUI-editor, #sepiaFW-teachUI-manager, #sepiaFW-frame-page-1, #sepiaFW-frame-page-2"; 	//TODO: frames can have more ...
+	UI.JQ_ALL_MAIN_VIEWS = "#sepiaFW-result-view, #sepiaFW-chat-output, #sepiaFW-my-view, #sepiaFW-teachUI-editor, #sepiaFW-teachUI-manager, #sepiaFW-frame-page-0, #sepiaFW-frame-page-1, #sepiaFW-frame-page-2, #sepiaFW-frame-page-3"; 	//TODO: frames can have more ...
 	UI.JQ_ALL_SETTINGS_VIEWS = ".sepiaFW-chat-menu-list-container";
 	UI.JQ_ALL_MAIN_CONTAINERS = "#sepiaFW-my-view, #sepiaFW-chat-output-container, #sepiaFW-result-view";
 	
@@ -20,6 +20,18 @@ function sepiaFW_build_ui(){
 	UI.isChromeDesktop = false;
 	UI.isSafari = false;
 	UI.isEdge = false;
+
+	UI.getPreferredColorScheme = function(){
+		if ('matchMedia' in window){
+			if (window.matchMedia('(prefers-color-scheme: dark)').matches){
+				return "dark";
+			}else if (window.matchMedia('(prefers-color-scheme: light)').matches){
+				return "light";
+			}
+		}
+		return "";
+	}
+	UI.preferredColorScheme = UI.getPreferredColorScheme();
 	
 	UI.windowExpectedSize = window.innerHeight;
 	var windowSizeDifference = 0;
@@ -75,6 +87,7 @@ function sepiaFW_build_ui(){
 		//Frame
 		}else{
 			if (SepiaFW.frames) SepiaFW.frames.open({pageUrl: (openView + ".html")});
+			//TODO: this will currently ignore all open-options for frames like onOpen callbacks and theme etc.
 		}
 	}
 	
@@ -142,11 +155,14 @@ function sepiaFW_build_ui(){
 	}
 	
 	//set skin
-	UI.setSkin = function(newIndex){
+	UI.setSkin = function(newIndex, rememberSelection){
+		if (rememberSelection == undefined) rememberSelection = true;
 		var skins = $('.sepiaFW-style-skin');
 		if (newIndex == 0){
 			activeSkin = 0;
-			SepiaFW.data.set('activeSkin', activeSkin);
+			if (rememberSelection){
+				SepiaFW.data.set('activeSkin', activeSkin);
+			}
 		}
 		skins.each(function(index){
 			if (index == (newIndex-1)){	
@@ -154,7 +170,9 @@ function sepiaFW_build_ui(){
 				$(this).prop('disabled', false);
 				SepiaFW.debug.log("UI active skin: " + $(this).attr('href'));
 				activeSkin = newIndex;
-				SepiaFW.data.set('activeSkin', activeSkin);
+				if (rememberSelection){
+					SepiaFW.data.set('activeSkin', activeSkin);
+				}
 			}else{
 				$(this).prop('title', '');
 				$(this).prop('disabled', true);
@@ -189,18 +207,23 @@ function sepiaFW_build_ui(){
 	//Note: for label button actions see ui.build module
 	
 	//make an info message
-	UI.showInfo = function(text, isErrorMessage, customTag){
+	UI.showInfo = function(text, isErrorMessage, customTag, beSilent, channelId){
 		if (UI.build){
-			var message = UI.build.makeMessageObject(text, 'UI', 'client', '', 'info'); 	//note: channelId=info will use the active channel or user-channel
-			var sEntry = UI.build.statusMessage(message, 'username', true);		//we handle UI messages as errors for now
+			if (channelId == undefined) channelId = 'info';		//note: channelId=info will use the active channel or user-channel
+			var message = UI.build.makeMessageObject(text, 'UI', 'client', '', channelId);
+			var sEntry = UI.build.statusMessage(message, 'username', true);		//we handle UI messages as errors for now - TODO: add non-error msg
 			if (customTag){
 				sEntry.dataset.msgCustomTag = customTag;
+				//weekday indicator
+				if (customTag.indexOf("weekday-note") == 0 || customTag.indexOf("unread-note") == 0){
+					sEntry.classList.add("chat-history-note");
+				}
 			}
 			//get right view
 			var targetViewName = "chat";
 			var resultView = UI.getResultViewByName(targetViewName);
 			//add to view
-			UI.addDataToResultView(resultView, sEntry);
+			UI.addDataToResultView(resultView, sEntry, beSilent);
 					
 		}else{
 			alert(text);
@@ -208,6 +231,7 @@ function sepiaFW_build_ui(){
 	}
 	//make a chat message - compared to the publish methods in 'Client' this only creates a simple chat-bubble (no note, no voice, etc.)
 	UI.showCustomChatMessage = function(text, data, options){
+		//build message object
 		if (!options) options = {};
 		if (!data) data = {};
 		var sender = data.sender || 'UI';
@@ -215,18 +239,35 @@ function sepiaFW_build_ui(){
 		var receiver = data.receiver || '';
 		var channelId = data.channelId || ((SepiaFW.client.isDemoMode())? "info" : "");
 		var message = UI.build.makeMessageObject(text, sender, senderType, receiver, channelId);
+		message.timeUNIX = data.timeUNIX;
+		message.data = data.data;
 		var cOptions = options.buildOptions || {};
+		var userId = SepiaFW.account.getUserId() || 'username';
+		
 		//build entry
-		var cEntry = UI.build.chatEntry(message, 'username', cOptions);
-		if (!cEntry){
-			SepiaFW.debug.error('Failed to show custom chat-entry, data was invalid! ChannelId issue?');
-			return;
-		}
-		//get right view
-		var targetViewName = cOptions.targetView || "chat";
-		var resultView = UI.getResultViewByName(targetViewName);
-		//add to view
-		UI.addDataToResultView(resultView, cEntry);
+		SepiaFW.client.optimizeAndPublishChatMessage(message, userId, function(){
+
+			var cEntry = UI.build.chatEntry(message, userId, cOptions);
+			if (!cEntry){
+				SepiaFW.debug.error('Failed to show custom chat-entry, data was invalid! ChannelId issue?');
+				return;
+			}
+			//get right view
+			var targetViewName = cOptions.targetView || "chat";
+			var resultView = UI.getResultViewByName(targetViewName);
+			//add to view
+			UI.addDataToResultView(resultView, cEntry);
+
+			//show results in frame as well? (SHOW ONLY!)
+			if (message.senderType === "assistant"){
+				if (SepiaFW.frames && SepiaFW.frames.isOpen && SepiaFW.frames.canShowChatOutput()){
+					SepiaFW.frames.handleChatOutput({
+						"text": message.text
+					});
+				}
+			}
+			return cEntry;
+		});
 	}
 	
 	//get/switch/show/hide active swipe-bars - TODO: can we get rid of the hard-coded dom ids?
@@ -292,7 +333,7 @@ function sepiaFW_build_ui(){
 	//switch channel view (show messages of specific channel)
 	UI.switchChannelView = function(channelId){
 		//hide all messages with channelId but wrong one
-		$('#sepiaFW-chat-output').find("[data-channel-id]").not("[data-channel-id='" + channelId + "']").each(function(){
+		$('#sepiaFW-chat-output').find("[data-channel-id]").not("[data-channel-id='" + channelId + "']").not("[data-channel-id='info']").each(function(){
 			//$(this).fadeOut(150);
 			$(this).addClass('hidden-by-channel');
 		});
@@ -395,6 +436,8 @@ function sepiaFW_build_ui(){
 				var urlParam = SepiaFW.tools.getURLParameter("isApp");
 				if (urlParam && urlParam == "true"){
 					urlParam = true;
+				}else if (urlParam && urlParam == "false"){
+					urlParam = false;
 				}
 				var google = window.matchMedia('(display-mode: standalone)').matches;
 				var apple = window.navigator.standalone;
@@ -412,6 +455,8 @@ function sepiaFW_build_ui(){
 			var urlParam = SepiaFW.tools.getURLParameter("isTiny");
 			if (urlParam && urlParam == "true"){
 				urlParam = true;
+			}else if (urlParam && urlParam == "false"){
+				urlParam = false;
 			}
 			if (urlParam){
 				document.documentElement.className += " sepiaFW-tiny-app";
@@ -450,8 +495,12 @@ function sepiaFW_build_ui(){
 		//load skin
 		var lastSkin = SepiaFW.data.get('activeSkin');
 		if (lastSkin){
-			UI.setSkin(lastSkin);
+			UI.setSkin(lastSkin, false);
 		}else{
+			//get user preferred color scheme
+			if (UI.preferredColorScheme == "dark"){
+				UI.setSkin(2, false);
+			}
 			//get skin colors
 			UI.refreshSkinColors();
 		}
@@ -999,7 +1048,7 @@ function sepiaFW_build_ui(){
 
 	//Use pop-up to ask for permission
 	UI.askForPermissionToExecute = function(question, allowedCallback, refusedCallback){
-		var request = SepiaFW.local.g('allowedToExecuteThisCommand') + "<br><br>" + question;
+		var request = SepiaFW.local.g('allowedToExecuteThisCommand') + "<br>" + question;
 		UI.showPopup(request, {
 			buttonOneName : SepiaFW.local.g('looksGood'),
 			buttonOneAction : function(){
@@ -1515,7 +1564,9 @@ function sepiaFW_build_ui(){
 		$inputBar = $('#sepiaFW-chat-controls-form');
 		if ($navBar.css('display') == 'none'){
 			$navBar.fadeIn(300);
-			$inputBar.fadeIn(300);
+			if (inputBarFullscreenFadeIn){
+				$inputBar.fadeIn(300);
+			}
 			$('.sepiaFW-carousel-pane').removeClass('full-screen');
 			$('#sepiaFW-chat-menu').removeClass('full-screen');
 			$('#sepiaFW-chat-controls').removeClass('full-screen');
@@ -1528,7 +1579,10 @@ function sepiaFW_build_ui(){
 			UI.isInterfaceFullscreen = false;
 		}else{
 			$navBar.fadeOut(300);
-			$inputBar.fadeOut(300);
+			if ($inputBar.css('display') != 'none'){
+				$inputBar.fadeOut(300);
+				inputBarFullscreenFadeIn = true;
+			}
 			$('.sepiaFW-carousel-pane').addClass('full-screen');
 			$('#sepiaFW-chat-menu').addClass('full-screen');
 			$('#sepiaFW-chat-controls').addClass('full-screen');
@@ -1546,6 +1600,7 @@ function sepiaFW_build_ui(){
 		UI.closeAllMenus();
 	}
 	UI.isInterfaceFullscreen = ($('#sepiaFW-nav-bar').css('display') == 'none');
+	var inputBarFullscreenFadeIn = false;
 	
 	//Use fullscreen API
 	UI.toggleFullscreen = function(elem){

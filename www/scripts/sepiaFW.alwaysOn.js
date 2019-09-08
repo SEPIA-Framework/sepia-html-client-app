@@ -19,6 +19,8 @@ function sepiaFW_build_always_on(){
     var $clock = undefined;
     var $notes = undefined;
     var $battery = undefined;
+    var $sttOut = undefined;
+    var $ttsOut = undefined;
 
     //some states
     AlwaysOn.isOpen = false;
@@ -45,6 +47,7 @@ function sepiaFW_build_always_on(){
             //onMessageHandler: AlwaysOn.onMessageHandler,              //TODO: use this?
             onMissedMessageHandler: AlwaysOn.onMissedMessageHandler,
             onSpeechToTextInputHandler: AlwaysOn.onSpeechToTextInputHandler,
+            onChatOutputHandler: AlwaysOn.onChatOutputHandler,
             theme: "dark_full"
         });
     }
@@ -78,6 +81,7 @@ function sepiaFW_build_always_on(){
         $notes = $('#sepiaFW-alwaysOn-notifications');
         $battery = $('#sepiaFW-alwaysOn-battery');
         $sttOut = $('#sepiaFW-alwaysOn-stt-out');
+        $ttsOut = $('#sepiaFW-alwaysOn-tts-out');
     }
 
     //On open
@@ -173,15 +177,15 @@ function sepiaFW_build_always_on(){
 
     //STT input handling
     AlwaysOn.onSpeechToTextInputHandler = function(sttResult){
-        if (sttResult && sttResult.text){
+        if ($sttOut && $sttOut.length > 0 && sttResult && sttResult.text){
             if (sttResult.isFinal){
-                console.log('Always-On saw text: ' + sttResult.text);
+                SepiaFW.debug.info('Always-On saw text: ' + sttResult.text);
             }else{
                 //console.log('AO saw text: ' + sttResult.text);
             }
             $sttOut.html(sttResult.text);
             if (fadeSttTimer) clearTimeout(fadeSttTimer);
-            $sttOut.stop().show();
+            $sttOut.stop().fadeIn(0);
             fadeSttTimer = setTimeout(function(){
                 $sttOut.stop();
                 $sttOut.fadeOut(3000, function(){
@@ -191,6 +195,53 @@ function sepiaFW_build_always_on(){
         }
     }
     var fadeSttTimer;
+
+    //TTS output handler
+    AlwaysOn.onChatOutputHandler = function(textResult){
+        if ($ttsOut && $ttsOut.length > 0 && textResult && textResult.text){
+            $ttsOut.html("");
+            if (fadeTtsTimer) clearTimeout(fadeTtsTimer);
+            if (ttsBuildUpTimer){
+                clearTimeout(ttsBuildUpTimer);
+            }
+            $ttsOut.stop().fadeIn(0);
+            var splitText = textResult.text.split(/\s+/);
+            buildChatOutputText(splitText, "", 0);
+        }
+    }
+    function buildChatOutputText(fullTextArray, intermediateText, index){
+        var avgCharacterLength = 57;    //milliseconds  - NOTE: this is a wild guess, we could improve this during runtime by measuring the actual time
+        ttsLastText = fullTextArray;
+        if (fullTextArray && index < fullTextArray.length){
+            intermediateText = (intermediateText + " " + fullTextArray[index]).trim();
+            $ttsOut.html(intermediateText);
+            index++;
+            var delay = (fullTextArray.length > index)? (fullTextArray[index-1].length + fullTextArray[index].length) * avgCharacterLength : fullTextArray[index-1].length * avgCharacterLength;
+            ttsBuildUpTimer = setTimeout(function(){
+                buildChatOutputText(fullTextArray, intermediateText, index);
+            }, (index % 2 == 0)? delay : 0);
+        }else{
+            ttsLastText = undefined;
+        }
+    }
+    function fadeOutChat(){
+        if (fadeTtsTimer) clearTimeout(fadeTtsTimer);
+        if (ttsBuildUpTimer) clearTimeout(ttsBuildUpTimer);
+        if (ttsLastText && ttsLastText.length > 0){
+            $ttsOut.html(ttsLastText.join(" ").trim());
+            ttsLastText = undefined;
+        }
+        $ttsOut.stop().fadeIn(0);
+        fadeTtsTimer = setTimeout(function(){
+            $ttsOut.stop();
+            $ttsOut.fadeOut(3000, function(){
+                $ttsOut.html("");
+            });
+        }, 4000);
+    }
+    var fadeTtsTimer;
+    var ttsBuildUpTimer;
+    var ttsLastText;
 
     //Animations and wake controls:
 
@@ -204,7 +255,7 @@ function sepiaFW_build_always_on(){
         showNotificationsAndFade(INFO_FADE_DELAY, preventNoteIndicatorFadeIfNotZero);
         showBatteryAndFade();
     }
-    AlwaysOn.avatarIdle = function(){
+    AlwaysOn.avatarIdle = function(triggeredByOtherAnim){
         //reset stuff
         avatarIsWaiting = false;
         avatarIsLoading = false;
@@ -224,33 +275,40 @@ function sepiaFW_build_always_on(){
                 $avatarMouth.removeClass('sad');
             }
         }
+        if (!triggeredByOtherAnim){
+            //fade-out text
+            fadeOutChat();
+        }
     }
     AlwaysOn.avatarLoading = function(){
-        AlwaysOn.avatarIdle();
+        AlwaysOn.avatarIdle(true);
         avatarIsLoading = true;
         if ($activityArea){
             $activityArea.addClass('loading');
         }
     }
     AlwaysOn.avatarSpeaking = function(){
-        AlwaysOn.avatarIdle();
+        AlwaysOn.avatarIdle(true);
         if ($activityArea){
             $activityArea.addClass('speaking');
             $avatarMouth.addClass('speaking');
         }
     }
     AlwaysOn.avatarListening = function(){
-        AlwaysOn.avatarIdle();
+        AlwaysOn.avatarIdle(true);
         if ($activityArea){
             $activityArea.addClass('listening');
         }
     }
     AlwaysOn.avatarAwaitingInput = function(){
-        AlwaysOn.avatarIdle();
+        AlwaysOn.avatarIdle(true);
         avatarIsWaiting = true;
         if ($activityArea){
             $activityArea.addClass('waiting');
         }
+        //prevent text fadeout
+        if (fadeTtsTimer) clearTimeout(fadeTtsTimer);
+        $ttsOut.stop().fadeIn(0);
     }
     //States
     function wakeAvatar(){
@@ -374,19 +432,35 @@ function sepiaFW_build_always_on(){
 
     //Move Avatar to new random position withing view
     function setNewAvatarRandomPosition(){
+        var avatarMarginTopBottom = 64;
+        var avatarMarginSide = 12;
         var availableHeight = $('#sepiaFW-alwaysOn-view').height();
         var availableWidth = $('#sepiaFW-alwaysOn-view').width();
         var avatarHeigth = $avatar.height();
         var avatarWidth = $avatar.width();
-        var newTop = getRandomPixel(availableHeight-avatarHeigth-60);
-        var newLeft = getRandomPixel(availableWidth-avatarWidth);
-        $avatar.css({top: newTop, left: newLeft});
+        var availableSpaceH = availableHeight - avatarHeigth - (2 * avatarMarginTopBottom);
+        var availableSpaceW = availableWidth - avatarWidth - (2 * avatarMarginSide);
+        var newPos;
+        if (availableSpaceH > 0){
+            $avatar.css({top: getRandomPixel(availableSpaceH, avatarMarginTopBottom)});
+            newPos = true;
+        }
+        if (availableSpaceW > 0){
+            $avatar.css({left: getRandomPixel(availableSpaceW, avatarMarginSide)});
+            newPos = true;
+        }
+        if (newPos){
+            return true;
+        }else{
+            return false;
+        }
     }
     AlwaysOn.moveAvatar = setNewAvatarRandomPosition;
 
     //Get random integer with pixel tag
-    function getRandomPixel(max) {
-        return (Math.floor(Math.random() * Math.floor(max))) + "px";
+    function getRandomPixel(max, offset) {
+        if (offset == undefined) offset = 0;
+        return (Math.floor(Math.random() * Math.floor(max))) + offset + "px";
     }
 
     //Show a clock with local time for a while

@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+	<!-- web app settings -->
+	<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=0">
+
+	<title>S.E.P.I.A. Launcher</title>
+	<meta name="application-name" content="S.E.P.I.A. Launcher"/>
+	<meta name="apple-mobile-web-app-title" content="S.E.P.I.A. Launcher">
+	<meta name="description" content="SEPIA launcher to open app with certain settings.">
+	<meta name="theme-color" content="#000">
+	<link rel="icon" sizes="192x192" href="img/icon.png">
+	<link rel="apple-touch-icon" href="img/icon.png">
+	
+	<!-- open graph settings -->
+	<meta property="og:title" content="S.E.P.I.A."/>
+	<meta property="og:determiner" content="the" />
+	<meta property="og:url" content="https://sepia-framework.github.io/app/"/>
+	<meta property="og:description" content="SEPIA launcher to open app with certain settings.">
+	<meta property="og:image" content="https://sepia-framework.github.io/img/logo.png"/>
+	<meta property="og:image:width" content="960"/>
+	<meta property="og:image:height" content="960"/>
+	<meta property="og:image:type" content="image/png"/>
+	<meta property="og:image:alt" content="SEPIA Logo"/>
+	<meta property="og:image" content="https://sepia-framework.github.io/app/img/icon.png"/>
+	<meta property="og:image:width" content="192"/>
+	<meta property="og:image:height" content="192"/>
+	<meta property="og:image:type" content="image/png"/>
+	<meta property="og:image:alt" content="SEPIA Icon"/>
+	<meta property="og:type" content="website"/>
+	<meta property="og:locale" content="en_GB"/>
+	<meta property="og:locale:alternate" content="en_US"/>
+	<meta property="og:locale:alternate" content="de_DE"/>
+</head>
+<style>
+	* {
+		box-sizing: border-box;
+		-webkit-tap-highlight-color: transparent;
+	}
+	input:focus,
+	select:focus,
+	textarea:focus,
+	button:focus {
+		outline: none;
+	}
+	::-moz-focus-inner {
+		border:0;
+	}
+	html {
+		font-family: sans-serif;
+		width: 100%;
+		height: 100%;
+		margin: 0;
+		padding: 0;
+		background-color: #000;
+		color: #fff;
+	}
+	body {
+		width: 100%;
+		height: 100%;
+		margin: 0;
+		padding: 0;
+		position: relative;
+		text-align: center;
+	}
+	section {
+		width: 100%;
+		max-width: 300px;
+		text-align: center;
+		padding: 16px;
+		margin: auto;
+	}
+	.labelBlock {
+		height: 100%;
+		width: 100%;
+		display: flex;
+		align-content: center;
+		align-items: flex-end;
+		justify-content: center;
+		overflow: hidden;
+	}
+	.labelBlock label {
+		font-size: 32px;
+		font-weight: 300;
+		color: #beff1a;
+	}
+	.inputBlock {
+		background: #fff;
+		border: 1px solid #beff1a;
+		border-radius: 3px;
+		overflow: hidden
+	}
+	.inputBlock input {
+		background: #fff;
+		border: 0;
+		-moz-appearance: none;
+		-webkit-appearance: none;
+		appearance: none;
+		width: 100%;
+		height: 36px;
+		padding-left: 8px;
+		font-size: 18px;
+	}
+	.buttonBlock {
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
+		align-items: stretch;
+	}
+	.buttonBlock button {
+		border: 0;
+		border-radius: 3px;
+		background: #beff1a;
+		color: #222;
+		font-size: 16px;
+		padding: 5px 12px;
+		margin: 4px 2px;
+	}
+	.buttonBlock button:hover {
+		color: #000;
+		background: #fff;
+	}
+	.buttonBlock select,	
+	.buttonBlock span {
+		padding: 4px 8px;
+	}
+	.buttonBlock label {
+		padding: 8px 8px;
+	}
+	.buttonBlock em {
+		color: #bef11a;
+	}
+	#sepia-load-overlay {
+		display: flex; 
+		justify-content: center; 
+		align-items: center; 
+		width: 100%; 
+		height: 100%; 
+		min-height: 180px; 
+		position: absolute; 
+		top: 0; 
+		left: 0; 
+		z-index: 100;
+		background: #000;
+	}
+	#sepia-load-overlay.faded {
+		transition: opacity 1.0s;
+		opacity: 0;
+	}
+</style>
+<body >
+	<!-- Main -->
+	<div id="sepia-load-overlay">
+		<img src="img/icon.png" style="height: 128px; max-width: 100%; max-height: 100%;">
+	</div>
+	<section style="min-height: 18%; display: flex; flex-direction: column; justify-content: flex-end; align-items: center;">
+		<h3 style="margin: 8px; font-size: 22px;">S.E.P.I.A. App Launcher</h3>
+		<p style="margin: 8px 8px 0 8px;">Configure SEPIA web-app and use 'autolaunch=true' as URL parameter for immediate redirect.</p>
+	</section>
+	<section>
+		<div class='buttonBlock'>
+			<label>
+				<input id="sepia-url-param-tiny" class="sepia-storable" type="checkbox" name="isTiny" value="isTiny=true">isTiny<br><em>Optimize for small screen</em>
+			</label>
+			<label>
+				<input id="sepia-url-param-app" class="sepia-storable" type="checkbox" name="isApp" value="isApp=true">isApp<br><em>Modify client ID and token lifespan</em>
+			</label>
+			<label>
+				<input id="sepia-open-new-win" class="sepia-storable" type="checkbox" name="newWindow" checked>Open in new window<br><em>Create 480x800 (or max size) pop-up window</em>
+			</label>
+			<label style="display:none;">
+				<input id="sepia-preload-tts" class="sepia-storable" type="checkbox" name="preLoadTts" checked>Pre-load TTS voices<br><em>Can be useful for apps in kiosk-mode</em>
+			</label>
+			<label>
+				<span>View: </span><select id="sepia-url-param-view" class="sepia-storable">
+					<option value="">Default (Chat View)</option>
+					<option value="view=ao">Always-On Mode</option>
+					<option value="view=teachui">Teach-UI</option>
+				</select>
+			</label>
+		</div>
+	</section>
+	<section>
+		<div class='buttonBlock'>
+			<button id="launch-btn">Launch App</button>
+		</div>
+	</section>
+<!-- START JS -->
+<script type="text/javascript">
+function ready(){
+	var isTiny = document.getElementById('sepia-url-param-tiny');
+	var isApp = document.getElementById('sepia-url-param-app');
+	var view = document.getElementById('sepia-url-param-view');
+	var newWindow = document.getElementById('sepia-open-new-win');
+	var preLoadTts = document.getElementById('sepia-preload-tts');
+	var ttsSupported = ("speechSynthesis" in window) && speechSynthesis.getVoices;
+	if (ttsSupported){
+		preLoadTts.parentNode.style.removeProperty("display");
+	}else{
+		preLoadTts.checked = false;
+	}
+	if ('localStorage' in window){
+		isTiny.addEventListener("change", function(){
+			window.localStorage.setItem('isTiny', isTiny.checked);
+		});
+		if (window.localStorage.getItem('isTiny') == "true")		isTiny.checked = true;
+		
+		isApp.addEventListener("change", function(){
+			window.localStorage.setItem('isApp', isApp.checked);
+		});
+		if (window.localStorage.getItem('isApp') == "true")		isApp.checked = true;
+		
+		view.addEventListener("change", function(){
+			window.localStorage.setItem('view', view.value);
+		});
+		var viewMem = window.localStorage.getItem('view');
+		if (viewMem)	view.value = viewMem;
+		
+		newWindow.addEventListener("change", function(){
+			window.localStorage.setItem('newWindow', newWindow.checked);
+		});
+		if (window.localStorage.getItem('newWindow') == "false")	newWindow.checked = false;
+		
+		preLoadTts.addEventListener("change", function(){
+			window.localStorage.setItem('preLoadTts', preLoadTts.checked);
+		});
+		if (ttsSupported && window.localStorage.getItem('preLoadTts') == "false")	preLoadTts.checked = false;
+	}
+	function launch(){
+		var url = location.href.replace(/launcher\.html/,"index.html?ref=launcher");
+		url = url.replace(/(&|\?)autolaunch=true/, "");
+		if (isTiny.checked){
+			url += ("&" + isTiny.value);
+		}
+		if (isApp.checked){
+			url += ("&" + isApp.value);
+		}
+		if (view.value){
+			url += ("&" + view.value);
+		}
+		if (newWindow.checked){
+			var h = Math.min(window.screen.availHeight, 800);
+			var w = Math.min(window.screen.availWidth, 480);
+			window.open(url, "SEPIA", "width=" + w + ",height=" + h + ",top=0,left=0");
+		}else{
+			location.href = url;
+		}
+	}
+	//TTS
+	if (preLoadTts){
+		var voices = speechSynthesis.getVoices();
+	}
+	document.getElementById('launch-btn').addEventListener("click", function(){
+		launch();
+	});
+	if (location.href.indexOf('autolaunch=true') >= 0){
+		launch();
+	}
+	//Fade overlay
+	setTimeout(function(){
+		var overlay = document.getElementById('sepia-load-overlay');
+		overlay.classList.add('faded');
+		setTimeout(function(){
+			overlay.style.display = 'none';
+		}, 1000);
+	}, 1000); 
+}
+ready();
+</script>
+</body>
+</html>

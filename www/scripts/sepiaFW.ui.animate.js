@@ -3,6 +3,7 @@ function sepiaFW_build_animate(){
 	var Animate = {};
 	Animate.assistant = {};
 	Animate.audio = {};
+	Animate.channels = {};
 	
 	//general animations
 	
@@ -57,7 +58,7 @@ function sepiaFW_build_animate(){
 	}
 	function possibilityToFadeInBackgroundAudio(){
 		if (SepiaFW.audio){
-			SepiaFW.audio.fadeInMainIfOnHold();
+			SepiaFW.audio.fadeInIfOnHold();
 		}
 	}
 
@@ -89,7 +90,7 @@ function sepiaFW_build_animate(){
 				possibilityToSwitchOnWakeWordListener(source);
 			}
 			//Avatar
-			if (SepiaFW.alwaysOn){
+			if (SepiaFW.alwaysOn && SepiaFW.alwaysOn.isOpen){
 				SepiaFW.alwaysOn.avatarIdle();
 			}
 			//Dispatch - NOTE: this will also trigger the timer for idle-time events (see: Client.queueIdleTimeEvent)
@@ -104,7 +105,7 @@ function sepiaFW_build_animate(){
 		SepiaFW.ui.assistBtnArea.style.backgroundColor = SepiaFW.ui.loadingColor;
 		$("#sepiaFW-assist-btn-orbiters").removeClass("sepiaFW-animation-pause");
 		//Avatar
-		if (SepiaFW.alwaysOn){
+		if (SepiaFW.alwaysOn && SepiaFW.alwaysOn.isOpen){
 			SepiaFW.alwaysOn.avatarLoading();
 		}
 		//Dispatch
@@ -115,7 +116,7 @@ function sepiaFW_build_animate(){
 		SepiaFW.ui.assistBtn.innerHTML = SepiaFW.ui.assistIconSpeak;
 		SepiaFW.ui.assistBtnArea.style.backgroundColor = SepiaFW.ui.accentColor2;
 		$("#sepiaFW-assist-btn-orbiters").removeClass("sepiaFW-animation-pause");
-		if (SepiaFW.alwaysOn){
+		if (SepiaFW.alwaysOn && SepiaFW.alwaysOn.isOpen){
 			SepiaFW.alwaysOn.avatarSpeaking();
 		}
 	}
@@ -126,7 +127,7 @@ function sepiaFW_build_animate(){
 		//extra input box
 		SepiaFW.ui.showLiveSpeechInputBox();
 		//Avatar
-		if (SepiaFW.alwaysOn){
+		if (SepiaFW.alwaysOn && SepiaFW.alwaysOn.isOpen){
 			SepiaFW.alwaysOn.avatarListening();
 		}
 		//Dispatch
@@ -138,7 +139,7 @@ function sepiaFW_build_animate(){
 		SepiaFW.ui.assistBtnArea.style.backgroundColor = SepiaFW.ui.awaitDialogColor;
 		$("#sepiaFW-assist-btn-orbiters").removeClass("sepiaFW-animation-pause");
 		//Avatar
-		if (SepiaFW.alwaysOn){
+		if (SepiaFW.alwaysOn && SepiaFW.alwaysOn.isOpen){
 			SepiaFW.alwaysOn.avatarAwaitingInput();
 		}
 		//Dispatch
@@ -168,6 +169,31 @@ function sepiaFW_build_animate(){
 	Animate.audio.playerIdle = function(){
 		//$("#sepiaFW-audio-ctrls-title").removeClass("playerActive");
 		$("#sepiaFW-audio-ctrls-soundbars").removeClass("playerActive");
+	}
+
+	//channel animations for missed off-channel messages
+
+	var markedChannels = new Set();
+	Animate.channels.setStateCheckChannels = function(){
+		$('#sepiaFW-nav-users-btn').addClass('marked');
+	}
+	Animate.channels.clearStateCheckChannels = function(){
+		$('#sepiaFW-nav-users-btn').removeClass('marked');
+	}
+	Animate.channels.markChannelEntry = function(channelId){
+		var $channelEntry = $('#sepiaFW-chat-channel-view').find('[data-channel-id="' + channelId + '"]');
+		if ($channelEntry.length > 0){
+			$channelEntry.addClass('marked');
+			markedChannels.add(channelId);
+			Animate.channels.setStateCheckChannels();
+		}
+	}
+	Animate.channels.unmarkChannelEntry = function(channelId){
+		$('#sepiaFW-chat-channel-view').find('[data-channel-id="' + channelId + '"]').removeClass('marked');
+		markedChannels.delete(channelId);
+		if (markedChannels.size == 0){
+			Animate.channels.clearStateCheckChannels();
+		}
 	}
 	
 	return Animate;

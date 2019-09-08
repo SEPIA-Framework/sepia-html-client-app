@@ -25,6 +25,12 @@ function sepiaFW_build_strings(){
 	StringsDE.logout = 'Logout';
 	StringsDE.closeLogin = 'Weiter ohne Login';
 	StringsDE.info_and_help = 'Infos und Support';
+	StringsDE.change_account_password = "Account Passwort ändern";
+	StringsDE.channels = "Kanäle";
+	StringsDE.active_users = "Aktive User";
+	StringsDE.edit_chat_channels = "Kanäle bearbeiten";
+	StringsDE.invite_user = "User einladen";
+	StringsDE.invite = "Einladen";
 	//StringsDE.chatInputPlaceholder = 'Deine Nachricht ...';
 	StringsDE.chatInputPlaceholder = '';
 	StringsDE.loginFailedPlain = 'Login fehlgeschlagen!';
@@ -53,6 +59,10 @@ function sepiaFW_build_strings(){
 	StringsDE.save = 'Speichern';
 	StringsDE.store = 'Speichern';
 	StringsDE.load = 'Laden';
+	StringsDE.edit = 'Bearbeiten';
+	StringsDE.copy = 'Kopieren';
+	StringsDE.show = 'Anzeigen';
+	StringsDE.new = 'Neu';
 	StringsDE.tryAgain = 'Nochmal versuchen';
 	StringsDE.tryReconnect = 'Neu verbinden';
 	StringsDE.wait = 'Warten';
@@ -63,6 +73,7 @@ function sepiaFW_build_strings(){
 	StringsDE.deviceId = 'Geräte ID';
 	StringsDE.allowedToExecuteThisCommand = 'Darf ich diesen Befehl ausführen: ';
 	StringsDE.copyList = 'Diese Liste gehört einem anderen User, möchtest du sie in deinen Account kopieren?';
+	StringsDE.cantCopyList = 'Diese Liste gehört einem anderen User und kann nicht gespeichert werden, aber du kannst eventuell einzelne Einträge via share-Funktion kopieren.';
 	StringsDE.deleteItemConfirm = 'Bist du sicher, dass du das löschen möchtest?';
 	StringsDE.deleteItem = 'Löschen';
 	StringsDE.hideItem = 'Verstecken';
@@ -79,9 +90,12 @@ function sepiaFW_build_strings(){
 	StringsDE.expired = 'abgelaufen';
 	StringsDE.missed = 'Verpasst';
 	StringsDE.clearHistory = 'Verlauf löschen';
+	StringsDE.history = 'Verlauf';
+	StringsDE.newMessages = 'Neue Nachrichten';
 	StringsDE.reload = 'Neu laden';
 	StringsDE.refreshUI = 'Interface neu laden';
 	StringsDE.refreshUI_info = 'Um Änderungen, die hier gemacht wurden zu <u>sehen</u> muss das Interface neu geladen werden';
+	StringsDE.newSepiaWindow = 'Neues SEPIA Fenster';
 	StringsDE.lastUpdate = 'Zuletzt aktualisiert';
 	StringsDE.recommendationsFor = 'Empfehlungen für';
 	StringsDE.forNewcomers = 'Für Neuankömmlinge';
@@ -114,6 +128,10 @@ function sepiaFW_build_strings(){
 	//Service and action texts
 	StringsDE.opening_link = "Link wird geöffnet.";
 	StringsDE.no_music_playing = "Kannst du was hören? Wahrscheinlich wurde keine Musik gefunden.";
+	//Link sharing
+	StringsDE.link_join_channel = "Einem Chat-Kanal beitreten."
+	StringsDE.link_open_url = "Einen Link öffnen."
+	StringsDE.link_create_reminder = "Eine Erinnerung einrichten."
 	//Offline demo texts
 	StringsDE.demoMode = 'Du befindest dich im Demo-Modus! In diesem Modus kannst du die Einstellungen ändern (z.B. hostname), das Tutorial anschauen und mit manchen(!) Teilen des Interfaces spielen. Um auf deinen Assistenten zuzugreifen melde dich bitte zuerst an.';
 	StringsDE.notPossibleInDemoMode = 'Sorry aber das geht noch nicht im Demo-Modus.';
@@ -129,6 +147,10 @@ function sepiaFW_build_strings(){
 	//Teach-UI
 	StringsDE.command = 'Befehl';
 	StringsDE.chooseCommand = 'Bitte wähle einen Befehl.';
+	//Channels
+	StringsDE.createdChannel = 'Neuer Kanal wurde erfolgreich erstellt';
+	StringsDE.joinedChannel = 'Du bist erfolgreich einem neuen Kanal beigetreten';
+	StringsDE.deletedChannel = 'Der Kanal wurde erfolgreich gelöscht';
 	
 	//ENGLISH
 	StringsEN.welcome = 'Welcome';
@@ -149,6 +171,12 @@ function sepiaFW_build_strings(){
 	StringsEN.logout = 'Logout';
 	StringsEN.closeLogin = 'Continue without login';
 	StringsEN.info_and_help = 'Info and support';
+	StringsEN.change_account_password = "Change account password";
+	StringsEN.channels = "Channels";
+	StringsEN.active_users = "Active Users";
+	StringsEN.edit_chat_channels = "Edit Channels";
+	StringsEN.invite_user = "Invite User";
+	StringsEN.invite = "Invite";
 	//StringsEN.chatInputPlaceholder = 'Your message ...';
 	StringsEN.chatInputPlaceholder = '';
 	StringsEN.loginFailedPlain = 'Login failed!';
@@ -177,6 +205,10 @@ function sepiaFW_build_strings(){
 	StringsEN.save = 'Save';
 	StringsEN.store = 'Store';
 	StringsEN.load = 'Load';
+	StringsEN.edit = 'Edit';
+	StringsEN.copy = 'Copy';
+	StringsEN.show = 'Show';
+	StringsEN.new = 'New';
 	StringsEN.tryAgain = 'Try again';
 	StringsEN.tryReconnect = 'Try reconnect';
 	StringsEN.wait = 'Wait';
@@ -187,6 +219,7 @@ function sepiaFW_build_strings(){
 	StringsEN.deviceId = 'Device ID';
 	StringsEN.allowedToExecuteThisCommand = 'Am I allowed to send this request: ';
 	StringsEN.copyList = 'This list belongs to another user, do you want to copy it to your account?';
+	StringsEN.cantCopyList = 'This list belongs to another user and cannot be stored, but you might be able to copy single items with the share function.';
 	StringsEN.deleteItemConfirm = 'Are you sure you want to delete this?';
 	StringsEN.deleteItem = 'Delete';
 	StringsEN.hideItem = 'Hide';
@@ -203,9 +236,12 @@ function sepiaFW_build_strings(){
 	StringsEN.expired = 'expired';
 	StringsEN.missed = 'Missed';
 	StringsEN.clearHistory = 'Clear history';
+	StringsEN.history = 'History';
+	StringsEN.newMessages = "New messages";
 	StringsEN.reload = 'Reload';
 	StringsEN.refreshUI = 'Refresh interface';
 	StringsEN.refreshUI_info = 'To <u>see</u> changes you made here you need to refresh the interface';
+	StringsEN.newSepiaWindow = 'New SEPIA window';
 	StringsEN.lastUpdate = 'Last update';
 	StringsEN.recommendationsFor = 'Recommendations for';
 	StringsEN.forNewcomers = 'For newcomers';
@@ -239,6 +275,10 @@ function sepiaFW_build_strings(){
 	StringsEN.opening_link = "Opening link.";
 	StringsEN.no_music_playing = "Can you hear something? Probably no music found.";
 	StringsEN.no_music_playing = "Can you hear something? Probably no music found.";
+	//Link sharing
+	StringsEN.link_join_channel = "Join a chat-channel."
+	StringsEN.link_open_url = "Open a link."
+	StringsEN.link_create_reminder = "Create a reminder."
 	//Offline demo texts
 	StringsEN.demoMode = 'You are in demo-mode! This mode only allows you to change settings (e.g. hostname), check out the tutorial and play with some(!) parts of the UI. To get access to your assistant please log-in first.';
 	StringsEN.notPossibleInDemoMode = 'Sorry this is not yet possible in demo-mode.';
@@ -254,6 +294,10 @@ function sepiaFW_build_strings(){
 	//Teach-UI
 	StringsEN.command = 'Command';
 	StringsEN.chooseCommand = 'Please choose a command.';
+	//Channels
+	StringsEN.createdChannel = 'You have successfully created a new channel';
+	StringsEN.joinedChannel = 'You have successfully joined a new channel';
+	StringsEN.deletedChannel = 'You have successfully deleted the channel';
 
 	//--------------------------------------------------------
 	
@@ -274,14 +318,29 @@ function sepiaFW_build_strings(){
 		document.write(StringsLocale[name]);
 	}
 
+	//specials:
+
+	var weekdayEN = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+	var weekdayDE = ["Sonntag", "Montag", "Dienstag", "Mittwoch", "Donnerstag", "Freitag", "Samstag"];
+
+	StringsLocale.getWeekdayName = function(dayIndex){
+		if (SepiaFW.config.appLanguage.toLowerCase() === "de"){
+			return weekdayDE[dayIndex];
+		}else{
+			return weekdayEN[dayIndex];
+		}
+	}
+
 	//-------------- Languages --------------
 
+	//ISO639-1 language codes
 	StringsLocale.getSupportedAppLanguages = function(){
 		return [
 			{value:"de", name:"&nbsp;DE&nbsp;"},
 			{value:"en", name:"&nbsp;EN&nbsp;"},
 		];
 	}
+	//BCP47 language-REGION codes
 	StringsLocale.getExperimentalAsrLanguages = function(){
 		return [
 			{value:"", name:"Default (app lang.)"},

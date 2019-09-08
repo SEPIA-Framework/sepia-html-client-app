@@ -23,7 +23,14 @@
 	<div id="sepiaFW-frames-nav-bar-page-indicator"><div>&nbsp;</div><div>&nbsp;</div></div>
 </div>
 <script>
-	$('[data-localize]').each(function(){
+	$('#sepiaFW-frame-carousel').find('[data-localize]').each(function(){
 		$(this).html(SepiaFW.local.g(this.dataset.localize));
 	});
+	//Define scope
+	SepiaFW.frames.currentScope = {
+		//Load scope (default method)
+		load: function(){
+		}
+	}
+	SepiaFW.frames.currentScope.load();
 </script>

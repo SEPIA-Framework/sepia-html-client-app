@@ -1,6 +1,25 @@
 .sepiaFW-tiny-app body {
 	padding: 0px;
 	min-width: auto;
+	font-size: 13px;
+}
+
+.sepiaFW-tiny-app .sepiaFW-myEvents-titleNote,
+.sepiaFW-tiny-app .sepiaFW-myFirstStart-titleNote,
+.sepiaFW-tiny-app .sepiaFW-myCustomButtons-titleNote,
+.sepiaFW-tiny-app .sepiaFW-results-container h2 {
+	font-size: 14px !important;
+}
+.sepiaFW-tiny-app .sepiaFW-cards-list-body .timeEvent .timeEventCenter .sepiaFW-timer-name {
+	font-size: 14px;
+}
+.sepiaFW-tiny-app .sepiaFW-cards-list-body .timeEvent .timeEventCenter .sepiaFW-timer-indicator {
+    font-size: 12px;
+}
+
+.sepiaFW-tiny-app .sepiaFW-cards-list-title > span {
+    width: 110px;
+    line-height: 14px;
 }
 
 .sepiaFW-tiny-app #sepiaFW-nav-menu-btn {
@@ -13,6 +32,18 @@
 	display: none;
 }
 
+.sepiaFW-tiny-app #sepiaFW-chat-controls {
+	justify-content: center;
+}
+.sepiaFW-tiny-app #sepiaFW-chat-controls-right {
+	border-radius: 28px;
+	padding: 0;
+	min-width: 55px;
+	border: 3px solid #191919;
+}
+.sepiaFW-tiny-app #sepiaFW-chat-controls-more-btn {
+	border-radius: 28px;
+}
 .sepiaFW-tiny-app #sepiaFW-chat-controls-more-menu {
 	height: 100%;
 }
@@ -36,7 +67,17 @@
 	width: 190px;
 	height: 190px;
 	left: calc(50% - 95px);
-    top: calc(50% - 95px);
+    top: calc(50% - 57px);
+}
+
+.sepiaFW-tiny-app #sepiaFW-alwaysOn-stt-out {
+	top: 0px;
+}
+.sepiaFW-tiny-app #sepiaFW-alwaysOn-tts-out {
+	bottom: 8px;
+}
+.sepiaFW-tiny-app .sepiaFW-alwaysOn-text-block {
+    font-size: 14px;
 }
 
 .sepiaFW-tiny-app #sepiaFW-login-box {
@@ -45,4 +86,8 @@
     top: 0;
 	margin: 0;
 	padding: 12px;
+}
+
+.sepiaFW-tiny-app #sepiaFW-by-Florian-Quirin {
+	display: none;
 }

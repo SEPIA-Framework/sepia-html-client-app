@@ -27,10 +27,27 @@ function sepiaFW_build_client_interface(){
 	ClientInterface.addOnActiveAction = SepiaFW.webSocket.client.addOnActiveAction;
 	ClientInterface.addOnActiveOneTimeAction = SepiaFW.webSocket.client.addOnActiveOneTimeAction;
 	ClientInterface.addOnActivePreUpdateOneTimeAction = SepiaFW.webSocket.client.addOnActivePreUpdateOneTimeAction;
+	
 	ClientInterface.getActiveChannel = SepiaFW.webSocket.client.getActiveChannel;
+	ClientInterface.getActiveChannelUsers = SepiaFW.webSocket.client.getActiveChannelUsers;
+	ClientInterface.getActiveChannelUsersByIdOrName = SepiaFW.webSocket.client.getActiveChannelUsersByIdOrName;
+	ClientInterface.getFirstActiveChannelUserById = SepiaFW.webSocket.client.getFirstActiveChannelUserById;
+	ClientInterface.getAllChannels = SepiaFW.webSocket.client.getAllChannels;
+	ClientInterface.getChannelDataById = SepiaFW.webSocket.client.getChannelDataById;
 	ClientInterface.switchChannel = SepiaFW.webSocket.client.switchChannel;
 	ClientInterface.switchChatPartner = SepiaFW.webSocket.client.switchChatPartner;
 	ClientInterface.getActiveChatPartner = SepiaFW.webSocket.client.getActiveChatPartner;
+
+	ClientInterface.openChannelManager = SepiaFW.webSocket.client.openChannelManager;
+	ClientInterface.createChannel = SepiaFW.webSocket.channels.create;
+	ClientInterface.joinNewChannel = SepiaFW.webSocket.channels.join;
+	ClientInterface.deleteChannel = SepiaFW.webSocket.channels.delete;
+	ClientInterface.editChannel = SepiaFW.webSocket.channels.edit;
+	ClientInterface.loadAvailableChannels = SepiaFW.webSocket.channels.loadAvailableChannels;	//Note: loads data from server (see below)
+	ClientInterface.loadChannelsWithMissedMessages = SepiaFW.webSocket.channels.loadChannelsWithMissedMessages;
+	ClientInterface.pushToChannelList = SepiaFW.webSocket.client.pushToChannelList;
+	ClientInterface.refreshChannelList = SepiaFW.webSocket.client.refreshChannelList;			//Note: refreshes UI (not data, see above)
+	ClientInterface.getChannelInviteLink = SepiaFW.webSocket.channels.getChannelInviteLink;
 
 	ClientInterface.getNewMessageId = SepiaFW.webSocket.client.getNewMessageId;
 	ClientInterface.handleServerMessage = SepiaFW.webSocket.client.handleServerMessage;
@@ -39,6 +56,9 @@ function sepiaFW_build_client_interface(){
 	ClientInterface.sendInputText = SepiaFW.webSocket.client.sendInputText;
 	ClientInterface.sendMessage = SepiaFW.webSocket.client.sendMessage;
 	ClientInterface.sendCommand = SepiaFW.webSocket.client.sendCommand;
+	ClientInterface.requestDataUpdate = SepiaFW.webSocket.client.requestDataUpdate;
+
+	ClientInterface.optimizeAndPublishChatMessage = SepiaFW.webSocket.client.optimizeAndPublishChatMessage;
 	
 	ClientInterface.queueCommand = SepiaFW.webSocket.client.queueCommand;
 	ClientInterface.getAndRemoveNextCommandInQueue = SepiaFW.webSocket.client.getAndRemoveNextCommandInQueue;
@@ -62,8 +82,34 @@ function sepiaFW_build_client_interface(){
 
 	//some constants for link sharing
 	ClientInterface.deeplinkHostUrl = "https://b07z.net/dl/sepia/index.html";
-	ClientInterface.SHARE_TYPE_ALARM = "alarm";
-	ClientInterface.SHARE_TYPE_LINK = "link";
+	ClientInterface.handleUrlParameterActions = function(){ alert('handleUrlParameterActions has to be defined in app setup first!'); };
+	ClientInterface.SHARE_TYPE_ALARM = "alarm";		//parameters: beginTime, title
+	ClientInterface.SHARE_TYPE_LINK = "link";		//parameters: see card elements (cardElementInfo?)
+	ClientInterface.SHARE_TYPE_CHANNEL_INVITE = "channel_invite";	//parameters: id, key
+
+	//DeepLink builder
+	ClientInterface.buildDeepLinkFromText = function(text){
+		return (ClientInterface.deeplinkHostUrl + "?q=" + encodeURIComponent("i18n:" + SepiaFW.config.appLanguage + " " + text));
+	}
+	ClientInterface.buildDeepLinkForSharePath = function(shareData){
+		return (SepiaFW.client.deeplinkHostUrl + "?share=" + encodeURIComponent(btoa(JSON.stringify(shareData))));
+	}
+	ClientInterface.getDeepLinkDataFromShareLink = function(shareLink){
+		if (shareLink.indexOf("?share=") >= 0){
+			var shareDataEncoded = SepiaFW.tools.getURLParameterFromUrl(shareLink, "share");
+			return ClientInterface.getDeepLinkDataFromShareData(shareDataEncoded);
+		}else{
+			return;
+		}
+	}
+	ClientInterface.getDeepLinkDataFromEncodedShareData = function(shareData){
+		try {
+			return JSON.parse(atob(shareData));		//no encoding currently (besides URI component which was decoded already)
+		}catch(e){
+			SepiaFW.debug.error("Failed to parse URL data: " + shareData);
+			return;
+		}
+	}
 
 	//check server info
 	ClientInterface.getServerInfo = function(successCallback, errorCallback){
@@ -167,8 +213,32 @@ function sepiaFW_build_webSocket_common(){
 		msg.msgId = msgId;
 		msg.channelId = channelId;
 		msg.sender = sender;
+		msg.senderDeviceId = (data && data.parameters)? data.parameters.device_id : "";
 		msg.timeUNIX = tsUNIX;
-		if (receiver) msg.receiver = receiver;
+		if (receiver){
+			msg.receiver = receiver;
+			//Auto-fill missing device ID
+			if (msg.receiver == SepiaFW.assistant.id){
+				msg.receiverDeviceId = SepiaFW.assistant.deviceId;
+			}else{
+				var activeChatPartner = SepiaFW.client.getActiveChatPartner();
+				if (!activeChatPartner){
+					var chatPartnersWithId = SepiaFW.client.getActiveChannelUsersByIdOrName(receiver);
+					if (chatPartnersWithId){
+						activeChatPartner = chatPartnersWithId[0];		//TODO: just assume first?
+					}
+				}
+				if (activeChatPartner && receiver == activeChatPartner.id){
+					//add device ID (required to find correct receiver)
+					msg.receiverDeviceId = activeChatPartner.deviceId;
+					
+					//add to contacts-from-chat if possible
+					if (SepiaFW.account && SepiaFW.account.contacts){
+						SepiaFW.account.contacts.addContactFromChat(activeChatPartner);
+					}
+				}
+			}
+		}
 		if (text) msg.text = text;
 		if (html) msg.html = html;
 		if (data) msg.data = data;
@@ -208,14 +278,21 @@ function sepiaFW_build_webSocket_client(){
 	var serverName = ""; 				//synced during server ping
 	var username = "";					//synced during account validation
 	var userList;
-	var activeChatPartner = "";
-	var lastActivatedChatPartner = "";
+	var activeChatPartner;
+	var lastActivatedChatPartner;
 	var activeChannelId = "";			//set on "joinChannel" event
 	var lastActivatedChannelId = "";	//last actively chosen channel
+	var lastChannelMessageTimestamps;		//track when a channel received the last message
+	var lastChannelHistoryClearTimestamps;	//track when a channel history was last cleared
+	var lastChannelJoinTimestamps = {};			//track when a channel was last joined (NOTE: this is volatile by intention, don't store it unless u store channel history as well)
+	var lastChannelMessageDataStoreTimer;			//a timer that prevents too many consecutive calls to store channel data in local DB
+	var lastChannelMessageDataStoreDelay = 6000;	//... not more often than every N seconds
 	var channelList = [
-		{"id" : "openWorld"}
+		{id: "openWorld", name: "Open World"}
 	];
-	function pushToChannelList(newId){
+	Client.pushToChannelList = function(channelData){
+		var newId = channelData.id;
+		if (!channelData.name) channelData.name = newId;	//take ID if name is missing
 		var exists = false;
 		$.each(channelList, function(index, entry){
 			if (entry.id === newId){
@@ -224,21 +301,28 @@ function sepiaFW_build_webSocket_client(){
 			}
 		});
 		if (!exists){
-			channelList.push({"id":newId});
+			channelList.push(channelData);		//TODO: should we filter?
 			return true;
 		}else{
 			return false;
 		}
 	}
-	//special input commands
-	var CMD_SAYTHIS = "saythis";
-	var CMD_LINKSHARE = "linkshare";
-	//var CMD_HTTP = "http";
+	Client.refreshChannelList = function(newChannelList){
+		if (newChannelList) channelList = newChannelList;
+		SepiaFW.ui.build.channelList(channelList, activeChannelId);
+	}
+	//special input commands (slash-command) and modifiers (input-modifier)
+	var CMD_SAYTHIS = "saythis";		//slash-command
+	var CMD_LINKSHARE = "linkshare";	//slash-command
+	var CMD_CLIENT_I18N = "i18n";		//input-modifier - NOTE: this usually runs client-side
+	//var CMD_HTTP = "http";			//slash-command - NOTE: this is checked server-side only
 	Client.inputHasSpecialCommand = function(inputText){
-		var regEx = new RegExp('(^' + SepiaFW.assistant.name + ' |^|\)' + '(' + CMD_SAYTHIS + '|' + CMD_LINKSHARE +') ', "i");
+		var regEx = new RegExp('(^' + SepiaFW.assistant.name + ' |^|\)' + '(' + CMD_SAYTHIS + '|' + CMD_LINKSHARE + '|' + CMD_CLIENT_I18N + ')(:\\w+\\s|\\s)', "i");
 		var checkRes = inputText.match(regEx);
-		if (checkRes && checkRes[2]){
-			return checkRes[2];
+		if (checkRes && checkRes[2] && checkRes[3]){
+			return (checkRes[2] + checkRes[3]).trim();
+		}else if (checkRes && checkRes[2]){
+			return checkRes[2].trim();
 		}else{
 			return "";
 		}
@@ -407,15 +491,20 @@ function sepiaFW_build_webSocket_client(){
 			//Client.onActive();
 		}
 		
-		//update and build channel list
-		pushToChannelList(channelId);
-		SepiaFW.ui.build.channelList(channelList, activeChannelId);
+		//update and build channel list - Note: this moved to actual channel-join message (before broadcast)
+		//Client.pushToChannelList(channelId);
+		//SepiaFW.ui.build.channelList(channelList, activeChannelId);
+		var channelData = Client.getChannelDataById(channelId);
+		var channelName = channelData.name || channelId;
 		
 		//set label
-		SepiaFW.ui.setLabel((activeChannelId == username)? "" : activeChannelId);
+		SepiaFW.ui.setLabel((activeChannelId == username)? "" : channelName);
 		
 		//switch visibility of messages in chat view
 		SepiaFW.ui.switchChannelView(channelId);
+
+		//unmark channel
+		SepiaFW.animate.channels.unmarkChannelEntry(channelId);
 		
 		//reset activeChatPartner - moved to button press of channel switch
 		//Client.switchChatPartner('');
@@ -430,20 +519,28 @@ function sepiaFW_build_webSocket_client(){
 			Client.switchChatPartner(lastActivatedChatPartner);
 		}
 
+		//Update channel list - basically this just sets the correct active channel
+		SepiaFW.ui.build.updateChannelList(activeChannelId);
+
+		//update channel control buttons
+		SepiaFW.ui.build.updateChannelControlButtons(channelData);
+
 		//always call onActive
 		Client.onActive();
 	}
 	
-	function broadcastChatPartnerSwitch(partnerId){
+	function broadcastChatPartnerSwitch(userObject){
 		//removed lock
-		if (!partnerId){
+		if (!userObject){
 			//set channel as label
-			SepiaFW.ui.setLabel((activeChannelId == username)? "" : activeChannelId);
+			var channelData = Client.getChannelDataById(activeChannelId);
+			var channelName = channelData.name || channelId;
+			SepiaFW.ui.setLabel((activeChannelId == username)? "" : channelName);
 			
 		//set lock
 		}else{
 			//set user as label
-			SepiaFW.ui.setLabel(Client.getNameFromUserList(partnerId));
+			SepiaFW.ui.setLabel(Client.getNameFromUserList(userObject.id));
 		}
 		//TODO: this is a workaround to set the proper UI state
 		SepiaFW.ui.build.userList(userList, username);
@@ -572,6 +669,10 @@ function sepiaFW_build_webSocket_client(){
 	
 	//execute when UI is ready and user is logged in (usually)
 	Client.startClient = function(){
+		//Load some stuff
+		lastChannelMessageTimestamps = SepiaFW.data.get("lastChannelMessageTimestamps") || {};
+		lastChannelHistoryClearTimestamps = SepiaFW.data.get("lastChannelHistoryClearTimestamps") || {};
+
 		//Establish the WebSocket connection and set up event handlers
 		Client.connect(SepiaFW.config.webSocketURI);
 		
@@ -647,7 +748,8 @@ function sepiaFW_build_webSocket_client(){
 	}
 	function handleUrlMessageRequest(requestMsg){
 		//ask user if he wants to do this before actually doing it!
-		SepiaFW.ui.askForPermissionToExecute(requestMsg, function(){
+		var ask = "<p>" + requestMsg.replace(/^i18n:(\w+)\s/, "($1) ") + "</p>";
+		SepiaFW.ui.askForPermissionToExecute(ask, function(){
 			//yes
 			SepiaFW.debug.log("Executing request via URL: " + requestMsg);
 			setTimeout(function(){
@@ -661,7 +763,7 @@ function sepiaFW_build_webSocket_client(){
 		//decode base64 string
 		requestMsg = atob(requestMsg);
 		var ask = requestMsg.replace(/;;(\w+)=/gi, ", <b>$1:</b> ");
-		SepiaFW.ui.askForPermissionToExecute("<b>cmd: </b>" + ask, function(){
+		SepiaFW.ui.askForPermissionToExecute("<p><b>cmd: </b>" + ask + "</p>", function(){
 			//yes
 			SepiaFW.debug.log("Executing command via URL: " + requestMsg);
 			//TODO: test
@@ -684,19 +786,41 @@ function sepiaFW_build_webSocket_client(){
 			window.history.replaceState(history.state, document.title, url);
 		}
 		//2nd: check data and build
-		if (typeof shareData == "string" && shareData.indexOf("{") == 0){
-			shareData = JSON.parse(shareData);
+		if (typeof shareData == "string"){
+			if (shareData.indexOf("{") == 0){
+				shareData = JSON.parse(shareData);
+			}else{
+				shareData = SepiaFW.client.getDeepLinkDataFromEncodedShareData(shareData);
+			}
+			if (!shareData) return;
 		}
 		//console.log(shareData);
-		if (shareData.type){
-			var ask = "Open shared data of type: <b>" + shareData.type.toUpperCase() + "</b>";
-			if (shareData.type == SepiaFW.client.SHARE_TYPE_LINK && shareData.data){
-				ask += "<br><br><b>URL:</b> ";
-				ask += (shareData.data.url.length > 30)? (shareData.data.url.substring(0,29) + "...") : shareData.data.url;
+		if (shareData.type && shareData.data){
+			var ask;
+			//give more info
+			if (shareData.type == SepiaFW.client.SHARE_TYPE_LINK){
+				//Link
+				ask = "<p><b>" + SepiaFW.local.g('link_open_url') + "</b></p>";
+				ask += "<b>URL:</b> ";
+				if (shareData.data.url){
+					ask += (shareData.data.url.length > 30)? (shareData.data.url.substring(0,29) + "...") : shareData.data.url;
+				}
+			}else if (shareData.type == SepiaFW.client.SHARE_TYPE_CHANNEL_INVITE){
+				//Channel Invite
+				ask = "<p><b>" + SepiaFW.local.g('link_join_channel') + "</b></p>";
+				ask += "<b>Channel Name:</b> " + shareData.data.name + "<br>";
+				ask += "<b>Channel Owner:</b> " + shareData.data.owner;
+			}else if (shareData.type == SepiaFW.client.SHARE_TYPE_ALARM){
+				//Alarm
+				ask = "<p><b>" + SepiaFW.local.g('link_create_reminder') + "</b></p>";
+				ask += "<b>Title:</b> " + shareData.data.title;
+			}else{
+				//Other
+				ask = "<p>Shared data of type: <b>" + shareData.type.toUpperCase() + "</b></p>";
 			}
 			SepiaFW.ui.askForPermissionToExecute(ask, function(){
 				//ALARM
-				if (shareData.type == SepiaFW.client.SHARE_TYPE_ALARM && shareData.data && shareData.data.beginTime){
+				if (shareData.type == SepiaFW.client.SHARE_TYPE_ALARM && shareData.data.beginTime){
 					var options = {};   //things like skipTTS etc. (see sendCommand function)
 					var dataset = {
 						info: "direct_cmd",
@@ -710,8 +834,8 @@ function sepiaFW_build_webSocket_client(){
 					SepiaFW.client.sendCommand(dataset, options);
 					//TODO: note that name might be unreliable if it was a date and timezone changes
 				
-				//LINK
-				}else if (shareData.type == SepiaFW.client.SHARE_TYPE_LINK && shareData.data && SepiaFW.offline && SepiaFW.embedded){
+				//LINK CARD
+				}else if (shareData.type == SepiaFW.client.SHARE_TYPE_LINK && SepiaFW.offline && SepiaFW.embedded){
 					//TODO					
 					var msgId = SepiaFW.client.getNewMessageId();
 					var nluInput = {
@@ -728,6 +852,17 @@ function sepiaFW_build_webSocket_client(){
 					var receiverId = "";			//SepiaFW.account.getUserId()
 					var resultMessage = SepiaFW.offline.buildAssistAnswerMessageForHandler(msgId, serviceResult, assistantIdOrName, receiverId)
 					SepiaFW.client.handleServerMessage(resultMessage);
+
+				//CHANNEL INVITE
+				}else if (shareData.type == SepiaFW.client.SHARE_TYPE_CHANNEL_INVITE){
+					//send request
+					SepiaFW.client.joinNewChannel(shareData.data, function(res){
+						//additional onSuccess
+						SepiaFW.ui.showPopup(SepiaFW.local.g('joinedChannel') + ":"
+							+ "<br><br><b>Name:</b> " + res.channelName
+							//+ "<br>Id: " + res.channelId
+						);
+					});
 				
 				//No handler
 				}else{
@@ -781,25 +916,45 @@ function sepiaFW_build_webSocket_client(){
 		}
 		
 		//CHANNELS
-		var channelCustomInput = document.getElementById("sepiaFW-custom-channel-input");
-		var channelCustomInputButton = document.getElementById("sepiaFW-custom-channel-connect");
-		function addToChannelList(){
-			var newChannel = $(channelCustomInput).val();
-			if (newChannel){
-				if (pushToChannelList(newChannel)){
-					SepiaFW.ui.build.channelList(channelList, activeChannelId);
-				}
-				$(channelCustomInput).val("");
-			}
+		Client.openChannelManager = function(data){
+			SepiaFW.frames.open({
+				pageUrl: "channel-manager.html",
+				theme: "dark",
+				onOpen: function(){
+					var channel = SepiaFW.client.getChannelDataById(activeChannelId);
+					var userId = SepiaFW.account.getUserId();
+					var canEdit = false;
+					//open edit-page for all owned channels except private one
+					if (channel && channel.owner && channel.owner == userId && channel.id != userId){
+						SepiaFW.frames.currentScope.loadEditData(channel);
+						canEdit = true;
+					}else{
+						SepiaFW.frames.currentScope.clearEditData();
+					}
+					if (data){
+						if (data.page && data.page == "invite"){
+							SepiaFW.frames.currentScope.openInvitePage();
+						}else{
+							SepiaFW.frames.uic.showPane(0);
+						}
+					}
+				},
+				onClose: function(){}
+			});
 		}
-		$(channelCustomInput).off().on("keypress", function(e){
-			if (e.keyCode === 13){
-				//Return-Key
-				addToChannelList();
-			}
+		var channelManagerButton = document.getElementById("sepiaFW-chat-channel-manager-btn");
+		$(channelManagerButton).off().on("click", function(){
+			Client.openChannelManager();
 		});
-		$(channelCustomInputButton).off().on("click", function(){
-			addToChannelList();
+		var channelInviteButton = document.getElementById("sepiaFW-chat-invite-btn");
+		$(channelInviteButton).off().on("click", function(){
+			Client.openChannelManager({
+				page: "invite"
+			});
+		});
+		var channelLogoutButton = document.getElementById("sepiaFW-chat-logout-btn");
+		$(channelLogoutButton).off().on("click", function(){
+			SepiaFW.account.logoutAction();
 		});
 		
 		//CHAT CONTROLS
@@ -819,9 +974,6 @@ function sepiaFW_build_webSocket_client(){
 			var screenBtn = document.getElementById("sepiaFW-fullsize-btn");
 			if (screenBtn){
 				$(screenBtn).off();
-				/*$(screenBtn).on("click", function () {
-					SepiaFW.ui.toggleInterfaceFullscreen();
-				});*/
 				SepiaFW.ui.longPressShortPressDoubleTap(screenBtn, function(){
 					//long-press
 				},'',function(){
@@ -889,6 +1041,8 @@ function sepiaFW_build_webSocket_client(){
 									$(this).remove();
 								}
 							});
+							lastChannelHistoryClearTimestamps[activeChannelId] = new Date().getTime();
+							SepiaFW.data.set("lastChannelHistoryClearTimestamps", lastChannelHistoryClearTimestamps);
 						}else{
 							$("#sepiaFW-result-view").html('');
 						}
@@ -1151,7 +1305,7 @@ function sepiaFW_build_webSocket_client(){
 	}
 	
 	//add credentials and parameters
-	function addCredentialsAndParametersToData(data){
+	function addCredentialsAndParametersToData(data, skipAssistantState){
 		//NOTE: compare to 'Assistant.getParametersForActionCall'
 		
 		if (SepiaFW.account.getUserId() && SepiaFW.account.getToken()){
@@ -1160,8 +1314,13 @@ function sepiaFW_build_webSocket_client(){
 			data.credentials.userId = SepiaFW.account.getUserId();
 			data.credentials.pwd = SepiaFW.account.getToken();
 		}
-		data.parameters = SepiaFW.assistant.getState();
-		data.parameters.client = SepiaFW.config.getClientDeviceInfo(); //SepiaFW.config.clientInfo;
+		if (!skipAssistantState){
+			data.parameters = SepiaFW.assistant.getState();
+		}else{
+			data.parameters = {};
+		}
+		data.parameters.client = SepiaFW.config.getClientDeviceInfo(); 	//SepiaFW.config.clientInfo;
+		data.parameters.device_id = SepiaFW.config.getDeviceId();
 		
 		return data;
 	}
@@ -1194,7 +1353,7 @@ function sepiaFW_build_webSocket_client(){
 			isConnecting = false;
 			username = "";
 			activeChannelId = "";
-			activeChatPartner = "";
+			activeChatPartner = undefined;
 			SepiaFW.client.broadcastConnectionStatus(SepiaFW.client.STATUS_CLOSED);
 			Client.handleCloseEvent();
 		};
@@ -1288,26 +1447,46 @@ function sepiaFW_build_webSocket_client(){
 		//prep text
 		var text = inputText || document.getElementById("sepiaFW-chat-controls-speech-box-bubble").innerHTML || document.getElementById("sepiaFW-chat-input").value;
 		if (text && text.trim()){
+			//specials?
+			var inputSpecialCommand = Client.inputHasSpecialCommand(text);
+			var hasSpecialCommand = !!inputSpecialCommand;
+			var specialOptions = {};
+			if (hasSpecialCommand && inputSpecialCommand.indexOf(CMD_CLIENT_I18N) == 0){
+				//handle CMD_CLIENT_I18N here, don't send to server
+				text = text.replace(/^.*?(\s|$)/, "");
+				if (inputSpecialCommand.indexOf(":") > 0){
+					var modLang = inputSpecialCommand.split(":")[1];
+					specialOptions.requestLanguageModifier = modLang;
+				}
+			}
+
+			//prep. request
 			text = text.trim();
 			SepiaFW.ui.lastInput = text;
 			var receiver = "";
+			var receiverDeviceId = "";
 			var msg;
 			//manual receiver overwrite
 			if (text.substring(0, 1) === "@" && (text.indexOf(" ") > 0)){
 				var res = text.split(" ");
-				var possibleReceivers = Client.getUserId(res[0].substring(1, res[0].length));
+				var recUid = res[0].substring(1, res[0].length);
+				var possibleReceivers = Client.getActiveChannelUsersByIdOrName(recUid);
 				if (possibleReceivers.length > 0){
 					//console.log(possibleReceivers); 		//DEBUG
 					//TODO: since names are not unique but chosen by users it can happen that we get the same name multiple times here ... what then?
-					receiver = possibleReceivers[0];
+					receiver = possibleReceivers[0].id;
+					receiverDeviceId = possibleReceivers[0].deviceId;
+				}else{
+					receiver = recUid;		//we should set receiver in any case to prevent a public message
 				}
 				res.shift();
 				text = res.join(" ");
 			
 			//locked receiver overwrite
-			}else if (activeChatPartner && !Client.inputHasSpecialCommand(text)){
-				//console.log('send to: ' + activeChatPartner);
-				receiver = activeChatPartner;
+			}else if (activeChatPartner && !hasSpecialCommand){
+				//console.log('send to: ' + JSON.stringify(activeChatPartner));
+				receiver = activeChatPartner.id;
+				receiverDeviceId = activeChatPartner.deviceId;
 			}
 
 			//track last source (and reset state)
@@ -1334,8 +1513,18 @@ function sepiaFW_build_webSocket_client(){
 			var data = new Object();
 			data.dataType = "openText";
 			data = addCredentialsAndParametersToData(data);
+			
+			//special command modifiers
+			if (specialOptions.requestLanguageModifier && specialOptions.requestLanguageModifier.length == 2 
+					&& specialOptions.requestLanguageModifier != data.parameters.lang){
+				data.parameters.lang = specialOptions.requestLanguageModifier;
+				SepiaFW.debug.log("Client.sendInputText - modified language for request: " + data.parameters.lang);
+			}
+
 			var newId = (username + "-" + ++msgId);
 			msg = buildSocketMessage(username, receiver, text, "", data, "", newId, activeChannelId);
+			msg.receiverDeviceId = receiverDeviceId;
+			//console.log(JSON.stringify(msg)); 		//DEBUG
 
 			//add source?
 			if (Client.lastInputSourceWasAsr) msg.inputViaAsr = true;
@@ -1361,23 +1550,35 @@ function sepiaFW_build_webSocket_client(){
 		if (speechBubble) speechBubble.innerHTML = "";
 	}
 	
-	Client.getUserId = function(nameOrId){
+	Client.getActiveChannelUsersByIdOrName = function(nameOrId){
 		var receivers = [];
 		if (nameOrId){
 			$.each(userList, function(index, u){
 				if (nameOrId.toLowerCase() === u.name.toLowerCase() || nameOrId.toLowerCase() === u.id.toLowerCase()){
-					receivers.push(userList[index].id);
+					receivers.push(u);
 				}
 			});
 		}
 		return receivers;
+	}
+	Client.getFirstActiveChannelUserById = function(id){
+		var user;
+		if (id){
+			$.each(userList, function(index, u){
+				if (id.toLowerCase() === u.id.toLowerCase()){
+					user = u;
+					return false;
+				}
+			});
+		}
+		return user;
 	}
 	Client.getNameFromUserList = function(id){
 		var name = "";
 		if (id){
 			$.each(userList, function(index, u){
 				if (id.toLowerCase() === u.id.toLowerCase()){
-					name = userList[index].name;
+					name = u.name;
 					return false;
 				}
 			});
@@ -1461,7 +1662,8 @@ function sepiaFW_build_webSocket_client(){
 			message.channelId = activeChannelId;
 		}
 		if ((activeChatPartner && !lastActivatedChatPartner) || (lastActivatedChatPartner && (lastActivatedChatPartner == activeChatPartner))){
-			message.receiver = activeChatPartner;
+			message.receiver = activeChatPartner.id;
+			message.receiverDeviceId = activeChatPartner.deviceId;
 		}
 		Client.sendMessage(message, nextRetryNumber);
 	}
@@ -1547,6 +1749,11 @@ function sepiaFW_build_webSocket_client(){
 			//console.log("options " + JSON.stringify(dataset.options));
 		}
 		data = addCredentialsAndParametersToData(data);
+		//special command modifiers
+		if (dataset.lang && dataset.lang != data.parameters.lang){
+			data.parameters.lang = dataset.lang;
+			SepiaFW.debug.log("Client.sendCommand - modified language for request: " + dataset.lang);
+		}
 		if (isDirectCmd){
 			//SepiaFW.assistant.setDirectCmd();
 			data.parameters.input_type = "direct_cmd"; //switch state temporary only for this command
@@ -1558,6 +1765,26 @@ function sepiaFW_build_webSocket_client(){
 			//console.log("msg-id: " + newId + " - options " + JSON.stringify(options)); 		//DEBUG
 			Client.setMessageIdOptions(newId, options);
 		}
+		Client.sendMessage(msg);
+	}
+
+	//Request data update via Socket connection (alternative to HTTP request to server endpoint)
+	Client.requestDataUpdate = function(updateData, dataObj){
+		//build data
+		var data = new Object();
+		data.dataType = "updateData";
+		data = addCredentialsAndParametersToData(data, true);	//true: skip assistant state data
+		//updateData object
+		data.updateData = updateData;
+		if (dataObj){
+			data.data = dataObj;
+		}
+		//add channel info
+		/* data.channelInfo = {
+			lastReceivedMessages: lastChannelMessageTimestamps
+		} */
+		var newId = ("update" + "-" + ++msgId);
+		var msg = buildSocketMessage(username, serverName, "", "", data, "", newId, activeChannelId);
 		Client.sendMessage(msg);
 	}
 	
@@ -1575,6 +1802,24 @@ function sepiaFW_build_webSocket_client(){
 		data.credentials = new Object();
 		data.credentials.channelId = channelId;
 		if (channelKey) data.credentials.channelKey = channelKey;
+		//filters for channel history
+		var notOlderThanFilter;
+		if (!lastChannelJoinTimestamps[channelId]){
+			//force full history or time of last history clear when channel was never joined
+			notOlderThanFilter = lastChannelHistoryClearTimestamps[channelId] || 0;
+		}else{
+			//take TS if available or last history clear (depending on what is more recent)
+			if (lastChannelHistoryClearTimestamps[channelId] && lastChannelMessageTimestamps[channelId]){
+				notOlderThanFilter = Math.max(lastChannelHistoryClearTimestamps[channelId], lastChannelMessageTimestamps[channelId]);	
+			}else if (lastChannelMessageTimestamps[channelId]){
+				notOlderThanFilter = lastChannelMessageTimestamps[channelId] || 0;
+			}else{
+				notOlderThanFilter = lastChannelHistoryClearTimestamps[channelId] || 0;
+			}
+		}
+		data.channelHistoryFilter = {
+			notOlderThan: notOlderThanFilter
+		}
 		var receiver = serverName;
 		var newId = (username + "-" + ++msgId);
 		var msg = buildSocketMessage(username, receiver, "", "", data, "", newId, "");
@@ -1583,6 +1828,23 @@ function sepiaFW_build_webSocket_client(){
 	}
 	Client.getActiveChannel = function(){
 		return activeChannelId;
+	}
+	Client.getAllChannels = function(){
+		return channelList;
+	}
+	Client.getChannelDataById = function(channelId){
+		var channelData;
+		for (var i=0; i<channelList.length; i++){
+			var channel = channelList[i];
+			if (channel.id == channelId){
+				channelData = channel;
+				break;
+			}
+		}
+		return channelData;
+	}
+	Client.getActiveChannelUsers = function(){
+		return userList;
 	}
 	Client.hasChannelUser = function(checkUserId){
 		var channelHasUser = false;
@@ -1595,20 +1857,20 @@ function sepiaFW_build_webSocket_client(){
 		return channelHasUser;
 	}
 	
-	Client.switchChatPartner = function(partnerId){
-		if (!partnerId){
-			lastActivatedChatPartner = "";
-			activeChatPartner = "";
+	Client.switchChatPartner = function(userObject){
+		if (!userObject){
+			lastActivatedChatPartner = undefined;
+			activeChatPartner = undefined;
 			SepiaFW.debug.log("WebSocket: removed private chat partner lock.");
 			broadcastChatPartnerSwitch('');
 			return;
 		}
 		//check if ID is in current channel
-		if (Client.hasChannelUser(partnerId)){
-			SepiaFW.debug.log("WebSocket: switched chat partner to: " + partnerId);
-			lastActivatedChatPartner = partnerId;
-			activeChatPartner = partnerId;
-			broadcastChatPartnerSwitch(partnerId);
+		if (Client.hasChannelUser(userObject.id)){
+			SepiaFW.debug.log("WebSocket: switched chat partner to: " + userObject.id);
+			lastActivatedChatPartner = userObject;
+			activeChatPartner = userObject;
+			broadcastChatPartnerSwitch(userObject);
 		}
 	}
 	Client.getActiveChatPartner = function(){
@@ -1622,8 +1884,8 @@ function sepiaFW_build_webSocket_client(){
 		}
 		Client.handleMessage(message);
 	}
-	//Handle message received from chat server and update the chat-panel, and the list of connected users
-	//Note: This also includes (and handles) messages sent by the user since the server bounces them back to confirm them
+	//Handle message received from chat server, update the chat-panel and the list of connected users
+	//Note: This also includes (and handles) messages sent by the user since the server lets them bounce back to confirm transfer
 	Client.handleMessage = function(msg) {
 		var message = (typeof msg.data === 'string')? JSON.parse(msg.data) : msg.data;
 		var refreshUsers = false;
@@ -1645,7 +1907,7 @@ function sepiaFW_build_webSocket_client(){
 			if (userList){
 				$.each(userList, function(index, entry){
 					if (entry.role && entry.role == "assistant"){
-						SepiaFW.assistant.updateInfo(entry.id, entry.name);
+						SepiaFW.assistant.updateInfo(entry);
 					}
 				});
 			}
@@ -1653,7 +1915,7 @@ function sepiaFW_build_webSocket_client(){
 		
 		//data
 		if (message.data){
-			
+
 			//authenticate
 			if (message.sender === serverName && message.data.dataType === "authenticate"){
 				//send credentials and then wait until the server sends channel info
@@ -1673,11 +1935,61 @@ function sepiaFW_build_webSocket_client(){
 			//get channel-join confirmation of server
 			}else if (message.sender === serverName && message.data.dataType === "joinChannel"){
 				activeChannelId = message.data.channelId;
-				//var givenName = message.data.givenName; 		//might be useful
-				SepiaFW.debug.log("WebSocket: switched channel to: " + message.data.channelId);
+				var channelName = message.data.channelName;		//an arbitrary name given to this channel
+				//var givenName = message.data.givenName; 		//user name - might be useful but you should know your name ^^
+				SepiaFW.debug.log("WebSocket: switched channel to: " + message.data.channelName + " - id: " + message.data.channelId);
 				
-				//re-build channel list - TODO: improve!
-				//var channelList = ???
+				//re-build channel list
+				if (Client.pushToChannelList({
+					id: activeChannelId,
+					name: channelName
+				})){
+					Client.refreshChannelList();
+				}
+
+				//register join (we could/should move this to the 'welcome' event maybe?)
+				lastChannelJoinTimestamps[message.data.channelId] = new Date().getTime();
+
+				//clean channel
+				$("#sepiaFW-chat-output").find('[data-channel-id=' + message.data.channelId + ']').filter('[data-msg-custom-tag=unread-note]').remove();
+
+				//rebuild channel history data
+				if (message.data.channelHistory && message.data.channelHistory.length){
+					//clean channel
+					//$("#sepiaFW-chat-output").find('[data-channel-id=' + message.data.channelId + ']').remove();
+					
+					//rebuild
+					/*
+					console.error("Channel History:");
+					console.error(JSON.stringify(message.data.channelHistory));
+					console.error("Size: " + message.data.channelHistory.length);
+					*/
+					var day = undefined;
+					var showedNew = false;
+					var lastMsgTS = lastChannelMessageTimestamps[message.data.channelId];
+					message.data.channelHistory.forEach(function(msg){
+						if (msg.timeUNIX){
+							//add day name
+							var d = new Date(msg.timeUNIX);
+							var thisDay = d.getDay();
+							if (thisDay != day){
+								day = thisDay;
+								var customTag = "weekday-note-" + SepiaFW.tools.getLocalDateWithCustomSeparator("-");
+								//... but only if we haven't already
+								if ($("#sepiaFW-chat-output").find('[data-channel-id=' + message.data.channelId + ']').filter('[data-msg-custom-tag=' + customTag + ']').length == 0){
+									var weekdayName = SepiaFW.local.getWeekdayName(day) + " " + d.toLocaleDateString();
+									SepiaFW.ui.showInfo(weekdayName, false, customTag, true, message.data.channelId);	//SepiaFW.local.g('history')
+								}
+							}
+							//add unread note - TODO: place this at correct position
+							if (!showedNew && (!lastMsgTS || msg.timeUNIX > lastMsgTS)){
+								SepiaFW.ui.showInfo(SepiaFW.local.g('newMessages'), false, "unread-note", true, message.data.channelId);
+								showedNew = true;
+							}
+						}
+						SepiaFW.ui.showCustomChatMessage(msg.text, msg); 
+					});
+				}
 				
 				//broadcastChannelJoin(activeChannelId);  //moved to welcome message so that we can update userList first
 				
@@ -1685,16 +1997,24 @@ function sepiaFW_build_webSocket_client(){
 			}else if (message.sender === serverName && message.data.dataType === "welcome"){
 				broadcastChannelJoin(activeChannelId);
 
+			//get new data
+			}else if (message.sender === serverName && message.data.dataType === "updateData"){
+				if (message.data && message.data.updateData){
+					handleUpdateRequest(message.data);
+				}else{
+					SepiaFW.debug.error("WebSocket: 'updateData' message had no data attached or missing parameters.");
+				}
+
 			//assistant answer
 			}else if (message.data.dataType === "assistAnswer"){
-				publishChatMessage(message, username);
+				Client.optimizeAndPublishChatMessage(message, username);
 				notAnsweredYet = false;
 
 			//assistant follow up message
 			}else if (message.data.dataType === "assistFollowUp"){
 				//TODO: should we wait for idle time here? I guess so ..., on the other hand TTS (if active) will be queued anyway
 				//console.log(message);
-				publishChatMessage(message, username); 		
+				Client.optimizeAndPublishChatMessage(message, username); 		
 				//TODO: the msg ID will be the one of the initial request ... is this an unhandled problem later? msg options (e.g. skipTTS) might be lost ...
 				notAnsweredYet = false;
 			
@@ -1752,18 +2072,26 @@ function sepiaFW_build_webSocket_client(){
 		
 		//html - TODO: support special HTML message?
 		if (notAnsweredYet && message.html){
+			/*
 			SepiaFW.ui.insert("sepiaFW-chat-output", message.html);
 			SepiaFW.ui.scrollToBottom("sepiaFW-chat-output");
+			*/
+			SepiaFW.ui.showPopup(
+				"The message you've received included raw HTML code. This feature is currently disabled for security reasons! "
+				+ "<br>Sender: " + message.sender
+			);
 		
 		//text
 		}else if (notAnsweredYet && message.text){
 			//status update
 			if (message.textType && message.textType === "status"){
+				//publish
 				publishStatusMessage(message, username);
 			
 			//chat
 			}else{
-				publishChatMessage(message, username);
+				//optimize and publish
+				Client.optimizeAndPublishChatMessage(message, username);
 			}
 		}
 
@@ -1772,14 +2100,69 @@ function sepiaFW_build_webSocket_client(){
 			//build list
 			SepiaFW.ui.build.userList(userList, username);
 		}
+
+		//log last transmission TS if channel is given
+		if (message.channelId){
+			//buffer
+			lastChannelMessageTimestamps[message.channelId] = new Date().getTime();
+			
+			//store locally
+			if (lastChannelMessageDataStoreTimer) clearTimeout(lastChannelMessageDataStoreTimer);
+			lastChannelMessageDataStoreTimer = setTimeout(function(){
+				SepiaFW.data.set("lastChannelMessageTimestamps", lastChannelMessageTimestamps);
+			}, lastChannelMessageDataStoreDelay);
+		}
+	}
+
+	//optimize message, e.g. identify deep-links before publish etc. and publish
+	Client.optimizeAndPublishChatMessage = function(message, username, customPublishMethod){
+		//check if text is a URL and this URL points to a SEPIA deep-link
+		var deepLinkInMessage;
+		if (message.text && message.text.indexOf(SepiaFW.client.deeplinkHostUrl) == 0){
+			//extract first link and shorten original link
+			deepLinkInMessage = message.text.replace(/\s.*/,"").trim();
+			message.text = message.text.replace(deepLinkInMessage, deepLinkInMessage.substring(0, 49) + "...");
+		}
+
+		//publish
+		var chatMessageEntry;
+		if (customPublishMethod){
+			chatMessageEntry = customPublishMethod(message, username);
+		}else{
+			chatMessageEntry = publishChatMessage(message, username);
+		}
+
+		//modify?
+		if (chatMessageEntry && deepLinkInMessage){
+			//Universal Link support
+			var buttonTitle1 = "Universal Link";
+			var action1 = SepiaFW.offline.getCustomFunctionButtonAction(function(){
+				//handle internally
+				SepiaFW.client.handleUrlParameterActions(SepiaFW.client.isDemoMode(), deepLinkInMessage);
+
+			}, buttonTitle1);
+			var buttonTitle2 = SepiaFW.local.g('show');
+			var action2 = SepiaFW.offline.getCustomFunctionButtonAction(function(){
+				//Show to copy
+				SepiaFW.ui.showPopup(deepLinkInMessage);
+
+			}, buttonTitle2);
+			var options = {};
+			var deepLinkActionData = {
+				actionInfo: [action1, action2]
+			};
+			var isSafe = true;
+			SepiaFW.ui.actions.handle(deepLinkActionData, chatMessageEntry, message.sender, options, isSafe);
+		}
 	}
 
 	//-- send authentication request
 	function sendAuthenticationRequest(){
 		SepiaFW.debug.log("WebSocket: authenticating ...");
+		//build data
 		var data = new Object();
 		data.dataType = "authenticate";
-		data.deviceId = SepiaFW.config.getDeviceId();
+		data.deviceId = SepiaFW.config.getDeviceId(); 		//NOTE: this is kind of redundant since it is included as data.parameters.device_id as well
 		data = addCredentialsAndParametersToData(data);
 		var newId = ("auth" + "-" + ++msgId);
 		var msg = buildSocketMessage(username, serverName, "", "", data, "", newId, "");		//note: no channel during auth.
@@ -1920,6 +2303,48 @@ function sepiaFW_build_webSocket_client(){
 				//finished - same callback as above
 			}
 		}
+		//show results in frame as well? (SHOW ONLY!)
+		if (!options.skipInsert && message.senderType === "assistant" && messageTextSpeak){
+			//some exceptions
+			if (messageTextSpeak != '<silent>'){
+				if (SepiaFW.frames && SepiaFW.frames.isOpen && SepiaFW.frames.canShowChatOutput()){
+					SepiaFW.frames.handleChatOutput({
+						"text": messageTextSpeak 	//NOTE: this text can be longer than the actual TTS text that gets trimmed sometimes
+					});
+				}
+			}
+		}
+
+		return cEntry;
+	}
+
+	//handle the updateData channel message
+	function handleUpdateRequest(msgData){
+		if (msgData.updateData == "availableChannels"){
+			if (msgData.data){
+				//apply
+				SepiaFW.client.refreshChannelList(msgData.data);
+				//load set of channels with missed messages
+				SepiaFW.client.loadChannelsWithMissedMessages();
+			}else{
+				//request (includes check for missed messages)
+				SepiaFW.client.loadAvailableChannels();
+			}
+		}else if (msgData.updateData == "missedChannelMessage"){
+			//console.log(msgData.data); 		//DEBUG
+			if (msgData.data){
+				//apply
+				msgData.data.forEach(function(info){
+					SepiaFW.animate.channels.markChannelEntry(info.channelId);
+				});
+			}else{
+				//request
+				//TODO: implement request
+			}
+		}else{
+			SepiaFW.debug.error("Missing handler for message updateData-type: " + JSON.stringify(msgData));
+		}
+		//TODO: add 'events' refresh request
 	}
 	
 	return Client;

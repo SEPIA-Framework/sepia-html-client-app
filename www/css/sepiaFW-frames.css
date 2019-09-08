@@ -74,6 +74,28 @@
 	background: #ceff1a !important;
 	color: #000 !important;
 }
+.sepiaFW-frames-page button.dangerous {
+	background: #f33 !important;
+	color: #fff !important;
+}
+
+.sepiaFW-frames-page .info-text {
+	color: #4ec48f;
+	margin: 12px 0;
+	font-size: 14px;
+}
+.sepiaFW-frames-page.dark .info-text {
+	color: #ceff1a;
+}
+.sepiaFW-frames-page .info-text.centered {
+	text-align: center;
+	max-width: 100%;
+}
+
+.sepiaFW-frames-page .spacer {
+	width: 100%;
+	height: 18px;
+}
 
 .sepiaFW-frames-page .group-container {
 	display: flex; 
@@ -87,6 +109,16 @@
 	align-items: center;
 	margin: 8px;
 }
+.sepiaFW-frames-page .group.column {
+	flex-direction: column;
+}
+.sepiaFW-frames-page .group.center {
+	justify-content: center; 
+}
+.sepiaFW-frames-page .group.extra-space-tb {
+	margin-top: 16px; 
+	margin-bottom: 16px;
+}
 .sepiaFW-frames-page .group label {
 	margin: 0 8px;
 }
@@ -96,4 +128,67 @@
 .sepiaFW-frames-page .group .sepiaFW-toggle-btn {
 	border: 1px solid;
 	border-color: inherit;
+}
+.sepiaFW-frames-page .group .inside-button {
+	position: absolute;
+    right: 0;
+    top: 5px;
+    background: transparent !important;
+    color: inherit !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    font-size: 18px !important;
+}
+
+.sepiaFW-frames-page .subgroup {
+	display: flex; 
+	justify-content: space-between; 
+	align-items: center;
+	padding: 4px;
+    min-width: 160px;
+}
+.sepiaFW-frames-page .subgroup.menu-button {
+	font-size: 21px;
+	cursor: pointer;
+	color: #4ec48f;
+	padding: 8px;
+    min-width: 66%;
+}
+.sepiaFW-frames-page .subgroup.menu-button:hover {
+	color: #000;
+}
+.sepiaFW-frames-page.dark .subgroup.menu-button {
+	color: #ceff1a;
+}
+.sepiaFW-frames-page.dark .subgroup.menu-button:hover {
+	color: #fff;
+}
+
+#sepiaFW-frames-view .sepiaFW-frames-page .group-container input {
+	margin: 0px 0px 0px 0px;
+    padding: 0px 5px 3px 5px;
+    cursor: pointer;
+	background: transparent;
+	border: 1px solid transparent;
+    border-bottom: 1px solid #000;
+    color: inherit;
+    text-align: center;
+}
+#sepiaFW-frames-view .sepiaFW-frames-page.dark .group-container input {
+	border-bottom: 1px solid #fff;
+}
+#sepiaFW-frames-view .sepiaFW-frames-page .group-container input:disabled {
+	opacity: 0.66;
+	color: #4ec48f;
+    cursor: not-allowed;
+}
+#sepiaFW-frames-view .sepiaFW-frames-page.dark .group-container input:disabled {
+	color: #ceff1a;
+}
+#sepiaFW-frames-view .sepiaFW-frames-page .group-container input[type='checkbox'] {
+	min-width: 15px;
+	min-height: 15px;
+    padding: 0;
+	margin: 4px;
+	border-bottom: 0;
 }

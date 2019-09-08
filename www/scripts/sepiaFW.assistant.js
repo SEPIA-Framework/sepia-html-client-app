@@ -5,6 +5,7 @@ function sepiaFW_build_assistant(){
 	//some global settings
 	Assistant.name = "Sepia"; 	//this should be received from server to prevent confusion with Usernames
 	Assistant.id = ""; 			//this should be received from server because it works as receiver for action-commands (buttons etc.)
+	Assistant.deviceId = "";
 
 	//control settings
 	Assistant.autoCloseAwaitDialog = true;
@@ -12,21 +13,32 @@ function sepiaFW_build_assistant(){
 	var autoCloseAwaitDialogTimer;
 	
 	//set assistant info received from server
-	Assistant.updateInfo = function(id, name){
-		if (id){
-			if (id != Assistant.id){
-				Assistant.id = id;
-				if (name){ 
-					Assistant.name = name;
+	Assistant.updateInfo = function(info){
+		if (info.id){
+			if (info.id != Assistant.id){
+				Assistant.id = info.id;
+				if (info.name){ 
+					Assistant.name = info.name;
 				}else{
 					Assistant.name = "Unknown";
-					SepiaFW.debug.err("Assistant: missing name for ID '" + id + "'!");
+					SepiaFW.debug.err("Assistant: missing name for ID '" + info.id + "'!");
+				}
+				if (info.deviceId){
+					Assistant.deviceId = info.deviceId;
 				}
 				//Update my-view events
 				SepiaFW.ui.updateMyView(true, false, 'assistantInfoUpdate');
+
+				//Add to contacts-from-chat if possible
+				if (SepiaFW.account && SepiaFW.account.contacts){
+					SepiaFW.account.contacts.addContactFromChat({
+						id: Assistant.id,
+						name: Assistant.name
+					});
+				}
 			}
 		}
-		SepiaFW.debug.log("Assistant: active assistant is '" + name + "' (" + id + ")");
+		SepiaFW.debug.log("Assistant: active assistant is '" + info.name + "' (" + info.id + ")");
 	}
 	
 	Assistant.isProActive = false;	//will send entertaining notifications and stuff?
@@ -89,8 +101,10 @@ function sepiaFW_build_assistant(){
 	//get current state
 	Assistant.getState = function(){
 		var State = new Object();
+		var now = new Date().getTime();
+		var isOld = (now - lastGetState) > getStateIsOldTime;
 		
-		State.time = new Date().getTime();
+		State.time = now;
 		State.time_local = SepiaFW.tools.getLocalDateTime(); 
 		State.lang = SepiaFW.config.appLanguage;
 		State.user_location = user_location;
@@ -101,8 +115,8 @@ function sepiaFW_build_assistant(){
 		State.env = SepiaFW.config.environment;
 		State.device_id = SepiaFW.config.getDeviceId();
 		
-		State.last_cmd = last_command;
-		State.last_cmd_N = last_command_N;
+		State.last_cmd = (isOld)? '' : last_command;			//TODO: use SepiaFW.ui.getIdleTime() to clear this?
+		State.last_cmd_N = (isOld)? 0 : last_command_N;
 		State.input_type = input_type;
 		State.input_miss = input_miss;
 		State.dialog_stage = dialog_stage;
@@ -115,8 +129,11 @@ function sepiaFW_build_assistant(){
 		};
 		State.custom_data = JSON.stringify(cd);
 
+		lastGetState = now;
 		return State;
 	}
+	var lastGetState = 0;
+	var getStateIsOldTime = 60000;
 	
 	//evaluate result and store states
 	Assistant.setState = function(result, returnToIdle){

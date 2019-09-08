@@ -217,8 +217,8 @@ body {
 
 #sepiaFW-popup-message {
 	position: absolute;
-	background: #2f3035;
-	color: #fff;
+	background: #111;
+	color: #eee;
 	border-radius: 3px;
 	min-height: 40px;
 	max-height: 85%;
@@ -246,8 +246,8 @@ body {
 	flex: 1 0 auto;
 }
 #sepiaFW-popup-message button {
-	background-color: #fff !important;
-	color: #2f3035 !important;
+	background-color: #eee !important;
+	color: #111 !important;
 }
 #sepiaFW-popup-message button:hover {
 	background-color: #888 !important;
@@ -255,6 +255,10 @@ body {
 }
 #sepiaFW-popup-message input {
 	width: 100%;
+	width: 100% !important;
+    background: #333;
+    color: #eee;
+    border-bottom: 1px solid #eee !important;
 }
 #sepiaFW-popup-message i {
 	color: #ceff1a;
@@ -272,6 +276,21 @@ body {
 	padding: 0;
 	overflow-y: auto;
 }
+#sepiaFW-popup-message .chooseBox {
+	display: flex;
+	flex-direction: column;
+}
+#sepiaFW-popup-message .chooseBox .entry {
+	background: #333;
+	border-radius: 3px;
+    padding: 8px;
+    margin: 8px;
+    cursor: pointer;
+}
+#sepiaFW-popup-message .chooseBox .entry:hover {
+	background: #444;
+}
+
 #sepiaFW-cover-layer {
 	display: none;
 	position: fixed;
@@ -373,10 +392,8 @@ body {
 	/* skins should write main-window modifications to this class */
 }
 
-#sepiaFW-main-window input, #sepiaFW-login-box input {
-	-moz-appearance: none;
-	-webkit-appearance: none;
-	appearance: none;
+#sepiaFW-main-window input, 
+#sepiaFW-login-box input {
 	border: 1px solid transparent;
 	border-radius: 0;
     width: 100%;
@@ -384,6 +401,12 @@ body {
 	min-height: 33px;
     margin: 5px 0;
 	font-size: 15px;
+}
+#sepiaFW-main-window input:not([type='checkbox']), 
+#sepiaFW-login-box input:not([type='checkbox']) {
+	-moz-appearance: none;
+	-webkit-appearance: none;
+	appearance: none;
 }
 #sepiaFW-main-window b, #sepiaFW-login-box b, #sepiaFW-main-window strong, #sepiaFW-login-box strong {
 	font-weight: 600;
@@ -589,6 +612,9 @@ body {
 #sepiaFW-chat-output .chat-buttons-area {
 	justify-content: flex-start;
 }
+#sepiaFW-chat-output .right .chat-buttons-area {
+	justify-content: flex-end;
+}
 #sepiaFW-chat-output .chat-buttons-area button {
 	flex: 0 0 auto;
 }
@@ -672,6 +698,11 @@ body {
 .sepiaFW-menu li.button  {
 	cursor: pointer;
 }
+.sepiaFW-menu li.channel {
+	white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+}
 /*
 .sepiaFW-menu li:first-of-type {
 	margin-top: 8px;
@@ -737,6 +768,13 @@ body {
     color: inherit;
     text-align: center;
     font-size: 15px;
+}
+#sepiaFW-chat-menu input[type='checkbox'] {
+	min-width: 15px;
+	min-height: 15px;
+    padding: 0;
+	margin: 8px;
+	border-bottom: 0;
 }
 #sepiaFW-menu-ui-refresh-box {
     display: inline-block;
@@ -1131,23 +1169,26 @@ body {
 	margin: 0;
     width: calc(100%/2 - 240px - 16px);
 	min-width: 100px;
-	max-width: 320px;
+	max-width: 420px;
 	max-height: calc(100% - 128px);
 	z-index: 4;
 	display: flex;
 	flex-wrap: wrap;
+	overflow-y: auto;
+	overflow-x: hidden;
 }
 #sepiaFW-chat-channel-view div.left,
 #sepiaFW-chat-channel-view div.right {
 	width: 50%;
 	padding-left: 8px;
+	padding-top: 8px;
 	overflow: auto;
 }
 #sepiaFW-chat-channel-view h2 {
 	font-size: 16px;
-    margin: 16px 12px 0px 12px;
+    margin: 16px 12px 16px 16px;
 }
-@media screen and (max-width: 1100px) {
+@media screen and (max-width: 1265px) {
 	#sepiaFW-chat-channel-view {
 		border-radius: 0px 0px 3px 3px;
 		position: absolute;
@@ -1161,22 +1202,22 @@ body {
 #sepiaFW-chat-channel-controls {
 	width: 100%;
 	padding: 0 12px 6px 12px;
-}
-#sepiaFW-chat-channel-controls input {
-	background: #fff !important;
-	max-width: calc(50% - 40px);
-	min-height: 0;
-    height: 28px;
-    font-size: 14px;
+	display: flex;
+	flex-wrap: wrap;
+    justify-content: space-between;
 }
 #sepiaFW-chat-channel-controls button {
-	height: 28px;
-    width: 28px;
-    padding: 0;
-	margin-left: 0;
+	margin-top: 16px;
+}
+@media screen and (max-width: 374px) {
+	#sepiaFW-chat-channel-controls button {
+		font-size: 10px;
+		display: flex;
+		align-items: center;
+	}
 }
 #sepiaFW-chat-userlist {
-    padding: 5px 10px;
+    padding: 4px 8px;
     width: 100%;
 }
 #sepiaFW-chat-userlist .me {
@@ -1194,6 +1235,9 @@ body {
 #sepiaFW-chat-userlist .active::before { 
     content: "→ ";
 }
+#sepiaFW-chat-userlist .assistant::after { 
+    content: " \2660";
+}
 
 #sepiaFW-chat-channellist {
     padding: 5px 10px;
@@ -1206,6 +1250,16 @@ body {
 }
 #sepiaFW-chat-channellist .active::before { 
     content: "→ ";
+}
+#sepiaFW-chat-channellist .my-channel::after { 
+    content: " \2660"; /*221E, 00A9*/
+}
+#sepiaFW-chat-channellist .public::after { 
+    content: " \221E"; /*221E, 00A9*/
+}
+#sepiaFW-chat-channellist span.marked::before { 
+	content: " \2022  ";
+	color: #ff2550;
 }
 
 .sepiaFW-layer-header,
@@ -1247,6 +1301,9 @@ body {
 	padding-top: 3px;
 	font-size: 16px;
 	position: relative;
+	overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
 }
 #sepiaFW-nav-label-online-status {
 	width: 90px;
@@ -1260,7 +1317,7 @@ body {
 #sepiaFW-nav-label-online-status.connecting {
 	opacity: 0.50;
 }
-#sepiaFW-nav-label-note{
+#sepiaFW-nav-label-note {
 	display: flex;
     align-items: center;
     justify-content: center;
@@ -1283,6 +1340,16 @@ body {
 }
 #sepiaFW-nav-users-btn {
 	float: right;
+	position: relative;
+}
+#sepiaFW-nav-users-btn.marked::after {
+	content: " \2022 ";
+    color: #ff2550;
+    position: absolute;
+    top: 11px;
+	left: 26px;
+	-webkit-animation: sepiaFW-animation-blink 4.5s 3;
+            animation: sepiaFW-animation-blink 4.5s 3;
 }
 #sepiaFW-nav-bar-page-indicator {
 	position: absolute;
@@ -1618,6 +1685,21 @@ body {
 	margin: 7px 0;
 	padding: 7px;
 	font-size: 13px;
+}
+.sepiaFW-results-container .chat-history-note article,
+#sepiaFW-chat-output .chat-history-note article {
+	text-align: center;
+}
+.sepiaFW-results-container .chat-history-note .status,
+#sepiaFW-chat-output .chat-history-note .status {
+	color: inherit !important;
+    margin-right: 0 !important;
+}
+.sepiaFW-results-container .chat-history-note .client,
+.sepiaFW-results-container .chat-history-note .timestamp,
+#sepiaFW-chat-output .chat-history-note .client,
+#sepiaFW-chat-output .chat-history-note .timestamp {
+	display: none;
 }
 .sepiaFW-results-container .hidden-by-settings,
 #sepiaFW-chat-output .hidden-by-settings {

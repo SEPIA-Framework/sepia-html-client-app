@@ -9,6 +9,7 @@ SepiaFW.config = sepiaFW_build_config();
 //"Interface" modules - NOTE: this happens after cordova's deviceReady
 SepiaFW.buildSepiaFwPlugins = function(){
 	SepiaFW.account = sepiaFW_build_account();
+	SepiaFW.account.contacts = sepiaFW_build_account_contacts();
 	SepiaFW.assistant = sepiaFW_build_assistant();
 	SepiaFW.ui = sepiaFW_build_ui();
 	SepiaFW.animate = sepiaFW_build_animate();
@@ -28,6 +29,7 @@ SepiaFW.buildSepiaFwPlugins = function(){
 	SepiaFW.webSocket = new Object();
 	SepiaFW.webSocket.common = sepiaFW_build_webSocket_common();
 	SepiaFW.webSocket.client = sepiaFW_build_webSocket_client();
+	SepiaFW.webSocket.channels = sepiaFW_build_webSocket_channels();
 	SepiaFW.client = sepiaFW_build_client_interface();
 	SepiaFW.client.controls = sepiaFW_build_client_controls();
 	SepiaFW.files = sepiaFW_build_files();
@@ -58,6 +60,11 @@ function sepiaFW_build_dataService(){
 	
 	//NativeStorage abstraction layer - we need to manage the async nature (compared to localStorage)
 
+	var generalSaveBufferTimer;
+	var generalSavePermanentBufferTimer;
+	var generalSaveBufferTimeout = 1000;
+	var nativeStorageSaveBuffer = {};
+
 	function nativeStorageClear(){
 		if (nativeStorageState != 0){
 			nativeStorageState++;
@@ -73,23 +80,33 @@ function sepiaFW_build_dataService(){
 			NativeStorage.clear(nativeStorageSuccess, nativeStorageFail);
 		}
 	}
-	function nativeStorageSet(key, value){
+	function nativeStorageSet(key, value, skipBuffer){
+		if (!skipBuffer){
+			nativeStorageSaveBuffer[key] = value;
+		}
 		if (nativeStorageState != 0){
 			nativeStorageState++;
-			if (nativeStorageState > 25){
+			if (nativeStorageState > 30){
 				nativeStorageFail({exception: "Too many items in queue.", code: 10});
 			}else{
 				setTimeout(function(){
-					nativeStorageSet(key, value);		//repeat until queue is free
-				}, 250);
+					if (nativeStorageSaveBuffer[key]){
+						nativeStorageSet(key, nativeStorageSaveBuffer[key], true);		//repeat until queue is free
+					}
+				}, 200);
 			}
 		}else{
 			nativeStorageState = 1;	
-			NativeStorage.setItem(key, value, nativeStorageSuccess, nativeStorageFail);
+			NativeStorage.setItem(key, value, function(obj){
+				nativeStorageSuccess(key, obj);
+			}, nativeStorageFail);
 		}
 	}
-	function nativeStorageSuccess(obj){
+	function nativeStorageSuccess(key, obj){
 		nativeStorageState = 0;
+		if (nativeStorageSaveBuffer[key]){
+			delete nativeStorageSaveBuffer[key];
+		}
 	}
 	function nativeStorageFail(error){
 		nativeStorageState = 0;
@@ -99,31 +116,67 @@ function sepiaFW_build_dataService(){
 
 	//-------------------------------
 
-	function save(permanent){
-		try{
-			//Note: we duplicate the localStorage to NativeStorage if we can, in case the app closes, but
-			//due to native storage's async nature this might not finish if app closes before
-			if (permanent){
-				if (window.NativeStorage){
-					nativeStorageSet('sepiaFW-data-permanent', dataPermanent);
-				}
-				if (window.localStorage){
-					localStorage.setItem('sepiaFW-data-permanent', JSON.stringify(dataPermanent));
-				}
-			}else{
-				if (window.NativeStorage){
-					nativeStorageSet('sepiaFW-data', data);
-				}
-				if (window.localStorage){
-					localStorage.setItem('sepiaFW-data', JSON.stringify(data));
+	function save(permanent, skipBuffer){
+		//Buffer requests to prevent unnecessary spamming of storage
+		if (permanent && generalSavePermanentBufferTimer && !skipBuffer){
+			return;
+		}else if (!permanent && generalSaveBufferTimer && !skipBuffer){
+			return;
+		}else{
+			function saveThis(){
+				//DEBUG
+				/*if (permanent){
+					console.error("Writing storage key 'sepiaFW-data-permanent'");
+				}else{
+					console.error("Writing storage key 'sepiaFW-data'");
+				}*/
+				try{
+					//Note: we duplicate the localStorage to NativeStorage if we can, in case the app closes, but
+					//due to native storage's async nature this might not finish if app closes before
+					if (permanent){
+						//Use localStorage first in case native fails
+						if (window.localStorage){
+							localStorage.setItem('sepiaFW-data-permanent', JSON.stringify(dataPermanent));
+						}
+						if (window.NativeStorage){
+							nativeStorageSet('sepiaFW-data-permanent', dataPermanent);
+						}
+						generalSavePermanentBufferTimer = undefined;
+					}else{
+						//Use localStorage first in case native fails
+						if (window.localStorage){
+							localStorage.setItem('sepiaFW-data', JSON.stringify(data));
+						}
+						if (window.NativeStorage){
+							nativeStorageSet('sepiaFW-data', data);
+						}
+						generalSaveBufferTimer = undefined;
+					}
+				}catch (e){
+					SepiaFW.debug.err('Data: storage write error! Not available?');
 				}
 			}
-		}catch (e){
-			SepiaFW.debug.err('Data: storage write error! Not available?');
+			if (permanent){
+				generalSavePermanentBufferTimer = setTimeout(saveThis, generalSaveBufferTimeout);
+			}else{
+				generalSaveBufferTimer = setTimeout(saveThis, generalSaveBufferTimeout);
+			}
 		}
 	}
 	function load(permanent){
+		//Don't load when currently buffering a 'save'
+		if (permanent && generalSavePermanentBufferTimer){
+			return dataPermanent || {};
+		}else if (!permanent && generalSaveBufferTimer){
+			return data || {};
+		}
 		//TODO: load is called everytime a variable is retrived ... for safety reasons (not running out of sync) ... but could be smarter ^^
+		//DEBUG
+		/*if (permanent){
+			console.error("Loading storage key 'sepiaFW-data-permanent'");
+		}else{
+			console.error("Loading storage key 'sepiaFW-data'");
+		}*/
 		try{
 			//Note: we can't load from NativeStorage on-the-fly due to it's async nature (it's not a drop-in replacement for LS).
 			//That's why we load NativeStorage only once to localStorage when the app loads (see start.js ... it redirects to main app after async call completes).
@@ -210,13 +263,13 @@ function sepiaFW_build_dataService(){
 		data = {};
 		//restore permanent data - NOTE: a potential race condition with nativeStorageClear() should be prevented by the nativeStorageState queue
 		if (keepPermanent){
-			save(true); 	//restores current state to local and native storage
+			save(true, true); 	//restores current state to local and native storage
 		}
 		//support for a delayed callback in case you want to e.g. close/reload the app after this method
 		if (delayedCallback){
 			setTimeout(function(){
 				delayedCallback();
-			}, (delay || 1550));
+			}, (delay || 1650));
 		}
 		return localDataStatus;
 	}
@@ -259,33 +312,49 @@ function sepiaFW_build_dataService(){
 function sepiaFW_build_tools(){
 	var Tools = {};
 	
-	//get server default local date/timeout - TODO: note that this needs to be adjusted to server settings
-	Tools.getLocalDateTime = function(){
-		var d = new Date();
+	//get client default local date/time or date/time of certain UNIX timestamp in 'server-default-format'
+	Tools.getLocalDateTime = function(unixTimeMs){
+		var d = (unixTimeMs != undefined)? new Date(unixTimeMs) : new Date();
 		var HH = addZero(d.getHours());
 		var mm = addZero(d.getMinutes());
 		var ss = addZero(d.getSeconds());
 		var dd = addZero(d.getDate());
 		var MM = addZero(d.getMonth() + 1);
 		var yyyy = d.getFullYear();
-		return '' + yyyy + '.' + MM + '.' + dd + '_' + HH + ':' + mm + ':' + ss;
+		return yyyy + '.' + MM + '.' + dd + '_' + HH + ':' + mm + ':' + ss;
 	}
-	//get server default time (only) - TODO: note that this needs to be adjusted to server settings
-	Tools.getLocalTime = function(short){
-		var d = new Date();
+	//get client default time or certain time of given UNIX timestamp in 'server-default-format'
+	Tools.getLocalTime = function(short, unixTimeMs){
+		var d = (unixTimeMs != undefined)? new Date(unixTimeMs) : new Date();
 		var HH = addZero(d.getHours());
 		var mm = addZero(d.getMinutes());
 		if (!short){
 			var ss = addZero(d.getSeconds());
-			return '' + HH + ':' + mm + ':' + ss;
+			return HH + ':' + mm + ':' + ss;		//this basically is: d.toLocaleTimeString()
 		}else{
-			return '' + HH + ':' + mm;
+			return HH + ':' + mm;
 		}
+	}
+	//get client default date or certain date of given UNIX timestamp with user-defined separator
+	Tools.getLocalDateWithCustomSeparator = function(separator, unixTimeMs){
+		var d = (unixTimeMs != undefined)? new Date(unixTimeMs) : new Date();
+		var dd = addZero(d.getDate());
+		var MM = addZero(d.getMonth() + 1);
+		var yyyy = d.getFullYear();
+		return yyyy + separator + MM + separator + dd;
 	}
 	
 	//get URL parameters
 	Tools.getURLParameter = function(name){
 		return decodeURIComponent((new RegExp('[?|&]' + name + '=' + '([^&;]+?)(&|#|;|$)').exec(location.search)||[,""])[1].replace(/\+/g, '%20'))||null
+	}
+	Tools.getURLParameterFromUrl = function(url, name){
+		if (url.indexOf("?") < 0){
+			return;
+		}else{
+			var search = url.replace(/.*?(\?.*)/, "$1");
+			return decodeURIComponent((new RegExp('[?|&]' + name + '=' + '([^&;]+?)(&|#|;|$)').exec(search)||[,""])[1].replace(/\+/g, '%20'))||null
+		}
 	}
 	//set or add a parameter of a given URL with encoding and return modified url
 	Tools.setParameterInURL = function(url, parameter, value){
@@ -310,6 +379,11 @@ function sepiaFW_build_tools(){
 			url = url.replace(new RegExp("(\\?)(" + parameter + "=.*?)($)"), "");
 		}
 		return url;
+	}
+
+	//get pure SHA256 hash
+	Tools.getSHA256Hash = function(data){
+		return sjcl.codec.hex.fromBits(sjcl.hash.sha256.hash(data));
 	}
 
 	//load script to element (body by default)

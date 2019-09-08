@@ -5,7 +5,22 @@
 	<!-- web app settings -->
 	<meta name="apple-mobile-web-app-capable" content="yes">
 	<meta name="mobile-web-app-capable" content="yes">
-	<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=0">
+	<meta name="viewport" id="sepia-viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=0">
+	<script>
+		function sepiaFW_scale_viewport(refSize){
+			if (!refSize) refSize = 240;
+			if (window.screen.width < refSize && window.matchMedia("(orientation: portrait)").matches){
+				var mvp = document.getElementById('sepia-viewport');
+				//mvp.setAttribute('content','initial-scale=' + screen.width/340);
+				mvp.setAttribute('content','width=' + refSize + ', initial-scale=' + window.screen.width/refSize + ', user-scalable=0');
+			}
+		}
+		if (window.location.href.indexOf('isTiny=true') > 0){
+			sepiaFW_scale_viewport(240);
+		}else{
+			sepiaFW_scale_viewport(320);
+		}
+	</script>
 	<title>S.E.P.I.A.</title>
 	<meta name="application-name" content="S.E.P.I.A."/>
 	<meta name="apple-mobile-web-app-title" content="S.E.P.I.A.">
@@ -38,7 +53,7 @@
 	<!--<link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">-->
 	<!-- <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,600" rel="stylesheet"> -->
 	<link rel="stylesheet" href="css/sepiaFW-style.css" title='main'>
-	<link rel="stylesheet" href="css/sepiaFW-style-tiny.css" title='main'>
+	<link rel="stylesheet" href="css/sepiaFW-style-tiny.css" title='main'>	<!-- TODO: we should load this only when needed -->
 	<!-- FOR MORE STYLESHEETS SEE END-OF-BODY -->
 	<script src="scripts/sepiaFW.app.config.js"></script>
 	<script src="scripts/sepiaFW.app.js"></script>
@@ -46,16 +61,17 @@
 	<!-- FOR MORE JS SEE END-OF-BODY -->
 	
 	<script type="application/ld+json">
-	/*{
+	{
 		"@context": "http://schema.org",
 		"@type": "WebSite",
+		"name": "SEPIA Open Assistant",
 		"url": "https://sepia-framework.github.io",
 		"potentialAction": {
 			"@type": "SearchAction",
 			"target": "https://sepia-framework.github.io/app/index.html?q={search_term}",
 			"query-input": "required name=search_term"
 		}
-	}*/
+	}
 	</script>
 </head>
 <body>
@@ -94,16 +110,23 @@
 		<div id="sepiaFW-chat-menu" class="sepiaFW-menu" style="display:none;"><!-- Dynamic content --></div>
 		<div id="sepiaFW-chat-channel-view" class="sepiaFW-menu" style="display:none;">
 			<div class="left">
-				<h2>Channels</h2>
+				<h2><i class="material-icons md-txt">rss_feed</i>&nbsp;<script>SepiaFW.local.w('channels')</script></h2>
 				<ul id="sepiaFW-chat-channellist"><!-- Dynamic content --></ul>
 			</div>
 			<div class="right">
-				<h2>Active users</h2>
+				<h2><i class="material-icons md-txt">people</i>&nbsp;<script>SepiaFW.local.w('active_users')</script></h2>
 				<ul id="sepiaFW-chat-userlist"><!-- Dynamic content --></ul>
 			</div>
 			<div id="sepiaFW-chat-channel-controls">
-				<input id="sepiaFW-custom-channel-input" placeholder="Add channel" aria-label="CustomChannel">
-				<button id="sepiaFW-custom-channel-connect">+</button>
+				<button id="sepiaFW-chat-channel-manager-btn" class="sepiaFW-chat-channel-controls-btn">
+					<i class="material-icons md-txt">rss_feed</i>&nbsp;<script>SepiaFW.local.w('edit')</script>
+				</button>
+				<button id="sepiaFW-chat-invite-btn" class="sepiaFW-chat-channel-controls-btn contextual">
+					<i class="material-icons md-txt">person_add</i>&nbsp;<script>SepiaFW.local.w('invite')</script>
+				</button>
+				<button id="sepiaFW-chat-logout-btn" class="sepiaFW-chat-channel-controls-btn">
+					<i class="material-icons md-txt">person_outline</i>&nbsp;<script>SepiaFW.local.w('sign_out')</script>
+				</button>
 			</div>
 		</div>
 		<div id="sepiaFW-chat-controls-more-menu" class="sepiaFW-menu">
@@ -130,7 +153,7 @@
 			</div>
 			<div id="sepiaFW-more-menu-shortcuts">
 				<button id='sepiaFW-shortcut-btn-shop'><i class="material-icons md-24">&#xE8CC;</i></button>
-				<button id='sepiaFW-shortcut-btn-todo'><i class="material-icons md-24">&#xE85D;</i></button>
+				<button id='sepiaFW-shortcut-btn-todo'><i class="material-icons md-24">assignment</i></button> <!-- ballot -->
 				<button id='sepiaFW-shortcut-btn-radio'><i class="material-icons md-24">&#xE03E;</i></button>
 				<button id='sepiaFW-shortcut-btn-timer'><i class="material-icons md-24">timer</i></button> <!-- av_timer -->
 				<button id='sepiaFW-shortcut-btn-alarm'><i class="material-icons md-24">alarm</i></button>
@@ -141,7 +164,7 @@
 			</div>
 			<div id="sepiaFW-more-menu-actions">
 				<li id='sepiaFW-history-btn'><script>SepiaFW.local.w('clearHistory')</script>&nbsp;<i class="material-icons md-txt">&#xE889;</i></li>
-				<li id='sepiaFW-saythis-btn'>Saythis&nbsp;<i class="material-icons md-txt">&#xE050;</i></li>
+				<li id='sepiaFW-saythis-btn'>Broadcast&nbsp;<i class="material-icons md-txt">record_voice_over</i></li>
 				<li id='sepiaFW-teachUI-open'>Teach&nbsp;<i class="material-icons md-txt">&#xE87B;</i></li>
 				<li id='sepiaFW-fullsize-btn'>Screen&nbsp;<i class="material-icons md-txt">&#xE56B;</i></li>
 				<li id='sepiaFW-alwaysOn-btn'>Always On&nbsp;<i class="material-icons md-txt">mobile_friendly</i></li>
@@ -157,7 +180,7 @@
 				<div id="sepiaFW-nav-label-online-status" class="offline">offline</div>
 			</div>
 			<button id="sepiaFW-nav-menu-go-right">•</button>
-			<button id="sepiaFW-nav-users-btn"><i class="material-icons md-btn2">&#xE7FB;</i></button>
+			<button id="sepiaFW-nav-users-btn"><i class="material-icons md-btn2">speaker_notes</i></button>
 			<div id="sepiaFW-nav-bar-page-indicator"><div>&nbsp;</div><div>&nbsp;</div><div>&nbsp;</div></div>
 		</div>
 		<!-- Output views -->
@@ -299,6 +322,7 @@
 <script src="scripts/sepiaFW.ui.cards.js"></script>
 <script src="scripts/sepiaFW.ui.customButtons.js"></script>
 <script src="scripts/sepiaFW.account.js"></script>
+<script src="scripts/sepiaFW.account.contacts.js"></script>
 <script src="scripts/sepiaFW.assistant.js"></script>
 <script src="scripts/sepiaFW.geocoder.js"></script>
 <script src="scripts/sepiaFW.audio.js"></script>
@@ -306,6 +330,7 @@
 <script src="scripts/sepiaFW.speechWebSocket.js"></script>
 <script src="scripts/sepiaFW.speech.js"></script>
 <script src="scripts/sepiaFW.webSocket.js"></script>
+<script src="scripts/sepiaFW.webSocket.channels.js"></script>
 <script src="scripts/sepiaFW.files.js"></script>
 <script src="scripts/sepiaFW.frames.js"></script>
 <script src="scripts/sepiaFW.teach.js"></script>
@@ -325,11 +350,20 @@
 	var isCordova = SepiaFW.tools.getURLParameter('cordova') + '';
 
 	//start-up actions (and buffered local notifications)
-	function handleUrlParameterActions(isDemo){
+	function handleUrlParameterActions(isDemo, url){
 		//get
-		var requestViaUrl = SepiaFW.tools.getURLParameter('q');
-		var shareViaUrl = SepiaFW.tools.getURLParameter('share');
-		var openView = SepiaFW.tools.getURLParameter('view');
+		var requestViaUrl;
+		var shareViaUrl;
+		var openView;
+		if (url){
+			requestViaUrl = SepiaFW.tools.getURLParameterFromUrl(url, 'q');
+			shareViaUrl = SepiaFW.tools.getURLParameterFromUrl(url, 'share');
+			openView = SepiaFW.tools.getURLParameterFromUrl(url, 'view');
+		}else{
+			requestViaUrl = SepiaFW.tools.getURLParameter('q');
+			shareViaUrl = SepiaFW.tools.getURLParameter('share');
+			openView = SepiaFW.tools.getURLParameter('view');
+		}
 
 		//Url request (q)
 		if (requestViaUrl){
@@ -414,6 +448,7 @@
 
 		//host URL for deeplinks
 		SepiaFW.client.deeplinkHostUrl = "https://b07z.net/dl/sepia/index.html";
+		SepiaFW.client.handleUrlParameterActions = handleUrlParameterActions;
 
 		//set specific language dependent frames (pages)
 		SepiaFW.frames.setLocalPage('tutorial.html', "de", 'tutorial-de.html');
