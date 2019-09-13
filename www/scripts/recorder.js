@@ -21,30 +21,24 @@ DEALINGS IN THE SOFTWARE.
 
 (function (window) {
 
-    var Recorder = function (source) {
+    var Recorder = function(source, audioProcessor, startFun, stopFun) {
         var bufferLen = 4096;
         var websocket;
-        this.context = source.context;
-        if (!this.context.createScriptProcessor) {
-            this.node = this.context.createJavaScriptNode(bufferLen, 2, 2);
-        } else {
-            this.node = this.context.createScriptProcessor(bufferLen, 2, 2);
-        }
+        var audioContext = source.context;
 
         var recording = false;
-		
-        this.node.onaudioprocess = function (e) {
+
+        function processAudio(inputAudioFrame){
             if (!recording) return;
 
-            var inputL = e.inputBuffer.getChannelData(0);
-            var length = Math.floor(inputL.length / 3);
+            var length = Math.floor(inputAudioFrame.length / 3);
             var result = new Float32Array(length);
 
-            var index = 0,
-              inputIndex = 0;
+            var index = 0;
+            var inputIndex = 0;
 
             while (index < length) {
-                result[index++] = inputL[inputIndex];
+                result[index++] = inputAudioFrame[inputIndex];
                 inputIndex += 3;
             }
 
@@ -56,32 +50,66 @@ DEALINGS IN THE SOFTWARE.
                 view.setInt16(offset, s < 0 ? s * 0x8000 : s * 0x7FFF, true);
             }
 
-			//console.log('Recorder onaudioprocess - view: ' + view); 		//DEBUG
-            websocket.send(view);
+            //console.log('Recorder onaudioprocess - view: ' + view); 		//DEBUG
+            if (websocket){
+                websocket.send(view);
+            }
         }
 
-        //Move this to 'start'?
-        source.connect(this.node);
+        //Custom
+        if (audioProcessor && startFun && stopFun){
+            audioProcessor.onaudioprocess = function(inputAudioFrame){
+                processAudio(inputAudioFrame);
+            }
+        //Web-Audio
+        }else if (audioContext){
+            let processNode;
+            if ('createScriptProcessor' in audioContext){
+                processNode = audioContext.createScriptProcessor(bufferLen, 1, 1);
+            }else if ('createJavaScriptNode' in audioContext){
+                processNode = audioContext.createJavaScriptNode(bufferLen, 1, 1);
+            }else{
+                console.error("Recorder - cannot create an audio processor!");
+                return;
+            }
+            processNode.onaudioprocess = function(e) {
+                var inputAudioFrame = e.inputBuffer.getChannelData(0);
+                processAudio(inputAudioFrame);
+            }
+            startFun = function(){
+                source.connect(processNode);
+                processNode.connect(audioContext.destination);      //if the script node is not connected to an output the "onaudioprocess" event is not triggered in chrome.
+            }
+            stopFun = function(){
+                source.disconnect(processNode);
+                processNode.disconnect(audioContext.destination);
+                //processNode.disconnect();
+            }
+        //Error
+        }else{
+            console.error('Recorder - no valid audio processor found!');
+            return;
+        }
 
         //Will be called at beginning of SepiaFW.audioRecorder.start();
-        this.start = function() {
-            this.node.connect(this.context.destination);   // if the script node is not connected to an output the "onaudioprocess" event is not triggered in chrome.
+        this.start = function(){
+            recording = true;
+            startFun();
         }
 
         //Will be called at beginning of SepiaFW.audioRecorder.stop();
-        this.stop = function () {
+        this.stop = function(){
             recording = false;
-            this.node.disconnect(0);
+            stopFun();
         }
 
-        this.record = function (ws) {
+        this.connect = function(ws){
             websocket = ws;
-            recording = true;
 			//console.log('Recorder record - ws: ' + ws); 		//DEBUG
-			//console.log(this.node);							//DEBUG
+			//console.log(processNode);							//DEBUG
         }
 
-        this.sendHeader = function (ws) {
+        this.sendHeader = function(ws){
             var sampleLength = 1000000;
             var mono = true;
             var sampleRate = 16000;                 //TODO: this might not be true! We cannot guarantee that!
@@ -118,8 +146,8 @@ DEALINGS IN THE SOFTWARE.
 			//console.log('Recorder sendHeader - view: ' + view); 		//DEBUG
             ws.send(view);
         }
-		function writeString(view, offset, string) {
-			for (var i = 0; i < string.length; i++) {
+		function writeString(view, offset, string){
+			for (var i = 0; i < string.length; i++){
 				view.setUint8(offset + i, string.charCodeAt(i));
 			}
 		}

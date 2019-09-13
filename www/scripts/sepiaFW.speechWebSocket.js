@@ -196,7 +196,7 @@ function sepiaFW_build_speechWebSocket(){
 				if (isWaitingToRecord){
 					isRecording = true;		SepiaFW.speech.Interface.isRecognizing(true);
 					isWaitingToRecord = false;
-					audioRecorder.record(websocket);	//NOTE: websocket is specific for Recorder.js instance
+					audioRecorder.connect(websocket);	//NOTE: websocket is specific for Recorder.js instance
 					abortRecognition = false;
 					broadcastAsrMicOpen();
 				}else{

@@ -1,5 +1,5 @@
 let PicovoiceAudioManager = (function() {
-    const inputBufferLength = 2048;
+    const inputBufferLength = 4096;
 
     var engine;
     var processCallback;
@@ -13,31 +13,25 @@ let PicovoiceAudioManager = (function() {
         }
     }
 
-    var PicovoiceRecorder = function(audioSource){
+    var PicovoiceRecorder = function(audioSource, audioProcessor, startFun, stopFun){
         logInfo('CREATED PicovoiceRecorder');
 
         var audioContext = audioSource.context;
 
-        let inputSampleRate = audioContext.sampleRate;
+        let inputSampleRate = (audioContext)? audioContext.sampleRate : audioSource.sampleRate;
         logInfo('inputSampleRate: ' + inputSampleRate);
 
         let inputAudioBuffer = [];
 
-        let engineNode = audioContext.createScriptProcessor(inputBufferLength, 1, 1);
-        engineNode.onaudioprocess = function(ev) {
-            
+        function processAudio(inputAudioFrame){
             if (!isProcessing) {
                 return;
             }
             //console.log('+');
-
             //-------------------------
-            let inputAudioFrame = ev.inputBuffer.getChannelData(0);
-    
             for (let i = 0 ; i < inputAudioFrame.length ; i++) {
                 inputAudioBuffer.push((inputAudioFrame[i]) * 32767);
             }
-    
             while(inputAudioBuffer.length * engine.sampleRate / inputSampleRate > engine.frameLength) {
                 let result = new Int16Array(engine.frameLength);
                 let bin = 0;
@@ -65,17 +59,42 @@ let PicovoiceAudioManager = (function() {
             //-------------------------
         };
 
+        //Custom
+        if (audioProcessor && startFun && stopFun){
+            audioProcessor.onaudioprocess = function(inputAudioFrame){
+                processAudio(inputAudioFrame);
+            }
+        //Web-Audio
+        }else if (audioContext){
+            let engineNode = audioContext.createScriptProcessor(inputBufferLength, 1, 1);
+            engineNode.onaudioprocess = function(ev){
+                let inputAudioFrame = ev.inputBuffer.getChannelData(0);
+                processAudio(inputAudioFrame);
+            }
+            startFun = function(){
+                audioSource.connect(engineNode);
+                engineNode.connect(audioContext.destination);
+            }
+            stopFun = function(){
+                audioSource.disconnect(engineNode);
+                engineNode.disconnect(audioContext.destination);
+                //engineNode.disconnect();
+            }
+        //Error
+        }else{
+            console.error('PicovoiceRecorder - no valid audio processor found!');
+            return;
+        }
+        
         //Will be called at beginning of SepiaFW.audioRecorder.start();
         this.start = function() {
             inputAudioBuffer = [];
-            audioSource.connect(engineNode);
-            engineNode.connect(audioContext.destination);
+            startFun();
         }
 
         //Will be called at beginning of SepiaFW.audioRecorder.stop();
         this.stop = function() {
-            audioSource.disconnect(engineNode);
-            engineNode.disconnect(audioContext.destination);
+            stopFun();
         }
     }
       
