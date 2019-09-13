@@ -59,7 +59,7 @@ npm install xcode
 # add ios platform
 sleep 2
 echo "#Adding platform ..."
-cordova platform add ios@4.5.3
+cordova platform add ios@5.0.1
 #
 # prepare build
 echo "#Preparing build ..."
