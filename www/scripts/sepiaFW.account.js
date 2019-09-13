@@ -490,13 +490,13 @@ function sepiaFW_build_account(){
 		});
 		//id placeholder
 		var idInput = document.getElementById("sepiaFW-login-id");
-		idInput.placeholder = SepiaFW.local.username;
+		idInput.placeholder = SepiaFW.local.g('username');
 		$(idInput).off().on("keypress", function(e){
 			if (e.keyCode === 13) { sendLoginFromBox(); }
 		});
 		//keypress on pwd
 		var pwdInput = document.getElementById("sepiaFW-login-pwd");
-		pwdInput.placeholder = SepiaFW.local.password;
+		pwdInput.placeholder = SepiaFW.local.g('password');
 		$(pwdInput).off().on("keypress", function (e) {
 			if (e.keyCode === 13) { sendLoginFromBox(); }
 		});

@@ -302,20 +302,23 @@ function sepiaFW_build_strings(){
 	//--------------------------------------------------------
 	
 	var StringsLocale = {};
-	if (SepiaFW.config.appLanguage.toLowerCase() === "de"){
-		StringsLocale = StringsDE;
-	}else{
-		StringsLocale = StringsEN;
-	}
 	
 	//get string
 	StringsLocale.g = function(name){
-		return StringsLocale[name];
+		if (SepiaFW.config.appLanguage.toLowerCase() === "de"){
+			return StringsDE[name];
+		}else{
+			return StringsEN[name];
+		}
 	}
 	
 	//write string
 	StringsLocale.w = function(name){
-		document.write(StringsLocale[name]);
+		if (SepiaFW.config.appLanguage.toLowerCase() === "de"){
+			document.write(StringsDE[name]);
+		}else{
+			document.write(StringsEN[name]);
+		}
 	}
 
 	//specials:

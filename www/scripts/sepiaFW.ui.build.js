@@ -285,7 +285,7 @@ function sepiaFW_build_ui_build(){
 		//Send message if enter is pressed in the input field
 		var chatInput = document.getElementById("sepiaFW-chat-input");
 		if (chatInput){
-			chatInput.placeholder = SepiaFW.local.chatInputPlaceholder;
+			chatInput.placeholder = SepiaFW.local.g('chatInputPlaceholder');
 			$(chatInput).off()
 			//pressed RETURN
 			.on("keypress", function(e){
