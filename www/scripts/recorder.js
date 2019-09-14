@@ -182,7 +182,7 @@ DEALINGS IN THE SOFTWARE.
             if (outSampleRate == sampleRate){
                 var result = new Float32Array(array.length);
                 for (let i = 0 ; i < array.length ; i++){
-                    result.push(array[i]);
+                    result[i] = array[i];
                 }
                 return array;
             }
