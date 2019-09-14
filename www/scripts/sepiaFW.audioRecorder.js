@@ -113,17 +113,22 @@ function sepiaFW_build_audio_recorder(){
 		broadcastRecorderStopped();
 	}
 	function closeAudioContext(audioContext, success, error){
-		if (audioContext.state == "closed"){
-			if (success) success();
-		}else{
-			audioContext.close().then(function() {
-				//console.log('CLOSED audio-context');
-				broadcastRecorderClosed();
+		if (audioContext){
+			if (audioContext.state == "closed"){
 				if (success) success();
-			}).catch(function(e){
-				broadcastRecorderError(e);
-				if (error) error(e);
-			});
+			}else{
+				audioContext.close().then(function() {
+					//console.log('CLOSED audio-context');
+					broadcastRecorderClosed();
+					if (success) success();
+				}).catch(function(e){
+					broadcastRecorderError(e);
+					if (error) error(e);
+				});
+			}
+		}else{
+			broadcastRecorderClosed();
+			if (success) success();
 		}
 	}
 	
@@ -259,11 +264,12 @@ function sepiaFW_build_audio_recorder(){
 
 	//AudioProcessor (replacement for scriptProcessor of AudioContext)
 	function AudioInputPluginProcessor(){
-		this.onaudioprocess = function(inputAudioFrame){
+		var self = this;
+		self.onaudioprocess = function(inputAudioFrame){
 			//to be defined by RecorderInstance
 		};
-		this.onaudioreceive = function(evt){
-			this.onaudioprocess(evt.data);
+		self.onaudioreceive = function(evt){
+			self.onaudioprocess(evt.data);
 		};
 	}
 	
@@ -351,8 +357,8 @@ function sepiaFW_build_audio_recorder(){
 					bufferSize: 4096,
 					channels: 1,
 					format: audioinput.FORMAT.PCM_16BIT,
-					audioSourceType: audioinput.AUDIOSOURCE_TYPE.UNPROCESSED,	//VOICE_COMMUNICATION
-					normalize: false,
+					audioSourceType: audioinput.AUDIOSOURCE_TYPE.VOICE_COMMUNICATION,	//VOICE_COMMUNICATION UNPROCESSED DEFAULT
+					normalize: true,
 					streamToWebAudio: false
 				};
 				var audioProc = new AudioInputPluginProcessor();

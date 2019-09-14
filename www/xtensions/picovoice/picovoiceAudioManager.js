@@ -1,6 +1,4 @@
 let PicovoiceAudioManager = (function() {
-    const inputBufferLength = 4096;
-
     var engine;
     var processCallback;
     var isProcessing = false;
@@ -28,10 +26,13 @@ let PicovoiceAudioManager = (function() {
                 return;
             }
             //console.log('+');
-            //-------------------------
+            
+            //fill inputAudioBuffer
             for (let i = 0 ; i < inputAudioFrame.length ; i++) {
-                inputAudioBuffer.push((inputAudioFrame[i]) * 32767);
+                inputAudioBuffer.push((inputAudioFrame[i]) * 32767);    //0x7FFF
             }
+
+            //downsample if necessary
             while(inputAudioBuffer.length * engine.sampleRate / inputSampleRate > engine.frameLength) {
                 let result = new Int16Array(engine.frameLength);
                 let bin = 0;
@@ -56,7 +57,6 @@ let PicovoiceAudioManager = (function() {
 
                 processCallback(keywordIndex);
             }
-            //-------------------------
         };
 
         //Custom
@@ -66,6 +66,7 @@ let PicovoiceAudioManager = (function() {
             }
         //Web-Audio
         }else if (audioContext){
+            let inputBufferLength = 4096;
             let engineNode = audioContext.createScriptProcessor(inputBufferLength, 1, 1);
             engineNode.onaudioprocess = function(ev){
                 let inputAudioFrame = ev.inputBuffer.getChannelData(0);
