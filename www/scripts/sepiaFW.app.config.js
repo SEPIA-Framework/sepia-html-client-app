@@ -4,7 +4,7 @@ function sepiaFW_build_config(){
 	
 	Config.clientInfo = "web_app_v1.0.0";	//defined by client properties
 	var deviceId = "";						//set in settings and chosen by user to address his devices directly (only numbers and letters, space is replaced by '-', lower-case)
-	Config.environment = "default";			//default for now - switched to "avatar_display" in AO-Mode
+	Config.environment = SepiaFW.tools.getURLParameter("env") || "default";		//'default' supports all features, other options: 'speaker', 'silent_display', 'car_display' - switched to "avatar_display" in AO-Mode
 	
 	//set client info
 	Config.setClientInfo = function(clientInfo){
