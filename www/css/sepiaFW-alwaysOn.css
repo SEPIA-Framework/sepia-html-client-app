@@ -64,6 +64,10 @@
 	}
 }
 
+#sepiaFW-alwaysOn-notifications.check-channels .material-icons {
+	color: #ff2550;
+}
+
 .sepiaFW-alwaysOn-alarm-anim {
 	animation: alarm 1s infinite ease-in;
 }

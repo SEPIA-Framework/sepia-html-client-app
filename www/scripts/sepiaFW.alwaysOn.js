@@ -118,12 +118,13 @@ function sepiaFW_build_always_on(){
         activateBluetoothBeaconIfSet();
 
         AlwaysOn.isOpen = true;
-        //restore some states (only support loading and waiting right now)
+        //restore some states (only support loading, waiting and check-channel right now)
         if (avatarIsWaiting){
             AlwaysOn.avatarAwaitingInput();
         }else if (avatarIsLoading){
             AlwaysOn.avatarLoading();
         }
+        SepiaFW.animate.channels.refreshStateCheckChannels();
     }
     var openFadeTimer;    
 

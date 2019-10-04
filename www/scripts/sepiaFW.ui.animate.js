@@ -176,9 +176,18 @@ function sepiaFW_build_animate(){
 	var markedChannels = new Set();
 	Animate.channels.setStateCheckChannels = function(){
 		$('#sepiaFW-nav-users-btn').addClass('marked');
+		$('#sepiaFW-alwaysOn-notifications').addClass('check-channels');
 	}
 	Animate.channels.clearStateCheckChannels = function(){
 		$('#sepiaFW-nav-users-btn').removeClass('marked');
+		$('#sepiaFW-alwaysOn-notifications').removeClass('check-channels');
+	}
+	Animate.channels.refreshStateCheckChannels = function(){
+		if (markedChannels.size == 0){
+			Animate.channels.clearStateCheckChannels();
+		}else{
+			Animate.channels.setStateCheckChannels();
+		}
 	}
 	Animate.channels.markChannelEntry = function(channelId){
 		var $channelEntry = $('#sepiaFW-chat-channel-view').find('[data-channel-id="' + channelId + '"]');
