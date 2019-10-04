@@ -242,6 +242,7 @@ function sepiaFW_build_ui(){
 		message.timeUNIX = data.timeUNIX;
 		message.data = data.data;
 		var cOptions = options.buildOptions || {};
+		var displayOptions = options.displayOptions || {};
 		var userId = SepiaFW.account.getUserId() || 'username';
 		
 		//build entry
@@ -256,7 +257,11 @@ function sepiaFW_build_ui(){
 			var targetViewName = cOptions.targetView || "chat";
 			var resultView = UI.getResultViewByName(targetViewName);
 			//add to view
-			UI.addDataToResultView(resultView, cEntry);
+			var beSilent = displayOptions.beSilent || false;
+			var skipAnimation = displayOptions.skipAnimation || false;
+			var autoSwitchView = displayOptions.autoSwitchView || false;
+			var switchDelay = displayOptions.switchDelay || 0;
+			UI.addDataToResultView(resultView, cEntry, beSilent, autoSwitchView, switchDelay, skipAnimation);
 
 			//show results in frame as well? (SHOW ONLY!)
 			if (message.senderType === "assistant"){
@@ -1507,13 +1512,13 @@ function sepiaFW_build_ui(){
 	}
 	//Add elements to certain result view
 	UI.maxChatMessages = 40;
-	UI.addDataToResultView = function(resultView, entryData, beSilent, autoSwitchView, switchDelay){
+	UI.addDataToResultView = function(resultView, entryData, beSilent, autoSwitchView, switchDelay, skipAnimation){
 		var target = resultView.target;
 		var $target = $('#' + target);
 		var paneNbr = resultView.paneNumber;
 		
 		if (paneNbr == 1){
-			UI.insertEle(target, entryData);
+			UI.insertEle(target, entryData, skipAnimation);
 			//remove old message(s)?
 			var $allMessages = $target.find('.chatMsg').filter(":visible");
 			if (UI.maxChatMessages && UI.maxChatMessages <= $allMessages.length){
@@ -1521,7 +1526,9 @@ function sepiaFW_build_ui(){
 				//$allMessages.slice(0, UI.maxChatMessages).hide();
 				$allMessages.first().hide();
 			}
-			UI.scrollToBottom(target);
+			if (!skipAnimation){
+				UI.scrollToBottom(target);
+			}
 			//check if we should show the missed message note bubble
 			if (!beSilent){
 				if (!UI.isVisible() 
