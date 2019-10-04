@@ -1984,8 +1984,13 @@ function sepiaFW_build_webSocket_client(){
 									SepiaFW.ui.showInfo(weekdayName, false, customTag, true, message.data.channelId);	//SepiaFW.local.g('history')
 								}
 							}
-							//add unread note - TODO: place this at correct position
-							isNew = (!lastMsgTS || msg.timeUNIX > lastMsgTS);
+							//add unread note
+							isNew = (!lastMsgTS || msg.timeUNIX > lastMsgTS);		//TODO: I think due to some ms time difference in server and client this can fail sometimes
+							if (isNew && msg.sender && msg.sender == SepiaFW.account.getUserId()){
+								//we don't need to mark own messages
+								isNew = false;
+								//TODO: there is a curious bug somewhere that messes with 'lastChannelMessageTimestamps' sometimes so last read msg is shown, idk where :-/
+							}
 							if (isNew && !showedNew){
 								SepiaFW.ui.showInfo(SepiaFW.local.g('newMessages'), false, "unread-note", true, message.data.channelId);
 								showedNew = true;
