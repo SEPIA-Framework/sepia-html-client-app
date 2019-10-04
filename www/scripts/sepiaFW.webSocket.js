@@ -1967,14 +1967,17 @@ function sepiaFW_build_webSocket_client(){
 					var day = undefined;
 					var showedNew = false;
 					var lastMsgTS = lastChannelMessageTimestamps[message.data.channelId];
+					var numOfMsg = message.data.channelHistory.length;
+					var n = 0;
 					message.data.channelHistory.forEach(function(msg){
+						var isNew = false;
 						if (msg.timeUNIX){
 							//add day name
 							var d = new Date(msg.timeUNIX);
 							var thisDay = d.getDay();
 							if (thisDay != day){
 								day = thisDay;
-								var customTag = "weekday-note-" + SepiaFW.tools.getLocalDateWithCustomSeparator("-");
+								var customTag = "weekday-note-" + SepiaFW.tools.getLocalDateWithCustomSeparator("-", msg.timeUNIX);
 								//... but only if we haven't already
 								if ($("#sepiaFW-chat-output").find('[data-channel-id=' + message.data.channelId + ']').filter('[data-msg-custom-tag=' + customTag + ']').length == 0){
 									var weekdayName = SepiaFW.local.getWeekdayName(day) + " " + d.toLocaleDateString();
@@ -1982,12 +1985,21 @@ function sepiaFW_build_webSocket_client(){
 								}
 							}
 							//add unread note - TODO: place this at correct position
-							if (!showedNew && (!lastMsgTS || msg.timeUNIX > lastMsgTS)){
+							isNew = (!lastMsgTS || msg.timeUNIX > lastMsgTS);
+							if (isNew && !showedNew){
 								SepiaFW.ui.showInfo(SepiaFW.local.g('newMessages'), false, "unread-note", true, message.data.channelId);
 								showedNew = true;
 							}
 						}
-						SepiaFW.ui.showCustomChatMessage(msg.text, msg); 
+						n++;
+						var isLast = (n == numOfMsg);
+						var options = {
+							displayOptions: {
+								skipAnimation: !isLast,
+								beSilent: !isNew
+							}
+						}
+						SepiaFW.ui.showCustomChatMessage(msg.text, msg, options); 
 					});
 				}
 				
