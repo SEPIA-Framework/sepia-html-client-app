@@ -773,6 +773,8 @@ function sepiaFW_build_account(){
 					if (status == "fail"){
 						if (data.code && data.code == 3){
 							if (errorCallback) errorCallback(SepiaFW.local.g('loginFailedServer'));
+						}else if (data.code && data.code == 10){
+							if (errorCallback) errorCallback(SepiaFW.local.g('loginFailedBlocked'));
 						}else{
 							if (errorCallback) errorCallback(SepiaFW.local.g('loginFailedUser'));
 						}
