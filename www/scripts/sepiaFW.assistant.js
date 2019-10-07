@@ -247,7 +247,7 @@ function sepiaFW_build_assistant(){
 	 * Wait for the right opportunity (e.g. idle time) and let the assistant say a text
 	 * loaded from server.
 	 */
-	Assistant.waitForOpportunityAndSay = function(dialogTagOrText, fallbackAction, minWait, maxWait){
+	Assistant.waitForOpportunityAndSay = function(dialogTagOrText, fallbackAction, minWait, maxWait, doneCallback){
 		if (!minWait) minWait = 2000;
 		if (!maxWait) maxWait = 30000;
 		if (!dialogTagOrText) dialogTagOrText = "<error_client_control_0a>";
@@ -259,6 +259,7 @@ function sepiaFW_build_assistant(){
 				newReceiver: SepiaFW.assistant.id
 			};
 			SepiaFW.client.sendCommand(dataset, options);
+			if (doneCallback) doneCallback();
 		}, minWait, maxWait, function(){
 			//Fallback, e.g.: SepiaFW.ui.showInfo(SepiaFW.local.g('no_client_support'));
 			if (fallbackAction) fallbackAction();
