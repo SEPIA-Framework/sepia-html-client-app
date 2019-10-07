@@ -118,6 +118,19 @@ function sepiaFW_build_account(){
 	}
 	
 	//----------------------
+
+	//get general ID prefix
+	Account.getIdPrefix = function(){
+		if (userId){
+			return userId.split(/\d/,2)[0];
+		}else{
+			return undefined;
+		}
+	}
+	//does the given string look like an ID
+	Account.stringLooksLikeAnID = function(str){
+		return !!str.match(new RegExp("^" + Account.getIdPrefix().toLowerCase() + "\\d+$"));
+	}
 	
 	//get user id
 	Account.getUserId = function(){

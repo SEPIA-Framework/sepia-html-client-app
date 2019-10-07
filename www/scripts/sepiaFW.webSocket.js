@@ -1480,7 +1480,7 @@ function sepiaFW_build_webSocket_client(){
 					receiver = recUid;		//we should set receiver in any case to prevent a public message
 				}
 				res.shift();
-				text = res.join(" ");
+				text = res.join(" ").trim();
 			
 			//locked receiver overwrite
 			}else if (activeChatPartner && !hasSpecialCommand){
@@ -1551,10 +1551,12 @@ function sepiaFW_build_webSocket_client(){
 	}
 	
 	Client.getActiveChannelUsersByIdOrName = function(nameOrId){
+		nameOrId = nameOrId.toLowerCase();
+		var id = SepiaFW.account.stringLooksLikeAnID(nameOrId)? nameOrId : "";
 		var receivers = [];
 		if (nameOrId){
 			$.each(userList, function(index, u){
-				if (nameOrId.toLowerCase() === u.name.toLowerCase() || nameOrId.toLowerCase() === u.id.toLowerCase()){
+				if ((id && id === u.id.toLowerCase()) || nameOrId === u.name.toLowerCase()){
 					receivers.push(u);
 				}
 			});
