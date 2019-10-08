@@ -165,7 +165,7 @@ function sepiaFW_build_ui_custom_buttons(){
         SepiaFW.ui.actions.openCMD(newAction);
         */
         SepiaFW.debug.info("CustomButtons - sending button-text: " + buttonData.text);
-        SepiaFW.client.sendInputText(buttonData.text);
+        SepiaFW.client.sendInputText("@" + SepiaFW.assistant.id + " " + buttonData.text);
     }
 
     return CustomButtons;

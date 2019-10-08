@@ -1741,7 +1741,10 @@ function sepiaFW_build_webSocket_client(){
 		var cmd = dataset.cmd;
 		//the sender becomes the receiver - This workds because dataset is usually an 
 		//action received from the assistant ... but it is kind of inconsistent with the rest :-(
-		var receiver = dataset.newReceiver || dataset.sender || ''; 	//we use newReceiver to fix the inconsistency (a bit)
+		var receiver = dataset.newReceiver || dataset.sender || SepiaFW.assistant.id; 	//we use newReceiver to fix the inconsistency (a bit)
+		if (receiver == "<all>"){
+			receiver = "";
+		}
 		//TODO: handle options in dataset?
 		if (dataset.options){
 			$.each(options, function(key, value){
