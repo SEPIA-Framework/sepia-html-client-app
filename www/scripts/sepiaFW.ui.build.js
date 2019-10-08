@@ -1594,9 +1594,11 @@ function sepiaFW_build_ui_build(){
 		var article = document.createElement('ARTICLE');
 		article.className = 'statusUpdate';
 		if (isErrorMessage){
+			//error message
 			article.className += ' errorMsg';
 			block.className += ' error';
 		}else{
+			//everything else is status message
 			block.className += ' info';
 			if (!SepiaFW.ui.showChannelStatusMessages){
 				block.className += ' hidden-by-settings';

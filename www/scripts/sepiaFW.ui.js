@@ -1518,6 +1518,9 @@ function sepiaFW_build_ui(){
 		var paneNbr = resultView.paneNumber;
 		
 		if (paneNbr == 1){
+			if (!skipAnimation && ((entryData.className.indexOf("hidden") >= 0) || window.getComputedStyle(entryData, null).getPropertyValue("display") == "none")){
+				skipAnimation = true; 	//force skip
+			}
 			UI.insertEle(target, entryData, skipAnimation);
 			//remove old message(s)?
 			var $allMessages = $target.find('.chatMsg').filter(":visible");
@@ -1525,6 +1528,7 @@ function sepiaFW_build_ui(){
 				//remove old:
 				//$allMessages.slice(0, UI.maxChatMessages).hide();
 				$allMessages.first().hide();
+				//remove status message as well if first now? ... if its a day/date tag it should stay until directly followed by next day tag
 			}
 			if (!skipAnimation){
 				UI.scrollToBottom(target);
