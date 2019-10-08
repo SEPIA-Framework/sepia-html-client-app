@@ -1127,6 +1127,9 @@ function sepiaFW_build_ui_cards(){
 						//add controls only
 						addYouTubeControls(f, false);
 					}
+				}else{
+					//add controls only
+					addYouTubeControls(f, false);
 				}
 				if (linkUrl.indexOf("/embed") < 0){
 					//convert e.g.: https://www.youtube.com/results?search_query=purple+haze%2C+jimi+hendrix
