@@ -144,22 +144,26 @@ function sepiaFW_build_client_controls(){
             //1) app player (full control including fade on STT, TTS) 
             //2) client player (outside app but with full or partial fade support)
             //3) remote player (no fade control, but start/stop etc.)
+            SepiaFW.debug.info("Client controls - Media action: " + controlData.action);
 
             //STOP
             if (controlData.action == "stop" || controlData.action == "pause" || controlData.action == "close"){
                 //Stop internal player
                 var isInternalPlayerStreaming = SepiaFW.audio.isMusicPlayerStreaming() || SepiaFW.audio.isMainOnHold();
                 if (isInternalPlayerStreaming){
-                    SepiaFW.audio.stop(SepiaFW.audio.getMusicPlayer());    
+                    SepiaFW.debug.info("Client controls - Media: stopping internal media player");
+                    SepiaFW.audio.stop(SepiaFW.audio.getMusicPlayer());
                 }
                 //Player and platform specific additional STOP methods
                 var sentAdditionalEvent = false;
                 if (SepiaFW.ui.cards.youTubePlayerGetState() == 1 || SepiaFW.ui.cards.youTubePlayerIsOnHold()){
                     //YouTube embedded player
+                    SepiaFW.debug.info("Client controls - Media: stopping YouTube media player");
                     sentAdditionalEvent = (SepiaFW.ui.cards.youTubePlayerControls("stop") > 0);
                 }else if (SepiaFW.ui.isAndroid){
                     //we do this only if we have a recent Android media event - otherwhise it will activate all music apps
                     var requireMediaAppPackage = true;
+                    SepiaFW.debug.info("Client controls - Media: stopping Android media player");
                     sentAdditionalEvent = SepiaFW.android.broadcastMediaButtonDownUpIntent(127, requireMediaAppPackage);  
                     //127: KEYCODE_MEDIA_PAUSE
                 }

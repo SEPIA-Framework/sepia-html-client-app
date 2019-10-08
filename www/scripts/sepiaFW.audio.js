@@ -305,6 +305,7 @@ function sepiaFW_build_audio(){
 			for (var i=0; i<customPlayerIds.length; i++){
 				//stop on first fade out? There should not be more than one active player
 				if (audioFadeListeners[customPlayerIds[i]].onFadeOutRequest(force)){
+					SepiaFW.debug.info("AUDIO: fadeOut - player: " + customPlayerIds[i]);
 					break;
 				}
 			}
@@ -318,9 +319,12 @@ function sepiaFW_build_audio(){
 			var customPlayerIds = Object.keys(audioFadeListeners);
 			for (var i=0; i<customPlayerIds.length; i++){
 				//stop on first fade in? There should not be more than one active player
-				if (audioFadeListeners[customPlayerIds[i]].onFadeInRequest){
-					if (audioFadeListeners[customPlayerIds[i]].isOnHold()){
-						audioFadeListeners[customPlayerIds[i]].onFadeInRequest()
+				var pId = customPlayerIds[i];
+				if (audioFadeListeners[pId].onFadeInRequest){
+					SepiaFW.debug.info("AUDIO: fadeInIfOnHold - player: " + pId);
+					if (audioFadeListeners[pId].isOnHold()){
+						SepiaFW.debug.info("AUDIO: fadeInIfOnHold - triggering onFadeInRequest");
+						audioFadeListeners[pId].onFadeInRequest()
 						break;
 					}
 				}
