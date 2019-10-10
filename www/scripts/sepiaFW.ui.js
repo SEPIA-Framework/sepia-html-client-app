@@ -73,6 +73,30 @@ function sepiaFW_build_ui(){
 		}
 	}
 
+	//Listen to change of active element (Note: not very reliable)
+	UI.listenToActiveElementChange = function(){
+		window.addEventListener('focus', function(e){
+			dispatchActiveElementChangeEvent();
+		}, true);
+		window.addEventListener('blur', function(e){
+			dispatchActiveElementChangeEvent();
+		}, true);
+	}
+	function dispatchActiveElementChangeEvent(){
+		clearTimeout(activeElementChangeBuffer);
+		activeElementChangeBuffer = setTimeout(function(){
+			//note: cannot happen faster than every Xms
+			var event = new CustomEvent('sepia_active_element_change', { detail: {
+				id: document.activeElement.id,
+				className: document.activeElement.className,
+				tagName: document.activeElement.tagName
+			}});
+			document.dispatchEvent(event);
+			console.error("new active ele.: " + (document.activeElement.id || document.activeElement.className || document.activeElement.tagName));
+		}, 100);
+	}
+	var activeElementChangeBuffer = undefined;
+
 	//Open a view or frame by key (e.g. for URL parameter 'view=xy')
 	UI.openViewOrFrame = function(openView){
 		openView = openView.replace(".html", "").trim();
@@ -584,9 +608,10 @@ function sepiaFW_build_ui(){
 		//listen to visibilityChangeEvent
 		UI.listenToVisibilityChange();
 		
-		//listen to mouse stuff
+		//listen to mouse stuff and active element
 		//UI.trackMouse();
 		//UI.trackTouch();
+		UI.listenToActiveElementChange();
 		
 		//execute stuff on ready:
 		
@@ -1061,6 +1086,20 @@ function sepiaFW_build_ui(){
 				if (allowedCallback) allowedCallback();
 			},
 			buttonTwoName : SepiaFW.local.g('betterNot'),
+			buttonTwoAction : function(){
+				//no
+				if (refusedCallback) refusedCallback();
+			}
+		});
+	}
+	UI.askForConfirmation = function(question, allowedCallback, refusedCallback){
+		UI.showPopup(question, {
+			buttonOneName : SepiaFW.local.g('ok'),
+			buttonOneAction : function(){
+				//yes
+				if (allowedCallback) allowedCallback();
+			},
+			buttonTwoName : SepiaFW.local.g('abort'),
 			buttonTwoAction : function(){
 				//no
 				if (refusedCallback) refusedCallback();
