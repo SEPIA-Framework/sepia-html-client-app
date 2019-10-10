@@ -1068,7 +1068,7 @@ function sepiaFW_build_ui_cards(){
 			//Spotify
 			if (data.brand == "Spotify"){
 				var webPlayerDiv = document.createElement('DIV');
-				webPlayerDiv.className = "spotifyWebPlayer cardBodyItem fullWidthItem";
+				webPlayerDiv.className = "spotifyWebPlayer embeddedWebPlayer cardBodyItem fullWidthItem";
 				var contentUrl = "https://" + linkUrl.replace("spotify:", "open.spotify.com/embed/").replace(":play", "").replace(/:/g, "/").trim();
 				webPlayerDiv.innerHTML = '<iframe '
 					+ 'src="' + contentUrl + '" width="100%" height="80" frameborder="0" allowtransparency="true" '
@@ -1079,7 +1079,7 @@ function sepiaFW_build_ui_cards(){
 			//Apple Music
 			}else if (data.brand == "Apple Music"){
 				var webPlayerDiv = document.createElement('DIV');
-				webPlayerDiv.className = "appleMusicWebPlayer cardBodyItem fullWidthItem";
+				webPlayerDiv.className = "appleMusicWebPlayer embeddedWebPlayer cardBodyItem fullWidthItem";
 				var contentUrl;
 				if (linkUrl.indexOf("/artist/") > 0){
 					contentUrl = linkUrl.replace(/^https:\/\/.*?\//, "https://geo.itunes.apple.com/");		//TODO: basically not working
@@ -1101,7 +1101,7 @@ function sepiaFW_build_ui_cards(){
 				//console.log('YouTube');				//DEBUG
 				var webPlayerDiv = document.createElement('DIV');
 				var playerId = currentLinkItemId++;
-				webPlayerDiv.className = "youTubeWebPlayer cardBodyItem fullWidthItem"
+				webPlayerDiv.className = "youTubeWebPlayer embeddedWebPlayer cardBodyItem fullWidthItem"
 				var f = document.createElement('iframe');
 				f.id = 'youTubeWebPlayer-' + playerId;
 				f.allow = allowIframe;
@@ -1741,6 +1741,9 @@ function sepiaFW_build_ui_cards(){
 					}else if (data.info.playerState == 1){
 						clearTimeout(youtubeSkipTimer);
 						clearTimeout(youTubePlayConfirmTimer);
+						SepiaFW.audio.broadcastAudioEvent("youtube-embedded", "start");
+					}else if (data.info.playerState == 2){
+						SepiaFW.audio.broadcastAudioEvent("youtube-embedded", "pause");
 					}
 				}
 			}
@@ -1844,6 +1847,7 @@ function sepiaFW_build_ui_cards(){
 				if (Cards.youTubePlayerGetState() == 1 && !youTubePlayerStopRequested){
 					Cards.youTubePlayerControls("pause");
 					youTubePlayerIsOnHold = true;
+					SepiaFW.audio.broadcastAudioEvent("youtube-embedded", "hold");
 					return true;
 				}else{
 					return false;
@@ -1852,6 +1856,7 @@ function sepiaFW_build_ui_cards(){
 			onFadeInRequest: function(){
 				if (Cards.youTubePlayerIsOnHold() && Cards.youTubePlayerGetState() == 2){
 					Cards.youTubePlayerControls("resume");
+					SepiaFW.audio.broadcastAudioEvent("youtube-embedded", "resume");
 					return true;
 				}else{
 					return false;

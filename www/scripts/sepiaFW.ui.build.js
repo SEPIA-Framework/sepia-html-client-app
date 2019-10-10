@@ -156,12 +156,17 @@ function sepiaFW_build_ui_build(){
 	
 	//Confirm box
 	Build.askConfirm = function(msg, okCallback, abortCallback){
-		var r = confirm(msg);
+		/* var r = confirm(msg);
 		if (r == true) {
 			if (okCallback) okCallback();
 		} else {
 			if (abortCallback) abortCallback();
-		}
+		} */
+		SepiaFW.ui.askForConfirmation(msg, function(){
+			if (okCallback) okCallback();
+		}, function(){
+			if (abortCallback) abortCallback();
+		});
 	}
 	
 	//MAIN UI FUNCTIONALITY

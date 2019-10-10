@@ -6,6 +6,7 @@ function sepiaFW_build_audio(){
 	//Parameters and states
 	TTS.isSpeaking = false;				//state: is assistant speaking?
 	AudioPlayer.isPlaying = false;
+	AudioPlayer.isLoading = false;
 
 	var player;				//AudioPlayer for music and stuff
 	var player2;			//AudioPlayer for sound effects
@@ -34,6 +35,19 @@ function sepiaFW_build_audio(){
 	}
 	AudioPlayer.getTtsPlayer = function(){
 		return speaker;
+	}
+
+	//Try to find out if any music player is active (playing or onHold and waiting to resume)
+	AudioPlayer.isAnyAudioSourceActive = function(){
+		//Stop internal player
+		var isInternalPlayerStreaming = AudioPlayer.isLoading || AudioPlayer.isMusicPlayerStreaming() || AudioPlayer.isMainOnHold() || TTS.isPlaying;
+		var isYouTubePlayerStreaming = SepiaFW.ui.cards.youTubePlayerGetState() == 1 || SepiaFW.ui.cards.youTubePlayerIsOnHold();
+		var isAndroidPlayerStreaming = SepiaFW.ui.isAndroid && SepiaFW.android.lastReceivedMediaData && SepiaFW.android.lastReceivedMediaData.playing 
+										&& ((new Date().getTime() - SepiaFW.android.lastReceivedMediaAppTS) < (1000*60*15));		//This is pure guessing ...
+		return isInternalPlayerStreaming || isYouTubePlayerStreaming || isAndroidPlayerStreaming;			
+	}
+	AudioPlayer.broadcastAudioEvent = function(source, action, playerObject){
+		console.error("audio event: " + source + " - " + action);
 	}
 	
 	//AudioContext stuff:
@@ -238,6 +252,9 @@ function sepiaFW_build_audio(){
 		if (!audioPlayer) audioPlayer = player;
 		if (AudioPlayer.isPlaying){
 			audioPlayer.pause(); 		//NOTE: possible race condition here if onPause callback triggers after fadeOutMain (then AudioPlayer.isPlaying will be true)
+		}else{
+			AudioPlayer.isLoading = false;
+			AudioPlayer.isPlaying = false;
 		}
 		broadcastAudioFinished();
 		if (!audioPlayer.dataset.tts){
@@ -274,6 +291,7 @@ function sepiaFW_build_audio(){
 			if (!mainAudioStopRequested){		//(if forced ..) We try to prevent the race-condition with that (2)
 				mainAudioIsOnHold = true;
 			}
+			SepiaFW.audio.broadcastAudioEvent("stream", "fadeOut", player);
 		}
 	}
 	AudioPlayer.fadeInMainIfOnHold = function(){
@@ -281,6 +299,7 @@ function sepiaFW_build_audio(){
 			//fade to original volume
 			AudioPlayer.playerFadeToOriginalVolume();
 			mainAudioIsOnHold = false;
+			SepiaFW.audio.broadcastAudioEvent("stream", "fadeIn", player);
 		}/*else{
 			//just restore volume
 			if (!gotPlayerAudioContext){
@@ -576,6 +595,8 @@ function sepiaFW_build_audio(){
 		}
 
 		audioPlayer.preload = 'auto';
+		AudioPlayer.isLoading = true;
+
 		//console.log("Audio-URL: " + audioURL); 		//DEBUG
 		audioPlayer.src = audioURL;
 		audioPlayer.oncanplay = function() {
@@ -589,8 +610,18 @@ function sepiaFW_build_audio(){
 			}else{
 				TTS.isSpeaking = true;
 			}
+			AudioPlayer.isLoading = false;
 			//callback
 			if (onStartCallback) onStartCallback();
+			if (audioPlayer == player){
+				SepiaFW.audio.broadcastAudioEvent("stream", "start", audioPlayer);
+			}else if (audioPlayer == player2){
+				SepiaFW.audio.broadcastAudioEvent("effects", "start", audioPlayer);
+			}else if (audioPlayer == speaker){
+				SepiaFW.audio.broadcastAudioEvent("tts-player", "start", audioPlayer);
+			}else{
+				SepiaFW.audio.broadcastAudioEvent("unknown", "start", audioPlayer);
+			}
 		};
 		audioPlayer.onpause = function() {
 			if (!audioOnEndFired){
@@ -604,8 +635,18 @@ function sepiaFW_build_audio(){
 				}else{
 					TTS.isSpeaking = false;
 				}
+				AudioPlayer.isLoading = false;
 				//callback
 				if (onEndCallback) onEndCallback();
+				if (audioPlayer == player){
+					SepiaFW.audio.broadcastAudioEvent("stream", "stop", audioPlayer);
+				}else if (audioPlayer == player2){
+					SepiaFW.audio.broadcastAudioEvent("effects", "stop", audioPlayer);
+				}else if (audioPlayer == speaker){
+					SepiaFW.audio.broadcastAudioEvent("tts-player", "stop", audioPlayer);
+				}else{
+					SepiaFW.audio.broadcastAudioEvent("unknown", "stop", audioPlayer);
+				}
 			}
 		};
 		audioPlayer.onended = function() {
@@ -627,8 +668,18 @@ function sepiaFW_build_audio(){
 			}else{
 				TTS.isSpeaking = false;
 			}
+			AudioPlayer.isLoading = false;
 			//callback
 			if (onErrorCallback) onErrorCallback();
+			if (audioPlayer == player){
+				SepiaFW.audio.broadcastAudioEvent("stream", "error", audioPlayer);
+			}else if (audioPlayer == player2){
+				SepiaFW.audio.broadcastAudioEvent("effects", "error", audioPlayer);
+			}else if (audioPlayer == speaker){
+				SepiaFW.audio.broadcastAudioEvent("tts-player", "error", audioPlayer);
+			}else{
+				SepiaFW.audio.broadcastAudioEvent("unknown", "error", audioPlayer);
+			}
 		};
 		audioPlayer.play();
 	}
@@ -656,18 +707,23 @@ function sepiaFW_build_audio(){
 
 		audioPlayer.src = alarmSound;
 		audioPlayer.preload = 'auto';
+		AudioPlayer.isLoading = true;
+
 		audioPlayer.oncanplay = function() {
 			SepiaFW.debug.info("AUDIO: can be played now (oncanplay event)");		//debug
 			AudioPlayer.isPlaying = true;
+			AudioPlayer.isLoading = false;
 			broadcastAudioStarted();
 			//callback
 			if (onStartCallback) onStartCallback;
+			SepiaFW.audio.broadcastAudioEvent("effects", "start", audioPlayer);
 		};
 		audioPlayer.onpause = function() {
 			if (!audioOnEndFired){
 				SepiaFW.debug.info("AUDIO: ended (onpause event)");				//debug
 				audioOnEndFired = true;
 				AudioPlayer.isPlaying = false;
+				AudioPlayer.isLoading = false;
 				broadcastAudioFinished();
 				//reset audio URL
 				/*
@@ -676,6 +732,7 @@ function sepiaFW_build_audio(){
 				*/
 				//callback
 				if (onEndCallback) onEndCallback();
+				SepiaFW.audio.broadcastAudioEvent("effects", "stop", audioPlayer);
 			}
 		};
 		audioPlayer.onended = function() {
@@ -688,6 +745,7 @@ function sepiaFW_build_audio(){
 			SepiaFW.debug.info("AUDIO: error occured! - code: " + audioPlayer.error.code);						//debug
 			broadcastAudioError();
 			AudioPlayer.isPlaying = false;
+			AudioPlayer.isLoading = false;
 			//reset audio URL
 			/*
 			audioPlayer.preload = 'none';
@@ -695,6 +753,7 @@ function sepiaFW_build_audio(){
 			*/
 			//callback
 			if (onErrorCallback) onErrorCallback();
+			SepiaFW.audio.broadcastAudioEvent("effects", "error", audioPlayer);
 		};
 		audioPlayer.play();
 	}
