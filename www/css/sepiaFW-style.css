@@ -1319,8 +1319,9 @@ body {
 }
 #sepiaFW-nav-label-online-status.wake-word-active:after, 
 #sepiaFW-nav-label-online-status.wake-word-active:before {
-    content: ' • ';
-    color: #f00;
+    content: ' Ξ ';
+    /*color: #ff2550;*/
+    font-family: monospace;
 }
 #sepiaFW-nav-label-note {
 	display: flex;
