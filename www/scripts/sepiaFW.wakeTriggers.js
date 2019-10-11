@@ -222,10 +222,19 @@ function sepiaFW_build_wake_triggers() {
     }
 	function defaultPpErrorCallback(ex){
 		ppIsListening = false;
-		var errMsg = ex.toString();
-		SepiaFW.debug.error("Porcupine: " + errMsg);
 		SepiaFW.animate.wakeWord.inactive();
-		alert("Porcupine: " + errMsg);
+		var errMsg = "?";
+		if (ex && typeof ex == "string"){
+			errMsg = ex;
+		}else if (ex && typeof ex == "object" && (ex.error || ex.message || ex.msg)){
+			errMsg = ex.error || ex.message || ex.msg;
+		}else if (ex && typeof ex == "object"){
+			try {
+				errMsg = JSON.stringify(ex);
+			}catch(err){}
+		}
+		SepiaFW.debug.error("Porcupine: " + errMsg);
+		SepiaFW.ui.showPopup("Porcupine error: " + errMsg);
     };
 	
 	//-------------------------------------------------

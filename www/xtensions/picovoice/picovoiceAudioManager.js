@@ -111,13 +111,21 @@ let PicovoiceAudioManager = (function() {
             SepiaFW.audioRecorder.start(function(activeAudioContext, audioRec){
                 //Started
                 logInfo('STARTED recorder');
+            }, function(err){
+                //Error
+                logInfo('ERROR: ' + err);
+                if (errorCallback) errorCallback(err);
             });
 			//audioRecorder.start();		//note: uses internal global audio-recorder
 
-		}, function(err){
+		}, function(ex){
             //Failed
-            logInfo('ERROR: ' + err);
-            if (errorCallback) errorCallback(err);
+            var errMsg = ex;
+            if (ex && (typeof ex == "object") && (ex.error || ex.message || ex.msg)){
+                errMsg = ex.error || ex.message || ex.msg;
+            }
+            logInfo('ERROR: ' + errMsg);
+            if (errorCallback) errorCallback(ex);
 		});
     };
 

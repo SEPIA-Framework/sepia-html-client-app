@@ -141,7 +141,8 @@ function sepiaFW_build_wake_word_settings() {
 
         //check button states
         if (SepiaFW.wakeTriggers.engineLoaded){
-            if (SepiaFW.wakeTriggers.isListening()){
+            isListening = SepiaFW.wakeTriggers.isListening();
+            if (isListening){
                 document.getElementById('sepiaFW-wake-word-toggle').innerHTML = "STOP";
             }else{
                 document.getElementById('sepiaFW-wake-word-toggle').innerHTML = "START";
