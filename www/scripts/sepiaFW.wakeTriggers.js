@@ -56,7 +56,29 @@ function sepiaFW_build_wake_triggers() {
 		SepiaFW.debug.info("Wake-word during audio streaming is " + ((WakeTriggers.allowWakeWordDuringStream)? "ALLOWED" : "NOT ALLOWED"));
 
 		//Add onActive action:
-        SepiaFW.client.addOnActiveOneTimeAction(wakeTriggersOnActiveAction);
+		SepiaFW.client.addOnActiveOneTimeAction(wakeTriggersOnActiveAction);
+		
+		//Event listeners
+		document.addEventListener('sepia_audio_player_event', function(e){
+			if (e.detail){
+				//console.error(e.detail);
+				if (WakeTriggers.useWakeWord && WakeTriggers.engineLoaded){
+					//Audio player start
+					if (e.detail.action == "start" || e.detail.action == "resume"){
+						if (WakeTriggers.isListening() && !WakeTriggers.allowWakeWordDuringStream){
+							SepiaFW.debug.info("WakeTriggers - Stopping wake-word listener due to audio player '" + e.detail.action + "' event");
+							WakeTriggers.stopListeningToWakeWords();
+						}
+					//Audio player stop
+					}else if (e.detail.action == "stop" || e.detail.action == "pause"){
+						if ((SepiaFW.animate.assistant.getState() == "idle") && !WakeTriggers.isListening()){
+							SepiaFW.debug.info("WakeTriggers - Scheduling wake-word listener restart due to audio player '" + e.detail.action + "' event");
+							WakeTriggers.listenToWakeWords(undefined, undefined, true);
+						}
+					}
+				}
+			}
+		}, true);
 	}
 	function wakeTriggersOnActiveAction(){
 		//start setup?
@@ -101,7 +123,7 @@ function sepiaFW_build_wake_triggers() {
 				//console.error("Audio playing? " + isAudioStreamActive);		//DEBUG
 				if (isAudioStreamActive && !WakeTriggers.allowWakeWordDuringStream){
 					return;
-				}else if (WakeTriggers.useWakeWord && WakeTriggers.engineLoaded && !WakeTriggers.isListening()){
+				}else if (WakeTriggers.useWakeWord && WakeTriggers.engineLoaded && !WakeTriggers.isListening() && (SepiaFW.animate.assistant.getState() == "idle")){
 					//call without delay NOW
 					WakeTriggers.listenToWakeWords(onSuccessCallback, onErrorCallback, false);
 				}

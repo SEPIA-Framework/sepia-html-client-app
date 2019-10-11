@@ -181,25 +181,29 @@ function sepiaFW_build_client_controls(){
 
             //RESUME
             }else if (controlData.action == "resume"){
-                //TODO: only working for YouTube and Android(?) right now
-                var isInternalPlayerStreaming = SepiaFW.audio.isMusicPlayerStreaming() || SepiaFW.audio.isMainOnHold();
-                if (!isInternalPlayerStreaming){
-                    //Player and platform specific additional RESUME methods
+                //try to find last active player
+                var lastActivePlayer = SepiaFW.audio.getLastActiveAudioStreamPlayer();
+                var isAnyPlayerStreaming = SepiaFW.audio.isAnyAudioSourceActive();
+                if (!isAnyPlayerStreaming){
                     var sentAdditionalEvent = false;
-
-                    if (SepiaFW.ui.cards.youTubePlayerGetState() == 2){     //2: paused
+                    
+                    //try right order first
+                    if (!lastActivePlayer){
+                        //TODO: ?
+                    
+                    }else if (lastActivePlayer == "stream"){
+                        //Internal stream
+                        sentAdditionalEvent = SepiaFW.audio.resumeLastAudioStream();
+                    
+                    }else if (lastActivePlayer == "youtube-embedded" && SepiaFW.ui.cards.youTubePlayerGetState() == 2){     //2: paused
                         //YouTube embedded player
                         sentAdditionalEvent = (SepiaFW.ui.cards.youTubePlayerControls("resume") > 0);
                     
-                    }else if (SepiaFW.ui.isAndroid){
+                    }else if (lastActivePlayer == "android-intent" && SepiaFW.ui.isAndroid){
                         //we do this only if we have a recent Android media event - otherwhise it will activate all music apps
                         var requireMediaAppPackage = true;
                         sentAdditionalEvent = SepiaFW.android.broadcastMediaButtonDownUpIntent(126, requireMediaAppPackage);  
                         //126: KEYCODE_MEDIA_PLAY
-                    
-                    //Last try is internal player
-                    }else{
-                        sentAdditionalEvent = SepiaFW.audio.resumeLastAudioStream();
                     }
                 }
                 //TODO: add iOS and Windows?

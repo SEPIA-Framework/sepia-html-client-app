@@ -92,7 +92,7 @@ function sepiaFW_build_ui(){
 				tagName: document.activeElement.tagName
 			}});
 			document.dispatchEvent(event);
-			console.error("new active ele.: " + (document.activeElement.id || document.activeElement.className || document.activeElement.tagName));
+			//console.error("new active ele.: " + (document.activeElement.id || document.activeElement.className || document.activeElement.tagName));
 		}, 100);
 	}
 	var activeElementChangeBuffer = undefined;

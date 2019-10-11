@@ -1105,7 +1105,7 @@ function sepiaFW_build_ui_cards(){
 				var f = document.createElement('iframe');
 				f.id = 'youTubeWebPlayer-' + playerId;
 				f.allow = allowIframe;
-				f.sandbox = "allow-same-origin allow-scripts allow-presentation"; 
+				f.sandbox = "allow-same-origin allow-scripts allow-presentation allow-popups"; 
 				f.frameBorder = 0;
 				f.style.width = "100%";		f.style.height = "280px";		f.style.overflow = "hidden";
 				f.style.border = "4px solid";	f.style.borderColor = "#212121";
