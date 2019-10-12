@@ -193,7 +193,7 @@ function sepiaFW_build_strings(){
 	StringsEN.noConnectionOrNoCredentials = 'Connection was lost or credentials became invalid. You can wait and try it again, reload the app or login again.';
 	StringsEN.messageLost = 'The last message could not be delivered';
 	StringsEN.noAsrSupport = 'I\'m sorry but this client does not support speech recognition :-(';
-	StringsEN.asrMissingServer = 'I\'m missing some server info to user this speech recognition engine, please check the settings again (ASR server).';
+	StringsEN.asrMissingServer = 'I\'m missing some server info to use this speech recognition engine, please check the settings again (ASR server).';
 	StringsEN.asrSettingsProblem = 'Microphone has not been recognized properly or access was denied.';
 	StringsEN.nobodyThere = 'Uups, sorry but it seems there is nobody here to answer your message :-(';
 	StringsEN.userNotFound = 'Uups, this user seems to be not available right now :-(';
