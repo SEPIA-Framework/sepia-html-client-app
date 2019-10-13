@@ -1317,6 +1317,12 @@ body {
 #sepiaFW-nav-label-online-status.connecting {
 	opacity: 0.50;
 }
+#sepiaFW-nav-label-online-status.wake-word-active:after, 
+#sepiaFW-nav-label-online-status.wake-word-active:before {
+    content: ' Ξ ';
+    /*color: #ff2550;*/
+    font-family: monospace;
+}
 #sepiaFW-nav-label-note {
 	display: flex;
     align-items: center;

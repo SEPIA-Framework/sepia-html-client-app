@@ -3,7 +3,11 @@ function sepiaFW_build_animate(){
 	var Animate = {};
 	Animate.assistant = {};
 	Animate.audio = {};
+	Animate.wakeWord = {};
 	Animate.channels = {};
+
+	//timers
+	//...
 	
 	//general animations
 	
@@ -30,7 +34,7 @@ function sepiaFW_build_animate(){
 				&& (SepiaFW.assistant && SepiaFW.assistant.isWaitingForDialog)
 			){
 				//console.log('Mic auto-trigger window - source: ' + source);
-				SepiaFW.speech.toggleSmartMic();									//TODO: TEST!
+				SepiaFW.speech.toggleSmartMic();
 				return true;
 			}else{
 				return false;
@@ -38,9 +42,10 @@ function sepiaFW_build_animate(){
 		}
 	}
 	function possibilityToSwitchOnWakeWordListener(source){
+		//check and schedule
 		if (SepiaFW.wakeTriggers.useWakeWord && SepiaFW.wakeTriggers.engineLoaded && !SepiaFW.wakeTriggers.isListening()){
-			//console.log('Wake-word window - source: ' + source); 					//TODO: implement
-			SepiaFW.wakeTriggers.listenToWakeWords();
+			//console.log('Wake-word window - source: ' + source); 	//TODO: use?
+			SepiaFW.wakeTriggers.listenToWakeWords(undefined, undefined, true);
 		}
 	}
 	function possibilityToCleanCommandQueue(){
@@ -160,7 +165,7 @@ function sepiaFW_build_animate(){
 		document.dispatchEvent(event);
 	}
 	
-	//audio player animations
+	//audio player animations:
 	
 	Animate.audio.playerActive = function(){
 		//$("#sepiaFW-audio-ctrls-title").addClass("playerActive");
@@ -171,14 +176,32 @@ function sepiaFW_build_animate(){
 		$("#sepiaFW-audio-ctrls-soundbars").removeClass("playerActive");
 	}
 
-	//channel animations for missed off-channel messages
+	//wake-word animations:
+
+	Animate.wakeWord.active = function(){
+		$('#sepiaFW-nav-label-online-status').addClass("wake-word-active");
+	}
+	Animate.wakeWord.inactive = function(){
+		$('#sepiaFW-nav-label-online-status').removeClass("wake-word-active");
+	}
+
+	//channel animations for missed off-channel messages:
 
 	var markedChannels = new Set();
 	Animate.channels.setStateCheckChannels = function(){
 		$('#sepiaFW-nav-users-btn').addClass('marked');
+		$('#sepiaFW-alwaysOn-notifications').addClass('check-channels');
 	}
 	Animate.channels.clearStateCheckChannels = function(){
 		$('#sepiaFW-nav-users-btn').removeClass('marked');
+		$('#sepiaFW-alwaysOn-notifications').removeClass('check-channels');
+	}
+	Animate.channels.refreshStateCheckChannels = function(){
+		if (markedChannels.size == 0){
+			Animate.channels.clearStateCheckChannels();
+		}else{
+			Animate.channels.setStateCheckChannels();
+		}
 	}
 	Animate.channels.markChannelEntry = function(channelId){
 		var $channelEntry = $('#sepiaFW-chat-channel-view').find('[data-channel-id="' + channelId + '"]');

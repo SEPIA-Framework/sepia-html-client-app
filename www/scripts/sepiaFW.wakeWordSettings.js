@@ -81,6 +81,25 @@ function sepiaFW_build_wake_word_settings() {
                 SepiaFW.debug.info("Wake-word 'Hey SEPIA' will NOT be loaded on start.");
             }, SepiaFW.wakeTriggers.autoLoadWakeWord)
         );
+        var wakeWordDuringStream = document.getElementById('sepiaFW-wake-word-during-stream-box');
+        wakeWordDuringStream.appendChild(SepiaFW.ui.build.toggleButton('sepiaFW-menu-toggle-wake-word-during-stream', 
+            function(){
+                var question = "Please note: On some system (especially mobile) this can lead to sound artifacts or problems with the output channel. Continue?";
+                SepiaFW.ui.askForConfirmation(question, function(){
+                    //ok
+                    SepiaFW.wakeTriggers.allowWakeWordDuringStream = true;
+                    SepiaFW.data.set('allowWakeWordDuringStream', true);
+                    SepiaFW.debug.info("Wake-word 'Hey SEPIA' will be allowed during audio streaming.");
+                }, function(){
+                    //no - reset button
+                    SepiaFW.ui.build.toggleButtonSetState('sepiaFW-menu-toggle-wake-word-during-stream', "off");
+                });
+            },function(){
+                SepiaFW.wakeTriggers.allowWakeWordDuringStream = false;
+                SepiaFW.data.set('allowWakeWordDuringStream', false);
+                SepiaFW.debug.info("Wake-word 'Hey SEPIA' will NOT be allowed during audio stream.");
+            }, SepiaFW.wakeTriggers.allowWakeWordDuringStream)
+        );
         var wakeWordDebug = document.getElementById('sepiaFW-wake-word-debug-box');
         wakeWordDebug.appendChild(SepiaFW.ui.build.toggleButton('sepiaFW-menu-toggle-wake-word-debug', 
             function(){
@@ -119,6 +138,16 @@ function sepiaFW_build_wake_word_settings() {
         
         //Wake-word listener for testing
         document.addEventListener("sepia_wake_word", wakeWordTest);
+
+        //check button states
+        if (SepiaFW.wakeTriggers.engineLoaded){
+            isListening = SepiaFW.wakeTriggers.isListening();
+            if (isListening){
+                document.getElementById('sepiaFW-wake-word-toggle').innerHTML = "STOP";
+            }else{
+                document.getElementById('sepiaFW-wake-word-toggle').innerHTML = "START";
+            }
+        }
     }
 
     //ON-CLOSE

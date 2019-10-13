@@ -126,13 +126,13 @@ public class CDVSpeechRecognitionViewController: UIViewController, SFSpeechRecog
         let url = Bundle.main.url(forAuxiliaryExecutable: self.micOpenDest)!
         do {
             let audioSession = AVAudioSession.sharedInstance()
-            try audioSession.setCategory(AVAudioSessionCategoryPlayback)
+            try audioSession.setCategory(AVAudioSession.Category.playback)
 
 			if #available(iOS 9, *) {
-				try audioSession.setMode(AVAudioSessionModeSpokenAudio)
+                try audioSession.setMode(AVAudioSession.Mode.spokenAudio)
 			}
 
-            try audioSession.setActive(true, with: .notifyOthersOnDeactivation)
+            try audioSession.setActive(true)
 
             player = try AVAudioPlayer(contentsOf: url)
             guard let player = player else { return }
@@ -148,11 +148,11 @@ public class CDVSpeechRecognitionViewController: UIViewController, SFSpeechRecog
     private func playMicSoundOff() {
         do {
             let audioSession = AVAudioSession.sharedInstance()
-            try audioSession.setCategory(AVAudioSessionCategoryPlayback)
+            try audioSession.setCategory(AVAudioSession.Category.playback)
 			if #available(iOS 9, *) {
-            	try audioSession.setMode(AVAudioSessionModeSpokenAudio)
+                try audioSession.setMode(AVAudioSession.Mode.spokenAudio)
 			}
-            try audioSession.setActive(true, with: .notifyOthersOnDeactivation)
+            try audioSession.setActive(true)
 
             /*
             let url = Bundle.main.url(forAuxiliaryExecutable: self.micCloseDest)!
@@ -188,13 +188,13 @@ public class CDVSpeechRecognitionViewController: UIViewController, SFSpeechRecog
         startVibration(startV: true)
 
         let audioSession = AVAudioSession.sharedInstance()
-        try audioSession.setCategory(AVAudioSessionCategoryRecord)
-        try audioSession.setMode(AVAudioSessionModeMeasurement)
-        try audioSession.setActive(true, with: .notifyOthersOnDeactivation)
+        try audioSession.setCategory(AVAudioSession.Category.record)
+        try audioSession.setMode(AVAudioSession.Mode.measurement)
+        try audioSession.setActive(true)
 
         recognitionRequest = SFSpeechAudioBufferRecognitionRequest()
 
-        guard let inputNode = audioEngine.inputNode else { fatalError("Audio engine has no input node") }
+        
 
         guard let recognitionRequest = recognitionRequest else { fatalError("Unable to created a SFSpeechAudioBufferRecognitionRequest object") }
 
@@ -221,7 +221,7 @@ public class CDVSpeechRecognitionViewController: UIViewController, SFSpeechRecog
                 self.delegate?.returnResult(statusIsOK: true, returnString: "", messageType: "end")
                 self.audioEngine.stop()
                 self.recognitionRequest?.endAudio()
-                inputNode.removeTap(onBus: 0)
+                self.audioEngine.inputNode.removeTap(onBus: 0)
                 self.recognitionRequest = nil
                 self.recognitionTask = nil
                 self.startVibration(startV: false)
@@ -232,8 +232,8 @@ public class CDVSpeechRecognitionViewController: UIViewController, SFSpeechRecog
         })
         self.startTimer()
 
-        let recordingFormat = inputNode.outputFormat(forBus: 0)
-        inputNode.installTap(onBus: 0, bufferSize: 1024, format: recordingFormat) { (buffer: AVAudioPCMBuffer, when: AVAudioTime) in
+        let recordingFormat = audioEngine.inputNode.outputFormat(forBus: 0)
+        audioEngine.inputNode.installTap(onBus: 0, bufferSize: 1024, format: recordingFormat) { (buffer: AVAudioPCMBuffer, when: AVAudioTime) in
             self.recognitionRequest?.append(buffer)
         }
         self.delegate?.returnResult(statusIsOK: true, returnString: "", messageType: "speechstart")
@@ -297,7 +297,7 @@ public class CDVSpeechRecognitionViewController: UIViewController, SFSpeechRecog
         }
     }
 
-    func InterruptEvent() {
+    @objc func InterruptEvent() {
         if audioEngine.isRunning {
             audioEngine.stop()
             recognitionRequest?.endAudio()

@@ -156,12 +156,17 @@ function sepiaFW_build_ui_build(){
 	
 	//Confirm box
 	Build.askConfirm = function(msg, okCallback, abortCallback){
-		var r = confirm(msg);
+		/* var r = confirm(msg);
 		if (r == true) {
 			if (okCallback) okCallback();
 		} else {
 			if (abortCallback) abortCallback();
-		}
+		} */
+		SepiaFW.ui.askForConfirmation(msg, function(){
+			if (okCallback) okCallback();
+		}, function(){
+			if (abortCallback) abortCallback();
+		});
 	}
 	
 	//MAIN UI FUNCTIONALITY
@@ -285,7 +290,7 @@ function sepiaFW_build_ui_build(){
 		//Send message if enter is pressed in the input field
 		var chatInput = document.getElementById("sepiaFW-chat-input");
 		if (chatInput){
-			chatInput.placeholder = SepiaFW.local.chatInputPlaceholder;
+			chatInput.placeholder = SepiaFW.local.g('chatInputPlaceholder');
 			$(chatInput).off()
 			//pressed RETURN
 			.on("keypress", function(e){
@@ -1209,6 +1214,10 @@ function sepiaFW_build_ui_build(){
 			userList.forEach(function (user) {
 				var entryClass = "";
 				var name = user.name; 		//TODO: distinguish identical names
+				//prevent names that are like IDs
+				if (SepiaFW.account.stringLooksLikeAnID(name)){
+					name = "ID:" + name;
+				}
 				if ($.inArray(user.id + "_" + user.deviceId, avoidDoubles) == -1){
 					if (user.id === userId && user.deviceId === deviceId){
 						entryClass = "me";
@@ -1590,9 +1599,11 @@ function sepiaFW_build_ui_build(){
 		var article = document.createElement('ARTICLE');
 		article.className = 'statusUpdate';
 		if (isErrorMessage){
+			//error message
 			article.className += ' errorMsg';
 			block.className += ' error';
 		}else{
+			//everything else is status message
 			block.className += ' info';
 			if (!SepiaFW.ui.showChannelStatusMessages){
 				block.className += ' hidden-by-settings';

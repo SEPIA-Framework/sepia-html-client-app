@@ -70,15 +70,24 @@ function sepiaFW_build_android(){
         if (Android.lastRequestMediaAppPackage){
             intent.package = Android.lastRequestMediaAppPackage;
         }
+        var tried;
         if (requireMediaAppPackage && intent.package){
             Android.intentBroadcast(intent);
-            return true;    //sent
+            tried = true;    //sent
         }else if (!requireMediaAppPackage){
             Android.intentBroadcast(intent);
-            return true;    //sent
+            tried = true;    //sent
         }else{
-            return false;   //not sent
+            tried = false;   //not sent
         }
+        if (tried){
+            if (code == 127){
+                SepiaFW.audio.broadcastAudioEvent("android-intent", "stop", undefined);
+            }else if (code == 126 || code == 87 || code == 88){
+                SepiaFW.audio.broadcastAudioEvent("android-intent", "start", undefined);
+            }
+        }
+        return tried;
     }
     //Simulate donw-up key event (some apps won't accept only one event)
     Android.broadcastMediaButtonDownUpIntent = function(code, requireMediaAppPackage){

@@ -4,8 +4,12 @@ function sepiaFW_build_wake_triggers() {
 	
 	WakeTriggers.useWakeWord = false;		//allows to use client side and remote wake-word trigger
 	WakeTriggers.autoLoadWakeWord = false;	//load wake-word on app start?
+	WakeTriggers.allowWakeWordDuringStream = false;		//activate wake-word during audio streaming (e.g. music)?
 	WakeTriggers.engine = "Porcupine";		//active engine
 	WakeTriggers.engineLoaded = false;
+
+	//timers
+	var switchOnWakeWordTimer = undefined;
 
 	//Broadcasting
 
@@ -46,9 +50,35 @@ function sepiaFW_build_wake_triggers() {
 		if (wwSensitivity != undefined){
 			WakeTriggers.setWakeWordSensitivities(wwSensitivity);
 		}
+		//allow during audio stream?
+		WakeTriggers.allowWakeWordDuringStream = SepiaFW.data.get('allowWakeWordDuringStream');
+		if (typeof WakeTriggers.allowWakeWordDuringStream == 'undefined') WakeTriggers.allowWakeWordDuringStream = false;
+		SepiaFW.debug.info("Wake-word during audio streaming is " + ((WakeTriggers.allowWakeWordDuringStream)? "ALLOWED" : "NOT ALLOWED"));
 
 		//Add onActive action:
-        SepiaFW.client.addOnActiveOneTimeAction(wakeTriggersOnActiveAction);
+		SepiaFW.client.addOnActiveOneTimeAction(wakeTriggersOnActiveAction);
+		
+		//Event listeners
+		document.addEventListener('sepia_audio_player_event', function(e){
+			if (e.detail){
+				//console.error(e.detail);
+				if (WakeTriggers.useWakeWord && WakeTriggers.engineLoaded){
+					//Audio player start
+					if (e.detail.action == "start" || e.detail.action == "resume"){
+						if (WakeTriggers.isListening() && !WakeTriggers.allowWakeWordDuringStream){
+							SepiaFW.debug.info("WakeTriggers - Stopping wake-word listener due to audio player '" + e.detail.action + "' event");
+							WakeTriggers.stopListeningToWakeWords();
+						}
+					//Audio player stop
+					}else if (e.detail.action == "stop" || e.detail.action == "pause"){
+						if ((SepiaFW.animate.assistant.getState() == "idle") && !WakeTriggers.isListening()){
+							SepiaFW.debug.info("WakeTriggers - Scheduling wake-word listener restart due to audio player '" + e.detail.action + "' event");
+							WakeTriggers.listenToWakeWords(undefined, undefined, true);
+						}
+					}
+				}
+			}
+		}, true);
 	}
 	function wakeTriggersOnActiveAction(){
 		//start setup?
@@ -83,9 +113,25 @@ function sepiaFW_build_wake_triggers() {
 		}
 	}
 	
-	WakeTriggers.listenToWakeWords = function(onSuccessCallback, onErrorCallback){
-		//Porcupine integration
-		ppListenToWakeWords(onSuccessCallback, onErrorCallback);
+	WakeTriggers.listenToWakeWords = function(onSuccessCallback, onErrorCallback, doDelayAndCheck){
+		if (doDelayAndCheck){
+			if (switchOnWakeWordTimer) clearTimeout(switchOnWakeWordTimer);
+			//set delay time depending on device type
+			var switchOnWakeWordTimerDelay = (SepiaFW.ui.isMobile)? 3000 : 1500;
+			switchOnWakeWordTimer = setTimeout(function(){
+				var isAudioStreamActive = SepiaFW.audio.isAnyAudioSourceActive();
+				//console.error("Audio playing? " + isAudioStreamActive);		//DEBUG
+				if (isAudioStreamActive && !WakeTriggers.allowWakeWordDuringStream){
+					return;
+				}else if (WakeTriggers.useWakeWord && WakeTriggers.engineLoaded && !WakeTriggers.isListening() && (SepiaFW.animate.assistant.getState() == "idle")){
+					//call without delay NOW
+					WakeTriggers.listenToWakeWords(onSuccessCallback, onErrorCallback, false);
+				}
+			}, switchOnWakeWordTimerDelay);
+		}else{
+			//Porcupine integration
+			ppListenToWakeWords(onSuccessCallback, onErrorCallback);
+		}
 	}
 	WakeTriggers.isListening = function(){
 		//Porcupine integration
@@ -93,6 +139,7 @@ function sepiaFW_build_wake_triggers() {
 	}
 	
 	WakeTriggers.stopListeningToWakeWords = function(onSuccessCallback, onErrorCallback){
+		if (switchOnWakeWordTimer) clearTimeout(switchOnWakeWordTimer);
 		//Porcupine integration
 		ppStopListeningToWakeWords(onSuccessCallback, onErrorCallback);
 	}
@@ -128,6 +175,7 @@ function sepiaFW_build_wake_triggers() {
 	var ppSensitivities = new Float32Array([0.50]); 	//1: low threshold, 0.1: high threshold
 	var ppKeywordNames = Object.keys(ppKeywordIDs);
 	var ppIsListening = false;
+	SepiaFW.animate.wakeWord.inactive();
 	
 	var ppAudioManager;
 	
@@ -148,6 +196,7 @@ function sepiaFW_build_wake_triggers() {
 			ppAudioManager = new PicovoiceAudioManager();
 		}
 		ppAudioManager.start(Porcupine.create(Object.values(ppKeywordIDs), ppSensitivities), onSuccessCallback, onErrorCallback);
+		SepiaFW.animate.wakeWord.active();
 	}
 
     function ppStopListeningToWakeWords(onSuccessCallback, onErrorCallback){
@@ -158,6 +207,7 @@ function sepiaFW_build_wake_triggers() {
 			//give the audio manager some time to react
 			ppIsListening = false;
 			if (onSuccessCallback) onSuccessCallback();
+			SepiaFW.animate.wakeWord.inactive();
 		}, 300);
     }
 	
@@ -172,9 +222,19 @@ function sepiaFW_build_wake_triggers() {
     }
 	function defaultPpErrorCallback(ex){
 		ppIsListening = false;
-		var errMsg = ex.toString();
+		SepiaFW.animate.wakeWord.inactive();
+		var errMsg = "?";
+		if (ex && typeof ex == "string"){
+			errMsg = ex;
+		}else if (ex && typeof ex == "object" && (ex.error || ex.message || ex.msg)){
+			errMsg = ex.error || ex.message || ex.msg;
+		}else if (ex && typeof ex == "object"){
+			try {
+				errMsg = JSON.stringify(ex);
+			}catch(err){}
+		}
 		SepiaFW.debug.error("Porcupine: " + errMsg);
-		alert("Porcupine: " + errMsg);
+		SepiaFW.ui.showPopup("Porcupine error: " + errMsg);
     };
 	
 	//-------------------------------------------------

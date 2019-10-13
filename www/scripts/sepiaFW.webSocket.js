@@ -1480,7 +1480,7 @@ function sepiaFW_build_webSocket_client(){
 					receiver = recUid;		//we should set receiver in any case to prevent a public message
 				}
 				res.shift();
-				text = res.join(" ");
+				text = res.join(" ").trim();
 			
 			//locked receiver overwrite
 			}else if (activeChatPartner && !hasSpecialCommand){
@@ -1551,10 +1551,12 @@ function sepiaFW_build_webSocket_client(){
 	}
 	
 	Client.getActiveChannelUsersByIdOrName = function(nameOrId){
+		nameOrId = nameOrId.toLowerCase();
+		var id = SepiaFW.account.stringLooksLikeAnID(nameOrId)? nameOrId : "";
 		var receivers = [];
 		if (nameOrId){
 			$.each(userList, function(index, u){
-				if (nameOrId.toLowerCase() === u.name.toLowerCase() || nameOrId.toLowerCase() === u.id.toLowerCase()){
+				if ((id && id === u.id.toLowerCase()) || nameOrId === u.name.toLowerCase()){
 					receivers.push(u);
 				}
 			});
@@ -1739,7 +1741,10 @@ function sepiaFW_build_webSocket_client(){
 		var cmd = dataset.cmd;
 		//the sender becomes the receiver - This workds because dataset is usually an 
 		//action received from the assistant ... but it is kind of inconsistent with the rest :-(
-		var receiver = dataset.newReceiver || dataset.sender || ''; 	//we use newReceiver to fix the inconsistency (a bit)
+		var receiver = dataset.newReceiver || dataset.sender || SepiaFW.assistant.id; 	//we use newReceiver to fix the inconsistency (a bit)
+		if (receiver == "<all>"){
+			receiver = "";
+		}
 		//TODO: handle options in dataset?
 		if (dataset.options){
 			$.each(options, function(key, value){
@@ -1967,27 +1972,44 @@ function sepiaFW_build_webSocket_client(){
 					var day = undefined;
 					var showedNew = false;
 					var lastMsgTS = lastChannelMessageTimestamps[message.data.channelId];
+					var numOfMsg = message.data.channelHistory.length;
+					var n = 0;
 					message.data.channelHistory.forEach(function(msg){
+						var isNew = false;
 						if (msg.timeUNIX){
 							//add day name
 							var d = new Date(msg.timeUNIX);
 							var thisDay = d.getDay();
 							if (thisDay != day){
 								day = thisDay;
-								var customTag = "weekday-note-" + SepiaFW.tools.getLocalDateWithCustomSeparator("-");
+								var customTag = "weekday-note-" + SepiaFW.tools.getLocalDateWithCustomSeparator("-", msg.timeUNIX);
 								//... but only if we haven't already
 								if ($("#sepiaFW-chat-output").find('[data-channel-id=' + message.data.channelId + ']').filter('[data-msg-custom-tag=' + customTag + ']').length == 0){
 									var weekdayName = SepiaFW.local.getWeekdayName(day) + " " + d.toLocaleDateString();
 									SepiaFW.ui.showInfo(weekdayName, false, customTag, true, message.data.channelId);	//SepiaFW.local.g('history')
 								}
 							}
-							//add unread note - TODO: place this at correct position
-							if (!showedNew && (!lastMsgTS || msg.timeUNIX > lastMsgTS)){
+							//add unread note
+							isNew = (!lastMsgTS || msg.timeUNIX > lastMsgTS);		//TODO: I think due to some ms time difference in server and client this can fail sometimes
+							if (isNew && msg.sender && msg.sender == SepiaFW.account.getUserId()){
+								//we don't need to mark own messages
+								isNew = false;
+								//TODO: there is a curious bug somewhere that messes with 'lastChannelMessageTimestamps' sometimes so last read msg is shown, idk where :-/
+							}
+							if (isNew && !showedNew){
 								SepiaFW.ui.showInfo(SepiaFW.local.g('newMessages'), false, "unread-note", true, message.data.channelId);
 								showedNew = true;
 							}
 						}
-						SepiaFW.ui.showCustomChatMessage(msg.text, msg); 
+						n++;
+						var isLast = (n == numOfMsg);
+						var options = {
+							displayOptions: {
+								skipAnimation: !isLast,
+								beSilent: !isNew
+							}
+						}
+						SepiaFW.ui.showCustomChatMessage(msg.text, msg, options); 
 					});
 				}
 				

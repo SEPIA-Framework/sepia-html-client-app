@@ -21,70 +21,88 @@ DEALINGS IN THE SOFTWARE.
 
 (function (window) {
 
-    var Recorder = function (source) {
-        var bufferLen = 4096;
+    var Recorder = function(source, audioProcessor, startFun, stopFun) {
         var websocket;
-        this.context = source.context;
-        if (!this.context.createScriptProcessor) {
-            this.node = this.context.createJavaScriptNode(bufferLen, 2, 2);
-        } else {
-            this.node = this.context.createScriptProcessor(bufferLen, 2, 2);
-        }
+        var audioContext = source.context;
+        var inputSampleRate = (audioContext)? audioContext.sampleRate : source.sampleRate;
+        var outputSampleRate = 16000;
 
         var recording = false;
-		
-        this.node.onaudioprocess = function (e) {
+
+        function processAudio(inputAudioFrame){
             if (!recording) return;
 
-            var inputL = e.inputBuffer.getChannelData(0);
-            var length = Math.floor(inputL.length / 3);
-            var result = new Float32Array(length);
-
-            var index = 0,
-              inputIndex = 0;
-
-            while (index < length) {
-                result[index++] = inputL[inputIndex];
-                inputIndex += 3;
-            }
+            //downsample
+            var result = downsampleFloat32(inputAudioFrame, inputSampleRate, outputSampleRate);
 
             var offset = 0;
-            var buffer = new ArrayBuffer(length * 2);
+            var buffer = new ArrayBuffer(result.length * 2);
             var view = new DataView(buffer);
-            for (var i = 0; i < result.length; i++, offset += 2) {
-                var s = Math.max(-1, Math.min(1, result[i]));
-                view.setInt16(offset, s < 0 ? s * 0x8000 : s * 0x7FFF, true);
-            }
+            floatTo16BitPCM(view, offset, result);
 
-			//console.log('Recorder onaudioprocess - view: ' + view); 		//DEBUG
-            websocket.send(view);
+            //console.log('Recorder onaudioprocess - view: ' + view); 		//DEBUG
+            if (websocket){
+                websocket.send(view);
+            }
         }
 
-        //Move this to 'start'?
-        source.connect(this.node);
+        //Custom
+        if (audioProcessor && startFun && stopFun){
+            audioProcessor.onaudioprocess = function(inputAudioFrame){
+                processAudio(inputAudioFrame);
+            }
+        //Web-Audio
+        }else if (audioContext){
+            var bufferLen = 4096;
+            let processNode;
+            if ('createScriptProcessor' in audioContext){
+                processNode = audioContext.createScriptProcessor(bufferLen, 1, 1);
+            }else if ('createJavaScriptNode' in audioContext){
+                processNode = audioContext.createJavaScriptNode(bufferLen, 1, 1);
+            }else{
+                console.error("Recorder - cannot create an audio processor!");
+                return;
+            }
+            processNode.onaudioprocess = function(e) {
+                var inputAudioFrame = e.inputBuffer.getChannelData(0);
+                processAudio(inputAudioFrame);
+            }
+            startFun = function(){
+                source.connect(processNode);
+                processNode.connect(audioContext.destination);      //if the script node is not connected to an output the "onaudioprocess" event is not triggered in chrome.
+            }
+            stopFun = function(){
+                source.disconnect(processNode);
+                processNode.disconnect(audioContext.destination);
+                //processNode.disconnect();
+            }
+        //Error
+        }else{
+            console.error('Recorder - no valid audio processor found!');
+            return;
+        }
 
         //Will be called at beginning of SepiaFW.audioRecorder.start();
-        this.start = function() {
-            this.node.connect(this.context.destination);   // if the script node is not connected to an output the "onaudioprocess" event is not triggered in chrome.
+        this.start = function(){
+            recording = true;
+            startFun();
         }
 
         //Will be called at beginning of SepiaFW.audioRecorder.stop();
-        this.stop = function () {
+        this.stop = function(){
             recording = false;
-            this.node.disconnect(0);
+            stopFun();
         }
 
-        this.record = function (ws) {
+        this.connect = function(ws){
             websocket = ws;
-            recording = true;
 			//console.log('Recorder record - ws: ' + ws); 		//DEBUG
-			//console.log(this.node);							//DEBUG
+			//console.log(processNode);							//DEBUG
         }
 
-        this.sendHeader = function (ws) {
+        this.sendHeader = function(ws){
             var sampleLength = 1000000;
             var mono = true;
-            var sampleRate = 16000;                 //TODO: this might not be true! We cannot guarantee that!
             var buffer = new ArrayBuffer(44);
             var view = new DataView(buffer);
 
@@ -103,9 +121,9 @@ DEALINGS IN THE SOFTWARE.
             //channel count
             view.setUint16(22, mono ? 1 : 2, true);
             //sample rate
-            view.setUint32(24, sampleRate, true);
+            view.setUint32(24, outputSampleRate, true);
             //byte rate (sample rate * block align)
-            view.setUint32(28, sampleRate * 2, true);
+            view.setUint32(28, outputSampleRate * 2, true);
             //block align (channel count * bytes per sample)
             view.setUint16(32, 2, true);
             //bits per sample
@@ -118,11 +136,78 @@ DEALINGS IN THE SOFTWARE.
 			//console.log('Recorder sendHeader - view: ' + view); 		//DEBUG
             ws.send(view);
         }
-		function writeString(view, offset, string) {
-			for (var i = 0; i < string.length; i++) {
+        
+        //--- conversion methods ---
+
+        function writeString(view, offset, string){
+			for (let i = 0; i < string.length; i++){
 				view.setUint8(offset + i, string.charCodeAt(i));
 			}
-		}
+        }
+
+        function floatTo16BitPCM(output, offset, input){
+            for (let i = 0; i < input.length; i++, offset += 2){
+                let s = Math.max(-1, Math.min(1, input[i]));
+                output.setInt16(offset, s < 0 ? s * 0x8000 : s * 0x7FFF, true);
+            }
+        }
+
+        function downsampleAndConvertToInt16(buffer, sampleRate, outSampleRate){
+            if (outSampleRate == sampleRate){
+                return buffer;
+            }
+            if (outSampleRate > sampleRate){
+                console.error("Recorder - Downsampling to " + outSampleRate + " failed! Input sampling rate was too low: " + sampleRate);
+                return buffer;
+            }
+            var sampleRateRatio = sampleRate / outSampleRate;
+            var newLength = Math.round(buffer.length / sampleRateRatio);
+            var result = new Int16Array(newLength);
+            var offsetResult = 0;
+            var offsetBuffer = 0;
+            while (offsetResult < result.length){
+                var nextOffsetBuffer = Math.round((offsetResult + 1) * sampleRateRatio);
+                var accum = 0, count = 0;
+                for (var i = offsetBuffer; i < nextOffsetBuffer && i < buffer.length; i++){
+                    accum += buffer[i];
+                    count++;
+                }
+                result[offsetResult] = Math.min(1, accum / count)*0x7FFF;
+                offsetResult++;
+                offsetBuffer = nextOffsetBuffer;
+            }
+            return result.buffer;
+        }
+        function downsampleFloat32(array, sampleRate, outSampleRate){
+            if (outSampleRate == sampleRate){
+                var result = new Float32Array(array.length);
+                for (let i = 0 ; i < array.length ; i++){
+                    result[i] = array[i];
+                }
+                return array;
+            }
+            if (outSampleRate > sampleRate){
+                console.error("Recorder - Downsampling to " + outSampleRate + " failed! Input sampling rate was too low: " + sampleRate);
+                return downsampleFloat32(array, sampleRate, sampleRate);
+            }
+            var sampleRateRatio = sampleRate / outSampleRate;
+            var newLength = Math.round(array.length / sampleRateRatio);
+            var result = new Float32Array(newLength);
+            var offsetResult = 0;
+            var offsetBuffer = 0;
+            while (offsetResult < result.length){
+                var nextOffsetBuffer = Math.round((offsetResult + 1) * sampleRateRatio);
+                var accum = 0, count = 0;
+                for (var i = offsetBuffer; i < nextOffsetBuffer && i < array.length; i++){
+                    accum += array[i];
+                    count++;
+                }
+                result[offsetResult] = accum / count;
+                offsetResult++;
+                offsetBuffer = nextOffsetBuffer;
+            }
+            return result;
+        }
     };
 
     window.RecorderJS = Recorder;

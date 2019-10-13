@@ -36,6 +36,7 @@ function sepiaFW_build_strings(){
 	StringsDE.loginFailedPlain = 'Login fehlgeschlagen!';
 	StringsDE.loginFailedServer = 'Login fehlgeschlagen! - Das Problem könnte der Server sein.';
 	StringsDE.loginFailedUser = 'Login fehlgeschlagen! - Username oder Password ist falsch.';
+	StringsDE.loginFailedBlocked = 'Login fehlgeschlagen! - Zu viele fehlgeschlagene Versuche. Bitte etwas warten.';
 	StringsDE.logoutAndReload = 'Diese Aktion erfordert einen Log-out und App Neustart.';
 	StringsDE.noConnectionToNetwork = 'Es tut mir leid, aber sieht so aus als wärest du offline :-(';
 	StringsDE.connecting = 'Verbindung wird hergestellt ...';
@@ -182,6 +183,7 @@ function sepiaFW_build_strings(){
 	StringsEN.loginFailedPlain = 'Login failed!';
 	StringsEN.loginFailedServer = 'Login failed! - Problem could be the server.';
 	StringsEN.loginFailedUser = 'Login failed! - Wrong username or password.';
+	StringsEN.loginFailedBlocked = 'Login failed! - Too many failed attempts. Please wait a bit.';
 	StringsEN.logoutAndReload = 'This action requires a log-out and app reload.';
 	StringsEN.noConnectionToNetwork = 'I\'m sorry but it seems that you are offline :-(';
 	StringsEN.connecting = 'Connecting ...';
@@ -191,7 +193,7 @@ function sepiaFW_build_strings(){
 	StringsEN.noConnectionOrNoCredentials = 'Connection was lost or credentials became invalid. You can wait and try it again, reload the app or login again.';
 	StringsEN.messageLost = 'The last message could not be delivered';
 	StringsEN.noAsrSupport = 'I\'m sorry but this client does not support speech recognition :-(';
-	StringsEN.asrMissingServer = 'I\'m missing some server info to user this speech recognition engine, please check the settings again (ASR server).';
+	StringsEN.asrMissingServer = 'I\'m missing some server info to use this speech recognition engine, please check the settings again (ASR server).';
 	StringsEN.asrSettingsProblem = 'Microphone has not been recognized properly or access was denied.';
 	StringsEN.nobodyThere = 'Uups, sorry but it seems there is nobody here to answer your message :-(';
 	StringsEN.userNotFound = 'Uups, this user seems to be not available right now :-(';
@@ -302,20 +304,23 @@ function sepiaFW_build_strings(){
 	//--------------------------------------------------------
 	
 	var StringsLocale = {};
-	if (SepiaFW.config.appLanguage.toLowerCase() === "de"){
-		StringsLocale = StringsDE;
-	}else{
-		StringsLocale = StringsEN;
-	}
 	
 	//get string
 	StringsLocale.g = function(name){
-		return StringsLocale[name];
+		if (SepiaFW.config.appLanguage.toLowerCase() === "de"){
+			return StringsDE[name];
+		}else{
+			return StringsEN[name];
+		}
 	}
 	
 	//write string
 	StringsLocale.w = function(name){
-		document.write(StringsLocale[name]);
+		if (SepiaFW.config.appLanguage.toLowerCase() === "de"){
+			document.write(StringsDE[name]);
+		}else{
+			document.write(StringsEN[name]);
+		}
 	}
 
 	//specials:

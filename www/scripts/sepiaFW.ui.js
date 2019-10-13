@@ -3,7 +3,7 @@ function sepiaFW_build_ui(){
 	var UI = {};
 	
 	//some constants
-	UI.version = "v0.19.0";
+	UI.version = "v0.19.1";
 	UI.requiresServerVersion = "2.3.0";
 	UI.JQ_RES_VIEW_IDS = "#sepiaFW-result-view, #sepiaFW-chat-output, #sepiaFW-my-view";	//a selector to get all result views e.g. $(UI.JQ_RES_VIEW_IDS).find(...) - TODO: same as $('.sepiaFW-results-container') ??
 	UI.JQ_ALL_MAIN_VIEWS = "#sepiaFW-result-view, #sepiaFW-chat-output, #sepiaFW-my-view, #sepiaFW-teachUI-editor, #sepiaFW-teachUI-manager, #sepiaFW-frame-page-0, #sepiaFW-frame-page-1, #sepiaFW-frame-page-2, #sepiaFW-frame-page-3"; 	//TODO: frames can have more ...
@@ -72,6 +72,30 @@ function sepiaFW_build_ui(){
 			},100);
 		}
 	}
+
+	//Listen to change of active element (Note: not very reliable)
+	UI.listenToActiveElementChange = function(){
+		window.addEventListener('focus', function(e){
+			dispatchActiveElementChangeEvent();
+		}, true);
+		window.addEventListener('blur', function(e){
+			dispatchActiveElementChangeEvent();
+		}, true);
+	}
+	function dispatchActiveElementChangeEvent(){
+		clearTimeout(activeElementChangeBuffer);
+		activeElementChangeBuffer = setTimeout(function(){
+			//note: cannot happen faster than every Xms
+			var event = new CustomEvent('sepia_active_element_change', { detail: {
+				id: document.activeElement.id,
+				className: document.activeElement.className,
+				tagName: document.activeElement.tagName
+			}});
+			document.dispatchEvent(event);
+			//console.error("new active ele.: " + (document.activeElement.id || document.activeElement.className || document.activeElement.tagName));
+		}, 100);
+	}
+	var activeElementChangeBuffer = undefined;
 
 	//Open a view or frame by key (e.g. for URL parameter 'view=xy')
 	UI.openViewOrFrame = function(openView){
@@ -242,6 +266,7 @@ function sepiaFW_build_ui(){
 		message.timeUNIX = data.timeUNIX;
 		message.data = data.data;
 		var cOptions = options.buildOptions || {};
+		var displayOptions = options.displayOptions || {};
 		var userId = SepiaFW.account.getUserId() || 'username';
 		
 		//build entry
@@ -256,7 +281,11 @@ function sepiaFW_build_ui(){
 			var targetViewName = cOptions.targetView || "chat";
 			var resultView = UI.getResultViewByName(targetViewName);
 			//add to view
-			UI.addDataToResultView(resultView, cEntry);
+			var beSilent = displayOptions.beSilent || false;
+			var skipAnimation = displayOptions.skipAnimation || false;
+			var autoSwitchView = displayOptions.autoSwitchView || false;
+			var switchDelay = displayOptions.switchDelay || 0;
+			UI.addDataToResultView(resultView, cEntry, beSilent, autoSwitchView, switchDelay, skipAnimation);
 
 			//show results in frame as well? (SHOW ONLY!)
 			if (message.senderType === "assistant"){
@@ -579,9 +608,10 @@ function sepiaFW_build_ui(){
 		//listen to visibilityChangeEvent
 		UI.listenToVisibilityChange();
 		
-		//listen to mouse stuff
+		//listen to mouse stuff and active element
 		//UI.trackMouse();
 		//UI.trackTouch();
+		UI.listenToActiveElementChange();
 		
 		//execute stuff on ready:
 		
@@ -1062,6 +1092,20 @@ function sepiaFW_build_ui(){
 			}
 		});
 	}
+	UI.askForConfirmation = function(question, allowedCallback, refusedCallback){
+		UI.showPopup(question, {
+			buttonOneName : SepiaFW.local.g('ok'),
+			buttonOneAction : function(){
+				//yes
+				if (allowedCallback) allowedCallback();
+			},
+			buttonTwoName : SepiaFW.local.g('abort'),
+			buttonTwoAction : function(){
+				//no
+				if (refusedCallback) refusedCallback();
+			}
+		});
+	}
 	
 	//Test for support of special sepiaFW trigger events
 	UI.elementSupportsCustomTriggers = function(ele){
@@ -1507,21 +1551,27 @@ function sepiaFW_build_ui(){
 	}
 	//Add elements to certain result view
 	UI.maxChatMessages = 40;
-	UI.addDataToResultView = function(resultView, entryData, beSilent, autoSwitchView, switchDelay){
+	UI.addDataToResultView = function(resultView, entryData, beSilent, autoSwitchView, switchDelay, skipAnimation){
 		var target = resultView.target;
 		var $target = $('#' + target);
 		var paneNbr = resultView.paneNumber;
 		
 		if (paneNbr == 1){
-			UI.insertEle(target, entryData);
+			if (!skipAnimation && ((entryData.className.indexOf("hidden") >= 0) || window.getComputedStyle(entryData, null).getPropertyValue("display") == "none")){
+				skipAnimation = true; 	//force skip
+			}
+			UI.insertEle(target, entryData, skipAnimation);
 			//remove old message(s)?
 			var $allMessages = $target.find('.chatMsg').filter(":visible");
 			if (UI.maxChatMessages && UI.maxChatMessages <= $allMessages.length){
 				//remove old:
 				//$allMessages.slice(0, UI.maxChatMessages).hide();
 				$allMessages.first().hide();
+				//remove status message as well if first now? ... if its a day/date tag it should stay until directly followed by next day tag
 			}
-			UI.scrollToBottom(target);
+			if (!skipAnimation){
+				UI.scrollToBottom(target);
+			}
 			//check if we should show the missed message note bubble
 			if (!beSilent){
 				if (!UI.isVisible() 
