@@ -9,6 +9,11 @@ function sepiaFW_build_account(){
 	var clientFirstVisit = true;
 	
 	var pwdIsToken = false;
+	var defaultIdPrefix = "uid";
+
+	var demoAccounts = {
+		"appstore": "eval20192X"
+	}
 	
 	//---- Account settings mapping (to simplify access) ----//
 	Account.USER_NAME = "uname";
@@ -124,7 +129,7 @@ function sepiaFW_build_account(){
 		if (userId){
 			return userId.split(/\d/,2)[0];
 		}else{
-			return undefined;
+			return defaultIdPrefix;
 		}
 	}
 	//does the given string look like an ID
@@ -448,6 +453,12 @@ function sepiaFW_build_account(){
 		}, 500, function(){
 			$(this).removeClass('sepiaFW-translucent-10');
 		});
+		//demo login?
+		var isDemoLogin = SepiaFW.data.get('isDemoLogin');
+		if (isDemoLogin){
+			skipLogin();
+			return;
+		}
 		//try restore from data-storage to avoid login popup - refresh required after e.g. 1 day = 1000*60*60*24
 		var account = SepiaFW.data.get('account');
 		var safe = false;
@@ -515,9 +526,7 @@ function sepiaFW_build_account(){
 		});
 		//close-button
 		var clsBtn = $("#sepiaFW-login-close").off().on("click", function(){
-			Account.toggleLoginBox();
-			broadcastEnterWithoutLogin();
-			Account.afterLogin();
+			skipLogin();
 		});
 		//hostname input field
 		var $hostInput = $("#sepiaFW-login-host-name");
@@ -561,6 +570,11 @@ function sepiaFW_build_account(){
 			}
 			//$('#sepiaFW-login-extend-box').hide();
 		});
+	}
+	function skipLogin(){
+		Account.toggleLoginBox();
+		broadcastEnterWithoutLogin();
+		Account.afterLogin();
 	}
 	function sendLoginFromBox(){
 		pwdIsToken = false;
@@ -755,6 +769,13 @@ function sepiaFW_build_account(){
 	//LOGIN
 	Account.login = function(userid, pwd, successCallback, errorCallback, debugCallback){
 		SepiaFW.ui.showLoader();
+		//demo login?
+		if (demoAccounts[userId] && pwd == demoAccounts[userId]){
+			SepiaFW.data.set('isDemoLogin', true);
+			SepiaFW.ui.hideLoader();
+			skipLogin();
+			return;
+		}
 		//hash password
 		if (pwd && !pwdIsToken){
 			//encrypt

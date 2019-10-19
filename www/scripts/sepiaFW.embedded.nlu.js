@@ -56,6 +56,14 @@ function sepiaFW_build_embedded_nlu(){
 			}else if (text.match(/(radio|music|musik)/i)){
 				getRadioCmd(nluResult, text);
 			
+			//Timer
+			}else if (text.match(/(timer|alarm|reminder|remind me|wecker|erinnerung|erinnere mich)/i)){
+				getTimerCmd(nluResult, text);
+
+			//Weather
+			}else if (text.match(/(weather|sun|rain|umbrella|wetter|sonne|regen|regnen)/i)){
+				getWeatherCmd(nluResult, text);
+			
 			//Websearch
 			}else if (text.match(/(search|find|such(e|)|finde|link|^http(s|):.*)\b/i)){
 				getOpenLinkCmd(nluResult, text);
@@ -150,6 +158,35 @@ function sepiaFW_build_embedded_nlu(){
 			"action": "<on>"
 		};
 		nluResult.command = "music_radio";
+		return nluResult;
+	}
+
+	//Weather
+	function getWeatherCmd(nluResult, inputText){
+		nluResult.result = "success";
+		nluResult.context = "weather";
+		nluResult.parameters = {
+			"time": "",
+			"place": ""
+		};
+		nluResult.command = "weather";
+		return nluResult;
+	}
+
+	//Timer
+	function getTimerCmd(nluResult, inputText){
+		var type = "<alarmClock>";
+		if (!!inputText.match(/timer/i)){
+			type = "<timer>";
+		}
+		var action = "<show>";
+		nluResult.result = "success";
+		nluResult.context = "timer";
+		nluResult.parameters = {
+			"action": action,
+			"alarm_type": type
+		};
+		nluResult.command = "timer";
 		return nluResult;
 	}
 	

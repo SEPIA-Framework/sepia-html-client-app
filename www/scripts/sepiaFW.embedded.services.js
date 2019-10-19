@@ -39,11 +39,23 @@ function sepiaFW_build_embedded_services(){
 			
 			//Alarm/Timer/Reminder etc.
 			}else if (nluResult.command == "timer"){
-				if (nluResult.parameters.alarm_type == "<alarmClock>"){
-					serviceResult = Services.alarm(nluInput, nluResult);
-				}else{
+				serviceResult = Services.alarm(nluInput, nluResult);
+				if (!serviceResult){
 					//not yet supported
+					serviceResult = notPossibleInDemo(nluInput, nluResult);
 				}
+
+			//News
+			}else if (nluResult.command == "news"){
+				serviceResult = Services.news(nluInput, nluResult);
+
+			//Radio
+			}else if (nluResult.command == "music_radio"){
+				serviceResult = Services.radio(nluInput, nluResult);
+
+			//Weather
+			}else if (nluResult.command == "weather"){
+				serviceResult = Services.weather(nluInput, nluResult);
 
 			//Link
 			}else if (nluResult.command == "open_link"){
@@ -55,14 +67,17 @@ function sepiaFW_build_embedded_services(){
 
 			//Other
 			}else{
-				var answerText = SepiaFW.local.g('notPossibleInDemoMode');
-				serviceResult = Services.buildServiceResult(
-					nluInput.user, nluInput.language, 
-					nluResult.command, answerText, '', '', ''
-				);
+				serviceResult = notPossibleInDemo(nluInput, nluResult);
 			}
 		}
 		return serviceResult;
+	}
+	function notPossibleInDemo(nluInput, nluResult){
+		var answerText = SepiaFW.local.g('notPossibleInDemoMode');
+		return Services.buildServiceResult(
+			nluInput.user, nluInput.language, 
+			nluResult.command, answerText, '', '', ''
+		);
 	}
 
 	//Personal events/recommendations service
@@ -107,11 +122,82 @@ function sepiaFW_build_embedded_services(){
 	Services.alarm = function(nluInput, nluResult){
 		//Get dummy answer
 		var answerText = "Ok";
-		
-		//Get dummy list service-result
 		var serviceResult;
 		if (SepiaFW.offline){
-			var cardInfo = Services.buildAlarmCardInfoDummy(undefined, undefined, nluResult.language);
+			//Get dummy list service-result
+			var cardInfo;
+			if (nluResult.parameters.alarm_type == "<alarmClock>"){
+				cardInfo = Services.buildAlarmCardInfoDummy(undefined, undefined, nluResult.language);
+			}else if (nluResult.parameters.alarm_type == "<timer>"){
+				cardInfo = Services.buildTimerCardInfoDummy(undefined, undefined, nluResult.language);
+			}
+			if (cardInfo){
+				var actionInfo = "";
+				var htmlInfo = "";
+				serviceResult = Services.buildServiceResult(
+					nluInput.user, nluInput.language, 
+					nluResult.command, answerText, cardInfo, actionInfo, htmlInfo
+				);
+			}
+		}
+		return serviceResult;
+	}
+
+	//Embedded news service
+	Services.news = function(nluInput, nluResult){
+		//Get dummy answer
+		var answerText = "Ok";
+		
+		//Get dummy news list service-result
+		var serviceResult;
+		if (SepiaFW.offline){
+			var cardInfo = Services.buildNewsCardInfoDummy(nluResult.language);
+			var actionInfo = "";
+			var htmlInfo = "";
+			serviceResult = Services.buildServiceResult(
+				nluInput.user, nluInput.language, 
+				nluResult.command, answerText, cardInfo, actionInfo, htmlInfo
+			);
+		}
+		return serviceResult;
+	}
+
+	//Embedded radio service
+	Services.radio = function(nluInput, nluResult){
+		//Get dummy answer
+		var answerText = "Ok";
+		
+		//Get dummy weather service-result
+		var serviceResult;
+		if (SepiaFW.offline){
+			var cardInfo = Services.buildRadioCardInfoDummy(nluResult.language);
+			var actionInfo = [{
+				"audio_url": cardInfo[0].info[0].streamURL,
+				"type": "play_audio_stream",
+				"audio_title": cardInfo[0].info[0].name
+			}, {
+				"type": "button_in_app_browser",
+				"title": "Playlist",
+				"url": "http://www.size-radio.com"
+			}];
+			var htmlInfo = "";
+			serviceResult = Services.buildServiceResult(
+				nluInput.user, nluInput.language, 
+				nluResult.command, answerText, cardInfo, actionInfo, htmlInfo
+			);
+		}
+		return serviceResult;
+	}
+
+	//Embedded weather service
+	Services.weather = function(nluInput, nluResult){
+		//Get dummy answer
+		var answerText = "Ok";
+		
+		//Get dummy weather service-result
+		var serviceResult;
+		if (SepiaFW.offline){
+			var cardInfo = Services.buildWeatherCardInfoDummy(nluResult.language);
 			var actionInfo = "";
 			var htmlInfo = "";
 			serviceResult = Services.buildServiceResult(
@@ -240,12 +326,12 @@ function sepiaFW_build_embedded_services(){
 	}
 
 	//Build a collection of dummy alarms
-	Services.buildAlarmCardInfoDummy = function(id, alarmData, language){
-		var dateAdded = new Date().getTime() - 300000;
+	Services.buildAlarmCardInfoDummy = function(id, alarmData, language, cardInfoTitle){
 		var id = id || ("BCDEx123456"); 	//usually this is defined by database id generator
 		var data = alarmData;
 		if (!alarmData){
 			//dummy dates
+			var dateAdded = new Date().getTime() - 300000;
 			//5min
 			var time1 = (dateAdded + 600000);
 			var date1 = new Date(time1);
@@ -278,6 +364,7 @@ function sepiaFW_build_embedded_services(){
 		}
 		var user = "userid";
 
+		var title = cardInfoTitle || "alarmClock";
 		var cardInfo = [{
 			"cardType": "uni_list",
 			"N": 1,
@@ -286,11 +373,151 @@ function sepiaFW_build_embedded_services(){
 				"data": data,
 				"section": "timeEvents",
 				"_id": id,
-				"title": "alarmClock",
+				"title": title,
 				"type": "userDataList",
-				"lastEdit": dateAdded,
+				"lastEdit": new Date().getTime(),
 				"user": user,
 				"group": "alarms"
+			}]
+		}];
+		return cardInfo;
+	}
+	//Build a collection of dummy timers
+	Services.buildTimerCardInfoDummy = function(id, alarmData, language){
+		var id = id || ("BCDEy123456"); 	//usually this is defined by database id generator
+		if (!alarmData){
+			//dummy timers
+			var now = new Date().getTime();
+			alarmData = [{
+				"eleType": "timer",
+				"eventId": "timer-1-220",
+				"name": "Timer",
+				"type": "timer",
+				"info": "set",
+				"lastChange": now,
+				"targetTimeUnix": (now + 1000*60*30),
+				"activated": false
+			}];
+		}
+		var cardInfo = Services.buildAlarmCardInfoDummy(id, alarmData, language, "timer");
+		return cardInfo;
+	}
+
+	//Build a collection of dummy outlets
+	Services.buildNewsCardInfoDummy = function(language){
+		var cardInfo = [{
+			"cardType": "grouped_list",
+			"N": 1,
+			"info": [{
+				"image": "",
+				"nameClean": "HACKADAY",
+				"data": [{
+					"link": "https://hackaday.com/2019/10/07/dry-your-clothes-in-one-minute-or-less/",
+					"description": "<p>If you&#8217;re like most people, then washing clothes is probably a huge pain for you. Figuring out the odd number of minutes necessary to run a wash and dry cycle, trying desperately not to end up with clothes that are still wet, and worst of all having to wait <em>so</em> <a href=\"https://hackaday.com/2019/10/07/dry-your-clothes-in-one-minute-or-less/\" class=\"read_more\">&#8230;read more</a></p>",
+					"title": "Dry Your Clothes In One Minute or Less",
+					"pubDate": "2019.10.07_18:30:59"
+				}, {
+					"link": "https://hackaday.com/2019/10/07/ask-hackaday-whats-the-perfect-hacker-smart-watch/",
+					"description": "<p>Since <em>Dick Tracy</em> all the way back in &#8217;46, smart watches have captured the public imagination. After several false starts, the technology has gone through a renaissance in the last 10 years or so. For the average consumer, there&#8217;s been a proliferation of hardware in the marketplace, with scores of <a href=\"https://hackaday.com/2019/10/07/ask-hackaday-whats-the-perfect-hacker-smart-watch/\" class=\"read_more\">&#8230;read more</a></p>",
+					"title": "Ask Hackaday: What’s The Perfect Hacker Smart Watch?",
+					"pubDate": "2019.10.07_17:01:25"
+				}, {
+					"link": "https://hackaday.com/2019/10/07/designing-sci-fi-hack-chat/",
+					"description": "<p>Join us on Wednesday, October 9 at noon Pacific for the Designing Sci-Fi Hack Chat with Seth Molson!</p> <div class=\"post-content details-content\"> <p>We all know the feeling of watching a movie set in a galaxy far, far away and seeing something that makes us say, &#8220;That&#8217;s not realistic at all!&#8221; The irony of watching </p></div><p> <a href=\"https://hackaday.com/2019/10/07/designing-sci-fi-hack-chat/\" class=\"read_more\">&#8230;read more</a></p>",
+					"title": "Designing Sci-Fi Hack Chat",
+					"pubDate": "2019.10.07_16:00:14"
+				}, {
+					"link": "https://hackaday.com/2019/10/07/raspberry-pi-ham-radio-remote-reviewed/",
+					"description": "<p>One problem with ham radio these days is that most hams live where you can&#8217;t put a big old antenna up due to city laws and homeowner covenants. If you&#8217;re just working local stations on VHF or UHF, that might not be a big problem. But for HF usage, using <a href=\"https://hackaday.com/2019/10/07/raspberry-pi-ham-radio-remote-reviewed/\" class=\"read_more\">&#8230;read more</a></p>",
+					"title": "Raspberry Pi Ham Radio Remote Reviewed",
+					"pubDate": "2019.10.07_15:00:01"
+				}, {
+					"link": "https://hackaday.com/2019/10/07/better-battery-management-through-chemistry/",
+					"description": "<p>The lead-acid rechargeable battery is a not-quite-modern marvel. Super reliable and easy to use, charging it is just a matter of applying a fixed voltage to it and waiting a while; eventually the battery is charged and stays topped off, and that&#8217;s it. Their ease is countered by their size, <a href=\"https://hackaday.com/2019/10/07/better-battery-management-through-chemistry/\" class=\"read_more\">&#8230;read more</a></p>",
+					"title": "Better Battery Management Through Chemistry",
+					"pubDate": "2019.10.07_14:01:51"
+				}, {
+					"link": "https://hackaday.com/2019/10/07/make-wireless-earbuds-truly-wireless/",
+					"description": "<p>[Don] bought some off-brand Bluetooth earbuds online that actually sound pretty good. But while it&#8217;s true that they don&#8217;t require wires for listening to tunes, the little storage/charging box they sleep in definitely has a micro USB port around back. Ergo, they are not <em>truly</em> wireless. So [Don] took it <a href=\"https://hackaday.com/2019/10/07/make-wireless-earbuds-truly-wireless/\" class=\"read_more\">&#8230;read more</a></p>",
+					"title": "Make “Wireless” Earbuds Truly Wireless",
+					"pubDate": "2019.10.07_11:00:00"
+				}, {
+					"link": "https://hackaday.com/2019/10/07/pvc-pipe-turned-portable-bluetooth-speaker/",
+					"description": "<p>We&#8217;ve always felt that sections of PVC pipe from the home improvement store are a criminally underutilized construction material, and it looks like [Troy Proffitt] feels the same way. Rather than trying to entirely 3D print the enclosure for his recently completed portable Bluetooth speaker, he combined printed parts with <a href=\"https://hackaday.com/2019/10/07/pvc-pipe-turned-portable-bluetooth-speaker/\" class=\"read_more\">&#8230;read more</a></p>",
+					"title": "PVC Pipe Turned Portable Bluetooth Speaker",
+					"pubDate": "2019.10.07_08:00:09"
+				}],
+				"feedName": "Blog – Hackaday",
+				"name": "<span style='color:#000;'><b>HACKADAY</b></span>",
+				"type": "news",
+				"group": "1"
+			}]
+		}];
+		return cardInfo;
+	}
+
+	//Build a radio dummy card
+	Services.buildRadioCardInfoDummy =  function(){
+		var cardInfo = [{
+			"cardType": "uni_list",
+			"N": 1,
+			"info": [{
+				"streamURL": "http://stream.radiojar.com/atr1e8aswa5tv",
+				"name": "SIZE RADIO",
+				"type": "radio"
+			}]
+		}];
+		return cardInfo;
+	}
+
+	//Build a weather dummy card
+	Services.buildWeatherCardInfoDummy = function(language){
+		var cardInfo = [{
+			"cardType": "single",
+			"N": 1,
+			"info": [{
+				"data": {
+					"date": "2019.10.19",
+					"icon48h": "rain",
+					"icon": "cloudy",
+					"dateTag": "Heute",
+					"units": "°",
+					"precipProb": 0,
+					"tagA": "jetzt",
+					"timeUNIX": 1571470348168,
+					"precipType": null,
+					"desc48h": "Den ganzen Tag lang überwiegend bewölkt",
+					"place": "Berlin",
+					"time": "09",
+					"tempB": 15,
+					"tempC": 16,
+					"tagB": "13:00",
+					"desc": "Stark bewölkt",
+					"tempA": 12,
+					"tagC": "16:00"
+				},
+				"details": {
+					"hourly": [{
+						"timeUNIX": 1571472000000, "precipType": null,	"tag": "10:00",	"precipProb": 0, "tempA": 13
+					}, {
+						"timeUNIX": 1571479200000, "precipType": null,	"tag": "12:00",	"precipProb": 0, "tempA": 14
+					}, {
+						"timeUNIX": 1571486400000, "precipType": "rain", "tag": "14:00", "precipProb": 0.04, "tempA": 15
+					}, {
+						"timeUNIX": 1571493600000, "precipType": "rain", "tag": "16:00", "precipProb": 0.03, "tempA": 16
+					}, {
+						"timeUNIX": 1571500800000, "precipType": "rain", "tag": "18:00", "precipProb": 0.03, "tempA": 16
+					}, {
+						"timeUNIX": 1571508000000, "precipType": "rain", "tag": "20:00", "precipProb": 0.16, "tempA": 14
+					}, {
+						"timeUNIX": 1571515200000, "precipType": "rain", "tag": "22:00", "precipProb": 0.15, "tempA": 13
+					}, {
+						"timeUNIX": 1571522400000, "precipType": "rain", "tag": "00:00", "precipProb": 0.11, "tempA": 12
+					}, {
+						"timeUNIX": 1571529600000, "precipType": "rain", "tag": "02:00", "precipProb": 0.08, "tempA": 12
+					}]
+				},
+				"type": "weatherNow"
 			}]
 		}];
 		return cardInfo;
