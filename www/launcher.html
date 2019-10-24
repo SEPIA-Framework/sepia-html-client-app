@@ -71,36 +71,18 @@
 		padding: 16px;
 		margin: auto;
 	}
-	.labelBlock {
-		height: 100%;
-		width: 100%;
-		display: flex;
-		align-content: center;
-		align-items: flex-end;
-		justify-content: center;
-		overflow: hidden;
-	}
-	.labelBlock label {
-		font-size: 32px;
-		font-weight: 300;
-		color: #beff1a;
-	}
-	.inputBlock {
-		background: #fff;
-		border: 1px solid #beff1a;
-		border-radius: 3px;
-		overflow: hidden
-	}
-	.inputBlock input {
-		background: #fff;
-		border: 0;
+	input[type="text"] {
 		-moz-appearance: none;
 		-webkit-appearance: none;
 		appearance: none;
-		width: 100%;
-		height: 36px;
-		padding-left: 8px;
-		font-size: 18px;
+		background: transparent;
+		color: inherit;
+		border: 0;
+		border-bottom: 1px solid;
+		text-align: center;
+		padding: 5px;
+		margin-bottom: 5px;
+		font-size: 14px;
 	}
 	.buttonBlock {
 		display: flex;
@@ -173,6 +155,11 @@
 				<input id="sepia-preload-tts" class="sepia-storable" type="checkbox" name="preLoadTts" checked>Pre-load TTS voices<br><em>Can be useful for apps in kiosk-mode</em>
 			</label>
 			<label>
+				<span>Environment: </span>
+				<br><input id="sepia-custom-environment" class="sepia-storable" type="text" placeholder="default">
+				<br><em>Set custom environment name (used to detect client abilities)</em>
+			</label>
+			<label>
 				<span>View: </span><select id="sepia-url-param-view" class="sepia-storable">
 					<option value="">Default (Chat View)</option>
 					<option value="view=ao">Always-On Mode</option>
@@ -193,6 +180,7 @@ function ready(){
 	var isApp = document.getElementById('sepia-url-param-app');
 	var view = document.getElementById('sepia-url-param-view');
 	var newWindow = document.getElementById('sepia-open-new-win');
+	var customEnv = document.getElementById('sepia-custom-environment');
 	var preLoadTts = document.getElementById('sepia-preload-tts');
 	var ttsSupported = ("speechSynthesis" in window) && speechSynthesis.getVoices;
 	if (ttsSupported){
@@ -222,6 +210,11 @@ function ready(){
 		});
 		if (window.localStorage.getItem('newWindow') == "false")	newWindow.checked = false;
 		
+		customEnv.addEventListener("change", function(){
+			window.localStorage.setItem('customEnv', customEnv.value);
+		});
+		customEnv.value = window.localStorage.getItem('customEnv') || "";
+		
 		preLoadTts.addEventListener("change", function(){
 			window.localStorage.setItem('preLoadTts', preLoadTts.checked);
 		});
@@ -238,6 +231,9 @@ function ready(){
 		}
 		if (view.value){
 			url += ("&" + view.value);
+		}
+		if (customEnv.value){
+			url += ("&env=" + customEnv.value);
 		}
 		if (newWindow.checked){
 			var h = Math.min(window.screen.availHeight, 800);
