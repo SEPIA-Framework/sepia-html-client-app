@@ -730,12 +730,19 @@ function sepiaFW_build_speech(){
 		if (Speech.isTtsSupported && !SepiaFW.ui.isCordova){
 			//fill
 			voices = window.speechSynthesis.getVoices();
-			voices.forEach(function(voice){
+			if (voices.length === 0){
 				var option = document.createElement('option');
-				option.value = voice.name;
-				option.innerHTML = voice.name.replace(/(microsoft|google|apple)/ig, '').replace(/(\(.*?\))/g, '').trim();
+				option.value = '';
+				option.innerHTML = '- no voices -';
 				voiceSelector.appendChild(option);
-			});
+			}else{
+				voices.forEach(function(voice){
+					var option = document.createElement('option');
+					option.value = voice.name;
+					option.innerHTML = voice.name.replace(/(microsoft|google|apple)/ig, '').replace(/(\(.*?\))/g, '').trim();
+					voiceSelector.appendChild(option);
+				});
+			}
 			SepiaFW.debug.info('TTS voices available: ' + voices.length);
 			//add button listener
 			$(voiceSelector).off();
@@ -743,13 +750,14 @@ function sepiaFW_build_speech(){
 				Speech.setVoice($('#sepiaFW-menu-select-voice').val());
 				SepiaFW.debug.info('TTS voice set: ' + selectedVoice);
 			});
-		}
-		if (voices.length === 0){
+		}else if (Speech.isTtsSupported && SepiaFW.ui.isCordova){
+			//Cordova system voices not yet implemented
 			var option = document.createElement('option');
 			option.value = '';
-			option.innerHTML = 'not supported';
+			option.innerHTML = '- system -';
 			voiceSelector.appendChild(option);
-		}else{
+		}
+		if (voices.length > 0){
 			setVoiceOnce();
 		}
 		//refresh selector once more?
