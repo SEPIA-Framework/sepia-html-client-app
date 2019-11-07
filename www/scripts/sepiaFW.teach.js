@@ -181,6 +181,53 @@ function sepiaFW_build_teach(){
 					optional : true
 				}]
 			},
+			smartdevice : {
+				command : "smartdevice",
+				name : "Control smart home device",
+				desc : "Use this command to create specific actions for smart (home) devices. Usually the parameters expect certain, predefined types (see example 1) but "
+						+ "you can use the 'i_raw' modifier to use natural language or even create new types on-the-fly using JSON (see example 2).",
+				help : "<p><u><b>Example 1:</b></u></p>" 
+						+ "<i>When I say ...</i>" 
+						+ "<br>Let there be light<br><br>"
+						+ "<i>the assistant does ...</i><br>"
+						+ "Control smart home device<br><br>"
+						+ "<i>Smart device (smart_device):</i><br>"
+						+ "&lt;light&gt;;;Lamp1<br><br>"
+						+ "<i>Room (room):</i><br>"
+						+ "&lt;bedroom&gt;<br><br>"
+						+ "<i>Action (action):</i><br>"
+						+ "&lt;set&gt;<br><br>"
+						+ "<i>Value (smart_device_value):</i><br>"
+						+ "70%<br><br>"
+					+ "<p><u><b>Example 2:</b></u></p>" 
+						+ "<i>When I say ...</i>" 
+						+ "<br>Red!<br><br>"
+						+ "<i>the assistant does ...</i><br>"
+						+ "Control smart home device<br><br>"
+						+ "<i>Smart device (smart_device):</i><br>"
+						+ "&lt;i_raw&gtRGB Lamp 1<br><br>"
+						+ "<i>Room (room):</i><br>"
+						+ '{"value":"party_room", "value_local":"Party room"}<br><br>'
+						+ "<i>Value (smart_device_value):</i><br>"
+						+ '{"value":[255,0,0], "type":"color"}<br><br>'
+					,
+				parameters : [{
+					value : "smart_device",
+					name : "Smart device (&lt;type&gt;;;name)"
+				},{
+					value : "room",
+					name : "Room (&lt;type&gt;)",
+					optional : true
+				},{
+					value : "action",
+					name : "Action (&lt;on&gt;, &lt;off&gt;, &lt;set&gt;): ",
+					optional : true
+				},{
+					value : "smart_device_value",
+					name : "Value (number, percent, degree, ...): ",
+					optional : true
+				}]
+			},
 			client_controls : {
 				command : "client_controls",
 				name : "Execute a client control function",
