@@ -531,6 +531,7 @@ function sepiaFW_build_ui_build(){
 					+ "<li class='button' id='sepiaFW-menu-btn-addresses'><span>" + SepiaFW.local.g('addresses') + "</span><i class='material-icons md-mnu'>&#xE038;</i></li>"
 					+ "<li class='button' id='sepiaFW-menu-btn-tutorial'><span>" + SepiaFW.local.g('tutorial') + "</span><i class='material-icons md-mnu'>school</i></li>"
 					+ "<li class='button' id='sepiaFW-menu-btn-info'><span>" + SepiaFW.local.g('info_and_help') + "</span><i class='material-icons md-mnu'>help_outline</i></li>"
+					+ "<li class='button' id='sepiaFW-menu-btn-control-hub'><span>" + SepiaFW.local.g('control_hub') + "</span><i class='material-icons md-mnu'>device_hub</i></li>"
 					+ "<li class='button' id='sepiaFW-menu-btn-logout'><span>" + SepiaFW.local.g('sign_out') + "</span><i class='material-icons md-mnu'>person_outline</i></li>"
 				+ "</ul>";
 			centerCarouselPane.appendChild(centerPage1);
@@ -600,6 +601,7 @@ function sepiaFW_build_ui_build(){
 					+ "<li id='sepiaFW-menu-account-my-id-li'><span>" + "User ID" + ": </span><span id='sepiaFW-menu-account-my-id' style='float: right;'></span></li>"
 					+ "<li id='sepiaFW-menu-account-language-li'><span>" + SepiaFW.local.g('language') + ": </span></li>"
 					+ "<li id='sepiaFW-menu-account-nickname-li'><span>" + SepiaFW.local.g('nickname') + ": </span><input id='sepiaFW-menu-account-nickname' type='text' maxlength='24'></li>"
+					+ "<li id='sepiaFW-menu-account-preftempunit-li'><span>" + SepiaFW.local.g('preferred_temp_unit') + ": </span></li>"
 					+ "<li id='sepiaFW-menu-store-load-app-settings-li'>"
 						+ "<span>App settings: </span>"
 						+ "<button id='sepiaFW-menu-load-app-settings-btn' class='sepiaFW-button-inline'>" + SepiaFW.local.g('load') + "</button>"
@@ -686,6 +688,44 @@ function sepiaFW_build_ui_build(){
 			tutorialBtn.addEventListener("click", function(){
 				//SepiaFW.ui.closeAllMenus();
 				SepiaFW.frames.open({pageUrl: "tutorial.html"});
+			});
+			//Control HUB button
+			var ctrlHubBtn = document.getElementById("sepiaFW-menu-btn-control-hub");
+			ctrlHubBtn.addEventListener("click", function(){
+				SepiaFW.frames.open({ 
+					pageUrl: "dynamic-frame.html",
+					theme: "dark flat",	//dark_full flat
+					onFinishSetup: function(){
+						var page1 = document.getElementById('sepiaFW-frame-page-1');
+						if (SepiaFW.client.isDemoMode()){
+							page1.innerHTML = "<iframe class='full-size' src='" + "https://sepia-framework.github.io/tools/index.html" + "'>";
+						}else{
+							page1.innerHTML = "";
+							var hubIframe = document.createElement('iframe');
+							hubIframe.className = "full-size";
+							var triedLogin = false;
+							hubIframe.onload = function(){
+								//login - TODO: potential race condition?
+								if (!triedLogin){
+									triedLogin = true;
+									var loginEvent = {
+										uid: SepiaFW.account.getUserId(),
+										keyToken: SepiaFW.account.getToken(),
+										user_lang_code: SepiaFW.account.getLanguage(),
+										clientInfo: SepiaFW.config.getClientDeviceInfo(),
+										apiURL: SepiaFW.config.host
+									}
+									SepiaFW.debug.log("Sending login event to SEPIA Control HUB Frame...");
+									hubIframe.contentWindow.postMessage({type: "sepia-common-interface-event", fun:"login", ev: loginEvent}, "*");
+								}
+							};
+							hubIframe.src = SepiaFW.config.assistAPI + "tools/index.html"; 
+							page1.appendChild(hubIframe);
+						}
+					},
+					onOpen: function(){},
+					onClose: function(){}
+				});
 			});
 			
 			//add skins
@@ -1020,6 +1060,17 @@ function sepiaFW_build_ui_build(){
 					this.blur();
 				//}
 			});
+			//Account-Preferred Temperature Unit
+			document.getElementById("sepiaFW-menu-account-preftempunit-li").appendChild(SepiaFW.ui.build.optionSelector(
+					"sepiaFW-menu-account-preftempunit-dropdown", SepiaFW.account.OPTIONS_TEMPERATURE, SepiaFW.account.OPTIONS_TEMPERATURE_DEFAULT, 
+					function(selectedOption){
+				//save
+				var unit = {};		unit[SepiaFW.account.UNIT_PREF_TEMP] = selectedOption.value;
+				var data = {};		data[SepiaFW.account.INFOS] = unit;
+				SepiaFW.account.saveAccountData(data);
+				//update account cache
+				SepiaFW.account.setUserPreferredTemperatureUnit(selectedOption.value);
+			}));
 			//Store and load app settings
 			document.getElementById("sepiaFW-menu-store-app-settings-btn").addEventListener("click", function(){
 				SepiaFW.account.saveAppSettings();

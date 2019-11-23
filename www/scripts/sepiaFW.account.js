@@ -7,6 +7,9 @@ function sepiaFW_build_account(){
 	var userName = "Boss";
 	var language = SepiaFW.config.appLanguage;
 	var clientFirstVisit = true;
+
+	var userRoles = undefined;
+	var userPreferredTempUnit = undefined;
 	
 	var pwdIsToken = false;
 	var defaultIdPrefix = "uid";
@@ -15,7 +18,7 @@ function sepiaFW_build_account(){
 		"appstore": "eval20192X"
 	}
 	
-	//---- Account settings mapping (to simplify access) ----//
+	//---- Account settings mapping (to simplify access) and options ----//
 	Account.USER_NAME = "uname";
 	Account.NICK_NAME = "nick";
 	Account.FIRST_NAME = "first";
@@ -23,12 +26,37 @@ function sepiaFW_build_account(){
 	
 	Account.INFOS = "infos";
 	Account.LANGUAGE_PREF = "lang_code";
+	Account.BIRTH = "birth";
+	Account.GENDER = "gender";
+	Account.APP_SETTINGS = "app_settings";
+	Account.UNIT_PREF_TEMP = "unit_pref_temp";		
 	
 	Account.LISTS = "lists";
 	Account.ADDRESSES = "addresses";
 	Account.ADDRESS_TAG_HOME = "user_home";
 	Account.ADDRESS_TAG_WORK = "user_work";
 	Account.CONTACTS = "contacts";
+
+	Account.OPTIONS_TEMPERATURE = [{value:"C", name:"Celsius"}, {value:"F", name:"Fahrenheit"}];
+	Account.OPTIONS_TEMPERATURE_DEFAULT = "C";
+
+	function transferAccountDataToUI(){
+		//first app visit of this user?
+		checkClientFirstVisit();
+		//set user ID indicator
+		$('#sepiaFW-menu-account-my-id').html(userId);
+		//show/hide some stuff depending on user roles (note that this is just cosmetics, NOT about security)
+		if (userRoles){
+			if ($.inArray("developer", userRoles) == -1 && $.inArray("tinkerer", userRoles) == -1){
+				//hide Control HUB entry
+				$('#sepiaFW-menu-btn-control-hub').hide();
+			}
+		}
+		if (userPreferredTempUnit){
+			//set selector
+			$('#sepiaFW-menu-account-preftempunit-dropdown').val(userPreferredTempUnit);
+		}
+	}
 	
 	//---- broadcasting ----
 	
@@ -40,18 +68,13 @@ function sepiaFW_build_account(){
 	}
 	
 	function broadcastLoginRestored(){
-		//first app visit of this user?
-		checkClientFirstVisit();
-		//set user ID indicator
-		$('#sepiaFW-menu-account-my-id').html(userId);
+		transferAccountDataToUI();
 	}
 	
 	function broadcastLoginSuccess(){
-		//first app visit of this user?
-		checkClientFirstVisit();
-		//set user ID indicator
-		$('#sepiaFW-menu-account-my-id').html(userId);
+		transferAccountDataToUI();
 	}
+
 	function broadcastLoginFail(){
 	}
 	
@@ -161,6 +184,20 @@ function sepiaFW_build_account(){
 	Account.getClientFirstVisit = function(){
 		return clientFirstVisit;
 	}
+	//get user roles
+	Account.getUserRoles = function(){
+		return userRoles;
+	}
+
+	//get preferred unit of temperature (part of INFOS, not loaded with login)
+	Account.getUserPreferredTemperatureUnit = function(){
+		return userPreferredTempUnit;
+	}
+	Account.setUserPreferredTemperatureUnit = function(newValue){
+		userPreferredTempUnit = newValue;
+		SepiaFW.data.updateAccount('userPreferredTempUnit', userPreferredTempUnit);
+		SepiaFW.debug.log('Account: set userPreferredTempUnit=' + userPreferredTempUnit);
+	}
 	
 	//load data from account
 	//TODO: test and errorCallback
@@ -228,10 +265,10 @@ function sepiaFW_build_account(){
 					if (encryptedData){
 						var data = {};
 						data[deviceId] = encryptedData;
+						var infos = {};		//Account.INFOS
+						infos[Account.APP_SETTINGS] = data;
 						Account.saveAccountData({
-							infos: {
-								app_settings: data
-							}
+							infos: infos
 						}, function(){
 							SepiaFW.ui.showPopup('Successfully stored app settings.');
 						}, function(msg){
@@ -252,8 +289,9 @@ function sepiaFW_build_account(){
 			buttonOneName: "OK",
 			buttonOneAction: function(btn, pwd){
 				if (pwd){
-					Account.loadAccountData(["infos.app_settings." + deviceId], function(data){
-						var res = data["infos.app_settings." + deviceId];
+					var appSettingsPath = Account.INFOS + "." + Account.APP_SETTINGS + "." + deviceId;
+					Account.loadAccountData([appSettingsPath], function(data){
+						var res = data[appSettingsPath];
 						if (res){
 							//Success
 							var decryptedData = SepiaFW.tools.decryptBasic(pwd, res);
@@ -468,10 +506,16 @@ function sepiaFW_build_account(){
 			SepiaFW.debug.log('Account: preventing auto-login due to changed hostname ... please login again if you trust the host!');
 		}
 		if (safe && account && account.userToken && account.lastRefresh && ((new Date().getTime() - account.lastRefresh) < (1000*60*60*12))){
+			//primary
 			userId = account.userId;
 			userToken = account.userToken;
 			userName = account.userName;	if (userName)	SepiaFW.config.broadcastUserName(userName);
 			language = account.language;	if (language)	SepiaFW.config.broadcastLanguage(language);
+
+			//secondary
+			userRoles = account.userRoles;
+			userPreferredTempUnit = account.userPreferredTempUnit;
+
 			SepiaFW.debug.log('Account: login restored');
 			
 			var lBox = document.getElementById("sepiaFW-login-box");
@@ -594,13 +638,16 @@ function sepiaFW_build_account(){
 		if (lBox && lBox.style.display != 'none'){
 			Account.toggleLoginBox();
 		}
+		//console.log(data);		//DEBUG
 		
-		//NOTE: we use the generalized top-level fields here that are different to the default "account" ones
-		//uid, email, phone, user_roles
+		//NOTE: we use the generalized top-level fields here that are different to the default "account" ones (see Java: Authenticator class)
+		//uid, email, phone
+		//user_roles
 		//user_name
 		//user_lang_code
 		//user_birth
 		//bot_character
+		//unit_pref_temp
 		
 		userToken = data.keyToken;
 		userId = data.uid;
@@ -623,6 +670,12 @@ function sepiaFW_build_account(){
 			language = data['user_lang_code'];
 			SepiaFW.config.broadcastLanguage(language);
 		}
+		//get user roles
+		userRoles = data['user_roles'];
+		//get preferred temperature unit
+		if (data['unit_pref_temp']){
+			userPreferredTempUnit = data['unit_pref_temp'];
+		}
 		
 		//store data
 		var account = new Object();
@@ -632,6 +685,11 @@ function sepiaFW_build_account(){
 		account.language = language;
 		account.lastRefresh = new Date().getTime();
 		account.hostname = SepiaFW.config.host;
+		//secondary infos (not necessarily in login-data)
+		account.userRoles = userRoles;
+		account.userPreferredTempUnit = userPreferredTempUnit;
+
+		//write
 		SepiaFW.data.set('account', account);
 		
 		//what happens next? typically this is used by a client implementation to continue

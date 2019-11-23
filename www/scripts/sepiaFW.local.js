@@ -15,6 +15,7 @@ function sepiaFW_build_strings(){
 	StringsDE.nickname = 'Spitzname';
 	StringsDE.password = 'Passwort';
 	StringsDE.language = 'Sprache';
+	StringsDE.preferred_temp_unit = 'Einheit der Temperatur';
 	StringsDE.general = 'Allgemein';
 	StringsDE.sendLogin = 'Login';
 	StringsDE.sign_out = 'Abmelden';
@@ -25,6 +26,8 @@ function sepiaFW_build_strings(){
 	StringsDE.logout = 'Logout';
 	StringsDE.closeLogin = 'Weiter ohne Login';
 	StringsDE.info_and_help = 'Infos und Support';
+	StringsDE.control_hub = 'Control HUB';
+	StringsDE.tutorial = 'Tutorial';
 	StringsDE.change_account_password = "Account Passwort ändern";
 	StringsDE.channels = "Kanäle";
 	StringsDE.active_users = "Aktive User";
@@ -114,7 +117,6 @@ function sepiaFW_build_strings(){
 	StringsDE.license = 'Lizenz';
 	StringsDE.credits = 'Credits';
 	StringsDE.data_privacy = 'Datenschutz';
-	StringsDE.tutorial = 'Tutorial';
 	StringsDE.way_home = 'Weg nach Hause';
 	//Fill words
 	StringsDE.from = 'von';
@@ -162,6 +164,7 @@ function sepiaFW_build_strings(){
 	StringsEN.nickname = 'Nickname';
 	StringsEN.password = 'Password';
 	StringsEN.language = 'Language';
+	StringsEN.preferred_temp_unit = 'Unit of Temperature';
 	StringsEN.general = 'General';
 	StringsEN.sendLogin = 'Login';
 	StringsEN.sign_out = 'Sign out';
@@ -172,6 +175,8 @@ function sepiaFW_build_strings(){
 	StringsEN.logout = 'Logout';
 	StringsEN.closeLogin = 'Continue without login';
 	StringsEN.info_and_help = 'Info and support';
+	StringsEN.control_hub = 'Control HUB';
+	StringsEN.tutorial = 'Tutorial';
 	StringsEN.change_account_password = "Change account password";
 	StringsEN.channels = "Channels";
 	StringsEN.active_users = "Active Users";
@@ -261,7 +266,6 @@ function sepiaFW_build_strings(){
 	StringsEN.license = 'License';
 	StringsEN.credits = 'Credits';
 	StringsEN.data_privacy = 'Data privacy';
-	StringsEN.tutorial = 'Tutorial';
 	StringsEN.way_home = 'Way home';
 	//Fill words
 	StringsEN.from = 'from';

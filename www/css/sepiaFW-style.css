@@ -69,6 +69,10 @@ html.dark {
 	background-color: #000;
 	background-image: none;
 }
+html.dark-frame {
+	background-color: #000 !important;
+	background-image: none !important;
+}
 body {
     /*font-family: 'Roboto', sans-serif;*/
 	font-family: sans-serif;
