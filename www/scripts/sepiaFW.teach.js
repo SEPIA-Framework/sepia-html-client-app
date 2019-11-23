@@ -210,6 +210,17 @@ function sepiaFW_build_teach(){
 						+ '{"value":"party_room", "value_local":"Party room"}<br><br>'
 						+ "<i>Value (smart_device_value):</i><br>"
 						+ '{"value":[255,0,0], "type":"color"}<br><br>'
+					+ "<p><u><b>Example 3:</b></u></p>" 
+						+ "<i>When I say ...</i>" 
+						+ "<br>Where is mom?<br><br>"
+						+ "<i>the assistant does ...</i><br>"
+						+ "Control smart home device<br><br>"
+						+ "<i>Smart device (smart_device):</i><br>"
+						+ "&lt;sensor&gt;;;Sensor1<br><br>"
+						+ "<i>Action (action):</i><br>"
+						+ "&lt;show&gt;<br><br>"
+						+ "<i>Custom answer(s):</i><br>"
+						+ "Mom is &lt;3&gt;.<br><br>"
 					,
 				parameters : [{
 					value : "smart_device",
@@ -220,11 +231,15 @@ function sepiaFW_build_teach(){
 					optional : true
 				},{
 					value : "action",
-					name : "Action (&lt;on&gt;, &lt;off&gt;, &lt;set&gt;): ",
+					name : "Action (&lt;on&gt;, &lt;off&gt;, &lt;set&gt;, &lt;show&gt;): ",
 					optional : true
 				},{
 					value : "smart_device_value",
 					name : "Value (number, percent, degree, ...): ",
+					optional : true
+				},{
+					value : "reply",
+					name : "Custom answer(s). Use &lt;1&gt;, &lt;2&gt; or &lt;3&gt; to ref. device, room or state.",
 					optional : true
 				}]
 			},
