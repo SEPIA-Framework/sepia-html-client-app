@@ -1002,7 +1002,7 @@ function sepiaFW_build_ui(){
 		$('#sepiaFW-loader').hide();
 	}
 	
-	//Show message popup
+	//Show message popup - TODO: there can only be one pop-up at the same time
 	UI.showPopup = function(content, config){
 		//var primaryColor, secondaryColor; 		//could be added as config variables
 		if (!config) config = {};
@@ -1669,6 +1669,43 @@ function sepiaFW_build_ui(){
 			}else if (document.webkitExitFullscreen){	document.webkitExitFullscreen();
 			}
 		}
+	}
+
+	//----- Post Message Interface -----
+
+	var sepiaPostMessageHandlers = {
+		"test": 	console.log
+	}
+	UI.addPostMessageHandler = function(handlerName, handlerFun){
+		sepiaPostMessageHandlers[handlerName] = handlerFun;
+	}
+	window.addEventListener('message', function(message){
+		if (message.data && message.data.type){
+			if (message.data.type == "sepia-common-interface-event"){
+				//console.log(message);
+				console.log("SEPIA Client received message for handler: " + message.data.fun);
+				var handler = sepiaPostMessageHandlers[message.data.fun];
+				if (handler && typeof handler == "function"){
+					handler(message.data.ev);
+				}else{
+					console.error('SEPIA - sendInputEvent of ' + message.source + ': Message handler not available!');
+				}
+			}
+		}
+	});
+	//Example:  iframe.contentWindow.postMessage({type: "sepia-common-interface-event", fun:"test", ev: "Hello"}, "*");
+	//			see Control HUB button for 'login' implementation
+	/*
+	//postMessage to parent window
+	function parentPostMsg(msg){
+		//post only if really a child
+		if (window !== parent){
+			parent.postMessage(msg, "*");
+		}
+	}
+	*/
+	if (window !== parent){
+		console.log("SEPIA Client loaded inside frame. PostMessage interface available.");
 	}
 	
 	return UI;
