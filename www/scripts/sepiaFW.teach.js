@@ -198,7 +198,7 @@ function sepiaFW_build_teach(){
 						+ "<i>Action (action):</i><br>"
 						+ "&lt;set&gt;<br><br>"
 						+ "<i>Value (smart_device_value):</i><br>"
-						+ "70%<br><br>"
+						+ "&lt;percent&gt;;;70<br><br>"
 					+ "<p><u><b>Example 2:</b></u></p>" 
 						+ "<i>When I say ...</i>" 
 						+ "<br>Red!<br><br>"
@@ -209,7 +209,7 @@ function sepiaFW_build_teach(){
 						+ "<i>Room (room):</i><br>"
 						+ '{"value":"party_room", "value_local":"Party room"}<br><br>'
 						+ "<i>Value (smart_device_value):</i><br>"
-						+ '{"value":[255,0,0], "type":"color"}<br><br>'
+						+ '{"value":"[255,0,0]", "type":"color"}<br><br>'
 					+ "<p><u><b>Example 3:</b></u></p>" 
 						+ "<i>When I say ...</i>" 
 						+ "<br>Where is mom?<br><br>"
@@ -224,10 +224,10 @@ function sepiaFW_build_teach(){
 					,
 				parameters : [{
 					value : "smart_device",
-					name : "Smart device (&lt;type&gt;;;name)"
+					name : "Smart device (&lt;type&gt;;;tag, e.g.: &lt;light&gt;;;1, &lt;heater&gt;;;Floor2, &lt;sensor&gt;;;P3, ...)"
 				},{
 					value : "room",
-					name : "Room (&lt;type&gt;)",
+					name : "Room (&lt;type&gt;, e.g.: &lt;livingroom&gt;, &lt;bedroom&gt;, &lt;kitchen&gt;, ...)",
 					optional : true
 				},{
 					value : "action",
@@ -235,7 +235,7 @@ function sepiaFW_build_teach(){
 					optional : true
 				},{
 					value : "smart_device_value",
-					name : "Value (number, percent, degree, ...): ",
+					name : "Value (e.g.: &lt;percent&gt;;;50, &lt;plain&gt;;;11 or &lt;i_raw&gt;50%, &lt;i_raw&gt;20°C, ...): ",
 					optional : true
 				},{
 					value : "reply",
