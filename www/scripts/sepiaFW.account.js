@@ -47,7 +47,7 @@ function sepiaFW_build_account(){
 		$('#sepiaFW-menu-account-my-id').html(userId);
 		//show/hide some stuff depending on user roles (note that this is just cosmetics, NOT about security)
 		if (userRoles){
-			if ($.inArray("developer", userRoles) == -1 && $.inArray("tinkerer", userRoles) == -1){
+			if ($.inArray("developer", userRoles) == -1 && $.inArray("tinkerer", userRoles) == -1 && $.inArray("smarthomeadmin", userRoles) == -1){
 				//hide Control HUB entry
 				$('#sepiaFW-menu-btn-control-hub').hide();
 			}
