@@ -55,6 +55,7 @@ function sepiaFW_build_strings(){
 	StringsDE.userNotFound = 'Uups, dieser User scheint gerade nicht hier zu sein :-(';
 	StringsDE.loading = 'Lädt';
 	StringsDE.oneMoment = 'Einen Moment bitte ...';
+	StringsDE.done = 'Erledigt';
 	StringsDE.doit = 'Tu es!';
 	StringsDE.looksGood = 'Sieht gut aus';
 	StringsDE.betterNot = 'Besser nicht';
@@ -75,6 +76,7 @@ function sepiaFW_build_strings(){
 	StringsDE.continueOffline = 'Offline weitermachen';
 	StringsDE.locateMe = 'Standort bestimmen';
 	StringsDE.deviceId = 'Geräte ID';
+	StringsDE.deviceSite = 'Gerätestandort';
 	StringsDE.allowedToExecuteThisCommand = 'Darf ich diesen Befehl ausführen: ';
 	StringsDE.copyList = 'Diese Liste gehört einem anderen User, möchtest du sie in deinen Account kopieren?';
 	StringsDE.cantCopyList = 'Diese Liste gehört einem anderen User und kann nicht gespeichert werden, aber du kannst eventuell einzelne Einträge via share-Funktion kopieren.';
@@ -204,6 +206,7 @@ function sepiaFW_build_strings(){
 	StringsEN.userNotFound = 'Uups, this user seems to be not available right now :-(';
 	StringsEN.loading = 'Loading';
 	StringsEN.oneMoment = 'One moment please ...';
+	StringsEN.done = 'Done';
 	StringsEN.doit = 'Do it!';
 	StringsEN.looksGood = 'Looks good';
 	StringsEN.betterNot = 'Better not';
@@ -224,6 +227,7 @@ function sepiaFW_build_strings(){
 	StringsEN.continueOffline = 'Continue offline';
 	StringsEN.locateMe = 'Refresh my location';
 	StringsEN.deviceId = 'Device ID';
+	StringsEN.deviceSite = 'Device site';
 	StringsEN.allowedToExecuteThisCommand = 'Am I allowed to send this request: ';
 	StringsEN.copyList = 'This list belongs to another user, do you want to copy it to your account?';
 	StringsEN.cantCopyList = 'This list belongs to another user and cannot be stored, but you might be able to copy single items with the share function.';

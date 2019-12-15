@@ -545,6 +545,7 @@ function sepiaFW_build_ui_build(){
 						+ "<input id='sepiaFW-menu-assistant-host' type='url' placeholder='my.example.org/sepia' spellcheck='false'>"
 					+ "</li>"
 					+ "<li id='sepiaFW-menu-deviceId-li'><span>" + SepiaFW.local.g('deviceId') + ": </span><input id='sepiaFW-menu-deviceId' type='text' maxlength='24'></li>"
+					+ "<li id='sepiaFW-menu-device-site-li' title='Settings for device local site'><span>" + SepiaFW.local.g('deviceSite') + ": </span></li>"
 					+ "<li id='sepiaFW-menu-toggle-GPS-li'><span>GPS: </span></li>"
 					+ "<li id='sepiaFW-menu-toggle-voice-li'><span>Voice output: </span></li>"
 					+ "<li id='sepiaFW-menu-select-voice-li'><span>Voice: </span></li>" 	//option: <i class='material-icons md-mnu'>&#xE5C6;</i>
@@ -760,6 +761,24 @@ function sepiaFW_build_ui_build(){
 				SepiaFW.config.setDeviceId(newDeviceId);
 				this.blur();
 			});
+			//device site settings
+			var deviceSite = document.getElementById('sepiaFW-menu-device-site-li');
+			//settings
+			deviceSite.appendChild(Build.inlineActionButton('sepiaFW-menu-device-site-settings', "<i class='material-icons md-inherit'>settings</i>",
+				function(btn){
+					SepiaFW.frames.open({ 
+						pageUrl: "device-site.html",
+						onFinishSetup: function(){
+							SepiaFW.frames.currentScope.onFinishSetup();
+						},
+						onOpen: function(){
+							SepiaFW.frames.currentScope.onOpen();
+						},
+						/*onClose: onSettingsClose,*/
+						theme: "dark"
+					});
+				})
+			);
 			//Speech stuff
 			if (SepiaFW.speech){
 				//add voice toggle
