@@ -3,7 +3,7 @@
 		<!-- Page 1 -->
 		<div id="sepiaFW-frame-page-1" class='sepiaFW-frames-page sepiaFW-carousel-pane'>
 			<h3>Device Local Site</h3>
-			<p>Here you can configure the local site (location) data for this device.</p>
+			<p>Here you can configure the local site (location) data for this device. Note that this data will be stored independently from user logins.</p>
 			<div id="sepiaFW-device-site-settings" class="group-container">
 				<div class="group">
 					<label>Location:</label>
@@ -53,8 +53,8 @@
 	SepiaFW.config.deviceLocalSiteOptions = {
 		location: [
 			{ "value": "", "name": "Not assigned" },
-			{ "value": "home", "name": "Home" },
-			{ "value": "mobile", "name": "Mobile" }
+			{ "value": "home", "name": "Home" }
+			//,{ "value": "mobile", "name": "Mobile" }
 		],
 		type: [
 			{ "value": "", "name": "Not assigned" },
@@ -77,11 +77,11 @@
 			{ "value": "hallway", "name": "Hallway" },
 			{ "value": "other", "name": "Other" }
 		],
-		//index: undefined,			//free input, e.g. numbers: 1, 2, 212, ...
 		updates: [
 			{ "value": "off", "name": "Off" }
 			//, { "value": "auto", "name": "Automatic" }
 		]
+		//, index: undefined,			//free input, e.g. numbers: 1, 2, 212, ...
 	};
 	//TODO: we should load this data from server
 	
