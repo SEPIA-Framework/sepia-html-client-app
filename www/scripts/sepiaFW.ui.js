@@ -124,6 +124,7 @@ function sepiaFW_build_ui(){
 	UI.loadingColor = '#b4b4b4';
 	UI.assistantColor = '';
 	UI.micBackgroundColor = '#fff';  //reassigned during UI setup
+	UI.htmlBackgroundColor = window.getComputedStyle(document.documentElement).getPropertyValue("background-color") || "#fff";
 	
 	UI.isMenuOpen = false;
 	UI.lastInput = "";
@@ -144,9 +145,21 @@ function sepiaFW_build_ui(){
 		UI.awaitDialogColor = adC? window.getComputedStyle(adC, null).getPropertyValue("background-color"): 'gold';
 		UI.assistantColor =	 asC? window.getComputedStyle(asC, null).getPropertyValue("background-color"): UI.primaryColor;
 		UI.loadingColor =	 lC? window.getComputedStyle(lC, null).getPropertyValue("background-color"): 'rgba(180, 180, 180, 1.0)';
+		UI.htmlBackgroundColor = window.getComputedStyle(document.documentElement).getPropertyValue("background-color") || "#fff";
 		//UI.assistantColor = $('#sepiaFW-chat-output').find('article.chatAssistant').first().css("background-color");
 		//refresh theme-color
 		$('meta[name="theme-color"]').replaceWith('<meta name="theme-color" content="' + UI.primaryColor + '">');
+		//set general skin style
+		var backColor = UI.htmlBackgroundColor;
+		if ((backColor + '').indexOf('rgb') === 0){
+			var rgbBack = SepiaFW.tools.convertRgbColorStringToRgbArray(backColor);
+			backColor = SepiaFW.tools.rgbToHex(rgbBack[0], rgbBack[1], rgbBack[2]);
+		}
+		if (SepiaFW.tools.getBestContrast(backColor) === 'white'){
+			$(document.documentElement).removeClass('light-skin').addClass("dark-skin");
+		}else{
+			$(document.documentElement).removeClass('dark-skin').addClass("light-skin");			
+		}
 		//update statusbar
 		if ('StatusBar' in window){
 			var colorString = UI.primaryColor;

@@ -603,8 +603,10 @@ function sepiaFW_build_account(){
 			$('#sepiaFW-login-box').find('.extended-controls').each(function(){
 				if (isVisible){
 					$(this).fadeOut(150);
+					$('#sepiaFW-login-help-btn').fadeOut(150);
 				}else{
 					$(this).fadeIn(300);
+					$('#sepiaFW-login-help-btn').fadeIn(300);
 				}
 			});
 			if (isVisible){
