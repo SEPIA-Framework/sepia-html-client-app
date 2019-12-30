@@ -1,0 +1,126 @@
+<div id='sepiaFW-frame-carousel' class="sepiaFW-inner-container sepiaFW-carousel">
+	<div class='sepiaFW-carousel-pane-container'>
+		<!-- Page 1 -->
+		<div id="sepiaFW-frame-page-1" class='sepiaFW-frames-page sepiaFW-carousel-pane'>
+			<h3>Device Local Site</h3>
+			<p>Here you can configure the local site (location) data for this device. Note that this data will be stored independently from user logins.</p>
+			<div id="sepiaFW-device-site-settings" class="group-container">
+				<div class="group">
+					<label>Location:</label>
+					<div id="sepiaFW-device-site-location-box" data-device-site="location"></div>
+				</div>
+				<div class="group">
+					<label>Type:</label>
+					<div id="sepiaFW-device-site-type-box" data-device-site="type"></div>
+				</div>
+				<div class="group">
+					<label>Name:</label>
+					<div id="sepiaFW-device-site-name-box" data-device-site="name"></div>
+				</div>
+				<div class="group">
+					<label>Index:</label>
+					<div id="sepiaFW-device-site-index-box" data-device-site="index"></div>
+				</div>
+				<div class="group">
+					<label>Updates:</label>
+					<div id="sepiaFW-device-site-updates-box" data-device-site="updates"></div>
+				</div>
+				<div class="group" style="justify-content: center;">
+					<button id="SepiaFW-device-site-store" onclick="SepiaFW.frames.currentScope.store()">Store settings</button>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+<div id="sepiaFW-frames-nav-bar" class='sepiaFW-layer-header'>
+	<button id="sepiaFW-frames-close" class='entry'>
+		<i class="material-icons md-btn2">&#xE5CD;</i>
+	</button>
+	<!--<button id="sepiaFW-frames-show-prev-page" class='entry'>
+		<i class="material-icons md-btn2">keyboard_arrow_left</i><span data-localize="back">back</span>
+	</button>
+	<button id="sepiaFW-frames-show-next-page" class='entry'>
+		<span data-localize="next">next</span><i class="material-icons md-btn2">keyboard_arrow_right</i>
+	</button>-->
+	<div id="sepiaFW-frames-nav-bar-page-indicator"><div>&nbsp;</div></div>
+</div>
+<script>
+	$('#sepiaFW-frame-carousel').find('[data-localize]').each(function(){
+		$(this).html(SepiaFW.local.g(this.dataset.localize));
+	});
+	
+	//Data
+	SepiaFW.config.deviceLocalSiteOptions = {
+		location: [
+			{ "value": "", "name": "Not assigned" },
+			{ "value": "home", "name": "Home" }
+			//,{ "value": "mobile", "name": "Mobile" }
+		],
+		type: [
+			{ "value": "", "name": "Not assigned" },
+			{ "value": "room", "name": "Room" }
+		],
+		name: [
+			{ "value": "unassigned", "name": "Not assigned" },
+			{ "value": "livingroom", "name": "Living room"	},
+			{ "value": "diningroom", "name": "Dining room"	},
+			{ "value": "kitchen", "name": "Kitchen"	},
+			{ "value": "bedroom", "name": "Bedroom" },
+			{ "value": "bath", "name": "Bath" },
+			{ "value": "study", "name": "Study room" },
+			{ "value": "office", "name": "Office" },
+			{ "value": "childsroom", "name": "Child's room" },
+			{ "value": "garage", "name": "Garage" },
+			{ "value": "basement", "name": "Basement" },
+			{ "value": "garden", "name": "Garden" },
+			{ "value": "shack", "name": "Shack" },
+			{ "value": "hallway", "name": "Hallway" },
+			{ "value": "other", "name": "Other" }
+		],
+		updates: [
+			{ "value": "off", "name": "Off" }
+			//, { "value": "auto", "name": "Automatic" }
+		]
+		//, index: undefined,			//free input, e.g. numbers: 1, 2, 212, ...
+	};
+	//TODO: we should load this data from server
+	
+	//Define scope
+	SepiaFW.frames.currentScope = {
+
+		onFinishSetup: function(){
+			$('#sepiaFW-device-site-settings').find('[data-device-site]').each(function(){
+				var tag = this.dataset.deviceSite;
+				var options = SepiaFW.config.deviceLocalSiteOptions[tag];
+				var eleId = "sepiaFW-device-site-settings-" + tag;
+				if (options){
+					this.appendChild(SepiaFW.ui.build.optionSelector(eleId, options, options[0], function(ele){}));		//console.log(ele.value);
+				}else{
+					this.innerHTML = "<input id='" + eleId + "' style='max-width: 100px;' placeholder='" + tag + "'>";
+				}
+			});
+		},
+		
+		onOpen: function(){
+			var siteData = SepiaFW.config.getDeviceLocalSiteData();
+			$('#sepiaFW-device-site-settings-location').val(siteData.location);
+			$('#sepiaFW-device-site-settings-type').val(siteData.type);
+			$('#sepiaFW-device-site-settings-name').val(siteData.name);
+			$('#sepiaFW-device-site-settings-index').val(siteData.index);
+			$('#sepiaFW-device-site-settings-updates').val(siteData.updates);
+		},
+		
+		store: function(){
+			var siteData = {
+				location: $('#sepiaFW-device-site-settings-location').val(),
+				type: $('#sepiaFW-device-site-settings-type').val(),
+				name: $('#sepiaFW-device-site-settings-name').val(),
+				index: $('#sepiaFW-device-site-settings-index').val() || "",
+				updates: $('#sepiaFW-device-site-settings-updates').val()
+			};
+			//console.log(siteData);
+			SepiaFW.config.setDeviceLocalSiteData(siteData);
+			SepiaFW.ui.showPopup(SepiaFW.local.g("done"));
+		}
+	}
+</script>

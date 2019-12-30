@@ -69,6 +69,10 @@ html.dark {
 	background-color: #000;
 	background-image: none;
 }
+html.dark-frame {
+	background-color: #000 !important;
+	background-image: none !important;
+}
 body {
     /*font-family: 'Roboto', sans-serif;*/
 	font-family: sans-serif;
@@ -477,6 +481,11 @@ body {
 	text-align: center;
 	z-index: 10;
 }
+@media (max-height: 530px) {
+	#sepiaFW-login-box {
+		top: 4%;
+	}
+}
 #sepiaFW-login-box h2 {
 	font-weight: normal;
 }
@@ -535,6 +544,28 @@ body {
     color: inherit !important;
 	margin: 4px 0 0 0 !important;
 }
+#sepiaFW-login-help-btn {
+	position: absolute;
+    bottom: -50px;
+    right: calc(50% - 24px);
+    height: auto;
+	width: auto !important;
+	background: transparent !important;
+	display: none;
+}
+html.light-skin #sepiaFW-login-help-btn {
+	color: #111 !important;
+}
+html.dark-skin #sepiaFW-login-help-btn {
+	color: #eee !important;
+}
+/*@media (max-height: 480px) {
+	#sepiaFW-login-help-btn {
+		position: fixed;
+		bottom: 0;
+		right: 0;
+	}
+}*/
 
 #sepiaFW-main-window input, #sepiaFW-main-window button, #sepiaFW-main-window article {
 	border-radius: 3px;

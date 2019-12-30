@@ -3,8 +3,8 @@ function sepiaFW_build_ui(){
 	var UI = {};
 	
 	//some constants
-	UI.version = "v0.19.1";
-	UI.requiresServerVersion = "2.3.0";
+	UI.version = "v0.20.0";
+	UI.requiresServerVersion = "2.4.0";
 	UI.JQ_RES_VIEW_IDS = "#sepiaFW-result-view, #sepiaFW-chat-output, #sepiaFW-my-view";	//a selector to get all result views e.g. $(UI.JQ_RES_VIEW_IDS).find(...) - TODO: same as $('.sepiaFW-results-container') ??
 	UI.JQ_ALL_MAIN_VIEWS = "#sepiaFW-result-view, #sepiaFW-chat-output, #sepiaFW-my-view, #sepiaFW-teachUI-editor, #sepiaFW-teachUI-manager, #sepiaFW-frame-page-0, #sepiaFW-frame-page-1, #sepiaFW-frame-page-2, #sepiaFW-frame-page-3"; 	//TODO: frames can have more ...
 	UI.JQ_ALL_SETTINGS_VIEWS = ".sepiaFW-chat-menu-list-container";
@@ -124,6 +124,7 @@ function sepiaFW_build_ui(){
 	UI.loadingColor = '#b4b4b4';
 	UI.assistantColor = '';
 	UI.micBackgroundColor = '#fff';  //reassigned during UI setup
+	UI.htmlBackgroundColor = window.getComputedStyle(document.documentElement).getPropertyValue("background-color") || "#fff";
 	
 	UI.isMenuOpen = false;
 	UI.lastInput = "";
@@ -144,9 +145,21 @@ function sepiaFW_build_ui(){
 		UI.awaitDialogColor = adC? window.getComputedStyle(adC, null).getPropertyValue("background-color"): 'gold';
 		UI.assistantColor =	 asC? window.getComputedStyle(asC, null).getPropertyValue("background-color"): UI.primaryColor;
 		UI.loadingColor =	 lC? window.getComputedStyle(lC, null).getPropertyValue("background-color"): 'rgba(180, 180, 180, 1.0)';
+		UI.htmlBackgroundColor = window.getComputedStyle(document.documentElement).getPropertyValue("background-color") || "#fff";
 		//UI.assistantColor = $('#sepiaFW-chat-output').find('article.chatAssistant').first().css("background-color");
 		//refresh theme-color
 		$('meta[name="theme-color"]').replaceWith('<meta name="theme-color" content="' + UI.primaryColor + '">');
+		//set general skin style
+		var backColor = UI.htmlBackgroundColor;
+		if ((backColor + '').indexOf('rgb') === 0){
+			var rgbBack = SepiaFW.tools.convertRgbColorStringToRgbArray(backColor);
+			backColor = SepiaFW.tools.rgbToHex(rgbBack[0], rgbBack[1], rgbBack[2]);
+		}
+		if (SepiaFW.tools.getBestContrast(backColor) === 'white'){
+			$(document.documentElement).removeClass('light-skin').addClass("dark-skin");
+		}else{
+			$(document.documentElement).removeClass('dark-skin').addClass("light-skin");			
+		}
 		//update statusbar
 		if ('StatusBar' in window){
 			var colorString = UI.primaryColor;
@@ -1002,7 +1015,7 @@ function sepiaFW_build_ui(){
 		$('#sepiaFW-loader').hide();
 	}
 	
-	//Show message popup
+	//Show message popup - TODO: there can only be one pop-up at the same time
 	UI.showPopup = function(content, config){
 		//var primaryColor, secondaryColor; 		//could be added as config variables
 		if (!config) config = {};
@@ -1669,6 +1682,43 @@ function sepiaFW_build_ui(){
 			}else if (document.webkitExitFullscreen){	document.webkitExitFullscreen();
 			}
 		}
+	}
+
+	//----- Post Message Interface -----
+
+	var sepiaPostMessageHandlers = {
+		"test": 	console.log
+	}
+	UI.addPostMessageHandler = function(handlerName, handlerFun){
+		sepiaPostMessageHandlers[handlerName] = handlerFun;
+	}
+	window.addEventListener('message', function(message){
+		if (message.data && message.data.type){
+			if (message.data.type == "sepia-common-interface-event"){
+				//console.log(message);
+				console.log("SEPIA Client received message for handler: " + message.data.fun);
+				var handler = sepiaPostMessageHandlers[message.data.fun];
+				if (handler && typeof handler == "function"){
+					handler(message.data.ev);
+				}else{
+					console.error('SEPIA - sendInputEvent of ' + message.source + ': Message handler not available!');
+				}
+			}
+		}
+	});
+	//Example:  iframe.contentWindow.postMessage({type: "sepia-common-interface-event", fun:"test", ev: "Hello"}, "*");
+	//			see Control HUB button for 'login' implementation
+	/*
+	//postMessage to parent window
+	function parentPostMsg(msg){
+		//post only if really a child
+		if (window !== parent){
+			parent.postMessage(msg, "*");
+		}
+	}
+	*/
+	if (window !== parent){
+		console.log("SEPIA Client loaded inside frame. PostMessage interface available.");
 	}
 	
 	return UI;

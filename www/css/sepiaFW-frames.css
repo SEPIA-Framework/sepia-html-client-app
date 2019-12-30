@@ -60,6 +60,10 @@
 	/*overflow-y: overlay;*/
 	-webkit-overflow-scrolling: touch;
 }
+.sepiaFW-frames-page.flat {
+	padding: 0;
+	overflow: hidden;
+}
 .sepiaFW-frames-page a {
 	color: #4ec48f;
 }
@@ -77,6 +81,15 @@
 .sepiaFW-frames-page button.dangerous {
 	background: #f33 !important;
 	color: #fff !important;
+}
+
+.sepiaFW-frames-page iframe {
+	border: 0;
+}
+
+.sepiaFW-frames-page .full-size {
+	width: 100%;
+	height: 100%;
 }
 
 .sepiaFW-frames-page .info-text {

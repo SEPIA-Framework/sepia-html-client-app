@@ -44,18 +44,24 @@ function sepiaFW_build_frames(){
 		onSpeechToTextInputHandler = info.onSpeechToTextInputHandler;
 		onChatOutputHandler = info.onChatOutputHandler;		//NOTE: difference to 'messageHandler' is that this will not block the normal queue, it just delivers the text
 		
-		//theme
-		if (info.theme && info.theme == "dark"){
-			$('#sepiaFW-frames-view').addClass('dark');
-			$('.sepiaFW-frames-page').addClass('dark');
-		}else if (info.theme && info.theme == "dark_full"){
-			$('html').addClass('dark');
-			$('#sepiaFW-frames-view').addClass('dark');
-			$('.sepiaFW-frames-page').addClass('dark');
-		}else{	
-			$('html').removeClass('dark');
-			$('#sepiaFW-frames-view').removeClass('dark');
-			$('.sepiaFW-frames-page').removeClass('dark');
+		//theme:
+		//-clean up old theme first
+		$('#sepiaFW-frames-view').removeClass('dark');
+		$('.sepiaFW-frames-page').removeClass('dark');
+		$('.sepiaFW-frames-page').removeClass('flat');
+		$('html').removeClass('dark-frame');
+		//-then add new
+		if (info.theme){
+			if (info.theme.indexOf("dark") >= 0){
+				$('#sepiaFW-frames-view').addClass('dark');
+				$('.sepiaFW-frames-page').addClass('dark');
+			}
+			if (info.theme.indexOf("dark_full") >= 0){
+				$('html').addClass('dark-frame');
+			}
+			if (info.theme.indexOf("flat") >= 0){
+				$('.sepiaFW-frames-page').addClass('flat');
+			}
 		}
 
 		if (isActive != info.pageUrl){
@@ -77,7 +83,7 @@ function sepiaFW_build_frames(){
 	}
 	Frames.close = function(){
 		//design resets (global changes)
-		$('html').removeClass('dark');
+		$('html').removeClass('dark-frame');
 		//close
 		$('#sepiaFW-frames-view').slideUp(300);
 		Frames.isOpen = false;

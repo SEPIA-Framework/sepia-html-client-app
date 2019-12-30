@@ -4,6 +4,8 @@ function sepiaFW_build_ui_custom_buttons(){
     var customButtonObjects = [];
     var lastCustomButtonsLoad = 0;
 
+    CustomButtons.maxButtonsToLoad = 16;
+
     CustomButtons.isOutdated = false;       //set this to true to reload icons on next my-view refresh
 
     //My view refresh event
@@ -14,7 +16,7 @@ function sepiaFW_build_ui_custom_buttons(){
         }
     }
 
-    //Load first buttons via teach-API (max. 10 by default)
+    //Load first buttons via teach-API (see CustomButtons.maxButtonsToLoad for max. default number)
     CustomButtons.load = function(){
         if (SepiaFW.client.isDemoMode()){
             //Load demo-buttons and publish
@@ -32,7 +34,7 @@ function sepiaFW_build_ui_custom_buttons(){
             lastCustomButtonsLoad = now;
             var withButtonOnly = true;
             var startingFrom = 0;
-            SepiaFW.teach.loadPersonalCommands(SepiaFW.account.getKey(), startingFrom, function(data){
+            SepiaFW.teach.loadPersonalCommands(SepiaFW.account.getKey(), startingFrom, CustomButtons.maxButtonsToLoad, function(data){
                 //success
                 var res = data.result;
                 customButtonObjects = [];
@@ -165,7 +167,11 @@ function sepiaFW_build_ui_custom_buttons(){
         SepiaFW.ui.actions.openCMD(newAction);
         */
         SepiaFW.debug.info("CustomButtons - sending button-text: " + buttonData.text);
-        SepiaFW.client.sendInputText("@" + SepiaFW.assistant.id + " " + buttonData.text);
+        if (SepiaFW.assistant.id){
+            SepiaFW.client.sendInputText("@" + SepiaFW.assistant.id + " " + buttonData.text);
+        }else{
+            SepiaFW.client.sendInputText(buttonData.text);
+        }
     }
 
     return CustomButtons;

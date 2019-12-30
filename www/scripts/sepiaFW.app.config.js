@@ -144,6 +144,26 @@ function sepiaFW_build_config(){
 
 	//------------ PLATFORM & APP CONNECTORS -------------
 
+	var deviceLocalSiteData = {
+		location: "",		//e.g.: "home", "mobile", empty
+		type: "",			//e.g.: "room" (location=home), empty
+		name: "unassigned",	//e.g.: "office" (type=room), "unassigned"
+		index: "",			//e.g.: 1, 2, 212, ...
+		updates: "off"		//e.g.: "off", "auto" (not supported yet)
+	};
+	Config.setDeviceLocalSiteData = function(data){
+		if (data.location != undefined) deviceLocalSiteData.location = data.location;
+		if (data.type != undefined) deviceLocalSiteData.type = data.type;
+		if (data.name != undefined) deviceLocalSiteData.name = data.name;
+		if (data.index != undefined) deviceLocalSiteData.index = data.index;
+		if (data.updates != undefined) deviceLocalSiteData.updates = data.updates;
+		SepiaFW.data.setPermanent('deviceLocalSiteData', deviceLocalSiteData);
+	}
+	Config.getDeviceLocalSiteData = function(){
+		return deviceLocalSiteData;
+	}
+	//SEE: Config.deviceLocalSiteOptions in frames file - TODO: we should load this data from server
+
 	//Collection of universally supported apps and their names
     Config.musicApps = {
 		"youtube": {name: "YouTube"},
@@ -238,6 +258,12 @@ function sepiaFW_build_config(){
 		//CLEXI.js support
 		if (SepiaFW.clexi){
 			SepiaFW.clexi.initialize();
+		}
+
+		//Device local site configuration
+		var dlsData = SepiaFW.data.getPermanent('deviceLocalSiteData'); 
+		if (dlsData){
+			Config.setDeviceLocalSiteData(dlsData);
 		}
 
 		//Default music app

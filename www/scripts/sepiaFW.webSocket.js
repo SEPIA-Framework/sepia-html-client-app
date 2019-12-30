@@ -282,8 +282,8 @@ function sepiaFW_build_webSocket_client(){
 	var lastActivatedChatPartner;
 	var activeChannelId = "";			//set on "joinChannel" event
 	var lastActivatedChannelId = "";	//last actively chosen channel
-	var lastChannelMessageTimestamps;		//track when a channel received the last message
-	var lastChannelHistoryClearTimestamps;	//track when a channel history was last cleared
+	var lastChannelMessageTimestamps = {};		//track when a channel received the last message
+	var lastChannelHistoryClearTimestamps = {};	//track when a channel history was last cleared
 	var lastChannelJoinTimestamps = {};			//track when a channel was last joined (NOTE: this is volatile by intention, don't store it unless u store channel history as well)
 	var lastChannelMessageDataStoreTimer;			//a timer that prevents too many consecutive calls to store channel data in local DB
 	var lastChannelMessageDataStoreDelay = 6000;	//... not more often than every N seconds

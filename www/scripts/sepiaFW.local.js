@@ -15,6 +15,7 @@ function sepiaFW_build_strings(){
 	StringsDE.nickname = 'Spitzname';
 	StringsDE.password = 'Passwort';
 	StringsDE.language = 'Sprache';
+	StringsDE.preferred_temp_unit = 'Einheit der Temperatur';
 	StringsDE.general = 'Allgemein';
 	StringsDE.sendLogin = 'Login';
 	StringsDE.sign_out = 'Abmelden';
@@ -25,6 +26,8 @@ function sepiaFW_build_strings(){
 	StringsDE.logout = 'Logout';
 	StringsDE.closeLogin = 'Weiter ohne Login';
 	StringsDE.info_and_help = 'Infos und Support';
+	StringsDE.control_hub = 'Control HUB';
+	StringsDE.tutorial = 'Tutorial';
 	StringsDE.change_account_password = "Account Passwort ändern";
 	StringsDE.channels = "Kanäle";
 	StringsDE.active_users = "Aktive User";
@@ -52,6 +55,7 @@ function sepiaFW_build_strings(){
 	StringsDE.userNotFound = 'Uups, dieser User scheint gerade nicht hier zu sein :-(';
 	StringsDE.loading = 'Lädt';
 	StringsDE.oneMoment = 'Einen Moment bitte ...';
+	StringsDE.done = 'Erledigt';
 	StringsDE.doit = 'Tu es!';
 	StringsDE.looksGood = 'Sieht gut aus';
 	StringsDE.betterNot = 'Besser nicht';
@@ -72,6 +76,7 @@ function sepiaFW_build_strings(){
 	StringsDE.continueOffline = 'Offline weitermachen';
 	StringsDE.locateMe = 'Standort bestimmen';
 	StringsDE.deviceId = 'Geräte ID';
+	StringsDE.deviceSite = 'Gerätestandort';
 	StringsDE.allowedToExecuteThisCommand = 'Darf ich diesen Befehl ausführen: ';
 	StringsDE.copyList = 'Diese Liste gehört einem anderen User, möchtest du sie in deinen Account kopieren?';
 	StringsDE.cantCopyList = 'Diese Liste gehört einem anderen User und kann nicht gespeichert werden, aber du kannst eventuell einzelne Einträge via share-Funktion kopieren.';
@@ -114,7 +119,6 @@ function sepiaFW_build_strings(){
 	StringsDE.license = 'Lizenz';
 	StringsDE.credits = 'Credits';
 	StringsDE.data_privacy = 'Datenschutz';
-	StringsDE.tutorial = 'Tutorial';
 	StringsDE.way_home = 'Weg nach Hause';
 	//Fill words
 	StringsDE.from = 'von';
@@ -162,6 +166,7 @@ function sepiaFW_build_strings(){
 	StringsEN.nickname = 'Nickname';
 	StringsEN.password = 'Password';
 	StringsEN.language = 'Language';
+	StringsEN.preferred_temp_unit = 'Unit of Temperature';
 	StringsEN.general = 'General';
 	StringsEN.sendLogin = 'Login';
 	StringsEN.sign_out = 'Sign out';
@@ -172,6 +177,8 @@ function sepiaFW_build_strings(){
 	StringsEN.logout = 'Logout';
 	StringsEN.closeLogin = 'Continue without login';
 	StringsEN.info_and_help = 'Info and support';
+	StringsEN.control_hub = 'Control HUB';
+	StringsEN.tutorial = 'Tutorial';
 	StringsEN.change_account_password = "Change account password";
 	StringsEN.channels = "Channels";
 	StringsEN.active_users = "Active Users";
@@ -199,6 +206,7 @@ function sepiaFW_build_strings(){
 	StringsEN.userNotFound = 'Uups, this user seems to be not available right now :-(';
 	StringsEN.loading = 'Loading';
 	StringsEN.oneMoment = 'One moment please ...';
+	StringsEN.done = 'Done';
 	StringsEN.doit = 'Do it!';
 	StringsEN.looksGood = 'Looks good';
 	StringsEN.betterNot = 'Better not';
@@ -219,6 +227,7 @@ function sepiaFW_build_strings(){
 	StringsEN.continueOffline = 'Continue offline';
 	StringsEN.locateMe = 'Refresh my location';
 	StringsEN.deviceId = 'Device ID';
+	StringsEN.deviceSite = 'Device site';
 	StringsEN.allowedToExecuteThisCommand = 'Am I allowed to send this request: ';
 	StringsEN.copyList = 'This list belongs to another user, do you want to copy it to your account?';
 	StringsEN.cantCopyList = 'This list belongs to another user and cannot be stored, but you might be able to copy single items with the share function.';
@@ -261,7 +270,6 @@ function sepiaFW_build_strings(){
 	StringsEN.license = 'License';
 	StringsEN.credits = 'Credits';
 	StringsEN.data_privacy = 'Data privacy';
-	StringsEN.tutorial = 'Tutorial';
 	StringsEN.way_home = 'Way home';
 	//Fill words
 	StringsEN.from = 'from';
