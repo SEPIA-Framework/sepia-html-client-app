@@ -581,7 +581,13 @@ function sepiaFW_build_account(){
 			SepiaFW.config.setHostName(newHost);
 			setTimeout(function(){
 				Account.toggleLoginBox();
-			}, 750);
+			}, 450);
+		});
+		$("#sepiaFW-login-host-details").off().on('click', function(){
+			Account.toggleLoginBox();
+			setTimeout(function(){
+				SepiaFW.config.openEndPointsSettings();
+			}, 500);
 		});
 		//license
 		var licBtn = $("#sepiaFW-login-license-btn").off().on("click", function(event){

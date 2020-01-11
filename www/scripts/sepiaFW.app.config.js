@@ -39,7 +39,7 @@ function sepiaFW_build_config(){
 	}
 	//set hostname
 	Config.setHostName = function(hostName, skipReload){
-		if (hostName){
+		if (hostName != undefined){
 			Config.host = hostName;
 			SepiaFW.data.setPermanent("host-name", Config.host);
 			Config.broadcastHostName(Config.host);
@@ -67,14 +67,78 @@ function sepiaFW_build_config(){
 	Config.webSocketAPI = "http://" + Config.host + "/chat/";
 		
 	//set base URLs to end-points
-	Config.setEndPoints = function(apiURLs){
-		if (apiURLs.assistAPI){
-			Config.assistAPI = apiURLs.assistAPI;
-			SepiaFW.debug.log('Config: assistAPI=' + apiURLs.assistAPI);
+	Config.setEndPoints = function(hostname, customData, isTest){
+		//test config
+		if (isTest){
+			Config.assistAPI = "http://" + "localhost" + ":20721/";
+			Config.teachAPI = "http://" + "localhost" + ":20722/";
+			Config.webSocketURI = "ws://" + "localhost" + ":20723/messages/";
+			Config.webSocketAPI = "http://" + "localhost" + ":20723/";
+		//custom server config with proxy or IP (uses SSL when explicitly defined or hostname ends with '/sepia')
+		}else{
+			//get stored
+			var serverAccess = customData || SepiaFW.data.getPermanent("server-access");
+			if (serverAccess && Object.keys(serverAccess)){
+				if (serverAccess.forHost == hostname){
+					Config.assistAPI = serverAccess.assist;
+					Config.teachAPI = serverAccess.teach;
+					Config.webSocketAPI = serverAccess.chat;
+					Config.webSocketURI = serverAccess.chatSocket;
+					return;
+				}else{
+					SepiaFW.data.delPermanent("server-access");
+					SepiaFW.debug.log("Config: cleaned-up old 'server-access' data");
+				}
+			}
+
+			//get protocol
+			var http = "https://";
+			var ws = "wss://";
+			var cleanHost = hostname.trim().replace(/\/$/);
+			if (SepiaFW.tools.startsWith(cleanHost, "http://")){
+				cleanHost = cleanHost.replace(/^http:\/\//,'');
+				http = "http://";
+				ws = "ws://";
+			}else if (SepiaFW.tools.startsWith(cleanHost, "https://")){
+				cleanHost = cleanHost.replace(/^https:\/\//,'');
+			}else if (!SepiaFW.tools.endsWith(cleanHost, "/sepia")){
+				//hostnames without protocol will only keep 'https' if they end with "/sepia"
+				http = "http://";
+				ws = "ws://";
+			}
+			//set default
+			if (SepiaFW.tools.endsWith(cleanHost, "/sepia")){
+				//proxy
+				Config.assistAPI = http + cleanHost + "/assist/";
+				Config.teachAPI = http + cleanHost + "/teach/";
+				Config.webSocketAPI = http + cleanHost + "/chat/";
+				Config.webSocketURI = ws + cleanHost + "/chat/messages/";
+			}else{
+				Config.assistAPI = http + cleanHost + ":20721/";
+				Config.teachAPI = http + cleanHost + ":20722/";
+				Config.webSocketAPI = http + cleanHost + ":20723/";
+				Config.webSocketURI = ws + cleanHost + ":20723/messages/";
+			}
 		}
-		if (apiURLs.teachAPI) Config.teachAPI = apiURLs.teachAPI;
-		if (apiURLs.webSocketURI) Config.webSocketURI = apiURLs.webSocketURI;
-		if (apiURLs.webSocketAPI) Config.webSocketAPI = apiURLs.webSocketAPI;
+		SepiaFW.debug.log('Config: assistAPI=' + Config.assistAPI);
+	}
+	Config.openEndPointsSettings = function(){
+		SepiaFW.frames.open({ 
+			pageUrl: "server-access.html",
+			onFinishSetup: function(){
+				SepiaFW.frames.currentScope.onFinishSetup();
+			},
+			onOpen: function(){
+				SepiaFW.frames.currentScope.onOpen();
+			},
+			onClose: function(){
+				if (!SepiaFW.account.getUserId() && !SepiaFW.client.isDemoMode()){
+					SepiaFW.account.toggleLoginBox();
+				}
+			},
+			/*onClose: onSettingsClose,*/
+			theme: SepiaFW.ui.getSkinStyle()
+		});
 	}
 	
 	//set policy and license links

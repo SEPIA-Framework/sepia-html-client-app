@@ -518,6 +518,22 @@ body {
 #sepiaFW-login-box, #sepiaFW-login-close {
 	float: left;
 }
+#sepiaFW-login-box #sepiaFW-host-name-box {
+	position: relative;
+}
+#sepiaFW-login-box #sepiaFW-host-name-box #sepiaFW-login-host-details {
+	position: absolute;
+    top: 26px;
+    right: 4px;
+    /* background: #ddd; */
+    /* color: #111; */
+    width: 25px;
+    margin: 0;
+    padding: 4px;
+    border-radius: 50%;
+    font-size: 15px;
+    font-weight: bold;
+}
 #sepiaFW-login-form {
 	overflow: hidden;
 	padding-bottom: 4px;
@@ -547,9 +563,10 @@ body {
 #sepiaFW-login-help-btn {
 	position: absolute;
     bottom: -50px;
-    right: calc(50% - 24px);
+    right: calc(50% - 27px);
     height: auto;
 	width: auto !important;
+	font-size: 34px !important;
 	background: transparent !important;
 	display: none;
 }
