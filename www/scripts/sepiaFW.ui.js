@@ -3,8 +3,8 @@ function sepiaFW_build_ui(){
 	var UI = {};
 	
 	//some constants
-	UI.version = "v0.20.0";
-	UI.requiresServerVersion = "2.4.0";
+	UI.version = "v0.20.1";
+	UI.requiresServerVersion = "2.4.1";
 	UI.JQ_RES_VIEW_IDS = "#sepiaFW-result-view, #sepiaFW-chat-output, #sepiaFW-my-view";	//a selector to get all result views e.g. $(UI.JQ_RES_VIEW_IDS).find(...) - TODO: same as $('.sepiaFW-results-container') ??
 	UI.JQ_ALL_MAIN_VIEWS = "#sepiaFW-result-view, #sepiaFW-chat-output, #sepiaFW-my-view, #sepiaFW-teachUI-editor, #sepiaFW-teachUI-manager, #sepiaFW-frame-page-0, #sepiaFW-frame-page-1, #sepiaFW-frame-page-2, #sepiaFW-frame-page-3"; 	//TODO: frames can have more ...
 	UI.JQ_ALL_SETTINGS_VIEWS = ".sepiaFW-chat-menu-list-container";
@@ -129,6 +129,7 @@ function sepiaFW_build_ui(){
 	UI.isMenuOpen = false;
 	UI.lastInput = "";
 	var activeSkin = 0;
+	var activeSkinStyle = "light";
 	
 	//get/refresh skin colors
 	UI.refreshSkinColors = function(){
@@ -157,8 +158,10 @@ function sepiaFW_build_ui(){
 		}
 		if (SepiaFW.tools.getBestContrast(backColor) === 'white'){
 			$(document.documentElement).removeClass('light-skin').addClass("dark-skin");
+			activeSkinStyle = "dark";
 		}else{
-			$(document.documentElement).removeClass('dark-skin').addClass("light-skin");			
+			$(document.documentElement).removeClass('dark-skin').addClass("light-skin");
+			activeSkinStyle = "light";
 		}
 		//update statusbar
 		if ('StatusBar' in window){
@@ -224,6 +227,9 @@ function sepiaFW_build_ui(){
 	}
 	UI.getSkin = function(){
 		return activeSkin;
+	}
+	UI.getSkinStyle = function(){
+		return activeSkinStyle;
 	}
 	
 	//setup dynamic label
