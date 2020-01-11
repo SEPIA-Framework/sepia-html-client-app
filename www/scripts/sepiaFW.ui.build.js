@@ -540,10 +540,7 @@ function sepiaFW_build_ui_build(){
 			centerPage2.innerHTML = ""
 				+ "<ul class='sepiaFW-menu-settings-list'>"
 					+ "<li id='sepiaFW-menu-select-skin-li'><span>Skin: </span><select id='sepiaFW-menu-select-skin'><option disabled selected value>- select -</option></select></li>"
-					+ "<li id='sepiaFW-menu-assistant-host-li' title='Assistant hostname, e.g.: my.example.org/sepia, localhost or [IP]'>"
-						+ "<span>Hostname: </span>"
-						+ "<input id='sepiaFW-menu-assistant-host' type='url' placeholder='my.example.org/sepia' spellcheck='false'>"
-					+ "</li>"
+					+ "<li id='sepiaFW-menu-server-access-li' title='Settings for core server connections'><span>" + SepiaFW.local.g('serverConnections') + ": </span></li>"
 					+ "<li id='sepiaFW-menu-deviceId-li'><span>" + SepiaFW.local.g('deviceId') + ": </span><input id='sepiaFW-menu-deviceId' type='text' maxlength='24'></li>"
 					+ "<li id='sepiaFW-menu-device-site-li' title='Settings for device local site'><span>" + SepiaFW.local.g('deviceSite') + ": </span></li>"
 					+ "<li id='sepiaFW-menu-toggle-GPS-li'><span>GPS: </span></li>"
@@ -745,14 +742,13 @@ function sepiaFW_build_ui_build(){
 			$('#sepiaFW-menu-select-skin').on('change', function() {
 				SepiaFW.ui.setSkin($('#sepiaFW-menu-select-skin').val());
 			});
-			//hostname
-			var hostNameInput = document.getElementById("sepiaFW-menu-assistant-host");
-			hostNameInput.value = SepiaFW.config.host;
-			hostNameInput.addEventListener("change", function(){
-				var newHost = this.value;
-				this.blur();
-				SepiaFW.config.setHostName(newHost);
-			});
+			//server access
+			var serverAccess = document.getElementById('sepiaFW-menu-server-access-li');
+			serverAccess.appendChild(Build.inlineActionButton('sepiaFW-menu-server-access-settings', "<i class='material-icons md-inherit'>settings</i>",
+				function(btn){
+					SepiaFW.config.openEndPointsSettings();
+				})
+			);
 			//device ID
 			var deviceIdInput = document.getElementById("sepiaFW-menu-deviceId");
 			deviceIdInput.value = SepiaFW.config.getDeviceId();
@@ -763,7 +759,6 @@ function sepiaFW_build_ui_build(){
 			});
 			//device site settings
 			var deviceSite = document.getElementById('sepiaFW-menu-device-site-li');
-			//settings
 			deviceSite.appendChild(Build.inlineActionButton('sepiaFW-menu-device-site-settings', "<i class='material-icons md-inherit'>settings</i>",
 				function(btn){
 					SepiaFW.frames.open({ 
@@ -775,7 +770,7 @@ function sepiaFW_build_ui_build(){
 							SepiaFW.frames.currentScope.onOpen();
 						},
 						/*onClose: onSettingsClose,*/
-						theme: "dark"
+						theme: SepiaFW.ui.getSkinStyle()
 					});
 				})
 			);
@@ -1109,7 +1104,7 @@ function sepiaFW_build_ui_build(){
 			document.getElementById("sepiaFW-menu-account-pwd-reset-btn").addEventListener("click", function(){
 				SepiaFW.frames.open({
 					pageUrl: "password-reset.html",
-					theme: "dark",
+					theme: SepiaFW.ui.getSkinStyle(),
 					onOpen: function(){ 
 						$('#sepiaFW-pwd-reset-view').find('input').val(''); 
 						$('#sepiaFW-pwd-reset-uid').val(SepiaFW.account.getUserId());

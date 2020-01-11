@@ -75,6 +75,7 @@ function sepiaFW_build_strings(){
 	StringsDE.abort = 'Abbrechen';
 	StringsDE.continueOffline = 'Offline weitermachen';
 	StringsDE.locateMe = 'Standort bestimmen';
+	StringsDE.serverConnections = 'Server Verbindungen';
 	StringsDE.deviceId = 'Geräte ID';
 	StringsDE.deviceSite = 'Gerätestandort';
 	StringsDE.allowedToExecuteThisCommand = 'Darf ich diesen Befehl ausführen: ';
@@ -226,6 +227,7 @@ function sepiaFW_build_strings(){
 	StringsEN.abort = 'Abort';
 	StringsEN.continueOffline = 'Continue offline';
 	StringsEN.locateMe = 'Refresh my location';
+	StringsEN.serverConnections = 'Server connections';
 	StringsEN.deviceId = 'Device ID';
 	StringsEN.deviceSite = 'Device site';
 	StringsEN.allowedToExecuteThisCommand = 'Am I allowed to send this request: ';
