@@ -213,6 +213,14 @@ function sepiaFW_build_teach(){
 					});
 				}
 			});
+
+			//-SHOW ICONS
+			$('#sepiaFW-teach-custom-button-select').on('click', function(){
+				SepiaFW.ui.showAllIconsInPopUp(function(iconId){
+					$('#sepiaFW-teach-custom-button-icon').val(iconId);
+					SepiaFW.ui.hidePopup();
+				});
+			});
 			
 			//-LOAD commands
 			$('#sepiaFW-teachUI-load-commands').on('click', function(){

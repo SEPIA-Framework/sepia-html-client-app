@@ -189,3 +189,7 @@
 .sepiaFW-teachUI-menu-group li .sepiaFW-toggle-btn {
 	float: right;
 }
+
+#sepiaFW-teach-custom-button-select {
+	cursor: pointer;
+}

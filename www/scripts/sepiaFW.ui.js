@@ -1086,7 +1086,11 @@ function sepiaFW_build_ui(){
 		}else{
 			$('#sepiaFW-popup-message-btn-four').off().hide();
 		}
-		$('#sepiaFW-popup-message-content').html(content);
+		if (typeof content == 'object'){
+			$('#sepiaFW-popup-message-content').html('').append(content);
+		}else{
+			$('#sepiaFW-popup-message-content').html(content);
+		}
 		$('#sepiaFW-cover-layer').fadeIn(150);
 		$('#sepiaFW-popup-message').fadeIn(300);
 	}
@@ -1688,6 +1692,23 @@ function sepiaFW_build_ui(){
 			}else if (document.webkitExitFullscreen){	document.webkitExitFullscreen();
 			}
 		}
+	}
+
+	//Icon stuff
+
+	UI.showAllIconsInPopUp = function(clickCallback){
+		var box = document.createElement('div');
+		googleMaterialIcons.forEach(function(g){
+			var c = document.createElement('i');
+			c.className = "material-icons icon-glyph";
+			c.dataset.glyphCode = "&#x" + g + ";";
+			c.innerHTML = c.dataset.glyphCode;
+			box.appendChild(c);
+			c.addEventListener('click', function(){
+				if (clickCallback) clickCallback(this.dataset.glyphCode);
+			});
+		});
+		UI.showPopup(box);
 	}
 
 	//----- Post Message Interface -----

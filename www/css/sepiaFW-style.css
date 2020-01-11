@@ -31,6 +31,10 @@
 	-ms-user-select: none;      
 	user-select: none;
 }
+.material-icons.icon-glyph {
+	margin: 4px;
+	cursor:	pointer;
+}
 
 input:focus,
 select:focus,
