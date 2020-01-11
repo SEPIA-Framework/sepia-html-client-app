@@ -75,7 +75,7 @@ function sepiaFW_build_input_controls() {
             onFinishSetup: onSetupFinish,
             onOpen: onSettingsOpen,
             onClose: onSettingsClose,
-            theme: "dark"
+            theme: SepiaFW.ui.getSkinStyle()
         });
     }
     function onSetupFinish(){

@@ -371,26 +371,33 @@ function sepiaFW_build_ui_actions(){
 				SepiaFW.debug.error("language-switch action FAILED. Wrong language code: " + action.language_code);
 				return;
 			}
-			//TODO: should we delay this until the anser is finished?
+			//TODO: should we delay this until the answer is finished?
 			if (lang){
 				var suppLangs = SepiaFW.local.getSupportedAppLanguages();
+				var foundLang = false;
 				suppLangs.forEach(function(sl){
 					if (sl.value == lang){
+						foundLang = true;
 						SepiaFW.debug.log("language-switch action - app lang.: " + lang);
 						SepiaFW.config.broadcastLanguage(lang);
 						return;
 					}
 				});
+				var foundRegion = false;
 				if (region){
 					var suppBcp47 = SepiaFW.local.getExperimentalAsrLanguages();
 					var bcp47 = (lang + "-" + region);
 					suppBcp47.forEach(function(sbcp47){
 						if (sbcp47.value == bcp47){
+							foundRegion = true;
 							SepiaFW.debug.log("language-switch action - speech lang.: " + bcp47);
 							SepiaFW.speech.setCountryCode(bcp47);
 							return;
 						}
 					});
+				}
+				if (foundLang && !foundRegion){
+					SepiaFW.speech.setCountryCode("");
 				}
 			}
 		}
