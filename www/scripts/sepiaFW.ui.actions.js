@@ -175,12 +175,16 @@ function sepiaFW_build_ui_actions(){
 			}
 		}else{
 			var newWindow = window.open(url, '_blank');
-			newWindow.opener = null;
-			//some special links that should not leave an empty browser tab
-			if (urlLower.indexOf('spotify:') == 0 || urlLower.indexOf('itmss:') == 0 || urlLower.indexOf('musics:') == 0){
-				setTimeout(function(){
-					newWindow.close(); 		//NOTE: problem here is that app-request dissapears before user interaction if not already allowed by user
-				}, 500);
+			if (newWindow && newWindow.opener){
+				newWindow.opener = null;
+				//some special links that should not leave an empty browser tab
+				if (urlLower.indexOf('spotify:') == 0 || urlLower.indexOf('itmss:') == 0 || urlLower.indexOf('musics:') == 0){
+					setTimeout(function(){
+						newWindow.close(); 		//NOTE: problem here is that app-request dissapears before user interaction if not already allowed by user
+					}, 500);
+				}
+			}else{
+				SepiaFW.ui.showInfo("Website pop-up blocked.");
 			}
 		}
 	}
