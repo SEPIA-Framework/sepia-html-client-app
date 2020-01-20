@@ -94,7 +94,7 @@ function sepiaFW_build_config(){
 			//get protocol
 			var http = "https://";
 			var ws = "wss://";
-			var cleanHost = hostname.trim().replace(/\/$/);
+			var cleanHost = hostname.trim().replace(/\/$/, '').replace(/:20721/, '');
 			if (SepiaFW.tools.startsWith(cleanHost, "http://")){
 				cleanHost = cleanHost.replace(/^http:\/\//,'');
 				http = "http://";
