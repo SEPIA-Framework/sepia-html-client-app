@@ -41,13 +41,19 @@ function sepiaFW_build_speech(){
 		
 	//ASR
 	Speech.testAsrSupport = function(){
-		var hasCordovaWebSpeechKitSupport = SepiaFW.ui.isCordova && ('SpeechRecognition' in window);
+		var hasCordovaSpeechApiSupport = SepiaFW.ui.isCordova && ('SpeechRecognition' in window);
 		var hasGeneralWebSpeechKitSupport = ('webkitSpeechRecognition' in window);
-		Speech.isWebKitAsrSupported = (hasCordovaWebSpeechKitSupport || hasGeneralWebSpeechKitSupport);
+		//at some point 'webkitSpeechRecognition' will become 'SpeechRecognition'
+		if (!hasGeneralWebSpeechKitSupport && !SepiaFW.ui.isCordova && ('SpeechRecognition' in window)){
+			window.webkitSpeechRecognition = window.SpeechRecognition;
+			hasGeneralWebSpeechKitSupport = true;
+			console.error("NOTE: SepiaFW.speech has unexpectedly found 'SpeechRecognition' in this browser. Support might be experimental!");
+		}
+		Speech.isWebKitAsrSupported = (hasCordovaSpeechApiSupport || hasGeneralWebSpeechKitSupport);			//TODO: this should be renamed to 'webSpeechAsr'
 		Speech.isWebSocketAsrSupported = (SepiaFW.speechWebSocket && SepiaFW.speechWebSocket.isAsrSupported);
 		Speech.isAsrSupported = (Speech.isWebKitAsrSupported || Speech.isWebSocketAsrSupported);
-		SepiaFW.debug.log("ASR: Supported interfaces: webSpeechKit=" + Speech.isWebKitAsrSupported 
-			+ " (cordova=" + hasCordovaWebSpeechKitSupport + "), webSocketAsr=" + Speech.isWebSocketAsrSupported + ".");
+		SepiaFW.debug.log("ASR: Supported interfaces: webSpeechAPI=" + Speech.isWebKitAsrSupported 
+			+ " (cordova=" + hasCordovaSpeechApiSupport + "), webSocketAsr=" + Speech.isWebSocketAsrSupported + ".");
 	}
 	Speech.testAsrSupport();
 
@@ -838,13 +844,36 @@ function sepiaFW_build_speech(){
 			}
 			return;
 		}
-		
-		//NATIVE-TTS
-		if (SepiaFW.ui.isCordova){
+
+		//SEPIA server
+		if (SepiaFW.speech.useSepiaServerTTS){
 			broadcastTtsRequested();
 			speechWaitingForResult = true;
 			synthID++;
-			onTtsStart(event, startedCallback, errorCallback);
+			SepiaFW.audio.tts.setup({});		//TODO: replace
+			SepiaFW.audio.tts.speak(text, function(e){
+				//onStart
+				var event = {};
+				event.msg = e;
+				onTtsStart(event, startedCallback, errorCallback);
+			}, function(e){
+				//onEnd
+				var event = {};
+				event.msg = e;
+				onTtsEnd(event, finishedCallback);
+			}, function(reason){
+				//onError
+				var event = {};
+				event.msg = reason;
+				onTtsError(event, errorCallback);
+			});
+		
+		//NATIVE-TTS
+		}else if (SepiaFW.ui.isCordova){
+			broadcastTtsRequested();
+			speechWaitingForResult = true;
+			synthID++;
+			onTtsStart(undefined, startedCallback, errorCallback);
 			TTS.speak({
 				text: text,
 				locale: getLongLanguageCode(Speech.getLanguage()),
@@ -951,7 +980,15 @@ function sepiaFW_build_speech(){
 		}
 		if (Speech.isTtsSupported && isSpeaking){
 			speechWaitingForStop = true;
-			if (SepiaFW.ui.isCordova){
+			//SEPIA server
+			if (SepiaFW.speech.useSepiaServerTTS){
+				SepiaFW.audio.tts.stop();
+				waitForTtsStop(function(){
+					return SepiaFW.audio.tts.isSpeaking;
+				});
+			
+			//NATIVE-TTS
+			}else if (SepiaFW.ui.isCordova){
 				TTS.speak({	text: ''}, function () {
 					//TODO: onEnd might be fired twice now ...
 					if (isSpeaking){
@@ -962,27 +999,34 @@ function sepiaFW_build_speech(){
 					event.msg = reason;
 					onTtsError(event);
 				});
+
+			//WEB-SPEECH-API
 			}else{
 				window.speechSynthesis.cancel();
-				var maxWait = 40;
-				var waited = 0;
-				var timer = setInterval(function(){
-					if (!window.speechSynthesis.speaking){
-						if (isSpeaking){
-							onTtsEnd();
-						}
-						clearInterval(timer);
-					}else if (waited > maxWait){
-						var event = {};
-						event.msg = "timeout";
-						onTtsError(event);
-						clearInterval(timer);
-					}
-					waited++;
-				}, 100);
+				waitForTtsStop(function(){
+					return window.speechSynthesis.speaking;
+				});
 			}
 		}
-	}		
+	}	
+	function waitForTtsStop(testFun){
+		var maxWait = 40;
+		var waited = 0;
+		var timer = setInterval(function(){
+			if (!testFun()){
+				if (isSpeaking){
+					onTtsEnd();
+				}
+				clearInterval(timer);
+			}else if (waited > maxWait){
+				var event = {};
+				event.msg = "timeout";
+				onTtsError(event);
+				clearInterval(timer);
+			}
+			waited++;
+		}, 100);
+	}
 	
 	//workarounds TTS:
 	

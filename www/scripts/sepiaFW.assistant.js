@@ -136,6 +136,11 @@ function sepiaFW_build_assistant(){
 	}
 	var lastGetState = 0;
 	var getStateIsOldTime = 60000;
+
+	//get mood only
+	Assistant.getMood = function(){
+		return mood;
+	}
 	
 	//evaluate result and store states
 	Assistant.setState = function(result, returnToIdle){

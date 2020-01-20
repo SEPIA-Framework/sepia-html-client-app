@@ -260,7 +260,12 @@ function sepiaFW_build_audio(){
 	TTS.speak = function (message, onStartCallback, onEndCallback, onErrorCallback){
 		//gets URL and calls play(URL)
 		TTS.getURL(message, function(audioUrl){
-			AudioPlayer.playURL(audioURL, speaker, onStartCallback, onEndCallback, onErrorCallback);
+			if (audioUrl.indexOf("/") == 0){
+				audioUrl = SepiaFW.config.assistAPI + audioUrl.substring(1);
+			}else if (audioUrl.indexOf("tts") == 0){
+				audioUrl = SepiaFW.config.assistAPI + audioUrl;
+			}
+			AudioPlayer.playURL(audioUrl, speaker, onStartCallback, onEndCallback, onErrorCallback);
 		}, onErrorCallback);		
 	}
 	TTS.stop = function(){
@@ -524,36 +529,31 @@ function sepiaFW_build_audio(){
 
 	//get audio URL
 	TTS.getURL = function(message, successCallback, errorCallback){
-		//check voice configuration
-		var voice = TTS.voice;
-		var gender = TTS.gender;
-		var voice_speed = TTS.speed;
-		var voice_tone = TTS.tone;
-		//emotion settings
-		var mood = TTS.mood;
-		//check play on server 
-		var this_playOn = TTS.playOn;
-		//set format
-		var sound_format = TTS.format;
+		var apiUrl = SepiaFW.config.assistAPI + "tts";
+		var submitData = {
+			text: message,
+			lang: ((SepiaFW.speech)? SepiaFW.speech.getLanguage() : SepiaFW.config.appLanguage),
+			mood: ((SepiaFW.assistant)? SepiaFW.assistant.getMood() : TTS.mood),
+			voice: TTS.voice,
+			gender: TTS.gender,
+			speed: TTS.speed,
+			tone: TTS.tone,
+			playOn: TTS.playOn,		//check play on server 
+			format: TTS.format		//sound format (e.g. wav file)
+		};
+		submitData.KEY = SepiaFW.account.getKey();
+		submitData.client = SepiaFW.config.getClientDeviceInfo();
+		submitData.env = SepiaFW.config.environment;
 
 		//get url
 		$.ajax({
-			type: "GET",
-			url: SepiaFW.config.assistAPI + "tts?text=" + encodeURIComponent(message) +
-							"&mood=" + encodeURIComponent(mood) +
-							"&voice=" + encodeURIComponent(voice) +
-							"&gender=" + encodeURIComponent(gender) +
-							"&speed=" + encodeURIComponent(voice_speed) +
-							"&tone=" + encodeURIComponent(voice_tone) +
-							"&playOn=" + encodeURIComponent(this_playOn) +
-							"&format=" + encodeURIComponent(sound_format) +
-							//general stuff
-							"&env=" + encodeURIComponent(SepiaFW.config.environment) +
-							"&lang=" + encodeURIComponent((SepiaFW.speech)? SepiaFW.speech.getLanguage() : SepiaFW.config.appLanguage) +
-							"&KEY=" + encodeURIComponent(SepiaFW.account.getKey()) +
-							"&client=" + encodeURIComponent(SepiaFW.config.clientInfo),
+			url: apiUrl,
 			timeout: 10000,
-			dataType: "jsonp",
+			type: "POST",
+			data: submitData,
+			headers: {
+				"content-type": "application/x-www-form-urlencoded"
+			},
 			success: function (response) {
 				SepiaFW.debug.info("GET_AUDIO SUCCESS: " + JSON.stringify(response));
 				if (response.result === "success"){
