@@ -86,13 +86,15 @@ function sepiaFW_build_ui(){
 		clearTimeout(activeElementChangeBuffer);
 		activeElementChangeBuffer = setTimeout(function(){
 			//note: cannot happen faster than every Xms
-			var event = new CustomEvent('sepia_active_element_change', { detail: {
-				id: document.activeElement.id,
-				className: document.activeElement.className,
-				tagName: document.activeElement.tagName
-			}});
-			document.dispatchEvent(event);
-			//console.error("new active ele.: " + (document.activeElement.id || document.activeElement.className || document.activeElement.tagName));
+			if (document.activeElement){
+				var event = new CustomEvent('sepia_active_element_change', { detail: {
+					id: document.activeElement.id,
+					className: document.activeElement.className,
+					tagName: document.activeElement.tagName
+				}});
+				document.dispatchEvent(event);
+				//console.error("new active ele.: " + (document.activeElement.id || document.activeElement.className || document.activeElement.tagName));
+			}
 		}, 100);
 	}
 	var activeElementChangeBuffer = undefined;
