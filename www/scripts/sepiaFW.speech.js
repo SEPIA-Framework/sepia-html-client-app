@@ -67,12 +67,12 @@ function sepiaFW_build_speech(){
 	Speech.setAsrEngine = function(asrEngine){
 		if (asrEngine == 'native'){
 			if (!Speech.isWebKitAsrSupported){
-				SepiaFW.debug.err("ASR: Tried to set native ASR but it is not supported by this client!");
+				SepiaFW.debug.err("ASR: Tried to set native ASR engine but it is not supported by this client!");
 				asrEngine = "";
 			}
 		}else if (asrEngine == 'socket'){
 			if (!Speech.isWebSocketAsrSupported){
-				SepiaFW.debug.err("ASR: Tried to set (SEPIA compatible) socket ASR but it is not supported by this client!");
+				SepiaFW.debug.err("ASR: Tried to set (SEPIA compatible) socket ASR engine but it is not supported by this client!");
 				asrEngine = "";
 			}
 		}
@@ -193,6 +193,8 @@ function sepiaFW_build_speech(){
 	
 	//TTS
 	var synthID = 0;
+	var voiceEngines = [];
+	var voiceEngineNames = {};
 	var voices = [];
 	var selectedVoice = '';
 	var selectedVoiceObject;
@@ -201,9 +203,104 @@ function sepiaFW_build_speech(){
 	var speechWaitingForResult = false;
 	var speechWaitingForStop = false;
 	var stopSpeechTimeout;
-	Speech.isTtsSupported = (SepiaFW.ui.isCordova)? ('TTS' in window) : ('speechSynthesis' in window);
+	Speech.isNativeTtsSupported = (SepiaFW.ui.isCordova)? ('TTS' in window) : ('speechSynthesis' in window);
+	Speech.isHtmlTtsSupported = ($('#sepiaFW-audio-speaker').length && $('#sepiaFW-audio-speaker')[0].canPlayType && $('#sepiaFW-audio-speaker')[0].canPlayType("audio/mp3"));
+	Speech.isTtsSupported = Speech.isNativeTtsSupported || Speech.isHtmlTtsSupported;
+	SepiaFW.debug.log("TTS: Supported interfaces: native=" + Speech.isNativeTtsSupported + ", sepia=" + Speech.isHtmlTtsSupported + ".");
+	Speech.voiceEngine = SepiaFW.data.get('speech-voice-engine') || '';
 	Speech.skipTTS = false;		//skip TTS but trigger 'success' callback
-	
+
+	//get TTS engines - load them and return a select element to show them somewhere
+	Speech.getTtsEngines = function(){
+		var ttsSelector = document.getElementById('sepiaFW-menu-select-voice-engine') || document.createElement('select');
+		ttsSelector.id = 'sepiaFW-menu-select-voice-engine';
+		$(ttsSelector).find('option').remove();
+		voiceEngines = [];
+		voiceEngineNames = {};
+		//first option is select
+		var headerOption = document.createElement('option');
+		headerOption.selected = true;
+		headerOption.disabled = true;
+		headerOption.innerHTML = "- select -";
+		ttsSelector.appendChild(headerOption);
+		//check others
+		if (Speech.isNativeTtsSupported){
+			voiceEngines.push("native");
+			voiceEngineNames["native"] = "Native";
+		}
+		if (Speech.isHtmlTtsSupported){
+			voiceEngines.push("sepia");
+			voiceEngineNames["sepia"] = "Custom (Stream)";
+		}
+		voiceEngines.forEach(function(engine){
+			var option = document.createElement('option');
+			option.value = engine;
+			option.innerHTML = voiceEngineNames[engine];
+			ttsSelector.appendChild(option);
+			if (Speech.voiceEngine == engine){
+				option.selected = true;
+				headerOption.selected = false;
+			}
+		});
+		SepiaFW.debug.info('TTS engines available: ' + voiceEngines.length);
+		//add button listener
+		$(ttsSelector).off().on('change', function() {
+			var reloadVoices = true;
+			Speech.setVoiceEngine($('#sepiaFW-menu-select-voice-engine').val(), reloadVoices);
+		});
+		if (voiceEngines.length === 0){
+			var option = document.createElement('option');
+			option.value = '';
+			option.innerHTML = 'not supported';
+			ttsSelector.appendChild(option);
+		}
+		return ttsSelector;
+	}
+	Speech.getVoiceEngine = function(){
+		return Speech.voiceEngine;
+	}
+	Speech.setVoiceEngine = function(voiceEngine, reloadVoices){
+		Speech.useSepiaServerTTS = false;
+		if (voiceEngine == 'native'){
+			if (!Speech.isNativeTtsSupported){
+				SepiaFW.debug.err("TTS: Tried to set 'native' voice engine but it is not supported by this client!");
+				voiceEngine = "";
+			}
+		}else if (voiceEngine == 'sepia'){
+			if (!Speech.isHtmlTtsSupported){
+				SepiaFW.debug.err("TTS: Tried to set 'SEPIA server' TTS engine but it is not supported by this client!");
+				voiceEngine = "";
+			}
+		}
+		if (!voiceEngine){
+			//voiceEngine not known or not given, set default
+			if (Speech.isNativeTtsSupported){
+				voiceEngine = 'native';
+			}else if (Speech.isHtmlTtsSupported){
+				voiceEngine = 'sepia';
+			}
+		}
+		if (voiceEngine){
+			SepiaFW.data.set('speech-voice-engine', voiceEngine);
+			Speech.voiceEngine = voiceEngine;
+			SepiaFW.debug.log("TTS: Using '" + voiceEngine + "' engine.");
+			if (voiceEngine == 'sepia'){
+				Speech.useSepiaServerTTS = true;
+			}
+		}
+		if (reloadVoices){
+			//clean settings - TODO: keep settings for each engine
+			selectedVoice = "";
+			selectedVoiceObject = {};
+			SepiaFW.local.getSupportedAppLanguages().forEach(function(langObj){
+				SepiaFW.data.delPermanent(langObj.value + "-voice");
+			});
+			//load new
+			Speech.getVoices();
+		}
+	} 
+	Speech.setVoiceEngine(Speech.voiceEngine, false);
+
 	Speech.isSpeaking = function(){
 		return isSpeaking;
 	}
@@ -733,8 +830,18 @@ function sepiaFW_build_speech(){
 		headerOption.disabled = true;
 		headerOption.innerHTML = "- select -";
 		voiceSelector.appendChild(headerOption);
-		if (Speech.isTtsSupported && !SepiaFW.ui.isCordova){
-			//fill
+
+		if (Speech.useSepiaServerTTS){
+			//SEPIA server
+			var option = document.createElement('option');
+			option.value = "";
+			option.innerHTML = "- automatic -";
+			voiceSelector.appendChild(option);
+			//TODO: 
+			//load from server
+
+		}else if (Speech.isTtsSupported && !SepiaFW.ui.isCordova){
+			//Web Speech API
 			voices = window.speechSynthesis.getVoices();
 			if (voices.length === 0){
 				var option = document.createElement('option');
@@ -742,10 +849,14 @@ function sepiaFW_build_speech(){
 				option.innerHTML = '- no voices -';
 				voiceSelector.appendChild(option);
 			}else{
+				var option = document.createElement('option');
+					option.value = "";
+					option.innerHTML = "- automatic -";
+					voiceSelector.appendChild(option);
 				voices.forEach(function(voice){
 					var option = document.createElement('option');
 					option.value = voice.name;
-					option.innerHTML = voice.name.replace(/(microsoft|google|apple)/ig, '').replace(/(\(.*?\))/g, '').trim();
+					option.innerHTML = voice.name; //.replace(/(microsoft|google|apple)/ig, '').replace(/(\(.*?\))/g, '').trim();
 					voiceSelector.appendChild(option);
 				});
 			}
@@ -756,6 +867,7 @@ function sepiaFW_build_speech(){
 				Speech.setVoice($('#sepiaFW-menu-select-voice').val());
 				SepiaFW.debug.info('TTS voice set: ' + selectedVoice);
 			});
+
 		}else if (Speech.isTtsSupported && SepiaFW.ui.isCordova){
 			//Cordova system voices not yet implemented
 			var option = document.createElement('option');
@@ -763,13 +875,13 @@ function sepiaFW_build_speech(){
 			option.innerHTML = '- system -';
 			voiceSelector.appendChild(option);
 		}
+
 		if (voices.length > 0){
 			setVoiceOnce();
 		}
 		//refresh selector once more?
-		if (Speech.getActiveVoice()){
-			$(voiceSelector).val(Speech.getActiveVoice());
-		}
+		$(voiceSelector).val(Speech.getActiveVoice());
+
 		return voiceSelector;
 	}
 	
@@ -800,10 +912,10 @@ function sepiaFW_build_speech(){
 					selectedVoiceObject = {};
 				}
 				SepiaFW.debug.log("TTS voice set: " + ((selectedVoiceObject.name)? selectedVoiceObject.name : "undefined"));
-				if (selectedVoiceObject.name){
+				if (!selectedVoice || selectedVoiceObject.name){
 					$('#sepiaFW-menu-select-voice').val(selectedVoice);
+					SepiaFW.data.setPermanent(Speech.getLanguage() + "-voice", selectedVoice);
 				}
-				SepiaFW.data.setPermanent(Speech.getLanguage() + "-voice", selectedVoice);
 			}
 		}
 	}
@@ -831,9 +943,21 @@ function sepiaFW_build_speech(){
 		}
 		clearTimeout(stopSpeechTimeout);
 		
-		//chunk text if there is a limit - TODO: 'isChromeDesktop' is not the entire truth, it depends on the selected voice!
-		if (SepiaFW.ui.isChromeDesktop && text && !Speech.skipTTS && Speech.isTtsSupported){
-			text = chunkUtterance(text);
+		//some engine settings
+		if (Speech.useSepiaServerTTS){
+			//load settings by voice
+			SepiaFW.audio.tts.setup({		//TODO: update with actual data from server
+				voice: selectedVoice
+			});		
+			//chunk text if there is a limit
+			if (SepiaFW.audio.tts.maxChunkLength){
+				text = chunkUtterance(text, SepiaFW.audio.tts.maxChunkLength);
+			}
+		}else{
+			//chunk text if there is a limit - TODO: 'isChromeDesktop' is not the entire truth, it depends on the selected voice!
+			if (SepiaFW.ui.isChromeDesktop && text && !Speech.skipTTS && Speech.isTtsSupported){
+				text = chunkUtterance(text);
+			}
 		}
 		
 		//skip but send success
@@ -846,11 +970,10 @@ function sepiaFW_build_speech(){
 		}
 
 		//SEPIA server
-		if (SepiaFW.speech.useSepiaServerTTS){
+		if (Speech.useSepiaServerTTS){
 			broadcastTtsRequested();
 			speechWaitingForResult = true;
 			synthID++;
-			SepiaFW.audio.tts.setup({});		//TODO: replace
 			SepiaFW.audio.tts.speak(text, function(e){
 				//onStart
 				var event = {};
@@ -980,8 +1103,9 @@ function sepiaFW_build_speech(){
 		}
 		if (Speech.isTtsSupported && isSpeaking){
 			speechWaitingForStop = true;
+
 			//SEPIA server
-			if (SepiaFW.speech.useSepiaServerTTS){
+			if (Speech.useSepiaServerTTS){
 				SepiaFW.audio.tts.stop();
 				waitForTtsStop(function(){
 					return SepiaFW.audio.tts.isSpeaking;
@@ -1058,9 +1182,11 @@ function sepiaFW_build_speech(){
 			if (SepiaFW.ui.isCordova){
 				//TTS.speak('');		//TODO: do we need it?
 				isTssInitialized = true;
-			}else{
+			}else if ('speechSynthesis' in window){
 				window.speechSynthesis.speak(new SpeechSynthesisUtterance(''));	//silent activation
 				isTssInitialized = true;
+			}else{
+				isTssInitialized = true;	//we just assume the rest works O_O
 			}
 		}
 	}
@@ -1073,7 +1199,7 @@ function sepiaFW_build_speech(){
 			Speech.setVoice(storedVoice);
 
 		//some defaults
-		}else if (!selectedVoice){
+		}else if (!selectedVoice && !Speech.useSepiaServerTTS){
 			if (SepiaFW.ui.isEdge){
 				if (SepiaFW.config.appLanguage === "de"){
 					Speech.setVoice('Microsoft Katja Mobile - German (Germany)');
@@ -1092,8 +1218,8 @@ function sepiaFW_build_speech(){
 	}
 	
 	//chunk text
-	function chunkUtterance(text){
-		var chunkLength = 160;
+	function chunkUtterance(text, chunkLength){
+		if (chunkLength == undefined) chunkLength = 160;
 		if (text.length < chunkLength){
 			return text;
 		}

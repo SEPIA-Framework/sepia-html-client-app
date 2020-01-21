@@ -842,7 +842,7 @@ function sepiaFW_build_events(){
 		}else if (data && data.type == "alarm"){
 			if (data.onClickType == "stopAlarmSound"){
 				//stop alarm
-				if (SepiaFW.audio && SepiaFW.audio.isPlaying){
+				if (SepiaFW.audio && SepiaFW.audio.alarm.isPlaying){
 					SepiaFW.audio.stopAlarmSound();
 				}
 			}
@@ -867,7 +867,7 @@ function sepiaFW_build_events(){
 		if (data && data.type == "alarm"){
 			if (data.onCloseType == "stopAlarmSound"){
 				//stop alarm
-				if (SepiaFW.audio && SepiaFW.audio.isPlaying){
+				if (SepiaFW.audio && SepiaFW.audio.alarm.isPlaying){
 					SepiaFW.audio.stopAlarmSound();
 				}
 			}

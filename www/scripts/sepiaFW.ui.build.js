@@ -453,7 +453,7 @@ function sepiaFW_build_ui_build(){
 				return;
 			}
 			//stop alarm
-			if (SepiaFW.audio && SepiaFW.audio.isPlaying){
+			if (SepiaFW.audio && SepiaFW.audio.alarm.isPlaying){
 				SepiaFW.audio.stopAlarmSound();
 			}
 			//fade audio
@@ -545,6 +545,7 @@ function sepiaFW_build_ui_build(){
 					+ "<li id='sepiaFW-menu-device-site-li' title='Settings for device local site'><span>" + SepiaFW.local.g('deviceSite') + ": </span></li>"
 					+ "<li id='sepiaFW-menu-toggle-GPS-li'><span>GPS: </span></li>"
 					+ "<li id='sepiaFW-menu-toggle-voice-li'><span>Voice output: </span></li>"
+					+ "<li id='sepiaFW-menu-select-voice-engine-li' title='Speech synthesis engine.'><span>Voice engine: </span></li>"
 					+ "<li id='sepiaFW-menu-select-voice-li'><span>Voice: </span></li>" 	//option: <i class='material-icons md-mnu'>&#xE5C6;</i>
 					+ "<li id='sepiaFW-menu-toggle-proactiveNotes-li' title='The assistant will remind you in a funny way to make a coffee break etc. :-)'><span>Well-being reminders: </span></li>"
 					+ "<li id='sepiaFW-menu-toggle-channelMessages-li' title='Show status messages in chat like someone joined the channel?'><span>Channel status messages: </span></li>"
@@ -784,6 +785,9 @@ function sepiaFW_build_ui_build(){
 						SepiaFW.speech.disableVoice();
 					}, !SepiaFW.speech.skipTTS)
 				);
+
+				//add speech synthesis engine select
+				document.getElementById('sepiaFW-menu-select-voice-engine-li').appendChild(SepiaFW.speech.getTtsEngines());
 
 				//add voice select options - delayed due to loading process
 				setTimeout(function(){

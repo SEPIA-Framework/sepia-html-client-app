@@ -1,7 +1,9 @@
 //AUDIO PLAYER
 function sepiaFW_build_audio(){
 	var AudioPlayer = {};
+	var Stream = {};
 	var TTS = {};			//TTS parameters for SepiaFW external TTS like Acapela. I've tried to seperate TTS and AudioPlayer as good as possible, but there might be some bugs using both
+	var Alarm = {};
 	
 	//Parameters and states:
 
@@ -11,9 +13,12 @@ function sepiaFW_build_audio(){
 	var doInitAudio = true;			//workaround to activate scripted audio on touch devices
 	var audioOnEndFired = false;	//state: prevent doublefireing of audio onend onpause
 
-	TTS.isSpeaking = false;				//state: is assistant speaking?
-	AudioPlayer.isPlaying = false;		//NOTE: this applys only to player(1) aka the stream player
-	AudioPlayer.isLoading = false;		//" 	"	
+	Stream.isPlaying = false;		//state: stream player
+	Stream.isLoading = false;
+	TTS.isSpeaking = false;			//state: TTS player
+	TTS.isLoading = false;
+	Alarm.isPlaying = false;		//state: alarm player (special feature of effects player)
+	Alarm.isLoading = false;
 
 	AudioPlayer.getMusicPlayer = function(){
 		return player;
@@ -42,7 +47,7 @@ function sepiaFW_build_audio(){
 	//Try to find out if any music player is active (playing or onHold and waiting to resume)
 	AudioPlayer.isAnyAudioSourceActive = function(){
 		//Stop internal player
-		var isInternalPlayerStreaming = AudioPlayer.isLoading || AudioPlayer.isMusicPlayerStreaming() || AudioPlayer.isMainOnHold() || TTS.isPlaying;
+		var isInternalPlayerStreaming = Stream.isLoading || AudioPlayer.isMusicPlayerStreaming() || AudioPlayer.isMainOnHold() || TTS.isPlaying;
 		var isYouTubePlayerStreaming = SepiaFW.ui.cards.youTubePlayerGetState() == 1 || SepiaFW.ui.cards.youTubePlayerIsOnHold();
 		var isAndroidPlayerStreaming = SepiaFW.ui.isAndroid && SepiaFW.android.lastReceivedMediaData && SepiaFW.android.lastReceivedMediaData.playing 
 										&& ((new Date().getTime() - SepiaFW.android.lastReceivedMediaAppTS) < (1000*60*15));		//This is pure guessing ...
@@ -103,7 +108,7 @@ function sepiaFW_build_audio(){
 	}
 	function broadcastAudioFinished(){
 		//EXAMPLE: 
-		if (gotPlayerAudioContext) setTimeout(function(){ if (!AudioPlayer.isPlaying) clearInterval(playerSpectrum); },1500);
+		if (gotPlayerAudioContext) setTimeout(function(){ if (!Stream.isPlaying) clearInterval(playerSpectrum); },1500);
 		else SepiaFW.animate.audio.playerIdle();
 		if (audioTitle.innerHTML === "Loading ...") audioTitle.innerHTML = "Stopped";
 	}
@@ -116,7 +121,7 @@ function sepiaFW_build_audio(){
 	function broadcastAudioError(){
 		//EXAMPLE: 
 		if (audioTitle) audioTitle.innerHTML = 'Error';
-		if (gotPlayerAudioContext) setTimeout(function(){ if (!AudioPlayer.isPlaying) clearInterval(playerSpectrum); },1500);
+		if (gotPlayerAudioContext) setTimeout(function(){ if (!Stream.isPlaying) clearInterval(playerSpectrum); },1500);
 		else SepiaFW.animate.audio.playerIdle();
 	}
 	function broadcastPlayerVolumeSet(){
@@ -254,6 +259,8 @@ function sepiaFW_build_audio(){
 		TTS.mood = (Settings.mood)? Settings.mood : 5;						//mood state
 		TTS.speed = (Settings.speed)? Settings.speed : "1.0";
 		TTS.tone = (Settings.tone)? Settings.tone : "1.0";
+		TTS.maxChunkLength = (Settings.maxChunkLength)? Settings.maxChunkLength : 600;
+		TTS.maxMoodIndex = (Settings.maxMoodIndex)? Settings.maxMoodIndex : 3;
 	}
 
 	//use TTS endpoint to generate soundfile and speak answer
@@ -275,22 +282,29 @@ function sepiaFW_build_audio(){
 	//STOP all audio
 	AudioPlayer.stop = function (audioPlayer){
 		if (!audioPlayer) audioPlayer = player;
-		if (AudioPlayer.isPlaying){
-			audioPlayer.pause(); 		//NOTE: possible race condition here if onPause callback triggers after fadeOutMain (then AudioPlayer.isPlaying will be true)
-		}else{
-			AudioPlayer.isLoading = false;
-			AudioPlayer.isPlaying = false;
-		}
-		broadcastAudioFinished();
 		if (audioPlayer == player){
+			if (Stream.isPlaying){
+				audioPlayer.pause(); 		//NOTE: possible race condition here if onPause callback triggers after fadeOutMain (then Stream.isPlaying will be true)
+			}else{
+				Stream.isLoading = false;
+			}
+			broadcastAudioFinished();
 			mainAudioIsOnHold = false;
 			mainAudioStopRequested = true;		//We try to prevent the race-condition with that (1)
 			if (gotPlayerAudioContext) playerGainNode.gain.value = orgGain;
 			else audioPlayer.volume = orgVolume;
+		
 		}else if (audioPlayer == player2){
 			//TODO: ?
+			audioPlayer.pause();
+		
 		}else if (audioPlayer == speaker){
-			//TODO: ?
+			//TTS
+			if (TTS.isSpeaking){
+				audioPlayer.pause();
+			}else{
+				TTS.isLoading = false;
+			}
 		}
 		//SEE AudioPlayer stop button for more, e.g. Android stop
 	}
@@ -301,8 +315,8 @@ function sepiaFW_build_audio(){
 	}
 	AudioPlayer.fadeOutMain = function(force){
 		//we only trigger this when audio is actually playing ...
-		if ((AudioPlayer.isPlaying && !mainAudioStopRequested) || force){ 	//NOTE: this relys on successful onPause if "stop" was called before (see race cond. above)
-			if (SepiaFW.ui.isMobile && AudioPlayer.isPlaying && !mainAudioIsOnHold){
+		if ((Stream.isPlaying && !mainAudioStopRequested) || force){ 	//NOTE: this relys on successful onPause if "stop" was called before (see race cond. above)
+			if (SepiaFW.ui.isMobile && Stream.isPlaying && !mainAudioIsOnHold){
 				SepiaFW.debug.info('AUDIO: instant fadeOutMain');
 				player.pause(); 		//<-- try without broadcasting, is it save?
 			}
@@ -345,7 +359,7 @@ function sepiaFW_build_audio(){
 		return (audioFadeListeners[id]? audioFadeListeners[id].isOnHold() : false);
 	}
 	AudioPlayer.fadeOut = function(force){
-		if ((AudioPlayer.isPlaying && !mainAudioStopRequested) || force){
+		if ((Stream.isPlaying && !mainAudioStopRequested) || force){
 			AudioPlayer.fadeOutMain(force);
 		}else{
 			//Check manually registered players
@@ -468,7 +482,7 @@ function sepiaFW_build_audio(){
 
 	AudioPlayer.playerFadeToOriginalVolume = function(){
 		//fade to original volume
-		if (SepiaFW.ui.isMobile && !AudioPlayer.isPlaying){
+		if (SepiaFW.ui.isMobile && !Stream.isPlaying){
 			SepiaFW.debug.info('AUDIO: fadeToOriginal - restore play status');
 			SepiaFW.audio.playURL('', ''); 	//<-- potentially looses callBack info here, but since this is stopped
 		}
@@ -627,21 +641,24 @@ function sepiaFW_build_audio(){
 					skipFollowUp: true
 				});
 			}
+			Stream.isLoading = true;
+
 		}else if (audioPlayer == player2){
 			//TODO: ?
 		}else if (audioPlayer == speaker){
-			//TODO: ?
+			//TODO: more?
+			TTS.isLoading = true;
 		}
 
 		audioPlayer.preload = 'auto';
-		AudioPlayer.isLoading = true;
 
 		//console.log("Audio-URL: " + audioURL); 		//DEBUG
 		audioPlayer.src = audioURL;
 		audioPlayer.oncanplay = function() {
 			SepiaFW.debug.info("AUDIO: can be played now (oncanplay event)");		//debug
 			if (audioPlayer == player){
-				AudioPlayer.isPlaying = true;
+				Stream.isPlaying = true;
+				Stream.isLoading = false;
 				broadcastAudioStarted();
 				AudioPlayer.fadeInMainIfOnHold();
 				mainAudioIsOnHold = false;
@@ -650,8 +667,8 @@ function sepiaFW_build_audio(){
 				//TODO: ?
 			}else if (audioPlayer == speaker){
 				TTS.isSpeaking = true;
+				TTS.isLoading = false;
 			}
-			AudioPlayer.isLoading = false;
 			//callback
 			if (onStartCallback) onStartCallback();
 			if (audioPlayer == player){
@@ -669,16 +686,17 @@ function sepiaFW_build_audio(){
 				SepiaFW.debug.info("AUDIO: ended (onpause event)");				//debug
 				audioOnEndFired = true;
 				if (audioPlayer == player){
-					AudioPlayer.isPlaying = false;
-					mainAudioStopRequested = false; //from here on we rely on AudioPlayer.isPlaying
+					Stream.isPlaying = false;
+					Stream.isLoading = false;
+					mainAudioStopRequested = false; //from here on we rely on Stream.isPlaying
 					broadcastAudioFinished();
 					//mainAudioIsOnHold = false; 	//<- set in stop method, here we might actually really want to stop-for-hold
 				}else if (audioPlayer == player2){
 					//TODO: ?
 				}else if (audioPlayer == speaker){
 					TTS.isSpeaking = false;
+					TTS.isLoading = false;
 				}
-				AudioPlayer.isLoading = false;
 				//callback
 				if (onEndCallback) onEndCallback();
 				if (audioPlayer == player){
@@ -707,13 +725,14 @@ function sepiaFW_build_audio(){
 				broadcastAudioError();
 				mainAudioIsOnHold = false;
 				mainAudioStopRequested = false;
-				AudioPlayer.isPlaying = false;
+				Stream.isPlaying = false;
+				Stream.isLoading = false;
 			}else if (audioPlayer == player2){
 				//TODO: ?
 			}else if (audioPlayer == speaker){
 				TTS.isSpeaking = false;
+				TTS.isLoading = false;
 			}
-			AudioPlayer.isLoading = false;
 			//callback
 			if (onErrorCallback) onErrorCallback();
 			if (audioPlayer == player){
@@ -748,17 +767,15 @@ function sepiaFW_build_audio(){
 		mainAudioStopRequested = false;
 						
 		audioOnEndFired = false;
-		broadcastAudioRequested();
 
 		audioPlayer.src = alarmSound;
 		audioPlayer.preload = 'auto';
-		AudioPlayer.isLoading = true;
+		Alarm.isLoading = true;
 
 		audioPlayer.oncanplay = function() {
 			SepiaFW.debug.info("AUDIO: can be played now (oncanplay event)");		//debug
-			AudioPlayer.isPlaying = true;
-			AudioPlayer.isLoading = false;
-			broadcastAudioStarted();
+			Alarm.isPlaying = true;
+			Alarm.isLoading = false;
 			//callback
 			if (onStartCallback) onStartCallback;
 			AudioPlayer.broadcastAudioEvent("effects", "start", audioPlayer);
@@ -767,9 +784,8 @@ function sepiaFW_build_audio(){
 			if (!audioOnEndFired){
 				SepiaFW.debug.info("AUDIO: ended (onpause event)");				//debug
 				audioOnEndFired = true;
-				AudioPlayer.isPlaying = false;
-				AudioPlayer.isLoading = false;
-				broadcastAudioFinished();
+				Alarm.isPlaying = false;
+				Alarm.isLoading = false;
 				//reset audio URL
 				/*
 				audioPlayer.preload = 'none';
@@ -788,9 +804,8 @@ function sepiaFW_build_audio(){
 		};
 		audioPlayer.onerror = function(error) {
 			SepiaFW.debug.info("AUDIO: error occured! - code: " + audioPlayer.error.code);						//debug
-			broadcastAudioError();
-			AudioPlayer.isPlaying = false;
-			AudioPlayer.isLoading = false;
+			Alarm.isPlaying = false;
+			Alarm.isLoading = false;
 			//reset audio URL
 			/*
 			audioPlayer.preload = 'none';
@@ -809,5 +824,6 @@ function sepiaFW_build_audio(){
 	}
 	
 	AudioPlayer.tts = TTS;
+	AudioPlayer.alarm = Alarm;
 	return AudioPlayer;
 }
