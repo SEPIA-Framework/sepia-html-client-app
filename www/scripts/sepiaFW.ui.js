@@ -514,6 +514,50 @@ function sepiaFW_build_ui(){
 			return urlParam;
 		}
 		UI.isTinyApp = isTinyApp();
+
+		//is headless app?
+		function isHeadlessApp(){
+			var urlParam = SepiaFW.tools.getURLParameter("isHeadless");
+			if (urlParam && urlParam == "true"){
+				urlParam = true;
+			}else if (urlParam && urlParam == "false"){
+				urlParam = false;
+			}
+			if (urlParam){
+				document.documentElement.className += " sepiaFW-headless-app";
+			}
+			return urlParam;
+			//TODO: load headless.js
+		}
+		UI.isHeadless = isHeadlessApp();
+		if (UI.isHeadless){
+			//if client not active or in demo-mode after 5s run setup
+			setTimeout(function(){
+				if (!SepiaFW.client.isActive() && !SepiaFW.client.isDemoMode()){
+					SepiaFW.data.set('isDemoLogin', 'setup');
+					if (SepiaFW.settings){
+						if (SepiaFW.settings.device){
+							SepiaFW.debug.log("Loading data for device ...");
+							Object.keys(SepiaFW.settings.device).forEach(function(key){
+								SepiaFW.debug.log("* " + key);
+								SepiaFW.data.setPermanent(key, SepiaFW.settings.device[key]);
+							});
+						}
+						if (SepiaFW.settings.setup){
+							SepiaFW.debug.log("Loading data for setup ...");
+							Object.keys(SepiaFW.settings.setup).forEach(function(key){
+								SepiaFW.debug.log("* " + key);
+								SepiaFW.data.set(key, SepiaFW.settings.setup[key]);
+							});
+						}
+						SepiaFW.debug.log("DONE. Client will restart automatically in 2s to activate settings!");
+					}
+					setTimeout(function(){
+						window.location.reload();
+					}, 2000);
+				}
+			}, 5000);
+		}
 	}
 
 	//get default device ID

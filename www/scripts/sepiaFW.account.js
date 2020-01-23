@@ -15,7 +15,8 @@ function sepiaFW_build_account(){
 	var defaultIdPrefix = "uid";
 
 	var demoAccounts = {
-		"appstore": "eval20192X"
+		"appstore": "eval20192X",
+		"setup": "setup123"
 	}
 	
 	//---- Account settings mapping (to simplify access) and options ----//
@@ -494,6 +495,7 @@ function sepiaFW_build_account(){
 		//demo login?
 		var isDemoLogin = SepiaFW.data.get('isDemoLogin');
 		if (isDemoLogin){
+			userRoles = [isDemoLogin];
 			skipLogin();
 			return;
 		}
@@ -837,7 +839,8 @@ function sepiaFW_build_account(){
 		SepiaFW.ui.showLoader();
 		//demo login?
 		if (demoAccounts[userId] && pwd == demoAccounts[userId]){
-			SepiaFW.data.set('isDemoLogin', true);
+			SepiaFW.data.set('isDemoLogin', userId);
+			userRoles = [userId];
 			SepiaFW.ui.hideLoader();
 			skipLogin();
 			return;
