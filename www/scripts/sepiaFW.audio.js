@@ -749,7 +749,9 @@ function sepiaFW_build_audio(){
 	}
 	
 	//play alarm sound
-	AudioPlayer.playAlarmSound = function(onStartCallback, onEndCallback, onErrorCallback){
+	AudioPlayer.playAlarmSound = function(onStartCallback, onEndCallback, onErrorCallback, stoppedMedia, skippedN){
+		if (skippedN == undefined) skippedN = 0;
+
 		var audioPlayer = player2;
 		var alarmSound = "sounds/alarm.mp3";
 		//var emptySound = "sounds/empty.mp3";
@@ -760,11 +762,51 @@ function sepiaFW_build_audio(){
 		}
 		*/
 		
-		//make sure that nothing else is running - hard cut! ^^ - also restores gain to full
-		AudioPlayer.stopAlarmSound(); 	//just to be sure
-		AudioPlayer.stop(player);
-		mainAudioIsOnHold = false; 		//<- we might restart this manually
-		mainAudioStopRequested = false;
+		//make sure that nothing else is running - hard cut!
+		if (skippedN <= 3){
+			//let assistant finish
+			if (SepiaFW.speech.isSpeaking() || SepiaFW.speech.isRecognizing()){
+				setTimeout(function(){
+					skippedN++;
+					AudioPlayer.playAlarmSound(onStartCallback, onEndCallback, onErrorCallback, stoppedMedia, skippedN);
+				}, 3000);
+				return;
+			}
+		}else{
+			//force stop
+			if (SepiaFW.speech.isSpeaking()){
+				SepiaFW.speech.stopSpeech();
+			}else if (SepiaFW.speech.isRecognizing()){
+				SepiaFW.speech.stopRecognition();
+			}
+		}
+		if (!stoppedMedia){
+			stoppedMedia = true;
+			//running alarm
+			AudioPlayer.stopAlarmSound(); 						//just to be sure
+			//running media
+			SepiaFW.client.controls.media({action: "stop"});	//TODO: consider restarting media-stream later?
+			//running wake-word
+			if (SepiaFW.wakeTriggers && SepiaFW.wakeTriggers.isListening()){
+				SepiaFW.animate.assistant.loading();
+				SepiaFW.wakeTriggers.stopListeningToWakeWords(function(){
+					//Use the success-callback here to introduce a proper wait
+					skippedN++;
+					AudioPlayer.playAlarmSound(onStartCallback, onEndCallback, onErrorCallback, stoppedMedia, skippedN);
+				}, function(e){
+					//Error
+					if (onErrorCallback) onErrorCallback(e);
+				});
+				return;
+			}else{
+				//give audio engines some time to react
+				setTimeout(function(){
+					skippedN++;
+					AudioPlayer.playAlarmSound(onStartCallback, onEndCallback, onErrorCallback, stoppedMedia, skippedN);
+				}, 1000);
+				return;
+			}
+		}
 						
 		audioOnEndFired = false;
 
