@@ -309,6 +309,10 @@ function sepiaFW_build_config(){
 			SepiaFW.inputControls.initializeGamepads();
 			SepiaFW.inputControls.initializeBluetoothBeacons();
 		}
+		//Remote commandline interface
+		if (SepiaFW.inputControls && SepiaFW.inputControls.cmdl){
+			SepiaFW.inputControls.cmdl.initialize();
+		}
 		//Wake-word trigger
 		if (SepiaFW.wakeTriggers){
 			SepiaFW.wakeTriggers.initialize();

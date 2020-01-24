@@ -83,7 +83,7 @@ function sepiaFW_build_clexi(){
 
             //subscribe
             subscribeToBeaconScanner();
-            //subscribeToBroadcaster();
+            subscribeToBroadcaster();
             subscribeToHttpEvents();
 
             //request some states
@@ -125,16 +125,22 @@ function sepiaFW_build_clexi(){
         return (ClexiJS.availableXtensions && ClexiJS.availableXtensions[name]);
     }
 
-    //CLEXI broadcaster:
+    //CLEXI broadcaster (used e.g. for remote setup):
 
     Clexi.broadcastToAll = function(data){
         ClexiJS.send('clexi-broadcaster', data, Clexi.numOfSendRetries);
     }
 
-    //TODO: do something useful with this ;-)
     function subscribeToBroadcaster(){
+        //format:
+        /*{
+            name: "event-name",
+            data: eventData
+        }*/
         ClexiJS.subscribeTo('clexi-broadcaster', function(e){
-            console.log('Broadcaster event: ' + JSON.stringify(e));
+            //console.log('Broadcaster event: ' + JSON.stringify(e));
+            var event = new CustomEvent('clexi-broadcaster-msg', {detail: e});
+            document.dispatchEvent(event);
         }, function(e){
             console.log('Broadcaster response: ' + JSON.stringify(e));
         }, function(e){
@@ -144,10 +150,31 @@ function sepiaFW_build_clexi(){
     function removeBroadcasterSubscription(){
         ClexiJS.removeSubscription('clexi-broadcaster');
     }
+    Clexi.addBroadcastListener = function(name, callback){
+        var fun = function(ev){
+            if (ev.detail && ev.detail.data && ev.detail.name == name){
+                callback(ev.detail.data);
+            }
+        }
+        broadcastListenerCallbacks[name] = fun;
+        document.addEventListener('clexi-broadcaster-msg', fun);
+    }
+    Clexi.removeBroadcastListener = function(name){
+        var callback = broadcastListenerCallbacks[name];
+        if (callback){
+            document.removeEventListener('clexi-broadcaster-msg', callback);
+        }
+    }
+    var broadcastListenerCallbacks = {};
 
-    //CLEXI Http-Events:
+    //CLEXI Http-Events (used e.g. InputControls.handleClexiRemoteButton):
 
     function subscribeToHttpEvents(){
+        //format:
+        /*{
+            name: "event-name",
+            data: eventData
+        }*/
         ClexiJS.subscribeTo('clexi-http-events', function(e){
             //console.log('HTTP-Event: ' + JSON.stringify(e));
             var event = new CustomEvent('clexi-http-events-msg', {detail: e});
@@ -163,12 +190,22 @@ function sepiaFW_build_clexi(){
     function removeHttpEventsSubscription(){
         ClexiJS.removeSubscription('clexi-http-events');
     }
-    Clexi.addHttpEventsListener = function(callback){
-        document.addEventListener('clexi-http-events-msg', callback);
+    Clexi.addHttpEventsListener = function(name, callback){
+        var fun = function(ev){
+            if (ev.detail && ev.detail.data && ev.detail.name == name){
+                callback(ev.detail.data);
+            }
+        }
+        httpEventListenerCallbacks[name] = fun;
+        document.addEventListener('clexi-http-events-msg', fun);
     }
-    Clexi.removeHttpEventsListener = function(callback){
-        document.removeEventListener('clexi-http-events-msg', callback);
+    Clexi.removeHttpEventsListener = function(name){
+        var callback = httpEventListenerCallbacks[name];
+        if (callback){
+            document.removeEventListener('clexi-http-events-msg', callback);
+        }
     }
+    var httpEventListenerCallbacks = {};
 
     //CLEXI ble beacon scanner
 
