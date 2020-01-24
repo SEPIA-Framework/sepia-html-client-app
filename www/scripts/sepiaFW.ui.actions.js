@@ -86,6 +86,13 @@ function sepiaFW_build_ui_actions(){
 			parentBlock.appendChild(framesBtn);
 		}
 	}
+	//OPEN Frames-layer view
+	Actions.openFrameView = function(action){
+		if (SepiaFW.frames){
+			SepiaFW.ui.closeAllMenus();
+			SepiaFW.frames.open(action.info);
+		}
+	}
 	
 	//BUTTON Custom function
 	Actions.addButtonCustomFunction = function(action, sender, parentBlock){
@@ -515,7 +522,7 @@ function sepiaFW_build_ui_actions(){
 						aButtonsArea = Actions.buildMyEventsBox(data.actionInfo[i], parentBlock);
 						
 					//First client visit info actions in my-view - if there are any this will be triggered first
-					}else if (type === 'fist_visit_info_start'){
+					}else if (type === 'first_visit_info_start'){
 						parentBlock.removeChild(aButtonsArea); 	//we will create a new one
 						aButtonsArea = Actions.buildClientFirstStartBox(data.actionInfo[i], parentBlock);
 
@@ -534,6 +541,10 @@ function sepiaFW_build_ui_actions(){
 					//BUTTON - frames view
 					}else if (type === 'button_frames_view'){
 						Actions.addButtonFrameView(data.actionInfo[i], aButtonsArea);
+					
+					//Open frames view
+					}else if (type === 'open_frames_view'){
+						Actions.openFrameView(data.actionInfo[i]);
 					
 					//BUTTON - url
 					}else if (type === 'button_url' || type === 'button_in_app_browser'){

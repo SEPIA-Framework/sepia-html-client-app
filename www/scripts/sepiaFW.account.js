@@ -66,6 +66,10 @@ function sepiaFW_build_account(){
 		SepiaFW.client.setDemoMode(true);
 		//set user ID indicator
 		$('#sepiaFW-menu-account-my-id').html("Demo");
+		//play sound?
+		if (Account.getUserRoles() && Account.getUserRoles()[0] == "setup"){
+			SepiaFW.client.addOnActiveOneTimeAction(function(){ SepiaFW.audio.playURL("sounds/setup.mp3"); }, "setup");
+		}
 	}
 	
 	function broadcastLoginRestored(){
