@@ -477,6 +477,24 @@ function sepiaFW_build_ui(){
 		if (UI.isMobile){
 			document.documentElement.className += " sepiaFW-mobile-device";
 		}
+
+		//logout?
+		function doLogout(){
+			var urlParam = SepiaFW.tools.getURLParameter("logout");
+			if (urlParam && urlParam == "true"){
+				urlParam = true;
+			}else if (urlParam && urlParam == "false"){
+				urlParam = false;
+			}
+			if (urlParam){
+				SepiaFW.account.logoutAction();
+				setTimeout(function(){
+					window.location.href = SepiaFW.tools.removeParameterFromURL(window.location.href, "logout");
+				}, 3000);
+			}
+			return urlParam;
+		}
+		doLogout();
 		
 		//is standalone app?
 		function isStandaloneWebApp(){
@@ -555,6 +573,14 @@ function sepiaFW_build_ui(){
 					setTimeout(function(){
 						window.location.reload();
 					}, 2000);
+				}else{
+					if (SepiaFW.settings.logout){
+						//NOTE: careful! this can lead to an endless loop with 'setup'
+						SepiaFW.account.logoutAction();
+						setTimeout(function(){
+							window.location.reload();
+						}, 3000);
+					}
 				}
 			}, 5000);
 		}
