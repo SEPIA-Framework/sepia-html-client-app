@@ -549,40 +549,37 @@ function sepiaFW_build_ui(){
 		}
 		UI.isHeadless = isHeadlessApp();
 		if (UI.isHeadless){
+			//always load settings (may overwrite user pref.)
+			UI.loadSettingsForHeadlessMode();
 			//if client not active or in demo-mode after 5s run setup
 			setTimeout(function(){
 				if (!SepiaFW.client.isActive() && !SepiaFW.client.isDemoMode()){
 					SepiaFW.data.set('isDemoLogin', 'setup');
-					if (SepiaFW.settings){
-						if (SepiaFW.settings.device){
-							SepiaFW.debug.log("Loading data for device ...");
-							Object.keys(SepiaFW.settings.device).forEach(function(key){
-								SepiaFW.debug.log("* " + key);
-								SepiaFW.data.setPermanent(key, SepiaFW.settings.device[key]);
-							});
-						}
-						if (SepiaFW.settings.setup){
-							SepiaFW.debug.log("Loading data for setup ...");
-							Object.keys(SepiaFW.settings.setup).forEach(function(key){
-								SepiaFW.debug.log("* " + key);
-								SepiaFW.data.set(key, SepiaFW.settings.setup[key]);
-							});
-						}
-						SepiaFW.debug.log("DONE. Client will restart automatically in 2s to activate settings!");
-					}
 					setTimeout(function(){
 						window.location.reload();
 					}, 2000);
-				}else{
-					if (SepiaFW.settings.logout){
-						//NOTE: careful! this can lead to an endless loop with 'setup'
-						SepiaFW.account.logoutAction();
-						setTimeout(function(){
-							window.location.reload();
-						}, 3000);
-					}
+					SepiaFW.debug.log("Client will restart automatically in 2s to activate settings!");
 				}
 			}, 5000);
+		}
+	}
+	//load headless settings
+	UI.loadSettingsForHeadlessMode = function(){
+		if (SepiaFW.settings && SepiaFW.settings.headless){
+			if (SepiaFW.settings.headless.device){
+				SepiaFW.debug.log("Loading headless settings for device ...");
+				Object.keys(SepiaFW.settings.headless.device).forEach(function(key){
+					SepiaFW.debug.log("* " + key);
+					SepiaFW.data.setPermanent(key, SepiaFW.settings.headless.device[key]);
+				});
+			}
+			if (SepiaFW.settings.headless.user){
+				SepiaFW.debug.log("Loading headless settings for user ...");
+				Object.keys(SepiaFW.settings.headless.user).forEach(function(key){
+					SepiaFW.debug.log("* " + key);
+					SepiaFW.data.set(key, SepiaFW.settings.headless.user[key]);
+				});
+			}
 		}
 	}
 
