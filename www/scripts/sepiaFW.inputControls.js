@@ -458,17 +458,17 @@ function sepiaFW_build_input_controls() {
     //This will be received via CLEXI connection
     InputControls.handleClexiRemoteButton = function(remoteData){
         //console.log(remoteData);
-        var deviceId = SepiaFW.config.getDeviceId().toLowerCase();
-        if (remoteData.deviceId && remoteData.deviceId.toLowerCase() == deviceId){
+        var deviceId = SepiaFW.config.getDeviceId();
+        if (remoteData.deviceId && remoteData.deviceId == deviceId){
             handleRemoteInputEvent(remoteData.button);
         }
     }
     //This will listen to the proper event
     InputControls.listenToClexiButtons = function(){
         if (InputControls.useGamepads && SepiaFW.clexi){
-            SepiaFW.clexi.addHttpEventsListener("remoteButton", InputControls.handleClexiRemoteButton);
+            SepiaFW.clexi.addHttpEventsListener("remote-button", InputControls.handleClexiRemoteButton);
         }else{
-            SepiaFW.clexi.removeHttpEventsListener("remoteButton");
+            SepiaFW.clexi.removeHttpEventsListener("remote-button");
         }
     }
 

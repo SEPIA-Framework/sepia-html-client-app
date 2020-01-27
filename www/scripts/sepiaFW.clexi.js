@@ -139,10 +139,10 @@ function sepiaFW_build_clexi(){
         }*/
         ClexiJS.subscribeTo('clexi-broadcaster', function(e){
             //console.log('Broadcaster event: ' + JSON.stringify(e));
-            var event = new CustomEvent('clexi-broadcaster-msg', {detail: e});
+            var event = new CustomEvent('clexi-broadcaster-msg', {detail: (e.broadcast || e)});
             document.dispatchEvent(event);
         }, function(e){
-            console.log('Broadcaster response: ' + JSON.stringify(e));
+            //console.log('Broadcaster response: ' + JSON.stringify(e));
         }, function(e){
             console.log('Broadcaster error: ' + JSON.stringify(e));
         });
@@ -170,10 +170,13 @@ function sepiaFW_build_clexi(){
     //CLEXI Http-Events (used e.g. InputControls.handleClexiRemoteButton):
 
     function subscribeToHttpEvents(){
-        //format:
+        //format (example):
         /*{
-            name: "event-name",
-            data: eventData
+            name: "remote-button",
+            data: {
+                deviceId: "o1",
+                button: "mic"       //mic, back, ao, next, prev
+            }
         }*/
         ClexiJS.subscribeTo('clexi-http-events', function(e){
             //console.log('HTTP-Event: ' + JSON.stringify(e));

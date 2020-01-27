@@ -634,11 +634,17 @@ function sepiaFW_build_account(){
 		broadcastEnterWithoutLogin();
 		Account.afterLogin();
 	}
-	function sendLoginFromBox(){
+	function sendLoginFromBox(forceId, forcePwd){
 		pwdIsToken = false;
-		var id = document.getElementById("sepiaFW-login-id").value;
+		var id;
+		if (forceId){
+			document.getElementById("sepiaFW-login-id").value = forceId;
+			id = forceId;
+		}else{
+			id = document.getElementById("sepiaFW-login-id").value;
+		}
 		var pwdField = document.getElementById("sepiaFW-login-pwd");
-		var pwd = pwdField.value;
+		var pwd = forcePwd || pwdField.value;
 		pwdField.value = '';
 		if (id && pwd && (id.length > 3) && (pwd.length > 5)) {
 			userId = id;
@@ -823,13 +829,19 @@ function sepiaFW_build_account(){
 			//console.log('Section: ' + sectionName + "; success: " + sectionSuccess); 		//DEBUG
 			logoutSectionsFinished++;
 			if (logoutSectionsFinished >= logoutSectionsToFinish){
+				//final clean-ups
+				userId = "";
+				userToken = "";
+				userName = "";
+				SepiaFW.client.setDemoMode(false);
+				//done
 				listenForLogoutActions = false;
 				logoutSectionsFinished = 0;
 				//info message
 				var config = {
-						buttonOneName : "Return to sign in",
-						buttonOneAction : function(){ location.reload(); }
-					};
+					buttonOneName : "Return to sign in",
+					buttonOneAction : function(){ location.reload(); }
+				};
 				SepiaFW.ui.showPopup('Sign-out done!', config);
 				Account.afterLogout();
 			}
@@ -837,8 +849,18 @@ function sepiaFW_build_account(){
 	}
 	
 	//---- API communication ----
-	
+
 	//LOGIN
+	Account.loginViaForm = function(id, pwd){
+		if (SepiaFW.client.isDemoMode() || Account.getUserId()){
+			SepiaFW.debug.error("Called login via form but client is active. Logout first! "
+					+ "(UserID: " + SepiaFW.account.getUserId() + ", Demo: " + SepiaFW.client.isDemoMode() + ")");
+			return false;
+		}else{
+			sendLoginFromBox(id, pwd);
+			return true;
+		}
+	}
 	Account.login = function(userid, pwd, successCallback, errorCallback, debugCallback){
 		SepiaFW.ui.showLoader();
 		//demo login?
