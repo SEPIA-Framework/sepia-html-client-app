@@ -6,7 +6,7 @@ function sepiaFW_build_input_controls_cmdl() {
 
     Cmdl.initialize = function(){
         
-        Cmdl.isAllowed = SepiaFW.data.get('useRemoteCmdl') || true;
+        Cmdl.isAllowed = SepiaFW.data.get('useRemoteCmdl') || true;     //TODO: make settings button? (is only in headless settings so far)
         SepiaFW.debug.info("Remote commandline is " + ((Cmdl.isAllowed)? "SUPPORTED" : "NOT SUPPORTED"));
         
         //Add onActive action:
@@ -20,17 +20,36 @@ function sepiaFW_build_input_controls_cmdl() {
     
     //----------------------
 
-    Cmdl.setup = function () {
+    Cmdl.setup = function(){
         //console.log('Remote commandline interface setup');
-        if (SepiaFW.clexi){
+        if (Cmdl.isAllowed && SepiaFW.clexi){
             //add CLEXI listeners
             SepiaFW.clexi.addBroadcastListener("sepia-client", handleClientBroadcastEvents);
             //SepiaFW.clexi.addHttpEventsListener("sepia-client", handleClientHttpEvents);
+
+            //Broadcasters
+            if (Cmdl.broadcasters.state){
+                document.addEventListener('sepia_state_change', stateBroadcaster);
+            }else{
+                document.removeEventListener('sepia_state_change', stateBroadcaster);
+            }
 
             //say hello
             broadcastEvent("event", {
                 state: "active",
                 user: getActiveUserOrDemoRole()
+            });
+        }
+    }
+
+    //Broadcasters to use, usually set via headless settings
+    Cmdl.broadcasters = {
+        state: false
+    };
+    function stateBroadcaster(ev){
+        if (Cmdl.broadcasters.state && ev.detail && ev.detail.state){
+            broadcastEvent("sepia-state", {
+                state: ev.detail.state
             });
         }
     }
@@ -79,7 +98,16 @@ function sepiaFW_build_input_controls_cmdl() {
     }
 
     function getActiveUserOrDemoRole(){
-        return (SepiaFW.client.isDemoMode()? SepiaFW.account.getUserRoles()[0] : SepiaFW.account.getUserId());
+        var u = "none";
+        if (SepiaFW.client.isDemoMode()){
+            var roles = SepiaFW.account.getUserRoles();
+            if (roles && roles.length > 0){
+                u = roles[0];
+            }
+        }else{
+            u = SepiaFW.account.getUserId();
+        }
+        return u;
     }
 
     //---------- SET ------------
@@ -91,7 +119,7 @@ function sepiaFW_build_input_controls_cmdl() {
     Cmdl.get = {};
 
     Cmdl.get.help = function(){
-        broadcastEvent("msg", "Login via: 'call login user [ID] password [PWD]'");
+        broadcastEvent("msg", "Use the 'set', 'get' and 'call' commands to communicate with this client. Examples are given inside the SEPIA Control HUB.");
     }
 
     Cmdl.get.user = function(){

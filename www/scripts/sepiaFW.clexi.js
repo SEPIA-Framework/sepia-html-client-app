@@ -128,7 +128,9 @@ function sepiaFW_build_clexi(){
     //CLEXI broadcaster (used e.g. for remote setup):
 
     Clexi.broadcastToAll = function(data){
-        ClexiJS.send('clexi-broadcaster', data, Clexi.numOfSendRetries);
+        if (Clexi.doConnect){
+            ClexiJS.send('clexi-broadcaster', data, Clexi.numOfSendRetries);
+        }
     }
 
     function subscribeToBroadcaster(){

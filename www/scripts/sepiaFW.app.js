@@ -586,7 +586,8 @@ function sepiaFW_build_debug(){
 	}
 	
 	Debug.object = function(obj, logType){
-		var output, property;
+		var output = "";
+		var property;
 		if (obj !== null && typeof obj === 'object'){
 			for (property in obj) {
 				output += property + ': ' + obj[property] + '; ';

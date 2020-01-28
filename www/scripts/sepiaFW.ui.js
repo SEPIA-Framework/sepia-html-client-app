@@ -3,7 +3,7 @@ function sepiaFW_build_ui(){
 	var UI = {};
 	
 	//some constants
-	UI.version = "v0.20.1";
+	UI.version = "v0.21.0";
 	UI.requiresServerVersion = "2.4.1";
 	UI.JQ_RES_VIEW_IDS = "#sepiaFW-result-view, #sepiaFW-chat-output, #sepiaFW-my-view";	//a selector to get all result views e.g. $(UI.JQ_RES_VIEW_IDS).find(...) - TODO: same as $('.sepiaFW-results-container') ??
 	UI.JQ_ALL_MAIN_VIEWS = "#sepiaFW-result-view, #sepiaFW-chat-output, #sepiaFW-my-view, #sepiaFW-teachUI-editor, #sepiaFW-teachUI-manager, #sepiaFW-frame-page-0, #sepiaFW-frame-page-1, #sepiaFW-frame-page-2, #sepiaFW-frame-page-3"; 	//TODO: frames can have more ...
@@ -560,25 +560,32 @@ function sepiaFW_build_ui(){
 					}, 2000);
 					SepiaFW.debug.log("Client will restart automatically in 2s to activate settings!");
 				}
-			}, 5000);
+			}, 8000);
 		}
 	}
 	//load headless settings
 	UI.loadSettingsForHeadlessMode = function(){
 		if (SepiaFW.settings && SepiaFW.settings.headless){
+			//device
 			if (SepiaFW.settings.headless.device){
 				SepiaFW.debug.log("Loading headless settings for device ...");
 				Object.keys(SepiaFW.settings.headless.device).forEach(function(key){
 					SepiaFW.debug.log("* " + key);
 					SepiaFW.data.setPermanent(key, SepiaFW.settings.headless.device[key]);
 				});
+				//TODO: Note that this will usually come too late for this session and requires client reload to take effect!
 			}
+			//user
 			if (SepiaFW.settings.headless.user){
 				SepiaFW.debug.log("Loading headless settings for user ...");
 				Object.keys(SepiaFW.settings.headless.user).forEach(function(key){
 					SepiaFW.debug.log("* " + key);
 					SepiaFW.data.set(key, SepiaFW.settings.headless.user[key]);
 				});
+			}
+			//other
+			if (SepiaFW.settings.headless.broadcast){
+				SepiaFW.inputControls.cmdl.broadcasters = SepiaFW.settings.headless.broadcast;
 			}
 		}
 	}

@@ -2,16 +2,26 @@
 SepiaFW.settings = {
 	headless: {
 		device: {
-			"host-name": "localhost",
+			"host-name": "http://sepia-home.local:20726/sepia",
 			"deviceId": "o1"
 		},
 		user: {
-			"clexiSocketURI": "ws://raspberrypi.local:9090/clexi",
+			"clexiSocketURI": "ws://localhost:8080",
 			"clexiServerId": "clexi-123",
 			"clexiConnect": true,
+			"useRemoteCmdl": true,
 			"speech-voice-engine": "sepia",
+			"speech-asr-engine": "native",
+			"speech-websocket-uri": "ws://localhost:20741/stt/socket",
+			"useGamepads": true,
+			"useWakeWord": false,
+			"autoloadWakeWord": false,
+			"allowWakeWordDuringStream": false,
 			"activeSkin": "2",
-			"useGamepads": true
+			"proactiveNotes": false
+		},
+		broadcast: {
+			"state": true
 		}
 	}
 };
