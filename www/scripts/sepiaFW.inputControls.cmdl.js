@@ -33,6 +33,11 @@ function sepiaFW_build_input_controls_cmdl() {
             }else{
                 document.removeEventListener('sepia_state_change', stateBroadcaster);
             }
+            if (Cmdl.broadcasters.login){
+                document.addEventListener('sepia_login_event', loginBroadcaster);
+            }else{
+                document.removeEventListener('sepia_login_event', loginBroadcaster);
+            }
 
             //say hello
             broadcastEvent("event", {
@@ -50,6 +55,13 @@ function sepiaFW_build_input_controls_cmdl() {
         if (Cmdl.broadcasters.state && ev.detail && ev.detail.state){
             broadcastEvent("sepia-state", {
                 state: ev.detail.state
+            });
+        }
+    }
+    function loginBroadcaster(ev){
+        if (Cmdl.broadcasters.login && ev.detail && ev.detail.note){
+            broadcastEvent("sepia-login", {
+                note: ev.detail.note
             });
         }
     }
@@ -126,6 +138,12 @@ function sepiaFW_build_input_controls_cmdl() {
         broadcastEvent("msg", "User is: " + getActiveUserOrDemoRole());
     }
 
+    Cmdl.get.wakeword = function(){
+        broadcastEvent("sepia-wake-word", {
+            state: (SepiaFW.wakeTriggers.isListening()? "active" : "inactive")
+        });
+    }
+
     //---------- CALL ------------
 
     Cmdl.functions = {};
@@ -139,10 +157,12 @@ function sepiaFW_build_input_controls_cmdl() {
 
     Cmdl.functions.logout = function(){
         broadcastEvent("msg", "Logout in 3s.");
+        SepiaFW.account.afterLogout = function(){
+            setTimeout(function(){
+                window.location.reload();
+            }, 3000);
+        }
         SepiaFW.account.logoutAction();
-        setTimeout(function(){
-            window.location.reload();
-        }, 3000);
     }
 
     Cmdl.functions.login = function(ev){
@@ -151,11 +171,12 @@ function sepiaFW_build_input_controls_cmdl() {
         if (user && pwd){
             broadcastEvent("msg", "Logging in with new user: " + user + ". Plz wait.");
             SepiaFW.account.afterLogout = function(){
-                if (SepiaFW.account.loginViaForm(user, pwd)){
+                SepiaFW.account.afterLogin = function(){
                     setTimeout(function(){
                         window.location.reload();
                     }, 3000);
-                }else{
+                }
+                if (!SepiaFW.account.loginViaForm(user, pwd)){
                     broadcastEvent("msg", "Login failed.");
                 }
             }

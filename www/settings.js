@@ -2,7 +2,7 @@
 SepiaFW.settings = {
 	headless: {
 		device: {
-			"host-name": "http://sepia-home.local:20726/sepia",
+			"host-name": "localhost",
 			"deviceId": "o1"
 		},
 		user: {
@@ -14,6 +14,8 @@ SepiaFW.settings = {
 			"speech-asr-engine": "native",
 			"speech-websocket-uri": "ws://localhost:20741/stt/socket",
 			"useGamepads": true,
+			"useBluetoothBeacons": true,
+			"useBluetoothBeaconsInAoModeOnly": false,
 			"useWakeWord": false,
 			"autoloadWakeWord": false,
 			"allowWakeWordDuringStream": false,
@@ -21,7 +23,8 @@ SepiaFW.settings = {
 			"proactiveNotes": false
 		},
 		broadcast: {
-			"state": true
+			"state": true,
+			"login": true
 		}
 	}
 };

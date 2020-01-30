@@ -74,13 +74,25 @@ function sepiaFW_build_account(){
 	
 	function broadcastLoginRestored(){
 		transferAccountDataToUI();
+		var event = new CustomEvent('sepia_login_event', { detail: {
+			note: "loginRestored"
+		}});
+		document.dispatchEvent(event);
 	}
 	
 	function broadcastLoginSuccess(){
 		transferAccountDataToUI();
+		var event = new CustomEvent('sepia_login_event', { detail: {
+			note: "loginSuccess"
+		}});
+		document.dispatchEvent(event);
 	}
 
 	function broadcastLoginFail(){
+		var event = new CustomEvent('sepia_login_event', { detail: {
+			note: "loginFail"
+		}});
+		document.dispatchEvent(event);
 	}
 	
 	function broadcastLogoutTry(){
@@ -130,9 +142,17 @@ function sepiaFW_build_account(){
 	}
 	function broadcastLogoutSuccess(){
 		SepiaFW.client.closeClient();
+		var event = new CustomEvent('sepia_login_event', { detail: {
+			note: "logoutSuccess"
+		}});
+		document.dispatchEvent(event);
 	}
 	function broadcastLogoutFail(){
 		SepiaFW.client.closeClient();
+		var event = new CustomEvent('sepia_login_event', { detail: {
+			note: "logoutFail"
+		}});
+		document.dispatchEvent(event);
 	}
 	
 	//----------------------

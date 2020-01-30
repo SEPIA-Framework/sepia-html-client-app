@@ -124,6 +124,9 @@ function sepiaFW_build_animate(){
 		if (SepiaFW.alwaysOn && SepiaFW.alwaysOn.isOpen){
 			SepiaFW.alwaysOn.avatarSpeaking();
 		}
+		//Dispatch
+		animState = "speaking";
+		dispatchAnimationStateEvent(animState);
 	}
 	Animate.assistant.listening = function(){
 		SepiaFW.ui.assistBtn.innerHTML = SepiaFW.ui.assistIconRec;
