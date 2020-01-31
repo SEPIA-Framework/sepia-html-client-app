@@ -166,8 +166,8 @@ function sepiaFW_build_input_controls_cmdl() {
     }
 
     Cmdl.functions.login = function(ev){
-        var user = ev.user || ev.userId || ev.username || ev.userName;
-        var pwd = ev.password || ev.pwd || ev.passwd || ev.token;
+        var user = ev.u || ev.user || ev.userId || ev.username || ev.userName;
+        var pwd = ev.p || ev.password || ev.pwd || ev.passwd || ev.token;
         if (user && pwd){
             broadcastEvent("msg", "Logging in with new user: " + user + ". Plz wait.");
             SepiaFW.account.afterLogout = function(){
@@ -182,6 +182,32 @@ function sepiaFW_build_input_controls_cmdl() {
             }
             SepiaFW.account.logoutAction();
         }
+    }
+
+    Cmdl.functions.ping = function(ev){
+        var adr = SepiaFW.config.webSocketAPI + "ping";
+        if (ev && ev.adr){
+            adr = ev.adr;
+        }
+        $.ajax({
+			url: adr,
+			timeout: 5000,
+			dataType: "jsonp",
+			success: function(data) {
+				broadcastEvent("ping-result", {
+                    adr: adr,
+                    status: 200,
+                    data: data
+                });
+			},
+			error: function(err) {
+				broadcastEvent("ping-result", {
+                    adr: adr,
+                    status: err.status,
+                    statusText: err.statusText
+                });
+			}
+		});
     }
 
     return Cmdl;
