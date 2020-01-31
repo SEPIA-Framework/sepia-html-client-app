@@ -41,9 +41,18 @@ function sepiaFW_build_teach(){
 				
 				//add stuff
 				if (info){
+					//clean first
+					$('#sepiaFW-teach-input').val("");
+					$('#sepiaFW-teach-parameters').find("[data-name]").val("");
+					$('#sepiaFW-teach-commands').val("");
+					//fill now
 					if (info.input){
 						$('#sepiaFW-teach-input').val(info.input);
 					}
+					if (info.service || info.cmd){
+						$('#sepiaFW-teach-commands').val(info.service || info.cmd);
+					}
+					//TODO: we could add parameters ...
 				}
 			});
 			Teach.isOpen = true;
@@ -566,7 +575,7 @@ function sepiaFW_build_teach(){
 			SepiaFW.ui.hideLoader();
 			if (debugCallback) debugCallback(data);
 			if (data.result && data.result === "fail"){
-				if (errorCallback) errorCallback('Sorry, but something went wrong during teach process! Maybe invalid data?');
+				if (errorCallback) errorCallback('Sorry, but something went wrong during teach process! Maybe invalid data or authentication not possible?');
 				return;
 			}
 			//--callback--
