@@ -3,7 +3,15 @@ SepiaFW.settings = {
 	headless: {
 		device: {
 			"host-name": "localhost",
-			"deviceId": "o1"
+			"deviceId": "o1",
+			"deviceLocalSiteData": {
+				"location": "home", 
+				"type": "room", 
+				"name": "unassigned", 
+				"index": ""
+			},
+			"en-voice": "",
+			"de-voice": ""
 		},
 		user: {
 			"clexiSocketURI": "ws://localhost:8080",
@@ -20,7 +28,12 @@ SepiaFW.settings = {
 			"autoloadWakeWord": false,
 			"allowWakeWordDuringStream": false,
 			"activeSkin": "2",
-			"proactiveNotes": false
+			"proactiveNotes": false,
+			"autoGPS": false
+		},
+		location: {
+			"latitude": "",
+			"longitude": ""
 		},
 		broadcast: {
 			"state": true,

@@ -380,6 +380,15 @@ function sepiaFW_build_tools(){
 		}
 		return url;
 	}
+	Tools.isURLParameterTrue = function(name){
+		var urlParam = Tools.getURLParameter(name);
+		if (urlParam && urlParam == "true"){
+			urlParam = true;
+		}else if (urlParam && urlParam == "false"){
+			urlParam = false;
+		}
+		return urlParam;
+	}
 
 	//get pure SHA256 hash
 	Tools.getSHA256Hash = function(data){

@@ -264,6 +264,51 @@ function sepiaFW_build_config(){
 
 	//------------ LOAD SETTINGS -------------
 
+	//load headless settings
+	Config.loadSettingsForHeadlessMode = function(){
+		if (SepiaFW.settings && SepiaFW.settings.headless){
+			//device
+			if (SepiaFW.settings.headless.device){
+				SepiaFW.debug.log("Loading headless settings for device ...");
+				Object.keys(SepiaFW.settings.headless.device).forEach(function(key){
+					//SepiaFW.debug.log("* " + key);
+					console.log("* " + key);
+					SepiaFW.data.setPermanent(key, SepiaFW.settings.headless.device[key]);
+				});
+				//TODO: Note that this will usually come too late for this session and requires client reload to take effect!
+			}
+			//user
+			if (SepiaFW.settings.headless.user){
+				SepiaFW.debug.log("Loading headless settings for user ...");
+				Object.keys(SepiaFW.settings.headless.user).forEach(function(key){
+					//SepiaFW.debug.log("* " + key);
+					console.log("* " + key);
+					SepiaFW.data.set(key, SepiaFW.settings.headless.user[key]);
+				});
+			}
+		}
+	}
+	Config.loadHeadlessModeSetup = function(){
+		if (SepiaFW.settings && SepiaFW.settings.headless){
+			//location
+			if (SepiaFW.settings.headless.location &&
+					SepiaFW.settings.headless.location.latitude && SepiaFW.settings.headless.location.longitude){
+				SepiaFW.client.addOnActiveOneTimeAction(function(){
+					//Get address for GPS location
+					if (SepiaFW.geocoder.isSupported && !SepiaFW.geocoder.autoGPS){
+						SepiaFW.geocoder.getAddress(undefined, undefined, 
+							SepiaFW.settings.headless.location.latitude, SepiaFW.settings.headless.location.longitude, 
+						true);
+					}
+				});
+			}
+			//other
+			if (SepiaFW.settings.headless.broadcast){
+				SepiaFW.inputControls.cmdl.broadcasters = SepiaFW.settings.headless.broadcast;
+			}
+		}
+	}
+
 	Config.loadAppSettings = function(){
 		//TODO: this should be simplified with a service! ...
 		

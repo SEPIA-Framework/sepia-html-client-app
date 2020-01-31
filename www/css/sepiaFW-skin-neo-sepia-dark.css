@@ -112,9 +112,13 @@ html {
 .sepiaFW-menu input {
 	background: transparent !important;
 }
+#sepiaFW-chat-channel-view {
+	border-bottom: 1px solid #2d3034;
+}
 #sepiaFW-chat-controls-more-menu {
 	background: #101418;
 	max-width: none;
+	border-top: 1px solid #2d3034;
 }
 #sepiaFW-chat-controls-more-menu button,
 .sepiaFW-touch-device #sepiaFW-chat-controls-more-menu button:hover {

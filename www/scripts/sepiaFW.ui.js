@@ -480,12 +480,7 @@ function sepiaFW_build_ui(){
 
 		//logout?
 		function doLogout(){
-			var urlParam = SepiaFW.tools.getURLParameter("logout");
-			if (urlParam && urlParam == "true"){
-				urlParam = true;
-			}else if (urlParam && urlParam == "false"){
-				urlParam = false;
-			}
+			var urlParam = SepiaFW.tools.isURLParameterTrue("logout");
 			if (urlParam){
 				SepiaFW.account.logoutAction();
 				setTimeout(function(){
@@ -498,18 +493,14 @@ function sepiaFW_build_ui(){
 		
 		//is standalone app?
 		function isStandaloneWebApp(){
+			var isStandalone = false;
 			if (UI.isCordova){
 				isStandalone = true;
 			}else{
-				var urlParam = SepiaFW.tools.getURLParameter("isApp");
-				if (urlParam && urlParam == "true"){
-					urlParam = true;
-				}else if (urlParam && urlParam == "false"){
-					urlParam = false;
-				}
+				var urlParam = SepiaFW.tools.isURLParameterTrue("isApp");
 				var google = window.matchMedia('(display-mode: standalone)').matches;
 				var apple = window.navigator.standalone;
-				var isStandalone = (urlParam || google || apple);
+				isStandalone = (urlParam || google || apple);
 			}
 			if (isStandalone){
 				document.documentElement.className += " sepiaFW-standalone-app";
@@ -520,12 +511,7 @@ function sepiaFW_build_ui(){
 
 		//is tiny app?
 		function isTinyApp(){
-			var urlParam = SepiaFW.tools.getURLParameter("isTiny");
-			if (urlParam && urlParam == "true"){
-				urlParam = true;
-			}else if (urlParam && urlParam == "false"){
-				urlParam = false;
-			}
+			var urlParam = SepiaFW.tools.isURLParameterTrue("isTiny");
 			if (urlParam){
 				document.documentElement.className += " sepiaFW-tiny-app";
 			}
@@ -533,24 +519,9 @@ function sepiaFW_build_ui(){
 		}
 		UI.isTinyApp = isTinyApp();
 
-		//is headless app?
-		function isHeadlessApp(){
-			var urlParam = SepiaFW.tools.getURLParameter("isHeadless");
-			if (urlParam && urlParam == "true"){
-				urlParam = true;
-			}else if (urlParam && urlParam == "false"){
-				urlParam = false;
-			}
-			if (urlParam){
-				document.documentElement.className += " sepiaFW-headless-app";
-			}
-			return urlParam;
-			//TODO: load headless.js
-		}
-		UI.isHeadless = isHeadlessApp();
-		if (UI.isHeadless){
-			//always load settings (may overwrite user pref.)
-			UI.loadSettingsForHeadlessMode();
+		//Setup headless mode
+		if (SepiaFW.config.isUiHeadless){
+			SepiaFW.config.loadHeadlessModeSetup();
 			//if client not active or in demo-mode after 5s run setup
 			setTimeout(function(){
 				if (!SepiaFW.client.isActive() && !SepiaFW.client.isDemoMode()){
@@ -561,32 +532,6 @@ function sepiaFW_build_ui(){
 					SepiaFW.debug.log("Client will restart automatically in 2s to activate settings!");
 				}
 			}, 8000);
-		}
-	}
-	//load headless settings
-	UI.loadSettingsForHeadlessMode = function(){
-		if (SepiaFW.settings && SepiaFW.settings.headless){
-			//device
-			if (SepiaFW.settings.headless.device){
-				SepiaFW.debug.log("Loading headless settings for device ...");
-				Object.keys(SepiaFW.settings.headless.device).forEach(function(key){
-					SepiaFW.debug.log("* " + key);
-					SepiaFW.data.setPermanent(key, SepiaFW.settings.headless.device[key]);
-				});
-				//TODO: Note that this will usually come too late for this session and requires client reload to take effect!
-			}
-			//user
-			if (SepiaFW.settings.headless.user){
-				SepiaFW.debug.log("Loading headless settings for user ...");
-				Object.keys(SepiaFW.settings.headless.user).forEach(function(key){
-					SepiaFW.debug.log("* " + key);
-					SepiaFW.data.set(key, SepiaFW.settings.headless.user[key]);
-				});
-			}
-			//other
-			if (SepiaFW.settings.headless.broadcast){
-				SepiaFW.inputControls.cmdl.broadcasters = SepiaFW.settings.headless.broadcast;
-			}
 		}
 	}
 

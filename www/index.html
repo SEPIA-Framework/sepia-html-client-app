@@ -357,7 +357,7 @@
 <script type="text/javascript">
 
 	//get cordova via URL parameter
-	var isCordova = SepiaFW.tools.getURLParameter('cordova') + '';
+	var isCordova = SepiaFW.tools.isURLParameterTrue('cordova');
 
 	//start-up actions (and buffered local notifications)
 	function handleUrlParameterActions(isDemo, url){
@@ -449,9 +449,17 @@
 	//define app setup (called either here (index.html) or in cordova device-ready (index.js)
 	function appSetup(){
 		//get some more settings via URL parameters
-		var isCordova = SepiaFW.tools.getURLParameter('cordova') + '';
-		var isTest = SepiaFW.tools.getURLParameter('isTest');
+		var isTest = SepiaFW.tools.isURLParameterTrue('isTest');
 		var hostParam = SepiaFW.tools.getURLParameter('host');
+
+		//is headless app?
+		SepiaFW.config.isUiHeadless = SepiaFW.tools.isURLParameterTrue("isHeadless");
+		if (SepiaFW.config.isUiHeadless){
+			//add CSS class
+			document.documentElement.className += " sepiaFW-headless-app";
+			//note: is allowed to overwrite user pref.
+			SepiaFW.config.loadSettingsForHeadlessMode();
+		}
 
 		//prepare plugins
 		SepiaFW.buildSepiaFwPlugins();
@@ -570,7 +578,7 @@
 	}
 	
 	//SETUP via browser or cordova
-	if(isCordova === "true"){
+	if (isCordova){
 		document.write(unescape(
 			'%3Cscript src="cordova.js"%3E%3C/script%3E'+
 			'%3Cscript src="js/index.js"%3E%3C/script%3E'

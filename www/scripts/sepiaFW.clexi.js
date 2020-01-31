@@ -19,11 +19,13 @@ function sepiaFW_build_clexi(){
     }
 
     Clexi.initialize = function(){
-        Clexi.socketURI = SepiaFW.data.get('clexiSocketURI') || "";
-        Clexi.serverId = SepiaFW.data.get('clexiServerId') || "";
+        var clexiUrlParam = SepiaFW.tools.getURLParameter('clexi');
+        var clexiIdUrlParam = SepiaFW.tools.getURLParameter('clexiId');
+        Clexi.socketURI = clexiUrlParam || SepiaFW.data.get('clexiSocketURI') || "";
+        Clexi.serverId = clexiIdUrlParam || SepiaFW.data.get('clexiServerId') || "";
         ClexiJS.serverId = Clexi.serverId;
         
-        var useClexi = SepiaFW.data.get('clexiConnect');
+        var useClexi = SepiaFW.data.get('clexiConnect') || (clexiUrlParam && clexiIdUrlParam);
         if (useClexi != undefined) Clexi.doConnect = useClexi;
         SepiaFW.debug.info("CLEXI support is " + ((Clexi.isSupported && Clexi.doConnect)? "ENABLED" : "DISABLED"));
 
