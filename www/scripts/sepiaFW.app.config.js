@@ -215,18 +215,35 @@ function sepiaFW_build_config(){
 		index: "",			//e.g.: 1, 2, 212, ...
 		updates: "off"		//e.g.: "off", "auto" (not supported yet)
 	};
-	Config.setDeviceLocalSiteData = function(data){
+	Config.setDeviceLocalSiteData = function(data, skipStorageWrite){
 		if (data.location != undefined) deviceLocalSiteData.location = data.location;
 		if (data.type != undefined) deviceLocalSiteData.type = data.type;
 		if (data.name != undefined) deviceLocalSiteData.name = data.name;
 		if (data.index != undefined) deviceLocalSiteData.index = data.index;
 		if (data.updates != undefined) deviceLocalSiteData.updates = data.updates;
-		SepiaFW.data.setPermanent('deviceLocalSiteData', deviceLocalSiteData);
+		if (!skipStorageWrite){
+			SepiaFW.data.setPermanent('deviceLocalSiteData', deviceLocalSiteData);
+		}
 	}
 	Config.getDeviceLocalSiteData = function(){
 		return deviceLocalSiteData;
 	}
 	//SEE: Config.deviceLocalSiteOptions in frames file - TODO: we should load this data from server
+
+	var deviceGlobalLocation = {
+		latitude: "",
+		longitude: ""
+	}
+	Config.setDeviceGlobalLocation = function(data, skipStorageWrite){
+		if (data.latitude != undefined) deviceGlobalLocation.latitude = data.latitude;
+		if (data.longitude != undefined) deviceGlobalLocation.longitude = data.longitude;
+		if (!skipStorageWrite){
+			SepiaFW.data.setPermanent('deviceGlobalLocation', deviceGlobalLocation);
+		}
+	}
+	Config.getDeviceGlobalLocation = function(){
+		return deviceGlobalLocation;
+	}
 
 	//Collection of universally supported apps and their names
     Config.musicApps = {
@@ -323,6 +340,21 @@ function sepiaFW_build_config(){
 			var storedValue = SepiaFW.data.get('autoGPS');
 			if (typeof storedValue != 'undefined') SepiaFW.geocoder.autoGPS = storedValue;
 			SepiaFW.debug.info("GPS is in " + ((SepiaFW.geocoder.autoGPS)? "AUTO" : "MANUAL") + " mode.");
+			//pre-defined location?
+			var dglData = SepiaFW.data.getPermanent('deviceGlobalLocation'); 
+			if (dglData){
+				Config.setDeviceGlobalLocation(dglData, true);
+				if (dglData.latitude && dglData.longitude){
+					SepiaFW.client.addOnActiveOneTimeAction(function(){
+						//Get address for GPS location
+						if (SepiaFW.geocoder.isSupported && !SepiaFW.geocoder.autoGPS){
+							SepiaFW.geocoder.getAddress(undefined, undefined, 
+								dglData.latitude, dglData.longitude, 
+							true);
+						}
+					});
+				}
+			}
 		}
 		//Proactive notes
 		if (SepiaFW.assistant){
@@ -376,7 +408,7 @@ function sepiaFW_build_config(){
 		//Device local site configuration
 		var dlsData = SepiaFW.data.getPermanent('deviceLocalSiteData'); 
 		if (dlsData){
-			Config.setDeviceLocalSiteData(dlsData);
+			Config.setDeviceLocalSiteData(dlsData, true);
 		}
 
 		//Default music app

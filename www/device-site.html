@@ -25,6 +25,17 @@
 					<label>Updates:</label>
 					<div id="sepiaFW-device-site-updates-box" data-device-site="updates"></div>
 				</div>
+				<div class="group">
+					<p class="info-text">Global GPS location (used when auto-GPS is off):</p>
+				</div>
+				<div class="group">
+					<label>Latitude:</label>
+					<input id="sepiaFW-device-site-global-latitude" style='max-width: 100px;' placeholder="52.516248">
+				</div>
+				<div class="group">
+					<label>Longitude:</label>
+					<input id="sepiaFW-device-site-global-longitude" style='max-width: 100px;' placeholder="13.377681">
+				</div>
 				<div class="group" style="justify-content: center;">
 					<button id="SepiaFW-device-site-store" onclick="SepiaFW.frames.currentScope.store()">Store settings</button>
 				</div>
@@ -109,6 +120,10 @@
 			$('#sepiaFW-device-site-settings-name').val(siteData.name);
 			$('#sepiaFW-device-site-settings-index').val(siteData.index);
 			$('#sepiaFW-device-site-settings-updates').val(siteData.updates);
+
+			var globalLocation = SepiaFW.config.getDeviceGlobalLocation();
+			$('#sepiaFW-device-site-global-latitude').val(globalLocation.latitude);
+			$('#sepiaFW-device-site-global-longitude').val(globalLocation.longitude);
 		},
 		
 		store: function(){
@@ -121,6 +136,13 @@
 			};
 			//console.log(siteData);
 			SepiaFW.config.setDeviceLocalSiteData(siteData);
+			
+			var globalLocation = {
+				latitude: $('#sepiaFW-device-site-global-latitude').val(),
+				longitude: $('#sepiaFW-device-site-global-longitude').val()
+			}
+			SepiaFW.config.setDeviceGlobalLocation(globalLocation);
+
 			SepiaFW.ui.showPopup(SepiaFW.local.g("done"));
 		}
 	}
