@@ -785,7 +785,7 @@ function sepiaFW_build_audio(){
 			//running alarm
 			AudioPlayer.stopAlarmSound(); 						//just to be sure
 			//running media
-			SepiaFW.client.controls.media({action: "stop"});	//TODO: consider restarting media-stream later?
+			SepiaFW.client.controls.media({action: "stop", skipFollowUp: true});	//TODO: consider restarting media-stream later?
 			//running wake-word
 			if (SepiaFW.wakeTriggers && SepiaFW.wakeTriggers.isListening()){
 				SepiaFW.animate.assistant.loading();
@@ -836,6 +836,7 @@ function sepiaFW_build_audio(){
 				//callback
 				if (onEndCallback) onEndCallback();
 				AudioPlayer.broadcastAudioEvent("effects", "stop", audioPlayer);
+				SepiaFW.animate.assistant.idle();
 			}
 		};
 		audioPlayer.onended = function() {
@@ -856,6 +857,7 @@ function sepiaFW_build_audio(){
 			//callback
 			if (onErrorCallback) onErrorCallback();
 			AudioPlayer.broadcastAudioEvent("effects", "error", audioPlayer);
+			SepiaFW.animate.assistant.idle();
 		};
 		audioPlayer.play();
 	}

@@ -210,5 +210,14 @@ function sepiaFW_build_input_controls_cmdl() {
 		});
     }
 
+    Cmdl.functions.test = function(ev){
+        broadcastEvent("test-result", {
+            isActive: SepiaFW.client.isActive(),
+            user: SepiaFW.account.getUserId(),
+            next: "sending test message now ..."
+        });
+        SepiaFW.client.sendInputText("test");
+    }
+
     return Cmdl;
 }
