@@ -100,6 +100,9 @@ function sepiaFW_build_clexi(){
             
         }, function(err){
             //error
+            rgyIndicators.forEach(function(indi){
+                indi.setState("r");
+            });
             removeAllSubscriptions();
         
         }, function(){

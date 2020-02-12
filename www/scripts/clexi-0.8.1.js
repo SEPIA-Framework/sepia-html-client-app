@@ -2,7 +2,7 @@
 var ClexiJS = (function(){
 	var Clexi = {};
 	
-	Clexi.version = "0.8.0";
+	Clexi.version = "0.8.1";
 	Clexi.serverId = "";		//if you set this the client will check the server ID on welcome event and close connection if not identical
 	
 	//Extension subscriptions
@@ -46,7 +46,7 @@ var ClexiJS = (function(){
 			}
 			//console.log(data);
 			//check ID
-			if (data.id && data.id == Clexi.serverId){
+			if (data.id && (data.id == Clexi.serverId || (data.id == "[SECRET]" && Clexi.serverId))){
 				Clexi.connect(host, onOpen, onClose, onError, onConnecting);
 			}else{
 				if (onPingOrIdError) onPingOrIdError({
@@ -78,7 +78,21 @@ var ClexiJS = (function(){
 		}
 		
 		//Connect
-		ws = new WebSocket(hostURL);
+		try {
+			ws = new WebSocket(hostURL);
+		}catch (err){
+			if (Clexi.onError){
+				if (typeof err == "string"){
+					Clexi.onError("CLEXI error: " + err);
+				}else if (err.message){
+					Clexi.onError("CLEXI error: " + err.message);
+				}else{
+					Clexi.onError("CLEXI error");
+				}
+			}
+			if (onError) onError(err);
+			return;
+		}
 		requestedClose = false;
 		readyToAcceptEvents = false;
 		if (Clexi.onLog) Clexi.onLog('CLEXI connecting ...');
@@ -93,7 +107,7 @@ var ClexiJS = (function(){
 			if (Clexi.onLog) Clexi.onLog('CLEXI connected');
 			if (onOpen) onOpen(me);
 			//send welcome
-			Clexi.send("welcome", "Client v" + Clexi.version);
+			Clexi.send("welcome", {"client_version": Clexi.version, "server_id": Clexi.serverId});
 		};
 		
 		ws.onmessage = function(me){
@@ -118,8 +132,13 @@ var ClexiJS = (function(){
 			}else if (msg.type == "welcome"){
 				if (msg.info && msg.info.xtensions) Clexi.availableXtensions = msg.info.xtensions;
 				if (Clexi.onLog) Clexi.onLog('CLEXI server says welcome. Info: ' + JSON.stringify(msg.info));
+				if (msg.code && msg.code == 401){
+					//server requires correct ID for authentication
+					Clexi.close();
 				//check server ID
-				if (Clexi.serverId && (Clexi.serverId != msg.info.id)){
+				}else if (Clexi.serverId && (Clexi.serverId != msg.info.id)){
+					//NOTE: the server might not necessarily refuse connections with wrong ID (depends on settings), but we will if ID is given.
+					//Obviously this is NOT a security feature but a server ID filter ;-)
 					Clexi.close();
 				}else{
 					readyToAcceptEvents = true;
@@ -129,7 +148,13 @@ var ClexiJS = (function(){
 		
 		ws.onerror = function(error){
 			if (Clexi.onError){
-				Clexi.onError("CLEXI error");
+				if (typeof error == "string"){
+					Clexi.onError("CLEXI error: " + error);
+				}else if (error.message){
+					Clexi.onError("CLEXI error: " + error.message);
+				}else{
+					Clexi.onError("CLEXI error");
+				}
 			}
 			if (onError) onError(error);
 		};
@@ -222,9 +247,20 @@ var ClexiJS = (function(){
 	/**
 	* A vanillaJS version of jQuery ajax call for HTTP GET. TODO: extend for POST.
 	*/
-	Clexi.httpRequest = function(method, url, successCallback, errorCallback, connectErrorCallback){
+	function vanillaJsHttpRequest(method, url, headers, successCallback, errorCallback, connectErrorCallback){
+		if (method == "POST" || method == "post"){
+			console.error("Clexi.httpRequest does not yet support 'POST' method!");
+			if (connectErrorCallback) connectErrorCallback();
+			else if (errorCallback) errorCallback();
+			return;
+		}
 		var request = new XMLHttpRequest();
 		request.open(method, url, true);
+		if (headers){
+			Object.keys(headers).forEach(function(key){
+				request.setRequestHeader(key, headers[key]);
+			});
+		}
 		request.onload = function(){
 			if (request.status >= 200 && request.status < 400) {
 				//Success!
@@ -241,6 +277,24 @@ var ClexiJS = (function(){
 			else if (errorCallback) errorCallback();
 		};
 		request.send();
+	}
+
+	Clexi.httpRequest = function(method, url, successCallback, errorCallback, connectErrorCallback){
+		vanillaJsHttpRequest(method, url, undefined, successCallback, errorCallback, connectErrorCallback);
+	}
+
+	Clexi.sendHttpEvent = function(host, clexiId, eventName, data, successCallback, errorCallback, connectErrorCallback){
+		var url = host.replace(/^wss/, 'https').replace(/^ws/, 'http').replace(/\/$/, '') + "/event/" + eventName;
+		if (data && typeof data == "object"){
+			Object.keys(data).forEach(function(key){
+				url += ("&" + key + "=" + data[key]);
+			});
+			url = url.replace(/&/, "?");	//replace first "&"
+		}
+		var headers = {
+			"clexi-id": clexiId
+		}
+		vanillaJsHttpRequest("GET", url, headers, successCallback, errorCallback, connectErrorCallback);
 	}
 	
 	return Clexi;
