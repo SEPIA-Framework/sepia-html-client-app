@@ -176,13 +176,13 @@ html {
 	color: #111;
 }
 #sepiaFW-chat-output article.chatAssistant.chatPm {
-	border-left-color: rgba(255, 255, 255, 0.60);
+	border-left-color: rgb(229, 229, 229);
 }
 #sepiaFW-chat-output article.chatMe.chatPm {
-	border-left-color: rgba(255, 255, 255, 0.60);
+	border-left-color: rgba(255, 255, 255, 0.20);
 }
 #sepiaFW-chat-output article.chatOther.chatPm {
-	border-left-color: rgba(27, 255, 230, 0.3);
+	border-left-color: rgba(255, 255, 255, 0.20);
 }
 
 .sepiaFW-button {
@@ -203,6 +203,10 @@ html {
 
 .sepiaFW-toggle-btn .on {
     background: #01fca0;
+}
+
+.sepiaFW-audio-soundbar {
+	background: #ececec;
 }
 
 /*----- cards ------*/
@@ -240,6 +244,10 @@ html {
 .sepiaFW-notouch-device .sepiaFW-cards-list-body .timeEvent .timeEventRight:hover {
     background: #f20710 !important;
     color: #111 !important;
+}
+
+.sepiaFW-cards-list-title.newsHeader {
+	color: #111;
 }
 
 /*----- teachUI -----*/
