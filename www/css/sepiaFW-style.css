@@ -1400,6 +1400,10 @@ html.dark-skin #sepiaFW-login-help-btn {
 	float: right;
 	position: relative;
 }
+#sepiaFW-nav-users-btn.marked {
+	-webkit-animation: sepiaFW-animation-blink-inv 4.5s 1;
+            animation: sepiaFW-animation-blink-inv 4.5s 1;
+}
 #sepiaFW-nav-users-btn.marked::after {
 	content: " \2022 ";
     color: #ff2550;
@@ -1986,6 +1990,16 @@ html.dark-skin #sepiaFW-login-help-btn {
     from {opacity: 0.0;}
 	50%  {opacity: 1.0;}
     to {opacity: 0.0;}
+}
+@keyframes sepiaFW-animation-blink-inv {
+    from {opacity: 1.0;}
+	50%  {opacity: 0.25;}
+    to {opacity: 1.0;}
+}
+@-webkit-keyframes sepiaFW-animation-blink-inv {
+    from {opacity: 1.0;}
+	50%  {opacity: 0.25;}
+    to {opacity: 1.0;}
 }
 @keyframes sepiaFW-chat-output-enter_slide {
     from {max-height: 0px; padding-top: 0px; padding-bottom: 0px;}
