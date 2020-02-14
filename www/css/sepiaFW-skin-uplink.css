@@ -29,13 +29,9 @@ html {
 }
 
 #sepiaFW-main-window button,
-.sepiaFW-touch-device #sepiaFW-main-window button:hover {
+.sepiaFW-notouch-device #sepiaFW-main-window button:hover {
 	background: #283059;
 	color: #1BFFE6;
-}
-.sepiaFW-notouch-device #sepiaFW-main-window button:hover {
-	background: transparent;
-	color: #fff;
 }
 #sepiaFW-login-box button {
 	background: #1BFFE6;
@@ -181,6 +177,14 @@ html {
 }
 .sepiaFW-cards-list-body .weatherNowSmall .weatherNowSmallImage {
 	background: #283059;
+}
+
+.sepiaFW-cards-list-title.newsHeader button {
+	color: #1bffe6 !important;
+}
+.sepiaFW-cards-list-title.newsHeader .sepiaFW-cards-list-contextMenu {
+	background: #d2d2dd;
+    color: #283059;
 }
 
 /*----- teachUI -----*/

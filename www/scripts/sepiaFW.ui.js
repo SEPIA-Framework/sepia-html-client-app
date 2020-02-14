@@ -127,6 +127,8 @@ function sepiaFW_build_ui(){
 	UI.assistantColor = '';
 	UI.micBackgroundColor = '#fff';  //reassigned during UI setup
 	UI.htmlBackgroundColor = window.getComputedStyle(document.documentElement).getPropertyValue("background-color") || "#fff";
+	UI.navBarColor = '';
+	UI.statusBarColor = '';
 	
 	UI.isMenuOpen = false;
 	UI.lastInput = "";
@@ -140,6 +142,8 @@ function sepiaFW_build_ui(){
 		var aC = document.getElementById('sepiaFW-aC');		var aC2 = document.getElementById('sepiaFW-aC2');
 		var asC = document.getElementById('sepiaFW-asC');	var adC = document.getElementById('sepiaFW-adC');
 		var lC = document.getElementById('sepiaFW-lC');
+		var navB = document.getElementById('sepiaFW-navC');
+		var statB = document.getElementById('sepiaFW-statC');
 		UI.primaryColor = 	 pC?  window.getComputedStyle(pC, null).getPropertyValue("background-color") : UI.primaryColor;
 		UI.secondaryColor =  sC?  window.getComputedStyle(sC, null).getPropertyValue("background-color") : UI.secondaryColor;
 		UI.secondaryColor2 = sC2? window.getComputedStyle(sC2, null).getPropertyValue("background-color"): UI.secondaryColor2;
@@ -150,6 +154,14 @@ function sepiaFW_build_ui(){
 		UI.loadingColor =	 lC? window.getComputedStyle(lC, null).getPropertyValue("background-color"): 'rgba(180, 180, 180, 1.0)';
 		UI.htmlBackgroundColor = window.getComputedStyle(document.documentElement).getPropertyValue("background-color") || "#fff";
 		//UI.assistantColor = $('#sepiaFW-chat-output').find('article.chatAssistant').first().css("background-color");
+		UI.navBarColor = navB?  window.getComputedStyle(navB, null).getPropertyValue("background-color") : UI.navBarColor;
+		UI.statusBarColor = statB?  window.getComputedStyle(statB, null).getPropertyValue("background-color") : UI.statusBarColor;
+		if (UI.navBarColor == "rgba(0, 0, 0, 0)" || UI.navBarColor == "transparent" || UI.navBarColor == "#00000000" || UI.navBarColor == "#0000"){
+			UI.navBarColor = "";
+		}
+		if (UI.statusBarColor == "rgba(0, 0, 0, 0)" || UI.statusBarColor == "transparent" || UI.statusBarColor == "#00000000" || UI.statusBarColor == "#0000"){
+			UI.statusBarColor = "";
+		}
 		//refresh theme-color
 		$('meta[name="theme-color"]').replaceWith('<meta name="theme-color" content="' + UI.primaryColor + '">');
 		//set general skin style
@@ -165,34 +177,34 @@ function sepiaFW_build_ui(){
 			$(document.documentElement).removeClass('dark-skin').addClass("light-skin");
 			activeSkinStyle = "light";
 		}
-		//update statusbar
+		//update statusbar and navbar
 		if ('StatusBar' in window){
-			var colorString = UI.primaryColor;
-			if ((colorString + '').indexOf('rgb') === 0){
-				var rgb = SepiaFW.tools.convertRgbColorStringToRgbArray(colorString);
-				colorString = SepiaFW.tools.rgbToHex(rgb[0], rgb[1], rgb[2]);
+			var statusBarColor = UI.statusBarColor || UI.primaryColor;
+			if ((statusBarColor + '').indexOf('rgb') === 0){
+				var rgb = SepiaFW.tools.convertRgbColorStringToRgbArray(statusBarColor);
+				statusBarColor = SepiaFW.tools.rgbToHex(rgb[0], rgb[1], rgb[2]);
 			}
-			//console.log('color: ' + colorString + " - contrast: " + SepiaFW.tools.getBestContrast(colorString));
-			if (SepiaFW.tools.getBestContrast(colorString) === 'white'){
-				StatusBar.backgroundColorByHexString(colorString);
+			//console.log('statusBarColor: ' + statusBarColor + " - contrast: " + SepiaFW.tools.getBestContrast(statusBarColor));
+			if (SepiaFW.tools.getBestContrast(statusBarColor) === 'white'){
+				StatusBar.backgroundColorByHexString(statusBarColor);
 				StatusBar.styleLightContent();
-				if ('NavigationBar' in window){
-                    NavigationBar.backgroundColorByHexString(colorString);
-                }
 			}else{
 				if (UI.isAndroid){
 					StatusBar.backgroundColorByHexString('#000000');
-					if ('NavigationBar' in window){
-                        NavigationBar.backgroundColorByHexString('#000000');
-                    }
 				}else{
-					StatusBar.backgroundColorByHexString(colorString);
+					StatusBar.backgroundColorByHexString(statusBarColor);
 					StatusBar.styleDefault();
-					if ('NavigationBar' in window){
-                        NavigationBar.backgroundColorByHexString(colorString);
-                    }
 				}
 			}
+		}
+		if ('NavigationBar' in window){
+			var navBarColor =  UI.navBarColor || UI.primaryColor;
+			if ((navBarColor + '').indexOf('rgb') === 0){
+				var rgb = SepiaFW.tools.convertRgbColorStringToRgbArray(navBarColor);
+				navBarColor = SepiaFW.tools.rgbToHex(rgb[0], rgb[1], rgb[2]);
+			}
+			//console.log('navBarColor: ' + navBarColor + " - contrast: " + SepiaFW.tools.getBestContrast(navBarColor));
+            NavigationBar.backgroundColorByHexString(navBarColor);
 		}
 	}
 	

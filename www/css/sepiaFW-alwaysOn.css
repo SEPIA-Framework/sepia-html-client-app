@@ -69,9 +69,9 @@
 }
 
 .sepiaFW-alwaysOn-alarm-anim {
-	animation: alarm 1s infinite ease-in;
+	animation: avatar-alarm 1s infinite ease-in;
 }
-@keyframes alarm {
+@keyframes avatar-alarm {
 	0% {	  background-color: #000;		}
 	50% {	  background-color: #ceff1a;	}
 	100% {	  background-color: #000;		}
@@ -123,33 +123,11 @@
     background: #000;
     border-radius: 50%;
     z-index: 3;
-	animation: blink 20s infinite ease-in;
+	animation: avatar-blink 20s infinite ease-in;
 }
 #sepiaFW-alwaysOn-avatar .avatar-eyelid.sleep {
-	animation: sleep 40s infinite ease-in;
+	animation: avatar-sleep 40s infinite ease-in;
 	/*animation-fill-mode: forwards;*/
-}
-@keyframes blink {
-	0% {	  top: 23%;	}
-	98% {	  top: 23%;	}
-	98.5% {	  top: 48%;	}
-	99% {	  top: 23%;	}
-	99.5% {	  top: 48%;	}
-	100% {	  top: 23%;	}
-}
-@keyframes sleep {
-	0% {	  top: 23%;	}
-	10% {	  top: 23%;	}
-	18% {	  top: 48%;	}
-	18.25% {  top: 23%;	}
-	30% {	  top: 48%;	}
-	50% {	  top: 48%;	}
-	50.25% {  top: 23%;	}
-}
-@keyframes flicker {
-	0%   { opacity:1; }
-	50%  { opacity:0.33; }
-	100% { opacity:1; }
 }
 
 #sepiaFW-alwaysOn-avatar .avatar-pupil {
@@ -160,16 +138,7 @@
     width: 50%;
     border-radius: 50%;
 	background: #000;
-	animation: look-around 10s infinite;
-}
-@keyframes look-around {
-	0% {  	transform: translate3d(0, 0, 0);			}
-	5% {  	transform: translate3d(50%, -25%, 0);		}
-	10% { 	transform: translate3d(50%, -25%, 0);		}
-	15% { 	transform: translate3d(-100%, -25%, 0);		}
-	20% { 	transform: translate3d(-100%, -25%, 0);		}
-	25% { 	transform: translate3d(0, 0, 0);			}
-	100% {	transform: translate3d(0, 0, 0);			}
+	animation: avatar-look-around 10s infinite;
 }
 
 #sepiaFW-alwaysOn-avatar .avatar-mouth {
@@ -191,7 +160,7 @@
 	border-radius: 0%;
 }
 #sepiaFW-alwaysOn-avatar .avatar-mouth.speaking {
-	animation: flicker 1.5s infinite;
+	animation: avatar-flicker 1.5s infinite;
 }
 
 #sepiaFW-alwaysOn-avatar .avatar-activity {
@@ -238,4 +207,60 @@
 #sepiaFW-alwaysOn-tts-out {
     color: #2196f3;
 	bottom: 12px;
+}
+
+@keyframes avatar-blink {
+	0% {	  top: 23%;	}
+	98% {	  top: 23%;	}
+	98.5% {	  top: 48%;	}
+	99% {	  top: 23%;	}
+	99.5% {	  top: 48%;	}
+	100% {	  top: 23%;	}
+}
+@keyframes avatar-sleep {
+	0% {	  top: 23%;	}
+	10% {	  top: 23%;	}
+	18% {	  top: 48%;	}
+	18.25% {  top: 23%;	}
+	30% {	  top: 48%;	}
+	50% {	  top: 48%;	}
+	50.25% {  top: 23%;	}
+}
+@keyframes avatar-flicker {
+	0%   { opacity:1; }
+	50%  { opacity:0.33; }
+	100% { opacity:1; }
+}
+@keyframes avatar-look-around {
+	0% {  	transform: translate3d(0, 0, 0);			}
+	5% {  	transform: translate3d(50%, -25%, 0);		}
+	10% { 	transform: translate3d(50%, -25%, 0);		}
+	15% { 	transform: translate3d(-100%, -25%, 0);		}
+	20% { 	transform: translate3d(-100%, -25%, 0);		}
+	25% { 	transform: translate3d(0, 0, 0);			}
+	100% {	transform: translate3d(0, 0, 0);			}
+}
+
+@keyframes ila-blink {
+	0% {	  height: 11px;	top: calc(50% - 5px); }
+	98% {	  height: 11px;	top: calc(50% - 5px); }
+	98.5% {	  height: 0px;	top: calc(50% - 0px); }
+	99% {	  height: 11px;	top: calc(50% - 5px); }
+	99.5% {	  height: 0px;	top: calc(50% - 0px); }
+	100% {	  height: 11px;	top: calc(50% - 5px); }
+}
+@keyframes ila-look-around {
+	0% {  	transform: translate3d(0, 0, 0);			}
+	2% {  	transform: translate3d(20%, 20%, 0);		}
+	4% { 	transform: translate3d(20%, 20%, 0);		}
+	6% { 	transform: translate3d(-40%, 20%, 0);		}
+	8% { 	transform: translate3d(-40%, 20%, 0);		}
+	10% { 	transform: translate3d(0, 0, 0);			}
+	50% { 	transform: translate3d(0, 0, 0);			}
+	52% {  	transform: translate3d(20%, -20%, 0);		}
+	54% { 	transform: translate3d(20%, -20%, 0);		}
+	56% { 	transform: translate3d(-40%, -20%, 0);		}
+	58% { 	transform: translate3d(-40%, -20%, 0);		}
+	60% { 	transform: translate3d(0, 0, 0);			}
+	100% {	transform: translate3d(0, 0, 0);			}
 }
