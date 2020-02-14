@@ -9,11 +9,14 @@ html {
 
 #sepiaFW-pC 	{ background-color: #fff; }
 #sepiaFW-sC 	{ background-color: #027BFF; }
-#sepiaFW-sC2 	{ background-color: #66add7; 	}
-#sepiaFW-aC 	{ background-color: rgba(166, 58, 80, 1.0); 	}
+#sepiaFW-sC2 	{ background-color: #66add7; }
+#sepiaFW-aC 	{ background-color: rgba(166, 58, 80, 1.0); }
 #sepiaFW-aC2 	{ background-color: #ceff1a; }
-#sepiaFW-asC 	{ background-color: #000;	}
-#sepiaFW-adC 	{ background-color: gold; 	}
+#sepiaFW-asC 	{ background-color: #000; }
+#sepiaFW-adC 	{ background-color: gold; }
+
+#sepiaFW-navC 	{ background-color: #000; }
+#sepiaFW-statC 	{ background-color: #000; }
 
 #sepiaFW-login-box input, #sepiaFW-main-window input {
 	border: 1px solid #EBEBFF;

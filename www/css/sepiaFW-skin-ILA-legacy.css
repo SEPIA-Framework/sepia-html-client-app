@@ -19,8 +19,8 @@ html {
 #sepiaFW-asC { background-color: #01fca0; }
 #sepiaFW-adC { background-color: #ffff00; }
 
-#sepiaFW-navC { background-color: #000; }
-#sepiaFW-statC { background-color: transparent; }
+#sepiaFW-navC 	{ background-color: #000; }
+#sepiaFW-statC 	{ background-color: #000; }
 
 #sepiaFW-nav-bar, #sepiaFW-chat-controls-form, #sepiaFW-chat-controls-right {
 	background: #0057d6;
@@ -213,7 +213,7 @@ html {
 
 .sepiaFW-cards-button, 
 .sepiaFW-notouch-device .sepiaFW-cards-button:hover {
-    background: #002d70;
+    background: #044ab0;
     color: #fff;
 }
 
@@ -237,7 +237,7 @@ html {
     color: #646464
 }
 .sepiaFW-cards-list-body .weatherNowSmall .weatherNowSmallImage {
-	background: #002d70;
+	background: #044ab0;
 }
 
 .sepiaFW-cards-list-body .listElement .listRight:hover, 
@@ -257,7 +257,7 @@ html {
 /*----- teachUI -----*/
 
 #sepiaFW-teachUI-nav-bar {
-    background: #002d70;
+    background: #0057d6;
     color: #fff;
 }
 #sepiaFW-teachUI-view label {
