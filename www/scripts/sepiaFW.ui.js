@@ -21,6 +21,8 @@ function sepiaFW_build_ui(){
 	UI.isSafari = false;
 	UI.isEdge = false;
 
+	UI.isSecureContext = UI.isCordova? true : (('isSecureContext' in window)? window.isSecureContext : (window.location.protocol == "https:"));
+
 	UI.getPreferredColorScheme = function(){
 		if ('matchMedia' in window){
 			if (window.matchMedia('(prefers-color-scheme: dark)').matches){
