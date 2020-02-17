@@ -380,6 +380,15 @@ function sepiaFW_build_tools(){
 		}
 		return url;
 	}
+	Tools.isURLParameterTrue = function(name){
+		var urlParam = Tools.getURLParameter(name);
+		if (urlParam && urlParam == "true"){
+			urlParam = true;
+		}else if (urlParam && urlParam == "false"){
+			urlParam = false;
+		}
+		return urlParam;
+	}
 
 	//get pure SHA256 hash
 	Tools.getSHA256Hash = function(data){
@@ -586,7 +595,8 @@ function sepiaFW_build_debug(){
 	}
 	
 	Debug.object = function(obj, logType){
-		var output, property;
+		var output = "";
+		var property;
 		if (obj !== null && typeof obj === 'object'){
 			for (property in obj) {
 				output += property + ': ' + obj[property] + '; ';

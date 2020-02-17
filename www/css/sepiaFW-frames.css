@@ -93,7 +93,7 @@
 }
 
 .sepiaFW-frames-page .info-text {
-	color: #4ec48f;
+	color: #0aa05c;
 	margin: 12px 0;
 	font-size: 14px;
 }
@@ -133,10 +133,25 @@
 	margin-bottom: 16px;
 }
 .sepiaFW-frames-page .group label {
-	margin: 0 8px;
+	margin: 0 8px !important;
+}
+.sepiaFW-frames-page .group label + * {
+	margin: 0 8px !important;
 }
 .sepiaFW-frames-page .group input {
 	width: auto !important;
+}
+.sepiaFW-frames-page .group.fill {
+	flex-wrap: wrap;
+}
+.sepiaFW-frames-page .group.fill label {
+	flex: 0 0 auto;
+	min-width: 33%;
+	padding: 8px 0;
+}
+.sepiaFW-frames-page .group.fill input {
+	flex: 1 0 auto;
+	max-width: 100%;
 }
 .sepiaFW-frames-page .group .sepiaFW-toggle-btn {
 	border: 1px solid;

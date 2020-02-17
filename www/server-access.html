@@ -1,0 +1,106 @@
+<div id='sepiaFW-frame-carousel' class="sepiaFW-inner-container sepiaFW-carousel">
+	<div class='sepiaFW-carousel-pane-container'>
+		<!-- Page 1 -->
+		<div id="sepiaFW-frame-page-1" class='sepiaFW-frames-page sepiaFW-carousel-pane'>
+			<h3>Server Access</h3>
+			<p class="info-text">To work properly the SEPIA client needs to know how it can reach your server. Here you can configure the required connections. Note that this is client-device specific and not part of the user account.</p>
+			<p class="info-text">If you change the hostname this will automatically reset all other core servers. The changes will take effect after the app is reloaded.</p>
+			<div id="sepiaFW-server-access-settings" class="group-container">
+				<div class="group fill">
+					<label>Hostname:</label>
+					<input id="sepiaFW-server-access-hostname" name="hostname" placeholder="my.example.com/sepia" spellcheck='false'>
+				</div>
+				<p><b>Connections</b></p>
+				<div class="group fill">
+					<label>Assist-Server:</label>
+					<input id="sepiaFW-server-access-assist" style="font-size: 13px;" name="assist-server" placeholder="https://my.example.com/sepia/assist/" spellcheck='false'>
+				</div>
+				<div class="group fill">
+					<label>Teach-Server:</label>
+					<input id="sepiaFW-server-access-teach" style="font-size: 13px;" name="teach-server" placeholder="https://my.example.com/sepia/teach/" spellcheck='false'>
+				</div>
+				<div class="group fill">
+					<label>Chat-Server:</label>
+					<input id="sepiaFW-server-access-chat" style="font-size: 13px;"  name="chat-server" placeholder="https://my.example.com/sepia/chat/" spellcheck='false'>
+				</div>
+				<div class="group fill">
+					<label>Chat-Sockets:</label>
+					<input id="sepiaFW-server-access-chat-ws" style="font-size: 13px;" placeholder="https://my.example.com/sepia/chat/messages/" spellcheck='false' disabled>
+				</div>
+				<div class="group"></div>
+				<div class="group" style="justify-content: center;">
+					<button id="SepiaFW-server-access-store" onclick="SepiaFW.frames.currentScope.store()">Store settings</button>
+					<button onclick="SepiaFW.frames.currentScope.refresh()">Reset Connections</button>
+					<button onclick="window.location.reload(true);">Reload app</button>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+<div id="sepiaFW-frames-nav-bar" class='sepiaFW-layer-header'>
+	<button id="sepiaFW-frames-close" class='entry'>
+		<i class="material-icons md-btn2">&#xE5CD;</i>
+	</button>
+	<!--<button id="sepiaFW-frames-show-prev-page" class='entry'>
+		<i class="material-icons md-btn2">keyboard_arrow_left</i><span data-localize="back">back</span>
+	</button>
+	<button id="sepiaFW-frames-show-next-page" class='entry'>
+		<span data-localize="next">next</span><i class="material-icons md-btn2">keyboard_arrow_right</i>
+	</button>-->
+	<div id="sepiaFW-frames-nav-bar-page-indicator"><div>&nbsp;</div></div>
+</div>
+<script>
+	$('#sepiaFW-frame-carousel').find('[data-localize]').each(function(){
+		$(this).html(SepiaFW.local.g(this.dataset.localize));
+	});
+	
+	//Define scope
+	SepiaFW.frames.currentScope = {
+
+		onFinishSetup: function(){
+			$('#sepiaFW-server-access-hostname').off().on('change', function(){
+				//reset all other URLs
+				SepiaFW.frames.currentScope.refresh();
+			});
+			$('#sepiaFW-server-access-chat').off().on('change', function(){
+				//update WebSocket
+				$('#sepiaFW-server-access-chat-ws').val(this.value.replace(/^http/,'ws') + "messages/");
+			});
+		},
+		
+		onOpen: function(){
+			$('#sepiaFW-server-access-hostname').val(SepiaFW.config.host);
+			SepiaFW.frames.currentScope.refresh();
+		},
+
+		refresh: function(customData){
+			SepiaFW.config.setEndPoints($('#sepiaFW-server-access-hostname').val(), customData, false);
+			$('#sepiaFW-server-access-assist').val(SepiaFW.config.assistAPI);
+			$('#sepiaFW-server-access-teach').val(SepiaFW.config.teachAPI);
+			$('#sepiaFW-server-access-chat').val(SepiaFW.config.webSocketAPI);
+			$('#sepiaFW-server-access-chat-ws').val(SepiaFW.config.webSocketURI);
+		},
+		
+		store: function(){
+			var config = {
+				assistAPI: $('#sepiaFW-server-access-assist').val(),
+				teachAPI: $('#sepiaFW-server-access-teach').val(),
+				webSocketAPI: $('#sepiaFW-server-access-chat').val(),
+				webSocketURI: $('#sepiaFW-server-access-chat-ws').val()
+			};
+			//console.log(config);
+			var hostname = $('#sepiaFW-server-access-hostname').val() || "";
+			//store
+			SepiaFW.data.setPermanent("server-access", {
+				forHost: hostname,
+				assist: config.assistAPI,
+				teach: config.teachAPI,
+				chat: config.webSocketAPI,
+				chatSocket: config.webSocketURI
+			});
+			SepiaFW.config.setHostName(hostname);
+			//done
+			SepiaFW.ui.showPopup(SepiaFW.local.g("done"));
+		}
+	}
+</script>

@@ -38,9 +38,10 @@ function sepiaFW_build_audio_recorder(){
 	var isCordovaAudioinputSupported = undefined;
 
 	function testStreamRecorderSupport(){
-		isMediaDevicesSupported = !!AudioContext
-			&& ((navigator.mediaDevices && navigator.mediaDevices.getUserMedia) 
-				|| navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia);
+		isMediaDevicesSupported = !!AudioContext && (
+			(navigator.mediaDevices && navigator.mediaDevices.getUserMedia) ||
+			navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia
+		);
 		isCordovaAudioinputSupported = (window.cordova && window.audioinput);
 		return !!isMediaDevicesSupported || isCordovaAudioinputSupported;
 	}

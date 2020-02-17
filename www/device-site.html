@@ -3,7 +3,7 @@
 		<!-- Page 1 -->
 		<div id="sepiaFW-frame-page-1" class='sepiaFW-frames-page sepiaFW-carousel-pane'>
 			<h3>Device Local Site</h3>
-			<p>Here you can configure the local site (location) data for this device. Note that this data will be stored independently from user logins.</p>
+			<p class="info-text">Here you can configure the local site (location) data for this device. Note that this data will be stored independently from user logins.</p>
 			<div id="sepiaFW-device-site-settings" class="group-container">
 				<div class="group">
 					<label>Location:</label>
@@ -24,6 +24,17 @@
 				<div class="group">
 					<label>Updates:</label>
 					<div id="sepiaFW-device-site-updates-box" data-device-site="updates"></div>
+				</div>
+				<div class="group">
+					<p class="info-text">Global GPS location (used when auto-GPS is off):</p>
+				</div>
+				<div class="group">
+					<label>Latitude:</label>
+					<input id="sepiaFW-device-site-global-latitude" style='max-width: 100px;' placeholder="52.516248">
+				</div>
+				<div class="group">
+					<label>Longitude:</label>
+					<input id="sepiaFW-device-site-global-longitude" style='max-width: 100px;' placeholder="13.377681">
 				</div>
 				<div class="group" style="justify-content: center;">
 					<button id="SepiaFW-device-site-store" onclick="SepiaFW.frames.currentScope.store()">Store settings</button>
@@ -73,6 +84,7 @@
 			{ "value": "garage", "name": "Garage" },
 			{ "value": "basement", "name": "Basement" },
 			{ "value": "garden", "name": "Garden" },
+			{ "value": "sunroom", "name": "Winter garden" },
 			{ "value": "shack", "name": "Shack" },
 			{ "value": "hallway", "name": "Hallway" },
 			{ "value": "other", "name": "Other" }
@@ -108,6 +120,10 @@
 			$('#sepiaFW-device-site-settings-name').val(siteData.name);
 			$('#sepiaFW-device-site-settings-index').val(siteData.index);
 			$('#sepiaFW-device-site-settings-updates').val(siteData.updates);
+
+			var globalLocation = SepiaFW.config.getDeviceGlobalLocation();
+			$('#sepiaFW-device-site-global-latitude').val(globalLocation.latitude);
+			$('#sepiaFW-device-site-global-longitude').val(globalLocation.longitude);
 		},
 		
 		store: function(){
@@ -120,6 +136,13 @@
 			};
 			//console.log(siteData);
 			SepiaFW.config.setDeviceLocalSiteData(siteData);
+			
+			var globalLocation = {
+				latitude: $('#sepiaFW-device-site-global-latitude').val(),
+				longitude: $('#sepiaFW-device-site-global-longitude').val()
+			}
+			SepiaFW.config.setDeviceGlobalLocation(globalLocation);
+
 			SepiaFW.ui.showPopup(SepiaFW.local.g("done"));
 		}
 	}

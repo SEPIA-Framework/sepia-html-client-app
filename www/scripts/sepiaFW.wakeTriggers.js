@@ -200,8 +200,11 @@ function sepiaFW_build_wake_triggers() {
 	}
 
     function ppStopListeningToWakeWords(onSuccessCallback, onErrorCallback){
-		ppAudioManager.stop();
-		
+		if (!ppAudioManager){
+			if (onErrorCallback) onErrorCallback();
+		}else{
+			ppAudioManager.stop();
+		}
 		//can this throw an error?
 		setTimeout(function(){
 			//give the audio manager some time to react

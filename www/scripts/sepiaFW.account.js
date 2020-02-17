@@ -15,7 +15,8 @@ function sepiaFW_build_account(){
 	var defaultIdPrefix = "uid";
 
 	var demoAccounts = {
-		"appstore": "eval20192X"
+		"appstore": "eval20192X",
+		"setup": "setup123"
 	}
 	
 	//---- Account settings mapping (to simplify access) and options ----//
@@ -65,17 +66,33 @@ function sepiaFW_build_account(){
 		SepiaFW.client.setDemoMode(true);
 		//set user ID indicator
 		$('#sepiaFW-menu-account-my-id').html("Demo");
+		//play sound?
+		if (Account.getUserRoles() && Account.getUserRoles()[0] == "setup"){
+			SepiaFW.client.addOnActiveOneTimeAction(function(){ SepiaFW.audio.playURL("sounds/setup.mp3"); }, "setup");
+		}
 	}
 	
 	function broadcastLoginRestored(){
 		transferAccountDataToUI();
+		var event = new CustomEvent('sepia_login_event', { detail: {
+			note: "loginRestored"
+		}});
+		document.dispatchEvent(event);
 	}
 	
 	function broadcastLoginSuccess(){
 		transferAccountDataToUI();
+		var event = new CustomEvent('sepia_login_event', { detail: {
+			note: "loginSuccess"
+		}});
+		document.dispatchEvent(event);
 	}
 
 	function broadcastLoginFail(){
+		var event = new CustomEvent('sepia_login_event', { detail: {
+			note: "loginFail"
+		}});
+		document.dispatchEvent(event);
 	}
 	
 	function broadcastLogoutTry(){
@@ -125,9 +142,17 @@ function sepiaFW_build_account(){
 	}
 	function broadcastLogoutSuccess(){
 		SepiaFW.client.closeClient();
+		var event = new CustomEvent('sepia_login_event', { detail: {
+			note: "logoutSuccess"
+		}});
+		document.dispatchEvent(event);
 	}
 	function broadcastLogoutFail(){
 		SepiaFW.client.closeClient();
+		var event = new CustomEvent('sepia_login_event', { detail: {
+			note: "logoutFail"
+		}});
+		document.dispatchEvent(event);
 	}
 	
 	//----------------------
@@ -494,6 +519,7 @@ function sepiaFW_build_account(){
 		//demo login?
 		var isDemoLogin = SepiaFW.data.get('isDemoLogin');
 		if (isDemoLogin){
+			userRoles = [isDemoLogin];
 			skipLogin();
 			return;
 		}
@@ -581,7 +607,13 @@ function sepiaFW_build_account(){
 			SepiaFW.config.setHostName(newHost);
 			setTimeout(function(){
 				Account.toggleLoginBox();
-			}, 750);
+			}, 450);
+		});
+		$("#sepiaFW-login-host-details").off().on('click', function(){
+			Account.toggleLoginBox();
+			setTimeout(function(){
+				SepiaFW.config.openEndPointsSettings();
+			}, 500);
 		});
 		//license
 		var licBtn = $("#sepiaFW-login-license-btn").off().on("click", function(event){
@@ -622,11 +654,17 @@ function sepiaFW_build_account(){
 		broadcastEnterWithoutLogin();
 		Account.afterLogin();
 	}
-	function sendLoginFromBox(){
+	function sendLoginFromBox(forceId, forcePwd){
 		pwdIsToken = false;
-		var id = document.getElementById("sepiaFW-login-id").value;
+		var id;
+		if (forceId){
+			document.getElementById("sepiaFW-login-id").value = forceId;
+			id = forceId;
+		}else{
+			id = document.getElementById("sepiaFW-login-id").value;
+		}
 		var pwdField = document.getElementById("sepiaFW-login-pwd");
-		var pwd = pwdField.value;
+		var pwd = forcePwd || pwdField.value;
 		pwdField.value = '';
 		if (id && pwd && (id.length > 3) && (pwd.length > 5)) {
 			userId = id;
@@ -811,13 +849,19 @@ function sepiaFW_build_account(){
 			//console.log('Section: ' + sectionName + "; success: " + sectionSuccess); 		//DEBUG
 			logoutSectionsFinished++;
 			if (logoutSectionsFinished >= logoutSectionsToFinish){
+				//final clean-ups
+				userId = "";
+				userToken = "";
+				userName = "";
+				SepiaFW.client.setDemoMode(false);
+				//done
 				listenForLogoutActions = false;
 				logoutSectionsFinished = 0;
 				//info message
 				var config = {
-						buttonOneName : "Return to sign in",
-						buttonOneAction : function(){ location.reload(); }
-					};
+					buttonOneName : "Return to sign in",
+					buttonOneAction : function(){ location.reload(); }
+				};
 				SepiaFW.ui.showPopup('Sign-out done!', config);
 				Account.afterLogout();
 			}
@@ -825,13 +869,24 @@ function sepiaFW_build_account(){
 	}
 	
 	//---- API communication ----
-	
+
 	//LOGIN
+	Account.loginViaForm = function(id, pwd){
+		if (SepiaFW.client.isDemoMode() || Account.getUserId()){
+			SepiaFW.debug.error("Called login via form but client is active. Logout first! "
+					+ "(UserID: " + SepiaFW.account.getUserId() + ", Demo: " + SepiaFW.client.isDemoMode() + ")");
+			return false;
+		}else{
+			sendLoginFromBox(id, pwd);
+			return true;
+		}
+	}
 	Account.login = function(userid, pwd, successCallback, errorCallback, debugCallback){
 		SepiaFW.ui.showLoader();
 		//demo login?
 		if (demoAccounts[userId] && pwd == demoAccounts[userId]){
-			SepiaFW.data.set('isDemoLogin', true);
+			SepiaFW.data.set('isDemoLogin', userId);
+			userRoles = [userId];
 			SepiaFW.ui.hideLoader();
 			skipLogin();
 			return;

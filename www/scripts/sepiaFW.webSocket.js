@@ -708,7 +708,7 @@ function sepiaFW_build_webSocket_client(){
 				switchDelay: 1000
 			}
 			var actionsArray = [];
-			actionsArray.push({type: "fist_visit_info_start"});
+			actionsArray.push({type: "first_visit_info_start"});
 			actionsArray.push(SepiaFW.offline.getFrameViewButtonAction("tutorial.html", SepiaFW.local.g("tutorial")));
 			actionsArray.push(SepiaFW.offline.getUrlButtonAction("https://github.com/SEPIA-Framework/sepia-docs", "S.E.P.I.A. Docs"));
 			actionsArray.push(SepiaFW.offline.getUrlButtonAction(SepiaFW.config.clientLicenseUrl, SepiaFW.local.g("license")));

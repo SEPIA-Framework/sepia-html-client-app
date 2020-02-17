@@ -3,8 +3,8 @@ function sepiaFW_build_ui(){
 	var UI = {};
 	
 	//some constants
-	UI.version = "v0.20.0";
-	UI.requiresServerVersion = "2.4.0";
+	UI.version = "v0.21.0";
+	UI.requiresServerVersion = "2.4.1";
 	UI.JQ_RES_VIEW_IDS = "#sepiaFW-result-view, #sepiaFW-chat-output, #sepiaFW-my-view";	//a selector to get all result views e.g. $(UI.JQ_RES_VIEW_IDS).find(...) - TODO: same as $('.sepiaFW-results-container') ??
 	UI.JQ_ALL_MAIN_VIEWS = "#sepiaFW-result-view, #sepiaFW-chat-output, #sepiaFW-my-view, #sepiaFW-teachUI-editor, #sepiaFW-teachUI-manager, #sepiaFW-frame-page-0, #sepiaFW-frame-page-1, #sepiaFW-frame-page-2, #sepiaFW-frame-page-3"; 	//TODO: frames can have more ...
 	UI.JQ_ALL_SETTINGS_VIEWS = ".sepiaFW-chat-menu-list-container";
@@ -20,6 +20,8 @@ function sepiaFW_build_ui(){
 	UI.isChromeDesktop = false;
 	UI.isSafari = false;
 	UI.isEdge = false;
+
+	UI.isSecureContext = UI.isCordova? true : (('isSecureContext' in window)? window.isSecureContext : (window.location.protocol == "https:"));
 
 	UI.getPreferredColorScheme = function(){
 		if ('matchMedia' in window){
@@ -86,13 +88,15 @@ function sepiaFW_build_ui(){
 		clearTimeout(activeElementChangeBuffer);
 		activeElementChangeBuffer = setTimeout(function(){
 			//note: cannot happen faster than every Xms
-			var event = new CustomEvent('sepia_active_element_change', { detail: {
-				id: document.activeElement.id,
-				className: document.activeElement.className,
-				tagName: document.activeElement.tagName
-			}});
-			document.dispatchEvent(event);
-			//console.error("new active ele.: " + (document.activeElement.id || document.activeElement.className || document.activeElement.tagName));
+			if (document.activeElement){
+				var event = new CustomEvent('sepia_active_element_change', { detail: {
+					id: document.activeElement.id,
+					className: document.activeElement.className,
+					tagName: document.activeElement.tagName
+				}});
+				document.dispatchEvent(event);
+				//console.error("new active ele.: " + (document.activeElement.id || document.activeElement.className || document.activeElement.tagName));
+			}
 		}, 100);
 	}
 	var activeElementChangeBuffer = undefined;
@@ -125,10 +129,13 @@ function sepiaFW_build_ui(){
 	UI.assistantColor = '';
 	UI.micBackgroundColor = '#fff';  //reassigned during UI setup
 	UI.htmlBackgroundColor = window.getComputedStyle(document.documentElement).getPropertyValue("background-color") || "#fff";
+	UI.navBarColor = '';
+	UI.statusBarColor = '';
 	
 	UI.isMenuOpen = false;
 	UI.lastInput = "";
 	var activeSkin = 0;
+	var activeSkinStyle = "light";
 	
 	//get/refresh skin colors
 	UI.refreshSkinColors = function(){
@@ -137,6 +144,8 @@ function sepiaFW_build_ui(){
 		var aC = document.getElementById('sepiaFW-aC');		var aC2 = document.getElementById('sepiaFW-aC2');
 		var asC = document.getElementById('sepiaFW-asC');	var adC = document.getElementById('sepiaFW-adC');
 		var lC = document.getElementById('sepiaFW-lC');
+		var navB = document.getElementById('sepiaFW-navC');
+		var statB = document.getElementById('sepiaFW-statC');
 		UI.primaryColor = 	 pC?  window.getComputedStyle(pC, null).getPropertyValue("background-color") : UI.primaryColor;
 		UI.secondaryColor =  sC?  window.getComputedStyle(sC, null).getPropertyValue("background-color") : UI.secondaryColor;
 		UI.secondaryColor2 = sC2? window.getComputedStyle(sC2, null).getPropertyValue("background-color"): UI.secondaryColor2;
@@ -147,6 +156,14 @@ function sepiaFW_build_ui(){
 		UI.loadingColor =	 lC? window.getComputedStyle(lC, null).getPropertyValue("background-color"): 'rgba(180, 180, 180, 1.0)';
 		UI.htmlBackgroundColor = window.getComputedStyle(document.documentElement).getPropertyValue("background-color") || "#fff";
 		//UI.assistantColor = $('#sepiaFW-chat-output').find('article.chatAssistant').first().css("background-color");
+		UI.navBarColor = navB?  window.getComputedStyle(navB, null).getPropertyValue("background-color") : UI.navBarColor;
+		UI.statusBarColor = statB?  window.getComputedStyle(statB, null).getPropertyValue("background-color") : UI.statusBarColor;
+		if (UI.navBarColor == "rgba(0, 0, 0, 0)" || UI.navBarColor == "transparent" || UI.navBarColor == "#00000000" || UI.navBarColor == "#0000"){
+			UI.navBarColor = "";
+		}
+		if (UI.statusBarColor == "rgba(0, 0, 0, 0)" || UI.statusBarColor == "transparent" || UI.statusBarColor == "#00000000" || UI.statusBarColor == "#0000"){
+			UI.statusBarColor = "";
+		}
 		//refresh theme-color
 		$('meta[name="theme-color"]').replaceWith('<meta name="theme-color" content="' + UI.primaryColor + '">');
 		//set general skin style
@@ -157,37 +174,39 @@ function sepiaFW_build_ui(){
 		}
 		if (SepiaFW.tools.getBestContrast(backColor) === 'white'){
 			$(document.documentElement).removeClass('light-skin').addClass("dark-skin");
+			activeSkinStyle = "dark";
 		}else{
-			$(document.documentElement).removeClass('dark-skin').addClass("light-skin");			
+			$(document.documentElement).removeClass('dark-skin').addClass("light-skin");
+			activeSkinStyle = "light";
 		}
-		//update statusbar
+		//update statusbar and navbar
 		if ('StatusBar' in window){
-			var colorString = UI.primaryColor;
-			if ((colorString + '').indexOf('rgb') === 0){
-				var rgb = SepiaFW.tools.convertRgbColorStringToRgbArray(colorString);
-				colorString = SepiaFW.tools.rgbToHex(rgb[0], rgb[1], rgb[2]);
+			var statusBarColor = UI.statusBarColor || UI.primaryColor;
+			if ((statusBarColor + '').indexOf('rgb') === 0){
+				var rgb = SepiaFW.tools.convertRgbColorStringToRgbArray(statusBarColor);
+				statusBarColor = SepiaFW.tools.rgbToHex(rgb[0], rgb[1], rgb[2]);
 			}
-			//console.log('color: ' + colorString + " - contrast: " + SepiaFW.tools.getBestContrast(colorString));
-			if (SepiaFW.tools.getBestContrast(colorString) === 'white'){
-				StatusBar.backgroundColorByHexString(colorString);
+			//console.log('statusBarColor: ' + statusBarColor + " - contrast: " + SepiaFW.tools.getBestContrast(statusBarColor));
+			if (SepiaFW.tools.getBestContrast(statusBarColor) === 'white'){
+				StatusBar.backgroundColorByHexString(statusBarColor);
 				StatusBar.styleLightContent();
-				if ('NavigationBar' in window){
-                    NavigationBar.backgroundColorByHexString(colorString);
-                }
 			}else{
 				if (UI.isAndroid){
 					StatusBar.backgroundColorByHexString('#000000');
-					if ('NavigationBar' in window){
-                        NavigationBar.backgroundColorByHexString('#000000');
-                    }
 				}else{
-					StatusBar.backgroundColorByHexString(colorString);
+					StatusBar.backgroundColorByHexString(statusBarColor);
 					StatusBar.styleDefault();
-					if ('NavigationBar' in window){
-                        NavigationBar.backgroundColorByHexString(colorString);
-                    }
 				}
 			}
+		}
+		if ('NavigationBar' in window){
+			var navBarColor =  UI.navBarColor || UI.primaryColor;
+			if ((navBarColor + '').indexOf('rgb') === 0){
+				var rgb = SepiaFW.tools.convertRgbColorStringToRgbArray(navBarColor);
+				navBarColor = SepiaFW.tools.rgbToHex(rgb[0], rgb[1], rgb[2]);
+			}
+			//console.log('navBarColor: ' + navBarColor + " - contrast: " + SepiaFW.tools.getBestContrast(navBarColor));
+            NavigationBar.backgroundColorByHexString(navBarColor);
 		}
 	}
 	
@@ -224,6 +243,9 @@ function sepiaFW_build_ui(){
 	}
 	UI.getSkin = function(){
 		return activeSkin;
+	}
+	UI.getSkinStyle = function(){
+		return activeSkinStyle;
 	}
 	
 	//setup dynamic label
@@ -469,21 +491,30 @@ function sepiaFW_build_ui(){
 		if (UI.isMobile){
 			document.documentElement.className += " sepiaFW-mobile-device";
 		}
+
+		//logout?
+		function doLogout(){
+			var urlParam = SepiaFW.tools.isURLParameterTrue("logout");
+			if (urlParam){
+				SepiaFW.account.logoutAction();
+				setTimeout(function(){
+					window.location.href = SepiaFW.tools.removeParameterFromURL(window.location.href, "logout");
+				}, 3000);
+			}
+			return urlParam;
+		}
+		doLogout();
 		
 		//is standalone app?
 		function isStandaloneWebApp(){
+			var isStandalone = false;
 			if (UI.isCordova){
 				isStandalone = true;
 			}else{
-				var urlParam = SepiaFW.tools.getURLParameter("isApp");
-				if (urlParam && urlParam == "true"){
-					urlParam = true;
-				}else if (urlParam && urlParam == "false"){
-					urlParam = false;
-				}
+				var urlParam = SepiaFW.tools.isURLParameterTrue("isApp");
 				var google = window.matchMedia('(display-mode: standalone)').matches;
 				var apple = window.navigator.standalone;
-				var isStandalone = (urlParam || google || apple);
+				isStandalone = (urlParam || google || apple);
 			}
 			if (isStandalone){
 				document.documentElement.className += " sepiaFW-standalone-app";
@@ -494,18 +525,28 @@ function sepiaFW_build_ui(){
 
 		//is tiny app?
 		function isTinyApp(){
-			var urlParam = SepiaFW.tools.getURLParameter("isTiny");
-			if (urlParam && urlParam == "true"){
-				urlParam = true;
-			}else if (urlParam && urlParam == "false"){
-				urlParam = false;
-			}
+			var urlParam = SepiaFW.tools.isURLParameterTrue("isTiny");
 			if (urlParam){
 				document.documentElement.className += " sepiaFW-tiny-app";
 			}
 			return urlParam;
 		}
 		UI.isTinyApp = isTinyApp();
+
+		//Setup headless mode
+		if (SepiaFW.config.isUiHeadless){
+			SepiaFW.config.loadHeadlessModeSetup();
+			//if client not active or in demo-mode after 5s run setup
+			setTimeout(function(){
+				if (!SepiaFW.client.isActive() && !SepiaFW.client.isDemoMode()){
+					SepiaFW.data.set('isDemoLogin', 'setup');
+					setTimeout(function(){
+						window.location.reload();
+					}, 2000);
+					SepiaFW.debug.log("Client will restart automatically in 2s to activate settings!");
+				}
+			}, 8000);
+		}
 	}
 
 	//get default device ID
@@ -1080,7 +1121,11 @@ function sepiaFW_build_ui(){
 		}else{
 			$('#sepiaFW-popup-message-btn-four').off().hide();
 		}
-		$('#sepiaFW-popup-message-content').html(content);
+		if (typeof content == 'object'){
+			$('#sepiaFW-popup-message-content').html('').append(content);
+		}else{
+			$('#sepiaFW-popup-message-content').html(content);
+		}
 		$('#sepiaFW-cover-layer').fadeIn(150);
 		$('#sepiaFW-popup-message').fadeIn(300);
 	}
@@ -1682,6 +1727,23 @@ function sepiaFW_build_ui(){
 			}else if (document.webkitExitFullscreen){	document.webkitExitFullscreen();
 			}
 		}
+	}
+
+	//Icon stuff
+
+	UI.showAllIconsInPopUp = function(clickCallback){
+		var box = document.createElement('div');
+		googleMaterialIcons.forEach(function(g){
+			var c = document.createElement('i');
+			c.className = "material-icons icon-glyph";
+			c.dataset.glyphCode = "&#x" + g + ";";
+			c.innerHTML = c.dataset.glyphCode;
+			box.appendChild(c);
+			c.addEventListener('click', function(){
+				if (clickCallback) clickCallback(this.dataset.glyphCode);
+			});
+		});
+		UI.showPopup(box);
 	}
 
 	//----- Post Message Interface -----

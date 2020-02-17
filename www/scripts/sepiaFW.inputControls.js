@@ -1,6 +1,7 @@
 //Handle input controls like gamepads for remote triggers etc.
 function sepiaFW_build_input_controls() {
     var InputControls = {};
+    InputControls.cmdl = sepiaFW_build_input_controls_cmdl();
 
     InputControls.settingsAreOpen = false;
     $settingsDebugField = undefined;
@@ -75,7 +76,7 @@ function sepiaFW_build_input_controls() {
             onFinishSetup: onSetupFinish,
             onOpen: onSettingsOpen,
             onClose: onSettingsClose,
-            theme: "dark"
+            theme: SepiaFW.ui.getSkinStyle()
         });
     }
     function onSetupFinish(){
@@ -455,24 +456,19 @@ function sepiaFW_build_input_controls() {
     }
 
     //This will be received via CLEXI connection
-    InputControls.handleClexiRemoteButton = function(data){
-        if (data.detail){
-            //console.log(data.detail);
-            if (data.detail.name == "remoteButton"){
-                var remoteData = data.detail.data;
-                var deviceId = SepiaFW.config.getDeviceId();
-                if (remoteData && remoteData.deviceId && remoteData.deviceId.toLowerCase() == deviceId){
-                    handleRemoteInputEvent(remoteData.button);
-                }
-            }
+    InputControls.handleClexiRemoteButton = function(remoteData){
+        //console.log(remoteData);
+        var deviceId = SepiaFW.config.getDeviceId();
+        if (remoteData.deviceId && remoteData.deviceId == deviceId){
+            handleRemoteInputEvent(remoteData.button);
         }
     }
     //This will listen to the proper event
     InputControls.listenToClexiButtons = function(){
         if (InputControls.useGamepads && SepiaFW.clexi){
-            SepiaFW.clexi.addHttpEventsListener(InputControls.handleClexiRemoteButton);
+            SepiaFW.clexi.addHttpEventsListener("remote-button", InputControls.handleClexiRemoteButton);
         }else{
-            SepiaFW.clexi.removeHttpEventsListener(InputControls.handleClexiRemoteButton);
+            SepiaFW.clexi.removeHttpEventsListener("remote-button");
         }
     }
 

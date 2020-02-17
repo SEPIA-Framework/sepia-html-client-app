@@ -58,6 +58,7 @@
 	<script src="scripts/sepiaFW.app.config.js"></script>
 	<script src="scripts/sepiaFW.app.js"></script>
 	<script src="scripts/sepiaFW.local.js"></script>
+	<script src="settings.js"></script>
 	<!-- FOR MORE JS SEE END-OF-BODY -->
 	
 	<script type="application/ld+json">
@@ -90,7 +91,8 @@
 		<!-- Host-name pre-login box -->
 		<div id="sepiaFW-host-name-box" class="extended-controls" style="display:none;">
 			<label>Hostname:</label>
-			<input id="sepiaFW-login-host-name" type="url" placeholder="my.example.org/sepia" aria-label="Hostname" autocomplete="url">
+			<input id="sepiaFW-login-host-name" type="url" name="hostname" placeholder="my.example.org/sepia" aria-label="Hostname" spellcheck='false' autocomplete="url">
+			<button id="sepiaFW-login-host-details">i</button>
 		</div>
 		<!-- Status and info links -->
 		<div id="sepiaFW-login-wait">
@@ -104,7 +106,7 @@
 		<!-- extend button -->
 		<div id="sepiaFW-login-extend-box"><button id="sepiaFW-login-extend-btn"><i class="material-icons md-btn2">arrow_drop_down</i></button></div>
 		<!-- help button -->
-		<button id="sepiaFW-login-help-btn" onclick="SepiaFW.ui.actions.openUrlAutoTarget('https://github.com/SEPIA-Framework/sepia-docs#welcome-to-the-documentation-page-for-sepia');"><i class="material-icons md-mnu">help</i></button></div>
+		<button id="sepiaFW-login-help-btn" onclick="SepiaFW.ui.actions.openUrlAutoTarget('https://github.com/SEPIA-Framework/sepia-docs#welcome-to-the-documentation-page-for-sepia');"><i class="material-icons md-inherit">help</i></button></div>
 	</div>
 	<!-- Main -->
 	<div id="sepiaFW-main-window" class="sepiaFW-translucent-10 sepiaFW-skin-mod">
@@ -260,6 +262,7 @@
 		<!-- color refs -->
 		<div id='sepiaFW-colorRefBox'>
 			<b id='sepiaFW-pC'></b><b id='sepiaFW-sC'></b><b id='sepiaFW-sC2'></b><b id='sepiaFW-aC'></b><b id='sepiaFW-aC2'></b><b id='sepiaFW-asC'></b><b id='sepiaFW-adC'></b><b id='sepiaFW-lC'></b>
+			<b id='sepiaFW-statC'></b><b id='sepiaFW-navC'></b>
 		</div>
 		<!-- press indicators -->
 		<div id='sepiaFW-long-press-indicator-div' class='sepiaFW-long-press-indicator'></div>
@@ -274,6 +277,7 @@
 	</div>
 <!-- LOW PRIO STYLESHEETS -->
 <link rel="stylesheet" href="css/googleMaterialIcons.css">
+<script src="css/googleMaterialIcons.js"></script> <!-- glyph table for icons -->
 <link rel="stylesheet" href="css/sepiaFW-font.css">
 <link rel="stylesheet" href="css/sepiaFW-cards.css">
 <link rel="stylesheet" href="css/sepiaFW-teachUI.css">
@@ -305,6 +309,7 @@
 <link rel="stylesheet alternate" href="css/sepiaFW-skin-neon.css" class='sepiaFW-style-skin' title='' data-name='Nightlife'>
 <link rel="stylesheet alternate" href="css/sepiaFW-skin-spot.css" class='sepiaFW-style-skin' title='' data-name='Spots'>
 <link rel="stylesheet alternate" href="css/sepiaFW-skin-canary-dark.css" class='sepiaFW-style-skin' title='' data-name='DarkCanary'>
+<link rel="stylesheet alternate" href="css/sepiaFW-skin-ILA-legacy.css" class='sepiaFW-style-skin' title='' data-name='ILA-Legacy'>
 <!-- START JS -->
 <script src="scripts/jquery-3.4.1.min.js"></script>
 <!--<script src="https://code.jquery.com/jquery-3.1.1.min.js" integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8=" crossorigin="anonymous"></script>-->
@@ -313,7 +318,10 @@
 <script src="scripts/vad.js"></script>
 <script src="scripts/hammer.min.js"></script>
 <script src="scripts/hammer-time.min.js"></script>
-<script src="scripts/clexi-0.8.0.js"></script>
+<!-- IE11 Polyfills -->
+<script src="scripts/ie11.polyfills.js"></script>
+<!-- SEPIA -->
+<script src="scripts/clexi-0.8.1.js"></script>
 <script src="scripts/sepiaFW.ui.js"></script>
 <script src="scripts/sepiaFW.ui.build.js"></script>
 <script src="scripts/sepiaFW.ui.animate.js"></script>
@@ -339,6 +347,7 @@
 <script src="scripts/sepiaFW.teach.js"></script>
 <script src="scripts/sepiaFW.offline.js"></script>
 <script src="scripts/sepiaFW.alwaysOn.js"></script>
+<script src="scripts/sepiaFW.inputControls.cmdl.js"></script>
 <script src="scripts/sepiaFW.inputControls.js"></script>
 <script src="scripts/sepiaFW.wakeTriggers.js"></script>
 <script src="scripts/sepiaFW.wakeWordSettings.js"></script>
@@ -350,7 +359,7 @@
 <script type="text/javascript">
 
 	//get cordova via URL parameter
-	var isCordova = SepiaFW.tools.getURLParameter('cordova') + '';
+	var isCordova = SepiaFW.tools.isURLParameterTrue('cordova');
 
 	//start-up actions (and buffered local notifications)
 	function handleUrlParameterActions(isDemo, url){
@@ -442,9 +451,17 @@
 	//define app setup (called either here (index.html) or in cordova device-ready (index.js)
 	function appSetup(){
 		//get some more settings via URL parameters
-		var isCordova = SepiaFW.tools.getURLParameter('cordova') + '';
-		var isTest = SepiaFW.tools.getURLParameter('isTest');
+		var isTest = SepiaFW.tools.isURLParameterTrue('isTest');
 		var hostParam = SepiaFW.tools.getURLParameter('host');
+
+		//is headless app?
+		SepiaFW.config.isUiHeadless = SepiaFW.tools.isURLParameterTrue("isHeadless");
+		if (SepiaFW.config.isUiHeadless){
+			//add CSS class
+			document.documentElement.className += " sepiaFW-headless-app";
+			//note: is allowed to overwrite user pref.
+			SepiaFW.config.loadSettingsForHeadlessMode();
+		}
 
 		//prepare plugins
 		SepiaFW.buildSepiaFwPlugins();
@@ -458,45 +475,23 @@
 	
 		//set endpoints
 		var config = new Object();
-		var restoreHostOrDefault = hostParam || SepiaFW.data.getPermanent("host-name") || "localhost";	//or e.g. "my-server.example.org/sepia"
+		var restoreHostOrDefault = hostParam || SepiaFW.data.getPermanent("host-name");
+		if (!restoreHostOrDefault){
+			if (window.location.pathname.indexOf("/sepia/assist/") >= 0){
+				restoreHostOrDefault = window.location.protocol + "//" + window.location.host + window.location.pathname.replace(/(.*\/sepia)\/assist\/.*/, "$1");
+			}else if (window.location.host.indexOf(":20721") > 0){
+				restoreHostOrDefault = window.location.protocol + "//" + window.location.hostname;
+			}else{
+				restoreHostOrDefault = "localhost";	//or e.g. "my-server.example.org/sepia"
+			}
+			SepiaFW.debug.log("Config: guessed hostname=" + restoreHostOrDefault);
+		}
 		SepiaFW.config.setHostName(restoreHostOrDefault, true);
 		//try to load host, e.g.:
 		//- "localhost" (direct links),
 		//- "192.168.0.99" or "api.example.com" (direct links),
 		//- "192.168.0.99/sepia" or "api.example.com/sepia" (with "/sepia" path -> proxy links)
-		
-		//test or localhost config
-		if (isTest || (SepiaFW.config.host && SepiaFW.config.host == "localhost")){
-			config.assistAPI = "http://" + "localhost" + ":20721/";
-			config.teachAPI = "http://" + "localhost" + ":20722/";
-			config.webSocketURI = "ws://" + "localhost" + ":20723/messages/";
-			config.webSocketAPI = "http://" + "localhost" + ":20723/";
-		//link to server with direct access to APIs (no SSL)
-		}else if (SepiaFW.config.host && !SepiaFW.tools.endsWith(SepiaFW.config.host, "/sepia")){
-			config.assistAPI = "http://" + SepiaFW.config.host + ":20721/";
-			config.teachAPI = "http://" + SepiaFW.config.host + ":20722/";
-			config.webSocketURI = "ws://" + SepiaFW.config.host + ":20723/messages/";
-			config.webSocketAPI = "http://" + SepiaFW.config.host + ":20723/";
-		//custom server config with proxy (uses SSL)
-		}else{
-			//get protocol
-			var http = "https://";
-			var ws = "wss://";
-			var cleanHost = SepiaFW.config.host;
-			if (SepiaFW.tools.startsWith(SepiaFW.config.host, "http://")){
-				cleanHost = cleanHost.replace(/^http:\/\//,'');
-				http = "http://";
-				ws = "ws://";
-			}else if (SepiaFW.tools.startsWith(SepiaFW.config.host, "https://")){
-				cleanHost = cleanHost.replace(/^https:\/\//,'');
-			}
-			//set default
-			config.assistAPI = http + cleanHost + "/assist/";
-			config.teachAPI = http + cleanHost + "/teach/";
-			config.webSocketURI = ws + cleanHost + "/chat/messages/";
-			config.webSocketAPI = http + cleanHost + "/chat/";
-		}
-		SepiaFW.config.setEndPoints(config);
+		SepiaFW.config.setEndPoints(restoreHostOrDefault, undefined, isTest);
 
 		//Before setup - to get e.g. app type (Android, iOS etc.)
 		SepiaFW.ui.beforeSetup();
@@ -585,7 +580,7 @@
 	}
 	
 	//SETUP via browser or cordova
-	if(isCordova === "true"){
+	if (isCordova){
 		document.write(unescape(
 			'%3Cscript src="cordova.js"%3E%3C/script%3E'+
 			'%3Cscript src="js/index.js"%3E%3C/script%3E'

@@ -39,7 +39,7 @@ function sepiaFW_build_config(){
 	}
 	//set hostname
 	Config.setHostName = function(hostName, skipReload){
-		if (hostName){
+		if (hostName != undefined){
 			Config.host = hostName;
 			SepiaFW.data.setPermanent("host-name", Config.host);
 			Config.broadcastHostName(Config.host);
@@ -67,14 +67,78 @@ function sepiaFW_build_config(){
 	Config.webSocketAPI = "http://" + Config.host + "/chat/";
 		
 	//set base URLs to end-points
-	Config.setEndPoints = function(apiURLs){
-		if (apiURLs.assistAPI){
-			Config.assistAPI = apiURLs.assistAPI;
-			SepiaFW.debug.log('Config: assistAPI=' + apiURLs.assistAPI);
+	Config.setEndPoints = function(hostname, customData, isTest){
+		//test config
+		if (isTest){
+			Config.assistAPI = "http://" + "localhost" + ":20721/";
+			Config.teachAPI = "http://" + "localhost" + ":20722/";
+			Config.webSocketURI = "ws://" + "localhost" + ":20723/messages/";
+			Config.webSocketAPI = "http://" + "localhost" + ":20723/";
+		//custom server config with proxy or IP (uses SSL when explicitly defined or hostname ends with '/sepia')
+		}else{
+			//get stored
+			var serverAccess = customData || SepiaFW.data.getPermanent("server-access");
+			if (serverAccess && Object.keys(serverAccess)){
+				if (serverAccess.forHost == hostname){
+					Config.assistAPI = serverAccess.assist;
+					Config.teachAPI = serverAccess.teach;
+					Config.webSocketAPI = serverAccess.chat;
+					Config.webSocketURI = serverAccess.chatSocket;
+					return;
+				}else{
+					SepiaFW.data.delPermanent("server-access");
+					SepiaFW.debug.log("Config: cleaned-up old 'server-access' data");
+				}
+			}
+
+			//get protocol
+			var http = "https://";
+			var ws = "wss://";
+			var cleanHost = hostname.trim().replace(/\/$/, '').replace(/:20721/, '');
+			if (SepiaFW.tools.startsWith(cleanHost, "http://")){
+				cleanHost = cleanHost.replace(/^http:\/\//,'');
+				http = "http://";
+				ws = "ws://";
+			}else if (SepiaFW.tools.startsWith(cleanHost, "https://")){
+				cleanHost = cleanHost.replace(/^https:\/\//,'');
+			}else if (!SepiaFW.tools.endsWith(cleanHost, "/sepia")){
+				//hostnames without protocol will only keep 'https' if they end with "/sepia"
+				http = "http://";
+				ws = "ws://";
+			}
+			//set default
+			if (SepiaFW.tools.endsWith(cleanHost, "/sepia")){
+				//proxy
+				Config.assistAPI = http + cleanHost + "/assist/";
+				Config.teachAPI = http + cleanHost + "/teach/";
+				Config.webSocketAPI = http + cleanHost + "/chat/";
+				Config.webSocketURI = ws + cleanHost + "/chat/messages/";
+			}else{
+				Config.assistAPI = http + cleanHost + ":20721/";
+				Config.teachAPI = http + cleanHost + ":20722/";
+				Config.webSocketAPI = http + cleanHost + ":20723/";
+				Config.webSocketURI = ws + cleanHost + ":20723/messages/";
+			}
 		}
-		if (apiURLs.teachAPI) Config.teachAPI = apiURLs.teachAPI;
-		if (apiURLs.webSocketURI) Config.webSocketURI = apiURLs.webSocketURI;
-		if (apiURLs.webSocketAPI) Config.webSocketAPI = apiURLs.webSocketAPI;
+		SepiaFW.debug.log('Config: assistAPI=' + Config.assistAPI);
+	}
+	Config.openEndPointsSettings = function(){
+		SepiaFW.frames.open({ 
+			pageUrl: "server-access.html",
+			onFinishSetup: function(){
+				SepiaFW.frames.currentScope.onFinishSetup();
+			},
+			onOpen: function(){
+				SepiaFW.frames.currentScope.onOpen();
+			},
+			onClose: function(){
+				if (!SepiaFW.account.getUserId() && !SepiaFW.client.isDemoMode()){
+					SepiaFW.account.toggleLoginBox();
+				}
+			},
+			/*onClose: onSettingsClose,*/
+			theme: SepiaFW.ui.getSkinStyle()
+		});
 	}
 	
 	//set policy and license links
@@ -151,18 +215,35 @@ function sepiaFW_build_config(){
 		index: "",			//e.g.: 1, 2, 212, ...
 		updates: "off"		//e.g.: "off", "auto" (not supported yet)
 	};
-	Config.setDeviceLocalSiteData = function(data){
+	Config.setDeviceLocalSiteData = function(data, skipStorageWrite){
 		if (data.location != undefined) deviceLocalSiteData.location = data.location;
 		if (data.type != undefined) deviceLocalSiteData.type = data.type;
 		if (data.name != undefined) deviceLocalSiteData.name = data.name;
 		if (data.index != undefined) deviceLocalSiteData.index = data.index;
 		if (data.updates != undefined) deviceLocalSiteData.updates = data.updates;
-		SepiaFW.data.setPermanent('deviceLocalSiteData', deviceLocalSiteData);
+		if (!skipStorageWrite){
+			SepiaFW.data.setPermanent('deviceLocalSiteData', deviceLocalSiteData);
+		}
 	}
 	Config.getDeviceLocalSiteData = function(){
 		return deviceLocalSiteData;
 	}
 	//SEE: Config.deviceLocalSiteOptions in frames file - TODO: we should load this data from server
+
+	var deviceGlobalLocation = {
+		latitude: "",
+		longitude: ""
+	}
+	Config.setDeviceGlobalLocation = function(data, skipStorageWrite){
+		if (data.latitude != undefined) deviceGlobalLocation.latitude = data.latitude;
+		if (data.longitude != undefined) deviceGlobalLocation.longitude = data.longitude;
+		if (!skipStorageWrite){
+			SepiaFW.data.setPermanent('deviceGlobalLocation', deviceGlobalLocation);
+		}
+	}
+	Config.getDeviceGlobalLocation = function(){
+		return deviceGlobalLocation;
+	}
 
 	//Collection of universally supported apps and their names
     Config.musicApps = {
@@ -200,6 +281,51 @@ function sepiaFW_build_config(){
 
 	//------------ LOAD SETTINGS -------------
 
+	//load headless settings
+	Config.loadSettingsForHeadlessMode = function(){
+		if (SepiaFW.settings && SepiaFW.settings.headless){
+			//device
+			if (SepiaFW.settings.headless.device){
+				SepiaFW.debug.log("Loading headless settings for device ...");
+				Object.keys(SepiaFW.settings.headless.device).forEach(function(key){
+					//SepiaFW.debug.log("* " + key);
+					console.log("* " + key);
+					SepiaFW.data.setPermanent(key, SepiaFW.settings.headless.device[key]);
+				});
+				//TODO: Note that this will usually come too late for this session and requires client reload to take effect!
+			}
+			//user
+			if (SepiaFW.settings.headless.user){
+				SepiaFW.debug.log("Loading headless settings for user ...");
+				Object.keys(SepiaFW.settings.headless.user).forEach(function(key){
+					//SepiaFW.debug.log("* " + key);
+					console.log("* " + key);
+					SepiaFW.data.set(key, SepiaFW.settings.headless.user[key]);
+				});
+			}
+		}
+	}
+	Config.loadHeadlessModeSetup = function(){
+		if (SepiaFW.settings && SepiaFW.settings.headless){
+			//location
+			if (SepiaFW.settings.headless.location &&
+					SepiaFW.settings.headless.location.latitude && SepiaFW.settings.headless.location.longitude){
+				SepiaFW.client.addOnActiveOneTimeAction(function(){
+					//Get address for GPS location
+					if (SepiaFW.geocoder.isSupported && !SepiaFW.geocoder.autoGPS){
+						SepiaFW.geocoder.getAddress(undefined, undefined, 
+							SepiaFW.settings.headless.location.latitude, SepiaFW.settings.headless.location.longitude, 
+						true);
+					}
+				});
+			}
+			//other
+			if (SepiaFW.settings.headless.broadcast){
+				SepiaFW.inputControls.cmdl.broadcasters = SepiaFW.settings.headless.broadcast;
+			}
+		}
+	}
+
 	Config.loadAppSettings = function(){
 		//TODO: this should be simplified with a service! ...
 		
@@ -214,6 +340,21 @@ function sepiaFW_build_config(){
 			var storedValue = SepiaFW.data.get('autoGPS');
 			if (typeof storedValue != 'undefined') SepiaFW.geocoder.autoGPS = storedValue;
 			SepiaFW.debug.info("GPS is in " + ((SepiaFW.geocoder.autoGPS)? "AUTO" : "MANUAL") + " mode.");
+			//pre-defined location?
+			var dglData = SepiaFW.data.getPermanent('deviceGlobalLocation'); 
+			if (dglData){
+				Config.setDeviceGlobalLocation(dglData, true);
+				if (dglData.latitude && dglData.longitude){
+					SepiaFW.client.addOnActiveOneTimeAction(function(){
+						//Get address for GPS location
+						if (SepiaFW.geocoder.isSupported && !SepiaFW.geocoder.autoGPS){
+							SepiaFW.geocoder.getAddress(undefined, undefined, 
+								dglData.latitude, dglData.longitude, 
+							true);
+						}
+					});
+				}
+			}
 		}
 		//Proactive notes
 		if (SepiaFW.assistant){
@@ -245,6 +386,10 @@ function sepiaFW_build_config(){
 			SepiaFW.inputControls.initializeGamepads();
 			SepiaFW.inputControls.initializeBluetoothBeacons();
 		}
+		//Remote commandline interface
+		if (SepiaFW.inputControls && SepiaFW.inputControls.cmdl){
+			SepiaFW.inputControls.cmdl.initialize();
+		}
 		//Wake-word trigger
 		if (SepiaFW.wakeTriggers){
 			SepiaFW.wakeTriggers.initialize();
@@ -263,7 +408,7 @@ function sepiaFW_build_config(){
 		//Device local site configuration
 		var dlsData = SepiaFW.data.getPermanent('deviceLocalSiteData'); 
 		if (dlsData){
-			Config.setDeviceLocalSiteData(dlsData);
+			Config.setDeviceLocalSiteData(dlsData, true);
 		}
 
 		//Default music app

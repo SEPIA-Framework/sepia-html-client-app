@@ -41,9 +41,18 @@ function sepiaFW_build_teach(){
 				
 				//add stuff
 				if (info){
+					//clean first
+					$('#sepiaFW-teach-input').val("");
+					$('#sepiaFW-teach-parameters').find("[data-name]").val("");
+					$('#sepiaFW-teach-commands').val("");
+					//fill now
 					if (info.input){
 						$('#sepiaFW-teach-input').val(info.input);
 					}
+					if (info.service || info.cmd){
+						$('#sepiaFW-teach-commands').val(info.service || info.cmd);
+					}
+					//TODO: we could add parameters ...
 				}
 			});
 			Teach.isOpen = true;
@@ -212,6 +221,14 @@ function sepiaFW_build_teach(){
 						}
 					});
 				}
+			});
+
+			//-SHOW ICONS
+			$('#sepiaFW-teach-custom-button-select').on('click', function(){
+				SepiaFW.ui.showAllIconsInPopUp(function(iconId){
+					$('#sepiaFW-teach-custom-button-icon').val(iconId);
+					SepiaFW.ui.hidePopup();
+				});
 			});
 			
 			//-LOAD commands
@@ -545,34 +562,35 @@ function sepiaFW_build_teach(){
 		var apiUrl = SepiaFW.config.teachAPI + "submitPersonalCommand";
 		submitData.KEY = key;
 		submitData.client = SepiaFW.config.getClientDeviceInfo(); //SepiaFW.config.clientInfo;
-		$.ajax({
+		var config = {
 			url: apiUrl,
 			timeout: 10000,
 			type: "POST",
 			data: submitData,
 			headers: {
 				"content-type": "application/x-www-form-urlencoded"
-			},
-			success: function(data) {
-				SepiaFW.ui.hideLoader();
-				if (debugCallback) debugCallback(data);
-				if (data.result && data.result === "fail"){
-					if (errorCallback) errorCallback('Sorry, but something went wrong during teach process! Maybe invalid data?');
-					return;
-				}
-				//--callback--
-				if (successCallback) successCallback(data);
-				//broadcast (but wait a bit for DB changes)
-				setTimeout(function(){
-					broadcastPersonalCommandChange();
-				}, 3000);
-			},
-			error: function(data) {
-				SepiaFW.ui.hideLoader();
-				if (errorCallback) errorCallback('Sorry, but I could not connect to API :-( Please wait a bit and then try again.');
-				if (debugCallback) debugCallback(data);
 			}
-		});
+		};
+		config.success = function(data) {
+			SepiaFW.ui.hideLoader();
+			if (debugCallback) debugCallback(data);
+			if (data.result && data.result === "fail"){
+				if (errorCallback) errorCallback('Sorry, but something went wrong during teach process! Maybe invalid data or authentication not possible?');
+				return;
+			}
+			//--callback--
+			if (successCallback) successCallback(data);
+			//broadcast (but wait a bit for DB changes)
+			setTimeout(function(){
+				broadcastPersonalCommandChange();
+			}, 3000);
+		};
+		config.error = function(data) {
+			SepiaFW.ui.hideLoader();
+			if (errorCallback) errorCallback('Sorry, but I could not connect to API :-( Please wait a bit and then try again.');
+			if (debugCallback) debugCallback(data);
+		};
+		$.ajax(config);
 	}
 	
 	//load personal commands

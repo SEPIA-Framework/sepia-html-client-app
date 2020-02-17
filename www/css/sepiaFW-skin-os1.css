@@ -9,14 +9,17 @@ html {
 	border-color: #C74927;
 }
 
-#sepiaFW-pC 	 { background-color: #C74927; }
-#sepiaFW-sC 	 { background-color: #fcf9ee; }
-#sepiaFW-sC2 { background-color: rgba(82, 67, 53, 1.0); 	}
-#sepiaFW-aC 	 { background-color: rgba(180, 120, 223, 0.92); 	}
-#sepiaFW-aC2 { background-color: #85807e; }
-#sepiaFW-asC { background-color: #C74927; 	}
-#sepiaFW-adC { background-color: gold; 		}
-#sepiaFW-lC 	 { background-color: rgba(200, 200, 200, 0.50); 	}
+#sepiaFW-pC 	{ background-color: #C74927; }
+#sepiaFW-sC 	{ background-color: #fcf9ee; }
+#sepiaFW-sC2 	{ background-color: rgba(82, 67, 53, 1.0); }
+#sepiaFW-aC 	{ background-color: rgba(180, 120, 223, 0.92); }
+#sepiaFW-aC2 	{ background-color: #85807e; }
+#sepiaFW-asC 	{ background-color: #C74927; }
+#sepiaFW-adC 	{ background-color: gold; }
+#sepiaFW-lC 	{ background-color: rgba(200, 200, 200, 0.50); }
+
+/* #sepiaFW-navC 	{ background-color: #232323; } */
+/* #sepiaFW-statC 	{ background-color: #232323; } */
 
 #sepiaFW-login-box, #sepiaFW-nav-bar, #sepiaFW-chat-controls-form, #sepiaFW-chat-controls-right {
 	background: #C74927;

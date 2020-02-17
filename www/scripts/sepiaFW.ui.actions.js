@@ -86,6 +86,13 @@ function sepiaFW_build_ui_actions(){
 			parentBlock.appendChild(framesBtn);
 		}
 	}
+	//OPEN Frames-layer view
+	Actions.openFrameView = function(action){
+		if (SepiaFW.frames){
+			SepiaFW.ui.closeAllMenus();
+			SepiaFW.frames.open(action.info);
+		}
+	}
 	
 	//BUTTON Custom function
 	Actions.addButtonCustomFunction = function(action, sender, parentBlock){
@@ -151,8 +158,8 @@ function sepiaFW_build_ui_actions(){
 	var inAppBrowserOptions = 'location=yes,toolbar=yes,mediaPlaybackRequiresUserAction=yes,allowInlineMediaPlayback=yes,hardwareback=yes,disableswipenavigation=no,clearsessioncache=no,clearcache=no';
 	Actions.openUrlAutoTarget = function(url, forceExternal){
 		var urlLower = url.toLowerCase();
-		if (SepiaFW.ui.isTinyApp){
-			//Tiny app usually has no ability to open in-app browser
+		if (SepiaFW.ui.isTinyApp || SepiaFW.ui.isHeadless){
+			//Tiny and headless apps usually have no ability to open in-app browser
 			if (SepiaFW.assistant){
                 SepiaFW.assistant.waitForOpportunityAndSay("<error_client_support_0a>", function(){
                     //Fallback after max-wait:
@@ -175,12 +182,16 @@ function sepiaFW_build_ui_actions(){
 			}
 		}else{
 			var newWindow = window.open(url, '_blank');
-			newWindow.opener = null;
-			//some special links that should not leave an empty browser tab
-			if (urlLower.indexOf('spotify:') == 0 || urlLower.indexOf('itmss:') == 0 || urlLower.indexOf('musics:') == 0){
-				setTimeout(function(){
-					newWindow.close(); 		//NOTE: problem here is that app-request dissapears before user interaction if not already allowed by user
-				}, 500);
+			if (newWindow && newWindow.opener){
+				newWindow.opener = null;
+				//some special links that should not leave an empty browser tab
+				if (urlLower.indexOf('spotify:') == 0 || urlLower.indexOf('itmss:') == 0 || urlLower.indexOf('musics:') == 0){
+					setTimeout(function(){
+						newWindow.close(); 		//NOTE: problem here is that app-request dissapears before user interaction if not already allowed by user
+					}, 500);
+				}
+			}else{
+				SepiaFW.ui.showInfo("Website pop-up blocked.");
 			}
 		}
 	}
@@ -371,26 +382,33 @@ function sepiaFW_build_ui_actions(){
 				SepiaFW.debug.error("language-switch action FAILED. Wrong language code: " + action.language_code);
 				return;
 			}
-			//TODO: should we delay this until the anser is finished?
+			//TODO: should we delay this until the answer is finished?
 			if (lang){
 				var suppLangs = SepiaFW.local.getSupportedAppLanguages();
+				var foundLang = false;
 				suppLangs.forEach(function(sl){
 					if (sl.value == lang){
+						foundLang = true;
 						SepiaFW.debug.log("language-switch action - app lang.: " + lang);
 						SepiaFW.config.broadcastLanguage(lang);
 						return;
 					}
 				});
+				var foundRegion = false;
 				if (region){
 					var suppBcp47 = SepiaFW.local.getExperimentalAsrLanguages();
 					var bcp47 = (lang + "-" + region);
 					suppBcp47.forEach(function(sbcp47){
 						if (sbcp47.value == bcp47){
+							foundRegion = true;
 							SepiaFW.debug.log("language-switch action - speech lang.: " + bcp47);
 							SepiaFW.speech.setCountryCode(bcp47);
 							return;
 						}
 					});
+				}
+				if (foundLang && !foundRegion){
+					SepiaFW.speech.setCountryCode("");
 				}
 			}
 		}
@@ -504,7 +522,7 @@ function sepiaFW_build_ui_actions(){
 						aButtonsArea = Actions.buildMyEventsBox(data.actionInfo[i], parentBlock);
 						
 					//First client visit info actions in my-view - if there are any this will be triggered first
-					}else if (type === 'fist_visit_info_start'){
+					}else if (type === 'first_visit_info_start'){
 						parentBlock.removeChild(aButtonsArea); 	//we will create a new one
 						aButtonsArea = Actions.buildClientFirstStartBox(data.actionInfo[i], parentBlock);
 
@@ -523,6 +541,10 @@ function sepiaFW_build_ui_actions(){
 					//BUTTON - frames view
 					}else if (type === 'button_frames_view'){
 						Actions.addButtonFrameView(data.actionInfo[i], aButtonsArea);
+					
+					//Open frames view
+					}else if (type === 'open_frames_view'){
+						Actions.openFrameView(data.actionInfo[i]);
 					
 					//BUTTON - url
 					}else if (type === 'button_url' || type === 'button_in_app_browser'){

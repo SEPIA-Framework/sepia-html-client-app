@@ -75,6 +75,7 @@ function sepiaFW_build_strings(){
 	StringsDE.abort = 'Abbrechen';
 	StringsDE.continueOffline = 'Offline weitermachen';
 	StringsDE.locateMe = 'Standort bestimmen';
+	StringsDE.serverConnections = 'Server Verbindungen';
 	StringsDE.deviceId = 'Geräte ID';
 	StringsDE.deviceSite = 'Gerätestandort';
 	StringsDE.allowedToExecuteThisCommand = 'Darf ich diesen Befehl ausführen: ';
@@ -130,6 +131,7 @@ function sepiaFW_build_strings(){
 	StringsDE.cant_execute = "Sorry, aber es sieht so aus als könnte ich diese Aktion nicht ausführen.";
 	StringsDE.tried_but_not_sure = "Hab's versucht aber bin nicht sicher ob es geklappt hat.";
 	StringsDE.result_unclear = "Das Ergebnis der folgenden Anfrage ist unklar.";
+	StringsDE.possible_reason_origin_unsecure = "Mögliche Ursache: Unsicherer Ursprung (SSL Zertifikat)";
 	//Service and action texts
 	StringsDE.opening_link = "Link wird geöffnet.";
 	StringsDE.no_music_playing = "Kannst du was hören? Wahrscheinlich wurde keine Musik gefunden.";
@@ -226,6 +228,7 @@ function sepiaFW_build_strings(){
 	StringsEN.abort = 'Abort';
 	StringsEN.continueOffline = 'Continue offline';
 	StringsEN.locateMe = 'Refresh my location';
+	StringsEN.serverConnections = 'Server connections';
 	StringsEN.deviceId = 'Device ID';
 	StringsEN.deviceSite = 'Device site';
 	StringsEN.allowedToExecuteThisCommand = 'Am I allowed to send this request: ';
@@ -281,6 +284,7 @@ function sepiaFW_build_strings(){
 	StringsEN.cant_execute = "Sorry, but it seems I can't execute the requested action.";
 	StringsEN.tried_but_not_sure = "I've tried but I'm not sure if it worked.";
 	StringsEN.result_unclear = "The result of the following request is unclear.";
+	StringsEN.possible_reason_origin_unsecure = "Possible reason: Unsecure origin (SSL certificate)";
 	//Service and action texts
 	StringsEN.opening_link = "Opening link.";
 	StringsEN.no_music_playing = "Can you hear something? Probably no music found.";

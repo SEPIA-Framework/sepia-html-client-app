@@ -31,6 +31,10 @@
 	-ms-user-select: none;      
 	user-select: none;
 }
+.material-icons.icon-glyph {
+	margin: 4px;
+	cursor:	pointer;
+}
 
 input:focus,
 select:focus,
@@ -518,6 +522,22 @@ body {
 #sepiaFW-login-box, #sepiaFW-login-close {
 	float: left;
 }
+#sepiaFW-login-box #sepiaFW-host-name-box {
+	position: relative;
+}
+#sepiaFW-login-box #sepiaFW-host-name-box #sepiaFW-login-host-details {
+	position: absolute;
+    top: 26px;
+    right: 4px;
+    /* background: #ddd; */
+    /* color: #111; */
+    width: 25px;
+    margin: 0;
+    padding: 4px;
+    border-radius: 50%;
+    font-size: 15px;
+    font-weight: bold;
+}
 #sepiaFW-login-form {
 	overflow: hidden;
 	padding-bottom: 4px;
@@ -547,9 +567,10 @@ body {
 #sepiaFW-login-help-btn {
 	position: absolute;
     bottom: -50px;
-    right: calc(50% - 24px);
+    right: calc(50% - 27px);
     height: auto;
 	width: auto !important;
+	font-size: 34px !important;
 	background: transparent !important;
 	display: none;
 }
@@ -1379,6 +1400,10 @@ html.dark-skin #sepiaFW-login-help-btn {
 	float: right;
 	position: relative;
 }
+#sepiaFW-nav-users-btn.marked {
+	-webkit-animation: sepiaFW-animation-blink-inv 4.5s 1;
+            animation: sepiaFW-animation-blink-inv 4.5s 1;
+}
 #sepiaFW-nav-users-btn.marked::after {
 	content: " \2022 ";
     color: #ff2550;
@@ -1935,24 +1960,11 @@ html.dark-skin #sepiaFW-login-help-btn {
     50%  { transform: scale(1.05); }
     to   { transform: none;        }
 }
-@-webkit-keyframes sepiaFW-animation-enter_pop {
-    from { -webkit-transform: none; }
-    50%  { -webkit-transform: scale(1.05); }
-    to   { -webkit-transform: none; }
-}
 @keyframes sepiaFW-animation-enter_scale {
     from {transform: scaleY(0); transform-origin: top;}
     to {transform: scaleY(1); transform-origin: top;}
 }
-@-webkit-keyframes sepiaFW-animation-enter_scale {
-    from {-webkit-transform: scaleY(0); -webkit-transform-origin: top; }
-    to {-webkit-transform: scaleY(1); -webkit-transform-origin: top;}
-}
 @keyframes sepiaFW-animation-enter_fade {
-    from {opacity: 0.0;}
-    to {opacity: 1.0;}
-}
-@-webkit-keyframes sepiaFW-animation-enter_fade {
     from {opacity: 0.0;}
     to {opacity: 1.0;}
 }
@@ -1961,18 +1973,12 @@ html.dark-skin #sepiaFW-login-help-btn {
 	50%  {opacity: 1.0;}
     to {opacity: 0.0;}
 }
-@-webkit-keyframes sepiaFW-animation-blink {
-    from {opacity: 0.0;}
-	50%  {opacity: 1.0;}
-    to {opacity: 0.0;}
+@keyframes sepiaFW-animation-blink-inv {
+    from {opacity: 1.0;}
+	50%  {opacity: 0.25;}
+    to {opacity: 1.0;}
 }
 @keyframes sepiaFW-chat-output-enter_slide {
-    from {max-height: 0px; padding-top: 0px; padding-bottom: 0px;}
-	25% {max-height: 100px;  padding-top: 7px; padding-bottom: 7px;}
-	95% {max-height: 400px;  padding-top: 7px; padding-bottom: 7px;}
-	to {max-height: none;  padding-top: 7px; padding-bottom: 7px;}
-}
-@-webkit-keyframes sepiaFW-chat-output-enter_slide {
     from {max-height: 0px; padding-top: 0px; padding-bottom: 0px;}
 	25% {max-height: 100px;  padding-top: 7px; padding-bottom: 7px;}
 	95% {max-height: 400px;  padding-top: 7px; padding-bottom: 7px;}
@@ -1981,10 +1987,6 @@ html.dark-skin #sepiaFW-login-help-btn {
 @keyframes sepiaFW-assist-btn-orbiters-rotate {
     from {transform: rotate(0deg); transform-origin: 50% 50%;}
     to {transform: rotate(360deg); transform-origin: 50% 50%;}
-}
-@-webkit-keyframes sepiaFW-assist-btn-orbiters-rotate {
-    from {-webkit-transform: rotate(0deg); -webkit-transform-origin: 50% 50%; }
-    to {-webkit-transform: rotate(360deg); -webkit-transform-origin: 50% 50%;}
 }
 
 /* ------- Layers on top of main ------- */

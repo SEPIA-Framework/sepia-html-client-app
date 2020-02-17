@@ -1,2 +1,3 @@
 alarm.mp3 - Attribution License - freesound.org - B_Lamerichs - eventsounds3 - intros a.mp3
 coin.mp3 - Creative Commons - freesound.org - soundnimja - coin_3.wav
+setup.mp3 - created with espeak-ng

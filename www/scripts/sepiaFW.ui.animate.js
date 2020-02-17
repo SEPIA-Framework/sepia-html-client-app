@@ -69,9 +69,16 @@ function sepiaFW_build_animate(){
 
 	//---------------------
 
-	var animState = "idle";
+	var animState = "idle";		//idle, loading, speaking, listening, awaitDialog
 	Animate.assistant.getState = function(){
 		return animState;
+	}
+	function clearAllStateClassesAndAdd(ele, addClass){
+		var $ele = $(ele);
+		$ele.removeClass("idle loading speaking listening awaitDialog");
+		if (addClass){
+			$ele.addClass(addClass);
+		}
 	}
 	
 	Animate.assistant.idle = function(source){
@@ -84,11 +91,13 @@ function sepiaFW_build_animate(){
 			//get next command form commandQueue
 			possibilityToCleanCommandQueue();
 		}else{
+			animState = "idle";
 			//get all functions from delayQueue
 			possibilityToExecuteDelayedFunction(source);
 			//reset state
 			SepiaFW.ui.assistBtn.innerHTML = (SepiaFW.speech.isAsrSupported)? SepiaFW.ui.assistIconIdle : SepiaFW.ui.assistIconIdleNoAsr;
 			SepiaFW.ui.assistBtnArea.style.backgroundColor = SepiaFW.ui.micBackgroundColor;
+			clearAllStateClassesAndAdd(SepiaFW.ui.assistBtnArea, animState);
 			$("#sepiaFW-assist-btn-orbiters").addClass("sepiaFW-animation-pause");
 			if (source != "asrFinished"){
 				possibilityToFadeInBackgroundAudio();
@@ -99,35 +108,41 @@ function sepiaFW_build_animate(){
 				SepiaFW.alwaysOn.avatarIdle();
 			}
 			//Dispatch - NOTE: this will also trigger the timer for idle-time events (see: Client.queueIdleTimeEvent)
-			animState = "idle";
 			dispatchAnimationStateEvent(animState);
 		}
 		//hide extra input box
 		SepiaFW.ui.hideLiveSpeechInputBox();
 	}
 	Animate.assistant.loading = function(){
+		animState = "loading";
 		SepiaFW.ui.assistBtn.innerHTML = SepiaFW.ui.assistIconLoad;
 		SepiaFW.ui.assistBtnArea.style.backgroundColor = SepiaFW.ui.loadingColor;
+		clearAllStateClassesAndAdd(SepiaFW.ui.assistBtnArea, animState);
 		$("#sepiaFW-assist-btn-orbiters").removeClass("sepiaFW-animation-pause");
 		//Avatar
 		if (SepiaFW.alwaysOn && SepiaFW.alwaysOn.isOpen){
 			SepiaFW.alwaysOn.avatarLoading();
 		}
 		//Dispatch
-		animState = "loading";
 		dispatchAnimationStateEvent(animState);
 	}
 	Animate.assistant.speaking = function(){
+		animState = "speaking";
 		SepiaFW.ui.assistBtn.innerHTML = SepiaFW.ui.assistIconSpeak;
 		SepiaFW.ui.assistBtnArea.style.backgroundColor = SepiaFW.ui.accentColor2;
+		clearAllStateClassesAndAdd(SepiaFW.ui.assistBtnArea, animState);
 		$("#sepiaFW-assist-btn-orbiters").removeClass("sepiaFW-animation-pause");
 		if (SepiaFW.alwaysOn && SepiaFW.alwaysOn.isOpen){
 			SepiaFW.alwaysOn.avatarSpeaking();
 		}
+		//Dispatch
+		dispatchAnimationStateEvent(animState);
 	}
 	Animate.assistant.listening = function(){
+		animState = "listening";
 		SepiaFW.ui.assistBtn.innerHTML = SepiaFW.ui.assistIconRec;
 		SepiaFW.ui.assistBtnArea.style.backgroundColor = SepiaFW.ui.accentColor;
+		clearAllStateClassesAndAdd(SepiaFW.ui.assistBtnArea, animState);
 		$("#sepiaFW-assist-btn-orbiters").removeClass("sepiaFW-animation-pause");
 		//extra input box
 		SepiaFW.ui.showLiveSpeechInputBox();
@@ -136,19 +151,19 @@ function sepiaFW_build_animate(){
 			SepiaFW.alwaysOn.avatarListening();
 		}
 		//Dispatch
-		animState = "listening";
 		dispatchAnimationStateEvent(animState);
 	}
 	Animate.assistant.awaitDialog = function(source){
+		animState = "awaitDialog";
 		SepiaFW.ui.assistBtn.innerHTML = SepiaFW.ui.assistIconAwaitAnswer;
 		SepiaFW.ui.assistBtnArea.style.backgroundColor = SepiaFW.ui.awaitDialogColor;
+		clearAllStateClassesAndAdd(SepiaFW.ui.assistBtnArea, animState);
 		$("#sepiaFW-assist-btn-orbiters").removeClass("sepiaFW-animation-pause");
 		//Avatar
 		if (SepiaFW.alwaysOn && SepiaFW.alwaysOn.isOpen){
 			SepiaFW.alwaysOn.avatarAwaitingInput();
 		}
 		//Dispatch
-		animState = "awaitDialog";
 		dispatchAnimationStateEvent(animState);
 		//check for automatic microphone trigger
 		var didTriggerMic = possibilityToAutoSwitchMic(source);

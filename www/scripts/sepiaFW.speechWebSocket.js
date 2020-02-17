@@ -75,7 +75,13 @@ function sepiaFW_build_speechWebSocket(){
 	function broadcastNoAsrSupport(){
 		//EXAMPLE: 
 		SepiaFW.animate.assistant.idle('asrNoSupport');
-		SepiaFW.ui.showInfo(SepiaFW.local.g('noAsrSupport'));
+		var msg = SepiaFW.local.g('noAsrSupport');
+		if (!SepiaFW.ui.isSecureContext){
+			msg += " " + SepiaFW.local.g('possible_reason_origin_unsecure') 
+				+ " - <a href='https://github.com/SEPIA-Framework/sepia-docs/wiki/SSL-for-your-Server' target=_blank style='color: inherit;'>" 
+				+ SepiaFW.local.g('help') + "!</a>";
+		}
+		SepiaFW.ui.showInfo(msg);
 	}
 	function broadcastMissingServerInfo(){
 		//EXAMPLE: 
