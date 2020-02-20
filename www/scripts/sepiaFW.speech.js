@@ -344,7 +344,13 @@ function sepiaFW_build_speech(){
 	}
 	function broadcastWrongAsrSettings(){
 		//EXAMPLE:
-		SepiaFW.ui.showInfo(SepiaFW.local.g('asrSettingsProblem'));
+		var msg = SepiaFW.local.g('asrSettingsProblem');
+		if (!SepiaFW.ui.isSecureContext){
+			msg += " " + SepiaFW.local.g('possible_reason_origin_unsecure') 
+				+ " - <a href='https://github.com/SEPIA-Framework/sepia-docs/wiki/SSL-for-your-Server' target=_blank style='color: inherit;'>" 
+				+ SepiaFW.local.g('help') + "!</a>";
+		}
+		SepiaFW.ui.showInfo(msg);
 	}
 	function broadcastNoAsrSupport(){
 		//EXAMPLE: 

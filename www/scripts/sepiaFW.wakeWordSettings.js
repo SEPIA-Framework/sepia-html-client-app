@@ -136,7 +136,11 @@ function sepiaFW_build_wake_word_settings() {
         });
 
         if (!SepiaFW.ui.isSecureContext){
-            WakeWordSettings.debugLog("Please note: The browser thinks your page origin is NOT secure! Speech recognition might not work properly.", true);
+            WakeWordSettings.debugLog(
+                "Please note: The browser thinks your page origin is NOT secure! Speech recognition might not work properly." 
+                + " - <a href='https://github.com/SEPIA-Framework/sepia-docs/wiki/SSL-for-your-Server' target=_blank style='color: inherit;'>"
+                + SepiaFW.local.g('help') + "!</a>", 
+            true);
         }
     }
 
