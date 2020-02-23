@@ -45,14 +45,39 @@ function sepiaFW_build_teach(){
 					$('#sepiaFW-teach-input').val("");
 					$('#sepiaFW-teach-parameters').find("[data-name]").val("");
 					$('#sepiaFW-teach-commands').val("");
-					//fill now
-					if (info.input){
-						$('#sepiaFW-teach-input').val(info.input);
+					//load command via ID?
+					if (info.commandId){
+						SepiaFW.teach.loadPersonalCommandsWithIds(SepiaFW.account.getKey(), [info.commandId], 
+							function(data){
+								//result should be exactly one entry
+								if (data.result && data.result.length == 1){
+									var cmd = data.result[0];
+									if (cmd.id == info.commandId){
+										if (cmd.sentence && cmd.sentence.length == 1){
+											loadCommandToEditor(cmd.sentence[0]);
+										}
+									}else{
+										SepiaFW.debug.error("Teach-UI wanted to load command ID '" + info.commandId + "' but found '" + cmd.id + "'. HOW?!");
+									}
+								}else{
+									SepiaFW.ui.showPopup("Sorry but something went wrong while loading the data :-(");		//TODO: localize	
+								}
+							}, 
+							function(errMsg){
+								SepiaFW.ui.showPopup(errMsg);		//TODO: localize
+							}
+						);
+					//load command via given data?
+					}else{
+						//fill now
+						if (info.input){
+							$('#sepiaFW-teach-input').val(info.input);
+						}
+						if (info.service || info.cmd){
+							$('#sepiaFW-teach-commands').val(info.service || info.cmd);
+						}
+						//TODO: we could add parameters ...
 					}
-					if (info.service || info.cmd){
-						$('#sepiaFW-teach-commands').val(info.service || info.cmd);
-					}
-					//TODO: we could add parameters ...
 				}
 			});
 			Teach.isOpen = true;
@@ -605,6 +630,38 @@ function sepiaFW_build_teach(){
 		if (with_button_only){
 			submitData.button = true;
 		}
+		$.ajax({
+			url: apiUrl,
+			timeout: 10000,
+			type: "POST",
+			data: submitData,
+			headers: {
+				"content-type": "application/x-www-form-urlencoded"
+			},
+			success: function(data) {
+				SepiaFW.ui.hideLoader();
+				if (debugCallback) debugCallback(data);
+				if (data.result && data.result === "fail"){
+					if (errorCallback) errorCallback('Sorry, but something went wrong while loading personal commands! :-(');
+					return;
+				}
+				//--callback--
+				if (successCallback) successCallback(data);
+			},
+			error: function(data) {
+				SepiaFW.ui.hideLoader();
+				if (errorCallback) errorCallback('Sorry, but I could not connect to API :-( Please wait a bit and then try again.');
+				if (debugCallback) debugCallback(data);
+			}
+		});
+	}
+	Teach.loadPersonalCommandsWithIds = function(key, ids, successCallback, errorCallback, debugCallback){
+		SepiaFW.ui.showLoader();
+		var apiUrl = SepiaFW.config.teachAPI + "getPersonalCommandsByIds";
+		var submitData = new Object();
+		submitData.KEY = key;
+		submitData.client = SepiaFW.config.getClientDeviceInfo(); //SepiaFW.config.clientInfo;
+		submitData.ids = JSON.stringify(ids);
 		$.ajax({
 			url: apiUrl,
 			timeout: 10000,
