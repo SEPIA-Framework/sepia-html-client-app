@@ -40,6 +40,7 @@
 	width: 250px;
 	height: 175px;
 	z-index: 99;
+	cursor: pointer;
 }
 #sepiaFW-alwaysOn-info-box {
 	position: absolute;
