@@ -76,6 +76,7 @@ function sepiaFW_build_audio(){
 	var audioVolD;
 	var lastAudioStream = 'sounds/empty.mp3';
 	var beforeLastAudioStream = 'sounds/empty.mp3';
+	var lastAudioStreamTitle = '';
 	var lastAudioPlayerEventSource = '';		//Note: this does not include TTS and effects player
 	var mainAudioIsOnHold = false;
 	var mainAudioStopRequested = false;
@@ -484,7 +485,10 @@ function sepiaFW_build_audio(){
 		//fade to original volume
 		if (SepiaFW.ui.isMobile && !Stream.isPlaying){
 			SepiaFW.debug.info('AUDIO: fadeToOriginal - restore play status');
-			SepiaFW.audio.playURL('', ''); 	//<-- potentially looses callBack info here, but since this is stopped
+			var lastStream = SepiaFW.audio.getLastAudioStream();
+			var lastStreamTitle = (lastStream)? SepiaFW.audio.getLastAudioStreamTitle() : "";
+			SepiaFW.audio.playURL(lastStream, ''); 	//<-- potentially looses callBack info here, but since this is stopped
+			SepiaFW.audio.setPlayerTitle(lastStreamTitle, '');
 		}
 		if (!gotPlayerAudioContext){
 			SepiaFW.debug.info('AUDIO: fadeToOriginal - restore vol=' + orgVolume);
@@ -598,16 +602,26 @@ function sepiaFW_build_audio(){
 		if (!audioPlayer) audioPlayer = player;
 		audioPlayer.title = newTitle;
 		if (audioTitle) audioTitle.innerHTML = newTitle || "SepiaFW audio player";
+		if (audioPlayer == player){
+			lastAudioStreamTitle = newTitle;
+		}
 	}
 
 	//get the stream last played
 	AudioPlayer.getLastAudioStream = function(){
 		return lastAudioStream;
 	}
+	//get title of last stream played
+	AudioPlayer.getLastAudioStreamTitle = function(){
+		return lastAudioStreamTitle;
+	}
 	//resume last stream
 	AudioPlayer.resumeLastAudioStream = function(){
-		if (AudioPlayer.getLastAudioStream()){
-			AudioPlayer.playURL('', player);
+		var lastStream = AudioPlayer.getLastAudioStream();
+		var lastStreamTitle = (lastStream)? AudioPlayer.getLastAudioStreamTitle() : "";
+		if (lastStream){
+			AudioPlayer.playURL(lastStream, player);
+			AudioPlayer.setPlayerTitle(lastStreamTitle);
 			return true;
 		}else{
 			return false;
@@ -627,6 +641,7 @@ function sepiaFW_build_audio(){
 		if (audioURL && audioPlayer == player){
 			beforeLastAudioStream = lastAudioStream;
 			lastAudioStream = audioURL;
+			lastAudioStreamTitle = "";		//we reset this and assume "setTitle" is called after "playUrl"
 		}
 		if (!audioURL) audioURL = lastAudioStream;
 		

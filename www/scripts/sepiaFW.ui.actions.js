@@ -284,10 +284,14 @@ function sepiaFW_build_ui_actions(){
 	}
 	function playAction(action){
 		SepiaFW.audio.playerSetVolumeTemporary(1.0); 		//<-- to start smoothly
-		SepiaFW.audio.setPlayerTitle(action.audio_title, '');
+		if (!action.audio_url){
+			action.audio_url = SepiaFW.audio.getLastAudioStream();
+			action.audio_title = (action.audio_url)? SepiaFW.audio.getLastAudioStreamTitle() : "";
+		}
 		SepiaFW.audio.playURL(action.audio_url, '', function(){
 			SepiaFW.audio.playerFadeToOriginalVolume();
 		});//, onEndCallback, onErrorCallback)
+		SepiaFW.audio.setPlayerTitle(action.audio_title, '');
 	}
 	//STOP AUDIO STREAM
 	Actions.stopAudio = function(action){
