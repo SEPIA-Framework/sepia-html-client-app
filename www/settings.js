@@ -37,7 +37,8 @@ SepiaFW.settings = {
 		},
 		broadcast: {
 			"state": true,
-			"login": true
+			"login": true,
+			"speech": true
 		}
 	}
 };

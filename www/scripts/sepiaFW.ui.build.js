@@ -564,6 +564,7 @@ function sepiaFW_build_ui_build(){
 						+ "<input id='sepiaFW-menu-stt-socket-url' type='url' spellcheck='false'>"
 					+ "</li>"
 					+ "<li id='sepiaFW-menu-toggle-clexi-li' title='Connect to CLEXI server on start.'><span>Connect to CLEXI: </span></li>"
+					+ "<li id='sepiaFW-menu-toggle-remote-terminal-li' title='Connect to remote terminal when CLEXI is running?'><span>Use CLEXI Terminal: </span></li>"
 					+ "<li id='sepiaFW-menu-clexi-socket-url-li' title='Server for Node.js CLEXI by Bytemind.de'>"
 						+ "<span>" + "CLEXI server" + ": </span>"
 						+ "<input id='sepiaFW-menu-clexi-socket-url' type='url' spellcheck='false'>"
@@ -832,11 +833,12 @@ function sepiaFW_build_ui_build(){
 				var clexiToggleLi = document.getElementById('sepiaFW-menu-toggle-clexi-li');
 				clexiToggleLi.appendChild(Build.toggleButton('sepiaFW-menu-toggle-clexi', 
 					function(){
-						SepiaFW.data.set('clexiConnect', true);
+						SepiaFW.data.set('clexiConnect', true);		//NOTE: see below at 'false'
 						SepiaFW.debug.info("CLEXI connection is ENABLED");
 						SepiaFW.clexi.setup();
 					},function(){
 						SepiaFW.data.set('clexiConnect', false);
+						//NOTE: new 'doConnect' is calculated inside setup function and will stay active if URL parameter is used
 						SepiaFW.debug.info("CLEXI connection is DISABLED");
 						SepiaFW.clexi.close();
 					}, SepiaFW.clexi.doConnect)
@@ -870,9 +872,27 @@ function sepiaFW_build_ui_build(){
 					this.blur();
 					SepiaFW.clexi.setServerId(newId);
 				});
+
+				//CLEXI Remote Terminal
+				var clexiRemoteTerminalLi = document.getElementById("sepiaFW-menu-toggle-remote-terminal-li");
+				clexiRemoteTerminalLi.appendChild(Build.toggleButton('sepiaFW-menu-toggle-remote-terminal', 
+					function(){
+						SepiaFW.data.set('useRemoteCmdl', true);
+						SepiaFW.inputControls.cmdl.isAllowed = true;
+						SepiaFW.debug.info("CLEXI Remote Terminal is ENABLED");
+						SepiaFW.inputControls.cmdl.setup();
+					},function(){
+						SepiaFW.data.set('useRemoteCmdl', false);
+						SepiaFW.inputControls.cmdl.isAllowed = false;
+						SepiaFW.debug.info("CLEXI Remote Terminal is DISABLED");
+						SepiaFW.inputControls.cmdl.setup();
+					}, SepiaFW.inputControls.cmdl.isAllowed)
+				);
+
 			}else{
 				$('#sepiaFW-menu-toggle-clexi-li').remove();
 				$('#sepiaFW-menu-clexi-socket-url-li').remove();
+				$('#sepiaFW-menu-toggle-remote-terminal-li').remove();
 			}
 			
 			//Music app selector

@@ -6,7 +6,8 @@ function sepiaFW_build_input_controls_cmdl() {
 
     Cmdl.initialize = function(){
         
-        Cmdl.isAllowed = SepiaFW.data.get('useRemoteCmdl') || true;     //TODO: make settings button? (is only in headless settings so far)
+        var isAllowed = SepiaFW.data.get('useRemoteCmdl');
+        Cmdl.isAllowed = (isAllowed == undefined)? true : isAllowed;
         SepiaFW.debug.info("Remote commandline is " + ((Cmdl.isAllowed)? "SUPPORTED" : "NOT SUPPORTED"));
         
         //Add onActive action:
@@ -38,18 +39,31 @@ function sepiaFW_build_input_controls_cmdl() {
             }else{
                 document.removeEventListener('sepia_login_event', loginBroadcaster);
             }
+            if (Cmdl.broadcasters.speech){
+                document.addEventListener('sepia_speech_event', speechBroadcaster);
+            }else{
+                document.removeEventListener('sepia_speech_event', speechBroadcaster);
+            }
 
             //say hello
             broadcastEvent("event", {
                 state: "active",
                 user: getActiveUserOrDemoRole()
             });
+        }else if (SepiaFW.clexi){
+            //clean-up
+            SepiaFW.clexi.removeBroadcastListener("sepia-client");
+            document.removeEventListener('sepia_state_change', stateBroadcaster);
+            document.removeEventListener('sepia_login_event', loginBroadcaster);
+            document.removeEventListener('sepia_speech_event', speechBroadcaster);
         }
     }
 
-    //Broadcasters to use, usually set via headless settings
+    //Broadcasters to use, usually overwritten by headless settings
     Cmdl.broadcasters = {
-        state: false
+        state: false,
+        login: false,
+        speech: false
     };
     function stateBroadcaster(ev){
         if (Cmdl.broadcasters.state && ev.detail && ev.detail.state){
@@ -62,6 +76,14 @@ function sepiaFW_build_input_controls_cmdl() {
         if (Cmdl.broadcasters.login && ev.detail && ev.detail.note){
             broadcastEvent("sepia-login", {
                 note: ev.detail.note
+            });
+        }
+    }
+    function speechBroadcaster(ev){
+        if (Cmdl.broadcasters.speech && ev.detail && ev.detail.type){
+            broadcastEvent("sepia-speech", {
+                type: ev.detail.type,
+                msg: ev.detail.msg
             });
         }
     }

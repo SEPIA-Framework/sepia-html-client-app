@@ -316,6 +316,15 @@ function sepiaFW_build_speech(){
 	}
 	
 	//--------broadcast methods----------
+
+	//speech event dispatcher
+	function dispatchSpeechEvent(eventType, eventMsg){
+		var event = new CustomEvent('sepia_speech_event', { detail: {
+			type: eventType,
+			msg: eventMsg
+		}});
+		document.dispatchEvent(event);
+	}
 	
 	//ASR
 	function broadcastRequestedAsrStart(){
@@ -351,6 +360,7 @@ function sepiaFW_build_speech(){
 				+ SepiaFW.local.g('help') + "!</a>";
 		}
 		SepiaFW.ui.showInfo(msg);
+		dispatchSpeechEvent("asr_error", msg);
 	}
 	function broadcastNoAsrSupport(){
 		//EXAMPLE: 
@@ -362,6 +372,11 @@ function sepiaFW_build_speech(){
 				+ SepiaFW.local.g('help') + "!</a>";
 		}
 		SepiaFW.ui.showInfo(msg);
+		dispatchSpeechEvent("asr_error", msg);
+	}
+	function broadcastUnknownAsrError(err){
+		var msg = err || "unknown";
+		dispatchSpeechEvent("asr_error", msg);
 	}
 	
 	//TTS
@@ -387,6 +402,7 @@ function sepiaFW_build_speech(){
 	function broadcastTtsError(){
 		//EXAMPLE: 
 		SepiaFW.animate.assistant.idle('ttsError');
+		dispatchSpeechEvent("tts_error", "unknown");
 	}
 	
 	//--------- ASR INTERFACE -----------
@@ -624,7 +640,9 @@ function sepiaFW_build_speech(){
 				if (event == undefined){
 					//No event likely just means no result due to abort
 					SepiaFW.debug.err('ASR: unknown ERROR, no error event data!');
-					before_error(error_callback, 'E0? - unknown ERROR, no error event data!');
+					var err_msg = 'E0? - unknown ERROR, no error event data!';
+					broadcastUnknownAsrError(err_msg);
+					before_error(error_callback, err_msg);
 					return;
 				}
 				var orgEvent = event;
@@ -664,8 +682,10 @@ function sepiaFW_build_speech(){
 						SepiaFW.debug.err('ASR: unknown ERROR!');
 					    console.log(orgEvent);
 					}
-					//TODO: do something here!	
-					before_error(error_callback, 'E0? - unknown error!');
+					//TODO: do something here!
+					var err_msg = 'E0? - unknown error!';
+					broadcastUnknownAsrError(err_msg);
+					before_error(error_callback, err_msg);
 					return;
 				}
 			};
@@ -716,7 +736,9 @@ function sepiaFW_build_speech(){
 					log_callback('-LOG- REC END. sending final result');
 					if (!abortRecognition){
 						broadcastAsrFinished();
-						callback_final(mobileChromeFix(final_transcript));
+						var final_fixed = mobileChromeFix(final_transcript);
+						callback_final(final_fixed);
+						dispatchSpeechEvent("asr_result", final_fixed);
 					}else{
 						//broadcastAsrFinished();
 						broadcastRequestedAsrStop();
@@ -778,9 +800,10 @@ function sepiaFW_build_speech(){
 							}
 							return;
 						}else{
-							final_transcript = mod_str;
+							final_transcript = mobileChromeFix(mod_str);
 							broadcastAsrFinished();
-							callback_final(mobileChromeFix(final_transcript));
+							callback_final(final_transcript);
+							dispatchSpeechEvent("asr_result", final_transcript);
 							final_transcript = '';
 						}
 					} else {
@@ -1068,6 +1091,9 @@ function sepiaFW_build_speech(){
 				window.speechSynthesis.speak(utterance);
 			}, 0);
 		}
+
+		//dispatch event
+		dispatchSpeechEvent("tts_speak", text);
 	}	
 	function onTtsStart(event, startedCallback, errorCallback){
 		speechWaitingForStop = false;

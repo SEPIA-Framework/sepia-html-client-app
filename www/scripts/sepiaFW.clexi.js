@@ -5,7 +5,16 @@ function sepiaFW_build_clexi(){
     Clexi.socketURI = "";       //default CLEXI server: wss://raspberrypi.local:8443
     Clexi.serverId = "";
     Clexi.doConnect = false;
-
+    function doConnect(clexiUrlParam, clexiIdUrlParam){
+        if (clexiUrlParam == undefined) clexiUrlParam = SepiaFW.tools.getURLParameter('clexi');
+        if (clexiIdUrlParam == undefined) clexiIdUrlParam = SepiaFW.tools.getURLParameter('clexiId');
+        var useClexi = SepiaFW.data.get('clexiConnect') || (clexiUrlParam && clexiIdUrlParam);
+        if (useClexi == undefined){
+            return false;   //default
+        }else{
+            return !!useClexi;
+        }
+    }
     Clexi.numOfSendRetries = 10;
 
     Clexi.setSocketURI = function(newURI){
@@ -25,8 +34,7 @@ function sepiaFW_build_clexi(){
         Clexi.serverId = clexiIdUrlParam || SepiaFW.data.get('clexiServerId') || "";
         ClexiJS.serverId = Clexi.serverId;
         
-        var useClexi = SepiaFW.data.get('clexiConnect') || (clexiUrlParam && clexiIdUrlParam);
-        if (useClexi != undefined) Clexi.doConnect = useClexi;
+        Clexi.doConnect = doConnect(clexiUrlParam || '', clexiIdUrlParam || '');
         SepiaFW.debug.info("CLEXI support is " + ((Clexi.isSupported && Clexi.doConnect)? "ENABLED" : "DISABLED"));
 
         //Add onActive action:
@@ -77,6 +85,7 @@ function sepiaFW_build_clexi(){
     }
 
     Clexi.connect = function(){
+        Clexi.doConnect = doConnect();
         ClexiJS.connect(Clexi.socketURI, function(e){
             //connected
             rgyIndicators.forEach(function(indi){
@@ -114,8 +123,7 @@ function sepiaFW_build_clexi(){
     }
     Clexi.close = function(){
         ClexiJS.close();
-        var useClexi = SepiaFW.data.get('clexiConnect');
-        if (useClexi != undefined) Clexi.doConnect = useClexi;
+        Clexi.doConnect = doConnect();
     }
 
     Clexi.send = function(extensionName, data, numOfRetries){
