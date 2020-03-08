@@ -655,6 +655,25 @@ function sepiaFW_build_ui(){
 		UI.soc.init();
 		UI.soc.showPane(0);
 		UI.build.menuPageSelector();
+
+		UI.pageLeft = function(){
+			if (SepiaFW.frames && SepiaFW.frames.isOpen){
+				SepiaFW.frames.uic.prev();
+			}else if (UI.isMenuOpen){
+				if (UI.soc) UI.soc.prev();
+			}else{
+				if (UI.moc) UI.moc.prev();
+			}
+		}
+		UI.pageRight = function(){
+			if (SepiaFW.frames && SepiaFW.frames.isOpen){
+				SepiaFW.frames.uic.next();
+			}else if (UI.isMenuOpen){
+				if (UI.soc) UI.soc.next();
+			}else{
+				if (UI.moc) UI.moc.next();
+			}
+		}
 		
 		//track idle time
 		UI.trackIdleTime();

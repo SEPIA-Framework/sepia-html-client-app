@@ -166,6 +166,11 @@ function sepiaFW_build_clexi(){
         ClexiJS.removeSubscription('clexi-broadcaster');
     }
     Clexi.addBroadcastListener = function(name, callback){
+        //remove old?
+        if (broadcastListenerCallbacks[name]){
+            Clexi.removeBroadcastListener(name);
+        }
+        //add new
         var fun = function(ev){
             if (ev.detail && ev.detail.data && ev.detail.name == name){
                 callback(ev.detail.data);
@@ -209,6 +214,11 @@ function sepiaFW_build_clexi(){
         ClexiJS.removeSubscription('clexi-http-events');
     }
     Clexi.addHttpEventsListener = function(name, callback){
+        //remove old?
+        if (httpEventListenerCallbacks[name]){
+            Clexi.removeHttpEventsListener(name);
+        }
+        //add new
         var fun = function(ev){
             if (ev.detail && ev.detail.data && ev.detail.name == name){
                 callback(ev.detail.data);

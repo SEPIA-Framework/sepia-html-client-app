@@ -367,7 +367,7 @@ function sepiaFW_build_speech(){
 		SepiaFW.animate.assistant.idle('asrNoSupport');
 		var msg = SepiaFW.local.g('noAsrSupport');
 		if (!SepiaFW.ui.isSecureContext){
-			msg += " " + SepiaFW.local.g('possible_reason_origin_unsecure') 
+			msg += " " + SepiaFW.local.g('possible_reason_origin_unsecure')
 				+ " - <a href='https://github.com/SEPIA-Framework/sepia-docs/wiki/SSL-for-your-Server' target=_blank style='color: inherit;'>" 
 				+ SepiaFW.local.g('help') + "!</a>";
 		}

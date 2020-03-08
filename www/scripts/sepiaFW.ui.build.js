@@ -204,17 +204,12 @@ function sepiaFW_build_ui_build(){
 			SepiaFW.ui.isMenuOpen = false;
 		});
 		
-		//go left 
+		//go left
 		var goLeftBtn = document.getElementById("sepiaFW-nav-menu-go-left");
 		if (goLeftBtn){
 			$(goLeftBtn).off();
 			SepiaFW.ui.onclick(goLeftBtn, function(){
-			//$(goLeftBtn).on("click", function () {
-				if (SepiaFW.ui.isMenuOpen){
-					if (SepiaFW.ui.soc) SepiaFW.ui.soc.prev();
-				}else{
-					if (SepiaFW.ui.moc) SepiaFW.ui.moc.prev();
-				}
+				SepiaFW.ui.pageLeft();
 			});
 		}
 		//go right
@@ -222,12 +217,7 @@ function sepiaFW_build_ui_build(){
 		if (goRightBtn){
 			$(goRightBtn).off();
 			SepiaFW.ui.onclick(goRightBtn, function(){
-			//$(goRightBtn).on("click", function () {
-				if (SepiaFW.ui.isMenuOpen){
-					if (SepiaFW.ui.soc) SepiaFW.ui.soc.next();
-				}else{
-					if (SepiaFW.ui.moc) SepiaFW.ui.moc.next();
-				}
+				SepiaFW.ui.pageRight();
 			});
 		}
 		//notification bubble

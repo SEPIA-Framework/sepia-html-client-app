@@ -691,11 +691,6 @@ function sepiaFW_build_webSocket_client(){
 		
 		//ADD welcome stuff - TODO: what if this is offline mode or unreachable server?
 		Client.welcomeActions(false);
-
-		//ADD (local) input controls support (e.g. gamepad)
-		if (SepiaFW.inputControls){
-			SepiaFW.inputControls.setup();
-		}
 	}
 	
 	//when client started (and likely before active channel is received) add some info like first-visit messages or buttons

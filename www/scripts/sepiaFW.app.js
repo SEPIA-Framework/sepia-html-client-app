@@ -8,6 +8,7 @@ SepiaFW.config = sepiaFW_build_config();
 
 //"Interface" modules - NOTE: this happens after cordova's deviceReady
 SepiaFW.buildSepiaFwPlugins = function(){
+	//var sessionId = sjcl.random.randomWords(8).join("");
 	SepiaFW.account = sepiaFW_build_account();
 	SepiaFW.account.contacts = sepiaFW_build_account_contacts();
 	SepiaFW.assistant = sepiaFW_build_assistant();
