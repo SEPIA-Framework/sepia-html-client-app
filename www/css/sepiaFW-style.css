@@ -262,9 +262,8 @@ body {
 	color: #fff !important;
 }
 #sepiaFW-popup-message input {
-	width: 100%;
 	width: 100% !important;
-    background: #333;
+    background: #222;
     color: #eee;
     border-bottom: 1px solid #eee !important;
 }
@@ -308,6 +307,76 @@ body {
 	width: 100%;
 	height: 100%;
 	z-index: 89;
+}
+
+.sepiaFW-popup-cover-layer {
+	position: fixed;
+	background: rgba(255, 255, 255, 0.95);
+	top: 0px;
+	left: 0px;
+	width: 100%;
+	height: 100%;
+	z-index: 89;
+}
+.sepiaFW-input-popup {
+	position: absolute;
+	background: #111;
+	color: #eee;
+	border-radius: 3px;
+	min-height: 40px;
+	max-height: 85%;
+	width:80%;
+	max-width: 350px;
+	padding: 16px;
+	top: 40%;
+	left: 50%;
+	transform: translate(-50%, -45%);
+	text-align: center;
+	z-index: 90;
+	overflow: hidden;
+	display: flex;
+    flex-direction: column;
+}
+.sepiaFW-input-popup div {
+	margin-bottom: 16px;
+}
+.sepiaFW-input-popup .sepiaFW-input-popup-title span {
+	color: #ceff1a;
+	margin: 8px;
+    display: inline-block;
+}
+.sepiaFW-input-popup input,
+.sepiaFW-input-popup textarea {
+	width: 100% !important;
+    background: #222;
+	color: #eee;
+	border: 0;
+	border-bottom: 1px solid #eee !important;
+}
+.sepiaFW-input-popup textarea {
+	padding: 8px;
+    font-family: sans-serif;
+    font-size: 15px;
+}
+.sepiaFW-input-popup label {
+    margin: 12px;
+}
+.sepiaFW-input-popup select {
+	background: #222 !important;
+	color: #eee !important;
+	border-bottom: 1px solid #fff !important;
+}
+/*.sepiaFW-input-popup .sepiaFW-input-popup-select-box::after {
+    content: '▼';
+    position: relative;
+    color: #fff;
+    top: 0px;
+    right: 12px;
+    font-size: 10px;
+}*/
+.sepiaFW-input-popup button {
+	background-color: #eee !important;
+	color: #111 !important;
 }
 
 #sepiaFW-loader {

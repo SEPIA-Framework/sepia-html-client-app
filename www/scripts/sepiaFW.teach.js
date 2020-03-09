@@ -288,6 +288,44 @@ function sepiaFW_build_teach(){
 			if (finishCallback) finishCallback();
 		});
 	}
+
+	//parameter input help box pop-up
+	function showInputHelpPopup(title, value, assignFun, types, examples){
+		var $box = $('#sepiaFW-teachUI-input-helper');
+		var $input = $box.find(".sepiaFW-input-popup-value-1");
+		var $title = $box.find(".sepiaFW-input-popup-title");
+		var $select = $box.find('.sepiaFW-input-popup-select-1');
+		$('#sepiaFW-teachUI-input-helper-cover').fadeIn(200);
+		$box.fadeIn(300);
+		//convert value format
+		if (value.trim().indexOf("{") == 0){
+			$input.val(JSON.stringify(JSON.parse(value), undefined, 4));
+			$input[0].style.height = ($input[0].scrollHeight + 8 + "px");
+		}else{
+			$input.val(value);
+			$input[0].style.height = "auto";
+		}
+		$title.html("Select input type and enter value for parameter: <span>'" + title + "'</span>");
+		//TODO: add types
+		//TODO: add examples
+		$box.find(".sepiaFW-input-popup-confirm").off().on('click', function(){
+			//convert format
+			value = $input.val();
+			if (value.trim().indexOf("{") == 0){
+				value = JSON.stringify(JSON.parse(value));
+			}
+			//TODO: add type - $select.val() - 1, 2, 3
+			assignFun(value);
+			closeInputHelpPopup();
+		});
+		$box.find(".sepiaFW-input-popup-abort").off().on('click', function(){
+			closeInputHelpPopup();
+		});
+	}
+	function closeInputHelpPopup(){
+		$('#sepiaFW-teachUI-input-helper-cover').hide();
+		$('#sepiaFW-teachUI-input-helper').hide();
+	}
 	
 	//make parameter entry
 	function makeParameter(uiName, pName, isOptional, parentBlock){
@@ -303,6 +341,12 @@ function sepiaFW_build_teach(){
 		}
 		$(parentBlock).append(label);
 		$(parentBlock).append(input);
+		//help popup
+		$(label).off().on('click', function(){
+			showInputHelpPopup(pName, input.value, function(newVal){
+				input.value = newVal;
+			});
+		});
 	}
 	//populate parameter input box
 	function populateParameterBox(cmd, onFinishCallback){
