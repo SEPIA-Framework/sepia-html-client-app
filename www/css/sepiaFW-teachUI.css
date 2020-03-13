@@ -18,6 +18,8 @@
     color: inherit;
     text-align: center;
 	font-size: 18px;
+	text-overflow: ellipsis;
+	cursor: pointer;
 }
 #sepiaFW-teachUI-view label {
 	color: #ceff1a;
