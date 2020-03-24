@@ -3,8 +3,8 @@ function sepiaFW_build_ui(){
 	var UI = {};
 	
 	//some constants
-	UI.version = "v0.21.0";
-	UI.requiresServerVersion = "2.4.1";
+	UI.version = "v0.22.0";
+	UI.requiresServerVersion = "2.5.0";
 	UI.JQ_RES_VIEW_IDS = "#sepiaFW-result-view, #sepiaFW-chat-output, #sepiaFW-my-view";	//a selector to get all result views e.g. $(UI.JQ_RES_VIEW_IDS).find(...) - TODO: same as $('.sepiaFW-results-container') ??
 	UI.JQ_ALL_MAIN_VIEWS = "#sepiaFW-result-view, #sepiaFW-chat-output, #sepiaFW-my-view, #sepiaFW-teachUI-editor, #sepiaFW-teachUI-manager, #sepiaFW-frame-page-0, #sepiaFW-frame-page-1, #sepiaFW-frame-page-2, #sepiaFW-frame-page-3"; 	//TODO: frames can have more ...
 	UI.JQ_ALL_SETTINGS_VIEWS = ".sepiaFW-chat-menu-list-container";
@@ -1342,6 +1342,11 @@ function sepiaFW_build_ui(){
 				ev.preventDefault();
 			}
 		});
+		//remove listener
+		ele.removeLongPressShortPressDoubleTap = function(){
+			mc.destroy();
+			$(ele).off('click');
+		}
 	}
 	UI.longPressShortPressDoubleTab = UI.longPressShortPressDoubleTap;
 	//Shortcut for Short/Long combo with some default settings

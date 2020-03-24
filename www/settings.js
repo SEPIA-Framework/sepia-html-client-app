@@ -11,7 +11,8 @@ SepiaFW.settings = {
 				"index": ""
 			},
 			"en-voice": "",
-			"de-voice": ""
+			"de-voice": "",
+			"wakeWordSensitivity": ["0.5"]
 		},
 		user: {
 			"clexiSocketURI": "ws://localhost:8080",
