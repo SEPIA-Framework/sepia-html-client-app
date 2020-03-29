@@ -130,11 +130,7 @@ function sepiaFW_build_ui_actions(){
 	//CLIENT Control function
 	Actions.clientControlFun = function(action, sender){
 		if (action && action.fun){
-			if (action.fun in SepiaFW.client.controls){
-				SepiaFW.client.controls[action.fun](action.controlData);
-			}else{
-				SepiaFW.debug.error("Action - client control fun. not existing: " + action.fun); 
-			}
+			SepiaFW.client.controls.handle(action.fun, action.controlData);
 		}
 	}
 	

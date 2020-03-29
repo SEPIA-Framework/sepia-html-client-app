@@ -343,23 +343,23 @@ body {
 .sepiaFW-input-popup .sepiaFW-input-popup-title span {
 	color: #ceff1a;
 	margin: 8px;
-    display: inline-block;
+	display: inline-block;
 }
 .sepiaFW-input-popup input,
 .sepiaFW-input-popup textarea {
 	width: 100% !important;
-    background: #222;
+	background: #222;
 	color: #eee;
 	border: 0;
 	border-bottom: 1px solid #eee !important;
 }
 .sepiaFW-input-popup textarea {
 	padding: 8px;
-    font-family: sans-serif;
-    font-size: 15px;
+	font-family: sans-serif;
+	font-size: 15px;
 }
 .sepiaFW-input-popup label {
-    margin: 12px;
+	margin: 12px;
 }
 .sepiaFW-input-popup select {
 	background: #222 !important;

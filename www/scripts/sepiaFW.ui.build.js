@@ -1012,7 +1012,7 @@ function sepiaFW_build_ui_build(){
 					SepiaFW.ui.showChannelStatusMessages = false;
 					SepiaFW.data.set('channelStatusMessages', false);
 					//hide messages
-					$(SepiaFW.ui.JQ_RES_VIEW_IDS).find(".statusMsg.info").each(function(){
+					$(SepiaFW.ui.JQ_RES_VIEW_IDS).find(".statusMsg.info").not(".always-show").each(function(){
 						$(this).addClass('hidden-by-settings');
 					});
 					SepiaFW.debug.info("Channel status messages are deactivated");
@@ -1656,7 +1656,7 @@ function sepiaFW_build_ui_build(){
 	}
 	
 	//chat status message block
-	Build.statusMessage = function(msg, username, isErrorMessage){
+	Build.statusMessage = function(msg, username, isErrorMessage, alwaysShow){
 		var type = msg.senderType;
 		var text = msg.text;
 		var sender = msg.sender;
@@ -1684,7 +1684,7 @@ function sepiaFW_build_ui_build(){
 		}else{
 			//everything else is status message
 			block.className += ' info';
-			if (!SepiaFW.ui.showChannelStatusMessages){
+			if (!alwaysShow && !SepiaFW.ui.showChannelStatusMessages){
 				block.className += ' hidden-by-settings';
 			}
 		}

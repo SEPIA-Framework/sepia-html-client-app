@@ -319,8 +319,10 @@ function sepiaFW_build_teach(){
 		var $note = $box.find('.sepiaFW-input-popup-note-1');
 		$note.html("").hide();
 		$input[0].style.height = "auto";
-		$('#sepiaFW-teachUI-input-helper-cover').fadeIn(200);
-		$box.fadeIn(300);
+		//$('#sepiaFW-teachUI-input-helper-cover').fadeIn(200);
+		$('#sepiaFW-teachUI-input-helper-cover').show();
+		//$box.fadeIn(300);
+		$box.show();
 		setTimeout(function(){
 			$input.focus();
 		}, 0);
@@ -385,6 +387,7 @@ function sepiaFW_build_teach(){
 		label.innerHTML = uiName;
 		var input = document.createElement('INPUT');
 		input.className = "sepiaFW-teach-parameter-input";
+		input.placeholder = "click here";
 		$(input).attr("data-name", pName);
 		$(input).attr("type", "text");
 		if (isOptional){

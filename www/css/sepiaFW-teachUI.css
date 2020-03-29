@@ -27,6 +27,10 @@
 #sepiaFW-teachUI-view label.optional {
 	display: none;
 }
+#sepiaFW-teachUI-view .sepiaFW-input-popup textarea {
+	white-space: pre;
+    overflow-x: auto;
+}
 #sepiaFW-teachUI-view a {
 	color: #ceff1a;
 }

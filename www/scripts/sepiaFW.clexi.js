@@ -322,7 +322,7 @@ function sepiaFW_build_clexi(){
         return (clexiRuntimeCommandBaseId + "-" + SepiaFW.config.getDeviceId() + "-" + ++clexiRuntimeCommandLastIdIndex);
     }
 
-    Clexi.sendRuntimeCommand = function(cmd, arguments, maxWait, tryCallback, successCallback, errorCallback){
+    Clexi.sendRuntimeCommand = function(cmd, args, maxWait, tryCallback, successCallback, errorCallback){
         if (Clexi.doConnect && Clexi.hasXtension('runtime-commands')){
             var cmdId = getNewClexiRuntimeCmdId();
             //listen for return data to this cmdId
@@ -336,22 +336,29 @@ function sepiaFW_build_clexi(){
                 }*/
                 if (data.code == 202){
                     //runtime will try to execute command and answer later - NOTE: not guaranteed
-                    if (tryCallback) tryCallback(data.result);
+                    if (tryCallback) tryCallback(data.result, data, args);
                 }else if (data.code == 200 || data.code == 204){
                     //runtime has completed successfully or completed without action
-                    if (successCallback) successCallback(data.result);
+                    if (successCallback) successCallback(data.result, data, args);
                     removeRuntimeCommandsListener(cmdId);
                 }else{
                     //not found, not supported, internal error etc.
-                    if (errorCallback) errorCallback(data.msg || data.result);
+                    if (errorCallback) errorCallback(data.msg || data.result, data.code, data, args);
                     removeRuntimeCommandsListener(cmdId);
                 }
             });
-            ClexiJS.send('runtime-commands', {
+            //track
+            var unixTime = new Date().getTime();
+            var cmdData = {
                 id: cmdId,
                 cmd: cmd,
-                args: arguments
-            }, Clexi.numOfSendRetries);
+                args: args,
+                sentAt: unixTime,
+                expires: (unixTime + maxLifetime)
+            };
+            runtimeCommandsActive[cmdId] = cmdData;
+            //send
+            ClexiJS.send('runtime-commands', cmdData, Clexi.numOfSendRetries);
             return 0;       //sent
         }else{
             //Extension not available?
@@ -363,6 +370,14 @@ function sepiaFW_build_clexi(){
             }
         }
     }
+
+    Clexi.getActiveRuntimeCommands = function(){
+        return runtimeCommandsActive;
+    }
+    Clexi.removeActiveRuntimeCommand = function(cmdId){
+        delete runtimeCommandsActive[cmdId];
+    }
+    var runtimeCommandsActive = {};
 
     function subscribeToRuntimeCommands(){
         //format: see 'sendRuntimeCommand'
@@ -412,6 +427,7 @@ function sepiaFW_build_clexi(){
             document.removeEventListener('clexi-runtime-commands-msg', callback);
         }
         //TODO: this should kill maxLifetime timers as well
+        delete runtimeCommandsActive[cmdId];
     }
     var runtimeCommandsListenerCallbacks = {};
 
