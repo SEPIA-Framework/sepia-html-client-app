@@ -2141,6 +2141,17 @@ function sepiaFW_build_webSocket_client(){
 			message.text = message.text.replace(deepLinkInMessage, deepLinkInMessage.substring(0, 49) + "...");
 		}
 
+		//add a "today" info block?
+		var d = new Date();
+		if (message.channelId && (d.getTime() - message.timeUNIX) < 30000){
+			var customTag = "weekday-note-" + SepiaFW.tools.getLocalDateWithCustomSeparator("-");
+			var $todayNote = $("#sepiaFW-chat-output").find('[data-channel-id=' + message.channelId + ']').filter('[data-msg-custom-tag=' + customTag + ']');
+			if ($todayNote.length == 0){
+				var weekdayName = SepiaFW.local.getWeekdayName(d.getDay()) + " " + d.toLocaleDateString();
+				SepiaFW.ui.showInfo(weekdayName, false, customTag, true, message.channelId);
+			}
+		}
+
 		//publish
 		var chatMessageEntry;
 		if (customPublishMethod){

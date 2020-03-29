@@ -268,9 +268,18 @@ function sepiaFW_build_ui(){
 	//make an info message
 	UI.showInfo = function(text, isErrorMessage, customTag, beSilent, channelId){
 		if (UI.build){
-			if (channelId == undefined) channelId = 'info';		//note: channelId=info will use the active channel or user-channel
+			if (isErrorMessage == undefined) isErrorMessage = true;		//default is true (this is to prevent old calls from changing)
+			if (channelId == undefined) channelId = 'info';				//note: channelId=info will use the active channel or user-channel
 			var message = UI.build.makeMessageObject(text, 'UI', 'client', '', channelId);
-			var sEntry = UI.build.statusMessage(message, 'username', true);		//we handle UI messages as errors for now - TODO: add non-error msg
+			//UI messages should always be shown no matter the user settings:
+			var sEntry;
+			if (isErrorMessage){
+				sEntry = UI.build.statusMessage(message, 'username', true);
+			}else{
+				sEntry = UI.build.statusMessage(message, 'username', false, true);
+				sEntry.classList.add("always-show");	//not error, but still show always
+			}
+			//custom tag/data:
 			if (customTag){
 				sEntry.dataset.msgCustomTag = customTag;
 				//weekday indicator
@@ -770,8 +779,8 @@ function sepiaFW_build_ui(){
 		//is client active or demo-mode?
 		if ((!SepiaFW.client.isActive() || !SepiaFW.assistant.id) && !SepiaFW.client.isDemoMode()){
 			clearTimeout(myViewUpdateTimer);
-			myViewPostponedUpdateTries++;
 			myViewUpdateTimer = setTimeout(function(){
+				myViewPostponedUpdateTries++;
 				//try again
 				if (myViewPostponedUpdateTries <= 3){
 					UI.updateMyView(true, checkGeolocationFirst, 'notActiveRetry');
