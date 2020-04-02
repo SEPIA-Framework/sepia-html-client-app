@@ -21,6 +21,8 @@ package org.apache.cordova.inappbrowser;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
 import android.graphics.Color;
 import android.provider.Browser;
 import android.content.res.Resources;
@@ -412,7 +414,7 @@ public class InAppBrowser extends CordovaPlugin {
             intent.putExtra(Browser.EXTRA_APPLICATION_ID, cordova.getActivity().getPackageName());
             this.cordova.getActivity().startActivity(intent);
             return "";
-        // not catching FileUriExposedException explicitly because buildtools<24 doesn't know about it
+            // not catching FileUriExposedException explicitly because buildtools<24 doesn't know about it
         } catch (java.lang.RuntimeException e) {
             LOG.d(LOG_TAG, "InAppBrowser: Error loading url "+url+":"+ e.toString());
             return e.toString();
@@ -593,7 +595,7 @@ public class InAppBrowser extends CordovaPlugin {
             }
             Boolean wideViewPort = features.get(USER_WIDE_VIEW_PORT);
             if (wideViewPort != null ) {
-		            useWideViewPort = wideViewPort.booleanValue();
+                useWideViewPort = wideViewPort.booleanValue();
             }
         }
 
@@ -608,8 +610,8 @@ public class InAppBrowser extends CordovaPlugin {
              */
             private int dpToPixels(int dipValue) {
                 int value = (int) TypedValue.applyDimension( TypedValue.COMPLEX_UNIT_DIP,
-                                                            (float) dipValue,
-                                                            cordova.getActivity().getResources().getDisplayMetrics()
+                        (float) dipValue,
+                        cordova.getActivity().getResources().getDisplayMetrics()
                 );
 
                 return value;
@@ -645,7 +647,7 @@ public class InAppBrowser extends CordovaPlugin {
                 int toolbarColor;
                 int blackColor = android.graphics.Color.rgb(0, 0, 0);
                 int accentColor = android.graphics.Color.rgb(190, 255, 26); //android.graphics.Color.rgb(0, 122, 255);
-				if(Build.VERSION.SDK_INT >= 21){
+                if(Build.VERSION.SDK_INT >= 21){
                     /*
                     toolbarColor = cordova.getActivity().getWindow().getStatusBarColor();
 					dialog.getWindow().setStatusBarColor(toolbarColor); 	//TODO: not working
@@ -705,8 +707,8 @@ public class InAppBrowser extends CordovaPlugin {
                     edittext.setBackgroundColor(android.graphics.Color.WHITE);
                     edittext.setTextColor(blackColor);
                 }
-				edittext.setTextSize(12);
-				edittext.setPadding(this.dpToPixels(8), this.dpToPixels(4), this.dpToPixels(8), this.dpToPixels(4));
+                edittext.setTextSize(12);
+                edittext.setPadding(this.dpToPixels(8), this.dpToPixels(4), this.dpToPixels(8), this.dpToPixels(4));
                 edittext.setGravity(Gravity.CENTER);
                 edittext.setSingleLine(true);
                 edittext.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
@@ -892,8 +894,8 @@ public class InAppBrowser extends CordovaPlugin {
                 WebSettings settings = inAppWebView.getSettings();
                 settings.setJavaScriptEnabled(true);
                 settings.setJavaScriptCanOpenWindowsAutomatically(true);
-				settings.setBuiltInZoomControls(true);
-				settings.setDisplayZoomControls(showZoomControls);
+                settings.setBuiltInZoomControls(true);
+                settings.setDisplayZoomControls(showZoomControls);
                 settings.setPluginState(android.webkit.WebSettings.PluginState.ON);
 
                 settings.setMediaPlaybackRequiresUserGesture(mediaPlaybackRequiresUserGesture);
@@ -1141,7 +1143,24 @@ public class InAppBrowser extends CordovaPlugin {
         /**
          * Override the URL that should be loaded
          *
-         * This handles a small subset of all the URIs that would be encountered.
+         * New (added in API 24)
+         * For Android 7 and above.
+         *
+         * @param webView
+         * @param request
+         */
+        /*@TargetApi(Build.VERSION_CODES.N)
+        @Override
+        public boolean shouldOverrideUrlLoading(WebView webView, WebResourceRequest request) {
+            //TODO: handle request.getMethod()
+            return shouldOverrideUrlLoading(webView, request.getUrl().toString());
+        }*/
+
+        /**
+         * Override the URL that should be loaded
+         *
+         * Legacy (deprecated in API 24)
+         * For Android 6 and below.
          *
          * @param webView
          * @param url
@@ -1157,7 +1176,7 @@ public class InAppBrowser extends CordovaPlugin {
                 } catch (android.content.ActivityNotFoundException e) {
                     LOG.e(LOG_TAG, "Error dialing " + url + ": " + e.toString());
                 }
-            } else if (url.startsWith("geo:") || url.startsWith(WebView.SCHEME_MAILTO) || url.startsWith("market:") || url.startsWith("intent:")) {
+            } else if (url.startsWith("geo:") || url.startsWith(WebView.SCHEME_MAILTO) || url.startsWith("market:")) {
                 try {
                     Intent intent = new Intent(Intent.ACTION_VIEW);
                     intent.setData(Uri.parse(url));
@@ -1166,9 +1185,33 @@ public class InAppBrowser extends CordovaPlugin {
                 } catch (android.content.ActivityNotFoundException e) {
                     LOG.e(LOG_TAG, "Error with " + url + ": " + e.toString());
                 }
-            }
+            } else if (url.startsWith("intent:")) {
+                try {
+                    Context context = cordova.getActivity();
+                    Intent intent = Intent.parseUri(url, Intent.URI_INTENT_SCHEME);
+                    if (intent != null) {
+                        PackageManager packageManager = context.getPackageManager();
+                        ResolveInfo info = packageManager.resolveActivity(intent, PackageManager.MATCH_DEFAULT_ONLY);
+                        if (info != null) {
+                            context.startActivity(intent);
+                            return true;
+                        } else {
+                            String fallbackUrl = intent.getStringExtra("browser_fallback_url");
+                            if (fallbackUrl != null && !fallbackUrl.isEmpty()){
+                                inAppWebView.loadUrl(fallbackUrl);
+                                //Alternative: call external browser:
+                                //Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(fallbackUrl));
+                                //context.startActivity(browserIntent);
+                                return true;
+                            }
+                        }
+                    }
+                } catch (Exception e) {
+                    LOG.e(LOG_TAG, "Error with " + url + ": " + e.toString());
+                }
+
             // If sms:5551212?body=This is the message
-            else if (url.startsWith("sms:")) {
+            } else if (url.startsWith("sms:")) {
                 try {
                     Intent intent = new Intent(Intent.ACTION_VIEW);
 
