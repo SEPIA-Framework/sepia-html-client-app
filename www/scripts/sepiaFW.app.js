@@ -575,25 +575,71 @@ function sepiaFW_build_debug(){
 	Debug.doLog = true;
 	Debug.doError = true;
 	Debug.doInfo = false;
+
+	//get default local date/timeout for debugger
+	Debug.getLocalDateTime = function(){
+		var d = new Date();
+		var HH = addZero(d.getHours());
+		var mm = addZero(d.getMinutes());
+		var ss = addZero(d.getSeconds());
+		var dd = addZero(d.getDate());
+		var MM = addZero(d.getMonth() + 1);
+		var yyyy = d.getFullYear();
+		return '' + yyyy + '.' + MM + '.' + dd + '_' + HH + ':' + mm + ':' + ss;
+	}
+	function addZero(i) {
+		return (i < 10)? "0" + i : i;
+	}
 	
-	Debug.log = function(msg){
+	/*Debug.log = function(msg){
 		if (Debug.doLog){
 			console.log('SepiaFW - ' + Debug.getLocalDateTime() + ' - LOG - ' + msg);
 		}
+	}*/
+	Debug.setLog = function(doLog){
+		if (doLog){
+			Debug.doLog = true;
+			Debug.log = Function.prototype.bind.call(console.log, console, 'SepiaFW - ' + Debug.getLocalDateTime() + ' - LOG - ');
+		}else{
+			Debug.doLog = false;
+			Debug.log = Function.prototype.bind.call(function(){}, console);
+		}
 	}
+	Debug.setLog(Debug.doLog);
 	
-	Debug.err = function(msg){
+	/*Debug.err = function(msg){
 		if (Debug.doError){
 			console.error('SepiaFW - ' + Debug.getLocalDateTime() + ' - ERROR - ' + msg);
 		}
 	}
-	Debug.error = Debug.err;
+	Debug.error = Debug.err;*/
+	Debug.setError = function(doError){
+		if (doError){
+			Debug.doError = true;
+			Debug.err = Function.prototype.bind.call(console.error, console, 'SepiaFW - ' + Debug.getLocalDateTime() + ' - ERROR - ');
+		}else{
+			Debug.doError = false;
+			Debug.err = Function.prototype.bind.call(function(){}, console);
+		}
+		Debug.error = Debug.err;
+	}
+	Debug.setError(Debug.doError);
 	
-	Debug.info = function(msg){
+	/*Debug.info = function(msg){
 		if (Debug.doInfo){
 			console.log('SepiaFW - ' + Debug.getLocalDateTime() + ' - INFO - ' + msg);
 		}
+	}*/
+	Debug.setInfo = function(doInfo){
+		if (doInfo){
+			Debug.doInfo = true;
+			Debug.info = Function.prototype.bind.call(console.log, console, 'SepiaFW - ' + Debug.getLocalDateTime() + ' - INFO - ');
+		}else{
+			Debug.doInfo = false;
+			Debug.info = Function.prototype.bind.call(function(){}, console);
+		}
 	}
+	Debug.setInfo(Debug.doInfo);
 	
 	Debug.object = function(obj, logType){
 		var output = "";
@@ -614,21 +660,6 @@ function sepiaFW_build_debug(){
 		}else{
 			Debug.log(output);
 		}
-	}
-	
-	//get default local date/timeout for debugger
-	Debug.getLocalDateTime = function(){
-		var d = new Date();
-		var HH = addZero(d.getHours());
-		var mm = addZero(d.getMinutes());
-		var ss = addZero(d.getSeconds());
-		var dd = addZero(d.getDate());
-		var MM = addZero(d.getMonth() + 1);
-		var yyyy = d.getFullYear();
-		return '' + yyyy + '.' + MM + '.' + dd + '_' + HH + ':' + mm + ':' + ss;
-	}
-	function addZero(i) {
-		return (i < 10)? "0" + i : i;
 	}
 	
 	return Debug;

@@ -316,9 +316,12 @@ function sepiaFW_build_clexi(){
 
     //CLEXI runtime commands (used e.g. to shutdown DIY client):
 
-    var clexiRuntimeCommandBaseId = "SEPIA-CLIENT-" + Math.abs(sjcl.random.randomWords(1));
+    var clexiRuntimeCommandBaseId;
     var clexiRuntimeCommandLastIdIndex = 0;
     function getNewClexiRuntimeCmdId(){
+        if (!clexiRuntimeCommandBaseId){
+            clexiRuntimeCommandBaseId = "SEPIA-CLIENT-" + Math.abs(sjcl.random.randomWords(1));
+        }
         return (clexiRuntimeCommandBaseId + "-" + SepiaFW.config.getDeviceId() + "-" + ++clexiRuntimeCommandLastIdIndex);
     }
 
