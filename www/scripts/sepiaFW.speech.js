@@ -535,7 +535,7 @@ function sepiaFW_build_speech(){
 			}else{
 				setTimeout(function (){
 					autoStopASR();
-				},asrAutoStopDelay);
+				}, asrAutoStopDelay);
 			}
 		}
 	}
@@ -567,11 +567,14 @@ function sepiaFW_build_speech(){
 		var final_transcript = '';
 		var interim_transcript = '';
 		var partialWasTriggered = false;	//sometimes partial result is triggered with empty result (that leads to an error)
+		var resultWasNeverCalled = true;	//on some engines there is no partial result AND onend is called BEFORE onresult
+		var onEndWasAlreadyCalled = false;	//	"	"	"
+		var onErrorWasAlreadyCalled = false;	//	"	"	"
 		var ignore_onend = false;		//used to ignore callback_final on error
 		var restart_anyway = false;		//used to restart 'always-on' after auto-abort and no-speech
 		var start_timestamp;
 		var wait_timestamp = 0;
-		var maxAsrResultWait = 3000;
+		var maxAsrResultWait = 5000;
 		var waitTimeout = '';
 		
 		function resetsOnUnexpectedEnd(){
@@ -616,6 +619,9 @@ function sepiaFW_build_speech(){
 				final_transcript = '';
 				interim_transcript = '';
 				partialWasTriggered = false;
+				resultWasNeverCalled = true;
+				onEndWasAlreadyCalled = false;
+				onErrorWasAlreadyCalled = false;
 			};
 			
 			//ON MY ABORT
@@ -636,6 +642,7 @@ function sepiaFW_build_speech(){
 			recognition.onerror = function(event) {
 				//reset recognizer
 				resetsOnUnexpectedEnd();
+				onErrorWasAlreadyCalled = true;
 
 				if (event == undefined){
 					//No event likely just means no result due to abort
@@ -692,6 +699,7 @@ function sepiaFW_build_speech(){
 			
 			//ON END
 			recognition.onend = function() {
+				onEndWasAlreadyCalled = true;
 				asrAutoStop = false;
 				//check for ignore and log error or check for empty result
 				if (ignore_onend & !restart_anyway) {
@@ -700,9 +708,9 @@ function sepiaFW_build_speech(){
 					log_callback('-LOG- REC END. input ignored');		//only an ERROR can lead here that has been broadcasted before so we just LOG and go
 					return;
 				}
-				if (!final_transcript & quit_on_final_result) {			//this will trigger aswell if final result is empty
+				if (!final_transcript & quit_on_final_result){			//this will trigger aswell if final result is empty
 					//we might need to go in a loop here since onend can fire before final result (e.g. on Android)
-					if (interim_transcript || partialWasTriggered){
+					if (interim_transcript || partialWasTriggered || (resultWasNeverCalled && !onErrorWasAlreadyCalled)){
 						recognizerWaitingForResult = true;
 						if (!wait_timestamp || wait_timestamp == 0){
 							wait_timestamp = new Date().getTime();
@@ -749,6 +757,7 @@ function sepiaFW_build_speech(){
 
 			//ON (PARTIAL) RESULT
 			recognition.onpartialresult = function(event) {
+				resultWasNeverCalled = false;
 				var iosPlugin = (typeof event.results == "undefined") ? true : false;
 				if (iosPlugin && event.message){
 					//rebuild as default result
@@ -762,7 +771,7 @@ function sepiaFW_build_speech(){
 				recognition.onresult(event);
 			}
 			recognition.onresult = function(event) {
-				//console.log(event);					//DEBUG
+				resultWasNeverCalled = false;
 				var iosPlugin = (typeof event.results == "undefined") ? true : false;
 				if (iosPlugin && event.message){
 					//rebuild as default result
@@ -780,10 +789,10 @@ function sepiaFW_build_speech(){
 				
 				interim_transcript = '';
 				var mod_str = '';
-				for (var i = (event.resultIndex || 0); i < event.results.length; ++i) {
+				for (var i = (event.resultIndex || 0); i < event.results.length; ++i){
 					partialWasTriggered = true;
 					//console.log('ASR RES: ' + JSON.stringify(event.results[i][0]));			//DEBUG
-					if (event.results[i].isFinal || event.results[i][0]['final']) {
+					if (event.results[i].isFinal || event.results[i][0]['final']){
 						asrAutoStop = false;
 						//interim_transcript = '';
 						mod_str = event.results[i][0].transcript;
@@ -806,13 +815,13 @@ function sepiaFW_build_speech(){
 							dispatchSpeechEvent("asr_result", final_transcript);
 							final_transcript = '';
 						}
-					} else {
+					}else{
 						interim_transcript += event.results[i][0].transcript;
 					}
 				}
 				asrLastInput = new Date().getTime();
 				asrAutoStop = true; 		//it CAN be used now ...
-				if (quit_on_final_result){
+				if (quit_on_final_result && !onEndWasAlreadyCalled && !onErrorWasAlreadyCalled){
 					autoStopASR();			//... but we use it only in this case 
 				}
 				callback_interim(interim_transcript);
