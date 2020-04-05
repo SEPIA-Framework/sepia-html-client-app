@@ -512,9 +512,9 @@ function sepiaFW_build_embedded_services(){
 					}, {
 						"timeUNIX": 1571515200000, "precipType": "rain", "tag": "22:00", "precipProb": 0.15, "tempA": 13
 					}, {
-						"timeUNIX": 1571522400000, "precipType": "rain", "tag": "00:00", "precipProb": 0.11, "tempA": 12
+						"timeUNIX": 1571522400000, "precipType": "snow", "tag": "00:00", "precipProb": 0.11, "tempA": 12
 					}, {
-						"timeUNIX": 1571529600000, "precipType": "rain", "tag": "02:00", "precipProb": 0.08, "tempA": 12
+						"timeUNIX": 1571529600000, "precipType": "snow", "tag": "02:00", "precipProb": 0.08, "tempA": 12
 					}]
 				},
 				"type": "weatherNow"

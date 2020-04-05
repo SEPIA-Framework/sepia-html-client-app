@@ -991,12 +991,15 @@ function sepiaFW_build_ui_cards(){
 			var temp = (isDaily)? (data[i].tempA  + unit + " - " + data[i].tempB + unit) : (data[i].tempA + unit);
 			if (precipType && (precipProb>2)){
 				if (precipType === "snow"){
-					precipSymbol = "<img src='img/weather/snowflakes.png' alt='snow' class='precipSymbol'>";
+					//precipSymbol = "<img src='img/weather/snowflakes.png' alt='snow' class='precipSymbol'>";
+					precipSymbol = "<img src='img/weather/snowflakes.svg' onload='SVGInject(this)' alt='snow' class='precipSymbol'>";
 				}else{
-					precipSymbol = "<img src='img/weather/rain-drops.png' alt='rain' class='precipSymbol'>";
+					//precipSymbol = "<img src='img/weather/rain-drops.png' alt='rain' class='precipSymbol'>";
+					precipSymbol = "<img src='img/weather/rain-drops.svg' onload='SVGInject(this)' alt='rain' class='precipSymbol'>";
 				}
 			}else{
-				precipSymbol = "<img src='img/weather/clear-day.png' alt='clear' class='precipSymbol'>";
+				//precipSymbol = "<img src='img/weather/clear-day.png' alt='clear' class='precipSymbol'>";
+				precipSymbol = "<img src='img/weather/clear.svg' onload='SVGInject(this)' alt='clear' class='precipSymbol'>";
 			}
 			detailsHTML += "<li>"
 							+ "<div>" + data[i].tag + "</div>"
