@@ -463,6 +463,12 @@
 			//note: is allowed to overwrite user pref.
 			SepiaFW.config.loadSettingsForHeadlessMode();
 		}
+		//... or enable auto-setup
+		SepiaFW.config.autoSetup = SepiaFW.tools.isURLParameterTrue("autoSetup");
+		if (!SepiaFW.config.isUiHeadless && SepiaFW.config.autoSetup){
+			//note: is allowed to overwrite user pref.
+			SepiaFW.config.loadSettingsForHeadlessMode();
+		}
 
 		//prepare plugins
 		SepiaFW.buildSepiaFwPlugins();

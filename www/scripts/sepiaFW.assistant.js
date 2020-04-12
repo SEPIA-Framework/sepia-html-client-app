@@ -128,6 +128,7 @@ function sepiaFW_build_assistant(){
 			embeddedPlayers: SepiaFW.ui.cards.getSupportedWebPlayers(),
 			prefTempUnit: (SepiaFW.account.getUserPreferredTemperatureUnit() || "C"),
 			deviceLocalSite: SepiaFW.config.getDeviceLocalSiteData()
+			//TODO: add 'SepiaFW.config.isUiHeadless' info ? Or rely on 'env' parameter?
 		};
 		State.custom_data = JSON.stringify(cd);
 

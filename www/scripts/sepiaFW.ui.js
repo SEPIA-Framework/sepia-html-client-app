@@ -543,9 +543,9 @@ function sepiaFW_build_ui(){
 		UI.isTinyApp = isTinyApp();
 
 		//Setup headless mode
-		if (SepiaFW.config.isUiHeadless){
+		if (SepiaFW.config.isUiHeadless || SepiaFW.config.autoSetup){
 			SepiaFW.config.loadHeadlessModeSetup();
-			//if client not active or in demo-mode after 5s run setup
+			//if client not active or in demo-mode after 8s run setup
 			setTimeout(function(){
 				if (!SepiaFW.client.isActive() && !SepiaFW.client.isDemoMode()){
 					SepiaFW.data.set('isDemoLogin', 'setup');

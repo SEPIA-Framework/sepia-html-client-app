@@ -68,6 +68,7 @@ function sepiaFW_build_account(){
 		$('#sepiaFW-menu-account-my-id').html("Demo");
 		//play sound?
 		if (Account.getUserRoles() && Account.getUserRoles()[0] == "setup"){
+			//TODO: should we play another sound when CLEXI connected?
 			SepiaFW.client.addOnActiveOneTimeAction(function(){ SepiaFW.audio.playURL("sounds/setup.mp3"); }, "setup");
 		}
 	}
