@@ -478,43 +478,43 @@ function sepiaFW_build_embedded_services(){
 			"info": [{
 				"data": {
 					"date": "2019.10.19",
-					"icon48h": "rain",
 					"icon": "cloudy",
+					//"icon48h": "rain",
 					"dateTag": "Heute",
 					"units": "°",
-					"precipProb": 0,
+					//"precipRelative": 0,
 					"tagA": "jetzt",
 					"timeUNIX": 1571470348168,
-					"precipType": null,
-					"desc48h": "Den ganzen Tag lang überwiegend bewölkt",
+					//"precipType": null,
+					"desc": "Stark bewölkt",
+					//"desc48h": "Den ganzen Tag lang überwiegend bewölkt",
 					"place": "Berlin",
 					"time": "09",
 					"tempB": 15,
 					"tempC": 16,
 					"tagB": "13:00",
-					"desc": "Stark bewölkt",
 					"tempA": 12,
 					"tagC": "16:00"
 				},
 				"details": {
 					"hourly": [{
-						"timeUNIX": 1571472000000, "precipType": null,	"tag": "10:00",	"precipProb": 0, "tempA": 13
+						"timeUNIX": 1571472000000, "precipType": null,	"tag": "10:00",	"precipRelative": 0, "tempA": 13
 					}, {
-						"timeUNIX": 1571479200000, "precipType": null,	"tag": "12:00",	"precipProb": 0, "tempA": 14
+						"timeUNIX": 1571479200000, "precipType": null,	"tag": "12:00",	"precipRelative": 0, "tempA": 14
 					}, {
-						"timeUNIX": 1571486400000, "precipType": "rain", "tag": "14:00", "precipProb": 0.04, "tempA": 15
+						"timeUNIX": 1571486400000, "precipType": "rain", "tag": "14:00", "precipRelative": 0.04, "tempA": 15
 					}, {
-						"timeUNIX": 1571493600000, "precipType": "rain", "tag": "16:00", "precipProb": 0.03, "tempA": 16
+						"timeUNIX": 1571493600000, "precipType": "rain", "tag": "16:00", "precipRelative": 0.03, "tempA": 16
 					}, {
-						"timeUNIX": 1571500800000, "precipType": "rain", "tag": "18:00", "precipProb": 0.03, "tempA": 16
+						"timeUNIX": 1571500800000, "precipType": "rain", "tag": "18:00", "precipRelative": 0.03, "tempA": 16
 					}, {
-						"timeUNIX": 1571508000000, "precipType": "rain", "tag": "20:00", "precipProb": 0.16, "tempA": 14
+						"timeUNIX": 1571508000000, "precipType": "rain", "tag": "20:00", "precipRelative": 0.16, "tempA": 14
 					}, {
-						"timeUNIX": 1571515200000, "precipType": "rain", "tag": "22:00", "precipProb": 0.15, "tempA": 13
+						"timeUNIX": 1571515200000, "precipType": "rain", "tag": "22:00", "precipRelative": 0.15, "tempA": 13
 					}, {
-						"timeUNIX": 1571522400000, "precipType": "snow", "tag": "00:00", "precipProb": 0.11, "tempA": 12
+						"timeUNIX": 1571522400000, "precipType": "snow", "tag": "00:00", "precipRelative": 0.11, "tempA": 12
 					}, {
-						"timeUNIX": 1571529600000, "precipType": "snow", "tag": "02:00", "precipProb": 0.08, "tempA": 12
+						"timeUNIX": 1571529600000, "precipType": "snow", "tag": "02:00", "precipRelative": 0.08, "tempA": 12
 					}]
 				},
 				"type": "weatherNow"
