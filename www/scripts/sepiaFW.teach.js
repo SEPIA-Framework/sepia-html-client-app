@@ -311,10 +311,11 @@ function sepiaFW_build_teach(){
 	}
 
 	//parameter input help box pop-up
-	function showInputHelpPopup(title, value, assignFun, types, examples){
+	function showInputHelpPopup(title, value, assignFun, type, examples){
 		var $box = $('#sepiaFW-teachUI-input-helper');
 		var $input = $box.find(".sepiaFW-input-popup-value-1");
 		var $title = $box.find(".sepiaFW-input-popup-title");
+		var $examples = $box.find(".sepiaFW-input-popup-examples");
 		var $select = $box.find('.sepiaFW-input-popup-select-1');
 		var $note = $box.find('.sepiaFW-input-popup-note-1');
 		$note.html("").hide();
@@ -327,47 +328,59 @@ function sepiaFW_build_teach(){
 			$input.focus();
 		}, 0);
 		//convert value format
+		var isText = (type == "text");
 		value = value.trim();
-		if (value.indexOf("{") == 0){
-			$input.val(JSON.stringify(JSON.parse(value), undefined, 4));
-			$input[0].style.height = ($input[0].scrollHeight + 8 + "px");
-			$select.val(2);
-		}else if (value.indexOf("<i_raw>") == 0){
-			$input.val(value.replace(/^<i_raw>/, "").trim());
-			$input[0].style.height = "auto";
-			$select.val(3);
-		}else{
+		if (isText){
+			$box.find('.show-if-text').show();
+			$box.find('.show-if-default').hide();
 			$input.val(value);
 			$input[0].style.height = "auto";
-			$select.val(1);
+			$select.val(0);
+		}else{
+			$box.find('.show-if-text').hide();
+			$box.find('.show-if-default').show();
+			if (value.indexOf("{") == 0){
+				$input.val(JSON.stringify(JSON.parse(value), undefined, 4));
+				$input[0].style.height = ($input[0].scrollHeight + 8 + "px");
+				$select.val(2);
+			}else if (value.indexOf("<i_raw>") == 0){
+				$input.val(value.replace(/^<i_raw>/, "").trim());
+				$input[0].style.height = "auto";
+				$select.val(3);
+			}else{
+				$input.val(value);
+				$input[0].style.height = "auto";
+				$select.val(1);
+			}
 		}
 		$title.html("Select input type and enter value for parameter: <span>'" + title + "'</span>");
-		//TODO: add types
 		//TODO: add examples
 		$box.find(".sepiaFW-input-popup-confirm").off().on('click', function(){
 			//convert format
 			var value = $input.val().trim();
-			var typeSelected = $select.val();
-			var isJson = value.indexOf("{") == 0;
-			var isRaw = value.indexOf("<i_raw>") == 0;
-			//JSON
-			if (typeSelected == 2 && isJson){
-				value = JSON.stringify(JSON.parse(value));
-			}else if (typeSelected == 2 && !isJson){
-				$input.val(JSON.stringify({"value": value}, undefined, 4));
-				$input[0].style.height = ($input[0].scrollHeight + 8 + "px");
-				$note.html("The selected type requires a value in JSON format and has been converted. Please review the result.")
-					.show().fadeTo(150, 0.1).fadeTo(150, 1.0);
-				return;
-			}else if (isJson){
-				$note.html("The selected type does NOT allow a value in JSON format. Please change type or adjust value format.")
-					.show().fadeTo(150, 0.1).fadeTo(150, 1.0);
-				return;
-			//RAW
-			}else if (typeSelected == 3 && !isRaw){
-				value = "<i_raw>" + value.replace(/^<(.*?)>/, "$1 ").replace(/;;/g, " ").trim();
-			}else if (isRaw){
-				value = value.replace(/^<i_raw>/, "").trim();
+			if (!isText){
+				var typeSelected = $select.val();
+				var isJson = value.indexOf("{") == 0;
+				var isRaw = value.indexOf("<i_raw>") == 0;
+				//JSON
+				if (typeSelected == 2 && isJson){
+					value = JSON.stringify(JSON.parse(value));
+				}else if (typeSelected == 2 && !isJson){
+					$input.val(JSON.stringify({"value": value}, undefined, 4));
+					$input[0].style.height = ($input[0].scrollHeight + 8 + "px");
+					$note.html("The selected type requires a value in JSON format and has been converted. Please review the result.")
+						.show().fadeTo(150, 0.1).fadeTo(150, 1.0);
+					return;
+				}else if (isJson){
+					$note.html("The selected type does NOT allow a value in JSON format. Please change type or adjust value format.")
+						.show().fadeTo(150, 0.1).fadeTo(150, 1.0);
+					return;
+				//RAW
+				}else if (typeSelected == 3 && !isRaw){
+					value = "<i_raw>" + value.replace(/^<(.*?)>/, "$1 ").replace(/;;/g, " ").trim();
+				}else if (isRaw){
+					value = value.replace(/^<i_raw>/, "").trim();
+				}
 			}
 			assignFun(value);
 			closeInputHelpPopup();
@@ -382,7 +395,7 @@ function sepiaFW_build_teach(){
 	}
 	
 	//make parameter entry
-	function makeParameter(uiName, pName, isOptional, parentBlock){
+	function makeParameter(uiName, pName, isOptional, pType, pExamples, parentBlock){
 		var label = document.createElement('LABEL');
 		label.innerHTML = uiName;
 		var input = document.createElement('INPUT');
@@ -394,6 +407,11 @@ function sepiaFW_build_teach(){
 			label.className = "optional";
 			input.className += " optional";
 		}
+		if (!pType)	pType = "default";
+		//extra type CSS?
+		if (pType && pType == "text"){
+			input.className += " text-only";
+		}
 		$(parentBlock).append(label);
 		$(parentBlock).append(input);
 		//help popup
@@ -401,7 +419,7 @@ function sepiaFW_build_teach(){
 		$(input).off().on('click', function(){
 			showInputHelpPopup(pName, input.value, function(newVal){
 				input.value = newVal;
-			});
+			}, pType, pExamples);
 		});
 	}
 	//populate parameter input box
@@ -414,7 +432,7 @@ function sepiaFW_build_teach(){
 			var hasOptionals = false;
 			if ('parameters' in service && service.parameters.length > 0){
 				$.each(service.parameters, function(index, p){
-					makeParameter(p.name, p.value, p.optional, parameterBox[0]);
+					makeParameter(p.name, p.value, p.optional, p.type, p.examples, parameterBox[0]);
 					if (p.optional){
 						hasOptionals = true;
 					}
