@@ -972,15 +972,18 @@ function sepiaFW_build_ui_cards(){
 	}
 	function makeWeatherNowTmoSmallData(data){
 		var unitReduced = data.units.replace(/C|F/, "");
-		var dataHTML = "" 
-						+ "<div><h3>" + data.tempA + unitReduced + "</h3><p>" + data.tagA + "</p></div>"
-						+ "<div><h3>" + data.tempB + unitReduced + "</h3><p>" + data.tagB + "</p></div>";
-		if (data.tempC){
-			dataHTML += "<div><h3>" + data.tempC + unitReduced + "</h3><p>" + data.tagC + "</p></div>";
+		var dataHTML = "";
+		if (data.tempB == undefined && data.tempC == undefined){
+			if (data.tempA) dataHTML += "<div style='width:100%'><h3>" + data.tempA + data.units + "</h3><p>" + data.tagA + "</p></div>";
+		}else{
+			if (data.tempA) dataHTML += "<div><h3>" + data.tempA + unitReduced + "</h3><p>" + data.tagA + "</p></div>";
+			if (data.tempB) dataHTML += "<div><h3>" + data.tempB + unitReduced + "</h3><p>" + data.tagB + "</p></div>";
+			if (data.tempC) dataHTML += "<div><h3>" + data.tempC + unitReduced + "</h3><p>" + data.tagC + "</p></div>";
 		}
 		return dataHTML;
 	}
 	function makeWeatherNowTmoDetailsData(details, unit){
+		unit = unit.replace(/C|F/, "");
 		var data = details.daily || details.hourly || details.partsOfDay;
 		var isHourly = false;
 		if (details.hourly){
