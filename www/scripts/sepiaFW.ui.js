@@ -1154,12 +1154,12 @@ function sepiaFW_build_ui(){
 		}else{
 			$('#sepiaFW-popup-message-content').html(content);
 		}
-		$('#sepiaFW-cover-layer').fadeIn(150);
-		$('#sepiaFW-popup-message').fadeIn(300);
+		$('#sepiaFW-cover-layer').fadeIn(200);
+		//$('#sepiaFW-popup-message').fadeIn(300);
 	}
 	UI.hidePopup = function(){
-		$('#sepiaFW-popup-message').fadeOut(300);
-		$('#sepiaFW-cover-layer').fadeOut(300);
+		//$('#sepiaFW-popup-message').fadeOut(300);
+		$('#sepiaFW-cover-layer').fadeOut(200);
 	}
 
 	//Use pop-up to ask for permission

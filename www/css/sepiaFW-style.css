@@ -223,25 +223,6 @@ body {
 	margin-top: -50px;
 }
 
-#sepiaFW-popup-message {
-	position: absolute;
-	background: #111;
-	color: #eee;
-	border-radius: 3px;
-	min-height: 40px;
-	max-height: 85%;
-	width:80%;
-	max-width: 350px;
-	padding: 16px;
-	top: 40%;
-	left: 50%;
-	transform: translate(-50%, -45%);
-	text-align: center;
-	z-index: 90;
-	overflow: hidden;
-	display: flex;
-    flex-direction: column;
-}
 #sepiaFW-popup-message-content {
 	margin: 8px 0 12px 0;
 	flex: 1 1 auto;
@@ -250,7 +231,7 @@ body {
 	word-wrap: break-word;
 }
 #sepiaFW-popup-message-controls {
-	margin: 0px 0 0px 0;
+	margin: 4px 0 6px 0;
 	flex: 1 0 auto;
 }
 #sepiaFW-popup-message button {
@@ -298,17 +279,6 @@ body {
 	background: #444;
 }
 
-#sepiaFW-cover-layer {
-	display: none;
-	position: fixed;
-	background: rgba(255, 255, 255, 0.95);
-	top: 0px;
-	left: 0px;
-	width: 100%;
-	height: 100%;
-	z-index: 89;
-}
-
 .sepiaFW-popup-cover-layer {
 	position: fixed;
 	background: rgba(255, 255, 255, 0.95);
@@ -317,6 +287,10 @@ body {
 	width: 100%;
 	height: 100%;
 	z-index: 89;
+	display: flex;
+    justify-content: center;
+	align-items: center;
+	padding-bottom: 10%;
 }
 .sepiaFW-input-popup {
 	position: absolute;
@@ -324,13 +298,13 @@ body {
 	color: #eee;
 	border-radius: 3px;
 	min-height: 40px;
-	max-height: 85%;
+	max-height: 88%;
 	width:80%;
 	max-width: 350px;
 	padding: 16px;
-	top: 40%;
+	/*top: 40%;
 	left: 50%;
-	transform: translate(-50%, -45%);
+	transform: translate(-50%, -45%);*/
 	text-align: center;
 	z-index: 90;
 	overflow: hidden;
@@ -338,7 +312,7 @@ body {
     flex-direction: column;
 }
 .sepiaFW-input-popup div {
-	margin-bottom: 16px;
+	margin-bottom: 12px;
 }
 .sepiaFW-input-popup .sepiaFW-input-popup-title span {
 	color: #ceff1a;

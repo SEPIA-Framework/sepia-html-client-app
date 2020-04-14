@@ -30,6 +30,9 @@
 	white-space: pre;
     overflow-x: auto;
 }
+#sepiaFW-teachUI-view .sepiaFW-input-popup {
+    overflow-y: auto;
+}
 #sepiaFW-teachUI-view a {
 	color: #ceff1a;
 }

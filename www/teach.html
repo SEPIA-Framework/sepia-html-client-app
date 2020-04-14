@@ -57,21 +57,26 @@
 	</div>
 </div>
 <!-- Input helper -->
-<div id="sepiaFW-teachUI-input-helper-cover" class="sepiaFW-popup-cover-layer" style="display: none;"></div>
-<div id="sepiaFW-teachUI-input-helper" class="sepiaFW-input-popup" style="display: none;">
-	<p class="sepiaFW-input-popup-title">Select your input type and enter value:</p>
-	<div class="sepiaFW-input-popup-examples" style="display: none;">Examples: TBD</div>
-	<div class="sepiaFW-input-popup-select-box"><label>Type:</label><select class="sepiaFW-input-popup-select-1">
-		<option value=0 class="show-if-text" style="display: none;">Text</option>
-		<option value=1 class="show-if-default">Extracted</option>
-		<option value=2 class="show-if-default">Processed</option>
-		<option value=3 class="show-if-default">Raw</option>
-	</select></div>
-	<div><textarea class="sepiaFW-input-popup-value-1"></textarea></div>
-	<div class="sepiaFW-input-popup-note-1" style="display:none;"></div>
-	<div>
-		<button class="sepiaFW-input-popup-confirm">Confirm</button>
-		<button class="sepiaFW-input-popup-abort">Abort</button>
+<div id="sepiaFW-teachUI-input-helper-cover" class="sepiaFW-popup-cover-layer" style="display: none;">
+	<div id="sepiaFW-teachUI-input-helper" class="sepiaFW-input-popup">
+		<div>
+			<p class="sepiaFW-input-popup-title">Select your input type and enter value:</p>
+			<div class="sepiaFW-input-popup-select-box"><label>Type:</label><select class="sepiaFW-input-popup-select-1">
+				<option value=0 class="show-if-text" style="display: none;">Text</option>
+				<option value=1 class="show-if-default">Extracted</option>
+				<option value=2 class="show-if-default">Processed</option>
+				<option value=3 class="show-if-default">Raw</option>
+			</select></div>
+			<div class="sepiaFW-input-popup-examples" style="display: none;">Examples: TBD</div>
+		</div>
+		<div>
+			<div><textarea class="sepiaFW-input-popup-value-1" placeholder="Input"></textarea></div>
+			<div class="sepiaFW-input-popup-note-1" style="display:none;"></div>
+		</div>
+		<div style="margin-bottom: 8px;">
+			<button class="sepiaFW-input-popup-confirm">Confirm</button>
+			<button class="sepiaFW-input-popup-abort">Abort</button>
+		</div>
 	</div>
 </div>
 <!-- Navigation -->

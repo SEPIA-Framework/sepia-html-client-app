@@ -106,7 +106,11 @@ function sepiaFW_build_teach(){
 					,
 				parameters : [{
 					value : "reply",
-					name : "and says ..."
+					name : "and says ...",
+					type : "text",
+					examples : {
+						"0" : ["Hello world :-)"]
+					}
 				}]
 			}
 		};
@@ -120,11 +124,29 @@ function sepiaFW_build_teach(){
 					help: "To use the Teach-UI please connect to your SEPIA server.",
 					parameters: [{
 						value : "required",
-						name : "A required parameter"
+						name : "A required parameter (yes, no)",
+						examples : {
+							"1" : ["&lt;yes&gt;", "&lt;no&gt;"],
+							"2" : [{"value": "yes", "value_local": "Ja"}],
+							"3" : ["of cause", "never"]
+						}
 					},{
 						value : "optional",
-						name : "An optional parameter",
-						optional : true
+						name : "An optional parameter (more info)",
+						optional : true,
+						examples : {
+							"1" : ["&lt;type_a&gt;", "&lt;type_b&gt;", "&lt;setting&gt;;;C"],
+							"2" : [	
+									{"value": "type_A", "value_local": "local name for type A value"},
+									{"value": "type_B", "value_local": "local name for type B"}
+								  ],
+							"3" : ["type A", "the property B", "my configuration C"]
+						}
+					},{
+						value : "optional",
+						name : "An optional reply",
+						optional : true,
+						type : "text"
 					}]
 				}
 			}, defaultServices);
@@ -320,10 +342,8 @@ function sepiaFW_build_teach(){
 		var $note = $box.find('.sepiaFW-input-popup-note-1');
 		$note.html("").hide();
 		$input[0].style.height = "auto";
-		//$('#sepiaFW-teachUI-input-helper-cover').fadeIn(200);
-		$('#sepiaFW-teachUI-input-helper-cover').show();
-		//$box.fadeIn(300);
-		$box.show();
+		$('#sepiaFW-teachUI-input-helper-cover').fadeIn(200);
+		//$('#sepiaFW-teachUI-input-helper-cover').show();
 		setTimeout(function(){
 			$input.focus();
 		}, 0);
@@ -354,7 +374,12 @@ function sepiaFW_build_teach(){
 			}
 		}
 		$title.html("Select input type and enter value for parameter: <span>'" + title + "'</span>");
-		//TODO: add examples
+		//add examples
+		addInputHelpExample(examples, $select.val(), $examples);
+		$select.off().on('change', function(){
+			addInputHelpExample(examples, $select.val(), $examples);
+		});
+		//confirm
 		$box.find(".sepiaFW-input-popup-confirm").off().on('click', function(){
 			//convert format
 			var value = $input.val().trim();
@@ -389,9 +414,41 @@ function sepiaFW_build_teach(){
 			closeInputHelpPopup();
 		});
 	}
+	function addInputHelpExample(examples, type, $examples){
+		type = (type + "").trim();
+		$examples.html("<label style='cursor: pointer;'>Examples (...)</label>");
+		if (examples && examples[type] && examples[type].length > 0){
+			var exBox = document.createElement("div");
+			exBox.style.display = "flex";
+			if (type == "2"){
+				exBox.style.flexDirection = "column";
+			}else{
+				exBox.style.justifyContent = "space-around";
+			}
+			exBox.style.flexWrap = "wrap";
+			exBox.style.overflow = "auto";
+			var $exBox = $(exBox);
+			examples[type].forEach(function(ex){
+				if (type == "2"){
+					ex = JSON.stringify(ex, undefined, 4);
+					$exBox.append("<span style='margin: 8px; max-width: 100%; text-align: left; white-space: pre;'>" + ex + "</span>");
+				}else{
+					$exBox.append("<span style='margin: 8px 4px 0 4px; max-width: 100%;'>" + ex + "</span>");
+				}
+			});
+			$examples.append(exBox);
+			$exBox.hide();
+			$examples.off().on('click', function(){
+				$exBox.toggle(200);
+			});
+			$examples.show();
+		}else{
+			$examples.hide();
+		}
+	}
 	function closeInputHelpPopup(){
-		$('#sepiaFW-teachUI-input-helper-cover').hide();
-		$('#sepiaFW-teachUI-input-helper').hide();
+		//$('#sepiaFW-teachUI-input-helper-cover').hide();
+		$('#sepiaFW-teachUI-input-helper-cover').fadeOut(200);
 	}
 	
 	//make parameter entry
