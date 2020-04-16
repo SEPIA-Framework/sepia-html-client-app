@@ -12,6 +12,7 @@ function sepiaFW_build_teach(){
 	var loadAtOnce = 10;
 	var services;
 	var defaultServices;
+	var parameterCommons;
 
 	var customButtonShowState = false;
 
@@ -154,8 +155,19 @@ function sepiaFW_build_teach(){
 		}else{
 			Teach.loadTeachUiServices(SepiaFW.account.getKey(), function(servicesJson){
 				//success
-				services = servicesJson;
-				if (successCallback) successCallback(services);
+				if (servicesJson){
+					if (servicesJson.commands){
+						services = servicesJson.commands;
+						parameterCommons = servicesJson.parameter_commons;
+					}else{
+						services = servicesJson;	//old version
+						parameterCommons = {};
+					}
+					if (successCallback) successCallback(services);
+				}else{
+					//error
+					if (errorCallback) errorCallback("services result was empty.");	
+				}
 			}, function(msg){
 				//error
 				if (errorCallback) errorCallback(msg);
@@ -185,6 +197,7 @@ function sepiaFW_build_teach(){
 				//fail ... notify and load a basic set
 				SepiaFW.ui.showPopup('Could not load services list from server :-( - Using default set!');
 				services = defaultServices;
+				parameterCommons = {};
 				Teach.setup(finishCallback);
 			});
 			return;
@@ -333,7 +346,7 @@ function sepiaFW_build_teach(){
 	}
 
 	//parameter input help box pop-up
-	function showInputHelpPopup(title, value, assignFun, type, examples){
+	function showInputHelpPopup(paramName, value, assignFun, type, examples){
 		var $box = $('#sepiaFW-teachUI-input-helper');
 		var $input = $box.find(".sepiaFW-input-popup-value-1");
 		var $title = $box.find(".sepiaFW-input-popup-title");
@@ -373,7 +386,7 @@ function sepiaFW_build_teach(){
 				$select.val(1);
 			}
 		}
-		$title.html("Select input type and enter value for parameter: <span>'" + title + "'</span>");
+		$title.html("<label>'" + paramName + "'</label><p>Select your input type and enter value</p>");
 		//add examples
 		addInputHelpExample(examples, $select.val(), $examples);
 		$select.off().on('change', function(){
@@ -416,29 +429,34 @@ function sepiaFW_build_teach(){
 	}
 	function addInputHelpExample(examples, type, $examples){
 		type = (type + "").trim();
-		$examples.html("<label style='cursor: pointer;'>Examples (...)</label>");
+		var exLabel = document.createElement('label');
+		var exTag = (type == "0")? "Info " : "Examples ";
+		exLabel.innerHTML = exTag + "<i class='material-icons md-inherit'>play_circle_outline</i></label>";
+		$examples.html(exLabel);
 		if (examples && examples[type] && examples[type].length > 0){
 			var exBox = document.createElement("div");
-			exBox.style.display = "flex";
 			if (type == "2"){
 				exBox.style.flexDirection = "column";
 			}else{
 				exBox.style.justifyContent = "space-around";
 			}
-			exBox.style.flexWrap = "wrap";
-			exBox.style.overflow = "auto";
 			var $exBox = $(exBox);
 			examples[type].forEach(function(ex){
 				if (type == "2"){
 					ex = JSON.stringify(ex, undefined, 4);
-					$exBox.append("<span style='margin: 8px; max-width: 100%; text-align: left; white-space: pre;'>" + ex + "</span>");
+					$exBox.append("<span class='parameter-example json'>" + ex + "</span>");
 				}else{
-					$exBox.append("<span style='margin: 8px 4px 0 4px; max-width: 100%;'>" + ex + "</span>");
+					$exBox.append("<span class='parameter-example'>" + ex + "</span>");
 				}
 			});
 			$examples.append(exBox);
-			$exBox.hide();
-			$examples.off().on('click', function(){
+			if ($examples.hasClass("open")){
+				$exBox.show();
+			}else{
+				$exBox.hide();
+			}
+			$(exLabel).on('click', function(){
+				$examples.toggleClass("open");
 				$exBox.toggle(200);
 			});
 			$examples.show();

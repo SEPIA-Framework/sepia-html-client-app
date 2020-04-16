@@ -26,13 +26,6 @@
 #sepiaFW-teachUI-view label.optional {
 	display: none;
 }
-#sepiaFW-teachUI-view .sepiaFW-input-popup textarea {
-	white-space: pre;
-    overflow-x: auto;
-}
-#sepiaFW-teachUI-view .sepiaFW-input-popup {
-    overflow-y: auto;
-}
 #sepiaFW-teachUI-view a {
 	color: #ceff1a;
 }
@@ -216,4 +209,49 @@
 
 #sepiaFW-teach-custom-button-select {
 	cursor: pointer;
+}
+
+/* --- Parameter input pop-up --- */
+
+#sepiaFW-teachUI-view .sepiaFW-input-popup textarea {
+	white-space: pre;
+    overflow-x: auto;
+}
+#sepiaFW-teachUI-view .sepiaFW-input-popup {
+    overflow-y: auto;
+}
+#sepiaFW-teachUI-view .sepiaFW-input-popup label {
+	font-size: 16px;
+}
+#sepiaFW-teachUI-view .sepiaFW-input-popup-title label {
+	display: inline-block;
+	font-weight: bold;
+}
+#sepiaFW-teachUI-view .sepiaFW-input-popup-examples > div {
+	display: flex;
+	margin-top: 12px;
+    flex-wrap: wrap;
+    overflow: auto;
+}
+#sepiaFW-teachUI-view .sepiaFW-input-popup-examples .parameter-example {
+    margin: 8px;
+	max-width: 100%;
+	padding: 4px 6px;
+	background: #eee;
+	color: #222;
+	border-radius: 8px;
+}
+#sepiaFW-teachUI-view .sepiaFW-input-popup-examples .parameter-example.json {
+	text-align: left;
+	white-space: pre;
+	padding: 8px;
+}
+#sepiaFW-teachUI-view .sepiaFW-input-popup-examples > label {
+	cursor: pointer;
+}
+#sepiaFW-teachUI-view .sepiaFW-input-popup-examples > label > i {
+	transition: transform .2s ease-in-out;
+}
+#sepiaFW-teachUI-view .sepiaFW-input-popup-examples.open > label > i {
+	transform: rotate(90deg);
 }

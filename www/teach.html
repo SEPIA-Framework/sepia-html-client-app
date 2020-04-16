@@ -60,17 +60,19 @@
 <div id="sepiaFW-teachUI-input-helper-cover" class="sepiaFW-popup-cover-layer" style="display: none;">
 	<div id="sepiaFW-teachUI-input-helper" class="sepiaFW-input-popup">
 		<div>
-			<p class="sepiaFW-input-popup-title">Select your input type and enter value:</p>
+			<div class="sepiaFW-input-popup-title"><h3>'parameter'</h3><p>Select your input type and enter value</p></div>
 			<div class="sepiaFW-input-popup-select-box"><label>Type:</label><select class="sepiaFW-input-popup-select-1">
 				<option value=0 class="show-if-text" style="display: none;">Text</option>
 				<option value=1 class="show-if-default">Extracted</option>
 				<option value=2 class="show-if-default">Processed</option>
 				<option value=3 class="show-if-default">Raw</option>
 			</select></div>
-			<div class="sepiaFW-input-popup-examples" style="display: none;">Examples: TBD</div>
+			<div class="sepiaFW-input-popup-examples" style="display: none;"><!-- dynamic --></div>
 		</div>
 		<div>
-			<div><textarea class="sepiaFW-input-popup-value-1" placeholder="Input"></textarea></div>
+			<div><textarea class="sepiaFW-input-popup-value-1" placeholder="Value" 
+				onkeydown="if(event.keyCode===9){var v=this.value,s=this.selectionStart,e=this.selectionEnd;this.value=v.substring(0, s)+'\t'+v.substring(e);this.selectionStart=this.selectionEnd=s+1;return false;}">
+			</textarea></div>
 			<div class="sepiaFW-input-popup-note-1" style="display:none;"></div>
 		</div>
 		<div style="margin-bottom: 8px;">
