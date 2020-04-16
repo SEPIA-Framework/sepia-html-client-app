@@ -257,6 +257,10 @@ html {
 .sepiaFW-cards-list-body .weatherNowSmall .weatherNowSmallImage {
 	background: linear-gradient(to right, #3ba57e 0%, #279285 100%);
 }
+.sepiaFW-cards-list-body .weatherNowDetails li {
+	background: linear-gradient(to right, #0d6371 0%, #107c8d 100%);
+    color: #f6f6f4;
+}
 
 /*----- teachUI -----*/
 

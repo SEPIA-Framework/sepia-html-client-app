@@ -211,6 +211,10 @@ html {
 	background:rgba(255, 255, 255, 0.11);
 }
 
+#sepiaFW-popup-message i {
+    color: #85a8c9;
+}
+
 /*----- cards ------*/
 
 .sepiaFW-cards-flexSize-container {
@@ -250,6 +254,10 @@ html {
 .sepiaFW-cards-list-body .weatherNowSmall .weatherNowSmallImage {
 	background: #BAB5A4;
 }
+.sepiaFW-cards-list-body .weatherNowDetails li {
+	background: #ededed;
+    color: #222;
+}
 
 /*----- teachUI -----*/
 
@@ -261,10 +269,10 @@ html {
     background: #1F252A;
 }
 #sepiaFW-teachUI-view label {
-    color: #ceff1a;
+    color: #85a8c9;
 }
 #sepiaFW-teachUI-editor button, 
 #sepiaFW-teachUI-manager button {
-    background: #c4ff3e !important;
+    background: #c4ff64 !important;
     color: #333 !important;
 }

@@ -263,6 +263,10 @@ html {
 	background:rgba(255, 255, 255, 0.11);
 }
 
+#sepiaFW-popup-message i {
+    color: #f23352;
+}
+
 /*----- cards ------*/
 
 .sepiaFW-cards-flexSize-container {
@@ -343,7 +347,7 @@ html {
     background: #111111;
 }
 #sepiaFW-teachUI-view label {
-    color: #bc263e;
+    color: #f23352;
 }
 #sepiaFW-teachUI-editor button, 
 #sepiaFW-teachUI-manager button {

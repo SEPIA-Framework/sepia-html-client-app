@@ -324,6 +324,10 @@ html {
 .sepiaFW-cards-list-body .weatherNowSmall .weatherNowSmallImage {
 	background: #0CCE6B;
 }
+.sepiaFW-cards-list-body .weatherNowDetails li {
+    background: #191919;
+    color: #F4F4F4;
+}
 .sepiaFW-cards-list-title.newsHeader {
     background: #F4F4F4;
 	color: #040404;

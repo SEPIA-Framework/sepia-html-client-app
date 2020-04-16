@@ -230,6 +230,10 @@ html {
 	background:rgba(255, 255, 255, 0.11);
 }
 
+#sepiaFW-popup-message i {
+    color: #008fff;
+}
+
 /*----- cards ------*/
 
 /* TODO: try reducing the inner margins each by 1px */
@@ -290,10 +294,10 @@ html {
     background: #1b1e20;
 }
 #sepiaFW-teachUI-view label {
-    color: #ceff1a;
+    color: #008fff;
 }
 #sepiaFW-teachUI-editor button, 
 #sepiaFW-teachUI-manager button {
-    background: #c4ff3e !important;
-    color: #333 !important;
+    background: #0067b8 !important;
+    color: #fff !important;
 }
