@@ -1422,7 +1422,13 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 		var isSafeMsg = false;		//a safe message is a message sent by an assistant to the user specifically or in a private channel
 		
 		var type = msg.senderType;
-		var text = (isAssistMsg)? msg.data.assistAnswer.answer : msg.text;
+		var text; 
+		if (isAssistMsg){
+			text = msg.data.assistAnswer.answer;
+			if (text) text = SepiaFW.tools.escapeHtml(text); 		//we better escape this ... 'cause the server won't
+		}else{
+			text = msg.text;
+		}
 		var sender = msg.sender;
 		var senderName = SepiaFW.account.contacts.getNameOfUser(sender) || "";
 		var senderText = (senderName)? senderName : sender;
@@ -1510,7 +1516,7 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 				+ "<span class='timestamp'>" + time + "</span>";
 			msgArticle.className = classes;
 			msgArticle.innerHTML = ""
-				+ "<p>" + text + "</p>";
+				+ "<p>" + text + "</p>";		//NOTE: the server will deliver 'text' as HTML escaped string UNLESS its from the assistant data object (then we escape above)
 			
 			msgArticle.insertBefore(msgHead, msgArticle.childNodes[0]);	
 			block.appendChild(msgArticle);
@@ -1520,7 +1526,7 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 				//different available options:
 				var copyTextButton = {
 					inputLabelOne: "Text",
-					inputOneValue: text,
+					inputOneValue: SepiaFW.tools.unescapeHtml(text),		//since this is escaped we need to convert it back
 					buttonOneName: "Copy text",
 					buttonOneAction: function(btn, v1, v2, inputEle1, ie2){
 						//select text and copy
@@ -1565,7 +1571,7 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 				//short-press
 			},function(){
 				//double-tab - copy text to input
-				$('#sepiaFW-chat-input').val(text);
+				$('#sepiaFW-chat-input').val(SepiaFW.tools.unescapeHtml(text));		//escaped text ...
 			}, true);
 
 			//add copy-text-button
@@ -1659,6 +1665,7 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 	Build.statusMessage = function(msg, username, isErrorMessage, alwaysShow){
 		var type = msg.senderType;
 		var text = msg.text;
+		if (text) text = text.replace(/<assistant_name>|\&lt;assistant_name\&gt;/ig, SepiaFW.assistant.name);		//TODO: collect these replacements in a central place
 		var sender = msg.sender;
 		var senderName = SepiaFW.account.contacts.getNameOfUser(sender) || "";
 		var senderText = (senderName)? senderName : sender;
@@ -1696,7 +1703,7 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 
 		var articleText = document.createElement('span');
 		articleText.className = 'status';
-		articleText.innerHTML = text;
+		articleText.innerHTML = text;			//NOTE: the server will deliver 'text' as HTML escaped string
 		article.appendChild(articleText);
 
 		var articleTimestamp = document.createElement('span');
