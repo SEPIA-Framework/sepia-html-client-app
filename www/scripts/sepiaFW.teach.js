@@ -1,5 +1,5 @@
 //Teach UI
-function sepiaFW_build_teach(){
+function sepiaFW_build_teach(sepiaSessionId){
 	var Teach = {};
 	
 	//some states
@@ -48,7 +48,7 @@ function sepiaFW_build_teach(){
 					$('#sepiaFW-teach-commands').val("");
 					//load command via ID?
 					if (info.commandId){
-						SepiaFW.teach.loadPersonalCommandsWithIds(SepiaFW.account.getKey(), [info.commandId], 
+						SepiaFW.teach.loadPersonalCommandsWithIds(SepiaFW.account.getKey(sepiaSessionId), [info.commandId], 
 							function(data){
 								//result should be exactly one entry
 								if (data.result && data.result.length == 1){
@@ -153,7 +153,7 @@ function sepiaFW_build_teach(){
 			}, defaultServices);
 			if (successCallback) successCallback(services);
 		}else{
-			Teach.loadTeachUiServices(SepiaFW.account.getKey(), function(servicesJson){
+			Teach.loadTeachUiServices(SepiaFW.account.getKey(sepiaSessionId), function(servicesJson){
 				//success
 				if (servicesJson){
 					if (servicesJson.commands){
@@ -264,7 +264,7 @@ function sepiaFW_build_teach(){
 				if (!submitData){
 					return;
 				}
-				Teach.submitPersonalCommand(SepiaFW.account.getKey(), submitData, function(){
+				Teach.submitPersonalCommand(SepiaFW.account.getKey(sepiaSessionId), submitData, function(){
 					//success
 					SepiaFW.ui.showPopup('New command has been stored! :-)');
 				}, function(msg){
@@ -316,7 +316,7 @@ function sepiaFW_build_teach(){
 			$('#sepiaFW-teachUI-load-commands').on('click', function(){
 				var startingFrom = 0;
 				nextStartingFrom = 10;
-				Teach.loadPersonalCommands(SepiaFW.account.getKey(), startingFrom, loadAtOnce, function(data){
+				Teach.loadPersonalCommands(SepiaFW.account.getKey(sepiaSessionId), startingFrom, loadAtOnce, function(data){
 					//success
 					buildPersonalCommandsResult(data.result, true);
 					//console.log(JSON.stringify(data));
@@ -330,7 +330,7 @@ function sepiaFW_build_teach(){
 			$('#sepiaFW-teachUI-load-more-commands').on('click', function(){
 				var startingFrom = nextStartingFrom;
 				nextStartingFrom += 10;
-				Teach.loadPersonalCommands(SepiaFW.account.getKey(), startingFrom, loadAtOnce, function(data){
+				Teach.loadPersonalCommands(SepiaFW.account.getKey(sepiaSessionId), startingFrom, loadAtOnce, function(data){
 					//success
 					buildPersonalCommandsResult(data.result, false);
 					//console.log(JSON.stringify(data));
@@ -441,6 +441,13 @@ function sepiaFW_build_teach(){
 				exBox.style.justifyContent = "space-around";
 			}
 			var $exBox = $(exBox);
+			//examples for 'all'
+			if (examples['all']){
+				examples['all'].forEach(function(ex){
+					$exBox.append("<span class='parameter-example'>" + ex + "</span>");
+				});
+			}
+			//examples for types
 			examples[type].forEach(function(ex){
 				if (type == "2"){
 					ex = JSON.stringify(ex, undefined, 4);
@@ -507,7 +514,13 @@ function sepiaFW_build_teach(){
 			var hasOptionals = false;
 			if ('parameters' in service && service.parameters.length > 0){
 				$.each(service.parameters, function(index, p){
-					makeParameter(p.name, p.value, p.optional, p.type, p.examples, parameterBox[0]);
+					var pAlias = (p.alias? parameterCommons[p.alias] : {}) || {};
+					var pValue = p.value || pAlias.value;
+					var pName = p.name || pAlias.name;
+					var pType = p.type || pAlias.type;
+					var pExamples = p.examples || pAlias.examples;
+					var isOptional = p.optional;
+					makeParameter(pName, pValue, isOptional, pType, pExamples, parameterBox[0]);
 					if (p.optional){
 						hasOptionals = true;
 					}
@@ -596,7 +609,7 @@ function sepiaFW_build_teach(){
 						//on remove click
 						SepiaFW.animate.flashObj(this);
 						var cmdId = card.dataset.id;
-						Teach.removePersonalCommand(SepiaFW.account.getKey(), cmdId, function(){
+						Teach.removePersonalCommand(SepiaFW.account.getKey(sepiaSessionId), cmdId, function(){
 							//success
 							//SepiaFW.ui.showPopup('This personal command has been deleted!');
 							$(card).fadeOut(300, function(){
@@ -686,12 +699,14 @@ function sepiaFW_build_teach(){
 		submit.environment = env;
 		submit.language = language;
 		submit.user_location = userLocation || "";
+		//Check dynamic variables: <var1>, <var2> is only for 'sentence_connect' BUT <i_raw> is ok for all!
 		if (!!txt.match(/<\w+>/)){
 			//we allow this currently only for sentence_connect - TODO: add more
 			if (cmd == "sentence_connect"){
 				submit.sentence = txt;
 				submit.tagged_sentence = txt;
 			}else{
+				SepiaFW.debug.error("Teach-UI - tried to use <...> in a command that didn't allow it.");
 				submit.sentence = '';
 				submit.tagged_sentence = txt;
 			}
@@ -721,10 +736,14 @@ function sepiaFW_build_teach(){
 				var value = $(this).val() || "";
 				if (value){
 					//treat some special parameters:
-					if (name === 'sentences'){
-						value = value.replace(/(\.|;)\s/g, " && ");
+					if (name === 'sentences' && value.indexOf("&&") < 0){
+						//NOTE: we convert this in advance, because its safer and faster
+						value = value
+							.replace("<i_raw>", "")
+							.replace(/(\.|;;|;|\?)\s/g, " && ")
+							.replace(/ \&\& $/, "").trim();
+						SepiaFW.debug.log("Teach-UI - note: replaced some tokens with '&&' in 'sentences' parameter for: " + value);
 					}
-					//parameters["<" + name + ">"] = value; 		//we should really not do this! Lets see if it still works
 					parameters[name] = value;
 				}
 			}

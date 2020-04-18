@@ -161,6 +161,10 @@ function sepiaFW_build_strings(){
 	StringsDE.createdChannel = 'Neuer Kanal wurde erfolgreich erstellt';
 	StringsDE.joinedChannel = 'Du bist erfolgreich einem neuen Kanal beigetreten';
 	StringsDE.deletedChannel = 'Der Kanal wurde erfolgreich gelöscht';
+	//Views
+	StringsDE.view_home = "Home Screen";
+	StringsDE.view_chat = "Chat";
+	StringsDE.view_extended_results = "SEPIA Service Infos";
 	
 	//ENGLISH
 	StringsEN.welcome = 'Welcome';
@@ -318,6 +322,10 @@ function sepiaFW_build_strings(){
 	StringsEN.createdChannel = 'You have successfully created a new channel';
 	StringsEN.joinedChannel = 'You have successfully joined a new channel';
 	StringsEN.deletedChannel = 'You have successfully deleted the channel';
+	//Views
+	StringsEN.view_home = "Home Screen";
+	StringsEN.view_chat = "Chat";
+	StringsEN.view_extended_results = "SEPIA service info";
 
 	//--------------------------------------------------------
 	
