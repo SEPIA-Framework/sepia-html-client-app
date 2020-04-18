@@ -7,9 +7,13 @@
 	border-radius: 0px;
 	background: rgba(128,128,128,0.24);
 }
+.sepiaFW-notouch-device ::-webkit-scrollbar-thumb:hover {
+	background: rgba(128,128,128,0.50);
+}
 * {
     box-sizing: border-box;
 	-webkit-tap-highlight-color: transparent;
+	scrollbar-width: thin;
 }
 
 /* Google material icon sizes: */
