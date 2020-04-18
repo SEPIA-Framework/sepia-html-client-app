@@ -1,5 +1,5 @@
 //AUDIO PLAYER
-function sepiaFW_build_audio(){
+function sepiaFW_build_audio(sepiaSessionId){
 	var AudioPlayer = {};
 	var Stream = {};
 	var TTS = {};			//TTS parameters for SepiaFW external TTS like Acapela. I've tried to seperate TTS and AudioPlayer as good as possible, but there might be some bugs using both
@@ -273,6 +273,7 @@ function sepiaFW_build_audio(){
 			}else if (audioUrl.indexOf("tts") == 0){
 				audioUrl = SepiaFW.config.assistAPI + audioUrl;
 			}
+			console.log(audioUrl);
 			AudioPlayer.playURL(audioUrl, speaker, onStartCallback, onEndCallback, onErrorCallback);
 		}, onErrorCallback);		
 	}
@@ -559,7 +560,7 @@ function sepiaFW_build_audio(){
 			playOn: TTS.playOn,		//check play on server 
 			format: TTS.format		//sound format (e.g. wav file)
 		};
-		submitData.KEY = SepiaFW.account.getKey();
+		submitData.KEY = SepiaFW.account.getKey(sepiaSessionId);
 		submitData.client = SepiaFW.config.getClientDeviceInfo();
 		submitData.env = SepiaFW.config.environment;
 

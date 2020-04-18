@@ -1,4 +1,4 @@
-function sepiaFW_build_ui_custom_buttons(){
+function sepiaFW_build_ui_custom_buttons(sepiaSessionId){
     var CustomButtons = {};
 
     var customButtonObjects = [];
@@ -35,7 +35,7 @@ function sepiaFW_build_ui_custom_buttons(){
             var withButtonOnly = true;
             var startingFrom = 0;
             //TODO / NOTE: if we knew all command IDs (stored in each button data), we could load those specifically and even in right order!
-            SepiaFW.teach.loadPersonalCommands(SepiaFW.account.getKey(), startingFrom, CustomButtons.maxButtonsToLoad, function(data){
+            SepiaFW.teach.loadPersonalCommands(SepiaFW.account.getKey(sepiaSessionId), startingFrom, CustomButtons.maxButtonsToLoad, function(data){
                 //success
                 var res = data.result;
                 customButtonObjects = [];

@@ -1,5 +1,5 @@
 //WEBSOCKET CHANNELS
-function sepiaFW_build_webSocket_channels(){
+function sepiaFW_build_webSocket_channels(sepiaSessionId){
 	var Channels = {};
 
 	//Create new channel
@@ -197,7 +197,7 @@ function sepiaFW_build_webSocket_channels(){
 		SepiaFW.ui.showLoader();
 		var apiUrl = SepiaFW.config.webSocketAPI + endpoint;
 		var dataBody = requestBody || new Object();
-		dataBody.KEY = SepiaFW.account.getKey();
+		dataBody.KEY = SepiaFW.account.getKey(sepiaSessionId);
 		dataBody.client = SepiaFW.config.getClientDeviceInfo();
 		$.ajax({
 			url: apiUrl,

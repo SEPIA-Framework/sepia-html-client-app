@@ -1,5 +1,5 @@
 //ACCOUNT - Login, logout, login-popup etc. ...	
-function sepiaFW_build_account(){
+function sepiaFW_build_account(sepiaSessionId){
 	var Account = {};
 	
 	var userId = "";
@@ -195,11 +195,24 @@ function sepiaFW_build_account(){
 		return userName;
 	}
 	//get key
-	Account.getKey = function(){
+	Account.getKey = function(sessionId){
+		if (sessionId != sepiaSessionId){
+			console.error("A function requested the login key with WRONG session ID! Request was refused.");
+			alert("A function requested the login key with WRONG session ID! Request was refused.");
+			return "";
+		}
+		return getKey();
+	}
+	function getKey(){
 		return (userId + ";" + userToken);
 	}
 	//get token
-	Account.getToken = function(){
+	Account.getToken = function(sessionId){
+		if (sessionId != sepiaSessionId){
+			console.error("A function requested the login token with WRONG session ID! Request was refused.");
+			alert("A function requested the login token with WRONG session ID! Request was refused.");
+			return "";
+		}
 		return userToken;
 	}
 	//get language
@@ -802,9 +815,9 @@ function sepiaFW_build_account(){
 		//try logout - fails silently (low prio, good idea???)
 		if (userId && userToken){
 			if (logoutAll){
-				Account.logoutAll(Account.getKey(), onLogoutSuccess, onLogoutFail, onLogoutDebug);
+				Account.logoutAll(getKey(), onLogoutSuccess, onLogoutFail, onLogoutDebug);
 			}else{
-				Account.logout(Account.getKey(), onLogoutSuccess, onLogoutFail, onLogoutDebug);
+				Account.logout(getKey(), onLogoutSuccess, onLogoutFail, onLogoutDebug);
 			}
 		}else{
 			Account.finishedLogoutActionSection('Server-logout', true);
@@ -982,7 +995,7 @@ function sepiaFW_build_account(){
 			type: "oldPassword",
 			authKey: data.authKey
 		}
-		authApiCall("requestPasswordChange", Account.getKey(), requestBody, successCallback, errorCallback, debugCallback);
+		authApiCall("requestPasswordChange", getKey(), requestBody, successCallback, errorCallback, debugCallback);
 	}
 	Account.changePassword = function(data, successCallback, errorCallback, debugCallback){
 		authApiCall("changePassword", '', data, successCallback, errorCallback, debugCallback);
@@ -1092,7 +1105,7 @@ function sepiaFW_build_account(){
 		if (key){
 			data.KEY = key;
 		}else if (userId && userToken){
-			data.KEY = Account.getKey();
+			data.KEY = getKey();
 		}else{
 			if (errorCallback) errorCallback("Data transfer failed! Not authorized or missing 'KEY'");
 			return;

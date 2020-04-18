@@ -1,5 +1,5 @@
 //BUILD - code blocks to build dynamic objects of the app
-function sepiaFW_build_ui_build(){
+function sepiaFW_build_ui_build(sepiaSessionId){
 	var Build = {};
 
 	//build spacer
@@ -700,7 +700,7 @@ function sepiaFW_build_ui_build(){
 									triedLogin = true;
 									var loginEvent = {
 										uid: SepiaFW.account.getUserId(),
-										keyToken: SepiaFW.account.getToken(),
+										keyToken: SepiaFW.account.getToken(sepiaSessionId),
 										user_lang_code: SepiaFW.account.getLanguage(),
 										clientInfo: SepiaFW.config.getClientDeviceInfo(),
 										apiURL: SepiaFW.config.host

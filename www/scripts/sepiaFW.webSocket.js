@@ -250,7 +250,7 @@ function sepiaFW_build_webSocket_common(){
 	return Common;
 }
 
-function sepiaFW_build_webSocket_client(){
+function sepiaFW_build_webSocket_client(sepiaSessionId){
 	var Client = {};
 	
 	//----DEBUG----
@@ -1303,11 +1303,11 @@ function sepiaFW_build_webSocket_client(){
 	function addCredentialsAndParametersToData(data, skipAssistantState){
 		//NOTE: compare to 'Assistant.getParametersForActionCall'
 		
-		if (SepiaFW.account.getUserId() && SepiaFW.account.getToken()){
+		if (SepiaFW.account.getUserId() && SepiaFW.account.getToken(sepiaSessionId)){
 			//use "safe" field: credentials
 			data.credentials = new Object();
 			data.credentials.userId = SepiaFW.account.getUserId();
-			data.credentials.pwd = SepiaFW.account.getToken();
+			data.credentials.pwd = SepiaFW.account.getToken(sepiaSessionId);
 		}
 		if (!skipAssistantState){
 			data.parameters = SepiaFW.assistant.getState();

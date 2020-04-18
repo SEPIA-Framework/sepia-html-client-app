@@ -368,7 +368,7 @@ function sepiaFW_build_config(){
 		}
 		//Channel status messages
 		SepiaFW.ui.showChannelStatusMessages = SepiaFW.data.get('channelStatusMessages');
-			if (typeof SepiaFW.ui.showChannelStatusMessages == 'undefined') SepiaFW.ui.showChannelStatusMessages = true;
+			if (typeof SepiaFW.ui.showChannelStatusMessages == 'undefined') SepiaFW.ui.showChannelStatusMessages = false;
 			SepiaFW.debug.info("Channel status messages are " + ((SepiaFW.ui.showChannelStatusMessages)? "ON" : "OFF"));
 		//Allow background connection
 		if (SepiaFW.client){

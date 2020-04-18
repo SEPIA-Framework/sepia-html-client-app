@@ -1,7 +1,7 @@
 //Interface for controls and functions to be executed from client not server.
 //Note: many of the functions here depend heavily on DOM IDs!
 
-function sepiaFW_build_client_controls(){
+function sepiaFW_build_client_controls(sepiaSessionId){
     var Controls = {};
 
     //Handler - see exposed functions at bottom
@@ -438,7 +438,7 @@ function sepiaFW_build_client_controls(){
         //prep. data
         var clientAndDeviceId = SepiaFW.config.getClientDeviceInfo();
         var dataBody = new Object();
-		dataBody.KEY = SepiaFW.account.getKey();        //TODO: use this??
+		dataBody.KEY = SepiaFW.account.getKey(sepiaSessionId);        //TODO: use this??
         dataBody.client = clientAndDeviceId;
         dataBody.canonicalName = pluginName;
         if (accessPin) dataBody.pin = accessPin;
