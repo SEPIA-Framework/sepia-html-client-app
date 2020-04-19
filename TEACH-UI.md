@@ -5,30 +5,30 @@
 ### Set volume
 ```
 Action: <set>
-Function: volume
-Data: {"number":11}
+Function: <volume>
+Data: 11
 ```
 
 ### Call SEPIA Mesh-Node from client
 ```
 Action: <on>
-Function: meshNode
-Data: {"url":"http://localhost:20780", "plugin":"RuntimePlugin", "data":{"command":["echo", "test"]}}
+Function: <meshNode>
+Data: {"value": {"url":"http://localhost:20780", "plugin":"RuntimePlugin", "data":{"command":["echo", "test"]}}}
 ```
 
 ### Call CLEXI
 ```
 Action: <on>
-Function: clexi
-Data: {"xtension":"clexi-broadcaster", "data":{"text":"Hello", "sender":"Me"}}
+Function: <clexi>
+Data: {"value": {"xtension":"clexi-broadcaster", "data":{"text":"Hello", "sender":"Me"}}}
 ```
 
 ## Platform actions (platform_controls)
 
 ### Call Android Intent for certain device or browser action
 ```
-Device IDs: { "a1": {"type": "androidIntent", "data": {"action": "android.media.action.MEDIA_PLAY_FROM_SEARCH", "extras": {"query": "Paradise City"} }} }
-Browser: { "type": "url", "data": "https://open.spotify.com/track/3YBZIN3rekqsKxbJc9FZko?si=Stqe48xYS52Gim_Lr-JEFg" }
+Device IDs: {"value": { "a1": {"type": "androidIntent", "data": {"action": "android.media.action.MEDIA_PLAY_FROM_SEARCH", "extras": {"query": "Paradise City"} }} } }
+Browser: {"value": { "type": "url", "data": "https://open.spotify.com/track/3YBZIN3rekqsKxbJc9FZko?si=Stqe48xYS52Gim_Lr-JEFg" } }
 ```
 ***Some useful Android intents:***  
 https://developer.android.com/guide/components/intents-common  
