@@ -362,6 +362,7 @@ function sepiaFW_build_teach(sepiaSessionId){
 		}, 0);
 		//convert value format
 		var isText = (type == "text");
+		var isGeneric = (type == "generic");
 		value = value.trim();
 		if (isText){
 			$box.find('.show-if-text').show();
@@ -372,6 +373,9 @@ function sepiaFW_build_teach(sepiaSessionId){
 		}else{
 			$box.find('.show-if-text').hide();
 			$box.find('.show-if-default').show();
+			if (isGeneric){
+				$box.find('.in-type-raw').hide();
+			}
 			if (value.indexOf("{") == 0){
 				$input.val(JSON.stringify(JSON.parse(value), undefined, 4));
 				$input[0].style.height = ($input[0].scrollHeight + 8 + "px");

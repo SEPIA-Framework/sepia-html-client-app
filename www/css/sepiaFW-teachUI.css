@@ -235,7 +235,7 @@
 }
 #sepiaFW-teachUI-view .sepiaFW-input-popup-examples .parameter-example {
     margin: 8px;
-	max-width: 100%;
+	max-width: calc(100% - 16px);
 	padding: 4px 6px;
 	background: #eee;
 	color: #222;
@@ -245,6 +245,7 @@
 	text-align: left;
 	white-space: pre;
 	padding: 8px;
+	max-width: unset;
 }
 #sepiaFW-teachUI-view .sepiaFW-input-popup-examples > label {
 	cursor: pointer;

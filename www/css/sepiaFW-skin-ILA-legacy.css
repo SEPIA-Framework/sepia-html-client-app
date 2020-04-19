@@ -210,6 +210,15 @@ html {
 	background: #ececec;
 }
 
+/*----- pop-ups / overlays -----*/
+
+#sepiaFW-popup-message i {
+    color: #3285ff;
+}
+#sepiaFW-popup-message .accent {
+    color: #01fca0;
+}
+
 /*----- cards ------*/
 
 .sepiaFW-cards-button, 
