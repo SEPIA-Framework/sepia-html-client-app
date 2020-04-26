@@ -782,7 +782,9 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 
 				//add voice select options - delayed due to loading process
 				setTimeout(function(){
-					document.getElementById('sepiaFW-menu-select-voice-li').appendChild(SepiaFW.speech.getVoices());
+					SepiaFW.speech.getVoices(function(voices, voiceSelector){
+						document.getElementById('sepiaFW-menu-select-voice-li').appendChild(voiceSelector);
+					});
 				}, 1000);
 				
 				//add speech recognition engine select

@@ -273,7 +273,7 @@ function sepiaFW_build_audio(sepiaSessionId){
 			}else if (audioUrl.indexOf("tts") == 0){
 				audioUrl = SepiaFW.config.assistAPI + audioUrl;
 			}
-			console.log(audioUrl);
+			SepiaFW.debug.info("TTS audio url: " + audioUrl);
 			AudioPlayer.playURL(audioUrl, speaker, onStartCallback, onEndCallback, onErrorCallback);
 		}, onErrorCallback);		
 	}
@@ -573,7 +573,7 @@ function sepiaFW_build_audio(sepiaSessionId){
 			headers: {
 				"content-type": "application/x-www-form-urlencoded"
 			},
-			success: function (response) {
+			success: function(response){
 				SepiaFW.debug.info("GET_AUDIO SUCCESS: " + JSON.stringify(response));
 				if (response.result === "success"){
 					if (successCallback) successCallback(response.url);
@@ -581,9 +581,39 @@ function sepiaFW_build_audio(sepiaSessionId){
 					if (errorCallback) errorCallback();
 				}
 			},
-			error: function (e) {
+			error: function(e){
 				SepiaFW.debug.info("GET_AUDIO ERROR: " + JSON.stringify(e));
 				if (errorCallback) errorCallback();
+			}
+		});
+	}
+	TTS.getVoices = function(successCallback, errorCallback){
+		var apiUrl = SepiaFW.config.assistAPI + "tts-info";
+		var submitData = {};
+		submitData.KEY = SepiaFW.account.getKey(sepiaSessionId);
+		submitData.client = SepiaFW.config.getClientDeviceInfo();
+		submitData.env = SepiaFW.config.environment;
+
+		//get url
+		$.ajax({
+			url: apiUrl,
+			timeout: 10000,
+			type: "POST",
+			data: submitData,
+			headers: {
+				"content-type": "application/x-www-form-urlencoded"
+			},
+			success: function(response){
+				SepiaFW.debug.info("GET_VOICES SUCCESS: " + JSON.stringify(response));
+				if (response.result === "success"){
+					if (successCallback) successCallback(response);
+				}else{
+					if (errorCallback) errorCallback(response);
+				}
+			},
+			error: function(e){
+				SepiaFW.debug.info("GET_VOICES ERROR: " + JSON.stringify(e));
+				if (errorCallback) errorCallback(e);
 			}
 		});
 	}

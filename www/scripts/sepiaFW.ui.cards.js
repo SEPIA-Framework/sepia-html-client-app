@@ -971,7 +971,7 @@ function sepiaFW_build_ui_cards(){
 		return cardElement;
 	}
 	function makeWeatherNowTmoSmallData(data){
-		var unitReduced = data.units.replace(/C|F/, "");
+		var unitReduced = data.units.replace(/C|celsius|F|fahrenheit/, "");
 		var dataHTML = "";
 		if (data.tempB == undefined && data.tempC == undefined){
 			if (data.tempA) dataHTML += "<div style='width:100%'><h3>" + data.tempA + data.units + "</h3><p>" + data.tagA + "</p></div>";
@@ -983,7 +983,7 @@ function sepiaFW_build_ui_cards(){
 		return dataHTML;
 	}
 	function makeWeatherNowTmoDetailsData(details, unit){
-		unit = unit.replace(/C|F/, "");
+		unit = unit.replace(/C|celsius|F|fahrenheit/, "");
 		var data = details.daily || details.hourly || details.partsOfDay;
 		var isHourly = false;
 		if (details.hourly){
