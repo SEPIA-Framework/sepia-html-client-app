@@ -1779,6 +1779,78 @@ function sepiaFW_build_ui(){
 		UI.showPopup(box);
 	}
 
+	//------ Web Worker Interface ------
+
+	//Web workers
+    var webWorkerMessageId = 0;
+    UI.isWebWorkerSupported = ('Worker' in window);
+    function getWebWorkerMessageId(){
+        var i = ++webWorkerMessageId;
+        if (i > Number.MAX_SAFE_INTEGER) i = 0;
+        return ("worker-id-" + i);
+    }
+    UI.testWebWorker = function(successCallback, errorCallback){
+        var msgId = getWebWorkerMessageId();
+        var isActive = true;
+        var testTimeout = setTimeout(function(){
+            UI.isWebWorkerSupported = false;
+            SepiaFW.debug.error("Web-worker test failed, deactivated support.");
+            isActive = false;
+            if (errorCallback) errorCallback("timeout");
+        }, 3000);
+        var worker = new Worker('workers/default.js');
+        worker.onmessage = function(e){
+            UI.isWebWorkerSupported = true;
+            if (!isActive){
+                SepiaFW.debug.error("Web-worker delivered answer after timeout.");
+            }
+            SepiaFW.debug.info("Web-worker is supported.");
+            clearTimeout(testTimeout);
+            if (successCallback) successCallback(e.data);
+        }
+        SepiaFW.debug.info("Testing web-worker support ...");
+        worker.postMessage({
+            data: {cmd: 'echo'},
+            msgId: msgId
+        });
+    }
+    UI.callWebWorker = function(workerScript, data, timeoutMs, resultCallback, errorCallback){
+        if (!UI.isWebWorkerSupported){
+            SepiaFW.debug.error("Web-workers are not supported by this client!");
+        }else{
+            var isActive = true;
+            var startTime = new Date().getTime();
+            var worker = new Worker('workers/' + workerScript);
+            var msgId = getWebWorkerMessageId();
+            var delay = timeoutMs || 15000;
+            var errorTimer = setTimeout(function(){
+                isActive = false;
+                SepiaFW.debug.error("Web-worker failed to answer request with ID '" 
+                    + msgId + "' after " + delay + "ms");
+                if (errorCallback) errorCallback("timeout", msgId, delay);
+            }, delay);
+            worker.onmessage = function(e){
+                clearTimeout(errorTimer);
+                if (isActive){
+                    if (resultCallback) resultCallback(e.data);
+                }else{
+                    var now = new Date().getTime();
+                    SepiaFW.debug.error("Web-worker delivered answer after timeout. ID '" 
+                        + msgId + "' took: " + (now - startTime) + "ms, planned: " + delay);
+                }
+            }
+            SepiaFW.debug.info("Sending data to default web-worker ...");
+            worker.postMessage({
+                data: data,
+                msgId: msgId,
+                timeout: delay,
+                sent: startTime
+            });
+        }
+    }
+    //initialize
+    UI.testWebWorker();
+
 	//----- Post Message Interface -----
 
 	var sepiaPostMessageHandlers = {
