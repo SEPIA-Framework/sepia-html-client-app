@@ -28,6 +28,13 @@
 					<label>Allow wake-word during audio output:</label>
 					<div id="sepiaFW-wake-word-during-stream-box"></div>
 				</div>
+				<div class="group" id="sepiaFW-wake-word-switcher" style="display: none;">
+					<div>
+						<input id="sepiaFW-wake-word-version" style="width: 56px !important;" placeholder="version" value="1.4">
+						<input id="sepiaFW-wake-word-name" placeholder="wake-word name" value="Hey SEPIA">
+					</div>
+					<button style="margin: 0 8px; width: 56px;" onclick="SepiaFW.wakeWordSettings.updateWakeWordFile()">SET</button>
+				</div>
 				<div class="group">
 					<label>Debug info:</label>
 					<div id="sepiaFW-wake-word-debug-box"></div>

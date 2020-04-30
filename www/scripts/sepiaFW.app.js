@@ -591,6 +591,18 @@ function sepiaFW_build_tools(){
 			return "";
 		}
 	}
+
+	//Convert string (e.g. from binary file) to Uint8 array - NOTE: this depends on source encoding and might fail
+	//maybe better: pv_porcupine (1.6) 'stringToUTF8Array'
+	Tools.convertStringToUint8 = function(input){
+		var raw = input;
+		var rawLength = raw.length;
+		var array = new Uint8Array(new ArrayBuffer(rawLength));
+		for (var i = 0; i < rawLength; i += 1) {
+			array[i] = raw.charCodeAt(i);
+		}
+		return array;
+	}
 	
 	return Tools;
 }

@@ -34,6 +34,7 @@
 	-moz-user-select: none;    
 	-ms-user-select: none;      
 	user-select: none;
+	font-weight: normal !important;
 }
 .material-icons.icon-glyph {
 	margin: 4px;
@@ -1852,7 +1853,7 @@ html.dark-skin #sepiaFW-login-help-btn {
 .sepiaFW-results-container .chatMsg p,
 #sepiaFW-chat-output .chatMsg p {
     margin: 5px 0;
-    font-weight: 300;
+    /*font-weight: 300;*/
 }
 .sepiaFW-results-container .chatMsg.right,
 #sepiaFW-chat-output .chatMsg.right{
