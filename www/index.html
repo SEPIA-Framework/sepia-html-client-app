@@ -79,7 +79,7 @@
 	<!-- Scroll-to-hide area for web-apps --><!--<div id="sepiaFW-minimal-ui-sa" style="min-height:100px; background-color:#000; color:#fff;">Scroll to hide</div>
 	-->
 	<!-- Login -->
-	<div id="sepiaFW-login-box" class="sepiaFW-translucent-10">
+	<div id="sepiaFW-login-box">
 		<div id="sepiaFW-language-selector"></div>
 		<h2><!--Welcome--><script>SepiaFW.local.w('welcome')</script></h2>
 		<div id="sepiaFW-login-form" style="display: none">
@@ -99,12 +99,14 @@
 			<button><script>SepiaFW.local.w('connecting')</script></button>
 		</div>
 		<p id="sepiaFW-login-status"></p>
-		<div id="sepiaFW-login-links">
+		<div id="sepiaFW-login-links" style="display: none">
 			<a id="sepiaFW-login-license-btn" href="license.html" target="_blank"><script>SepiaFW.local.w('license')</script></a>
 			<a id="sepiaFW-login-policy-btn" href="https://sepia-framework.github.io/privacy-policy.html" target="_blank"><script>SepiaFW.local.w('data_privacy')</script></a>
 		</div>
 		<!-- extend button -->
-		<div id="sepiaFW-login-extend-box"><button id="sepiaFW-login-extend-btn"><i class="material-icons md-btn2">arrow_drop_down</i></button></div>
+		<div id="sepiaFW-login-extend-box" style="visibility: hidden;">
+			<button id="sepiaFW-login-extend-btn"><i class="material-icons md-btn2">arrow_drop_down</i></button>
+		</div>
 		<!-- help button -->
 		<button id="sepiaFW-login-help-btn" onclick="SepiaFW.ui.actions.openUrlAutoTarget('https://github.com/SEPIA-Framework/sepia-docs#welcome-to-the-documentation-page-for-sepia');"><i class="material-icons md-inherit">help</i></button>
 	</div>
@@ -278,39 +280,52 @@
 	</div>
 <!-- LOW PRIO STYLESHEETS -->
 <link rel="stylesheet" href="css/googleMaterialIcons.css">
-<script src="css/googleMaterialIcons.js"></script> <!-- glyph table for icons -->
 <link rel="stylesheet" href="css/sepiaFW-font.css">
 <link rel="stylesheet" href="css/sepiaFW-cards.css">
 <link rel="stylesheet" href="css/sepiaFW-teachUI.css">
 <link rel="stylesheet" href="css/sepiaFW-frames.css">
 <link rel="stylesheet" href="css/sepiaFW-alwaysOn.css">
-<link rel="stylesheet alternate" href="css/sepiaFW-skin-neo-sepia.css" class='sepiaFW-style-skin' title='main' data-name='NeoSepia'> 	<!-- main -->
-<link rel="stylesheet alternate" href="css/sepiaFW-skin-neo-sepia-dark.css" class='sepiaFW-style-skin' title='' data-name='NeoSepiaDark'>
-<link rel="stylesheet alternate" href="css/sepiaFW-skin-legacy.css" class='sepiaFW-style-skin' title='' data-name='Legacy'> 			<!-- no skin -->
-<link rel="stylesheet alternate" href="css/sepiaFW-skin-dark-sepia.css" class='sepiaFW-style-skin' title='' data-name='LegacyDark'>
-<link rel="stylesheet alternate" href="css/sepiaFW-skin-bytemind.css" class='sepiaFW-style-skin' title='' data-name='ByteMind'>
-<link rel="stylesheet alternate" href="css/sepiaFW-skin-street.css" class='sepiaFW-style-skin' title='' data-name='Street'>
-<link rel="stylesheet alternate" href="css/sepiaFW-skin-sakura.css" class='sepiaFW-style-skin' title='' data-name='Sakura'>
-<link rel="stylesheet alternate" href="css/sepiaFW-skin-9to5.css" class='sepiaFW-style-skin' title='' data-name='9to5'>
-<link rel="stylesheet alternate" href="css/sepiaFW-skin-autum.css" class='sepiaFW-style-skin' title='' data-name='Autum'>
-<link rel="stylesheet alternate" href="css/sepiaFW-skin-nippon.css" class='sepiaFW-style-skin' title='' data-name='Nippon'>
-<link rel="stylesheet alternate" href="css/sepiaFW-skin-poppy.css" class='sepiaFW-style-skin' title='' data-name='Poppy'>
-<link rel="stylesheet alternate" href="css/sepiaFW-skin-os1.css" class='sepiaFW-style-skin' title='' data-name='OrangeStyle1'>
-<link rel="stylesheet alternate" href="css/sepiaFW-skin-myMessage.css" class='sepiaFW-style-skin' title='' data-name='MyMessage'>
-<link rel="stylesheet alternate" href="css/sepiaFW-skin-uplink.css" class='sepiaFW-style-skin' title='' data-name='UpLink'>
-<link rel="stylesheet alternate" href="css/sepiaFW-skin-pizza.css" class='sepiaFW-style-skin' title='' data-name='Tasty'>
-<link rel="stylesheet alternate" href="css/sepiaFW-skin-grid.css" class='sepiaFW-style-skin' title='' data-name='TheGrid'>
-<link rel="stylesheet alternate" href="css/sepiaFW-skin-canny.css" class='sepiaFW-style-skin' title='' data-name='Canny'>
-<link rel="stylesheet alternate" href="css/sepiaFW-skin-minimal.css" class='sepiaFW-style-skin' title='' data-name='Essential'>
-<link rel="stylesheet alternate" href="css/sepiaFW-skin-study.css" class='sepiaFW-style-skin' title='' data-name='Study'>
-<link rel="stylesheet alternate" href="css/sepiaFW-skin-professional.css" class='sepiaFW-style-skin' title='' data-name='Professional'>
-<link rel="stylesheet alternate" href="css/sepiaFW-skin-odyssey1.css" class='sepiaFW-style-skin' title='' data-name='Odyssey1'>
-<link rel="stylesheet alternate" href="css/sepiaFW-skin-odyssey2.css" class='sepiaFW-style-skin' title='' data-name='Odyssey2'>
-<link rel="stylesheet alternate" href="css/sepiaFW-skin-malachite.css" class='sepiaFW-style-skin' title='' data-name='Malachite'>
-<link rel="stylesheet alternate" href="css/sepiaFW-skin-neon.css" class='sepiaFW-style-skin' title='' data-name='Nightlife'>
-<link rel="stylesheet alternate" href="css/sepiaFW-skin-spot.css" class='sepiaFW-style-skin' title='' data-name='Spots'>
-<link rel="stylesheet alternate" href="css/sepiaFW-skin-canary-dark.css" class='sepiaFW-style-skin' title='' data-name='DarkCanary'>
-<link rel="stylesheet alternate" href="css/sepiaFW-skin-ILA-legacy.css" class='sepiaFW-style-skin' title='' data-name='ILA-Legacy'>
+<script>
+	//Optimized skin loader
+	(function(){
+		var skins = {
+			"Neo Sepia": 		"css/sepiaFW-skin-neo-sepia.css",
+			"Neo Sepia Dark": 	"css/sepiaFW-skin-neo-sepia-dark.css",
+			"Legacy": 			"css/sepiaFW-skin-legacy.css",
+			"Legacy Dark":		"css/sepiaFW-skin-dark-sepia.css",
+			"Bytemind":			"css/sepiaFW-skin-bytemind.css",
+			"Street":			"css/sepiaFW-skin-street.css",
+			"Sakura":			"css/sepiaFW-skin-sakura.css",
+			"9 to 5":			"css/sepiaFW-skin-9to5.css",
+			"Autum":			"css/sepiaFW-skin-autum.css",
+			"Nippon":			"css/sepiaFW-skin-nippon.css",
+			"Poppy":			"css/sepiaFW-skin-poppy.css",
+			"Orange Style 1":	"css/sepiaFW-skin-os1.css",
+			"My Message":		"css/sepiaFW-skin-myMessage.css",
+			"Uplink":			"css/sepiaFW-skin-uplink.css",
+			"Tasty":			"css/sepiaFW-skin-pizza.css",
+			"The Grid":			"css/sepiaFW-skin-grid.css",
+			"Canny": 			"css/sepiaFW-skin-canny.css",
+			"Essential": 		"css/sepiaFW-skin-minimal.css",
+			"Study": 			"css/sepiaFW-skin-study.css",
+			"Professional": 	"css/sepiaFW-skin-professional.css",
+			"Odyssey 1": 		"css/sepiaFW-skin-odyssey1.css",
+			"Odyssey 2": 		"css/sepiaFW-skin-odyssey2.css",
+			"Malachite": 		"css/sepiaFW-skin-malachite.css",
+			"Nightlife": 		"css/sepiaFW-skin-neon.css",
+			"Spots": 			"css/sepiaFW-skin-spot.css",
+			"Dark Canary": 		"css/sepiaFW-skin-canary-dark.css",
+			"ILA Legacy": 		"css/sepiaFW-skin-ILA-legacy.css",
+			"History of the Future": 	"css/sepiaFW-skin-history-of-future.css"
+		}
+		var skinNames = Object.keys(skins);
+		var askin = parseInt(SepiaFW.data.get("activeSkin") || "1") - 1;
+		for (var i=0; i<skinNames.length; i++){
+			var r = (askin == i)? "stylesheet" : "stylesheet alternate";
+			document.write("<link rel='" + r + "' href='" + skins[skinNames[i]] + "' class='sepiaFW-style-skin' title='' data-name='"+ skinNames[i] + "'>");
+		}
+	})();
+</script>
 <!-- START JS -->
 <script src="scripts/jquery-3.4.1.min.js"></script>
 <!--<script src="https://code.jquery.com/jquery-3.1.1.min.js" integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8=" crossorigin="anonymous"></script>-->
@@ -597,6 +612,8 @@
 		appSetup();
 	}
 </script>
+<!-- Resources for later -->
+<script src="css/googleMaterialIcons.js"></script> <!-- glyph table for icons -->
 <!-- Plugins -->
 </body>
 </html>

@@ -572,15 +572,16 @@ function sepiaFW_build_ui(){
 	}
 	
 	//setup UI components and client variables - requires UI.beforeSetup() !
-	UI.setup = function(){
-		
+	UI.setup = function(){	
 		//client
-		SepiaFW.config.setClientInfo(((UI.isIOS)? 'iOS_' : '') 
-							+ ((UI.isAndroid)? 'android_' : '') 
-							+ ((UI.isChromeDesktop)? 'chrome_' : '')
-							+ ((UI.isEdge)? 'edge_' : '')
-							+ ((UI.isSafari)? 'safari_' : '')
-							+ ((UI.isStandaloneWebApp)? "app_" : "browser_") + UI.version);
+		SepiaFW.config.setClientInfo(
+			((UI.isIOS)? 'iOS_' : '') 
+			+ ((UI.isAndroid)? 'android_' : '') 
+			+ ((UI.isChromeDesktop)? 'chrome_' : '')
+			+ ((UI.isEdge)? 'edge_' : '')
+			+ ((UI.isSafari)? 'safari_' : '')
+			+ ((UI.isStandaloneWebApp)? "app_" : "browser_") + UI.version
+		);
 		
 		//---------------------- LOAD other SETTINGS before building the UI:
 

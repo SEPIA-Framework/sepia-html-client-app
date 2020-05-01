@@ -512,24 +512,23 @@ function sepiaFW_build_account(sepiaSessionId){
 	
 	//-------------------------------------------------
 	
-	//Show form inside login box and hide "wait" message
-	Account.showLoginForm = function(aniTime){
-		if (aniTime != undefined){
-			$('#sepiaFW-login-form').fadeIn(aniTime);
-			$('#sepiaFW-login-wait').hide();
-		}else{
-			$('#sepiaFW-login-form').fadeIn(600);
-			$('#sepiaFW-login-wait').hide();
-		}
+	//Show form inside login box and hide "wait" message etc.
+	Account.hideSplashscreen = function(){
+		if ("splashscreen" in navigator){
+            navigator.splashscreen.hide();
+        }
+	}
+	Account.prepareLoginBoxForInput = function(aniTime){
+		Account.hideSplashscreen();
+		if (aniTime == undefined) aniTime = 600;
+		$('#sepiaFW-login-wait').hide();
+		$('#sepiaFW-login-form').fadeIn(aniTime);
+		$('#sepiaFW-login-links').fadeIn(aniTime);
+		$('#sepiaFW-login-extend-box').css({visibility: "visible"});
 	}
 	
 	//Setup login-box
 	Account.setupLoginBox = function(){
-		$('#sepiaFW-login-box').animate({
-			opacity: 1.0,
-		}, 500, function(){
-			$(this).removeClass('sepiaFW-translucent-10');
-		});
 		//demo login?
 		var isDemoLogin = SepiaFW.data.get('isDemoLogin');
 		if (isDemoLogin){
@@ -572,10 +571,7 @@ function sepiaFW_build_account(sepiaSessionId){
 			Account.login(account.userId, account.userToken, onLoginSuccess, onLoginError, onLoginDebug);
 
 		}else{
-		    if ("splashscreen" in navigator){
-                navigator.splashscreen.hide();
-            }
-			Account.showLoginForm();
+			Account.prepareLoginBoxForInput();
 		}
 		
 		//add language selector
@@ -751,10 +747,7 @@ function sepiaFW_build_account(sepiaSessionId){
 		Account.afterLogin();
 	}
 	function onLoginError(errorText){
-	    if ("splashscreen" in navigator){
-            navigator.splashscreen.hide();
-        }
-		Account.showLoginForm(0);
+		Account.prepareLoginBoxForInput(0);
 		var lBoxError = document.getElementById("sepiaFW-login-status");
 		if(lBoxError){
 			lBoxError.innerHTML = errorText;
@@ -770,9 +763,7 @@ function sepiaFW_build_account(sepiaSessionId){
 	
 	//toggle login box on off
 	Account.toggleLoginBox = function(){
-	    if ("splashscreen" in navigator){
-            navigator.splashscreen.hide();
-        }
+	    Account.hideSplashscreen();
 		//reset status text
 		var lBoxError = document.getElementById("sepiaFW-login-status");
 		if (lBoxError){
@@ -781,13 +772,12 @@ function sepiaFW_build_account(sepiaSessionId){
 		var box = document.getElementById("sepiaFW-login-box");
 		if (box && box.style.display == 'none'){
 			$("#sepiaFW-main-window").addClass("sepiaFW-translucent-10");
-			$(box).removeClass('sepiaFW-translucent-10').fadeIn(300, function(){
+			$(box).fadeIn(300, function(){
 				$(box).css({'opacity':1.0}); 		//strange bug here sometimes leaves the box translucent
 			});
 		}else if (box){
 			//box.style.display = 'none';
 			$(box).stop().fadeOut(300, function(){
-				$(box).removeClass('sepiaFW-translucent-10');
 				$(box).css({'opacity':1.0}); 		//strange bug here sometimes leaves the box translucent
 			});
 			$("#sepiaFW-main-window").removeClass("sepiaFW-translucent-10");
