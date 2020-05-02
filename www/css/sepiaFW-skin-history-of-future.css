@@ -1,7 +1,6 @@
 html {
-	background-image: url(../img/techtree.png);
-	background-size: auto 700px;
-	background-position: calc(50% + 1px) 100%;
+	background-image: url(../img/SEPIA_space.svg);
+	background-size: auto 40%;
 	background-color: #111111;
 }
 #sepiaFW-main-window {
@@ -292,8 +291,12 @@ html {
     color: #fb9e37;
     /*border: 1px solid;*/
 }
-#sepiaFW-chat-output article.chatAssistant.chatPm {
-	border-left-color: rgba(155, 155, 155, 0.10);
+#sepiaFW-chat-output article.chatPm {
+	/* border-left-color: inherit !important; */
+    padding: 9px 9px 6px 6px;
+    border-right: 5px solid;
+    /* background: #212121; */
+    border-color: transparent !important;
 }
 #sepiaFW-chat-output .chatMsg article b, 
 #sepiaFW-chat-output .chatMsg article span {
@@ -303,7 +306,7 @@ html {
 }
 
 #sepiaFW-chat-controls-swipe-area .sepiaFW-swipeBar-switchable {
-	background: #9d9dff;
+	background: #fd827b;
     color: #111111;
     border-radius: 28px;
 }
@@ -493,15 +496,16 @@ html {
     height: 344px;
     left: calc(50% - 160px);
     top: calc(50% - 172px);
-    background: url(../img/avatars/ILA_v1.svg);
+    background: url(../img/avatars/SEPIA_space.svg);
     background-repeat: no-repeat;
-	background-size: 100%;
+    background-position: center;
+    background-size: 60%;
 }
 #sepiaFW-alwaysOn-avatar-touch-area {
-	left: 27%;
-	top: 11%;
-	width: 46%;
-	height: 72%;
+	left: 25%;
+    top: 20%;
+    width: 50%;
+    height: 72%;
 }
 
 #sepiaFW-alwaysOn-stt-out {
@@ -512,28 +516,14 @@ html {
 }
 
 #sepiaFW-alwaysOn-avatar .avatar-activity {
-    top: calc(50% - 10px);
+    top: calc(50% + 3px);
     left: calc(50% - 21px);
     width: 42px;
     height: 42px;
     border: 2px solid rgba(100, 100, 100, 0.25);
-	background: #01fca0;
+	background: #b3c8fd;
 }
-#sepiaFW-alwaysOn-avatar .avatar-activity::after {
-	position: absolute;
-	display: block;
-    top: calc(50% - 5px);
-    left: calc(50% - 5px);
-    width: 11px;
-    height: 11px;
-    background: #fff;
-    border-radius: 50%;
-	content: '';
-	box-shadow: 0px 1px 2px 0px rgba(0,0,0,0.75);
-}
-#sepiaFW-alwaysOn-avatar .avatar-activity::after {
-	animation: ila-blink 20s 0s infinite ease-in, ila-look-around 40s 10s infinite;
-}
+
 #sepiaFW-alwaysOn-avatar .avatar-activity.listening {
 	background: #f20710;
 }
@@ -551,9 +541,5 @@ html {
     display: none;
 }
 #sepiaFW-alwaysOn-avatar .avatar-mouth {
-    width: 20%;
-    height: 10%;
-    top: 62%;
-    left: 40%;
-    border-color: transparent transparent #646464 transparent;
+    display: none;
 }

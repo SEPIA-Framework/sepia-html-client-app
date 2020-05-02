@@ -316,13 +316,14 @@
 			"Spots": 			"css/sepiaFW-skin-spot.css",
 			"Dark Canary": 		"css/sepiaFW-skin-canary-dark.css",
 			"ILA Legacy": 		"css/sepiaFW-skin-ILA-legacy.css",
-			"History of the Future": 	"css/sepiaFW-skin-history-of-future.css"
+			"Future of the Past": 	"css/sepiaFW-skin-history-of-future.css"
 		}
 		var skinNames = Object.keys(skins);
 		var askin = parseInt(SepiaFW.data.get("activeSkin") || "1") - 1;
 		for (var i=0; i<skinNames.length; i++){
 			var r = (askin == i)? "stylesheet" : "stylesheet alternate";
-			document.write("<link rel='" + r + "' href='" + skins[skinNames[i]] + "' class='sepiaFW-style-skin' title='' data-name='"+ skinNames[i] + "'>");
+			var t = (askin == i)? "main" : "";
+			document.write("<link rel='" + r + "' href='" + skins[skinNames[i]] + "' class='sepiaFW-style-skin' title='" + t + "' data-name='"+ skinNames[i] + "'>");
 		}
 	})();
 </script>

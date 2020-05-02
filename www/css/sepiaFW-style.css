@@ -1874,6 +1874,10 @@ html.dark-skin #sepiaFW-login-help-btn {
 	font-size: 12px;
 	padding: 0px 16px 0px 0px;
 }
+.sepiaFW-results-container .chatMsg .sender em,
+#sepiaFW-chat-output .chatMsg .sender em {
+	font-style: normal;
+}
 .sepiaFW-results-container .chatMsg .timestamp,
 #sepiaFW-chat-output .chatMsg .timestamp {
     display: inline-block;

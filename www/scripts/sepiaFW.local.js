@@ -124,6 +124,7 @@ function sepiaFW_build_strings(){
 	//Fill words
 	StringsDE.from = 'von';
 	StringsDE.atClock = 'um';
+	StringsDE.toMe = 'zu mir';
 	//More errors/info
 	StringsDE.serverVersionTooLow = 'Beachte: Deine SEPIA Server Version ist niedrig und manche Features des Clients funktionieren eventuell nicht wie erwartet. Bitte führe ein Server Update durch, wenn möglich!';
 	StringsDE.mesh_node_fail = 'Sorry, die Mesh-Node Funktion zeigte einen Fehler.';
@@ -161,6 +162,8 @@ function sepiaFW_build_strings(){
 	StringsDE.createdChannel = 'Neuer Kanal wurde erfolgreich erstellt';
 	StringsDE.joinedChannel = 'Du bist erfolgreich einem neuen Kanal beigetreten';
 	StringsDE.deletedChannel = 'Der Kanal wurde erfolgreich gelöscht';
+	StringsDE.pmFor = "PM für ";
+	StringsDE.pmFrom = "PM von ";
 	//Views
 	StringsDE.view_home = "Home Screen";
 	StringsDE.view_chat = "Chat";
@@ -284,6 +287,7 @@ function sepiaFW_build_strings(){
 	//Fill words
 	StringsEN.from = 'from';
 	StringsEN.atClock = 'at';
+	StringsEN.toMe = 'to me';
 	//More errors/info
 	StringsEN.serverVersionTooLow = 'Note: Your SEPIA server version is low and some features of the client might not work as expected. Please update the server when possible!';
 	StringsEN.mesh_node_fail = 'Sorry, the Mesh-Node function showed an error.';
@@ -322,6 +326,8 @@ function sepiaFW_build_strings(){
 	StringsEN.createdChannel = 'You have successfully created a new channel';
 	StringsEN.joinedChannel = 'You have successfully joined a new channel';
 	StringsEN.deletedChannel = 'You have successfully deleted the channel';
+	StringsEN.pmFor = "PM for ";
+	StringsEN.pmFrom = "PM from ";
 	//Views
 	StringsEN.view_home = "Home Screen";
 	StringsEN.view_chat = "Chat";

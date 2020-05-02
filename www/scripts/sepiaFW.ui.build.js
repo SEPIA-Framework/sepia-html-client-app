@@ -1450,13 +1450,13 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 			classes += ' chatMe';
 			classesBlock += ' right';
 			if (receiver){
-				senderText = "Me to " + (receiverName? receiverName : receiver);
+				senderText = "<em>" + SepiaFW.local.g("pmFor") + "</em>" + (receiverName? receiverName : receiver);
 				type = "me-pm";
 				classes += ' chatPm';
 			}
 		}
 		else if (receiver === username){
-			senderText += " to me";
+			senderText = "<em>" + SepiaFW.local.g("pmFrom") + "</em>" + senderText;
 			if (msg.senderType === "assistant"){
 				isSafeMsg = true;
 				type = "pm-assistant";
