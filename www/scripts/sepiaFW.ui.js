@@ -1712,6 +1712,7 @@ function sepiaFW_build_ui(){
 			$('.sepiaFW-carousel-pane').removeClass('full-screen');
 			$('#sepiaFW-chat-menu').removeClass('full-screen');
 			$('#sepiaFW-chat-controls').removeClass('full-screen');
+			$('#sepiaFW-main-window').removeClass('full-screen');
 			/*if ('StatusBar' in window){
                 StatusBar.show();
             }*/
@@ -1728,6 +1729,7 @@ function sepiaFW_build_ui(){
 			$('.sepiaFW-carousel-pane').addClass('full-screen');
 			$('#sepiaFW-chat-menu').addClass('full-screen');
 			$('#sepiaFW-chat-controls').addClass('full-screen');
+			$('#sepiaFW-main-window').addClass('full-screen');
 			/*if ('StatusBar' in window){
                 StatusBar.hide();
             }*/

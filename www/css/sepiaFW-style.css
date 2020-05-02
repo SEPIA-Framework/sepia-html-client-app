@@ -1771,7 +1771,7 @@ html.dark-skin #sepiaFW-login-help-btn {
 	display: inline-block;
     background: rgba(145, 47, 86, 0.95); /*rgba(170, 180, 190, 0.94);*/
 	color: #fff;
-	padding: 9px 6px 6px 6px; /*7px 10px 7px 5px;*/
+	padding: 9px 11px 6px 6px; /*7px 10px 7px 5px;*/
     margin: 0 30px 4px 2px;
     border-left: 5px solid rgba(0, 0, 0, 0.00);
 	border-top: 0px solid rgba(0, 0, 0, 0.00);
@@ -1880,7 +1880,7 @@ html.dark-skin #sepiaFW-login-help-btn {
 	vertical-align: text-bottom;
 	float: right;
 	font-size: 12px;
-	padding: 0px 4px 0px 4px !important;
+	padding: 0px 0px 0px 4px !important;
 }
 .sepiaFW-results-container article.chatMe,
 #sepiaFW-chat-output article.chatMe{
