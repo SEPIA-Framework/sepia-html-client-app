@@ -365,7 +365,7 @@ html {
     width: 56px;
     margin-left: calc(50% - 28px);
 }
-.sepiaFW-cards-list-contextMenu {
+.sepiaFW-cards-list-title .sepiaFW-cards-list-contextMenu {
     color: #b3c8fd;
 	border-radius: 28px;
 	border: 1px solid #fb9e37;
@@ -382,13 +382,6 @@ html {
 	margin: 5px 3px 0px 3px;
     width: calc(100% - 116px);
 }
-.sepiaFW-cards-list-body .timeEvent div {
-	background: #fb9e37;
-}
-.sepiaFW-cards-list-body .radioStation div {
-	background: #fd827b;
-    color: #111 !important;
-}
 .sepiaFW-cards-list-body .cardBodyItem > div:first-of-type,
 .sepiaFW-cards-list-body .weatherNowSmall > div:first-of-type {
     border-radius: 28px 0 0 28px;
@@ -396,6 +389,14 @@ html {
 .sepiaFW-cards-list-body .cardBodyItem > div:last-of-type,
 .sepiaFW-cards-list-body .weatherNowSmall > div:last-of-type {
     border-radius: 0 28px 28px 0;
+}
+
+.sepiaFW-cards-list-body .timeEvent div {
+	background: #fb9e37;
+}
+.sepiaFW-cards-list-body .radioStation div {
+	background: #fd827b;
+    color: #111 !important;
 }
 
 .sepiaFW-cards-list-body .listElement div {
@@ -425,6 +426,9 @@ html {
 .sepiaFW-cards-list-body .weatherNowSmall .weatherNowSmallImage {
 	background: #cc99cc;
 }
+.sepiaFW-cards-list-body .weatherNowSmall .weatherNowSmallImage img {
+	max-width: 38px;
+}
 .sepiaFW-cards-list-body .weatherNowSmall .weatherNowSmallData {
 	margin: 5px 5px 0 3px;
 	background: #b3c8fd;
@@ -441,6 +445,21 @@ html {
 .sepiaFW-cards-list-body .weatherNowDetails li {
 	background: transparent;
     color: #fb9e37;
+}
+
+.sepiaFW-cards-list-body .linkCard > div {
+	background: #fecdbf !important;
+	color: #111111;
+}
+.sepiaFW-cards-list-body .linkCard .linkCardLogo {
+	margin-right: 3px;
+}
+.sepiaFW-cards-list-body .linkCard .linkCardRight {
+	margin-left: 3px;
+}
+.sepiaFW-cards-list-body .linkCard .linkCardLogo img {
+    max-width: 42px;
+    border-radius: 28px;
 }
 
 .sepiaFW-cards-list-body .newsArticle .newsCenter {

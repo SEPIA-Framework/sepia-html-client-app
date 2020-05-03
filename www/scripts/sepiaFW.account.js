@@ -801,6 +801,10 @@ function sepiaFW_build_account(sepiaSessionId){
 				buttonTwoAction : function(){ location.reload(); },
 			};
 		SepiaFW.ui.showPopup('Signing out ...', config);
+
+		//stop some running stuff
+		SepiaFW.speech.stopSpeech();
+		SepiaFW.audio.stop();
 		
 		//try logout - fails silently (low prio, good idea???)
 		if (userId && userToken){
