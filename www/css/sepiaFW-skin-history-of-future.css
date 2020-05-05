@@ -34,7 +34,8 @@ html {
 	#sepiaFW-chat-controls-more-menu {
 		border-radius: 0 0 28px 28px;
 	}
-	.sepiaFW-top-layer-view {
+	.sepiaFW-top-layer-view,
+	#sepiaFW-teachUI-view {
 		border-radius: 26px;
 	}
 }
@@ -496,7 +497,6 @@ html {
 }
 #sepiaFW-teachUI-view {
 	background: #111111;
-	border-radius: 26px;
 }
 #sepiaFW-teachUI-view label {
     color: #ffad01
