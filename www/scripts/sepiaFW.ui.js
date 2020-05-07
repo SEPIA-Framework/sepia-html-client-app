@@ -801,7 +801,13 @@ function sepiaFW_build_ui(){
 			if (SepiaFW.geocoder && SepiaFW.geocoder.autoGPS){
 				if ((new Date().getTime() - SepiaFW.geocoder.lastBestLocationUpdate) > SepiaFW.geocoder.autoRefreshInterval){
 					//console.log('---------------GET BEST LOCATION--------------'); 		//DEBUG
-					SepiaFW.geocoder.getBestLocation();
+					SepiaFW.geocoder.getBestLocation(function(addrRes, didBroadcast){
+						if (!didBroadcast){
+							UI.updateMyView(forceUpdate, false, 'geoCoderMissedPublish');
+						}
+					}, function(err){
+						UI.updateMyView(forceUpdate, false, 'geoCoderFailed');
+					});
 				}else{
 					UI.updateMyView(forceUpdate, false, 'geoCoderBlockedUpdate'); 	//TODO: should we use 'forceUpdate' variable instead of false?
 				}
@@ -979,7 +985,7 @@ function sepiaFW_build_ui(){
 				//reconnect
 				SepiaFW.client.resumeClient();
 				//GPS
-
+				//TODO: something missing here?
 			}
 		}, 100);
 	}
@@ -1819,7 +1825,8 @@ function sepiaFW_build_ui(){
     }
     UI.callWebWorker = function(workerScript, data, timeoutMs, resultCallback, errorCallback){
         if (!UI.isWebWorkerSupported){
-            SepiaFW.debug.error("Web-workers are not supported by this client!");
+			SepiaFW.debug.error("Web-workers are not supported by this client!");
+			return;
         }else{
             var isActive = true;
             var startTime = new Date().getTime();
@@ -1848,7 +1855,8 @@ function sepiaFW_build_ui(){
                 msgId: msgId,
                 timeout: delay,
                 sent: startTime
-            });
+			});
+			return worker;
         }
     }
     //initialize
