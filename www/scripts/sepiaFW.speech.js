@@ -970,9 +970,7 @@ function sepiaFW_build_speech(){
 	//set a voice
 	Speech.setVoice = function(newVoice){
 		if (Speech.isTtsSupported){
-			if (SepiaFW.ui.isCordova){
-				//TODO: implement
-			}else if (Speech.useSepiaServerTTS){
+			if (Speech.useSepiaServerTTS){
 				selectedVoice = newVoice;
 				selectedVoiceObject = {
 					name: selectedVoice
@@ -982,6 +980,8 @@ function sepiaFW_build_speech(){
 					$('#sepiaFW-menu-select-voice').val(selectedVoice);
 					SepiaFW.data.setPermanent(Speech.getLanguage() + "-voice", selectedVoice);
 				}
+			}else if (SepiaFW.ui.isCordova){
+				//TODO: implement
 			}else{
 				selectedVoice = newVoice;
 				if (selectedVoice){
@@ -1268,7 +1268,7 @@ function sepiaFW_build_speech(){
 	Speech.initTTS = function(){
 		if (!isTssInitialized && Speech.isTtsSupported){
 			if (SepiaFW.ui.isCordova){
-				//TTS.speak('');		//TODO: do we need it?
+				//TTS.speak('');		//TODO: do we need it? / even with Cordova we can use audio stream ...
 				isTssInitialized = true;
 			}else if ('speechSynthesis' in window){
 				window.speechSynthesis.speak(new SpeechSynthesisUtterance(''));	//silent activation
