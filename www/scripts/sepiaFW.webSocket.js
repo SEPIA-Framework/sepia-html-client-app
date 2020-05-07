@@ -1980,7 +1980,7 @@ function sepiaFW_build_webSocket_client(sepiaSessionId){
 								var customTag = "weekday-note-" + SepiaFW.tools.getLocalDateWithCustomSeparator("-", msg.timeUNIX);
 								//... but only if we haven't already
 								if ($("#sepiaFW-chat-output").find('[data-channel-id=' + message.data.channelId + ']').filter('[data-msg-custom-tag=' + customTag + ']').length == 0){
-									var weekdayName = SepiaFW.local.getWeekdayName(day) + " " + d.toLocaleDateString();
+									var weekdayName = SepiaFW.local.getWeekdayName(day) + " " + d.toLocaleDateString(SepiaFW.config.appLanguage);
 									SepiaFW.ui.showInfo(weekdayName, false, customTag, true, message.data.channelId);	//SepiaFW.local.g('history')
 								}
 							}
@@ -2147,7 +2147,7 @@ function sepiaFW_build_webSocket_client(sepiaSessionId){
 			var customTag = "weekday-note-" + SepiaFW.tools.getLocalDateWithCustomSeparator("-");
 			var $todayNote = $("#sepiaFW-chat-output").find('[data-channel-id=' + message.channelId + ']').filter('[data-msg-custom-tag=' + customTag + ']');
 			if ($todayNote.length == 0){
-				var weekdayName = SepiaFW.local.getWeekdayName(d.getDay()) + " " + d.toLocaleDateString();
+				var weekdayName = SepiaFW.local.getWeekdayName(d.getDay()) + " " + d.toLocaleDateString(SepiaFW.config.appLanguage);
 				SepiaFW.ui.showInfo(weekdayName, false, customTag, true, message.channelId);
 			}
 		}

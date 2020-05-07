@@ -439,17 +439,10 @@ function sepiaFW_build_ui_actions(){
 		//header
 		var titleNote = document.createElement('P');
 		titleNote.className = 'sepiaFW-myEvents-titleNote';
-		/*titleNote.innerHTML = SepiaFW.local.g('recommendationsFor') + " " + SepiaFW.account.getUserName() + ":";
-		var dateNote = document.createElement('DIV');
-		dateNote.className = 'sepiaFW-myEvents-dateHeader';
-		var d = new Date();
-		dateNote.innerHTML = (SepiaFW.local.g('lastUpdate') + ": " 
-			+ d.toLocaleDateString() + " - " + d.toLocaleTimeString([], {hour: 'numeric', minute:'2-digit'}));
-		$(aButtonsArea).prepend(dateNote);*/
 		var d = new Date();
 		titleNote.innerHTML = SepiaFW.local.g('recommendationsFor') + " " 
 			+ SepiaFW.account.getUserName() + " " + SepiaFW.local.g('from') + " "
-			+ d.toLocaleTimeString([], {hour: 'numeric', minute:'2-digit'}) + " " + SepiaFW.local.g('oclock') + ":";
+			+ d.toLocaleTimeString(SepiaFW.config.appLanguage, {hour: 'numeric', minute:'2-digit'}) + " " + SepiaFW.local.g('oclock') + ":";
 		$(aButtonsArea).prepend(titleNote);
 		
 		//show again on top

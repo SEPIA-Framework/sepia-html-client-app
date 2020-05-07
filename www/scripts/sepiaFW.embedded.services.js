@@ -335,15 +335,15 @@ function sepiaFW_build_embedded_services(){
 			//5min
 			var time1 = (dateAdded + 600000);
 			var date1 = new Date(time1);
-			var dateString1 = date1.toLocaleDateString();
+			var dateString1 = date1.toLocaleDateString(language);
 			var day1 = date1.toLocaleDateString(language, {weekday: 'long'});
-			var timeString1 = date1.toLocaleTimeString();
+			var timeString1 = date1.toLocaleTimeString(language);
 			//24h
 			var time2 = (dateAdded + 300000 + (60000*60*24));
 			var date2 = new Date(time2);
-			var dateString2 = date2.toLocaleDateString();
+			var dateString2 = date2.toLocaleDateString(language);
 			var day2 = date2.toLocaleDateString(language, {weekday: 'long'});
-			var timeString2 = date2.toLocaleTimeString();
+			var timeString2 = date2.toLocaleTimeString(language);
 			data = [{
 				"name": "5min Alarm", "eleType": "alarm", "repeat": "onetime", "activated": false,
 				"date": dateString1,
