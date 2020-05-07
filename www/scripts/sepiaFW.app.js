@@ -638,7 +638,7 @@ function sepiaFW_build_debug(){
 	Debug.setLog = function(doLog){
 		if (doLog){
 			Debug.doLog = true;
-			Debug.log = Function.prototype.bind.call(console.log, console, 'SepiaFW - ' + Debug.getLocalDateTime() + ' - LOG - ');
+			Debug.log = Function.prototype.bind.call(console.log, console, 'SepiaFW - LOG -');
 		}else{
 			Debug.doLog = false;
 			Debug.log = Function.prototype.bind.call(function(){}, console);
@@ -655,7 +655,7 @@ function sepiaFW_build_debug(){
 	Debug.setError = function(doError){
 		if (doError){
 			Debug.doError = true;
-			Debug.err = Function.prototype.bind.call(console.error, console, 'SepiaFW - ' + Debug.getLocalDateTime() + ' - ERROR - ');
+			Debug.err = Function.prototype.bind.call(console.error, console, 'SepiaFW - ERROR -');
 		}else{
 			Debug.doError = false;
 			Debug.err = Function.prototype.bind.call(function(){}, console);
@@ -672,7 +672,7 @@ function sepiaFW_build_debug(){
 	Debug.setInfo = function(doInfo){
 		if (doInfo){
 			Debug.doInfo = true;
-			Debug.info = Function.prototype.bind.call(console.log, console, 'SepiaFW - ' + Debug.getLocalDateTime() + ' - INFO - ');
+			Debug.info = Function.prototype.bind.call(console.log, console, 'SepiaFW - INFO -');
 		}else{
 			Debug.doInfo = false;
 			Debug.info = Function.prototype.bind.call(function(){}, console);
