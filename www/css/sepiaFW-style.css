@@ -1,3 +1,9 @@
+* {
+    box-sizing: border-box;
+	-webkit-tap-highlight-color: transparent;
+	scrollbar-width: thin;
+	/* note: we keep the default color just adapt .sepiaFW-results-container (due to background) */
+}
 .sepiaFW-notouch-device ::-webkit-scrollbar {
 	width: 4px;
 	height: 4px;
@@ -9,11 +15,6 @@
 }
 .sepiaFW-notouch-device ::-webkit-scrollbar-thumb:hover {
 	background: rgba(128,128,128,0.50);
-}
-* {
-    box-sizing: border-box;
-	-webkit-tap-highlight-color: transparent;
-	scrollbar-width: thin;
 }
 
 /* Google material icon sizes: */
@@ -540,6 +541,7 @@ body {
 }
 #sepiaFW-login-box h2 {
 	font-weight: normal;
+	font-size: 23px;
 }
 #sepiaFW-login-box input {
 	border: 0px;
@@ -1746,6 +1748,7 @@ html.dark-skin #sepiaFW-login-help-btn {
 	overflow-y: auto;
 	overflow-y: overlay;
 	-webkit-overflow-scrolling: touch;
+	scrollbar-color: rgba(128,128,128,0.24) rgba(128,128,128,0.12);
 }
 .sepiaFW-results-container:after {
     content: "";

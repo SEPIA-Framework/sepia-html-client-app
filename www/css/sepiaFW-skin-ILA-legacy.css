@@ -5,6 +5,9 @@ html {
 	color: #000;
 	border: 0px;
 }
+.sepiaFW-results-container {
+	scrollbar-color: #efefef #fff;
+}
 @media (min-width: 480px) and (min-height: 481px) {
 	.sepiaFW-top-layer-view {
 		border-radius: 0px;
@@ -40,7 +43,7 @@ html {
 	background: #3285ff;
 	color: #fff;
 }
-#sepiaFW-login-box button:not(#sepiaFW-login-extend-btn):hover {
+#sepiaFW-login-box button:not(#sepiaFW-login-extend-btn):not(#sepiaFW-login-help-btn):hover {
 	background: #0057d6 !important;
 	color: #fff !important;
 }

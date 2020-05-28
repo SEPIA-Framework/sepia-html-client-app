@@ -16,6 +16,9 @@ html {
 		border-radius: 0px;
 	}
 }
+.sepiaFW-results-container {
+	scrollbar-color: #26292d #1b1e20;
+}
 
 #sepiaFW-pC 	{ background-color: #1b1e20; 	}
 #sepiaFW-sC 	{ background-color: #0067b8; 	}

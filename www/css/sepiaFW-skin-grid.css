@@ -12,6 +12,9 @@ html {
 		border-radius: 0px;
 	}
 }
+.sepiaFW-results-container {
+	scrollbar-color: rgba(20, 120, 140, 0.2) transparent;
+}
 
 #sepiaFW-pC 	{ background-color: #102030; }
 #sepiaFW-sC 	{ background-color: #15abc3; }

@@ -7,6 +7,9 @@ html {
 #sepiaFW-main-window {
 	color: #F4F4F4;
 }
+.sepiaFW-results-container {
+	scrollbar-color: #191919 #040404;
+}
 @media (min-width: 480px) and (min-height: 481px) {
 	#sepiaFW-main-window {
 		border-color: #212121;

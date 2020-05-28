@@ -11,6 +11,9 @@ html {
 		border-radius: 0px;
 	}
 }
+.sepiaFW-results-container {
+	scrollbar-color: #eee #fff;
+}
 
 #sepiaFW-pC  { background-color: #000000; } 					/* Primary color - used for status bar and browser theme as well */
 #sepiaFW-sC  { background-color: #16ABC3; }						/* Secondary color - should be in contrast to primary */

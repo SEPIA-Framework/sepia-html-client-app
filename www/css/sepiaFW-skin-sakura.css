@@ -4,6 +4,9 @@ html {
 #sepiaFW-main-window {
 	border-color: #503040;
 }
+.sepiaFW-results-container {
+	scrollbar-color: #f5eaee #fff;
+}
 
 #sepiaFW-pC 	{ background-color: #503040; }
 #sepiaFW-sC 	{ background-color: #883446; }
