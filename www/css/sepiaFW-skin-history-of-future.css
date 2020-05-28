@@ -7,6 +7,9 @@ html {
 	/*color: #F4F4F4;*/
 	color: #ffad01;
 }
+.sepiaFW-results-container {
+	scrollbar-color: #252525 #191919;
+}
 @media (min-width: 480px) and (min-height: 481px) {
 	#sepiaFW-main-window {
 		border-color: #292929;
@@ -21,7 +24,7 @@ html {
 		border-radius: 28px;
 	}
 	#sepiaFW-nav-bar {
-		border-radius: 28px 28px 0 0;
+		border-radius: 26px 26px 0 0 !important;
 	}
 	#sepiaFW-chat-controls-form {
 		border-radius: 0 0 28px 0;
@@ -29,7 +32,12 @@ html {
 	#sepiaFW-chat-controls-right {
 		border-radius: 0 0 0 28px;
 	}
-	#sepiaFW-chat-controls,
+	#sepiaFW-chat-controls {
+		border-radius: 0 0 26px 26px !important;
+		border-bottom: 0 !important;
+		border-left: 0 !important;
+		border-right: 0 !important;
+	}
 	#sepiaFW-chat-menu,
 	#sepiaFW-chat-controls-more-menu {
 		border-radius: 0 0 28px 28px;
@@ -55,6 +63,9 @@ html {
 #sepiaFW-asC 	{ background-color: #df616d; }
 #sepiaFW-adC 	{ background-color: #fb9e37; }
 #sepiaFW-lC 	{ background-color: #292929; }
+
+/*#sepiaFW-statC 	{ background-color: #ffad01; }*/
+/*#sepiaFW-navC 	{ background-color: #df616d; }*/
 
 #sepiaFW-login-box {
 	background: #ffad01;
@@ -93,6 +104,7 @@ html {
 	background: #ffad01;
 	color: #111111;
 	border-bottom: 2px solid #292929;
+	border-radius: 28px;
 }
 #sepiaFW-chat-controls-form {
 	background: #df616d;
@@ -110,14 +122,20 @@ html {
 #sepiaFW-chat-controls {
 	background: transparent;
 	border-bottom-color: #111111;
-	border-top: 2px solid #292929;
+	border: 2px solid #292929;
+	border-radius: 28px;
 }
 #sepiaFW-chat-controls.full-screen {
-	border-top: 0px;
+	border: 0;
+}
+#sepiaFW-chat-controls.full-screen #sepiaFW-chat-controls-right {
+    border-radius: 28px 0 0 26px;
+	border: 2px solid #292929;
+	border-right: 1px solid;
 }
 #sepiaFW-chat-controls.full-screen #sepiaFW-assist-btn-area {
 	border-radius: 0 28px 28px 0;
-    border-right: 0;
+    border: 2px solid #292929;
 }
 
 #sepiaFW-main-window button,
@@ -307,7 +325,7 @@ html {
 }
 
 #sepiaFW-chat-controls-swipe-area .sepiaFW-swipeBar-switchable {
-	background: #fd827b;
+	background: #df616d;
     color: #111111;
     border-radius: 28px;
 }
