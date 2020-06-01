@@ -24,6 +24,7 @@ html {
 		border-radius: 28px;
 	}
 	#sepiaFW-nav-bar {
+		border-top: 0 !important;
 		border-radius: 26px 26px 0 0 !important;
 	}
 	#sepiaFW-chat-controls-form {
@@ -64,8 +65,8 @@ html {
 #sepiaFW-adC 	{ background-color: #fb9e37; }
 #sepiaFW-lC 	{ background-color: #292929; }
 
-/*#sepiaFW-statC 	{ background-color: #ffad01; }*/
-/*#sepiaFW-navC 	{ background-color: #df616d; }*/
+#sepiaFW-statC 	{ background-color: #fb9e37; }
+#sepiaFW-navC 	{ background-color: #fd827b; }
 
 #sepiaFW-login-box {
 	background: #ffad01;
@@ -103,8 +104,9 @@ html {
 #sepiaFW-nav-bar {
 	background: #ffad01;
 	color: #111111;
+	border-top: 2px solid #292929;
 	border-bottom: 2px solid #292929;
-	border-radius: 28px;
+	/*border-radius: 28px;*/
 }
 #sepiaFW-chat-controls-form {
 	background: #df616d;
@@ -123,15 +125,21 @@ html {
 	background: transparent;
 	border-bottom-color: #111111;
 	border: 2px solid #292929;
-	border-radius: 28px;
+	border-left: 0;
+	border-right: 0;
+	border-radius: 0;
+    /*border-radius: 28px 28px 0 0;*/
 }
 #sepiaFW-chat-controls.full-screen {
 	border: 0;
+	border-radius: 0;
 }
 #sepiaFW-chat-controls.full-screen #sepiaFW-chat-controls-right {
-    border-radius: 28px 0 0 26px;
+	border-radius: 0;
+	/*border-radius: 28px 0 0 26px;*/
 	border: 2px solid #292929;
 	border-right: 1px solid;
+	border-left: 0;
 }
 #sepiaFW-chat-controls.full-screen #sepiaFW-assist-btn-area {
 	border-radius: 0 28px 28px 0;

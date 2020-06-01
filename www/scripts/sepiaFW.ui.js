@@ -165,7 +165,7 @@ function sepiaFW_build_ui(){
 			UI.statusBarColor = "";
 		}
 		//refresh theme-color
-		$('meta[name="theme-color"]').replaceWith('<meta name="theme-color" content="' + UI.primaryColor + '">');
+		$('meta[name="theme-color"]').replaceWith('<meta name="theme-color" content="' + (UI.statusBarColor || UI.primaryColor) + '">');
 		//set general skin style
 		var backColor = UI.htmlBackgroundColor;
 		if ((backColor + '').indexOf('rgb') === 0){
