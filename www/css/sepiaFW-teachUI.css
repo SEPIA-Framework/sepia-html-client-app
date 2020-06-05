@@ -1,13 +1,14 @@
 #sepiaFW-teachUI-view {
 	display: flex;
     flex-direction: column;
-	background: #2f3035;
+	background: #111;
 	color: #fff;
 }
 #sepiaFW-teachUI-view select,
 #sepiaFW-teachUI-view input {
 	margin: 12px 0;
 	border-radius: 0;
+	border: 0;
 }
 #sepiaFW-teachUI-view input[type="text"] {
     background: transparent !important;
@@ -17,6 +18,7 @@
     color: inherit;
     text-align: center;
 	font-size: 18px;
+	text-overflow: ellipsis;
 }
 #sepiaFW-teachUI-view label {
 	color: #ceff1a;
@@ -33,7 +35,7 @@
 
 #sepiaFW-teachUI-nav-bar {
 	background: #ceff1a;
-	color: #2f3035;
+	color: #111;
 	display: flex;
     flex-direction: row;
     justify-content: space-around;
@@ -85,12 +87,13 @@
 #sepiaFW-teachUI-editor button,
 #sepiaFW-teachUI-manager button {
 	background: #ceff1a !important;
-	color: #2f3035 !important;
+	color: #111 !important;
 	border-radius: 0px !important;
 }
 
 .sepiaFW-teachUI-menu-group {
-	margin: 16px 8px;
+	margin: 15px 5px;
+	padding: 0 4px;
 }
 .sepiaFW-teachUI-menu-group.center {
 	text-align: center;
@@ -101,6 +104,9 @@
 }
 #sepiaFW-teach-commands {
 	min-width: 50% !important;
+	font-size: 15px !important;
+	height: 32px !important;
+	max-width: 100% !important;
 }
 #sepiaFW-teachUI-command-help {
 	display: inline-block;
@@ -108,15 +114,26 @@
 	vertical-align: middle;
 	cursor: pointer;
 }
-.sepiaFW-teach-parameter-input {
+#sepiaFW-teach-parameters {
+	padding: 2px 4px;
 }
-.sepiaFW-teach-parameter-input.optional {
+/* :not(.text-only) */
+#sepiaFW-teachUI-view #sepiaFW-teach-parameters .sepiaFW-teach-parameter-input {
+	border: 0 !important;
+    background: rgba(128, 128, 128, 0.22) !important;
+    border-radius: 20px;
+    padding: 10px 12px;
+	font-size: 16px;
+	cursor: pointer;
+}
+#sepiaFW-teachUI-view #sepiaFW-teach-parameters .sepiaFW-teach-parameter-input.optional {
 	display: none;
 }
 
 #sepiaFW-teachUI-manager .sepiaFW-command-cards-container {
 	display: flex;
 	flex-direction: column;
+	padding: 0 4px;
 }
 #sepiaFW-teachUI-manager .sepiaFW-command-card {
 	flex: 1 1 auto;
@@ -129,7 +146,7 @@
 #sepiaFW-teachUI-manager .sepiaFW-command-card .cmdLabel,
 #sepiaFW-teachUI-manager .sepiaFW-command-card .cmdRemoveBtn {
 	background: #fff;
-	color: #2f3035;
+	color: #111;
 	flex: 1 1 auto;
     text-align: center;
 	display: flex;
@@ -151,13 +168,13 @@
 }
 
 .sepiaFW-teachUI-menu-group ul {
-	padding: 8px 12px;
+	padding: 8px 0px;
 	list-style: none;
 }
 .sepiaFW-teachUI-menu-group li {
 	overflow: hidden;
 	cursor: default;
-	background: rgba(128, 128, 128, 0.2);
+	background: rgba(128, 128, 128, 0.22);
 	min-height: 38px;
 	margin: 2px 0;
 	padding: 5px 8px;
@@ -192,4 +209,50 @@
 
 #sepiaFW-teach-custom-button-select {
 	cursor: pointer;
+}
+
+/* --- Parameter input pop-up --- */
+
+#sepiaFW-teachUI-view .sepiaFW-input-popup textarea {
+	white-space: pre;
+    overflow-x: auto;
+}
+#sepiaFW-teachUI-view .sepiaFW-input-popup {
+    overflow-y: auto;
+}
+#sepiaFW-teachUI-view .sepiaFW-input-popup label {
+	font-size: 16px;
+}
+#sepiaFW-teachUI-view .sepiaFW-input-popup-title label {
+	display: inline-block;
+	font-weight: bold;
+}
+#sepiaFW-teachUI-view .sepiaFW-input-popup-examples > div {
+	display: flex;
+	margin-top: 12px;
+    flex-wrap: wrap;
+    overflow: auto;
+}
+#sepiaFW-teachUI-view .sepiaFW-input-popup-examples .parameter-example {
+    margin: 8px;
+	max-width: calc(100% - 16px);
+	padding: 4px 6px;
+	background: #eee;
+	color: #222;
+	border-radius: 8px;
+}
+#sepiaFW-teachUI-view .sepiaFW-input-popup-examples .parameter-example.json {
+	text-align: left;
+	white-space: pre;
+	padding: 8px;
+	max-width: unset;
+}
+#sepiaFW-teachUI-view .sepiaFW-input-popup-examples > label {
+	cursor: pointer;
+}
+#sepiaFW-teachUI-view .sepiaFW-input-popup-examples > label > i {
+	transition: transform .2s ease-in-out;
+}
+#sepiaFW-teachUI-view .sepiaFW-input-popup-examples.open > label > i {
+	transform: rotate(90deg);
 }

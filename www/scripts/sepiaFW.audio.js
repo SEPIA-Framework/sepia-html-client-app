@@ -1,5 +1,5 @@
 //AUDIO PLAYER
-function sepiaFW_build_audio(){
+function sepiaFW_build_audio(sepiaSessionId){
 	var AudioPlayer = {};
 	var Stream = {};
 	var TTS = {};			//TTS parameters for SepiaFW external TTS like Acapela. I've tried to seperate TTS and AudioPlayer as good as possible, but there might be some bugs using both
@@ -76,6 +76,7 @@ function sepiaFW_build_audio(){
 	var audioVolD;
 	var lastAudioStream = 'sounds/empty.mp3';
 	var beforeLastAudioStream = 'sounds/empty.mp3';
+	var lastAudioStreamTitle = '';
 	var lastAudioPlayerEventSource = '';		//Note: this does not include TTS and effects player
 	var mainAudioIsOnHold = false;
 	var mainAudioStopRequested = false;
@@ -272,6 +273,7 @@ function sepiaFW_build_audio(){
 			}else if (audioUrl.indexOf("tts") == 0){
 				audioUrl = SepiaFW.config.assistAPI + audioUrl;
 			}
+			SepiaFW.debug.info("TTS audio url: " + audioUrl);
 			AudioPlayer.playURL(audioUrl, speaker, onStartCallback, onEndCallback, onErrorCallback);
 		}, onErrorCallback);		
 	}
@@ -484,7 +486,10 @@ function sepiaFW_build_audio(){
 		//fade to original volume
 		if (SepiaFW.ui.isMobile && !Stream.isPlaying){
 			SepiaFW.debug.info('AUDIO: fadeToOriginal - restore play status');
-			SepiaFW.audio.playURL('', ''); 	//<-- potentially looses callBack info here, but since this is stopped
+			var lastStream = SepiaFW.audio.getLastAudioStream();
+			var lastStreamTitle = (lastStream)? SepiaFW.audio.getLastAudioStreamTitle() : "";
+			SepiaFW.audio.playURL(lastStream, ''); 	//<-- potentially looses callBack info here, but since this is stopped
+			SepiaFW.audio.setPlayerTitle(lastStreamTitle, '');
 		}
 		if (!gotPlayerAudioContext){
 			SepiaFW.debug.info('AUDIO: fadeToOriginal - restore vol=' + orgVolume);
@@ -555,7 +560,7 @@ function sepiaFW_build_audio(){
 			playOn: TTS.playOn,		//check play on server 
 			format: TTS.format		//sound format (e.g. wav file)
 		};
-		submitData.KEY = SepiaFW.account.getKey();
+		submitData.KEY = SepiaFW.account.getKey(sepiaSessionId);
 		submitData.client = SepiaFW.config.getClientDeviceInfo();
 		submitData.env = SepiaFW.config.environment;
 
@@ -568,7 +573,7 @@ function sepiaFW_build_audio(){
 			headers: {
 				"content-type": "application/x-www-form-urlencoded"
 			},
-			success: function (response) {
+			success: function(response){
 				SepiaFW.debug.info("GET_AUDIO SUCCESS: " + JSON.stringify(response));
 				if (response.result === "success"){
 					if (successCallback) successCallback(response.url);
@@ -576,9 +581,39 @@ function sepiaFW_build_audio(){
 					if (errorCallback) errorCallback();
 				}
 			},
-			error: function (e) {
+			error: function(e){
 				SepiaFW.debug.info("GET_AUDIO ERROR: " + JSON.stringify(e));
 				if (errorCallback) errorCallback();
+			}
+		});
+	}
+	TTS.getVoices = function(successCallback, errorCallback){
+		var apiUrl = SepiaFW.config.assistAPI + "tts-info";
+		var submitData = {};
+		submitData.KEY = SepiaFW.account.getKey(sepiaSessionId);
+		submitData.client = SepiaFW.config.getClientDeviceInfo();
+		submitData.env = SepiaFW.config.environment;
+
+		//get url
+		$.ajax({
+			url: apiUrl,
+			timeout: 10000,
+			type: "POST",
+			data: submitData,
+			headers: {
+				"content-type": "application/x-www-form-urlencoded"
+			},
+			success: function(response){
+				SepiaFW.debug.info("GET_VOICES SUCCESS: " + JSON.stringify(response));
+				if (response.result === "success"){
+					if (successCallback) successCallback(response);
+				}else{
+					if (errorCallback) errorCallback(response);
+				}
+			},
+			error: function(e){
+				SepiaFW.debug.info("GET_VOICES ERROR: " + JSON.stringify(e));
+				if (errorCallback) errorCallback(e);
 			}
 		});
 	}
@@ -598,16 +633,26 @@ function sepiaFW_build_audio(){
 		if (!audioPlayer) audioPlayer = player;
 		audioPlayer.title = newTitle;
 		if (audioTitle) audioTitle.innerHTML = newTitle || "SepiaFW audio player";
+		if (audioPlayer == player){
+			lastAudioStreamTitle = newTitle;
+		}
 	}
 
 	//get the stream last played
 	AudioPlayer.getLastAudioStream = function(){
 		return lastAudioStream;
 	}
+	//get title of last stream played
+	AudioPlayer.getLastAudioStreamTitle = function(){
+		return lastAudioStreamTitle;
+	}
 	//resume last stream
 	AudioPlayer.resumeLastAudioStream = function(){
-		if (AudioPlayer.getLastAudioStream()){
-			AudioPlayer.playURL('', player);
+		var lastStream = AudioPlayer.getLastAudioStream();
+		var lastStreamTitle = (lastStream)? AudioPlayer.getLastAudioStreamTitle() : "";
+		if (lastStream){
+			AudioPlayer.playURL(lastStream, player);
+			AudioPlayer.setPlayerTitle(lastStreamTitle);
 			return true;
 		}else{
 			return false;
@@ -627,6 +672,7 @@ function sepiaFW_build_audio(){
 		if (audioURL && audioPlayer == player){
 			beforeLastAudioStream = lastAudioStream;
 			lastAudioStream = audioURL;
+			lastAudioStreamTitle = "";		//we reset this and assume "setTitle" is called after "playUrl"
 		}
 		if (!audioURL) audioURL = lastAudioStream;
 		

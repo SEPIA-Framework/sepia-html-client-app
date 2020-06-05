@@ -5,6 +5,9 @@ html {
 	color: #000;
 	border: 0px;
 }
+.sepiaFW-results-container {
+	scrollbar-color: #efefef #fff;
+}
 @media (min-width: 480px) and (min-height: 481px) {
 	.sepiaFW-top-layer-view {
 		border-radius: 0px;
@@ -40,7 +43,7 @@ html {
 	background: #3285ff;
 	color: #fff;
 }
-#sepiaFW-login-box button:not(#sepiaFW-login-extend-btn):hover {
+#sepiaFW-login-box button:not(#sepiaFW-login-extend-btn):not(#sepiaFW-login-help-btn):hover {
 	background: #0057d6 !important;
 	color: #fff !important;
 }
@@ -90,11 +93,12 @@ html {
 	background: #3285ff !important;
 }
 .sepiaFW-menu button:hover {
-	background: #ffffff !important;
+	background: #fff !important;
     color: #111 !important;
 }
 .sepiaFW-touch-device .sepiaFW-menu button:hover {
 	background: #3285ff !important;
+	color: #fff !important;
 }
 #sepiaFW-chat-menu {
 	background: #002d70;
@@ -121,8 +125,8 @@ html {
 	color: #fff;
 }
 .sepiaFW-touch-device #sepiaFW-main-window .chat-buttons-area button:hover {
-	background: #fff;
-	color: #002d70;
+	background: #3285ff;
+	color: #fff;
 }
 #sepiaFW-main-window .chat-buttons-area .my-view-custom-button {
 	background: #044ab0;
@@ -209,6 +213,15 @@ html {
 	background: #ececec;
 }
 
+/*----- pop-ups / overlays -----*/
+
+#sepiaFW-popup-message i {
+    color: #3285ff;
+}
+#sepiaFW-popup-message .accent {
+    color: #01fca0;
+}
+
 /*----- cards ------*/
 
 .sepiaFW-cards-button, 
@@ -281,10 +294,10 @@ html {
 	background-size: 100%;
 }
 #sepiaFW-alwaysOn-avatar-touch-area {
-    left: 0%;
-    top: 14%;
-    width: 100%;
-    height: 66%;
+	left: 27%;
+	top: 11%;
+	width: 46%;
+	height: 72%;
 }
 
 #sepiaFW-alwaysOn-stt-out {

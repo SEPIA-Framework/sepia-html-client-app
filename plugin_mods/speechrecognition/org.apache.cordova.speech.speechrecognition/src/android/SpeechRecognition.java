@@ -308,7 +308,7 @@ public class SpeechRecognition extends CordovaPlugin {
             Log.d(LOG_TAG, "onPartialResults " + partialResults);
             ArrayList<String> transcript = partialResults.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
             //float[] confidence = partialResults.getFloatArray(SpeechRecognizer.CONFIDENCE_SCORES);
-            if (transcript.size() > 0) {
+            if (transcript != null && transcript.size() > 0) {
                 Log.d(LOG_TAG, "fire partial result event");
                 firePartialResultEvent(transcript, null);
             } else {
@@ -332,7 +332,7 @@ public class SpeechRecognition extends CordovaPlugin {
             Log.d(LOG_TAG, "onResults " + results);
             ArrayList<String> transcript = results.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
             float[] confidence = results.getFloatArray(SpeechRecognizer.CONFIDENCE_SCORES);
-            if (transcript.size() > 0) {
+            if (transcript != null && transcript.size() > 0) {
                 Log.d(LOG_TAG, "fire recognition event");
                 fireRecognitionEvent(transcript, confidence);
             } else {

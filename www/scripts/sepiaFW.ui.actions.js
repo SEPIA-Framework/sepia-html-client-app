@@ -130,11 +130,7 @@ function sepiaFW_build_ui_actions(){
 	//CLIENT Control function
 	Actions.clientControlFun = function(action, sender){
 		if (action && action.fun){
-			if (action.fun in SepiaFW.client.controls){
-				SepiaFW.client.controls[action.fun](action.controlData);
-			}else{
-				SepiaFW.debug.error("Action - client control fun. not existing: " + action.fun); 
-			}
+			SepiaFW.client.controls.handle(action.fun, action.controlData);
 		}
 	}
 	
@@ -284,10 +280,14 @@ function sepiaFW_build_ui_actions(){
 	}
 	function playAction(action){
 		SepiaFW.audio.playerSetVolumeTemporary(1.0); 		//<-- to start smoothly
-		SepiaFW.audio.setPlayerTitle(action.audio_title, '');
+		if (!action.audio_url){
+			action.audio_url = SepiaFW.audio.getLastAudioStream();
+			action.audio_title = (action.audio_url)? SepiaFW.audio.getLastAudioStreamTitle() : "";
+		}
 		SepiaFW.audio.playURL(action.audio_url, '', function(){
 			SepiaFW.audio.playerFadeToOriginalVolume();
 		});//, onEndCallback, onErrorCallback)
+		SepiaFW.audio.setPlayerTitle(action.audio_title, '');
 	}
 	//STOP AUDIO STREAM
 	Actions.stopAudio = function(action){
@@ -439,17 +439,10 @@ function sepiaFW_build_ui_actions(){
 		//header
 		var titleNote = document.createElement('P');
 		titleNote.className = 'sepiaFW-myEvents-titleNote';
-		/*titleNote.innerHTML = SepiaFW.local.g('recommendationsFor') + " " + SepiaFW.account.getUserName() + ":";
-		var dateNote = document.createElement('DIV');
-		dateNote.className = 'sepiaFW-myEvents-dateHeader';
-		var d = new Date();
-		dateNote.innerHTML = (SepiaFW.local.g('lastUpdate') + ": " 
-			+ d.toLocaleDateString() + " - " + d.toLocaleTimeString([], {hour: 'numeric', minute:'2-digit'}));
-		$(aButtonsArea).prepend(dateNote);*/
 		var d = new Date();
 		titleNote.innerHTML = SepiaFW.local.g('recommendationsFor') + " " 
 			+ SepiaFW.account.getUserName() + " " + SepiaFW.local.g('from') + " "
-			+ d.toLocaleTimeString([], {hour: 'numeric', minute:'2-digit'}) + " " + SepiaFW.local.g('oclock') + ":";
+			+ d.toLocaleTimeString(SepiaFW.config.appLanguage, {hour: 'numeric', minute:'2-digit'}) + " " + SepiaFW.local.g('oclock') + ":";
 		$(aButtonsArea).prepend(titleNote);
 		
 		//show again on top

@@ -250,7 +250,7 @@ function sepiaFW_build_webSocket_common(){
 	return Common;
 }
 
-function sepiaFW_build_webSocket_client(){
+function sepiaFW_build_webSocket_client(sepiaSessionId){
 	var Client = {};
 	
 	//----DEBUG----
@@ -691,11 +691,6 @@ function sepiaFW_build_webSocket_client(){
 		
 		//ADD welcome stuff - TODO: what if this is offline mode or unreachable server?
 		Client.welcomeActions(false);
-
-		//ADD (local) input controls support (e.g. gamepad)
-		if (SepiaFW.inputControls){
-			SepiaFW.inputControls.setup();
-		}
 	}
 	
 	//when client started (and likely before active channel is received) add some info like first-visit messages or buttons
@@ -1308,11 +1303,11 @@ function sepiaFW_build_webSocket_client(){
 	function addCredentialsAndParametersToData(data, skipAssistantState){
 		//NOTE: compare to 'Assistant.getParametersForActionCall'
 		
-		if (SepiaFW.account.getUserId() && SepiaFW.account.getToken()){
+		if (SepiaFW.account.getUserId() && SepiaFW.account.getToken(sepiaSessionId)){
 			//use "safe" field: credentials
 			data.credentials = new Object();
 			data.credentials.userId = SepiaFW.account.getUserId();
-			data.credentials.pwd = SepiaFW.account.getToken();
+			data.credentials.pwd = SepiaFW.account.getToken(sepiaSessionId);
 		}
 		if (!skipAssistantState){
 			data.parameters = SepiaFW.assistant.getState();
@@ -1985,7 +1980,7 @@ function sepiaFW_build_webSocket_client(){
 								var customTag = "weekday-note-" + SepiaFW.tools.getLocalDateWithCustomSeparator("-", msg.timeUNIX);
 								//... but only if we haven't already
 								if ($("#sepiaFW-chat-output").find('[data-channel-id=' + message.data.channelId + ']').filter('[data-msg-custom-tag=' + customTag + ']').length == 0){
-									var weekdayName = SepiaFW.local.getWeekdayName(day) + " " + d.toLocaleDateString();
+									var weekdayName = SepiaFW.local.getWeekdayName(day) + " " + d.toLocaleDateString(SepiaFW.config.appLanguage);
 									SepiaFW.ui.showInfo(weekdayName, false, customTag, true, message.data.channelId);	//SepiaFW.local.g('history')
 								}
 							}
@@ -2144,6 +2139,17 @@ function sepiaFW_build_webSocket_client(){
 			//extract first link and shorten original link
 			deepLinkInMessage = message.text.replace(/\s.*/,"").trim();
 			message.text = message.text.replace(deepLinkInMessage, deepLinkInMessage.substring(0, 49) + "...");
+		}
+
+		//add a "today" info block?
+		var d = new Date();
+		if (message.channelId && (d.getTime() - message.timeUNIX) < 30000){
+			var customTag = "weekday-note-" + SepiaFW.tools.getLocalDateWithCustomSeparator("-");
+			var $todayNote = $("#sepiaFW-chat-output").find('[data-channel-id=' + message.channelId + ']').filter('[data-msg-custom-tag=' + customTag + ']');
+			if ($todayNote.length == 0){
+				var weekdayName = SepiaFW.local.getWeekdayName(d.getDay()) + " " + d.toLocaleDateString(SepiaFW.config.appLanguage);
+				SepiaFW.ui.showInfo(weekdayName, false, customTag, true, message.channelId);
+			}
 		}
 
 		//publish

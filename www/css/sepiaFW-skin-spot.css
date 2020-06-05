@@ -14,13 +14,19 @@ html {
 		border-radius: 16px;
 		/*overflow: hidden;*/ 	/* we can't use this with position fixed children, its buggy */
 	}
+	#sepiaFW-main-output-carousel {
+		border-radius: 0 0 10px 10px;
+	}
+	#sepiaFW-main-window.full-screen #sepiaFW-main-output-carousel {
+		border-radius: 10px;
+	}
 	#sepiaFW-nav-bar {
 		border-radius: 9px 9px 0 0;
 	}
 	#sepiaFW-chat-controls,
 	#sepiaFW-chat-menu,
 	#sepiaFW-chat-controls-more-menu {
-		border-radius: 0 0 16px 16px;
+		border-radius: 0 0 10px 10px;
 	}
 	.sepiaFW-top-layer-view {
 		border-radius: 7px;
@@ -263,6 +269,10 @@ html {
 	background:rgba(255, 255, 255, 0.11);
 }
 
+#sepiaFW-popup-message i {
+    color: #f23352;
+}
+
 /*----- cards ------*/
 
 .sepiaFW-cards-flexSize-container {
@@ -325,10 +335,6 @@ html {
     background: #F4F4F4;
 	color: #212327;
 }
-.sepiaFW-cards-list-title.newsHeader span {
-	text-shadow: 1px 1px 0 #F4F4F4, 1px -1px 0 #F4F4F4, -1px 1px 0 #F4F4F4, -1px -1px 0 #F4F4F4, 
-					1px 1px 0 #F4F4F4, 0px 1px 0 #F4F4F4, -1px 0px 0 #F4F4F4, 0px -1px 0 #F4F4F4;
-}
 .sepiaFW-cards-list-title.newsHeader button {
 	color: #111111 !important;
 }
@@ -343,7 +349,7 @@ html {
     background: #111111;
 }
 #sepiaFW-teachUI-view label {
-    color: #bc263e;
+    color: #f23352;
 }
 #sepiaFW-teachUI-editor button, 
 #sepiaFW-teachUI-manager button {

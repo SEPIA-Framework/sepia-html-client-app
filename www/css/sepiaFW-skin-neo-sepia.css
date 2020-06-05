@@ -11,6 +11,9 @@ html {
 		border-radius: 0px;
 	}
 }
+.sepiaFW-results-container {
+	scrollbar-color: #eee #fff;
+}
 
 #sepiaFW-pC  { background-color: #000000; } 					/* Primary color - used for status bar and browser theme as well */
 #sepiaFW-sC  { background-color: #16ABC3; }						/* Secondary color - should be in contrast to primary */
@@ -200,6 +203,22 @@ html {
 	background: #121212; /*rgba(225, 225, 245, 1.00);*/
 	color: #fff; /*#000;*/
 }
+
+.sepiaFW-cards-list-title.newsHeader {
+    background: rgba(255, 255, 255, 0.90);
+	color: #000;
+}
+.sepiaFW-cards-list-title.newsHeader button {
+	color: #CEFF1A !important;
+}
+.sepiaFW-cards-list-title.newsHeader button:hover {
+	color: #000 !important;
+}
+.sepiaFW-cards-list-title.newsHeader .sepiaFW-cards-list-contextMenu {
+	background: #eeeeee;
+    color: #000;
+}
+
 .sepiaFW-cards-list-body .listElement .checked {
     background: #4ec48f;
 }

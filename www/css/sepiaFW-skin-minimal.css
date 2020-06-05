@@ -315,6 +315,10 @@ html {
 .sepiaFW-cards-list-body .weatherNowSmall .weatherNowSmallImage {
 	background: #000 !important;
 }
+.sepiaFW-cards-list-body .weatherNowDetails li {
+    background: #000;
+    color: #eeeeee;
+}
 
 #sepiaFW-audio-ctrls-canvas {
     background: #404050;

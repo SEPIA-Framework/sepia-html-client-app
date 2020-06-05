@@ -29,27 +29,29 @@ function sepiaFW_build_geocoder(){
 	
 	//states
 	var minRefreshWait = 5000; 			//wait at least this time before refresh
+	var minForceUpdateWait = 20000;		//if last update is older than this we set the 'force=true' flag for myView update
 	var distanceThreshold = 0.0025;		//(~250m) GPS coordinates must change at least this much to justify geocoder request
 	var isActive = false;
 	Geocoder.isActive = function(){
 		return isActive;
 	}
-	var lastCheck = 0;
+	var lastCheck = 0;		//last GPS update try
 	
 	Geocoder.autoGPS = false;					//check GPS automatically?
 	Geocoder.autoRefreshInterval = 30*60*1000;	//triggered e.g. on visibility change 
 	
-	var lastLatitude = 0;
-	var lastLongitude = 0;
-	var lastAddressResult;
-	
 	//Result
 	
 	//GPS
-	var latitude = "";
-	var longitude = "";
+	var latitude = 0;
+	var longitude = 0;
+	var lastLatitude = 0;
+	var lastLongitude = 0;
 	//Address
 	var addressResult;
+	var addressResultChangeTS;		//timestamp of last change to address
+	var lastAddressResult;
+	var lastAddressResultTS = 0;
 	/*
 	{
 		"latitude": 52.5186,
@@ -101,7 +103,8 @@ function sepiaFW_build_geocoder(){
 	}
 	function broadcastAddressIsNew(addressResult){
 		//Got new GPS coordinates (according to distance threshold) and with that a new address
-		SepiaFW.ui.updateMyView(false, false, 'geoCoder');
+		var forceUpdate = ((new Date().getTime() - addressResultChangeTS) > minForceUpdateWait);
+		SepiaFW.ui.updateMyView(forceUpdate, false, 'geoCoder');
 	}
 	function broadcastAddressFinished(){
 		//UPDATE
@@ -141,6 +144,7 @@ function sepiaFW_build_geocoder(){
 		lastLatitude = 0;
 		lastLongitude = 0;
 		lastAddressResult = '';
+		lastAddressResultTS = 0;
 		lastCheck = 0;
 	}
 	
@@ -148,14 +152,15 @@ function sepiaFW_build_geocoder(){
 	Geocoder.lastBestLocationUpdate = 0;
 	Geocoder.getBestLocation = function(successCallback, errorCallback){
 		var doBroadcast = true;
-		Geocoder.getGpsAndAddress(function(){
+		Geocoder.getGpsAndAddress(function(addressResult, wasBroadcasted){
 			//success
 			Geocoder.lastBestLocationUpdate = new Date().getTime();
-			if (successCallback) successCallback();
+			if (successCallback) successCallback(addressResult, wasBroadcasted);
 		},function(error){
 			if (error && error.code && error.code == -1){
 				//busy
 				//ignore?
+				if (errorCallback) errorCallback(error);
 			}else{
 				//error - try IP then
 				SepiaFW.geocoder.getLocationViaIP(successCallback, errorCallback);
@@ -222,14 +227,14 @@ function sepiaFW_build_geocoder(){
 	//get approximate GPS distance
 	function getDistance(latitude, longitude, lastLatitude, lastLongitude){
 		var distance = 100000; 		//~infinite
-		if (latitude && longitude && lastLatitude && lastLongitude){
+		if (latitude != undefined && longitude != undefined && lastLatitude != undefined && lastLongitude != undefined){
 			distance = Math.sqrt(Math.pow(latitude-lastLatitude,2) + Math.pow(longitude-lastLongitude,2));
 		}
 		return distance;
 	}
 	//need address refresh?
 	function needNewAddress(distance){
-		if (lastAddressResult && (distance < distanceThreshold) && (lastLanguage === Geocoder.language)){
+		if (addressResult && (distance < distanceThreshold) && (lastLanguage === Geocoder.language)){
 			SepiaFW.debug.info('Geocoder distance to old GPS: ' + distance + ' - No geocoder request necessary.');
 			return false;
 		}else{
@@ -238,7 +243,7 @@ function sepiaFW_build_geocoder(){
 		}
 	}
 
-	//get Address
+	//get Address - info: successCallback(addressResult, wasBroadcasted)
 	Geocoder.getAddress = function(successCallback, errorCallback, latitude, longitude, doBroadcastNew){
 		broadcastAddressIsLocating();
 		isActive = true;
@@ -259,7 +264,7 @@ function sepiaFW_build_geocoder(){
 			isActive = false;
 			broadcastAddressFinished();
 			SepiaFW.debug.info('Geocoder getAddress: no update required, using old result');
-			if (successCallback) successCallback(lastAddressResult);
+			if (successCallback) successCallback(addressResult, false);
 			return;
 		}
 		
@@ -274,11 +279,13 @@ function sepiaFW_build_geocoder(){
 			dataType: "json",
 			success: function(data) {
 				//console.info(JSON.stringify(res));
-				gotNewResult = false;
+				var gotNewResult = false;
 
 				//OpenStreetMaps
 				if (Geocoder.service === "OSM" && data.address){
 					lastAddressResult = (addressResult)? JSON.parse(JSON.stringify(addressResult)) : '';
+					lastAddressResultTS = addressResultChangeTS;
+					addressResultChangeTS = new Date().getTime();
 					addressResult = new Object();
 					addressResult.latitude = SepiaFW.tools.round5(lat);
 					addressResult.longitude = SepiaFW.tools.round5(lng);
@@ -309,6 +316,8 @@ function sepiaFW_build_geocoder(){
 				}else if (Geocoder.service === "GM" && data.results && data.results[0] && data.results[0].address_components){
 					var components = data.results[0].address_components;
 					lastAddressResult = (addressResult)? JSON.parse(JSON.stringify(addressResult)) : '';
+					lastAddressResultTS = addressResultChangeTS;
+					addressResultChangeTS = new Date().getTime();
 					addressResult = new Object();
 					addressResult.latitude = SepiaFW.tools.round5(lat);
 					addressResult.longitude = SepiaFW.tools.round5(lng);
@@ -354,26 +363,20 @@ function sepiaFW_build_geocoder(){
 						addressResult.summary = sum;
 					}
 					gotNewResult = !!Object.keys(addressResult).length;
+				
+				//No service or no correct data?
+				}else{
+					SepiaFW.debug.err('Geocoder: could NOT update address due to wrong service or result data - ' + JSON.stringify(data));
+					gotNewResult = false;
 				}
 					
 				if (gotNewResult){
-					if (addressResult){
-						lastLanguage = Geocoder.language;
-						isActive = false;
-						broadcastAddressFinished();
-						if (doBroadcastNew) broadcastAddressIsNew(addressResult);
-						SepiaFW.debug.info("Geocoder new address: '" + addressResult.summary + "'");
-						if (successCallback) successCallback(addressResult);
-						
-					}else{
-						isActive = false;
-						//ERROR
-						broadcastAddressFailed();
-						SepiaFW.debug.info('Geocoder: Address search had NO result!');
-						var error = {};
-						error.message = 'Address had NO result!';
-						if (errorCallback) errorCallback(error);
-					}
+					lastLanguage = Geocoder.language;
+					isActive = false;
+					broadcastAddressFinished();
+					if (doBroadcastNew) broadcastAddressIsNew(addressResult);
+					SepiaFW.debug.info("Geocoder new address: '" + addressResult.summary + "'");
+					if (successCallback) successCallback(addressResult, doBroadcastNew);
 				
 				}else{
 					isActive = false;
@@ -415,6 +418,8 @@ function sepiaFW_build_geocoder(){
 				//console.info(JSON.stringify(res));
 				if (data.latitude && data.longitude){
 					lastAddressResult = (addressResult)? JSON.parse(JSON.stringify(addressResult)) : '';
+					lastAddressResultTS = addressResultChangeTS;
+					addressResultChangeTS = new Date().getTime();
 					addressResult = new Object();
 					addressResult.latitude = SepiaFW.tools.round5(data.latitude);
 					addressResult.longitude = SepiaFW.tools.round5(data.longitude);
@@ -433,7 +438,7 @@ function sepiaFW_build_geocoder(){
 						broadcastAddressFinished();
 						broadcastLocationIsApproximation();
 						SepiaFW.debug.info("Geocoder new approximate address: '" + addressResult.summary + "'");
-						if (successCallback) successCallback(addressResult);
+						if (successCallback) successCallback(addressResult, false);
 						
 					}else{
 						isActive = false;

@@ -54,9 +54,34 @@
 				<button id="sepiaFW-teachUI-load-more-commands">LOAD MORE</button>
 			</div>
 		</div>
-		
 	</div>
 </div>
+<!-- Input helper -->
+<div id="sepiaFW-teachUI-input-helper-cover" class="sepiaFW-popup-cover-layer" style="display: none;">
+	<div id="sepiaFW-teachUI-input-helper" class="sepiaFW-input-popup">
+		<div>
+			<div class="sepiaFW-input-popup-title"><h3>'parameter'</h3><p>Select your input type and enter value</p></div>
+			<div class="sepiaFW-input-popup-select-box"><label>Type:</label><select class="sepiaFW-input-popup-select-1">
+				<option value=0 class="in-type-text show-if-text" style="display: none;">Text</option>
+				<option value=1 class="in-type-extracted show-if-default">Extracted</option>
+				<option value=2 class="in-type-processed show-if-default">Processed</option>
+				<option value=3 class="in-type-raw show-if-default">Raw</option>
+			</select></div>
+			<div class="sepiaFW-input-popup-examples" style="display: none;"><!-- dynamic --></div>
+		</div>
+		<div>
+			<div><textarea class="sepiaFW-input-popup-value-1" placeholder="Value" spellcheck="false" 
+				onkeydown="if(event.keyCode===9){var v=this.value,s=this.selectionStart,e=this.selectionEnd;this.value=v.substring(0, s)+'\t'+v.substring(e);this.selectionStart=this.selectionEnd=s+1;return false;}">
+			</textarea></div>
+			<div class="sepiaFW-input-popup-note-1" style="display:none;"></div>
+		</div>
+		<div style="margin-bottom: 8px;">
+			<button class="sepiaFW-input-popup-confirm">Confirm</button>
+			<button class="sepiaFW-input-popup-abort">Abort</button>
+		</div>
+	</div>
+</div>
+<!-- Navigation -->
 <div id="sepiaFW-teachUI-nav-bar" class='sepiaFW-layer-header'>
 	<button id="sepiaFW-teachUI-close" class='entry'><i class="material-icons md-btn2">&#xE5CD;</i></button>
 	<button id="sepiaFW-teachUI-show-editor" class='entry'><i class="material-icons md-btn2">&#xE80C;</i><span>Maker</span></button>

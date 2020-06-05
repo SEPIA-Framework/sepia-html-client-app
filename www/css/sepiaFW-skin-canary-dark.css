@@ -7,6 +7,9 @@ html {
 #sepiaFW-main-window {
 	color: #F4F4F4;
 }
+.sepiaFW-results-container {
+	scrollbar-color: #191919 #040404;
+}
 @media (min-width: 480px) and (min-height: 481px) {
 	#sepiaFW-main-window {
 		border-color: #212121;
@@ -14,13 +17,19 @@ html {
 		border-radius: 16px;
 		/*overflow: hidden;*/ 	/* we can't use this with position fixed children, its buggy */
 	}
+	#sepiaFW-main-output-carousel {
+		border-radius: 0 0 10px 10px;
+	}
+	#sepiaFW-main-window.full-screen #sepiaFW-main-output-carousel {
+		border-radius: 10px;
+	}
 	#sepiaFW-nav-bar {
 		border-radius: 9px 9px 0 0;
 	}
 	#sepiaFW-chat-controls,
 	#sepiaFW-chat-menu,
 	#sepiaFW-chat-controls-more-menu {
-		border-radius: 0 0 16px 16px;
+		border-radius: 0 0 10px 10px;
 	}
 	.sepiaFW-top-layer-view {
 		border-radius: 7px;
@@ -324,13 +333,13 @@ html {
 .sepiaFW-cards-list-body .weatherNowSmall .weatherNowSmallImage {
 	background: #0CCE6B;
 }
+.sepiaFW-cards-list-body .weatherNowDetails li {
+    background: #191919;
+    color: #F4F4F4;
+}
 .sepiaFW-cards-list-title.newsHeader {
     background: #F4F4F4;
 	color: #040404;
-}
-.sepiaFW-cards-list-title.newsHeader span {
-	text-shadow: 1px 1px 0 #F4F4F4, 1px -1px 0 #F4F4F4, -1px 1px 0 #F4F4F4, -1px -1px 0 #F4F4F4, 
-					1px 1px 0 #F4F4F4, 0px 1px 0 #F4F4F4, -1px 0px 0 #F4F4F4, 0px -1px 0 #F4F4F4;
 }
 .sepiaFW-cards-list-title.newsHeader button {
 	color: #040404 !important;

@@ -12,8 +12,9 @@ function sepiaFW_build_ui_cards(){
 	var RADIO_CARD_ELE = "radio";
 	var NEWS_CARD_ELE = "news";
 	var WEATHER_NOW = "weatherNow";
+	var WEATHER_DAY = "weatherDay";
 	var WEATHER_TOMORROW = "weatherTmo";
-	var WEATHER_WEEK = "weatherWeek";
+	var WEATHER_WEEK = "weatherWeek";	//NOTE: actually we treat all weather cards with same method
 	var LINK = "link";
 	
 	//states
@@ -103,7 +104,8 @@ function sepiaFW_build_ui_cards(){
 							}
 						}
 						//Weather
-						else if (elementType === WEATHER_NOW || elementType === WEATHER_TOMORROW || elementType === WEATHER_WEEK){
+						else if (elementType === WEATHER_NOW || elementType === WEATHER_DAY ||
+								elementType === WEATHER_TOMORROW || elementType === WEATHER_WEEK){
 							var cardElement = buildWeatherElementA(cardInfoI.info[j]);
 							card.dataInline.push(cardElement);
 						}
@@ -917,7 +919,7 @@ function sepiaFW_build_ui_cards(){
 	
 	//WEATHER
 	
-	//-NOW, TOMORROW and WEEK (actually TOMORROW and WEEK can simply use the NOW cards)
+	//-NOW, DAY, TOMORROW and WEEK (actually all types simply use the NOW cards)
 	function buildWeatherElementA(cardElementInfo){
 		var newId = ("sepiaFW-card-id-" + Cards.currentCardId++);
 		var cardElement = document.createElement('DIV');
@@ -969,39 +971,56 @@ function sepiaFW_build_ui_cards(){
 		return cardElement;
 	}
 	function makeWeatherNowTmoSmallData(data){
-		var dataHTML = "" 
-						+ "<div><h3>" + data.tempA + data.units + "</h3><p>" + data.tagA + "</p></div>"
-						+ "<div><h3>" + data.tempB + data.units + "</h3><p>" + data.tagB + "</p></div>";
-		if (data.tempC){
-			dataHTML += "<div><h3>" + data.tempC + data.units + "</h3><p>" + data.tagC + "</p></div>";
+		var unitReduced = data.units.replace(/C|celsius|F|fahrenheit/, "");
+		var dataHTML = "";
+		if (data.tempB == undefined && data.tempC == undefined){
+			if (data.tempA) dataHTML += "<div style='width:100%'><h3>" + data.tempA + data.units + "</h3><p>" + data.tagA + "</p></div>";
+		}else{
+			if (data.tempA) dataHTML += "<div><h3>" + data.tempA + unitReduced + "</h3><p>" + data.tagA + "</p></div>";
+			if (data.tempB) dataHTML += "<div><h3>" + data.tempB + unitReduced + "</h3><p>" + data.tagB + "</p></div>";
+			if (data.tempC) dataHTML += "<div><h3>" + data.tempC + unitReduced + "</h3><p>" + data.tagC + "</p></div>";
 		}
 		return dataHTML;
 	}
 	function makeWeatherNowTmoDetailsData(details, unit){
-		var data = details.daily || details.hourly;
-		var isDaily = false;
-		if (details.daily){
-			isDaily = true;
+		unit = unit.replace(/C|celsius|F|fahrenheit/, "");
+		var data = details.daily || details.hourly || details.partsOfDay;
+		var isHourly = false;
+		if (details.hourly){
+			isHourly = true;
 		}
 		var detailsHTML = "<ul>";
 		for (i=0; i<data.length; i++){
-			var precipProb = Math.round(data[i].precipProb * 100);
+			var precipValue = Math.round((data[i].precipRelative || data[i].precipProb || 0.0) * 100);	//NOTE: -100 means NO DATA
 			var precipType = data[i].precipType;
 			var precipSymbol = "";
-			var temp = (isDaily)? (data[i].tempA  + unit + " - " + data[i].tempB + unit) : (data[i].tempA + unit);
-			if (precipType && (precipProb>2)){
+			var temp = (isHourly)? (data[i].tempA + unit) : (data[i].tempA  + unit + " - " + data[i].tempB + unit);
+			if (precipType && (precipValue>2)){
 				if (precipType === "snow"){
-					precipSymbol = "<img src='img/weather/snowflakes.png' alt='snow' class='precipSymbol'>";
+					precipSymbol = "<img src='img/weather/snowflakes.svg' onload='SVGInject(this)' alt='snow' class='precipSymbol'>";
 				}else{
-					precipSymbol = "<img src='img/weather/rain-drops.png' alt='rain' class='precipSymbol'>";
+					precipSymbol = "<img src='img/weather/rain-drops.svg' onload='SVGInject(this)' alt='rain' class='precipSymbol'>";
 				}
 			}else{
-				precipSymbol = "<img src='img/weather/clear-day.png' alt='clear' class='precipSymbol'>";
+				if (data[i].icon){
+					if (data[i].icon.indexOf("fair") >= 0 || data[i].icon.indexOf("clear") >= 0 || data[i].icon.indexOf("partly-cloudy") >= 0){
+						if (data[i].icon.indexOf("night") >= 0){
+							precipSymbol = "<img src='img/weather/clear-night.svg' onload='SVGInject(this)' alt='clear' class='precipSymbol'>";
+						}else{
+							precipSymbol = "<img src='img/weather/clear-day.svg' onload='SVGInject(this)' alt='clear' class='precipSymbol'>";
+						}
+					}else{
+						precipSymbol = "<img src='img/weather/default.svg' onload='SVGInject(this)' alt='clear' class='precipSymbol'>";	
+					}
+				}else{
+					//precipSymbol = "<img src='img/weather/clear-day.png' alt='clear' class='precipSymbol'>";
+					precipSymbol = "<img src='img/weather/default.svg' onload='SVGInject(this)' alt='clear' class='precipSymbol'>";
+				}
 			}
 			detailsHTML += "<li>"
 							+ "<div>" + data[i].tag + "</div>"
 							+ "<div>" + temp + "</div>"
-							+ "<div>" + ((precipProb > 2)? (precipSymbol + "<span>" + precipProb + "%</span>") : (precipSymbol)) + "</div>"
+							+ "<div>" + ((precipValue > 2)? (precipSymbol + "<span>" + precipValue + "%</span>") : (precipSymbol)) + "</div>"
 						+"</li>";
 		}
 		detailsHTML += "</ul>";

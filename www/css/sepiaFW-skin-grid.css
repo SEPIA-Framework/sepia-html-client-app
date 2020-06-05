@@ -12,6 +12,9 @@ html {
 		border-radius: 0px;
 	}
 }
+.sepiaFW-results-container {
+	scrollbar-color: rgba(20, 120, 140, 0.2) transparent;
+}
 
 #sepiaFW-pC 	{ background-color: #102030; }
 #sepiaFW-sC 	{ background-color: #15abc3; }
@@ -341,11 +344,19 @@ html {
     text-shadow: 1px 1px 4px #fff, -1px -1px 4px #fff;
 }
 .sepiaFW-cards-list-body .listElement > div,
-.sepiaFW-cards-list-body .newsArticle .newsCenter,
-.sepiaFW-cards-list-body .weatherNowSmall .weatherNowSmallImage {
+.sepiaFW-cards-list-body .newsArticle .newsCenter {
     background: rgba(48, 62, 80, 0.55);
 	color: #fff;
 }
+.sepiaFW-cards-list-body .weatherNowSmall .weatherNowSmallImage {
+	background: rgba(27, 195, 223, 0.70);
+	color: #fff;
+}
+.sepiaFW-cards-list-body .weatherNowDetails li {
+	background: rgba(48, 62, 80, 0.55);	/*rgba(4, 68, 91, 0.70);*/
+    color: #fff;
+}
+
 .sepiaFW-cards-list-body .timeEvent > div,
 .sepiaFW-cards-list-body .radioStation > div,
 .sepiaFW-cards-list-body .weatherNowSmall > div,

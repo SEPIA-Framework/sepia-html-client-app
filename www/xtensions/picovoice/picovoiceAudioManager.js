@@ -100,8 +100,10 @@ let PicovoiceAudioManager = (function() {
     }
       
     //Create recorder and start processing
-    this.start = function(picovoiceEngine, picovoiceProcessCallback, errorCallback) {
-        engine = picovoiceEngine;
+    this.start = function(ppKeywordIDs, ppSensitivities, picovoiceProcessCallback, errorCallback){
+        //create engine - TODO: optimze here
+        engine = Porcupine.create(Object.values(ppKeywordIDs), ppSensitivities);
+        
         processCallback = picovoiceProcessCallback;
         isProcessing = true;
 

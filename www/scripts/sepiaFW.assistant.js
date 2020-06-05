@@ -1,5 +1,5 @@
 //ASSISTANT
-function sepiaFW_build_assistant(){
+function sepiaFW_build_assistant(sepiaSessionId){
 	var Assistant = {};
 	
 	//some global settings
@@ -128,6 +128,7 @@ function sepiaFW_build_assistant(){
 			embeddedPlayers: SepiaFW.ui.cards.getSupportedWebPlayers(),
 			prefTempUnit: (SepiaFW.account.getUserPreferredTemperatureUnit() || "C"),
 			deviceLocalSite: SepiaFW.config.getDeviceLocalSiteData()
+			//TODO: add 'SepiaFW.config.isUiHeadless' info ? Or rely on 'env' parameter?
 		};
 		State.custom_data = JSON.stringify(cd);
 
@@ -281,7 +282,7 @@ function sepiaFW_build_assistant(){
 		
 		//get credentials
 		var userId = SepiaFW.account.getUserId();
-		var pwd = SepiaFW.account.getToken();
+		var pwd = SepiaFW.account.getToken(sepiaSessionId);
 		parameters.KEY = userId + ";" + pwd;
 		parameters.client = SepiaFW.config.getClientDeviceInfo(); //SepiaFW.config.clientInfo;
 		

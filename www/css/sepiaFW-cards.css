@@ -563,15 +563,22 @@
 	margin: 0 5px 0 5px;
 	text-align: center;
 }
-.sepiaFW-cards-list-body .weatherNowDetails li div img.precipSymbol {
+.sepiaFW-cards-list-body .weatherNowDetails li div img.precipSymbol,
+.sepiaFW-cards-list-body .weatherNowDetails li div object.precipSymbol {
     width: 20px;
     vertical-align: bottom;
 	-webkit-filter: invert(1);
     filter: invert(1);
 	margin-right: 5px;
 }
+.sepiaFW-cards-list-body .weatherNowDetails li div svg.precipSymbol {
+	width: 20px;
+	height: 20px;
+    vertical-align: bottom;
+	margin-right: 5px;
+}
 .sepiaFW-cards-list-body .weatherNowDetails li div span {
-	min-width: 30px;
+	min-width: 40px;
     display: inline-block;
 }
 

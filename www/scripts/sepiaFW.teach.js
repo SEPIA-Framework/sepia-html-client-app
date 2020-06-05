@@ -1,5 +1,5 @@
 //Teach UI
-function sepiaFW_build_teach(){
+function sepiaFW_build_teach(sepiaSessionId){
 	var Teach = {};
 	
 	//some states
@@ -12,6 +12,7 @@ function sepiaFW_build_teach(){
 	var loadAtOnce = 10;
 	var services;
 	var defaultServices;
+	var parameterCommons;
 
 	var customButtonShowState = false;
 
@@ -45,14 +46,39 @@ function sepiaFW_build_teach(){
 					$('#sepiaFW-teach-input').val("");
 					$('#sepiaFW-teach-parameters').find("[data-name]").val("");
 					$('#sepiaFW-teach-commands').val("");
-					//fill now
-					if (info.input){
-						$('#sepiaFW-teach-input').val(info.input);
+					//load command via ID?
+					if (info.commandId){
+						SepiaFW.teach.loadPersonalCommandsWithIds(SepiaFW.account.getKey(sepiaSessionId), [info.commandId], 
+							function(data){
+								//result should be exactly one entry
+								if (data.result && data.result.length == 1){
+									var cmd = data.result[0];
+									if (cmd.id == info.commandId){
+										if (cmd.sentence && cmd.sentence.length == 1){
+											loadCommandToEditor(cmd.sentence[0]);
+										}
+									}else{
+										SepiaFW.debug.error("Teach-UI wanted to load command ID '" + info.commandId + "' but found '" + cmd.id + "'. HOW?!");
+									}
+								}else{
+									SepiaFW.ui.showPopup("Sorry but something went wrong while loading the data :-(");		//TODO: localize	
+								}
+							}, 
+							function(errMsg){
+								SepiaFW.ui.showPopup(errMsg);		//TODO: localize
+							}
+						);
+					//load command via given data?
+					}else{
+						//fill now
+						if (info.input){
+							$('#sepiaFW-teach-input').val(info.input);
+						}
+						if (info.service || info.cmd){
+							$('#sepiaFW-teach-commands').val(info.service || info.cmd);
+						}
+						//TODO: we could add parameters ...
 					}
-					if (info.service || info.cmd){
-						$('#sepiaFW-teach-commands').val(info.service || info.cmd);
-					}
-					//TODO: we could add parameters ...
 				}
 			});
 			Teach.isOpen = true;
@@ -81,18 +107,72 @@ function sepiaFW_build_teach(){
 					,
 				parameters : [{
 					value : "reply",
-					name : "and says ..."
+					name : "and says ...",
+					type : "text",
+					examples : {
+						"0" : ["Hello world :-)"]
+					}
 				}]
 			}
 		};
-		Teach.loadTeachUiServices(SepiaFW.account.getKey(), function(servicesJson){
-			//success
-			services = servicesJson;
+		if (SepiaFW.client.isDemoMode()){
+			//add demo note
+			services = $.extend(true, {
+				demo: {
+					command: "demo",
+					name: "Just a demo",
+					desc: "Offline Teach-UI demo service.",
+					help: "To use the Teach-UI please connect to your SEPIA server.",
+					parameters: [{
+						value : "required",
+						name : "A required parameter (yes, no)",
+						examples : {
+							"1" : ["&lt;yes&gt;", "&lt;no&gt;"],
+							"2" : [{"value": "yes", "value_local": "Ja"}],
+							"3" : ["of cause", "never"]
+						}
+					},{
+						value : "optional",
+						name : "An optional parameter (more info)",
+						optional : true,
+						examples : {
+							"1" : ["&lt;type_a&gt;", "&lt;type_b&gt;", "&lt;setting&gt;;;C"],
+							"2" : [	
+									{"value": "type_A", "value_local": "local name for type A value"},
+									{"value": "type_B", "value_local": "local name for type B"}
+								  ],
+							"3" : ["type A", "the property B", "my configuration C"]
+						}
+					},{
+						value : "optional",
+						name : "An optional reply",
+						optional : true,
+						type : "text"
+					}]
+				}
+			}, defaultServices);
 			if (successCallback) successCallback(services);
-		}, function(msg){
-			//error
-			if (errorCallback) errorCallback(msg);
-		});
+		}else{
+			Teach.loadTeachUiServices(SepiaFW.account.getKey(sepiaSessionId), function(servicesJson){
+				//success
+				if (servicesJson){
+					if (servicesJson.commands){
+						services = servicesJson.commands;
+						parameterCommons = servicesJson.parameter_commons;
+					}else{
+						services = servicesJson;	//old version
+						parameterCommons = {};
+					}
+					if (successCallback) successCallback(services);
+				}else{
+					//error
+					if (errorCallback) errorCallback("services result was empty.");	
+				}
+			}, function(msg){
+				//error
+				if (errorCallback) errorCallback(msg);
+			});
+		}
 	}
 	function buildCommandHelpPopup(cmd){
 		var html = "<p><b>Command: " + cmd + "</b></p>";
@@ -117,6 +197,7 @@ function sepiaFW_build_teach(){
 				//fail ... notify and load a basic set
 				SepiaFW.ui.showPopup('Could not load services list from server :-( - Using default set!');
 				services = defaultServices;
+				parameterCommons = {};
 				Teach.setup(finishCallback);
 			});
 			return;
@@ -183,7 +264,7 @@ function sepiaFW_build_teach(){
 				if (!submitData){
 					return;
 				}
-				Teach.submitPersonalCommand(SepiaFW.account.getKey(), submitData, function(){
+				Teach.submitPersonalCommand(SepiaFW.account.getKey(sepiaSessionId), submitData, function(){
 					//success
 					SepiaFW.ui.showPopup('New command has been stored! :-)');
 				}, function(msg){
@@ -235,7 +316,7 @@ function sepiaFW_build_teach(){
 			$('#sepiaFW-teachUI-load-commands').on('click', function(){
 				var startingFrom = 0;
 				nextStartingFrom = 10;
-				Teach.loadPersonalCommands(SepiaFW.account.getKey(), startingFrom, loadAtOnce, function(data){
+				Teach.loadPersonalCommands(SepiaFW.account.getKey(sepiaSessionId), startingFrom, loadAtOnce, function(data){
 					//success
 					buildPersonalCommandsResult(data.result, true);
 					//console.log(JSON.stringify(data));
@@ -249,7 +330,7 @@ function sepiaFW_build_teach(){
 			$('#sepiaFW-teachUI-load-more-commands').on('click', function(){
 				var startingFrom = nextStartingFrom;
 				nextStartingFrom += 10;
-				Teach.loadPersonalCommands(SepiaFW.account.getKey(), startingFrom, loadAtOnce, function(data){
+				Teach.loadPersonalCommands(SepiaFW.account.getKey(sepiaSessionId), startingFrom, loadAtOnce, function(data){
 					//success
 					buildPersonalCommandsResult(data.result, false);
 					//console.log(JSON.stringify(data));
@@ -263,21 +344,169 @@ function sepiaFW_build_teach(){
 			if (finishCallback) finishCallback();
 		});
 	}
+
+	//parameter input help box pop-up
+	function showInputHelpPopup(paramName, value, assignFun, type, examples){
+		var $box = $('#sepiaFW-teachUI-input-helper');
+		var $input = $box.find(".sepiaFW-input-popup-value-1");
+		var $title = $box.find(".sepiaFW-input-popup-title");
+		var $examples = $box.find(".sepiaFW-input-popup-examples");
+		var $select = $box.find('.sepiaFW-input-popup-select-1');
+		var $note = $box.find('.sepiaFW-input-popup-note-1');
+		$note.html("").hide();
+		$input[0].style.height = "auto";
+		$('#sepiaFW-teachUI-input-helper-cover').fadeIn(200);
+		//$('#sepiaFW-teachUI-input-helper-cover').show();
+		setTimeout(function(){
+			$input.focus();
+		}, 0);
+		//convert value format
+		var isText = (type == "text");
+		var isGeneric = (type == "generic");
+		value = value.trim();
+		if (isText){
+			$box.find('.show-if-text').show();
+			$box.find('.show-if-default').hide();
+			$input.val(value);
+			$input[0].style.height = "auto";
+			$select.val(0);
+		}else{
+			$box.find('.show-if-text').hide();
+			$box.find('.show-if-default').show();
+			if (isGeneric){
+				$box.find('.in-type-raw').hide();
+			}
+			if (value.indexOf("{") == 0){
+				$input.val(JSON.stringify(JSON.parse(value), undefined, 4));
+				$input[0].style.height = ($input[0].scrollHeight + 8 + "px");
+				$select.val(2);
+			}else if (value.indexOf("<i_raw>") == 0){
+				$input.val(value.replace(/^<i_raw>/, "").trim());
+				$input[0].style.height = "auto";
+				$select.val(3);
+			}else{
+				$input.val(value);
+				$input[0].style.height = "auto";
+				$select.val(1);
+			}
+		}
+		$title.html("<label>'" + paramName + "'</label><p>Select your input type and enter value</p>");
+		//add examples
+		addInputHelpExample(examples, $select.val(), $examples);
+		$select.off().on('change', function(){
+			addInputHelpExample(examples, $select.val(), $examples);
+		});
+		//confirm
+		$box.find(".sepiaFW-input-popup-confirm").off().on('click', function(){
+			//convert format
+			var value = $input.val().trim();
+			if (!isText){
+				var typeSelected = $select.val();
+				var isJson = value.indexOf("{") == 0;
+				var isRaw = value.indexOf("<i_raw>") == 0;
+				//JSON
+				if (typeSelected == 2 && isJson){
+					value = JSON.stringify(JSON.parse(value));
+				}else if (typeSelected == 2 && !isJson){
+					$input.val(JSON.stringify({"value": value}, undefined, 4));
+					$input[0].style.height = ($input[0].scrollHeight + 8 + "px");
+					$note.html("The selected type requires a value in JSON format and has been converted. Please review the result.")
+						.show().fadeTo(150, 0.1).fadeTo(150, 1.0);
+					return;
+				}else if (isJson){
+					$note.html("The selected type does NOT allow a value in JSON format. Please change type or adjust value format.")
+						.show().fadeTo(150, 0.1).fadeTo(150, 1.0);
+					return;
+				//RAW
+				}else if (typeSelected == 3 && !isRaw){
+					value = "<i_raw>" + value.replace(/^<(.*?)>/, "$1 ").replace(/;;/g, " ").trim();
+				}else if (isRaw){
+					value = value.replace(/^<i_raw>/, "").trim();
+				}
+			}
+			assignFun(value);
+			closeInputHelpPopup();
+		});
+		$box.find(".sepiaFW-input-popup-abort").off().on('click', function(){
+			closeInputHelpPopup();
+		});
+	}
+	function addInputHelpExample(examples, type, $examples){
+		type = (type + "").trim();
+		var exLabel = document.createElement('label');
+		var exTag = (type == "0")? "Info " : "Examples ";
+		exLabel.innerHTML = exTag + "<i class='material-icons md-inherit'>play_circle_outline</i></label>";
+		$examples.html(exLabel);
+		if (examples && examples[type] && examples[type].length > 0){
+			var exBox = document.createElement("div");
+			if (type == "2"){
+				exBox.style.flexDirection = "column";
+			}else{
+				exBox.style.justifyContent = "space-around";
+			}
+			var $exBox = $(exBox);
+			//examples for 'all'
+			if (examples['all']){
+				examples['all'].forEach(function(ex){
+					$exBox.append("<span class='parameter-example'>" + ex + "</span>");
+				});
+			}
+			//examples for types
+			examples[type].forEach(function(ex){
+				if (type == "2"){
+					ex = JSON.stringify(ex, undefined, 4);
+					$exBox.append("<span class='parameter-example json'>" + ex + "</span>");
+				}else{
+					$exBox.append("<span class='parameter-example'>" + ex + "</span>");
+				}
+			});
+			$examples.append(exBox);
+			if ($examples.hasClass("open")){
+				$exBox.show();
+			}else{
+				$exBox.hide();
+			}
+			$(exLabel).on('click', function(){
+				$examples.toggleClass("open");
+				$exBox.toggle(200);
+			});
+			$examples.show();
+		}else{
+			$examples.hide();
+		}
+	}
+	function closeInputHelpPopup(){
+		//$('#sepiaFW-teachUI-input-helper-cover').hide();
+		$('#sepiaFW-teachUI-input-helper-cover').fadeOut(200);
+	}
 	
 	//make parameter entry
-	function makeParameter(uiName, pName, isOptional, parentBlock){
+	function makeParameter(uiName, pName, isOptional, pType, pExamples, parentBlock){
 		var label = document.createElement('LABEL');
 		label.innerHTML = uiName;
 		var input = document.createElement('INPUT');
 		input.className = "sepiaFW-teach-parameter-input";
+		input.placeholder = "click here";
 		$(input).attr("data-name", pName);
 		$(input).attr("type", "text");
 		if (isOptional){
 			label.className = "optional";
 			input.className += " optional";
 		}
+		if (!pType)	pType = "default";
+		//extra type CSS?
+		if (pType && pType == "text"){
+			input.className += " text-only";
+		}
 		$(parentBlock).append(label);
 		$(parentBlock).append(input);
+		//help popup
+		input.readOnly = true;
+		$(input).off().on('click', function(){
+			showInputHelpPopup(pName, input.value, function(newVal){
+				input.value = newVal;
+			}, pType, pExamples);
+		});
 	}
 	//populate parameter input box
 	function populateParameterBox(cmd, onFinishCallback){
@@ -289,7 +518,13 @@ function sepiaFW_build_teach(){
 			var hasOptionals = false;
 			if ('parameters' in service && service.parameters.length > 0){
 				$.each(service.parameters, function(index, p){
-					makeParameter(p.name, p.value, p.optional, parameterBox[0]);
+					var pAlias = (p.alias? parameterCommons[p.alias] : {}) || {};
+					var pValue = p.value || pAlias.value;
+					var pName = p.name || pAlias.name;
+					var pType = p.type || pAlias.type;
+					var pExamples = p.examples || pAlias.examples;
+					var isOptional = p.optional;
+					makeParameter(pName, pValue, isOptional, pType, pExamples, parameterBox[0]);
 					if (p.optional){
 						hasOptionals = true;
 					}
@@ -378,7 +613,7 @@ function sepiaFW_build_teach(){
 						//on remove click
 						SepiaFW.animate.flashObj(this);
 						var cmdId = card.dataset.id;
-						Teach.removePersonalCommand(SepiaFW.account.getKey(), cmdId, function(){
+						Teach.removePersonalCommand(SepiaFW.account.getKey(sepiaSessionId), cmdId, function(){
 							//success
 							//SepiaFW.ui.showPopup('This personal command has been deleted!');
 							$(card).fadeOut(300, function(){
@@ -468,12 +703,14 @@ function sepiaFW_build_teach(){
 		submit.environment = env;
 		submit.language = language;
 		submit.user_location = userLocation || "";
+		//Check dynamic variables: <var1>, <var2> is only for 'sentence_connect' BUT <i_raw> is ok for all!
 		if (!!txt.match(/<\w+>/)){
 			//we allow this currently only for sentence_connect - TODO: add more
 			if (cmd == "sentence_connect"){
 				submit.sentence = txt;
 				submit.tagged_sentence = txt;
 			}else{
+				SepiaFW.debug.error("Teach-UI - tried to use <...> in a command that didn't allow it.");
 				submit.sentence = '';
 				submit.tagged_sentence = txt;
 			}
@@ -503,10 +740,14 @@ function sepiaFW_build_teach(){
 				var value = $(this).val() || "";
 				if (value){
 					//treat some special parameters:
-					if (name === 'sentences'){
-						value = value.replace(/(\.|;)\s/g, " && ");
+					if (name === 'sentences' && value.indexOf("&&") < 0){
+						//NOTE: we convert this in advance, because its safer and faster
+						value = value
+							.replace("<i_raw>", "")
+							.replace(/(\.|;;|;|\?)\s/g, " && ")
+							.replace(/ \&\& $/, "").trim();
+						SepiaFW.debug.log("Teach-UI - note: replaced some tokens with '&&' in 'sentences' parameter for: " + value);
 					}
-					//parameters["<" + name + ">"] = value; 		//we should really not do this! Lets see if it still works
 					parameters[name] = value;
 				}
 			}
@@ -605,6 +846,38 @@ function sepiaFW_build_teach(){
 		if (with_button_only){
 			submitData.button = true;
 		}
+		$.ajax({
+			url: apiUrl,
+			timeout: 10000,
+			type: "POST",
+			data: submitData,
+			headers: {
+				"content-type": "application/x-www-form-urlencoded"
+			},
+			success: function(data) {
+				SepiaFW.ui.hideLoader();
+				if (debugCallback) debugCallback(data);
+				if (data.result && data.result === "fail"){
+					if (errorCallback) errorCallback('Sorry, but something went wrong while loading personal commands! :-(');
+					return;
+				}
+				//--callback--
+				if (successCallback) successCallback(data);
+			},
+			error: function(data) {
+				SepiaFW.ui.hideLoader();
+				if (errorCallback) errorCallback('Sorry, but I could not connect to API :-( Please wait a bit and then try again.');
+				if (debugCallback) debugCallback(data);
+			}
+		});
+	}
+	Teach.loadPersonalCommandsWithIds = function(key, ids, successCallback, errorCallback, debugCallback){
+		SepiaFW.ui.showLoader();
+		var apiUrl = SepiaFW.config.teachAPI + "getPersonalCommandsByIds";
+		var submitData = new Object();
+		submitData.KEY = key;
+		submitData.client = SepiaFW.config.getClientDeviceInfo(); //SepiaFW.config.clientInfo;
+		submitData.ids = JSON.stringify(ids);
 		$.ajax({
 			url: apiUrl,
 			timeout: 10000,

@@ -124,7 +124,8 @@ function sepiaFW_build_strings(){
 	//Fill words
 	StringsDE.from = 'von';
 	StringsDE.atClock = 'um';
-	//More errors
+	StringsDE.toMe = 'zu mir';
+	//More errors/info
 	StringsDE.serverVersionTooLow = 'Beachte: Deine SEPIA Server Version ist niedrig und manche Features des Clients funktionieren eventuell nicht wie erwartet. Bitte führe ein Server Update durch, wenn möglich!';
 	StringsDE.mesh_node_fail = 'Sorry, die Mesh-Node Funktion zeigte einen Fehler.';
 	StringsDE.no_client_support = 'Sorry, aber diese Version der App unterstütz die aufgerufene Aktion nicht.';
@@ -132,6 +133,9 @@ function sepiaFW_build_strings(){
 	StringsDE.tried_but_not_sure = "Hab's versucht aber bin nicht sicher ob es geklappt hat.";
 	StringsDE.result_unclear = "Das Ergebnis der folgenden Anfrage ist unklar.";
 	StringsDE.possible_reason_origin_unsecure = "Mögliche Ursache: Unsicherer Ursprung (SSL Zertifikat)";
+	StringsDE.missing_clexi_connection = "Keine Verbindung zum CLEXI Server.";
+	StringsDE.missing_clexi_plugin = "CLEXI Server fehlt ein Plugin.";
+	StringsDE.runtime_command_success = "Systembefehl erfolgreich.";
 	//Service and action texts
 	StringsDE.opening_link = "Link wird geöffnet.";
 	StringsDE.no_music_playing = "Kannst du was hören? Wahrscheinlich wurde keine Musik gefunden.";
@@ -158,6 +162,12 @@ function sepiaFW_build_strings(){
 	StringsDE.createdChannel = 'Neuer Kanal wurde erfolgreich erstellt';
 	StringsDE.joinedChannel = 'Du bist erfolgreich einem neuen Kanal beigetreten';
 	StringsDE.deletedChannel = 'Der Kanal wurde erfolgreich gelöscht';
+	StringsDE.pmFor = "PM für ";
+	StringsDE.pmFrom = "PM von ";
+	//Views
+	StringsDE.view_home = "Home Screen";
+	StringsDE.view_chat = "Chat";
+	StringsDE.view_extended_results = "SEPIA Service Infos";
 	
 	//ENGLISH
 	StringsEN.welcome = 'Welcome';
@@ -277,7 +287,8 @@ function sepiaFW_build_strings(){
 	//Fill words
 	StringsEN.from = 'from';
 	StringsEN.atClock = 'at';
-	//More errors
+	StringsEN.toMe = 'to me';
+	//More errors/info
 	StringsEN.serverVersionTooLow = 'Note: Your SEPIA server version is low and some features of the client might not work as expected. Please update the server when possible!';
 	StringsEN.mesh_node_fail = 'Sorry, the Mesh-Node function showed an error.';
 	StringsEN.no_client_support = 'Sorry, but this version of the app does not support the requested action.';
@@ -285,6 +296,9 @@ function sepiaFW_build_strings(){
 	StringsEN.tried_but_not_sure = "I've tried but I'm not sure if it worked.";
 	StringsEN.result_unclear = "The result of the following request is unclear.";
 	StringsEN.possible_reason_origin_unsecure = "Possible reason: Unsecure origin (SSL certificate)";
+	StringsEN.missing_clexi_connection = "No connection to CLEXI server.";
+	StringsEN.missing_clexi_plugin = "CLEXI server is missing a plugin.";
+	StringsEN.runtime_command_success = "System command was successful.";
 	//Service and action texts
 	StringsEN.opening_link = "Opening link.";
 	StringsEN.no_music_playing = "Can you hear something? Probably no music found.";
@@ -312,6 +326,12 @@ function sepiaFW_build_strings(){
 	StringsEN.createdChannel = 'You have successfully created a new channel';
 	StringsEN.joinedChannel = 'You have successfully joined a new channel';
 	StringsEN.deletedChannel = 'You have successfully deleted the channel';
+	StringsEN.pmFor = "PM for ";
+	StringsEN.pmFrom = "PM from ";
+	//Views
+	StringsEN.view_home = "Home Screen";
+	StringsEN.view_chat = "Chat";
+	StringsEN.view_extended_results = "SEPIA service info";
 
 	//--------------------------------------------------------
 	

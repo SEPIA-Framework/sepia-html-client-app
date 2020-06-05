@@ -614,7 +614,7 @@ function sepiaFW_build_events(){
 			var nid = getAndIncreaseNotificationId();
 			cordova.plugins.notification.local.schedule([{
 				id: nid,
-				title: (SepiaFW.local.g(Timer.type) + ": " + d.toLocaleString()),
+				title: (SepiaFW.local.g(Timer.type) + ": " + d.toLocaleString(SepiaFW.config.appLanguage)),
 				text: Timer.data.name,
 				trigger: {
 					at: (d)

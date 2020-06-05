@@ -3,8 +3,8 @@ function sepiaFW_build_ui(){
 	var UI = {};
 	
 	//some constants
-	UI.version = "v0.21.0";
-	UI.requiresServerVersion = "2.4.1";
+	UI.version = "v0.22.0";
+	UI.requiresServerVersion = "2.5.0";
 	UI.JQ_RES_VIEW_IDS = "#sepiaFW-result-view, #sepiaFW-chat-output, #sepiaFW-my-view";	//a selector to get all result views e.g. $(UI.JQ_RES_VIEW_IDS).find(...) - TODO: same as $('.sepiaFW-results-container') ??
 	UI.JQ_ALL_MAIN_VIEWS = "#sepiaFW-result-view, #sepiaFW-chat-output, #sepiaFW-my-view, #sepiaFW-teachUI-editor, #sepiaFW-teachUI-manager, #sepiaFW-frame-page-0, #sepiaFW-frame-page-1, #sepiaFW-frame-page-2, #sepiaFW-frame-page-3"; 	//TODO: frames can have more ...
 	UI.JQ_ALL_SETTINGS_VIEWS = ".sepiaFW-chat-menu-list-container";
@@ -165,7 +165,7 @@ function sepiaFW_build_ui(){
 			UI.statusBarColor = "";
 		}
 		//refresh theme-color
-		$('meta[name="theme-color"]').replaceWith('<meta name="theme-color" content="' + UI.primaryColor + '">');
+		$('meta[name="theme-color"]').replaceWith('<meta name="theme-color" content="' + (UI.statusBarColor || UI.primaryColor) + '">');
 		//set general skin style
 		var backColor = UI.htmlBackgroundColor;
 		if ((backColor + '').indexOf('rgb') === 0){
@@ -268,9 +268,18 @@ function sepiaFW_build_ui(){
 	//make an info message
 	UI.showInfo = function(text, isErrorMessage, customTag, beSilent, channelId){
 		if (UI.build){
-			if (channelId == undefined) channelId = 'info';		//note: channelId=info will use the active channel or user-channel
+			if (isErrorMessage == undefined) isErrorMessage = true;		//default is true (this is to prevent old calls from changing)
+			if (channelId == undefined) channelId = 'info';				//note: channelId=info will use the active channel or user-channel
 			var message = UI.build.makeMessageObject(text, 'UI', 'client', '', channelId);
-			var sEntry = UI.build.statusMessage(message, 'username', true);		//we handle UI messages as errors for now - TODO: add non-error msg
+			//UI messages should always be shown no matter the user settings:
+			var sEntry;
+			if (isErrorMessage){
+				sEntry = UI.build.statusMessage(message, 'username', true);
+			}else{
+				sEntry = UI.build.statusMessage(message, 'username', false, true);
+				sEntry.classList.add("always-show");	//not error, but still show always
+			}
+			//custom tag/data:
 			if (customTag){
 				sEntry.dataset.msgCustomTag = customTag;
 				//weekday indicator
@@ -534,9 +543,9 @@ function sepiaFW_build_ui(){
 		UI.isTinyApp = isTinyApp();
 
 		//Setup headless mode
-		if (SepiaFW.config.isUiHeadless){
+		if (SepiaFW.config.isUiHeadless || SepiaFW.config.autoSetup){
 			SepiaFW.config.loadHeadlessModeSetup();
-			//if client not active or in demo-mode after 5s run setup
+			//if client not active or in demo-mode after 8s run setup
 			setTimeout(function(){
 				if (!SepiaFW.client.isActive() && !SepiaFW.client.isDemoMode()){
 					SepiaFW.data.set('isDemoLogin', 'setup');
@@ -563,15 +572,16 @@ function sepiaFW_build_ui(){
 	}
 	
 	//setup UI components and client variables - requires UI.beforeSetup() !
-	UI.setup = function(){
-		
+	UI.setup = function(){	
 		//client
-		SepiaFW.config.setClientInfo(((UI.isIOS)? 'iOS_' : '') 
-							+ ((UI.isAndroid)? 'android_' : '') 
-							+ ((UI.isChromeDesktop)? 'chrome_' : '')
-							+ ((UI.isEdge)? 'edge_' : '')
-							+ ((UI.isSafari)? 'safari_' : '')
-							+ ((UI.isStandaloneWebApp)? "app_" : "browser_") + UI.version);
+		SepiaFW.config.setClientInfo(
+			((UI.isIOS)? 'iOS_' : '') 
+			+ ((UI.isAndroid)? 'android_' : '') 
+			+ ((UI.isChromeDesktop)? 'chrome_' : '')
+			+ ((UI.isEdge)? 'edge_' : '')
+			+ ((UI.isSafari)? 'safari_' : '')
+			+ ((UI.isStandaloneWebApp)? "app_" : "browser_") + UI.version
+		);
 		
 		//---------------------- LOAD other SETTINGS before building the UI:
 
@@ -655,6 +665,25 @@ function sepiaFW_build_ui(){
 		UI.soc.init();
 		UI.soc.showPane(0);
 		UI.build.menuPageSelector();
+
+		UI.pageLeft = function(){
+			if (SepiaFW.frames && SepiaFW.frames.isOpen){
+				SepiaFW.frames.uic.prev();
+			}else if (UI.isMenuOpen){
+				if (UI.soc) UI.soc.prev();
+			}else{
+				if (UI.moc) UI.moc.prev();
+			}
+		}
+		UI.pageRight = function(){
+			if (SepiaFW.frames && SepiaFW.frames.isOpen){
+				SepiaFW.frames.uic.next();
+			}else if (UI.isMenuOpen){
+				if (UI.soc) UI.soc.next();
+			}else{
+				if (UI.moc) UI.moc.next();
+			}
+		}
 		
 		//track idle time
 		UI.trackIdleTime();
@@ -751,8 +780,8 @@ function sepiaFW_build_ui(){
 		//is client active or demo-mode?
 		if ((!SepiaFW.client.isActive() || !SepiaFW.assistant.id) && !SepiaFW.client.isDemoMode()){
 			clearTimeout(myViewUpdateTimer);
-			myViewPostponedUpdateTries++;
 			myViewUpdateTimer = setTimeout(function(){
+				myViewPostponedUpdateTries++;
 				//try again
 				if (myViewPostponedUpdateTries <= 3){
 					UI.updateMyView(true, checkGeolocationFirst, 'notActiveRetry');
@@ -772,7 +801,13 @@ function sepiaFW_build_ui(){
 			if (SepiaFW.geocoder && SepiaFW.geocoder.autoGPS){
 				if ((new Date().getTime() - SepiaFW.geocoder.lastBestLocationUpdate) > SepiaFW.geocoder.autoRefreshInterval){
 					//console.log('---------------GET BEST LOCATION--------------'); 		//DEBUG
-					SepiaFW.geocoder.getBestLocation();
+					SepiaFW.geocoder.getBestLocation(function(addrRes, didBroadcast){
+						if (!didBroadcast){
+							UI.updateMyView(forceUpdate, false, 'geoCoderMissedPublish');
+						}
+					}, function(err){
+						UI.updateMyView(forceUpdate, false, 'geoCoderFailed');
+					});
 				}else{
 					UI.updateMyView(forceUpdate, false, 'geoCoderBlockedUpdate'); 	//TODO: should we use 'forceUpdate' variable instead of false?
 				}
@@ -950,7 +985,7 @@ function sepiaFW_build_ui(){
 				//reconnect
 				SepiaFW.client.resumeClient();
 				//GPS
-
+				//TODO: something missing here?
 			}
 		}, 100);
 	}
@@ -1126,12 +1161,12 @@ function sepiaFW_build_ui(){
 		}else{
 			$('#sepiaFW-popup-message-content').html(content);
 		}
-		$('#sepiaFW-cover-layer').fadeIn(150);
-		$('#sepiaFW-popup-message').fadeIn(300);
+		$('#sepiaFW-cover-layer').fadeIn(200);
+		//$('#sepiaFW-popup-message').fadeIn(300);
 	}
 	UI.hidePopup = function(){
-		$('#sepiaFW-popup-message').fadeOut(300);
-		$('#sepiaFW-cover-layer').fadeOut(300);
+		//$('#sepiaFW-popup-message').fadeOut(300);
+		$('#sepiaFW-cover-layer').fadeOut(200);
 	}
 
 	//Use pop-up to ask for permission
@@ -1323,6 +1358,11 @@ function sepiaFW_build_ui(){
 				ev.preventDefault();
 			}
 		});
+		//remove listener
+		ele.removeLongPressShortPressDoubleTap = function(){
+			mc.destroy();
+			$(ele).off('click');
+		}
 	}
 	UI.longPressShortPressDoubleTab = UI.longPressShortPressDoubleTap;
 	//Shortcut for Short/Long combo with some default settings
@@ -1678,6 +1718,7 @@ function sepiaFW_build_ui(){
 			$('.sepiaFW-carousel-pane').removeClass('full-screen');
 			$('#sepiaFW-chat-menu').removeClass('full-screen');
 			$('#sepiaFW-chat-controls').removeClass('full-screen');
+			$('#sepiaFW-main-window').removeClass('full-screen');
 			/*if ('StatusBar' in window){
                 StatusBar.show();
             }*/
@@ -1694,6 +1735,7 @@ function sepiaFW_build_ui(){
 			$('.sepiaFW-carousel-pane').addClass('full-screen');
 			$('#sepiaFW-chat-menu').addClass('full-screen');
 			$('#sepiaFW-chat-controls').addClass('full-screen');
+			$('#sepiaFW-main-window').addClass('full-screen');
 			/*if ('StatusBar' in window){
                 StatusBar.hide();
             }*/
@@ -1745,6 +1787,80 @@ function sepiaFW_build_ui(){
 		});
 		UI.showPopup(box);
 	}
+
+	//------ Web Worker Interface ------
+
+	//Web workers
+    var webWorkerMessageId = 0;
+    UI.isWebWorkerSupported = ('Worker' in window);
+    function getWebWorkerMessageId(){
+        var i = ++webWorkerMessageId;
+        if (i > Number.MAX_SAFE_INTEGER) i = 0;
+        return ("worker-id-" + i);
+    }
+    UI.testWebWorker = function(successCallback, errorCallback){
+        var msgId = getWebWorkerMessageId();
+        var isActive = true;
+        var testTimeout = setTimeout(function(){
+            UI.isWebWorkerSupported = false;
+            SepiaFW.debug.error("Web-worker test failed, deactivated support.");
+            isActive = false;
+            if (errorCallback) errorCallback("timeout");
+        }, 3000);
+        var worker = new Worker('workers/default.js');
+        worker.onmessage = function(e){
+            UI.isWebWorkerSupported = true;
+            if (!isActive){
+                SepiaFW.debug.error("Web-worker delivered answer after timeout.");
+            }
+            SepiaFW.debug.info("Web-worker is supported.");
+            clearTimeout(testTimeout);
+            if (successCallback) successCallback(e.data);
+        }
+        SepiaFW.debug.info("Testing web-worker support ...");
+        worker.postMessage({
+            data: {cmd: 'echo'},
+            msgId: msgId
+        });
+    }
+    UI.callWebWorker = function(workerScript, data, timeoutMs, resultCallback, errorCallback){
+        if (!UI.isWebWorkerSupported){
+			SepiaFW.debug.error("Web-workers are not supported by this client!");
+			return;
+        }else{
+            var isActive = true;
+            var startTime = new Date().getTime();
+            var worker = new Worker('workers/' + workerScript);
+            var msgId = getWebWorkerMessageId();
+            var delay = timeoutMs || 15000;
+            var errorTimer = setTimeout(function(){
+                isActive = false;
+                SepiaFW.debug.error("Web-worker failed to answer request with ID '" 
+                    + msgId + "' after " + delay + "ms");
+                if (errorCallback) errorCallback("timeout", msgId, delay);
+            }, delay);
+            worker.onmessage = function(e){
+                clearTimeout(errorTimer);
+                if (isActive){
+                    if (resultCallback) resultCallback(e.data);
+                }else{
+                    var now = new Date().getTime();
+                    SepiaFW.debug.error("Web-worker delivered answer after timeout. ID '" 
+                        + msgId + "' took: " + (now - startTime) + "ms, planned: " + delay);
+                }
+            }
+            SepiaFW.debug.info("Sending data to default web-worker ...");
+            worker.postMessage({
+                data: data,
+                msgId: msgId,
+                timeout: delay,
+                sent: startTime
+			});
+			return worker;
+        }
+    }
+    //initialize
+    UI.testWebWorker();
 
 	//----- Post Message Interface -----
 

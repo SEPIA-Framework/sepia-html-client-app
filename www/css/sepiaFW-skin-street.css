@@ -159,3 +159,7 @@ html {
 .sepiaFW-cards-list-body .weatherNowSmall .weatherNowSmallImage {
 	background: #3399ff;
 }
+
+.sepiaFW-cards-list-footer {
+	background: #f4f4f4;
+}

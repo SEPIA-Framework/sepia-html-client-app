@@ -4,7 +4,8 @@ function sepiaFW_build_config(){
 	
 	Config.clientInfo = "web_app_v1.0.0";	//defined by client properties
 	var deviceId = "";						//set in settings and chosen by user to address his devices directly (only numbers and letters, space is replaced by '-', lower-case)
-	Config.environment = SepiaFW.tools.getURLParameter("env") || "default";		//'default' supports all features, other options: 'speaker', 'silent_display', 'car_display' - switched to "avatar_display" in AO-Mode
+	Config.environment = SepiaFW.tools.getURLParameter("env") || "default";		//'default' supports all features, other options: 'speaker', 'smart_display', 'silent_display', 'car_display'
+	//NOTE: switches to "avatar_display" in AO-Mode !
 	
 	//set client info
 	Config.setClientInfo = function(clientInfo){
@@ -281,6 +282,9 @@ function sepiaFW_build_config(){
 
 	//------------ LOAD SETTINGS -------------
 
+	Config.autoSetup = false;		//set by URL parameter 'autoSetup=true'
+	Config.isUiHeadless = false;	//set by URL parameter 'isHeadless=true'
+
 	//load headless settings
 	Config.loadSettingsForHeadlessMode = function(){
 		if (SepiaFW.settings && SepiaFW.settings.headless){
@@ -364,7 +368,7 @@ function sepiaFW_build_config(){
 		}
 		//Channel status messages
 		SepiaFW.ui.showChannelStatusMessages = SepiaFW.data.get('channelStatusMessages');
-			if (typeof SepiaFW.ui.showChannelStatusMessages == 'undefined') SepiaFW.ui.showChannelStatusMessages = true;
+			if (typeof SepiaFW.ui.showChannelStatusMessages == 'undefined') SepiaFW.ui.showChannelStatusMessages = false;
 			SepiaFW.debug.info("Channel status messages are " + ((SepiaFW.ui.showChannelStatusMessages)? "ON" : "OFF"));
 		//Allow background connection
 		if (SepiaFW.client){

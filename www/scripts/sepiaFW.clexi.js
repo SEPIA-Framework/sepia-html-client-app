@@ -5,7 +5,16 @@ function sepiaFW_build_clexi(){
     Clexi.socketURI = "";       //default CLEXI server: wss://raspberrypi.local:8443
     Clexi.serverId = "";
     Clexi.doConnect = false;
-
+    function doConnect(clexiUrlParam, clexiIdUrlParam){
+        if (clexiUrlParam == undefined) clexiUrlParam = SepiaFW.tools.getURLParameter('clexi');
+        if (clexiIdUrlParam == undefined) clexiIdUrlParam = SepiaFW.tools.getURLParameter('clexiId');
+        var useClexi = SepiaFW.data.get('clexiConnect') || (clexiUrlParam && clexiIdUrlParam);
+        if (useClexi == undefined){
+            return false;   //default
+        }else{
+            return !!useClexi;
+        }
+    }
     Clexi.numOfSendRetries = 10;
 
     Clexi.setSocketURI = function(newURI){
@@ -25,8 +34,7 @@ function sepiaFW_build_clexi(){
         Clexi.serverId = clexiIdUrlParam || SepiaFW.data.get('clexiServerId') || "";
         ClexiJS.serverId = Clexi.serverId;
         
-        var useClexi = SepiaFW.data.get('clexiConnect') || (clexiUrlParam && clexiIdUrlParam);
-        if (useClexi != undefined) Clexi.doConnect = useClexi;
+        Clexi.doConnect = doConnect(clexiUrlParam || '', clexiIdUrlParam || '');
         SepiaFW.debug.info("CLEXI support is " + ((Clexi.isSupported && Clexi.doConnect)? "ENABLED" : "DISABLED"));
 
         //Add onActive action:
@@ -77,19 +85,12 @@ function sepiaFW_build_clexi(){
     }
 
     Clexi.connect = function(){
+        Clexi.doConnect = doConnect();
         ClexiJS.connect(Clexi.socketURI, function(e){
             //connected
             rgyIndicators.forEach(function(indi){
                 indi.setState("g");
             });
-
-            //subscribe
-            subscribeToBeaconScanner();
-            subscribeToBroadcaster();
-            subscribeToHttpEvents();
-
-            //request some states
-            Clexi.requestBleBeaconScannerState();       //TODO: repeat from time to time or at least on error?
             
         }, function(e){
             //closed
@@ -110,12 +111,25 @@ function sepiaFW_build_clexi(){
             rgyIndicators.forEach(function(indi){
                 indi.setState("y");
             });
+        
+        }, function(welcomeInfo){
+            //welcome-event
+            
+            //subscribe
+            subscribeToBeaconScanner();
+            subscribeToBroadcaster();
+            subscribeToHttpEvents();
+            if (Clexi.hasXtension("runtime-commands")){
+                subscribeToRuntimeCommands();
+            }
+
+            //request some states
+            Clexi.requestBleBeaconScannerState();       //TODO: repeat from time to time or at least on error?
         });
     }
     Clexi.close = function(){
         ClexiJS.close();
-        var useClexi = SepiaFW.data.get('clexiConnect');
-        if (useClexi != undefined) Clexi.doConnect = useClexi;
+        Clexi.doConnect = doConnect();
     }
 
     Clexi.send = function(extensionName, data, numOfRetries){
@@ -124,10 +138,10 @@ function sepiaFW_build_clexi(){
     }
 
     Clexi.getXtensions = function(){
-        return ClexiJS.availableXtensions;
+        return ClexiJS.availableXtensions;      //NOTE: the status might not be up-to-date (only refreshed at welcome)
     }
     Clexi.hasXtension = function(name){
-        return (ClexiJS.availableXtensions && ClexiJS.availableXtensions[name]);
+        return !!(ClexiJS.availableXtensions && ClexiJS.availableXtensions[name]);
     }
 
     //CLEXI broadcaster (used e.g. for remote setup):
@@ -149,15 +163,20 @@ function sepiaFW_build_clexi(){
             var event = new CustomEvent('clexi-broadcaster-msg', {detail: (e.broadcast || e)});
             document.dispatchEvent(event);
         }, function(e){
-            //console.log('Broadcaster response: ' + JSON.stringify(e));
+            //console.log('Broadcaster response: ' + e);
         }, function(e){
-            console.log('Broadcaster error: ' + JSON.stringify(e));
+            console.error('Broadcaster error: ' + JSON.stringify(e));
         });
     }
     function removeBroadcasterSubscription(){
         ClexiJS.removeSubscription('clexi-broadcaster');
     }
     Clexi.addBroadcastListener = function(name, callback){
+        //remove old?
+        if (broadcastListenerCallbacks[name]){
+            Clexi.removeBroadcastListener(name);
+        }
+        //add new
         var fun = function(ev){
             if (ev.detail && ev.detail.data && ev.detail.name == name){
                 callback(ev.detail.data);
@@ -192,15 +211,20 @@ function sepiaFW_build_clexi(){
         }, 
         //This is actually not used by the HTTP-Events extension
         function(e){
-            console.log('HTTP-Event response: ' + JSON.stringify(e));
+            console.log('HTTP-Event response: ' + e);
         }, function(e){
-            console.log('HTTP-Event error: ' + JSON.stringify(e));
+            console.error('HTTP-Event error: ' + JSON.stringify(e));
         });
     }
     function removeHttpEventsSubscription(){
         ClexiJS.removeSubscription('clexi-http-events');
     }
     Clexi.addHttpEventsListener = function(name, callback){
+        //remove old?
+        if (httpEventListenerCallbacks[name]){
+            Clexi.removeHttpEventsListener(name);
+        }
+        //add new
         var fun = function(ev){
             if (ev.detail && ev.detail.data && ev.detail.name == name){
                 callback(ev.detail.data);
@@ -290,10 +314,133 @@ function sepiaFW_build_clexi(){
         ClexiJS.removeSubscription('ble-beacon-scanner');
     }
 
+    //CLEXI runtime commands (used e.g. to shutdown DIY client):
+
+    var clexiRuntimeCommandBaseId;
+    var clexiRuntimeCommandLastIdIndex = 0;
+    function getNewClexiRuntimeCmdId(){
+        if (!clexiRuntimeCommandBaseId){
+            clexiRuntimeCommandBaseId = "SEPIA-CLIENT-" + Math.abs(sjcl.random.randomWords(1));
+        }
+        return (clexiRuntimeCommandBaseId + "-" + SepiaFW.config.getDeviceId() + "-" + ++clexiRuntimeCommandLastIdIndex);
+    }
+
+    Clexi.sendRuntimeCommand = function(cmd, args, maxWait, tryCallback, successCallback, errorCallback){
+        if (Clexi.doConnect && Clexi.hasXtension('runtime-commands')){
+            var cmdId = getNewClexiRuntimeCmdId();
+            //listen for return data to this cmdId
+            var maxLifetime = maxWait || 15000;
+            addRuntimeCommandsListener(cmdId, maxLifetime, function(data){
+                /*{
+                    result: result, || msg: error,
+                    code: 200, || 202 (delayed), 204 (no action), 404, 500, 501
+                    cmd: cmd,
+                    cmdId: cmdId
+                }*/
+                if (data.code == 202){
+                    //runtime will try to execute command and answer later - NOTE: not guaranteed
+                    if (tryCallback) tryCallback(data.result, data, args);
+                }else if (data.code == 200 || data.code == 204){
+                    //runtime has completed successfully or completed without action
+                    if (successCallback) successCallback(data.result, data, args);
+                    removeRuntimeCommandsListener(cmdId);
+                }else{
+                    //not found, not supported, internal error etc.
+                    if (errorCallback) errorCallback(data.msg || data.result, data.code, data, args);
+                    removeRuntimeCommandsListener(cmdId);
+                }
+            });
+            //track
+            var unixTime = new Date().getTime();
+            var cmdData = {
+                id: cmdId,
+                cmd: cmd,
+                args: args,
+                sentAt: unixTime,
+                expires: (unixTime + maxLifetime)
+            };
+            runtimeCommandsActive[cmdId] = cmdData;
+            //send
+            ClexiJS.send('runtime-commands', cmdData, Clexi.numOfSendRetries);
+            return 0;       //sent
+        }else{
+            //Extension not available?
+            if (Clexi.doConnect){
+                SepiaFW.debug.info("CLEXI extension: 'runtime-commands' not available!");
+                return 2;   //not supported
+            }else{
+                return 1;   //not connected
+            }
+        }
+    }
+
+    Clexi.getActiveRuntimeCommands = function(){
+        return runtimeCommandsActive;
+    }
+    Clexi.removeActiveRuntimeCommand = function(cmdId){
+        delete runtimeCommandsActive[cmdId];
+    }
+    var runtimeCommandsActive = {};
+
+    function subscribeToRuntimeCommands(){
+        //format: see 'sendRuntimeCommand'
+        ClexiJS.subscribeTo('runtime-commands', function(e){
+            //console.log('RuntimeCommands event: ' + JSON.stringify(e));
+            var event = new CustomEvent('clexi-runtime-commands-msg', {detail: e});
+            document.dispatchEvent(event);
+        }, function(e, msgId){
+            //returns: 'sent' or 'sent but invalid' for invalid format
+            if (e != "sent"){
+                console.error('RuntimeCommands response: ' + e);
+            }
+        }, function(e){
+            //console.error('RuntimeCommands error: ' + JSON.stringify(e));
+            //we treat this the same way as success - the listener will handle response codes
+            var event = new CustomEvent('clexi-runtime-commands-msg', {detail: e});
+            document.dispatchEvent(event);
+        });
+    }
+    function removeRuntimeCommandsSubscription(){
+        ClexiJS.removeSubscription('runtime-commands');
+    }
+
+    function addRuntimeCommandsListener(cmdId, maxLifetime, callback){
+        //remove old?
+        if (runtimeCommandsListenerCallbacks[cmdId]){
+            removeRuntimeCommandsListener(cmdId);
+        }
+        //add new
+        var fun = function(ev){
+            if (ev.detail && ev.detail.cmdId && ev.detail.cmdId == cmdId){
+                callback(ev.detail);
+            }
+        }
+        runtimeCommandsListenerCallbacks[cmdId] = fun;
+        document.addEventListener('clexi-runtime-commands-msg', fun);
+        //automatically remove listener after maxLifetime is over
+        if (maxLifetime){
+            setTimeout(function(){
+                removeRuntimeCommandsListener(cmdId);
+            }, maxLifetime);
+        }
+    }
+    function removeRuntimeCommandsListener(cmdId){
+        var callback = runtimeCommandsListenerCallbacks[cmdId];
+        if (callback){
+            document.removeEventListener('clexi-runtime-commands-msg', callback);
+        }
+        //TODO: this should kill maxLifetime timers as well
+        delete runtimeCommandsActive[cmdId];
+    }
+    var runtimeCommandsListenerCallbacks = {};
+
+    //CLEXI all subscriptions
+
     function removeAllSubscriptions(){
         removeBeaconScannerSubscription();
         removeBroadcasterSubscription();
         removeHttpEventsSubscription();
+        removeRuntimeCommandsSubscription();
     }
 
     return Clexi;

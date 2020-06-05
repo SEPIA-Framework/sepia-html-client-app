@@ -55,7 +55,7 @@ function sepiaFW_build_input_controls() {
     //----------------------
 
     InputControls.setup = function () {
-        //console.log('Input controls setup');
+        //console.error('Input controls setup');
         InputControls.listenToGamepadConnectEvent();
         InputControls.listenToGlobalHotkeys();
         InputControls.listenToClexiButtons();
@@ -84,6 +84,9 @@ function sepiaFW_build_input_controls() {
         $('#SepiaFW-hotkeys-define-mic').off().on('click', function(){
             InputControls.defineHotkeyFunction(toggleMicrophone);
         });
+        $('#SepiaFW-hotkeys-define-reset-mic').off().on('click', function(){
+            InputControls.defineHotkeyFunction(resetMic);
+        });
         $('#SepiaFW-hotkeys-define-back').off().on('click', function(){
             InputControls.defineHotkeyFunction(backButton);
         });
@@ -97,6 +100,15 @@ function sepiaFW_build_input_controls() {
         //Buttons for button mappings
         $('#SepiaFW-buttons-define-mic').off().on('click', function(){
             InputControls.defineButtonFunction(toggleMicrophone);
+        });
+        $('#SepiaFW-buttons-define-reset-mic').off().on('click', function(){
+            InputControls.defineButtonFunction(resetMic);
+        });
+        $('#SepiaFW-buttons-define-next-view').off().on('click', function(){
+            InputControls.defineButtonFunction(nextView);
+        });
+        $('#SepiaFW-buttons-define-prev-view').off().on('click', function(){
+            InputControls.defineButtonFunction(previousView);
         });
         $('#SepiaFW-buttons-define-back').off().on('click', function(){
             InputControls.defineButtonFunction(backButton);
@@ -182,11 +194,11 @@ function sepiaFW_build_input_controls() {
             settingsAppendDebug(gamepad.index + ": " + gamepad.id);
         });
         settingsAppendDebug("<b>Hotkey matrix:</b>");
-        settingsAppendDebug(convertActionMatrixToString(hotkeyActionMatrix));
+        settingsAppendDebug(convertActionMatrixToString(hotkeyActionMatrix, true));
         settingsAppendDebug("<b>Ignoring keys:</b>");
-        settingsAppendDebug(JSON.stringify(ignoreKeys));
+        settingsAppendDebug(JSON.stringify(ignoreKeys, undefined, 1));
         settingsAppendDebug("<b>Button matrix:</b>");
-        settingsAppendDebug(convertActionMatrixToString(buttonActionMatrix));
+        settingsAppendDebug(convertActionMatrixToString(buttonActionMatrix, true));
         settingsAppendDebug("<hr>");
         settingsAppendDebug("<b>Controller and key events:</b>");
 
@@ -235,11 +247,17 @@ function sepiaFW_build_input_controls() {
         }
         SepiaFW.debug.log('Imported hotkeys and button settings from client storage.');
     }
-    function convertActionMatrixToString(actionMatrix){
+    function convertActionMatrixToString(actionMatrix, pretty){
         if (actionMatrix){
-            return JSON.stringify(actionMatrix, 
-                function(key, val) { return (typeof val === 'function')? val.name : val; }, 1
-            );
+            if (pretty){
+                return JSON.stringify(actionMatrix, 
+                    function(key, val) { return (typeof val === 'function')? val.name : val; }, 1
+                );
+            }else{
+                return JSON.stringify(actionMatrix, 
+                    function(key, val) { return (typeof val === 'function')? val.name : val; }
+                );
+            }
         }else{
             return "";
         }
@@ -247,7 +265,7 @@ function sepiaFW_build_input_controls() {
     function importJsonToActionMatrix(jsonString){
         if (jsonString){
             return JSON.parse(jsonString,
-                function(key, val) { return (typeof val === 'string')? eval(val) : val; }       //NOTE: USES EVAL !!!
+                function(key, val) { return (typeof val === 'string')? buttonFunctionsAvailable[val] : val; }
             );
         }else{
             return {};
@@ -276,9 +294,9 @@ function sepiaFW_build_input_controls() {
             openAlwaysOn();
         //Next and previous view
         }else if (e == "next"){
-            nextChatView();
+            nextView();
         }else if (e == "prev"){
-            previousChatView();
+            previousView();
         //Unknown
         }else{
             SepiaFW.debug.log("InputControls remoteAction - no handler yet for key: " + e);
@@ -467,7 +485,7 @@ function sepiaFW_build_input_controls() {
     InputControls.listenToClexiButtons = function(){
         if (InputControls.useGamepads && SepiaFW.clexi){
             SepiaFW.clexi.addHttpEventsListener("remote-button", InputControls.handleClexiRemoteButton);
-        }else{
+        }else if (SepiaFW.clexi){
             SepiaFW.clexi.removeHttpEventsListener("remote-button");
         }
     }
@@ -476,17 +494,22 @@ function sepiaFW_build_input_controls() {
 
     var hotkeyActionMatrix = {};    //{unicode-key} -> action
     var ignoreKeys = [];            //for quirky controllers that always fire more than one event at the same time
+    var isHotkeyListening = false;
 
     InputControls.listenToGlobalHotkeys = function(){
         if (InputControls.useGamepads && InputControls.useHotkeysInAlwaysOn){
-            document.addEventListener("keyup", onHotkey);
-            //temporary button mapping              - TODO: make button actions configurable
-            /*
-            hotkeyActionMatrix[40] = defaultButtonActionOnRelease;      //Arrow down
-            hotkeyActionMatrix[74] = defaultButtonActionOnRelease;      //j - for gamepad mapped as keyboard e.g.
-            */
+            if (!isHotkeyListening){
+                document.addEventListener("keyup", onHotkey);
+                //temporary button mapping              - TODO: make button actions configurable
+                /*
+                hotkeyActionMatrix[40] = defaultButtonActionOnRelease;      //Arrow down
+                hotkeyActionMatrix[74] = defaultButtonActionOnRelease;      //j - for gamepad mapped as keyboard e.g.
+                */
+                isHotkeyListening = true;
+            }
         }else{
             document.removeEventListener("keyup", onHotkey);
+            isHotkeyListening = false;
         }
     }
 
@@ -534,24 +557,39 @@ function sepiaFW_build_input_controls() {
         window.mozRequestAnimationFrame ||
         window.webkitRequestAnimationFrame;
 
+    InputControls.showControllers = function(){
+        return controllers;
+    }
+
     //Start listening for gamepad connections or restart state scan-loop
     InputControls.listenToGamepadConnectEvent = function(){
-        if (!isGamepadListening && InputControls.useGamepads){
-            //Listen for connection
-            if ('GamepadEvent' in window){
-                window.addEventListener("gamepadconnected", connecthandler);
-                window.addEventListener("gamepaddisconnected", disconnecthandler);
-                isGamepadListening = true;
-            }else if ('WebKitGamepadEvent' in window){
-                window.addEventListener("webkitgamepadconnected", connecthandler);
-                window.addEventListener("webkitgamepaddisconnected", disconnecthandler);
-                isGamepadListening = true;
+        if (InputControls.useGamepads){
+            if (!isGamepadListening){
+                //Listen for connection
+                if ('GamepadEvent' in window){
+                    window.addEventListener("gamepadconnected", connecthandler);
+                    window.addEventListener("gamepaddisconnected", disconnecthandler);
+                    isGamepadListening = true;
+                    rAF(updateStatus);
+                }else if ('WebKitGamepadEvent' in window){
+                    window.addEventListener("webkitgamepadconnected", connecthandler);
+                    window.addEventListener("webkitgamepaddisconnected", disconnecthandler);
+                    isGamepadListening = true;
+                    rAF(updateStatus);
+                }else{
+                    SepiaFW.debug.err('Gamepad controls are not supported by client!');
+                }
             }else{
-                SepiaFW.debug.err('Gamepad controls are not supported by client!');
+                //Restart state update loop
+                rAF(updateStatus);
             }
-        }else if (isGamepadListening && InputControls.useGamepads){
-            //Restart state update loop
-            rAF(updateStatus);
+        }else{
+            //remove listeners if they were set
+            window.removeEventListener("gamepadconnected", connecthandler);
+            window.removeEventListener("gamepaddisconnected", disconnecthandler);
+            window.removeEventListener("webkitgamepadconnected", connecthandler);
+            window.removeEventListener("webkitgamepaddisconnected", disconnecthandler);
+            isGamepadListening = false;
         }
     }
 
@@ -605,9 +643,15 @@ function sepiaFW_build_input_controls() {
 
     //Scan for controller state changes, e.g. button events in an endless loop
     function updateStatus() {
+        if (gamepadUpdateLoopRunning){
+            return;
+        }else{
+            gamepadUpdateLoopRunning = true;
+        }
         //any gamepads left?
         if (!InputControls.useGamepads || controllers.length <= 0){
             //abort loop
+            gamepadUpdateLoopRunning = false;
             return;
         }
         scangamepads();
@@ -625,11 +669,14 @@ function sepiaFW_build_input_controls() {
             }
             */
         }
+        gamepadUpdateLoopRunning = false;
         rAF(updateStatus);
     }
+    var gamepadUpdateLoopRunning = false;
 
     //Check button event for press/release
     function checkButtonState(controllerIndex, buttonIndex, button){
+        //console.error('checkButtonState: ' + controllerIndex + " - " + buttonIndex + " - " + button.pressed);
         var pressed = false;
         var value = 0;
         if (typeof (button) == "object") {
@@ -670,7 +717,7 @@ function sepiaFW_build_input_controls() {
     //Update status of gamepads - needs to be reloaded every time (at least on Chrome)
     function scangamepads() {
         var gamepads = getControllers();
-        for (var i = 0; i < controllers.length; i++) {
+        for (var i = 0; i < Object.keys(controllers).length; i++) {
             if (gamepads[i]) {
                 controllers[i] = gamepads[i];
             }
@@ -726,11 +773,11 @@ function sepiaFW_build_input_controls() {
     function toggleMicrophone(){
         SepiaFW.ui.toggleMicButton();
     }
-    function nextChatView(){
-        SepiaFW.ui.moc.next();
+    function nextView(){
+        SepiaFW.ui.pageRight();
     }
-    function previousChatView(){
-        SepiaFW.ui.moc.prev();
+    function previousView(){
+        SepiaFW.ui.pageLeft();
     }
     function backButton(){
         SepiaFW.ui.backButtonAction();
@@ -747,6 +794,15 @@ function sepiaFW_build_input_controls() {
     }
     function test2(){
         console.log('TEST 2');
+    }
+
+    var buttonFunctionsAvailable = {
+        "toggleMicrophone": toggleMicrophone,
+        "nextView": nextView,
+        "previousView": previousView,
+        "backButton": backButton,
+        "openAlwaysOn": openAlwaysOn,
+        "resetMic": resetMic
     }
 
     return InputControls;

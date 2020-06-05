@@ -12,6 +12,9 @@ html {
 		border-radius: 0px;
 	}
 }
+.sepiaFW-results-container {
+	scrollbar-color: rgba(20, 120, 140, 0.2) transparent;
+}
 
 #sepiaFW-pC 	{ background-color: #050525; }
 #sepiaFW-sC 	{ background-color: #2196F3; }
@@ -360,6 +363,13 @@ html {
     color: #fff !important;
     box-shadow: 0 0 5px #FFEB3B;
     border: 1px solid #FFEB3B;
+}
+.sepiaFW-cards-list-body .weatherNowSmall .weatherNowSmallImage {
+	background: rgba(217, 188, 27, 0.66);
+}
+.sepiaFW-cards-list-body .weatherNowDetails li {
+    background: rgba(32, 41, 79, 0.55); /*rgba(12, 94, 158, 0.75);*/
+    color: #fff;
 }
 
 /*----- teachUI -----*/

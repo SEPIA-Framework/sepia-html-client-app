@@ -1,5 +1,5 @@
 //BUILD - code blocks to build dynamic objects of the app
-function sepiaFW_build_ui_build(){
+function sepiaFW_build_ui_build(sepiaSessionId){
 	var Build = {};
 
 	//build spacer
@@ -204,17 +204,12 @@ function sepiaFW_build_ui_build(){
 			SepiaFW.ui.isMenuOpen = false;
 		});
 		
-		//go left 
+		//go left
 		var goLeftBtn = document.getElementById("sepiaFW-nav-menu-go-left");
 		if (goLeftBtn){
 			$(goLeftBtn).off();
 			SepiaFW.ui.onclick(goLeftBtn, function(){
-			//$(goLeftBtn).on("click", function () {
-				if (SepiaFW.ui.isMenuOpen){
-					if (SepiaFW.ui.soc) SepiaFW.ui.soc.prev();
-				}else{
-					if (SepiaFW.ui.moc) SepiaFW.ui.moc.prev();
-				}
+				SepiaFW.ui.pageLeft();
 			});
 		}
 		//go right
@@ -222,12 +217,7 @@ function sepiaFW_build_ui_build(){
 		if (goRightBtn){
 			$(goRightBtn).off();
 			SepiaFW.ui.onclick(goRightBtn, function(){
-			//$(goRightBtn).on("click", function () {
-				if (SepiaFW.ui.isMenuOpen){
-					if (SepiaFW.ui.soc) SepiaFW.ui.soc.next();
-				}else{
-					if (SepiaFW.ui.moc) SepiaFW.ui.moc.next();
-				}
+				SepiaFW.ui.pageRight();
 			});
 		}
 		//notification bubble
@@ -572,6 +562,7 @@ function sepiaFW_build_ui_build(){
 						+ "<span>" + "CLEXI ID" + ": </span>"
 						+ "<input id='sepiaFW-menu-clexi-server-id' type='url' spellcheck='false'>"
 					+ "</li>"
+					+ "<li id='sepiaFW-menu-toggle-remote-terminal-li' title='Connect to remote terminal when CLEXI is running?'><span>Use CLEXI Terminal: </span></li>"
 					+ "<li id='sepiaFW-menu-select-music-app-li' title='Select default music app for search intents.'>"
 						+ "<span>Default music app: </span></li>"
 						//+ "<span id='sepiaFW-menu-toggle-music-cards-btn'><i class='material-icons'>art_track</i></span>"
@@ -709,7 +700,7 @@ function sepiaFW_build_ui_build(){
 									triedLogin = true;
 									var loginEvent = {
 										uid: SepiaFW.account.getUserId(),
-										keyToken: SepiaFW.account.getToken(),
+										keyToken: SepiaFW.account.getToken(sepiaSessionId),
 										user_lang_code: SepiaFW.account.getLanguage(),
 										clientInfo: SepiaFW.config.getClientDeviceInfo(),
 										apiURL: SepiaFW.config.host
@@ -791,7 +782,9 @@ function sepiaFW_build_ui_build(){
 
 				//add voice select options - delayed due to loading process
 				setTimeout(function(){
-					document.getElementById('sepiaFW-menu-select-voice-li').appendChild(SepiaFW.speech.getVoices());
+					SepiaFW.speech.getVoices(function(voices, voiceSelector){
+						document.getElementById('sepiaFW-menu-select-voice-li').appendChild(voiceSelector);
+					});
 				}, 1000);
 				
 				//add speech recognition engine select
@@ -832,11 +825,12 @@ function sepiaFW_build_ui_build(){
 				var clexiToggleLi = document.getElementById('sepiaFW-menu-toggle-clexi-li');
 				clexiToggleLi.appendChild(Build.toggleButton('sepiaFW-menu-toggle-clexi', 
 					function(){
-						SepiaFW.data.set('clexiConnect', true);
+						SepiaFW.data.set('clexiConnect', true);		//NOTE: see below at 'false'
 						SepiaFW.debug.info("CLEXI connection is ENABLED");
 						SepiaFW.clexi.setup();
 					},function(){
 						SepiaFW.data.set('clexiConnect', false);
+						//NOTE: new 'doConnect' is calculated inside setup function and will stay active if URL parameter is used
 						SepiaFW.debug.info("CLEXI connection is DISABLED");
 						SepiaFW.clexi.close();
 					}, SepiaFW.clexi.doConnect)
@@ -870,9 +864,27 @@ function sepiaFW_build_ui_build(){
 					this.blur();
 					SepiaFW.clexi.setServerId(newId);
 				});
+
+				//CLEXI Remote Terminal
+				var clexiRemoteTerminalLi = document.getElementById("sepiaFW-menu-toggle-remote-terminal-li");
+				clexiRemoteTerminalLi.appendChild(Build.toggleButton('sepiaFW-menu-toggle-remote-terminal', 
+					function(){
+						SepiaFW.data.set('useRemoteCmdl', true);
+						SepiaFW.inputControls.cmdl.isAllowed = true;
+						SepiaFW.debug.info("CLEXI Remote Terminal is ENABLED");
+						SepiaFW.inputControls.cmdl.setup();
+					},function(){
+						SepiaFW.data.set('useRemoteCmdl', false);
+						SepiaFW.inputControls.cmdl.isAllowed = false;
+						SepiaFW.debug.info("CLEXI Remote Terminal is DISABLED");
+						SepiaFW.inputControls.cmdl.setup();
+					}, SepiaFW.inputControls.cmdl.isAllowed)
+				);
+
 			}else{
 				$('#sepiaFW-menu-toggle-clexi-li').remove();
 				$('#sepiaFW-menu-clexi-socket-url-li').remove();
+				$('#sepiaFW-menu-toggle-remote-terminal-li').remove();
 			}
 			
 			//Music app selector
@@ -1002,7 +1014,7 @@ function sepiaFW_build_ui_build(){
 					SepiaFW.ui.showChannelStatusMessages = false;
 					SepiaFW.data.set('channelStatusMessages', false);
 					//hide messages
-					$(SepiaFW.ui.JQ_RES_VIEW_IDS).find(".statusMsg.info").each(function(){
+					$(SepiaFW.ui.JQ_RES_VIEW_IDS).find(".statusMsg.info").not(".always-show").each(function(){
 						$(this).addClass('hidden-by-settings');
 					});
 					SepiaFW.debug.info("Channel status messages are deactivated");
@@ -1412,7 +1424,13 @@ function sepiaFW_build_ui_build(){
 		var isSafeMsg = false;		//a safe message is a message sent by an assistant to the user specifically or in a private channel
 		
 		var type = msg.senderType;
-		var text = (isAssistMsg)? msg.data.assistAnswer.answer : msg.text;
+		var text; 
+		if (isAssistMsg){
+			text = msg.data.assistAnswer.answer;
+			if (text) text = SepiaFW.tools.escapeHtml(text); 		//we better escape this ... 'cause the server won't
+		}else{
+			text = msg.text;
+		}
 		var sender = msg.sender;
 		var senderName = SepiaFW.account.contacts.getNameOfUser(sender) || "";
 		var senderText = (senderName)? senderName : sender;
@@ -1432,13 +1450,13 @@ function sepiaFW_build_ui_build(){
 			classes += ' chatMe';
 			classesBlock += ' right';
 			if (receiver){
-				senderText = "Me to " + (receiverName? receiverName : receiver);
+				senderText = "<em>" + SepiaFW.local.g("pmFor") + "</em>" + (receiverName? receiverName : receiver);
 				type = "me-pm";
 				classes += ' chatPm';
 			}
 		}
 		else if (receiver === username){
-			senderText += " to me";
+			senderText = "<em>" + SepiaFW.local.g("pmFrom") + "</em>" + senderText;
 			if (msg.senderType === "assistant"){
 				isSafeMsg = true;
 				type = "pm-assistant";
@@ -1500,7 +1518,7 @@ function sepiaFW_build_ui_build(){
 				+ "<span class='timestamp'>" + time + "</span>";
 			msgArticle.className = classes;
 			msgArticle.innerHTML = ""
-				+ "<p>" + text + "</p>";
+				+ "<p>" + text + "</p>";		//NOTE: the server will deliver 'text' as HTML escaped string UNLESS its from the assistant data object (then we escape above)
 			
 			msgArticle.insertBefore(msgHead, msgArticle.childNodes[0]);	
 			block.appendChild(msgArticle);
@@ -1510,7 +1528,7 @@ function sepiaFW_build_ui_build(){
 				//different available options:
 				var copyTextButton = {
 					inputLabelOne: "Text",
-					inputOneValue: text,
+					inputOneValue: SepiaFW.tools.unescapeHtml(text),		//since this is escaped we need to convert it back
 					buttonOneName: "Copy text",
 					buttonOneAction: function(btn, v1, v2, inputEle1, ie2){
 						//select text and copy
@@ -1555,7 +1573,7 @@ function sepiaFW_build_ui_build(){
 				//short-press
 			},function(){
 				//double-tab - copy text to input
-				$('#sepiaFW-chat-input').val(text);
+				$('#sepiaFW-chat-input').val(SepiaFW.tools.unescapeHtml(text));		//escaped text ...
 			}, true);
 
 			//add copy-text-button
@@ -1646,9 +1664,10 @@ function sepiaFW_build_ui_build(){
 	}
 	
 	//chat status message block
-	Build.statusMessage = function(msg, username, isErrorMessage){
+	Build.statusMessage = function(msg, username, isErrorMessage, alwaysShow){
 		var type = msg.senderType;
 		var text = msg.text;
+		if (text) text = text.replace(/<assistant_name>|\&lt;assistant_name\&gt;/ig, SepiaFW.assistant.name);		//TODO: collect these replacements in a central place
 		var sender = msg.sender;
 		var senderName = SepiaFW.account.contacts.getNameOfUser(sender) || "";
 		var senderText = (senderName)? senderName : sender;
@@ -1674,7 +1693,7 @@ function sepiaFW_build_ui_build(){
 		}else{
 			//everything else is status message
 			block.className += ' info';
-			if (!SepiaFW.ui.showChannelStatusMessages){
+			if (!alwaysShow && !SepiaFW.ui.showChannelStatusMessages){
 				block.className += ' hidden-by-settings';
 			}
 		}
@@ -1686,7 +1705,7 @@ function sepiaFW_build_ui_build(){
 
 		var articleText = document.createElement('span');
 		articleText.className = 'status';
-		articleText.innerHTML = text;
+		articleText.innerHTML = text;			//NOTE: the server will deliver 'text' as HTML escaped string
 		article.appendChild(articleText);
 
 		var articleTimestamp = document.createElement('span');

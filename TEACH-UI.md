@@ -42,7 +42,7 @@ android.media.action.MEDIA_PLAY_FROM_SEARCH
 ```
 URL: http://localhost:20780
 Plugin: HelloPlugin
-JSON: {"name":"Boss"}
+JSON: {"value": {"name":"Boss"} }
 Success: Ok I understood <result_hello>
 Fail: Sorry I could not get a result
 ```

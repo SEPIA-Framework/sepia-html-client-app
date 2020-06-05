@@ -1,13 +1,26 @@
 //Interface for controls and functions to be executed from client not server.
 //Note: many of the functions here depend heavily on DOM IDs!
 
-function sepiaFW_build_client_controls(){
+function sepiaFW_build_client_controls(sepiaSessionId){
     var Controls = {};
 
+    //Handler - see exposed functions at bottom
+    Controls.handle = function(fun, controlData){
+        if (fun in availableControls){
+            var wasCalled = availableControls[fun](controlData);
+        }else{
+            SepiaFW.debug.error("Client Controls - Function does not exist: " + fun);
+        }
+    }
+
+    //parse string if required
     function parseAction(action){
         var req;
         if (typeof action === "string"){
-            req = JSON.parse(action);
+            action = action.trim();
+            if (action.indexOf("{") == 0 || action.indexOf("[") == 0){
+                req = JSON.parse(action);       
+            }
         }else{
             req = action;
         }
@@ -425,7 +438,7 @@ function sepiaFW_build_client_controls(){
         //prep. data
         var clientAndDeviceId = SepiaFW.config.getClientDeviceInfo();
         var dataBody = new Object();
-		dataBody.KEY = SepiaFW.account.getKey();        //TODO: use this??
+		dataBody.KEY = SepiaFW.account.getKey(sepiaSessionId);        //TODO: use this??
         dataBody.client = clientAndDeviceId;
         dataBody.canonicalName = pluginName;
         if (accessPin) dataBody.pin = accessPin;
@@ -465,7 +478,158 @@ function sepiaFW_build_client_controls(){
 				if (errorCallback) errorCallback(response);
 			}
 		});
-	}
+    }
+    
+    //CLEXI runtime commands
+    Controls.runtimeCommands = function(controlData){
+        if (SepiaFW.clexi && controlData.action){
+            var cmdData = parseAction(controlData.action);
+            //use shortcuts?
+            if (cmdData.shortcut){
+                var shortcutFun = runtimeCommandsShortcuts[cmdData.shortcut];
+                if (shortcutFun){
+                    cmdData = shortcutFun(cmdData);
+                }else{
+                    cmdData = undefined;
+                    SepiaFW.debug.error("Client controls - Runtime-Commands missing shortcut for: " + cmdData.shortcut);
+                }
+            }
+            //console.error(cmdData);               //DEBUG
+            if (!cmdData || !cmdData.cmd){
+                sendFollowUpMessage("<error_client_control_0b>", SepiaFW.local.g('cant_execute'));
+                return false;
+            }
+            //send
+            var resCode = SepiaFW.clexi.sendRuntimeCommand(cmdData.cmd, cmdData.args, cmdData.maxWait, 
+                runtimeCommandsTryCallback, runtimeCommandsSuccessCallback, runtimeCommandsErrorCallback);
+            if (resCode == 1){
+                //CLEXI not connected
+                sendFollowUpMessage("<error_0a>", 
+                    SepiaFW.local.g('missing_clexi_connection'), function(){
+                        SepiaFW.ui.showInfo(SepiaFW.local.g('missing_clexi_connection'));
+                });
+                return false;
+            }else if (resCode == 2){
+                //not supported (CLEXI Plugin missing)
+                sendFollowUpMessage("<error_client_support_0a>", 
+                    SepiaFW.local.g('missing_clexi_plugin') + " Plugin: runtime-commands.", function(){
+                        SepiaFW.ui.showInfo(SepiaFW.local.g('missing_clexi_plugin'));
+                });
+                return false;
+            }else{
+                //Command sent - anythig else?
+                if (cmdData.cmd == "removeScheduled"){
+                    //remove it from active runtime commands map
+                    SepiaFW.clexi.removeActiveRuntimeCommand(cmdData.args.cmdId);
+                }
+                return true;
+            }
+        }
+        return false;
+    }
+    //try callback
+    function runtimeCommandsTryCallback(result, data, args){
+        var cmd = data.cmd;
+        if (args && args.file){
+            cmd += "-" + args.file;
+        }
+        SepiaFW.debug.log("Client controls - Runtime-Commands try-info: " + result + " - cmd: " + cmd);
+    }
+    //success callback
+    function runtimeCommandsSuccessCallback(result, data, args){
+        var cmd = data.cmd;
+        if (args && args.file){
+            cmd += "-" + args.file;
+        }
+        result = ((typeof result == 'object')? JSON.stringify(result) : result);
+        SepiaFW.debug.log("Client controls - Runtime-Commands success-info: " + result + " - cmd: " + cmd);
+        //do we have some more info about the command?
+        var cmdInfo = SepiaFW.clexi.getActiveRuntimeCommands()[data.cmdId];
+        var successAnswer;
+        if (cmdInfo && cmdInfo.sentAt && (new Date().getTime() - cmdInfo.sentAt) < 15000){
+            successAnswer = "<client_controls_runtime_command_0c>";     //The OS command was ...
+        }else{
+            successAnswer = "<client_controls_runtime_command_0a>";     //A scheduled OS command was ...
+        }
+        var info = SepiaFW.local.g('runtime_command_success') + " Cmd: " + cmd;
+        sendFollowUpMessage(successAnswer, info, function(){
+            SepiaFW.ui.showInfo(info, false, "runtime-command", true);
+        });
+    }
+    //error callback
+    function runtimeCommandsErrorCallback(msg, code, data, args){
+        var cmd = data.cmd;
+        if (args && args.file){
+            cmd += "-" + args.file;
+        }
+        msg = ((typeof msg == 'object')? JSON.stringify(msg) : msg);
+        SepiaFW.debug.error("Client controls - Runtime-Commands: " + msg + " - cmd: "+ cmd);
+        sendFollowUpMessage("<error_client_control_0a>", SepiaFW.local.g('cant_execute') + " Code: " + code);
+    }
+
+    //Runtime-commands shortcuts
+    function getRuntimeCommandsCustomData(customFun, inputData){
+        var cmdData = {
+            cmd: "callCustom",
+            args: {
+                delay: (inputData.delay || 6000),
+                file: customFun
+            }
+        };
+        cmdData.maxWait = cmdData.args.delay + 20000;
+        return cmdData;
+    }
+    //Cancel scheduled runtime-commands
+    function getRuntimeCommandsCancelClosestData(inputData){
+        var cmdToFind = inputData.name || "callCustom";
+        var cmdSubType = inputData.custom;
+        //get closest runtime command to cancel
+        var cmdIdToCancel;
+        var closestExpires;
+        var rtcs = SepiaFW.clexi.getActiveRuntimeCommands();
+        Object.keys(rtcs).forEach(function(k){
+            var co = rtcs[k];
+            if (co.cmd == cmdToFind){
+                if (!cmdSubType || (co.args && cmdSubType == co.args.file)){
+                    if (!closestExpires || co.expires < closestExpires){
+                        cmdIdToCancel = k;
+                        closestExpires = co.expires;
+                    }
+                }
+            }
+        });
+        if (cmdIdToCancel){
+            return {
+                cmd: "removeScheduled",
+                args: {
+                    cmdId: cmdIdToCancel
+                }
+            };
+        }else{
+            return;
+        }
+    }
+
+    //-----------------
+
+    //Exposed functions
+    var availableControls = {
+        "settings": Controls.settings,
+        "alwaysOn": Controls.alwaysOn,
+        "volume": Controls.volume,
+        "media": Controls.media,
+        "searchForMusic": Controls.searchForMusic,
+        "clexi": Controls.clexi,
+        "platformFunction": Controls.platformFunction,
+        "meshNode": Controls.meshNode,
+        "runtimeCommands": Controls.runtimeCommands
+    }
+
+    var runtimeCommandsShortcuts = {
+        "cancel": getRuntimeCommandsCancelClosestData,
+        "os_shutdown": function(inputData){ return getRuntimeCommandsCustomData("os_shutdown", inputData); },
+        "os_reboot": function(inputData){ return getRuntimeCommandsCustomData("os_reboot", inputData); }
+    }
 
     return Controls;
 }

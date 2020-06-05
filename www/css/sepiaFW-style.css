@@ -1,3 +1,9 @@
+* {
+    box-sizing: border-box;
+	-webkit-tap-highlight-color: transparent;
+	scrollbar-width: thin;
+	/* note: we keep the default color just adapt .sepiaFW-results-container (due to background) */
+}
 .sepiaFW-notouch-device ::-webkit-scrollbar {
 	width: 4px;
 	height: 4px;
@@ -7,9 +13,8 @@
 	border-radius: 0px;
 	background: rgba(128,128,128,0.24);
 }
-* {
-    box-sizing: border-box;
-	-webkit-tap-highlight-color: transparent;
+.sepiaFW-notouch-device ::-webkit-scrollbar-thumb:hover {
+	background: rgba(128,128,128,0.50);
 }
 
 /* Google material icon sizes: */
@@ -30,6 +35,7 @@
 	-moz-user-select: none;    
 	-ms-user-select: none;      
 	user-select: none;
+	font-weight: normal !important;
 }
 .material-icons.icon-glyph {
 	margin: 4px;
@@ -223,25 +229,6 @@ body {
 	margin-top: -50px;
 }
 
-#sepiaFW-popup-message {
-	position: absolute;
-	background: #111;
-	color: #eee;
-	border-radius: 3px;
-	min-height: 40px;
-	max-height: 85%;
-	width:80%;
-	max-width: 350px;
-	padding: 16px;
-	top: 40%;
-	left: 50%;
-	transform: translate(-50%, -45%);
-	text-align: center;
-	z-index: 90;
-	overflow: hidden;
-	display: flex;
-    flex-direction: column;
-}
 #sepiaFW-popup-message-content {
 	margin: 8px 0 12px 0;
 	flex: 1 1 auto;
@@ -250,7 +237,7 @@ body {
 	word-wrap: break-word;
 }
 #sepiaFW-popup-message-controls {
-	margin: 0px 0 0px 0;
+	margin: 4px 0 6px 0;
 	flex: 1 0 auto;
 }
 #sepiaFW-popup-message button {
@@ -262,9 +249,8 @@ body {
 	color: #fff !important;
 }
 #sepiaFW-popup-message input {
-	width: 100%;
 	width: 100% !important;
-    background: #333;
+    background: #222;
     color: #eee;
     border-bottom: 1px solid #eee !important;
 }
@@ -299,8 +285,7 @@ body {
 	background: #444;
 }
 
-#sepiaFW-cover-layer {
-	display: none;
+.sepiaFW-popup-cover-layer {
 	position: fixed;
 	background: rgba(255, 255, 255, 0.95);
 	top: 0px;
@@ -308,6 +293,70 @@ body {
 	width: 100%;
 	height: 100%;
 	z-index: 89;
+	display: flex;
+    justify-content: center;
+	align-items: center;
+	padding-bottom: 10%;
+}
+.sepiaFW-input-popup {
+	position: absolute;
+	background: #111;
+	color: #eee;
+	border-radius: 3px;
+	min-height: 40px;
+	max-height: 85%;
+	width: 86%;
+    max-width: 380px;
+	padding: 16px;
+	/*top: 40%;
+	left: 50%;
+	transform: translate(-50%, -45%);*/
+	text-align: center;
+	z-index: 90;
+	overflow: hidden;
+	display: flex;
+    flex-direction: column;
+}
+.sepiaFW-input-popup div {
+	margin-bottom: 12px;
+}
+.sepiaFW-input-popup .sepiaFW-input-popup-title span {
+	color: #ceff1a;
+	margin: 8px;
+	display: inline-block;
+}
+.sepiaFW-input-popup input,
+.sepiaFW-input-popup textarea {
+	width: 100% !important;
+	background: #222;
+	color: #eee;
+	border: 0;
+	border-bottom: 1px solid #eee !important;
+}
+.sepiaFW-input-popup textarea {
+	padding: 8px;
+	font-family: sans-serif;
+	font-size: 15px;
+}
+.sepiaFW-input-popup label {
+	margin: 12px;
+}
+.sepiaFW-input-popup select {
+	background: #222 !important;
+	color: #eee !important;
+	border-bottom: 1px solid #fff !important;
+}
+/*.sepiaFW-input-popup .sepiaFW-input-popup-select-box::after {
+    content: '▼';
+    position: relative;
+    color: #fff;
+    top: 0px;
+    right: 12px;
+    font-size: 10px;
+}*/
+.sepiaFW-input-popup button {
+	background-color: #eee !important;
+	color: #111 !important;
 }
 
 #sepiaFW-loader {
@@ -492,6 +541,7 @@ body {
 }
 #sepiaFW-login-box h2 {
 	font-weight: normal;
+	font-size: 23px;
 }
 #sepiaFW-login-box input {
 	border: 0px;
@@ -1698,6 +1748,7 @@ html.dark-skin #sepiaFW-login-help-btn {
 	overflow-y: auto;
 	overflow-y: overlay;
 	-webkit-overflow-scrolling: touch;
+	scrollbar-color: rgba(128,128,128,0.24) rgba(128,128,128,0.12);
 }
 .sepiaFW-results-container:after {
     content: "";
@@ -1723,7 +1774,7 @@ html.dark-skin #sepiaFW-login-help-btn {
 	display: inline-block;
     background: rgba(145, 47, 86, 0.95); /*rgba(170, 180, 190, 0.94);*/
 	color: #fff;
-	padding: 9px 6px 6px 6px; /*7px 10px 7px 5px;*/
+	padding: 9px 11px 6px 6px; /*7px 10px 7px 5px;*/
     margin: 0 30px 4px 2px;
     border-left: 5px solid rgba(0, 0, 0, 0.00);
 	border-top: 0px solid rgba(0, 0, 0, 0.00);
@@ -1805,7 +1856,7 @@ html.dark-skin #sepiaFW-login-help-btn {
 .sepiaFW-results-container .chatMsg p,
 #sepiaFW-chat-output .chatMsg p {
     margin: 5px 0;
-    font-weight: 300;
+    /*font-weight: 300;*/
 }
 .sepiaFW-results-container .chatMsg.right,
 #sepiaFW-chat-output .chatMsg.right{
@@ -1826,13 +1877,17 @@ html.dark-skin #sepiaFW-login-help-btn {
 	font-size: 12px;
 	padding: 0px 16px 0px 0px;
 }
+.sepiaFW-results-container .chatMsg .sender em,
+#sepiaFW-chat-output .chatMsg .sender em {
+	font-style: normal;
+}
 .sepiaFW-results-container .chatMsg .timestamp,
 #sepiaFW-chat-output .chatMsg .timestamp {
     display: inline-block;
 	vertical-align: text-bottom;
 	float: right;
 	font-size: 12px;
-	padding: 0px 4px 0px 4px !important;
+	padding: 0px 0px 0px 4px !important;
 }
 .sepiaFW-results-container article.chatMe,
 #sepiaFW-chat-output article.chatMe{

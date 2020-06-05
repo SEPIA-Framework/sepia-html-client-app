@@ -143,6 +143,7 @@
 }
 .sepiaFW-frames-page .group.fill {
 	flex-wrap: wrap;
+	margin: 8px 0;
 }
 .sepiaFW-frames-page .group.fill label {
 	flex: 0 0 auto;

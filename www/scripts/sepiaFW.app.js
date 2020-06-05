@@ -8,33 +8,34 @@ SepiaFW.config = sepiaFW_build_config();
 
 //"Interface" modules - NOTE: this happens after cordova's deviceReady
 SepiaFW.buildSepiaFwPlugins = function(){
-	SepiaFW.account = sepiaFW_build_account();
+	var sepiaSessionId = SepiaFW.tools.getRandomToken();
+	SepiaFW.account = sepiaFW_build_account(sepiaSessionId);
 	SepiaFW.account.contacts = sepiaFW_build_account_contacts();
-	SepiaFW.assistant = sepiaFW_build_assistant();
+	SepiaFW.assistant = sepiaFW_build_assistant(sepiaSessionId);
 	SepiaFW.ui = sepiaFW_build_ui();
 	SepiaFW.animate = sepiaFW_build_animate();
 	SepiaFW.ui.Carousel = sepiaFW_build_ui_carousel();
 	SepiaFW.ui.dragDrop = sepiaFW_build_ui_drag_and_drop();
 	SepiaFW.ui.notification = sepiaFW_build_ui_notifications();
-	SepiaFW.ui.build = sepiaFW_build_ui_build();
+	SepiaFW.ui.build = sepiaFW_build_ui_build(sepiaSessionId);
 	SepiaFW.ui.cards = sepiaFW_build_ui_cards();
 	SepiaFW.ui.actions = sepiaFW_build_ui_actions();
-	SepiaFW.ui.customButtons = sepiaFW_build_ui_custom_buttons();
+	SepiaFW.ui.customButtons = sepiaFW_build_ui_custom_buttons(sepiaSessionId);
 	SepiaFW.events = sepiaFW_build_events();
 	SepiaFW.geocoder = sepiaFW_build_geocoder();
-	SepiaFW.audio = sepiaFW_build_audio();
+	SepiaFW.audio = sepiaFW_build_audio(sepiaSessionId);
 	SepiaFW.audioRecorder = sepiaFW_build_audio_recorder();
 	SepiaFW.speechWebSocket = sepiaFW_build_speechWebSocket();
 	SepiaFW.speech = sepiaFW_build_speech();
 	SepiaFW.webSocket = new Object();
 	SepiaFW.webSocket.common = sepiaFW_build_webSocket_common();
-	SepiaFW.webSocket.client = sepiaFW_build_webSocket_client();
-	SepiaFW.webSocket.channels = sepiaFW_build_webSocket_channels();
+	SepiaFW.webSocket.client = sepiaFW_build_webSocket_client(sepiaSessionId);
+	SepiaFW.webSocket.channels = sepiaFW_build_webSocket_channels(sepiaSessionId);
 	SepiaFW.client = sepiaFW_build_client_interface();
-	SepiaFW.client.controls = sepiaFW_build_client_controls();
+	SepiaFW.client.controls = sepiaFW_build_client_controls(sepiaSessionId);
 	SepiaFW.files = sepiaFW_build_files();
 	SepiaFW.frames = sepiaFW_build_frames();
-	SepiaFW.teach = sepiaFW_build_teach();
+	SepiaFW.teach = sepiaFW_build_teach(sepiaSessionId);
 	SepiaFW.offline = sepiaFW_build_offline();
 	SepiaFW.alwaysOn = sepiaFW_build_always_on();
 	SepiaFW.inputControls = sepiaFW_build_input_controls();
@@ -390,6 +391,20 @@ function sepiaFW_build_tools(){
 		return urlParam;
 	}
 
+	//Escape HTML to make it "secure"
+	Tools.escapeHtml = function(htmlString){
+		return htmlString.replace(/\&/gi, "&amp;")
+			.replace(/</gi, "&lt;").replace(/>/gi, "&gt;")
+			.replace(/"/gi, "&quot;").replace(/'/gi, "&#x27;")
+			.replace(/\//gi, "&#x2F;");
+	}
+	Tools.unescapeHtml = function(textString){
+		return textString.replace(/\&amp;/gi, "&")
+			.replace(/\&lt;/gi, "<").replace(/\&gt;/gi, ">")
+			.replace(/\&quot;/gi, '"').replace(/\&#x27;/gi, "'")
+			.replace(/\&#x2F;/gi, "/");
+	}
+
 	//get pure SHA256 hash
 	Tools.getSHA256Hash = function(data){
 		return sjcl.codec.hex.fromBits(sjcl.hash.sha256.hash(data));
@@ -509,6 +524,19 @@ function sepiaFW_build_tools(){
 		return Math.floor((Math.random() * 9) + 1);
 	}
 	Tools.rnd9 = rnd9;
+
+	//get random id
+	Tools.getRandomToken = function(){
+		if ('crypto' in window){
+			return window.crypto.getRandomValues(new Uint32Array(5)).join("-");
+		}else{
+			var token = Math.round(Math.random()*(new Date().getTime()));
+			for (var i=0; i<4; i++){
+				token += "-" + Math.round(Math.random()*(new Date().getTime()));
+			}
+			return token;
+		}
+	}
 	
 	//get best color contrast - returns values 'black' or 'white' - accepts #333333, 333333 and rgb(33,33,33) (rgba is trated as rgb)
 	Tools.getBestContrast = function(hexcolor){
@@ -563,6 +591,18 @@ function sepiaFW_build_tools(){
 			return "";
 		}
 	}
+
+	//Convert string (e.g. from binary file) to Uint8 array - NOTE: this depends on source encoding and might fail
+	//maybe better: pv_porcupine (1.6) 'stringToUTF8Array'
+	Tools.convertStringToUint8 = function(input){
+		var raw = input;
+		var rawLength = raw.length;
+		var array = new Uint8Array(new ArrayBuffer(rawLength));
+		for (var i = 0; i < rawLength; i += 1) {
+			array[i] = raw.charCodeAt(i);
+		}
+		return array;
+	}
 	
 	return Tools;
 }
@@ -574,25 +614,71 @@ function sepiaFW_build_debug(){
 	Debug.doLog = true;
 	Debug.doError = true;
 	Debug.doInfo = false;
+
+	//get default local date/timeout for debugger
+	Debug.getLocalDateTime = function(){
+		var d = new Date();
+		var HH = addZero(d.getHours());
+		var mm = addZero(d.getMinutes());
+		var ss = addZero(d.getSeconds());
+		var dd = addZero(d.getDate());
+		var MM = addZero(d.getMonth() + 1);
+		var yyyy = d.getFullYear();
+		return '' + yyyy + '.' + MM + '.' + dd + '_' + HH + ':' + mm + ':' + ss;
+	}
+	function addZero(i) {
+		return (i < 10)? "0" + i : i;
+	}
 	
-	Debug.log = function(msg){
+	/*Debug.log = function(msg){
 		if (Debug.doLog){
 			console.log('SepiaFW - ' + Debug.getLocalDateTime() + ' - LOG - ' + msg);
 		}
+	}*/
+	Debug.setLog = function(doLog){
+		if (doLog){
+			Debug.doLog = true;
+			Debug.log = Function.prototype.bind.call(console.log, console, 'SepiaFW - LOG -');
+		}else{
+			Debug.doLog = false;
+			Debug.log = Function.prototype.bind.call(function(){}, console);
+		}
 	}
+	Debug.setLog(Debug.doLog);
 	
-	Debug.err = function(msg){
+	/*Debug.err = function(msg){
 		if (Debug.doError){
 			console.error('SepiaFW - ' + Debug.getLocalDateTime() + ' - ERROR - ' + msg);
 		}
 	}
-	Debug.error = Debug.err;
+	Debug.error = Debug.err;*/
+	Debug.setError = function(doError){
+		if (doError){
+			Debug.doError = true;
+			Debug.err = Function.prototype.bind.call(console.error, console, 'SepiaFW - ERROR -');
+		}else{
+			Debug.doError = false;
+			Debug.err = Function.prototype.bind.call(function(){}, console);
+		}
+		Debug.error = Debug.err;
+	}
+	Debug.setError(Debug.doError);
 	
-	Debug.info = function(msg){
+	/*Debug.info = function(msg){
 		if (Debug.doInfo){
 			console.log('SepiaFW - ' + Debug.getLocalDateTime() + ' - INFO - ' + msg);
 		}
+	}*/
+	Debug.setInfo = function(doInfo){
+		if (doInfo){
+			Debug.doInfo = true;
+			Debug.info = Function.prototype.bind.call(console.log, console, 'SepiaFW - INFO -');
+		}else{
+			Debug.doInfo = false;
+			Debug.info = Function.prototype.bind.call(function(){}, console);
+		}
 	}
+	Debug.setInfo(Debug.doInfo);
 	
 	Debug.object = function(obj, logType){
 		var output = "";
@@ -613,21 +699,6 @@ function sepiaFW_build_debug(){
 		}else{
 			Debug.log(output);
 		}
-	}
-	
-	//get default local date/timeout for debugger
-	Debug.getLocalDateTime = function(){
-		var d = new Date();
-		var HH = addZero(d.getHours());
-		var mm = addZero(d.getMinutes());
-		var ss = addZero(d.getSeconds());
-		var dd = addZero(d.getDate());
-		var MM = addZero(d.getMonth() + 1);
-		var yyyy = d.getFullYear();
-		return '' + yyyy + '.' + MM + '.' + dd + '_' + HH + ':' + mm + ':' + ss;
-	}
-	function addZero(i) {
-		return (i < 10)? "0" + i : i;
 	}
 	
 	return Debug;

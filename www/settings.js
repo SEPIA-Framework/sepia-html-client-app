@@ -11,7 +11,8 @@ SepiaFW.settings = {
 				"index": ""
 			},
 			"en-voice": "",
-			"de-voice": ""
+			"de-voice": "",
+			"wakeWordSensitivity": [0.5]
 		},
 		user: {
 			"clexiSocketURI": "ws://localhost:8080",
@@ -37,7 +38,8 @@ SepiaFW.settings = {
 		},
 		broadcast: {
 			"state": true,
-			"login": true
+			"login": true,
+			"speech": true
 		}
 	}
 };

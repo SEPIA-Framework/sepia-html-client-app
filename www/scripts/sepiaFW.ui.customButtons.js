@@ -1,4 +1,4 @@
-function sepiaFW_build_ui_custom_buttons(){
+function sepiaFW_build_ui_custom_buttons(sepiaSessionId){
     var CustomButtons = {};
 
     var customButtonObjects = [];
@@ -34,11 +34,13 @@ function sepiaFW_build_ui_custom_buttons(){
             lastCustomButtonsLoad = now;
             var withButtonOnly = true;
             var startingFrom = 0;
-            SepiaFW.teach.loadPersonalCommands(SepiaFW.account.getKey(), startingFrom, CustomButtons.maxButtonsToLoad, function(data){
+            //TODO / NOTE: if we knew all command IDs (stored in each button data), we could load those specifically and even in right order!
+            SepiaFW.teach.loadPersonalCommands(SepiaFW.account.getKey(sepiaSessionId), startingFrom, CustomButtons.maxButtonsToLoad, function(data){
                 //success
                 var res = data.result;
                 customButtonObjects = [];
                 $.each(res, function(i, pc){
+                    var id = pc.id;
                     var pcInfo = pc.sentence[0];
                     var buttonData = pcInfo.data.button || {};
                     customButtonObjects.push(
@@ -47,7 +49,8 @@ function sepiaFW_build_ui_custom_buttons(){
                             "icon": buttonData.icon,
                             "cmd" : pcInfo.cmd_summary,
                             "text": pcInfo.text,
-                            "language" : pcInfo.language
+                            "language" : pcInfo.language,
+                            "id": id
                         }
                     );
                 });
@@ -71,7 +74,7 @@ function sepiaFW_build_ui_custom_buttons(){
             var offlineCustomButtonObjects = [
                 SepiaFW.offline.createCustomButton("My Radio", "music_note", "dummy;;info=my_radio_dummy", SepiaFW.local.g('myRadioDemoBtn'), lang),
                 SepiaFW.offline.createCustomButton("My News", "local_library", "dummy;;info=my_news_dummy", SepiaFW.local.g('myNewsDemoBtn'), lang),
-                SepiaFW.offline.createCustomButton("To-Do List", "list", "dummy;;;;info=my_todo_list_dummy", SepiaFW.local.g('myToDoDemoBtn'), lang)
+                SepiaFW.offline.createCustomButton("To-Do List", "list", "dummy;;info=my_todo_list_dummy", SepiaFW.local.g('myToDoDemoBtn'), lang)
             ];
         }
         return offlineCustomButtonObjects;
@@ -142,8 +145,11 @@ function sepiaFW_build_ui_custom_buttons(){
             CustomButtons.callAction(buttonData);
             
         }, function(){
-            //Long press
-            //TODO: we could use that to edit the button
+            //Long press - used to edit the button
+            //console.log(buttonData);
+            SepiaFW.teach.openUI({
+                commandId: buttonData.id
+            });
             
         }, animateShortPress);
 
