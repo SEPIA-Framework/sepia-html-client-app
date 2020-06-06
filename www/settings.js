@@ -39,7 +39,8 @@ SepiaFW.settings = {
 		broadcast: {
 			"state": true,
 			"login": true,
-			"speech": true
+			"speech": true,
+			"wakeWord": true
 		}
 	}
 };
