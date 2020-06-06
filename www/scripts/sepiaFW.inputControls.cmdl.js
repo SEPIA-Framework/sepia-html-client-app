@@ -44,6 +44,11 @@ function sepiaFW_build_input_controls_cmdl() {
             }else{
                 document.removeEventListener('sepia_speech_event', speechBroadcaster);
             }
+            if (Cmdl.broadcasters.wakeWord){
+                document.addEventListener('sepia_wake_word', wakeWordBroadcaster);
+            }else{
+                document.removeEventListener('sepia_wake_word', wakeWordBroadcaster);
+            }
 
             //say hello
             broadcastEvent("event", {
@@ -56,6 +61,7 @@ function sepiaFW_build_input_controls_cmdl() {
             document.removeEventListener('sepia_state_change', stateBroadcaster);
             document.removeEventListener('sepia_login_event', loginBroadcaster);
             document.removeEventListener('sepia_speech_event', speechBroadcaster);
+            document.removeEventListener('sepia_wake_word', wakeWordBroadcaster);
         }
     }
 
@@ -63,7 +69,8 @@ function sepiaFW_build_input_controls_cmdl() {
     Cmdl.broadcasters = {
         state: false,
         login: false,
-        speech: false
+        speech: false,
+        wakeWord: false
     };
     function stateBroadcaster(ev){
         if (Cmdl.broadcasters.state && ev.detail && ev.detail.state){
@@ -85,6 +92,20 @@ function sepiaFW_build_input_controls_cmdl() {
                 type: ev.detail.type,
                 msg: ev.detail.msg
             });
+        }
+    }
+    function wakeWordBroadcaster(ev){
+        if (Cmdl.broadcasters.wakeWord && ev.detail && ev.detail.state){
+            var d = {
+                state: ev.detail.state
+            }
+            if (ev.detail.keyword){
+                d.word = ev.detail.keyword;
+            }
+            if (ev.detail.msg){
+                d.msg = ev.detail.msg;
+            }
+            broadcastEvent("sepia-wake-word", d);
         }
     }
 
@@ -147,6 +168,23 @@ function sepiaFW_build_input_controls_cmdl() {
     //---------- SET ------------
 
     Cmdl.set = {};
+
+    Cmdl.set.wakeword = function(ev){
+        if (ev.state){
+            if (ev.state == "on" || ev.state == "active" || ev.state == "activate"){
+                SepiaFW.wakeTriggers.useWakeWord = true;
+                if (!SepiaFW.wakeTriggers.engineLoaded){
+                    SepiaFW.wakeTriggers.setupWakeWords();      //will auto-start after setup
+                }else if (!SepiaFW.wakeTriggers.isListening()){
+                    SepiaFW.wakeTriggers.listenToWakeWords();
+                }
+            }else if (ev.state == "off" || ev.state == "inactive" || ev.state == "deactivate"){
+                if (SepiaFW.wakeTriggers.engineLoaded && SepiaFW.wakeTriggers.isListening()){
+                    SepiaFW.wakeTriggers.stopListeningToWakeWords();
+                }
+            }
+        }
+    }
 
     //---------- GET ------------
 

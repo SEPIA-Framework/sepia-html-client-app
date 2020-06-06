@@ -35,7 +35,7 @@ var ClexiJS = (function(){
 	
 	Clexi.availableXtensions = {}; 	//TODO: we should update this somehow (will only update once at welcome event)
 	
-	Clexi.pingAndConnect = function(host, onPingOrIdError, onOpen, onClose, onError, onConnecting){
+	Clexi.pingAndConnect = function(host, onPingOrIdError, onOpen, onClose, onError, onConnecting, onWelcome){
 		var url;
 		if (!host) url = location.origin;
 		else url = host.replace(/^wss/, 'https').replace(/^ws/, 'http');
@@ -47,7 +47,7 @@ var ClexiJS = (function(){
 			//console.log(data);
 			//check ID
 			if (data.id && (data.id == Clexi.serverId || (data.id == "[SECRET]" && Clexi.serverId))){
-				Clexi.connect(host, onOpen, onClose, onError, onConnecting);
+				Clexi.connect(host, onOpen, onClose, onError, onConnecting, onWelcome);
 			}else{
 				if (onPingOrIdError) onPingOrIdError({
 					code: 418,
@@ -168,7 +168,7 @@ var ClexiJS = (function(){
 			if (!requestedClose){
 				//try reconnect?
 				if (Clexi.doAutoReconnect){
-					autoReconnect(host, onOpen, onClose, onError, onConnecting);
+					autoReconnect(host, onOpen, onClose, onError, onConnecting, onWelcome);
 				}
 			}else{
 				if (reconnectTimer) clearTimeout(reconnectTimer);
@@ -185,7 +185,7 @@ var ClexiJS = (function(){
 		}
 	}
 	
-	function autoReconnect(host, onOpen, onClose, onError, onConnecting){
+	function autoReconnect(host, onOpen, onClose, onError, onConnecting, onWelcome){
 		reconnectTry++;
 		var delay = Math.min(reconnectTry*reconnectTry*reconnectBaseDelay, reconnectMaxDelay);
 		//TODO: we could/should check navigator.onLine here ...
@@ -193,7 +193,7 @@ var ClexiJS = (function(){
 		reconnectTimer = setTimeout(function(){
 			if (!isConnected && !requestedClose){
 				if (Clexi.onLog) Clexi.onLog('CLEXI reconnecting after unexpected close. Try: ' + reconnectTry);
-				Clexi.connect(host, onOpen, onClose, onError, onConnecting);
+				Clexi.connect(host, onOpen, onClose, onError, onConnecting, onWelcome);
 			}
 		}, delay);
 	}
