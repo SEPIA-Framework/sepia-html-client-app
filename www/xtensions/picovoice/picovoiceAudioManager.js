@@ -102,7 +102,14 @@ let PicovoiceAudioManager = (function() {
     //Create recorder and start processing
     this.start = function(ppKeywordIDs, ppSensitivities, picovoiceProcessCallback, errorCallback){
         //create engine - TODO: optimze here
-        engine = Porcupine.create(Object.values(ppKeywordIDs), ppSensitivities);
+        try{
+            engine = Porcupine.create(Object.values(ppKeywordIDs), ppSensitivities);
+        }catch (error){
+            console.error(error);
+            logInfo('ERROR: ' + error + " (Likely a problem with wake-word file or version)");
+            if (errorCallback) errorCallback(error);
+            return;
+        }
         
         processCallback = picovoiceProcessCallback;
         isProcessing = true;
