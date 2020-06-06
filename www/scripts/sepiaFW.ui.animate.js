@@ -195,9 +195,19 @@ function sepiaFW_build_animate(){
 
 	Animate.wakeWord.active = function(){
 		$('#sepiaFW-nav-label-online-status').addClass("wake-word-active");
+		//dispatch event
+		var event = new CustomEvent('sepia_wake_word', { detail: {
+			state: "active"
+		}});
+		document.dispatchEvent(event);
 	}
 	Animate.wakeWord.inactive = function(){
 		$('#sepiaFW-nav-label-online-status').removeClass("wake-word-active");
+		//dispatch event
+		var event = new CustomEvent('sepia_wake_word', { detail: {
+			state: "inactive"
+		}});
+		document.dispatchEvent(event);
 	}
 
 	//channel animations for missed off-channel messages:

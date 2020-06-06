@@ -18,7 +18,8 @@ function sepiaFW_build_wake_triggers() {
 
 		//dispatch event
 		var event = new CustomEvent('sepia_wake_word', { detail: {
-			keyword: keyword
+			keyword: keyword,
+			state: "triggered"
 		}});
 		document.dispatchEvent(event);
 		
@@ -33,6 +34,15 @@ function sepiaFW_build_wake_triggers() {
 			});
 		}
 	}
+	function broadcastWakeWordError(error){
+		//dispatch event
+		var event = new CustomEvent('sepia_wake_word', { detail: {
+			msg: error,
+			state: "error"
+		}});
+		document.dispatchEvent(event);
+	}
+	//NOTE: active, inactive: see ui.animate.wakeWord...
 	
 	//Interface 
 
@@ -399,6 +409,7 @@ function sepiaFW_build_wake_triggers() {
 		}
 		SepiaFW.debug.error("Porcupine: " + errMsg);
 		SepiaFW.ui.showPopup("Porcupine error: " + errMsg);
+		broadcastWakeWordError(errMsg);
     };
 	
 	//-------------------------------------------------

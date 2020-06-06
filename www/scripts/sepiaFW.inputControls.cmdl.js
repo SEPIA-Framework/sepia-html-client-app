@@ -95,10 +95,17 @@ function sepiaFW_build_input_controls_cmdl() {
         }
     }
     function wakeWordBroadcaster(ev){
-        if (Cmdl.broadcasters.wakeWord && ev.detail && ev.detail.keyword){
-            broadcastEvent("sepia-wake-word", {
-                word: ev.detail.keyword
-            });
+        if (Cmdl.broadcasters.wakeWord && ev.detail && ev.detail.state){
+            var d = {
+                state: ev.detail.state
+            }
+            if (ev.detail.keyword){
+                d.word = ev.detail.keyword;
+            }
+            if (ev.detail.msg){
+                d.msg = ev.detail.msg;
+            }
+            broadcastEvent("sepia-wake-word", d);
         }
     }
 
@@ -161,6 +168,23 @@ function sepiaFW_build_input_controls_cmdl() {
     //---------- SET ------------
 
     Cmdl.set = {};
+
+    Cmdl.set.wakeword = function(ev){
+        if (ev.state){
+            if (ev.state == "on" || ev.state == "active" || ev.state == "activate"){
+                SepiaFW.wakeTriggers.useWakeWord = true;
+                if (!SepiaFW.wakeTriggers.engineLoaded){
+                    SepiaFW.wakeTriggers.setupWakeWords();      //will auto-start after setup
+                }else if (!SepiaFW.wakeTriggers.isListening()){
+                    SepiaFW.wakeTriggers.listenToWakeWords();
+                }
+            }else if (ev.state == "off" || ev.state == "inactive" || ev.state == "deactivate"){
+                if (SepiaFW.wakeTriggers.engineLoaded && SepiaFW.wakeTriggers.isListening()){
+                    SepiaFW.wakeTriggers.stopListeningToWakeWords();
+                }
+            }
+        }
+    }
 
     //---------- GET ------------
 
