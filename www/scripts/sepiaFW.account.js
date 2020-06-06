@@ -530,10 +530,10 @@ function sepiaFW_build_account(sepiaSessionId){
 	//Setup login-box
 	Account.setupLoginBox = function(){
 		//demo login?
-		var isDemoLogin = SepiaFW.data.get('isDemoLogin');
-		if (isDemoLogin){
-			userRoles = [isDemoLogin];
-			skipLogin();
+		var demoLogin = SepiaFW.data.get('isDemoLogin');
+		if (demoLogin){
+			userRoles = [demoLogin];
+			skipLogin(demoLogin);
 			return;
 		}
 		//try restore from data-storage to avoid login popup - refresh required after e.g. 1 day = 1000*60*60*24
@@ -659,7 +659,13 @@ function sepiaFW_build_account(sepiaSessionId){
 			//$('#sepiaFW-login-extend-box').hide();
 		});
 	}
-	function skipLogin(){
+	function skipLogin(demoId){
+		if (demoId && demoId == "setup"){
+			//temporarily disabled
+			SepiaFW.speech.skipTTS = true;
+			SepiaFW.wakeTriggers.useWakeWord = false;
+			SepiaFW.debug.log("Deactivated for setup: TTS, Wake-Word");
+		}
 		Account.toggleLoginBox();
 		broadcastEnterWithoutLogin();
 		Account.afterLogin();
@@ -896,7 +902,7 @@ function sepiaFW_build_account(sepiaSessionId){
 			SepiaFW.data.set('isDemoLogin', userId);
 			userRoles = [userId];
 			SepiaFW.ui.hideLoader();
-			skipLogin();
+			skipLogin(userId);
 			return;
 		}
 		//hash password
