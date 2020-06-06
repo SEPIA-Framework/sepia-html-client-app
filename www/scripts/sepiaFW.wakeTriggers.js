@@ -128,6 +128,7 @@ function sepiaFW_build_wake_triggers() {
 						}
 					//type B: Uint8Array data
 					}else{
+						WakeTriggers.setPorcupineLibForVersion(WakeTriggers.porcupineVersion);
 						ppReloadWakeWords(WakeTriggers.porcupineWakeWords);
 						loadPpEngine(setupSuccessCallback);
 					}
@@ -248,6 +249,16 @@ function sepiaFW_build_wake_triggers() {
 		SepiaFW.wakeWordSettings.refreshUi("Wake-Word");
 	}
 
+	WakeTriggers.setPorcupineLibForVersion = function(version){
+		if (version == "1.4"){
+			ppFileUrl = "pv_porcupine.wasm";					//DEFAULT FILE
+		}else if (WakeTriggers.porcupineVersionsDownloaded){
+			ppFileUrl = "pv_porcupine_" + version + ".wasm";	//DOWNLOADED
+		}else{
+			ppFileUrl = "https://sepia-framework.github.io/files/porcupine/" + version + "/pv_porcupine.wasm";		//ONLINE
+		}
+		ppKeywordVersion = version;
+	}
 	WakeTriggers.readPorcupineWwFromFile = function(version, name, doApply, customSuccessCallback){
 		if (ppWwReadRetryCounter > 3){
 			SepiaFW.debug.error("Wake-word read request failed too often and has been blocked! Please restart client to reset.");
@@ -269,14 +280,7 @@ function sepiaFW_build_wake_triggers() {
 		SepiaFW.files.fetchLocal(filePath, function(data){
 			var uint8;
 			if (doApply){
-				if (version == "1.4"){
-					ppFileUrl = "pv_porcupine.wasm";					//DEFAULT FILE
-				}else if (WakeTriggers.porcupineVersionsDownloaded){
-					ppFileUrl = "pv_porcupine_" + version + ".wasm";	//DOWNLOADED
-				}else{
-					ppFileUrl = "https://sepia-framework.github.io/files/porcupine/" + version + "/pv_porcupine.wasm";		//ONLINE
-				}
-				ppKeywordVersion = version;
+				WakeTriggers.setPorcupineLibForVersion(version);
 			}
 			if (!!data.match(/0x..,(\s|)0x..,.*/)){
 				var strArr = data.split(/,/g);
