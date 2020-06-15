@@ -55,8 +55,32 @@ function sepiaFW_build_dataService(){
 	var data = load();					//deleted after log-out
 	var dataPermanent = load(true);		//remains after log-out, e.g. host-name
 
-	if (!window.localStorage){
+	if (!('localStorage' in window)){
 		SepiaFW.debug.err("Data: localStorage not supported! Storing data will most likely fail.");
+	}
+	var hasStorageAccess;
+	var hasRequestedStorageAccess = false;
+	var requestStorageAccess = function(){
+		if (!hasRequestedStorageAccess && ('requestStorageAccess' in document)){
+			hasRequestedStorageAccess = true;
+			document.requestStorageAccess().then(function(){
+				SepiaFW.debug.log("Localstorage access was granted.");
+				hasStorageAccess = true;
+			}, function(){
+				SepiaFW.debug.err("Localstorage access NOT granted.");
+				hasStorageAccess = false;
+			});
+		}
+		window.removeEventListener('click', requestStorageAccess);
+	}
+	if ('hasStorageAccess' in document){
+		document.hasStorageAccess().then(function(hasAccess){
+			hasStorageAccess = hasAccess;
+			if (!hasAccess){
+				SepiaFW.debug.err("Localstorage access restriced, probably due to third-party-cookies policy. You can add a page exception in your browser settings.");
+				window.addEventListener('click', requestStorageAccess);
+			}
+		});
 	}
 	
 	//NativeStorage abstraction layer - we need to manage the async nature (compared to localStorage)
