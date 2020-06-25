@@ -48,3 +48,67 @@ SepiaFW.wakeTriggers.porcupineWakeWords = {
 
 This example will activate "Hey SEPIA" AND "yellow" at the same time.  
 NOTE: You CANNOT mix wake-words for different versions!
+
+### Currently available wake-words
+
+These are the wake-words available in SEPIA Client v0.22.0.
+
+#### v1.4
+
+hey sepia
+navy blue
+ok lamp
+orange
+purple
+white
+yellow
+
+#### v1.5
+
+alexa
+americano
+avocado
+blueberry
+bumblebee
+caterpillar
+christina
+dragonfly
+flamingo
+francesca
+grapefruit
+grasshopper
+iguana
+picovoice
+pineapple
+porcupine
+raspberry
+terminator
+vancouver
+
+#### v1.6
+
+americano
+blueberry
+bumblebee
+crimson
+deep pink
+deep sky blue
+dim gray
+fire brick
+forest green
+grapefruit
+grasshopper
+hey edison
+hey pico
+hot pink
+lavender blush
+lime green
+magenta
+midnight blue
+papaya whip
+peach puff
+picovoice
+porcupine
+sandy brown
+terminator
+white smoke
