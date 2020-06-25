@@ -55,9 +55,6 @@ function sepiaFW_build_dataService(){
 	var data = load();					//deleted after log-out
 	var dataPermanent = load(true);		//remains after log-out, e.g. host-name
 
-	if (!('localStorage' in window)){
-		SepiaFW.debug.err("Data: localStorage not supported! Storing data will most likely fail.");
-	}
 	var hasStorageAccess;
 	var hasRequestedStorageAccess = false;
 	var requestStorageAccess = function(){
@@ -73,11 +70,14 @@ function sepiaFW_build_dataService(){
 		}
 		window.removeEventListener('click', requestStorageAccess);
 	}
-	if ('hasStorageAccess' in document){
+	if (!('localStorage' in window)){
+		SepiaFW.debug.err("Data: localStorage not supported! Storing data will most likely fail.");
+	
+	}else if ('hasStorageAccess' in document){
 		document.hasStorageAccess().then(function(hasAccess){
 			hasStorageAccess = hasAccess;
-			if (!hasAccess){
-				SepiaFW.debug.err("Localstorage access restriced, probably due to third-party-cookies policy. You can add a page exception in your browser settings.");
+			if (hasAccess === false){
+				SepiaFW.debug.err("Localstorage access might be restriced, probably due to third-party-cookies policy. Page exception (via browser settings) possible.");
 				window.addEventListener('click', requestStorageAccess);
 			}
 		});
