@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='utf-8'?>
-<widget id="org.example.sepia.app.web" version="0.22.0" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
+<widget id="org.example.sepia.app.web" version="0.22.1" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
     <name>S.E.P.I.A.</name>
     <description>
         Prototype of S.E.P.I.A. framework client
@@ -52,7 +52,7 @@
 		<!--config stuff-->
 		<preference name="AndroidLaunchMode" value="singleTask" />
 		<preference name="android-minSdkVersion" value="19" /><!-- Android 4.4+ -->
-		<preference name="android-targetSdkVersion" value="28" /><!-- Android 9.0 -->
+		<preference name="android-targetSdkVersion" value="29" /><!-- Android 10.0 -->
 		<preference name="android-windowSoftInputMode" value="adjustSize" />
 		<!-- custom manifest changes -->
 		<custom-preference name="android-manifest/application/activity/@android:theme" value="@style/SplashTheme"/> <!-- Theme mainly for splash screen or background colors -->
