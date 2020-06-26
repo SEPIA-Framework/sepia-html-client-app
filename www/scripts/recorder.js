@@ -54,7 +54,7 @@ DEALINGS IN THE SOFTWARE.
         //Web-Audio
         }else if (audioContext){
             var bufferLen = 4096;
-            let processNode;
+            var processNode;
             if ('createScriptProcessor' in audioContext){
                 processNode = audioContext.createScriptProcessor(bufferLen, 1, 1);
             }else if ('createJavaScriptNode' in audioContext){
@@ -140,14 +140,14 @@ DEALINGS IN THE SOFTWARE.
         //--- conversion methods ---
 
         function writeString(view, offset, string){
-			for (let i = 0; i < string.length; i++){
+			for (var i = 0; i < string.length; i++){
 				view.setUint8(offset + i, string.charCodeAt(i));
 			}
         }
 
         function floatTo16BitPCM(output, offset, input){
-            for (let i = 0; i < input.length; i++, offset += 2){
-                let s = Math.max(-1, Math.min(1, input[i]));
+            for (var i = 0; i < input.length; i++, offset += 2){
+                var s = Math.max(-1, Math.min(1, input[i]));
                 output.setInt16(offset, s < 0 ? s * 0x8000 : s * 0x7FFF, true);
             }
         }
@@ -181,7 +181,7 @@ DEALINGS IN THE SOFTWARE.
         function downsampleFloat32(array, sampleRate, outSampleRate){
             if (outSampleRate == sampleRate){
                 var result = new Float32Array(array.length);
-                for (let i = 0 ; i < array.length ; i++){
+                for (var i = 0 ; i < array.length ; i++){
                     result[i] = array[i];
                 }
                 return array;

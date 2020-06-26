@@ -550,9 +550,14 @@ function sepiaFW_build_tools(){
 	Tools.rnd9 = rnd9;
 
 	//get random id
-	Tools.getRandomToken = function(){
-		if ('crypto' in window){
-			return window.crypto.getRandomValues(new Uint32Array(5)).join("-");
+	Tools.getRandomToken = function(useBasic){
+		if (!useBasic && ('crypto' in window)){
+			var rndVals = window.crypto.getRandomValues(new Uint32Array(5));
+			if (rndVals && ('join' in rndVals)){	//this seems to be browser dependent oO
+				return rndVals.join("-");
+			}else{
+				return Tools.getRandomToken(true);
+			}
 		}else{
 			var token = Math.round(Math.random()*(new Date().getTime()));
 			for (var i=0; i<4; i++){

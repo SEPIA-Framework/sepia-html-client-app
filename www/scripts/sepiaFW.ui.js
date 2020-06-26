@@ -191,12 +191,9 @@ function sepiaFW_build_ui(){
 				StatusBar.backgroundColorByHexString(statusBarColor);
 				StatusBar.styleLightContent();
 			}else{
-				if (UI.isAndroid){
-					StatusBar.backgroundColorByHexString('#000000');
-				}else{
-					StatusBar.backgroundColorByHexString(statusBarColor);
-					StatusBar.styleDefault();
-				}
+				//if (UI.isAndroid){ StatusBar.backgroundColorByHexString('#000000'); }else{
+				StatusBar.backgroundColorByHexString(statusBarColor);
+				StatusBar.styleDefault();
 			}
 		}
 		if ('NavigationBar' in window){
