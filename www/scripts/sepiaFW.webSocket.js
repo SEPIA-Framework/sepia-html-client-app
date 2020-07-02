@@ -2042,11 +2042,27 @@ function sepiaFW_build_webSocket_client(sepiaSessionId){
 			
 			//remoteAction
 			}else if (message.data.dataType === "remoteAction"){
+				var actionUser = message.data.user;
+				var action;
+				if (message.data.action){
+					if (typeof message.data.action == "string" && message.data.action.indexOf("{") == 0){
+						action = JSON.parse(message.data.action);
+					}else{
+						action = message.data.action;
+					}
+				}
+
+				//invalid
+				if (!message.data.type || !action){
+					SepiaFW.debug.log("remoteAction - ignored action because no type or action was given");
 				
 				//HOTKEY
-				if (message.data.type && (message.data.type === "hotkey")){
-					var actionUser = message.data.user;
-					var action = JSON.parse(message.data.action);
+				}else if (message.data.type === "hotkey"){
+					if (typeof action == "string"){
+						action = {
+							key: action
+						}
+					}
 					SepiaFW.debug.info("remoteAction - hotkey: " + action.key + ", language: " + action.language);
 					
 					var sEntry = SepiaFW.ui.build.statusMessage(message, username);
@@ -2055,12 +2071,39 @@ function sepiaFW_build_webSocket_client(sepiaSessionId){
 					notAnsweredYet = false;
 					
 					//user has to be same! (security)
-					if (actionUser === SepiaFW.account.getUserId()){
+					if (actionUser !== SepiaFW.account.getUserId()){
+						SepiaFW.debug.error("remoteAction - tried to use type 'hotkey' with wrong user");
+					}else{
 						//handle remote action
 						if (SepiaFW.inputControls){
 							SepiaFW.inputControls.handleRemoteHotkeys(action);
 						}else{
 							SepiaFW.debug.log("remoteAction - no handler yet for type: " + message.data.type);
+						}
+					}
+
+				//SYNC
+				}else if (message.data.type === "sync"){
+					if (typeof action == "string"){
+						action = {
+							events: action,
+							forceUpdate: true,
+							updateLocation: false
+						}
+					}
+					SepiaFW.debug.info("remoteAction - sync: " + action.events + " - force: " + action.forceUpdate);
+
+					//user has to be same! (security)
+					if (actionUser !== SepiaFW.account.getUserId()){
+						SepiaFW.debug.error("remoteAction - tried to use type 'hotkey' with wrong user");
+					}else{
+						//handle sync event
+						if (action.events == SepiaFW.events.TIMER || action.events == SepiaFW.events.ALARM){
+							SepiaFW.ui.updateMyTimeEvents(action.forceUpdate);
+						}else if (action.events == "my" || action.events == "myView" || action.events == "home"){
+							SepiaFW.ui.updateMyView(action.forceUpdate, action.updateLocation);
+						}else{
+							SepiaFW.debug.log("remoteAction - no 'sync' handler yet for events: " + action.events);
 						}
 					}
 				
