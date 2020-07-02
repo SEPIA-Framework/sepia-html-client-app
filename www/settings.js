@@ -40,7 +40,8 @@ SepiaFW.settings = {
 			"state": true,
 			"login": true,
 			"speech": true,
-			"wakeWord": true
+			"wakeWord": true,
+			"alarm": true
 		}
 	}
 };

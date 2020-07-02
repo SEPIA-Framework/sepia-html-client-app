@@ -19,6 +19,7 @@ function sepiaFW_build_audio(sepiaSessionId){
 	TTS.isLoading = false;
 	Alarm.isPlaying = false;		//state: alarm player (special feature of effects player)
 	Alarm.isLoading = false;
+	Alarm.lastActive = 0;
 
 	AudioPlayer.getMusicPlayer = function(){
 		return player;
@@ -829,7 +830,7 @@ function sepiaFW_build_audio(sepiaSessionId){
 		if (!stoppedMedia){
 			stoppedMedia = true;
 			//running alarm
-			AudioPlayer.stopAlarmSound(); 						//just to be sure
+			AudioPlayer.stopAlarmSound("playAlarm"); 						//just to be sure
 			//running media
 			SepiaFW.client.controls.media({action: "stop", skipFollowUp: true});	//TODO: consider restarting media-stream later?
 			//running wake-word
@@ -864,6 +865,7 @@ function sepiaFW_build_audio(sepiaSessionId){
 			SepiaFW.debug.info("AUDIO: can be played now (oncanplay event)");		//debug
 			Alarm.isPlaying = true;
 			Alarm.isLoading = false;
+			Alarm.lastActive = new Date().getTime();
 			//callback
 			if (onStartCallback) onStartCallback;
 			AudioPlayer.broadcastAudioEvent("effects", "start", audioPlayer);
@@ -908,9 +910,19 @@ function sepiaFW_build_audio(sepiaSessionId){
 		audioPlayer.play();
 	}
 	//STOP alarm
-	AudioPlayer.stopAlarmSound = function(){
+	AudioPlayer.stopAlarmSound = function(source){
+		//sources: alwaysOn, playAlarm, toggleMic, cardRemove, notificationClick
 		SepiaFW.debug.info("AUDIO: stopping alarm sound.");			//debug
 		player2.pause();
+		//event
+		var now = new Date().getTime();
+		if (Alarm.isPlaying || (now - Alarm.lastActive) < 60000){
+			//alarm was active the last 60s
+			if (source && (source == "alwaysOn" || source == "toggleMic" || source == "cardRemove" || source == "notificationClick")){
+				SepiaFW.events.broadcastAlarmStop({});			//NOTE: we have no 'Timer' info here :-|
+				Alarm.lastActive = 0;
+			}
+		}
 	}
 	
 	AudioPlayer.tts = TTS;

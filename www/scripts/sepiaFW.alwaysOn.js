@@ -340,7 +340,7 @@ function sepiaFW_build_always_on(){
             if (alarmTriggerTimer) clearTimeout(alarmTriggerTimer);
             //stop alarm sound
             if (SepiaFW.audio){
-                SepiaFW.audio.stopAlarmSound();
+                SepiaFW.audio.stopAlarmSound("alwaysOn");
             }
             //remove animation
             removeAlarmAnimation();

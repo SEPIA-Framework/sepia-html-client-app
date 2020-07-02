@@ -329,6 +329,7 @@ function sepiaFW_build_config(){
 			}
 		}
 	}
+	//NOTE: see SepiaFW.account #skipLogin for temporary setup settings (e.g. TTS off)
 
 	Config.loadAppSettings = function(){
 		//TODO: this should be simplified with a service! ...

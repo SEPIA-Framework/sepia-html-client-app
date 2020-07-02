@@ -49,6 +49,11 @@ function sepiaFW_build_input_controls_cmdl() {
             }else{
                 document.removeEventListener('sepia_wake_word', wakeWordBroadcaster);
             }
+            if (Cmdl.broadcasters.alarm){
+                document.addEventListener('sepia_alarm_event', alarmBroadcaster);
+            }else{
+                document.removeEventListener('sepia_alarm_event', alarmBroadcaster);
+            }
 
             //say hello
             broadcastEvent("event", {
@@ -62,15 +67,17 @@ function sepiaFW_build_input_controls_cmdl() {
             document.removeEventListener('sepia_login_event', loginBroadcaster);
             document.removeEventListener('sepia_speech_event', speechBroadcaster);
             document.removeEventListener('sepia_wake_word', wakeWordBroadcaster);
+            document.removeEventListener('sepia_alarm_event', alarmBroadcaster);
         }
     }
 
     //Broadcasters to use, usually overwritten by headless settings
     Cmdl.broadcasters = {
-        state: false,
+        state: true,
         login: false,
-        speech: false,
-        wakeWord: false
+        speech: true,
+        wakeWord: true,
+        alarm: true
     };
     function stateBroadcaster(ev){
         if (Cmdl.broadcasters.state && ev.detail && ev.detail.state){
@@ -106,6 +113,17 @@ function sepiaFW_build_input_controls_cmdl() {
                 d.msg = ev.detail.msg;
             }
             broadcastEvent("sepia-wake-word", d);
+        }
+    }
+    function alarmBroadcaster(ev){
+        if (Cmdl.broadcasters.alarm && ev.detail && ev.detail.action){
+            var d = {
+                action: ev.detail.action
+            }
+            if (ev.detail.info){
+                d.info = ev.detail.info;
+            }
+            broadcastEvent("sepia-alarm-event", d);
         }
     }
 

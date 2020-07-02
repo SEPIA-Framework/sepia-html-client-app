@@ -804,7 +804,7 @@ function sepiaFW_build_ui_cards(){
 				}
 				//stop alarm and remove 
 				if (SepiaFW.audio){
-					SepiaFW.audio.stopAlarmSound();
+					SepiaFW.audio.stopAlarmSound("cardRemove");
 				}				
 				//remove DOM element and parent if emtpy
 				if (Timer){

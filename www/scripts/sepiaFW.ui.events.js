@@ -14,12 +14,53 @@ function sepiaFW_build_events(){
 	//----------------- Broadcasting -------------------
 
 	//Alarm/reminder has been triggered
-	function broadcastAlarmTrigger(){
+	function broadcastAlarmTrigger(info){
 		//Always-On mode
 		if (SepiaFW.alwaysOn && SepiaFW.alwaysOn.isOpen){
 			SepiaFW.alwaysOn.triggerAlarm();
 		}
+		//dispatch event
+		var event = new CustomEvent('sepia_alarm_event', { detail: {
+			action: "triggered",
+			info: info
+		}});
+		document.dispatchEvent(event);
+		//console.error("broadcastAlarmTrigger", info);		//DEBUG
 	}
+	Events.broadcastAlarmTrigger = broadcastAlarmTrigger;
+
+	function broadcastAlarmSet(info){
+		//dispatch event
+		var event = new CustomEvent('sepia_alarm_event', { detail: {
+			action: "set",
+			info: info
+		}});
+		document.dispatchEvent(event);
+		//console.error("broadcastAlarmSet", info);		//DEBUG
+	}
+	Events.broadcastAlarmSet = broadcastAlarmSet;
+
+	function broadcastAlarmStop(info){
+		//dispatch event
+		var event = new CustomEvent('sepia_alarm_event', { detail: {
+			action: "stopped",
+			info: info
+		}});
+		document.dispatchEvent(event);
+		//console.error("broadcastAlarmStop", info);		//DEBUG
+	}
+	Events.broadcastAlarmStop = broadcastAlarmStop;
+
+	function broadcastAlarmRemove(info){
+		//dispatch event
+		var event = new CustomEvent('sepia_alarm_event', { detail: {
+			action: "remove",
+			info: info
+		}});
+		document.dispatchEvent(event);
+		//console.error("broadcastAlarmRemove", info);		//DEBUG
+	}
+	Events.broadcastAlarmRemove = broadcastAlarmRemove;
 	
 	//--------------------------------------------------
 	
@@ -311,6 +352,13 @@ function sepiaFW_build_events(){
 			Timer.type = eventType;
 			Timer.data = eventData;
 			Timers[Timer.name] = Timer;
+
+			broadcastAlarmSet({
+				timeUnix: Timer.targetTime,
+				type: Timer.type,
+				id: Timer.name,
+				title: (Timer.data? Timer.data.name : Timer.type)
+			});
 		}
 		
 		//final action
@@ -402,6 +450,12 @@ function sepiaFW_build_events(){
 				scheduleTimeEventsSync(Timer.type);
 			}
 			SepiaFW.debug.info("TimeEvent - " + name + ': REMOVED');		//DEBUG
+			broadcastAlarmRemove({
+				timeUnix: Timer.targetTime,
+				type: Timer.type,
+				id: Timer.name,
+				title: (Timer.data? Timer.data.name : Timer.type)
+			});
 		
 		}else if (resyncList){
 			var activatedTimer = Events.getActivatedTimeEvent(name);
@@ -690,7 +744,7 @@ function sepiaFW_build_events(){
 		}
 	}
 	
-	//Alarm clock - Triggered when UI is on foreground (system notification is removed before)
+	//Alarm clock - Triggered when UI is in foreground (system notification is removed before)
 	Events.triggerAlarm = function(Timer, startCallback, endCallback, errorCallback){
 		//console.log('triggerAlarm'); 			//DEBUG
 		var showSimpleNote = true;
@@ -738,7 +792,12 @@ function sepiaFW_build_events(){
 		}
 		//broadcast event
 		if (doBroadcast){
-			broadcastAlarmTrigger();
+			broadcastAlarmTrigger({
+				timeUnix: Timer.targetTime,
+				type: Timer.type,
+				id: Timer.name,
+				title: (Timer.data? Timer.data.name : Timer.type)
+			});
 		}
 	}
 	
@@ -791,7 +850,7 @@ function sepiaFW_build_events(){
 			}
 			//schedule
 			if (date){
-				options.trigger= {
+				options.trigger = {
 					at: date
 				}
 			}
@@ -843,7 +902,7 @@ function sepiaFW_build_events(){
 			if (data.onClickType == "stopAlarmSound"){
 				//stop alarm
 				if (SepiaFW.audio && SepiaFW.audio.alarm.isPlaying){
-					SepiaFW.audio.stopAlarmSound();
+					SepiaFW.audio.stopAlarmSound("notificationClick");
 				}
 			}
 		
@@ -868,7 +927,7 @@ function sepiaFW_build_events(){
 			if (data.onCloseType == "stopAlarmSound"){
 				//stop alarm
 				if (SepiaFW.audio && SepiaFW.audio.alarm.isPlaying){
-					SepiaFW.audio.stopAlarmSound();
+					SepiaFW.audio.stopAlarmSound("notificationClose");
 				}
 			}
 		}

@@ -444,7 +444,7 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 			}
 			//stop alarm
 			if (SepiaFW.audio && SepiaFW.audio.alarm.isPlaying){
-				SepiaFW.audio.stopAlarmSound();
+				SepiaFW.audio.stopAlarmSound("toggleMic");
 			}
 			//fade audio
 			SepiaFW.audio.fadeOut();

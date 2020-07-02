@@ -281,7 +281,7 @@ function sepiaFW_build_input_controls() {
             if (SepiaFW.wakeTriggers && SepiaFW.wakeTriggers.useWakeWord){
                 toggleMicrophone();
             }else{
-                SepiaFW.debug.log("InputControls remoteAction - NOT ALLOWED to use remote wake-word! Key: " + e);    
+                SepiaFW.debug.log("InputControls remoteAction - NOT ALLOWED to use remote wake-word! Key:", e);
             }
         //MIC
         }else if (e == "mic"){
@@ -299,7 +299,7 @@ function sepiaFW_build_input_controls() {
             previousView();
         //Unknown
         }else{
-            SepiaFW.debug.log("InputControls remoteAction - no handler yet for key: " + e);
+            SepiaFW.debug.log("InputControls remoteAction - no handler yet for key:", e);
         }
     }
 
@@ -471,6 +471,7 @@ function sepiaFW_build_input_controls() {
     //This will be sent over the chat-server connection
     InputControls.handleRemoteHotkeys = function(data){
         handleRemoteInputEvent(data.key);
+        //TODO: there is an optional 'language' parameter available aas well ...
     }
 
     //This will be received via CLEXI connection
