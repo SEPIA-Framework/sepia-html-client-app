@@ -4,7 +4,7 @@ function sepiaFW_build_ui_custom_buttons(sepiaSessionId){
     var customButtonObjects = [];
     var lastCustomButtonsLoad = 0;
 
-    CustomButtons.maxButtonsToLoad = 16;
+    CustomButtons.maxButtonsToLoad = 42;
 
     CustomButtons.isOutdated = false;       //set this to true to reload icons on next my-view refresh
 
