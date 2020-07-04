@@ -62,6 +62,8 @@ function sepiaFW_build_account(sepiaSessionId){
 	//---- broadcasting ----
 	
 	function broadcastEnterWithoutLogin(){
+		clearInterval(loginRetryIntervalTimer);
+		loginRetryFailed = 0;
 		//TODO: this should prepare demo-mode ...
 		SepiaFW.client.setDemoMode(true);
 		//set user ID indicator
@@ -82,6 +84,8 @@ function sepiaFW_build_account(sepiaSessionId){
 	}
 	
 	function broadcastLoginSuccess(){
+		clearInterval(loginRetryIntervalTimer);
+		loginRetryFailed = 0;
 		transferAccountDataToUI();
 		var event = new CustomEvent('sepia_login_event', { detail: {
 			note: "loginSuccess"
@@ -89,9 +93,11 @@ function sepiaFW_build_account(sepiaSessionId){
 		document.dispatchEvent(event);
 	}
 
-	function broadcastLoginFail(){
+	function broadcastLoginFail(errorText, errorCode){
 		var event = new CustomEvent('sepia_login_event', { detail: {
-			note: "loginFail"
+			note: "loginFail",
+			error: errorText,
+			code: errorCode
 		}});
 		document.dispatchEvent(event);
 	}
@@ -189,6 +195,14 @@ function sepiaFW_build_account(sepiaSessionId){
 	//get user id
 	Account.getUserId = function(){
 		return userId;
+	}
+	Account.isAssistantUser = function(){
+		var roles = SepiaFW.account.getUserRoles();
+		if (!roles){
+			return false;
+		}else{
+			return $.inArray("assistant", roles) >= 0;
+		}
 	}
 	//get user name
 	Account.getUserName = function(){
@@ -511,6 +525,11 @@ function sepiaFW_build_account(sepiaSessionId){
 	}
 	
 	//-------------------------------------------------
+
+	var loginRetryIntervalTimer;
+	var loginRetryMaxDelay = 1000*60*5;
+	var loginRetryBaseDelay = 3000;
+	var loginRetryFailed = 0;
 	
 	//Show form inside login box and hide "wait" message etc.
 	Account.hideSplashscreen = function(){
@@ -525,10 +544,13 @@ function sepiaFW_build_account(sepiaSessionId){
 		$('#sepiaFW-login-form').fadeIn(aniTime);
 		$('#sepiaFW-login-links').fadeIn(aniTime);
 		$('#sepiaFW-login-extend-box').css({visibility: "visible"});
+		clearInterval(loginRetryIntervalTimer);
 	}
 	
 	//Setup login-box
 	Account.setupLoginBox = function(){
+		clearInterval(loginRetryIntervalTimer);
+		loginRetryFailed = 0;
 		//demo login?
 		var demoLogin = SepiaFW.data.get('isDemoLogin');
 		if (demoLogin){
@@ -539,10 +561,12 @@ function sepiaFW_build_account(sepiaSessionId){
 		//try restore from data-storage to avoid login popup - refresh required after e.g. 1 day = 1000*60*60*24
 		var account = SepiaFW.data.get('account');
 		var safe = false;
+		var hostnameChange = false;
 		if (account && account.hostname && account.hostname == SepiaFW.config.host){
 			safe = true;		//login can be restored since we send data to the same host we got login in the first place
 		}else if (account && account.hostname){
 			SepiaFW.debug.log('Account: preventing auto-login due to changed hostname ... please login again if you trust the host!');
+			hostnameChange = true;
 		}
 		if (safe && account && account.userToken && account.lastRefresh && ((new Date().getTime() - account.lastRefresh) < (1000*60*60*12))){
 			//primary
@@ -569,6 +593,10 @@ function sepiaFW_build_account(sepiaSessionId){
 			SepiaFW.debug.log('Account: trying login auto-refresh with token');
 			pwdIsToken = true;
 			Account.login(account.userId, account.userToken, onLoginSuccess, onLoginError, onLoginDebug);
+
+		//warn about changed host
+		}else if (hostnameChange){
+			onLoginError(SepiaFW.local.g('loginFailedHost'), 6);
 
 		}else{
 			Account.prepareLoginBoxForInput();
@@ -605,8 +633,12 @@ function sepiaFW_build_account(sepiaSessionId){
 			if (e.keyCode === 13) { sendLoginFromBox(); }
 		});
 		//close-button
-		var clsBtn = $("#sepiaFW-login-close").off().on("click", function(){
+		var $clsBtn = $("#sepiaFW-login-close").off().on("click", function(){
 			skipLogin();
+		});
+		//retry-button
+		var $retryBtn = $('#sepiaFW-login-retry').off().on("click", function(){
+			sendLoginFromBox();
 		});
 		//hostname input field
 		var $hostInput = $("#sepiaFW-login-host-name");
@@ -671,6 +703,8 @@ function sepiaFW_build_account(sepiaSessionId){
 		Account.afterLogin();
 	}
 	function sendLoginFromBox(forceId, forcePwd){
+		clearInterval(loginRetryIntervalTimer);
+		loginRetryFailed = 0;
 		pwdIsToken = false;
 		var id;
 		if (forceId){
@@ -686,7 +720,7 @@ function sepiaFW_build_account(sepiaSessionId){
 			userId = id;
 			Account.login(userId, pwd, onLoginSuccess, onLoginError, onLoginDebug);
 		}else{
-			onLoginError(SepiaFW.local.g('loginFailedPlain'));
+			onLoginError(SepiaFW.local.g('loginFailedPlain'), 0);
 		}
 	}
 	function onLoginSuccess(data){
@@ -752,7 +786,19 @@ function sepiaFW_build_account(sepiaSessionId){
 		broadcastLoginSuccess();
 		Account.afterLogin();
 	}
-	function onLoginError(errorText){
+	function onLoginError(errorText, errorCode, retryAction){
+		/* Error codes:
+			0 - wrong input
+			1 - offline
+			2 - no server answer
+			3 - login failed
+			4 - login blocked
+			5 - internal server error (wrong input format?)
+			6 - hostname changed
+			10 - unknown error
+		*/
+		clearInterval(loginRetryIntervalTimer);
+		loginRetryFailed++;
 		Account.prepareLoginBoxForInput(0);
 		var lBoxError = document.getElementById("sepiaFW-login-status");
 		if(lBoxError){
@@ -761,7 +807,33 @@ function sepiaFW_build_account(sepiaSessionId){
 		}else{
 			SepiaFW.debug.err('Login: ' + errorText);
 		}
-		broadcastLoginFail();
+		if (retryAction && (errorCode == 1 || errorCode == 2)){
+			var targetDelay = Math.min(loginRetryBaseDelay * (loginRetryFailed*loginRetryFailed), loginRetryMaxDelay);
+			if (retryAction){
+				$('#sepiaFW-login-retry').show().off().on("click", function(){
+					clearInterval(loginRetryIntervalTimer);
+					retryAction();
+				});
+			}
+			loginRetryIntervalTimer = setInterval(function(){
+				targetDelay = targetDelay - 1000;
+				if (SepiaFW.client.isActive() || SepiaFW.client.isDemoMode()){
+					clearInterval(loginRetryIntervalTimer);
+				}else if (retryAction && targetDelay > 0){
+					if(lBoxError){
+						lBoxError.innerHTML = errorText.replace(/:-\(/, "").replace(/\s\(.*?\)$/, "") + " (" + (Math.round(targetDelay/1000)) + "s)";
+					}
+				}else{
+					if(lBoxError){
+						lBoxError.innerHTML = SepiaFW.local.g("sendLogin") + "...";
+					}
+					clearInterval(loginRetryIntervalTimer);
+					SepiaFW.debug.info("Automatic login retry ...");
+					if (retryAction) retryAction();
+				}
+			}, 1000);
+		}
+		broadcastLoginFail(errorText, errorCode);
 	}
 	function onLoginDebug(data){
 		//SepiaFW.debug.log('Account debug: ' + JSON.stringify(data));
@@ -769,7 +841,9 @@ function sepiaFW_build_account(sepiaSessionId){
 	
 	//toggle login box on off
 	Account.toggleLoginBox = function(){
-	    Account.hideSplashscreen();
+		Account.hideSplashscreen();
+		clearInterval(loginRetryIntervalTimer);
+		$('#sepiaFW-login-retry').hide();
 		//reset status text
 		var lBoxError = document.getElementById("sepiaFW-login-status");
 		if (lBoxError){
@@ -919,6 +993,10 @@ function sepiaFW_build_account(sepiaSessionId){
 		//dataBody.PWD = pwd;
 		dataBody.client = SepiaFW.config.getClientDeviceInfo(); //SepiaFW.config.clientInfo;
 		//SepiaFW.debug.info('URL: ' + api_url);
+		clearInterval(loginRetryIntervalTimer);
+		var retryAction = function(){
+			Account.login(userid, pwd, successCallback, errorCallback, debugCallback);
+		};
 		$.ajax({
 			url: api_url,
 			timeout: 5000,
@@ -935,11 +1013,11 @@ function sepiaFW_build_account(sepiaSessionId){
 					var status = data.result;
 					if (status == "fail"){
 						if (data.code && data.code == 3){
-							if (errorCallback) errorCallback(SepiaFW.local.g('loginFailedServer'));
+							if (errorCallback) errorCallback(SepiaFW.local.g('loginFailedServer'), 5, retryAction);
 						}else if (data.code && data.code == 10){
-							if (errorCallback) errorCallback(SepiaFW.local.g('loginFailedBlocked'));
+							if (errorCallback) errorCallback(SepiaFW.local.g('loginFailedBlocked'), 4, retryAction);
 						}else{
-							if (errorCallback) errorCallback(SepiaFW.local.g('loginFailedUser'));
+							if (errorCallback) errorCallback(SepiaFW.local.g('loginFailedUser'), 3, retryAction);
 						}
 						return;
 					}
@@ -952,15 +1030,15 @@ function sepiaFW_build_account(sepiaSessionId){
 						}
 					}		
 				}else{
-					if (errorCallback) errorCallback("Login failed! Sorry, but there seems to be an unknown error :-(");
+					if (errorCallback) errorCallback("Login failed! Sorry, but there seems to be an unknown error :-(", 10, retryAction);
 				}
 			},
 			error: function(data) {
 				SepiaFW.ui.hideLoader();
 				SepiaFW.client.checkNetwork(function(){
-					if (errorCallback) errorCallback("Login failed! Sorry, but it seems the server does not answer :-(");
+					if (errorCallback) errorCallback("Login failed! Sorry, but it seems the server does not answer :-(", 2, retryAction);
 				}, function(){
-					if (errorCallback) errorCallback("Login failed! Sorry, but it seems you are offline :-(");
+					if (errorCallback) errorCallback("Login failed! Sorry, but it seems you are offline :-(", 1, retryAction);
 				});
 				if (debugCallback) debugCallback(data);
 			}

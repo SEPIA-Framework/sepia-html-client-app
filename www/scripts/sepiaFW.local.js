@@ -25,6 +25,7 @@ function sepiaFW_build_strings(){
 	StringsDE.addresses = 'Adressen';
 	StringsDE.logout = 'Logout';
 	StringsDE.closeLogin = 'Weiter ohne Login';
+	StringsDE.retry = 'Noch mal versuchen';
 	StringsDE.info_and_help = 'Infos und Support';
 	StringsDE.control_hub = 'Control HUB';
 	StringsDE.tutorial = 'Tutorial';
@@ -39,6 +40,7 @@ function sepiaFW_build_strings(){
 	StringsDE.loginFailedPlain = 'Login fehlgeschlagen!';
 	StringsDE.loginFailedServer = 'Login fehlgeschlagen! - Das Problem könnte der Server sein.';
 	StringsDE.loginFailedUser = 'Login fehlgeschlagen! - Username oder Password ist falsch.';
+	StringsDE.loginFailedHost = 'Login fehlgeschlagen! - Hostname wurde geändert, bitte prüfen.';
 	StringsDE.loginFailedBlocked = 'Login fehlgeschlagen! - Zu viele fehlgeschlagene Versuche. Bitte etwas warten.';
 	StringsDE.logoutAndReload = 'Diese Aktion erfordert einen Log-out und App Neustart.';
 	StringsDE.noConnectionToNetwork = 'Es tut mir leid, aber sieht so aus als wärest du offline :-(';
@@ -188,6 +190,7 @@ function sepiaFW_build_strings(){
 	StringsEN.addresses = 'Addresses';
 	StringsEN.logout = 'Logout';
 	StringsEN.closeLogin = 'Continue without login';
+	StringsEN.retry = 'Retry';
 	StringsEN.info_and_help = 'Info and support';
 	StringsEN.control_hub = 'Control HUB';
 	StringsEN.tutorial = 'Tutorial';
@@ -202,6 +205,7 @@ function sepiaFW_build_strings(){
 	StringsEN.loginFailedPlain = 'Login failed!';
 	StringsEN.loginFailedServer = 'Login failed! - Problem could be the server.';
 	StringsEN.loginFailedUser = 'Login failed! - Wrong username or password.';
+	StringsDE.loginFailedHost = 'Login failed! - Hostname was changed, please check.';
 	StringsEN.loginFailedBlocked = 'Login failed! - Too many failed attempts. Please wait a bit.';
 	StringsEN.logoutAndReload = 'This action requires a log-out and app reload.';
 	StringsEN.noConnectionToNetwork = 'I\'m sorry but it seems that you are offline :-(';
