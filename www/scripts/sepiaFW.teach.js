@@ -834,10 +834,18 @@ function sepiaFW_build_teach(sepiaSessionId){
 		$.ajax(config);
 	}
 	
-	//load personal commands
+	//load personal and custom assistant commands
 	Teach.loadPersonalCommands = function(key, startingFrom, loadSize, successCallback, errorCallback, debugCallback, with_button_only){
+		loadPersonalOrCustomAssistantCommands("getAllPersonalCommands", key, startingFrom, loadSize, 
+			successCallback, errorCallback, debugCallback, with_button_only);
+	}
+	Teach.loadCustomAssistantCommands = function(key, startingFrom, loadSize, successCallback, errorCallback, debugCallback, with_button_only){
+		loadPersonalOrCustomAssistantCommands("getAllCustomAssistantCommands", key, startingFrom, loadSize, 
+			successCallback, errorCallback, debugCallback, with_button_only);
+	}
+	function loadPersonalOrCustomAssistantCommands(endpoint, key, startingFrom, loadSize, successCallback, errorCallback, debugCallback, with_button_only){
 		SepiaFW.ui.showLoader();
-		var apiUrl = SepiaFW.config.teachAPI + "getAllPersonalCommands";
+		var apiUrl = SepiaFW.config.teachAPI + endpoint;
 		var submitData = new Object();
 		submitData.KEY = key;
 		submitData.client = SepiaFW.config.getClientDeviceInfo(); //SepiaFW.config.clientInfo;
