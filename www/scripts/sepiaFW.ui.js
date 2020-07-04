@@ -4,7 +4,7 @@ function sepiaFW_build_ui(){
 	
 	//some constants
 	UI.version = "v0.22.1";
-	UI.requiresServerVersion = "2.5.0";
+	UI.requiresServerVersion = "2.5.1";
 	UI.JQ_RES_VIEW_IDS = "#sepiaFW-result-view, #sepiaFW-chat-output, #sepiaFW-my-view";	//a selector to get all result views e.g. $(UI.JQ_RES_VIEW_IDS).find(...) - TODO: same as $('.sepiaFW-results-container') ??
 	UI.JQ_ALL_MAIN_VIEWS = "#sepiaFW-result-view, #sepiaFW-chat-output, #sepiaFW-my-view, #sepiaFW-teachUI-editor, #sepiaFW-teachUI-manager, #sepiaFW-frame-page-0, #sepiaFW-frame-page-1, #sepiaFW-frame-page-2, #sepiaFW-frame-page-3"; 	//TODO: frames can have more ...
 	UI.JQ_ALL_SETTINGS_VIEWS = ".sepiaFW-chat-menu-list-container";
@@ -131,6 +131,9 @@ function sepiaFW_build_ui(){
 	UI.htmlBackgroundColor = window.getComputedStyle(document.documentElement).getPropertyValue("background-color") || "#fff";
 	UI.navBarColor = '';
 	UI.statusBarColor = '';
+
+	UI.useTouchBarControls = SepiaFW.data.getPermanent('touch-bar-controls') || false;
+	UI.useSideSwipeControls = true;
 	
 	UI.isMenuOpen = false;
 	UI.lastInput = "";
@@ -1073,18 +1076,14 @@ function sepiaFW_build_ui(){
 	}
 	
 	//loading animation
-	var loaderTimer;
+	var loaderTimer = [];
 	UI.showLoader = function(noDelay){
-		if (noDelay){
+		loaderTimer.push(setTimeout(function(){ 
 			$('#sepiaFW-loader').show();
-		}else{
-			loaderTimer = setTimeout(function(){ 
-				$('#sepiaFW-loader').show();
-			}, 750);
-		}
+		}, (noDelay? 0 : 750)));
 	}
 	UI.hideLoader = function(){
-		clearTimeout(loaderTimer);
+		clearTimeout(loaderTimer.shift());
 		$('#sepiaFW-loader').hide();
 	}
 	

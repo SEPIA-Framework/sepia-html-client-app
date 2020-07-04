@@ -270,11 +270,13 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 				}
 			},function(){
 				//double-tab
-				$('#sepiaFW-chat-controls-swipe-area').fadeIn(300, function(){
-					//workaround to prevent ugly glitches at the frame
-					$('#sepiaFW-chat-controls-form').css({"background-color" : $('#sepiaFW-chat-controls-swipe-area').find('.sepiaFW-swipeBar-switchable').css('background-color')});
-				});
-				//$('#sepiaFW-chat-controls-swipe-area').css({'background-color': SepiaFW.ui.secondaryColor}).fadeIn(300);
+				if (!SepiaFW.ui.useTouchBarControls){
+					$('#sepiaFW-chat-controls-swipe-area').fadeIn(300, function(){
+						//workaround to prevent ugly glitches at the frame
+						$('#sepiaFW-chat-controls-form').css({"background-color" : $('#sepiaFW-chat-controls-swipe-area').find('.sepiaFW-swipeBar-switchable').css('background-color')});
+					});
+					//$('#sepiaFW-chat-controls-swipe-area').css({'background-color': SepiaFW.ui.secondaryColor}).fadeIn(300);
+				}
 			}, true);
 		}
 		//Send message if enter is pressed in the input field
@@ -306,13 +308,27 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 			//prevent input blur by send button (on mobile)
 			.on('focusout', function(e){
 				if (e.relatedTarget && (e.relatedTarget.id == 'sepiaFW-chat-send')){	// || e.relatedTarget.id == 'sepiaFW-assist-btn'
-					if (SepiaFW.ui.isMobile){
+					//if (SepiaFW.ui.isMobile){
 						setTimeout(function(){
 							$('#sepiaFW-chat-input').get(0).focus();
 						}, 0);
+					//}
+				}else{
+					if (SepiaFW.ui.useTouchBarControls){
+						$('#sepiaFW-chat-input').addClass("no-focus");
 					}
 				}
+			})
+			.on('focusin', function(e){
+				if (SepiaFW.ui.useTouchBarControls){
+					$('#sepiaFW-chat-input').removeClass("no-focus");
+				}
 			});
+		}
+		//Touch-bar controls
+		if (SepiaFW.ui.useTouchBarControls){
+			$('#sepiaFW-chat-input').addClass("no-focus");
+			$('#sepiaFW-chat-controls-form').addClass('touch-bar-controls');
 		}
 		//Edit message in Speech-bubble field and abort auto-send of result
 		var speechEditBtn = document.getElementById("sepiaFW-chat-controls-speech-box-edit");
@@ -366,8 +382,12 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 			$(chatSwipeBar).off();
 			SepiaFW.ui.simpleDoubleTab(chatSwipeBar, function(){
 				//double-tab
-				$('#sepiaFW-chat-controls-form').css({"background-color" : ""});	//$('#sepiaFW-chat-controls-right').css('background-color')
-				$('#sepiaFW-chat-controls-swipe-area').fadeOut(300);
+				if (SepiaFW.ui.useTouchBarControls){
+					//TODO: add useful action
+				}else{
+					$('#sepiaFW-chat-controls-form').css({"background-color" : ""});	//$('#sepiaFW-chat-controls-right').css('background-color')
+					$('#sepiaFW-chat-controls-swipe-area').fadeOut(300);
+				}
 			});
 		}
 		//open close chat controls more menue
@@ -539,6 +559,7 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 					+ "<li id='sepiaFW-menu-select-voice-li'><span>Voice: </span></li>" 	//option: <i class='material-icons md-mnu'>&#xE5C6;</i>
 					+ "<li id='sepiaFW-menu-toggle-proactiveNotes-li' title='The assistant will remind you in a funny way to make a coffee break etc. :-)'><span>Well-being reminders: </span></li>"
 					+ "<li id='sepiaFW-menu-toggle-channelMessages-li' title='Show status messages in chat like someone joined the channel?'><span>Channel status messages: </span></li>"
+					+ "<li id='sepiaFW-menu-toggle-touchBarControls-li' title='Switch new touch-bar controls mode on/off'><span>Touch-bar controls: </span></li>"
 					//NOTE: we show this only if battery status API supported:
 					+ "<li id='sepiaFW-menu-toggle-trackPowerStatus-li' title='Observe power plug and battery status?'><span>Track power status: </span></li>"
 					//---
@@ -1019,6 +1040,30 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 					});
 					SepiaFW.debug.info("Channel status messages are deactivated");
 				}, SepiaFW.ui.showChannelStatusMessages)
+			);
+			//toggle touch-bar controls
+			document.getElementById('sepiaFW-menu-toggle-touchBarControls-li').appendChild(Build.toggleButton('sepiaFW-menu-toggle-touchBarControls', 
+				function(){
+					SepiaFW.ui.useTouchBarControls = true;
+					SepiaFW.data.setPermanent('touch-bar-controls', true);
+					SepiaFW.debug.info("Alternative touch-bar controls activated, please reload client.");
+					SepiaFW.ui.showPopup("Please reload the interface to fully activate alternative controls.", {
+						buttonOneName : "Reload now",
+						buttonOneAction : function(){ location.reload(); },
+						buttonTwoName : "Later",
+						buttonTwoAction : function(){}
+					});
+				},function(){
+					SepiaFW.ui.useTouchBarControls = false;
+					SepiaFW.data.setPermanent('touch-bar-controls', false);
+					SepiaFW.debug.info("Alternative touch-bar controls deactivated, please reload client.");
+					SepiaFW.ui.showPopup("Please reload the interface to fully activate alternative controls.", {
+						buttonOneName : "Reload now",
+						buttonOneAction : function(){ location.reload(); },
+						buttonTwoName : "Later",
+						buttonTwoAction : function(){}
+					});
+				}, SepiaFW.ui.useTouchBarControls)
 			);
 			//Android only stuff
 			if (!SepiaFW.ui.isAndroid){

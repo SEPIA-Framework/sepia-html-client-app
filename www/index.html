@@ -87,6 +87,7 @@
 			<input id="sepiaFW-login-pwd" type="password" placeholder="Password" aria-label="Password">
 			<button id="sepiaFW-login-send"><script>SepiaFW.local.w('sendLogin')</script></button><br>
 			<button id="sepiaFW-login-close" class="extended-controls" style="display:none;"><script>SepiaFW.local.w('closeLogin')</script></button><br>
+			<button id="sepiaFW-login-retry" style="display:none;"><script>SepiaFW.local.w('retry')</script></button><br>
 		</div>
 		<!-- Host-name pre-login box -->
 		<div id="sepiaFW-host-name-box" class="extended-controls" style="display:none;">
@@ -212,8 +213,8 @@
 				<button id="sepiaFW-chat-send" class="sButton"><i class="material-icons md-btn">&#xE163;</i></button>
 				<input id="sepiaFW-chat-input" placeholder="" aria-label="Message" autocomplete="off">
 				<div id="sepiaFW-chat-controls-swipe-area">
-					<div id="sepiaFW-swipeBar-chat-controls" class='sepiaFW-swipeBar-switchable'><span>TOUCH-BAR</span></div>
-					<div id="sepiaFW-swipeBar-menu-controls" class='sepiaFW-swipeBar-switchable'><span>MENUE-BAR</span></div>
+					<div id="sepiaFW-swipeBar-chat-controls" class='sepiaFW-swipeBar-switchable'><span>TOUCH BAR</span></div>
+					<div id="sepiaFW-swipeBar-menu-controls" class='sepiaFW-swipeBar-switchable'><span>MENUE BAR</span></div>
 				</div>
 			</div>
 		</div>
@@ -590,10 +591,10 @@
 					SepiaFW.ui.showCustomChatMessage(SepiaFW.local.g('noConnectionToAssistant'), { 
 						channelId: 'info'
 					});
+					//get offline welcome help anyway
+					SepiaFW.client.welcomeActions(true);
 				}
 			});
-			//get offline welcome help anyway
-			SepiaFW.client.welcomeActions(true);
 		}
 		
 		//load UI

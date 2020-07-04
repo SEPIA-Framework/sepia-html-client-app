@@ -113,6 +113,9 @@ html {
 	color: #111111;
 	border-radius: 0;
 }
+#sepiaFW-chat-controls-form #sepiaFW-chat-send i {
+    transform: rotate(-90deg);
+}
 #sepiaFW-chat-controls-right {
 	background: #df616d;
 	color: #111111;
