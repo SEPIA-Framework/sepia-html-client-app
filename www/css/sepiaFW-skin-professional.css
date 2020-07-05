@@ -220,8 +220,14 @@ html {
 }
 
 #sepiaFW-chat-controls-swipe-area .sepiaFW-swipeBar-switchable {
-	background: #23292e;
+	background: #1b1e20;
 	color: #fff;
+}
+#sepiaFW-chat-controls-form input {
+	background: #1b1e20;
+}
+#sepiaFW-chat-controls-form input.no-focus {
+    background: #fff;
 }
 
 /*----- pop-ups / overlays -----*/

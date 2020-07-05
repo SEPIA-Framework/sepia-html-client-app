@@ -287,6 +287,10 @@ html {
 	background: #102030;
 	color: #fff;
 }
+#sepiaFW-chat-controls-form.touch-bar-controls #sepiaFW-chat-controls-swipe-area .sepiaFW-swipeBar-switchable {
+	background: transparent;
+    color: #3f51b5;
+}
 
 /*----- cards ------*/
 
