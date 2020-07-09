@@ -2098,13 +2098,37 @@ function sepiaFW_build_webSocket_client(sepiaSessionId){
 						SepiaFW.debug.error("remoteAction - tried to use type 'hotkey' with wrong user");
 					}else{
 						//handle sync event
-						if (action.events == SepiaFW.events.TIMER || action.events == SepiaFW.events.ALARM){
+						if (action.events == "timeEvents" || action.events == SepiaFW.events.TIMER || action.events == SepiaFW.events.ALARM){
+							//if its old we remove the card here (because the update will only refresh future timers)
+							if (action.details && action.details.eventId){
+								//NOTE: currently this will probably never be triggered because we are missing the eventId (event update = complete list sync)
+								SepiaFW.ui.cards.getAllTimeEventCards(true, false).forEach(function(item){
+									if (item.data && item.data.eventId == action.details.eventId){
+										item.remove();
+									}
+								});
+							}
+							//refresh future
 							SepiaFW.ui.updateMyTimeEvents(action.forceUpdate);
+
 						}else if (action.events == "my" || action.events == "myView" || action.events == "home"){
 							SepiaFW.ui.updateMyView(action.forceUpdate, action.updateLocation);
+
+						}else if (action.events == "productivity"){
+							//TODO: mark 'action.details.groupId' list as out-of-sync
+							SepiaFW.debug.log("remoteAction - no 'sync' handler yet for 'productivity'");
+
+						}else if (action.events == "addresses"){
+							//NOTE: this probably requires location.reload()
+							SepiaFW.debug.log("remoteAction - no 'sync' handler yet for 'addresses'");
+
 						}else{
 							SepiaFW.debug.log("remoteAction - no 'sync' handler yet for events: " + action.events);
 						}
+						
+						//console.error("action", action); 		//DEBUG
+						
+						//TODO: add e.g. "userAddress", "toDoLists", "userData", ...
 					}
 				
 				//Unknown
