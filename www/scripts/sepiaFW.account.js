@@ -1189,6 +1189,7 @@ function sepiaFW_build_account(sepiaSessionId){
 			return;
 		}
 		data.client = SepiaFW.config.getClientDeviceInfo(); //SepiaFW.config.clientInfo;
+		data.device_id = SepiaFW.config.getDeviceId();
 		//SepiaFW.debug.log('URL: ' + apiUrl);
 		//SepiaFW.debug.log('Body: ' + JSON.stringify(data));
 		$.ajax({
