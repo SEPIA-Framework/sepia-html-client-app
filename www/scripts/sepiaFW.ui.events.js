@@ -320,7 +320,11 @@ function sepiaFW_build_events(){
 			});
 			Timers = {};
 
-			//TODO: this will not remove old timer cards only add new ones and disable old background notifications
+			//NOTE: this will not remove old timer cards only add new ones and disable old background notifications
+			SepiaFW.ui.cards.getAllTimeEventCards(false, true).forEach(function(item){ 
+				item.remove();
+				//more info: SepiaFW.events.getRunningOrActivatedTimeEventById(item.data.eventId)
+			});
 
 			//clear all background notifications
 			Events.clearAllTimeEventBackgroundNotifications(function(){
@@ -337,6 +341,9 @@ function sepiaFW_build_events(){
 					dataset2.newReceiver = SepiaFW.assistant.id;
 				SepiaFW.client.sendCommand(dataset2, options);
 			});
+		}else{
+			SepiaFW.debug.log("Events: skipped time events update because requests came too quickly!");
+			//TODO: buffer calls and schedule update for later
 		}
 	}
 	

@@ -598,6 +598,37 @@ function sepiaFW_build_ui_cards(){
 		cardElement.appendChild(cardBody);
 		return cardElement;
 	}
+	Cards.getAllTimeEventCards = function(skipFuture, skipPast){
+		var result = [];
+		var now = new Date().getTime();
+		var $allCards = $(SepiaFW.ui.JQ_RES_VIEW_IDS).find('.timeEvent.cardBodyItem');
+		$allCards.filter(function(index){
+			var ele = this;
+			var dataString = $(ele).attr('data-element');
+			if (dataString){
+				var eleData = JSON.parse(dataString);
+				if (skipFuture && (now - eleData.targetTimeUnix) <= 0){
+					return false;
+				}
+				if (skipPast && (now - eleData.targetTimeUnix) > 0){
+					return false;
+				}
+				result.push({
+					ele: ele,
+					data: eleData,
+					remove: function(){
+						removeTimeEventElement(ele, eleData.eventId);
+						//linked messages:
+						$(SepiaFW.ui.JQ_RES_VIEW_IDS).find('[data-msg-custom-tag="' + eleData.eventId + '"]').each(function(){
+							this.remove();
+						});
+					}
+				});
+			}
+			return true;
+		});
+		return result;
+	}
 	//timeEvent elements
 	function makeTimerElement(actionInfoI, flexCardId, cardBody, skipAdd){ 	//actionInfoI can also be the data of an list element, should be compatible (in the most important fields)!
 		var timeEvent = document.createElement('DIV');
