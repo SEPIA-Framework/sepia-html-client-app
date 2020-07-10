@@ -173,6 +173,9 @@
 	opacity: 0.92;
 	/*color: #fff !important;*/
 }
+/*.sepiaFW-card-out-of-sync .sepiaFW-cards-list-saveBtn {
+	color: #f00 !important;
+}*/
 .sepiaFW-cards-list-dummyBtn {
 	flex: 0 1 auto;
 	width: 28px;

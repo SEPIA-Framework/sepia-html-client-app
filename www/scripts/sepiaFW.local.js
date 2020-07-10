@@ -83,6 +83,7 @@ function sepiaFW_build_strings(){
 	StringsDE.allowedToExecuteThisCommand = 'Darf ich diesen Befehl ausführen: ';
 	StringsDE.copyList = 'Diese Liste gehört einem anderen User, möchtest du sie in deinen Account kopieren?';
 	StringsDE.cantCopyList = 'Diese Liste gehört einem anderen User und kann nicht gespeichert werden, aber du kannst eventuell einzelne Einträge via share-Funktion kopieren.';
+	StringsDE.listOutOfSync = 'Der Inhalt der Liste ist eventuell nicht mehr aktuell. Wenn du diese Liste speicherst werden vorherige Änderungen überschrieben.';
 	StringsDE.deleteItemConfirm = 'Bist du sicher, dass du das löschen möchtest?';
 	StringsDE.deleteItem = 'Löschen';
 	StringsDE.hideItem = 'Verstecken';
@@ -205,7 +206,7 @@ function sepiaFW_build_strings(){
 	StringsEN.loginFailedPlain = 'Login failed!';
 	StringsEN.loginFailedServer = 'Login failed! - Problem could be the server.';
 	StringsEN.loginFailedUser = 'Login failed! - Wrong username or password.';
-	StringsDE.loginFailedHost = 'Login failed! - Hostname was changed, please check.';
+	StringsEN.loginFailedHost = 'Login failed! - Hostname was changed, please check.';
 	StringsEN.loginFailedBlocked = 'Login failed! - Too many failed attempts. Please wait a bit.';
 	StringsEN.logoutAndReload = 'This action requires a log-out and app reload.';
 	StringsEN.noConnectionToNetwork = 'I\'m sorry but it seems that you are offline :-(';
@@ -248,6 +249,7 @@ function sepiaFW_build_strings(){
 	StringsEN.allowedToExecuteThisCommand = 'Am I allowed to send this request: ';
 	StringsEN.copyList = 'This list belongs to another user, do you want to copy it to your account?';
 	StringsEN.cantCopyList = 'This list belongs to another user and cannot be stored, but you might be able to copy single items with the share function.';
+	StringsEN.listOutOfSync = 'The content of the list may be out of date. If you store this list previous changes will be overwritten.';
 	StringsEN.deleteItemConfirm = 'Are you sure you want to delete this?';
 	StringsEN.deleteItem = 'Delete';
 	StringsEN.hideItem = 'Hide';

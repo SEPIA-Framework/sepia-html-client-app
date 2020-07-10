@@ -321,7 +321,7 @@ function sepiaFW_build_events(){
 			Timers = {};
 
 			//NOTE: this will not remove old timer cards only add new ones and disable old background notifications
-			SepiaFW.ui.cards.getAllTimeEventCards(false, true).forEach(function(item){ 
+			SepiaFW.ui.cards.findAllTimeEventCards(false, true).forEach(function(item){ 
 				item.remove();
 				//more info: SepiaFW.events.getRunningOrActivatedTimeEventById(item.data.eventId)
 			});

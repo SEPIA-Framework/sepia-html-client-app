@@ -221,6 +221,7 @@ function sepiaFW_build_ui_cards(){
 	var INDEX_TYPE_UNKNOWN = "unknown";
 
 	var SECTION_TIME_EVENTS = "timeEvents";
+	var SECTION_PRODUCTIVITY = "productivity";
 
 	//Default sort-drag-options
 	var udListCheckablesDragOptions = {
@@ -274,11 +275,37 @@ function sepiaFW_build_ui_cards(){
 		return list;
 	}
 
+	//find userData list
+	Cards.findAllUserDataLists = function(filterId){
+		var result = [];
+		//var $allCards = $(SepiaFW.ui.JQ_RES_VIEW_IDS).find('[class^="sepiaFW-cards-"]');		//more general (untested)
+		var $allCards = $(SepiaFW.ui.JQ_RES_VIEW_IDS).find('.sepiaFW-cards-flexSize-container');
+		$allCards.filter(function(index){
+			var ele = this;
+			//var listInfoObj = getUserDataList(listContainer);		//full data
+			var dataString = $(ele).attr('data-list'); 				//just basic list info
+			if (dataString){
+				var eleData = JSON.parse(dataString);
+				if (filterId && (!eleData || filterId != eleData._id)){
+					return false;
+				}
+				result.push({
+					ele: ele,
+					data: getUserDataList(ele),		//full data
+					remove: function(){
+						$(ele).remove();
+					}
+				});
+			}
+			return true;
+		});
+		return result;
+	}
 	//build card of this type
 	function buildUserDataList(cardElementInfo){
 		var newId = ("sepiaFW-card-id-" + Cards.currentCardId++);
 		var cardElement = document.createElement('DIV');
-		cardElement.className = "sepiaFW-cards-flexSize-container";
+		cardElement.className = "sepiaFW-cards-flexSize-container"; 	//NOTE: this EXACT class is used to find/edit the lists as well!
 		cardElement.id = newId;
 		var sortData = false;
 		var elementsData = cardElementInfo.data; 		//get data ...
@@ -364,6 +391,15 @@ function sepiaFW_build_ui_cards(){
 			};
 			var cardFooter = makeFooter(footerConfig);
 			cardElement.appendChild(cardFooter);
+		}
+
+		//mark all same lists as out-of-sync - TODO: should we remove or update them instead?
+		if (cardElementInfo._id){
+			Cards.findAllUserDataLists(cardElementInfo._id).forEach(function(l){
+				if (l.data && l.data.lastEdit != cardElementInfo.lastEdit){
+					$(l.ele).addClass("sepiaFW-card-out-of-sync").find('.sepiaFW-cards-list-saveBtn i').html('cloud_off');
+				}
+			});
 		}
 		
 		return cardElement;
@@ -598,7 +634,7 @@ function sepiaFW_build_ui_cards(){
 		cardElement.appendChild(cardBody);
 		return cardElement;
 	}
-	Cards.getAllTimeEventCards = function(skipFuture, skipPast){
+	Cards.findAllTimeEventCards = function(skipFuture, skipPast){
 		var result = [];
 		var now = new Date().getTime();
 		var $allCards = $(SepiaFW.ui.JQ_RES_VIEW_IDS).find('.timeEvent.cardBodyItem');
@@ -1398,6 +1434,14 @@ function sepiaFW_build_ui_cards(){
 					SepiaFW.debug.log('Account - successfully stored list: ' + listInfoObj.indexType + ", " + listInfoObj.title);
 					//deactivate save button
 					$(saveBtn).removeClass('active');
+					//mark all same lists as out-of-sync - TODO: should we remove or update them instead?
+					if (listInfoObj._id){
+						Cards.findAllUserDataLists(listInfoObj._id).forEach(function(l){
+							if (l.ele != cardElement){
+								$(l.ele).addClass("sepiaFW-card-out-of-sync").find('.sepiaFW-cards-list-saveBtn i').html('cloud_off');
+							}
+						});
+					}
 				}, function(msg){
 					SepiaFW.ui.showPopup(msg);
 				});
@@ -1424,7 +1468,18 @@ function sepiaFW_build_ui_cards(){
 					}
 				}else{
 					//same user
-					storeFun(listInfoObj);
+					if (listContainer.className.indexOf("out-of-sync") >= 0){
+						//ask because list may be out of sync
+						SepiaFW.ui.build.askConfirm(SepiaFW.local.g('listOutOfSync'), function(){
+							//overwrite
+							storeFun(listInfoObj);
+						}, function(){
+							//abort
+						});
+					}else{
+						//all good
+						storeFun(listInfoObj);
+					}
 				}
 			});
 			title.appendChild(saveBtn);

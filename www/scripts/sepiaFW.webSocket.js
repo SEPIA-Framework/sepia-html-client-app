@@ -1760,7 +1760,7 @@ function sepiaFW_build_webSocket_client(sepiaSessionId){
 		}
 		var newId = (username + "-" + ++msgId);
 		var msg = buildSocketMessage(username, receiver, cmd, "", data, "", newId, activeChannelId);
-		//console.log('CMD: ' + JSON.stringify(msg)); 		//DEBUG
+		//console.error('CMD: ' + JSON.stringify(msg)); 		//DEBUG
 		if (options && Object.keys(options).length !== 0){
 			//console.log("msg-id: " + newId + " - options " + JSON.stringify(options)); 		//DEBUG
 			Client.setMessageIdOptions(newId, options);
@@ -2102,7 +2102,7 @@ function sepiaFW_build_webSocket_client(sepiaSessionId){
 							//if its old we remove the card here (because the update will only refresh future timers)
 							if (action.details && action.details.eventId){
 								//NOTE: currently this will probably never be triggered because we are missing the eventId (event update = complete list sync)
-								SepiaFW.ui.cards.getAllTimeEventCards(true, false).forEach(function(item){
+								SepiaFW.ui.cards.findAllTimeEventCards(true, false).forEach(function(item){
 									if (item.data && item.data.eventId == action.details.eventId){
 										item.remove();
 									}
@@ -2115,8 +2115,12 @@ function sepiaFW_build_webSocket_client(sepiaSessionId){
 							SepiaFW.ui.updateMyView(action.forceUpdate, action.updateLocation);
 
 						}else if (action.events == "productivity"){
-							//TODO: mark 'action.details.groupId' list as out-of-sync
-							SepiaFW.debug.log("remoteAction - no 'sync' handler yet for 'productivity'");
+							//mark list as out-of-sync
+							if (action.details && action.details.groupId){
+								SepiaFW.ui.cards.findAllUserDataLists(action.details.groupId).forEach(function(l){
+									$(l.ele).addClass("sepiaFW-card-out-of-sync").find('.sepiaFW-cards-list-saveBtn i').html('cloud_off');
+								});
+							}
 
 						}else if (action.events == "addresses"){
 							//NOTE: this probably requires location.reload()
