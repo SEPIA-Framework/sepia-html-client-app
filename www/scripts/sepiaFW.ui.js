@@ -133,6 +133,7 @@ function sepiaFW_build_ui(){
 	UI.statusBarColor = '';
 
 	UI.useTouchBarControls = SepiaFW.data.getPermanent('touch-bar-controls') || false;
+	UI.hideSideSwipeForTouchBarControls = true;
 	
 	UI.isMenuOpen = false;
 	UI.lastInput = "";
@@ -344,8 +345,7 @@ function sepiaFW_build_ui(){
 	
 	//get/switch/show/hide active swipe-bars - TODO: can we get rid of the hard-coded dom ids?
 	UI.switchSwipeBars = function(setName){
-		var hideLeftRightBars = UI.useTouchBarControls;
-		//console.error("hideLeftRightBars", hideLeftRightBars);		//DEBUG
+		var hideLeftRightBars = UI.hideSideSwipeForTouchBarControls && UI.useTouchBarControls;
 		$('.sepiaFW-swipeBar-switchable').hide();
 		if (setName){
 			lastActiveSwipeBars = activeSwipeBars;
@@ -353,19 +353,27 @@ function sepiaFW_build_ui(){
 			setName = lastActiveSwipeBars;
 		}
 		if (setName === "chat"){
-			$('#sepiaFW-swipeBar-chat-left').show();
-			$('#sepiaFW-swipeBar-chat-right').show();
+			if (!hideLeftRightBars){
+				$('#sepiaFW-swipeBar-chat-left').show();
+				$('#sepiaFW-swipeBar-chat-right').show();
+			}
 			$('#sepiaFW-swipeBar-chat-controls').show();
 		}else if (setName === "menu"){
-			$('#sepiaFW-swipeBar-menu-left').show();
-			$('#sepiaFW-swipeBar-menu-right').show();
+			if (!hideLeftRightBars){
+				$('#sepiaFW-swipeBar-menu-left').show();
+				$('#sepiaFW-swipeBar-menu-right').show();
+			}
 			$('#sepiaFW-swipeBar-menu-controls').show();
 		}else if (setName === "teach"){
-			$('#sepiaFW-swipeBar-teach-left').show();
-			$('#sepiaFW-swipeBar-teach-right').show();
+			if (!hideLeftRightBars){
+				$('#sepiaFW-swipeBar-teach-left').show();
+				$('#sepiaFW-swipeBar-teach-right').show();
+			}
 		}else if (setName === "frames"){
-			$('#sepiaFW-swipeBar-frames-left').show();
-			$('#sepiaFW-swipeBar-frames-right').show();
+			if (!hideLeftRightBars){
+				$('#sepiaFW-swipeBar-frames-left').show();
+				$('#sepiaFW-swipeBar-frames-right').show();
+			}
 		}
 		activeSwipeBars = setName;
 	}

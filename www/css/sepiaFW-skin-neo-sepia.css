@@ -184,6 +184,10 @@ html {
     color: #000;
 	/*color: #fff;*/
 }
+#sepiaFW-chat-controls-form.touch-bar-controls #sepiaFW-swipeBar-menu-controls {
+	background: #000;
+    color: #fff;
+}
 
 /*----- Popup ------*/
 
