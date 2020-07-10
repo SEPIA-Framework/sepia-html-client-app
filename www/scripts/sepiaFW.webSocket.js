@@ -196,6 +196,21 @@ function sepiaFW_build_client_interface(){
 				//ignore
 		}
 	}
+
+	//-on active reset - use e.g. to deactivate functions that will be reset in 'onActive'
+	ClientInterface.broadcastOnActiveReset = function(){
+		if (onActiveResetAvailable){
+			onActiveResetAvailable = false;
+			//Wake-trigger
+			if (SepiaFW.wakeTriggers && SepiaFW.wakeTriggers.isListening()){
+				SepiaFW.wakeTriggers.stopListeningToWakeWords();
+			}
+		}
+	}
+	ClientInterface.releaseOnActiveResetBlock = function(){
+		onActiveResetAvailable = true;
+	}
+	var onActiveResetAvailable = false;
 	
 	return ClientInterface;
 }
@@ -641,6 +656,9 @@ function sepiaFW_build_webSocket_client(sepiaSessionId){
 		});
 		onActiveOneTimeActions = [];
 		SepiaFW.debug.log("Ran and removed one-time onActive events.");
+
+		//release onActiveReset for next disconnect
+		SepiaFW.client.releaseOnActiveResetBlock();
 	}
 	Client.addOnActiveAction = function(actionFunction){
 		if ($.inArray(actionFunction, onActiveActions) == -1){
@@ -1372,7 +1390,7 @@ function sepiaFW_build_webSocket_client(sepiaSessionId){
 		};
 
 		webSocket.onerror = function (error) { 
-			SepiaFW.debug.err("WebSocket: " + error);
+			SepiaFW.debug.err("WebSocket:", error);
 			SepiaFW.client.broadcastConnectionStatus(SepiaFW.client.STATUS_ERROR);
 			//TODO: does error mean connection lost?
 		};
@@ -1413,6 +1431,7 @@ function sepiaFW_build_webSocket_client(sepiaSessionId){
 				Client.connect(SepiaFW.config.webSocketURI);
 			}, nextWaitDuration);
 		}
+		SepiaFW.client.broadcastOnActiveReset();
 	}
 	//instant reconnect
 	var instaReconTimer;
@@ -1693,7 +1712,12 @@ function sepiaFW_build_webSocket_client(sepiaSessionId){
 					}
 				},
 				buttonFourName : SepiaFW.local.g('forget'),
-				buttonFourAction : function(){}
+				buttonFourAction : function(){
+					//Trigger idle event once again
+					SepiaFW.client.queueIdleTimeEvent(function(){
+						SepiaFW.animate.assistant.idle();
+					}, 1500, 8500, function(){});
+				}
 			}
 			if (showReloadOption){
 				config.buttonTwoName = SepiaFW.local.g('reload');
@@ -1719,6 +1743,10 @@ function sepiaFW_build_webSocket_client(sepiaSessionId){
 					});
 				}
 			}
+			config.autoAction = true;
+			config.autoActionIndex = 4;
+			config.autoActionTargetTime = 45000;
+			config.popupId = "handleSendMessageFail";
 			SepiaFW.ui.showPopup(note, config);
 		}
 	}
