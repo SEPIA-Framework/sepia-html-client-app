@@ -593,7 +593,11 @@
 					});
 					//get offline welcome help anyway
 					SepiaFW.client.welcomeActions(true);
-				}
+				},
+				autoAction: true,
+				autoActionIndex: 1,
+				autoActionTargetTime: 45000,
+				popupId: "afterLoginConnectionFail"
 			});
 		}
 		
