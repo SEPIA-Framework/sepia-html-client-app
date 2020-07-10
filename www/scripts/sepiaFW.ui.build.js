@@ -1563,7 +1563,7 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 				+ "<span class='timestamp'>" + time + "</span>";
 			msgArticle.className = classes;
 			msgArticle.innerHTML = ""
-				+ "<p>" + text + "</p>";		//NOTE: the server will deliver 'text' as HTML escaped string UNLESS its from the assistant data object (then we escape above)
+				+ "<p>" + text.replace(/\n|\s\s/g,"<br>") + "</p>";		//NOTE: the server will deliver 'text' as HTML escaped string UNLESS its from the assistant data object (then we escape above)
 			
 			msgArticle.insertBefore(msgHead, msgArticle.childNodes[0]);	
 			block.appendChild(msgArticle);
