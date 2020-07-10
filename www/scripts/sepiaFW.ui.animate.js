@@ -43,7 +43,8 @@ function sepiaFW_build_animate(){
 	}
 	function possibilityToSwitchOnWakeWordListener(source){
 		//check and schedule
-		if (SepiaFW.wakeTriggers.useWakeWord && SepiaFW.wakeTriggers.engineLoaded && !SepiaFW.wakeTriggers.isListening()){
+		if (SepiaFW.client.isActive() && SepiaFW.wakeTriggers.useWakeWord && SepiaFW.wakeTriggers.engineLoaded 
+				&& !SepiaFW.wakeTriggers.isListening()){
 			//console.log('Wake-word window - source: ' + source); 	//TODO: use?
 			SepiaFW.wakeTriggers.listenToWakeWords(undefined, undefined, true);
 		}
