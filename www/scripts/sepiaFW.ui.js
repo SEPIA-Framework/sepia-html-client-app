@@ -133,7 +133,6 @@ function sepiaFW_build_ui(){
 	UI.statusBarColor = '';
 
 	UI.useTouchBarControls = SepiaFW.data.getPermanent('touch-bar-controls') || false;
-	UI.useSideSwipeControls = true;
 	
 	UI.isMenuOpen = false;
 	UI.lastInput = "";
@@ -345,6 +344,8 @@ function sepiaFW_build_ui(){
 	
 	//get/switch/show/hide active swipe-bars - TODO: can we get rid of the hard-coded dom ids?
 	UI.switchSwipeBars = function(setName){
+		var hideLeftRightBars = UI.useTouchBarControls;
+		//console.error("hideLeftRightBars", hideLeftRightBars);		//DEBUG
 		$('.sepiaFW-swipeBar-switchable').hide();
 		if (setName){
 			lastActiveSwipeBars = activeSwipeBars;
@@ -1086,6 +1087,14 @@ function sepiaFW_build_ui(){
 		clearTimeout(loaderTimer.shift());
 		$('#sepiaFW-loader').hide();
 	}
+
+	//---- Pop-up messages:
+
+	var messagePopupId;
+	var messagePopupAutoActionInterval;
+	var messagePopupAutoActionTargetTime = 31000;
+	var maxMessagePopupAutoActionTargetTime = 300000;
+	var messagePopupAutoActionTry = 0;
 	
 	//Show message popup - TODO: there can only be one pop-up at the same time
 	UI.showPopup = function(content, config){
@@ -1103,9 +1112,13 @@ function sepiaFW_build_ui(){
 		}else{
 			$input2.val("").attr("placeholder", "").hide();
 		}
+		var btn1 = $('#sepiaFW-popup-message-btn-one');
+		var btn2 = $('#sepiaFW-popup-message-btn-two');
+		var btn3 = $('#sepiaFW-popup-message-btn-three');
+		var btn4 = $('#sepiaFW-popup-message-btn-four');
+		var buttons = [btn1, btn2, btn3, btn4];
 		//NOTE: currently only button one and two receive the input data
 		if (config.buttonOneName && config.buttonOneAction){
-			var btn1 = $('#sepiaFW-popup-message-btn-one');
 			btn1.html(config.buttonOneName);	
 			btn1.off().on('click', function(){	
 				config.buttonOneAction(
@@ -1118,12 +1131,10 @@ function sepiaFW_build_ui(){
 				UI.hidePopup();		
 			});
 		}else{
-			var btn1 = $('#sepiaFW-popup-message-btn-one');
 			btn1.html('OK');			
 			btn1.off().on('click', function(){	UI.hidePopup();		});
 		}
 		if (config.buttonTwoName && config.buttonTwoAction){
-			var btn2 = $('#sepiaFW-popup-message-btn-two');
 			btn2.html(config.buttonTwoName).show();	
 			btn2.off().on('click', function(){	
 				config.buttonTwoAction(
@@ -1136,33 +1147,71 @@ function sepiaFW_build_ui(){
 				UI.hidePopup();		
 			});
 		}else{
-			$('#sepiaFW-popup-message-btn-two').off().hide();
+			btn2.off().hide();
 		}
 		if (config.buttonThreeName && config.buttonThreeAction){
-			var btn3 = $('#sepiaFW-popup-message-btn-three');
 			btn3.html(config.buttonThreeName).show();	
 			btn3.off().on('click', function(){	config.buttonThreeAction(this); 	UI.hidePopup();		});
 		}else{
-			$('#sepiaFW-popup-message-btn-three').off().hide();
+			btn3.off().hide();
 		}
 		if (config.buttonFourName && config.buttonFourAction){
-			var btn4 = $('#sepiaFW-popup-message-btn-four');
 			btn4.html(config.buttonFourName).show();	
 			btn4.off().on('click', function(){	config.buttonFourAction(this); 	UI.hidePopup();		});
 		}else{
-			$('#sepiaFW-popup-message-btn-four').off().hide();
+			btn4.off().hide();
 		}
 		if (typeof content == 'object'){
 			$('#sepiaFW-popup-message-content').html('').append(content);
 		}else{
 			$('#sepiaFW-popup-message-content').html(content);
 		}
+		//optional auto-action - NOTE: requires ID
+		if (config.popupId && config.autoAction){
+			clearInterval(messagePopupAutoActionInterval);
+			if (messagePopupId == config.popupId){
+				//continue
+			}else{
+				//reset
+				messagePopupAutoActionTry = 0;
+				messagePopupId = config.popupId;
+			}
+			var n = 0;
+			var autoActionButton = (config.autoActionIndex)? buttons[config.autoActionIndex - 1][0] : btn1[0];
+			var targetTime = config.autoActionTargetTime || messagePopupAutoActionTargetTime;
+			if (config.autoActionBackoff){
+				targetTime = targetTime + (messagePopupAutoActionTry * messagePopupAutoActionTry * 2000);
+			}
+			targetTime = Math.min(targetTime, maxMessagePopupAutoActionTargetTime);
+			messagePopupAutoActionInterval = setInterval(function(){
+				n++;
+				var timeLeft = targetTime - (n * 1000);
+				//trigger
+				if (timeLeft <= 0){
+					clearInterval(messagePopupAutoActionInterval);
+					messagePopupAutoActionTry++;
+					autoActionButton.innerHTML = (autoActionButton.innerHTML.replace(/ \(\d+s\)$/, "") + " (0s)");
+					$(autoActionButton).trigger('click');
+				}else{
+					//show timer inside button one
+					autoActionButton.innerHTML = (autoActionButton.innerHTML.replace(/ \(\d+s\)$/, "") 
+						+ " (" + Math.floor(timeLeft/1000) + "s)");
+				}
+			}, 1000);
+		}
+		//open
 		$('#sepiaFW-cover-layer').fadeIn(200);
 		//$('#sepiaFW-popup-message').fadeIn(300);
 	}
 	UI.hidePopup = function(){
 		//$('#sepiaFW-popup-message').fadeOut(300);
 		$('#sepiaFW-cover-layer').fadeOut(200);
+		clearInterval(messagePopupAutoActionInterval);
+	}
+	UI.resetPopupAutoAction = function(){
+		clearInterval(messagePopupAutoActionInterval);
+		messagePopupId = undefined;
+		messagePopupAutoActionTry = 0;
 	}
 
 	//Use pop-up to ask for permission
@@ -1195,6 +1244,8 @@ function sepiaFW_build_ui(){
 			}
 		});
 	}
+
+	//----
 	
 	//Test for support of special sepiaFW trigger events
 	UI.elementSupportsCustomTriggers = function(ele){
