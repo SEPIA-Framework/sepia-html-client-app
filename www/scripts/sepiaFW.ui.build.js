@@ -383,7 +383,8 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 			SepiaFW.ui.simpleDoubleTab(chatSwipeBar, function(){
 				//double-tab
 				if (SepiaFW.ui.useTouchBarControls){
-					//TODO: add useful action
+					//TODO: make configurable?
+					SepiaFW.ui.backButtonAction();
 				}else{
 					$('#sepiaFW-chat-controls-form').css({"background-color" : ""});	//$('#sepiaFW-chat-controls-right').css('background-color')
 					$('#sepiaFW-chat-controls-swipe-area').fadeOut(300);
