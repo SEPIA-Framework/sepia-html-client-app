@@ -218,7 +218,8 @@ function sepiaFW_build_input_controls_cmdl() {
 
     Cmdl.get.wakeword = function(){
         broadcastEvent("sepia-wake-word", {
-            state: (SepiaFW.wakeTriggers.isListening()? "active" : "inactive")
+            state: (SepiaFW.wakeTriggers.isListening()? "active" : "inactive"),
+            keywords: SepiaFW.wakeTriggers.getWakeWords()
         });
     }
 

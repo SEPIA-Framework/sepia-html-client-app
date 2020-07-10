@@ -25,7 +25,6 @@ function sepiaFW_build_strings(){
 	StringsDE.addresses = 'Adressen';
 	StringsDE.logout = 'Logout';
 	StringsDE.closeLogin = 'Weiter ohne Login';
-	StringsDE.retry = 'Noch mal versuchen';
 	StringsDE.info_and_help = 'Infos und Support';
 	StringsDE.control_hub = 'Control HUB';
 	StringsDE.tutorial = 'Tutorial';
@@ -70,12 +69,13 @@ function sepiaFW_build_strings(){
 	StringsDE.copy = 'Kopieren';
 	StringsDE.show = 'Anzeigen';
 	StringsDE.new = 'Neu';
+	StringsDE.retry = 'Nochmal versuchen';
 	StringsDE.tryAgain = 'Nochmal versuchen';
 	StringsDE.tryReconnect = 'Neu verbinden';
 	StringsDE.wait = 'Warten';
 	StringsDE.forget = 'Vergessen';
 	StringsDE.abort = 'Abbrechen';
-	StringsDE.continueOffline = 'Offline weitermachen';
+	StringsDE.continueOffline = 'Offline weiter';
 	StringsDE.locateMe = 'Standort bestimmen';
 	StringsDE.serverConnections = 'Server Verbindungen';
 	StringsDE.deviceId = 'Geräte ID';
@@ -191,7 +191,6 @@ function sepiaFW_build_strings(){
 	StringsEN.addresses = 'Addresses';
 	StringsEN.logout = 'Logout';
 	StringsEN.closeLogin = 'Continue without login';
-	StringsEN.retry = 'Retry';
 	StringsEN.info_and_help = 'Info and support';
 	StringsEN.control_hub = 'Control HUB';
 	StringsEN.tutorial = 'Tutorial';
@@ -236,6 +235,7 @@ function sepiaFW_build_strings(){
 	StringsEN.copy = 'Copy';
 	StringsEN.show = 'Show';
 	StringsEN.new = 'New';
+	StringsEN.retry = 'Retry';
 	StringsEN.tryAgain = 'Try again';
 	StringsEN.tryReconnect = 'Try reconnect';
 	StringsEN.wait = 'Wait';
