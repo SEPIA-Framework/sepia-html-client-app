@@ -286,6 +286,8 @@ function sepiaFW_build_input_controls() {
         //MIC
         }else if (e == "mic"){
             toggleMicrophone();
+        }else if (e == "micReset"){
+            resetMic();
         //BACK
         }else if (e == "back"){
             backButton();
@@ -297,6 +299,11 @@ function sepiaFW_build_input_controls() {
             nextView();
         }else if (e == "prev"){
             previousView();
+        //Client connection
+        }else if (e == "connect"){
+            clientConnect();
+        }else if (e == "disconnect"){
+            clientDisconnect();
         //Unknown
         }else{
             SepiaFW.debug.log("InputControls remoteAction - no handler yet for key:", e);
@@ -790,6 +797,12 @@ function sepiaFW_build_input_controls() {
     function resetMic(){
         SepiaFW.ui.resetMicButton();
     }
+    function clientConnect(){
+        SepiaFW.client.resumeClient();
+    }
+    function clientDisconnect(){
+        SepiaFW.client.closeClient();
+    }
     function test1(){
         console.log('TEST 1');
     }
@@ -803,7 +816,9 @@ function sepiaFW_build_input_controls() {
         "previousView": previousView,
         "backButton": backButton,
         "openAlwaysOn": openAlwaysOn,
-        "resetMic": resetMic
+        "resetMic": resetMic,
+        "clientConnect": clientConnect,
+        "clientDisconnect": clientDisconnect
     }
 
     return InputControls;
