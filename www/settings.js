@@ -43,6 +43,7 @@ SepiaFW.settings = {
 			"accountError": true,
 			"speech": true,
 			"wakeWord": true,
+			"audioPlayer": true,
 			"alarm": true
 		}
 	}
