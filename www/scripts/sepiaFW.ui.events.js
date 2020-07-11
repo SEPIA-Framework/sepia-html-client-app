@@ -351,6 +351,7 @@ function sepiaFW_build_events(){
 	Events.addOrRefreshTimeEvent = function(targetTimeUnix, eventType, eventData){
 		var Timer = Events.getRunningOrActivatedTimeEventById(eventData.eventId);
 		var reloadBackgroundNotification = false;
+		var now = new Date().getTime();
 		if (!Timer){
 			reloadBackgroundNotification = true;
 			Timer = {};
@@ -360,12 +361,14 @@ function sepiaFW_build_events(){
 			Timer.data = eventData;
 			Timers[Timer.name] = Timer;
 
-			broadcastAlarmSet({
-				timeUnix: Timer.targetTime,
-				type: Timer.type,
-				id: Timer.name,
-				title: (Timer.data? Timer.data.name : Timer.type)
-			});
+			if ((now - targetTimeUnix) < 0){
+				broadcastAlarmSet({
+					timeUnix: Timer.targetTime,
+					type: Timer.type,
+					id: Timer.name,
+					title: (Timer.data? Timer.data.name : Timer.type)
+				});
+			}
 		}
 		
 		//final action
