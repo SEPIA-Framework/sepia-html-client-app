@@ -8,14 +8,15 @@ Part of the [SEPIA Framework](https://sepia-framework.github.io/)
 This is a HTML-based application (SEPIA client) to communicate with SEPIA via browser, iOS and Android.  
 Features of the app are:
 * Input via voice (Android, iOS, browser) and text
-* Native (Android, iOS, Chrome) and open-source ASR supported ([see STT-Server](https://github.com/SEPIA-Framework/sepia-stt-server))
-* Text-to-Speech voice output
+* Native platform (Android, iOS, Chrome) and open-source ASR supported ([see STT-Server](https://github.com/SEPIA-Framework/sepia-stt-server))
+* Text-to-Speech voice output via client platform and open-source SEPIA server
 * WebSocket based chat with SEPIA and other users that are registered on your private or public server ([see Chat-Server](https://github.com/SEPIA-Framework/sepia-websocket-server-java))
 * Customizable start-screen with user-recommendations (created by the SEPIA server)
 * AlwaysOn mode with animated avatar (works best with OLED screens! ^_^)
 * In-chat card results (e.g. for to-do lists), audio player (e.g. for web-radio) and in-app browser for iOS and Android
 * User-account management
 * Teach-interface to add your own commands/chats/actions to SEPIA ([see Teach-Server](https://github.com/SEPIA-Framework/sepia-teach-server))
+* Remote terminal support via CLEXI server to work in 'headless' mode
 * Customizable look (skins for the app)
 * Tutorial and help screens to get started
 * Remote-actions to communicate between clients and devices (e.g. for [wake-word](https://github.com/SEPIA-Framework/sepia-wakeword-tools) integration)
@@ -34,6 +35,23 @@ Note: If you don't operate your own SEPIA server you can still open the app in "
 More languages for Android and an iOS app are in beta-test phase and will be release "when they are done" :-p  
   
 For experts only: Use the build-scripts in this repository to build your own version of the app (Android and iOS are available).
+
+### URL parameters
+
+You can modify the client configuration via several URL parameters:
+* `host` - SEPIA server host, e.g. IP address or domain + path
+* `lang` - Default language code for client (ISO code)
+* `isApp` - 'true' will change client to behave as if it was an app (not a website), e.g. login tokens will be valid for much longer etc.
+* `isTiny` - 'true' will optimize the UI and controls to support small displays (e.g. 240x240 px)
+* `isHeadless` or `autoSetup` - Load client settings from file (settings.js) and trigger setup mode if no user is logged in. 'isHeadless' will set some supported client features as well (e.g. don't open browser tabs etc.).
+* `env` - 'environment' setting for client
+* `q` - Question that will be triggered when client is connected
+* `share` - Shared data e.g. via deeplinks
+* `view` - Switch to specific view on start for example always-on mode (e.g.: aomode, teachui, "frame name")
+* `clexi` and `clexiId` - CLEXI socket URL and access ID
+* `logout` - 'true' will make sure client is logged out at start (all previous user date removed)
+* `cordova` - Set Cordova framework mode if 'true'
+* `isTest` - tbd
 
 ### Version history ...
 
