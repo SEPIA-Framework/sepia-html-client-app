@@ -557,11 +557,19 @@ function sepiaFW_build_ui(){
 			//if client not active or in demo-mode after 8s run setup
 			setTimeout(function(){
 				if (!SepiaFW.client.isActive() && !SepiaFW.client.isDemoMode()){
-					SepiaFW.data.set('isDemoLogin', 'setup');
-					setTimeout(function(){
-						window.location.reload();
-					}, 2000);
-					SepiaFW.debug.log("Client will restart automatically in 2s to activate settings!");
+					if (SepiaFW.account.getUserId()){
+						//client is most likely trying to restore login and connection fails - we need to restore CLEXI connection
+						SepiaFW.debug.log("Client auto-setup was skipped because client still tries to restore old login. CLEXI connection will be restored.");
+						SepiaFW.clexi.setup(); 
+						SepiaFW.inputControls.cmdl.setup();
+					}else{
+						//free for auto-setup
+						SepiaFW.data.set('isDemoLogin', 'setup');
+						setTimeout(function(){
+							window.location.reload();
+						}, 2000);
+						SepiaFW.debug.log("Client will restart automatically in 2s to activate settings!");
+					}
 				}
 			}, 8000);
 		}
