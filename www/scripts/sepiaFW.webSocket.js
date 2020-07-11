@@ -205,12 +205,45 @@ function sepiaFW_build_client_interface(){
 			if (SepiaFW.wakeTriggers && SepiaFW.wakeTriggers.isListening()){
 				SepiaFW.wakeTriggers.stopListeningToWakeWords();
 			}
+
+			//broadcast
+			ClientInterface.broadcastClientActiveChange("onActiveReset");
 		}
 	}
 	ClientInterface.releaseOnActiveResetBlock = function(){
 		onActiveResetAvailable = true;
 	}
 	var onActiveResetAvailable = false;
+
+	//-on client error
+	ClientInterface.broadcastClientError = function(errorText, errorCode){
+		/* Error codes:
+			0 - server status message
+			1 - UI message
+		*/
+		if (errorCode == undefined) errorCode = 0;
+		var event = new CustomEvent('sepia_client_error', { detail: {
+			error: errorText,
+			code: errorCode
+		}});
+		document.dispatchEvent(event);
+	}
+
+	//-on client active/inactive - Note: we use same state-change event as for speaking/listening/etc. but with different key
+	ClientInterface.broadcastClientActiveChange = function(onActiveEvent){
+		var conn;
+		if (onActiveEvent && onActiveEvent == "onActiveReset"){
+			conn = "closed";
+		}else if (onActiveEvent && onActiveEvent == "onActive"){
+			conn = "active";
+		}else{
+			conn = SepiaFW.client.isActive()? "active" : "closed";
+		}
+		var event = new CustomEvent('sepia_state_change', { detail: {
+			connection: conn
+		}});
+		document.dispatchEvent(event);
+	}
 	
 	return ClientInterface;
 }
@@ -659,6 +692,9 @@ function sepiaFW_build_webSocket_client(sepiaSessionId){
 
 		//release onActiveReset for next disconnect
 		SepiaFW.client.releaseOnActiveResetBlock();
+
+		//broadcast
+		SepiaFW.client.broadcastClientActiveChange("onActive");
 	}
 	Client.addOnActiveAction = function(actionFunction){
 		if ($.inArray(actionFunction, onActiveActions) == -1){
@@ -1549,7 +1585,10 @@ function sepiaFW_build_webSocket_client(sepiaSessionId){
 			//check if there is actually someone to listen :-)
 			if (!userList || userList.length <= 1){
 				if (!Client.isDemoMode()){
-					SepiaFW.ui.showInfo(SepiaFW.local.g('nobodyThere'));
+					var infoMsg = SepiaFW.local.g('nobodyThere');
+					SepiaFW.ui.showInfo(infoMsg);
+					//broadcast error
+					SepiaFW.client.broadcastClientError(infoMsg, 1);
 				}
 			}
 		}
@@ -1748,6 +1787,8 @@ function sepiaFW_build_webSocket_client(sepiaSessionId){
 			config.autoActionTargetTime = 45000;
 			config.popupId = "handleSendMessageFail";
 			SepiaFW.ui.showPopup(note, config);
+			//broadcast error
+			SepiaFW.client.broadcastClientError("Failed to send chat message - Last known connection state: " + SepiaFW.local.g(SepiaFW.client.lastKnownConnectionStatus), 1);
 		}
 	}
 	
@@ -2302,6 +2343,10 @@ function sepiaFW_build_webSocket_client(sepiaSessionId){
 		var resultView = SepiaFW.ui.getResultViewByName("chat");
 		var beSilent = !isErrorMessage;
 		SepiaFW.ui.addDataToResultView(resultView, sEntry, beSilent);
+		//broadcast
+		if (isErrorMessage){
+			SepiaFW.client.broadcastClientError(message, 0);
+		}
 	}
 	
 	//-- publish my-view actions

@@ -161,6 +161,19 @@ function sepiaFW_build_account(sepiaSessionId){
 		}});
 		document.dispatchEvent(event);
 	}
+
+	function broadcastAccountError(errorText, errorCode){
+		/* Error codes:
+			0 - ???
+			1 - data transfer
+		*/
+		if (errorCode == undefined) errorCode = 0;
+		var event = new CustomEvent('sepia_account_error', { detail: {
+			error: errorText,
+			code: errorCode
+		}});
+		document.dispatchEvent(event);
+	}
 	
 	//----------------------
 	
@@ -1207,11 +1220,14 @@ function sepiaFW_build_account(sepiaSessionId){
 				if (data && data.result){
 					var status = data.result;
 					if (status == "fail"){
+						var errMsg;
 						if ((data.code || data.result_code) && (data.code == 3 || data.result_code == 3)){
-							if (errorCallback) errorCallback("Data transfer failed! Communication error(?) - Msg: " + data.error);
+							errMsg = "Data transfer failed! Communication error(?) - Msg: " + data.error;
 						}else{
-							if (errorCallback) errorCallback("Data transfer failed! Msg: " + data.error);
+							errMsg = "Data transfer failed! Msg: " + data.error;
 						}
+						if (errorCallback) errorCallback(errMsg);
+						broadcastAccountError(errMsg, 1);
 						return;
 					}
 					//assume success
@@ -1220,15 +1236,21 @@ function sepiaFW_build_account(sepiaSessionId){
 						if (successCallback) successCallback(data);
 					}		
 				}else{
-					if (errorCallback) errorCallback("Data transfer failed! Sorry, but there seems to be an unknown error :-(");
+					var errMsg = "Data transfer failed! Sorry, but there seems to be an unknown error :-(";
+					if (errorCallback) errorCallback(errMsg);
+					broadcastAccountError(errMsg, 1);
 				}
 			},
 			error: function(data) {
 				SepiaFW.ui.hideLoader();
 				SepiaFW.client.checkNetwork(function(){
-					if (errorCallback) errorCallback("Data transfer failed! Sorry, but it seems you are offline :-(");
+					var errMsg = "Data transfer failed! Sorry, but it seems you are offline :-(";
+					if (errorCallback) errorCallback(errMsg);
+					broadcastAccountError(errMsg, 1);
 				}, function(){
-					if (errorCallback) errorCallback("Data transfer failed! Sorry, but it seems the network or the server do not answer :-(");
+					var errMsg = "Data transfer failed! Sorry, but it seems the network or the server do not answer :-(";
+					if (errorCallback) errorCallback(errMsg);
+					broadcastAccountError(errMsg, 1);
 				});
 				if (debugCallback) debugCallback(data);
 			}

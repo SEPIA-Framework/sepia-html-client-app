@@ -39,6 +39,8 @@ SepiaFW.settings = {
 		broadcast: {
 			"state": true,
 			"login": true,
+			"clientError": true,
+			"accountError": true,
 			"speech": true,
 			"wakeWord": true,
 			"alarm": true

@@ -116,7 +116,7 @@ function sepiaFW_build_clexi(){
             //welcome-event
             
             //subscribe
-            subscribeToBeaconScanner();
+            subscribeToBeaconScanner();                 //TODO: this should be optional
             subscribeToBroadcaster();
             subscribeToHttpEvents();
             if (Clexi.hasXtension("runtime-commands")){
