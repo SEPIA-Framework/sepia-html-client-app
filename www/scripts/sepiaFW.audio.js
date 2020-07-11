@@ -757,16 +757,20 @@ function sepiaFW_build_audio(sepiaSessionId){
 				}
 			}
 		};
-		audioPlayer.onended = function() {
+		audioPlayer.onended = function(){
 			if (!audioOnEndFired){
 				SepiaFW.debug.info("AUDIO: ended (onend event)");				//debug
 				audioPlayer.pause();
 			}
 		};
-		audioPlayer.onerror = function(error) {
-			SepiaFW.debug.info("AUDIO: error occured! - code: " + audioPlayer.error.code);			//debug
-			if (audioPlayer.error.code === 4){
-				SepiaFW.ui.showInfo('Cannot play the selected audio stream. Sorry!');		//TODO: localize
+		audioPlayer.onerror = function(error){
+			SepiaFW.debug.info("AUDIO: error occured! - code: " + (audioPlayer.error? audioPlayer.error.code : error.name));			//debug
+			if (audioPlayer.error && audioPlayer.error.code === 4){
+				SepiaFW.ui.showInfo("Cannot play the selected audio stream. Sorry!");		//TODO: localize
+			}else if (error && error.name && error.name == "NotAllowedError"){
+				SepiaFW.ui.showInfo("Cannot play audio because access was denied! This can happen if the user didn't interact with the client first.");
+			}else if (error && error.name){
+				SepiaFW.ui.showInfo("Cannot play audio - Error: " + error.name + " (see console for details).");
 			}
 			if (audioPlayer == player){
 				broadcastAudioError();
@@ -792,7 +796,13 @@ function sepiaFW_build_audio(sepiaSessionId){
 				AudioPlayer.broadcastAudioEvent("unknown", "error", audioPlayer);
 			}
 		};
-		audioPlayer.play();
+		var p = audioPlayer.play();	
+		if (p && ('catch' in p)){
+			p.catch(function(err){
+				SepiaFW.debug.error(err);
+				audioPlayer.onerror(err);
+			});
+		}
 	}
 	
 	//play alarm sound
@@ -894,7 +904,12 @@ function sepiaFW_build_audio(sepiaSessionId){
 			}
 		};
 		audioPlayer.onerror = function(error) {
-			SepiaFW.debug.info("AUDIO: error occured! - code: " + audioPlayer.error.code);						//debug
+			SepiaFW.debug.info("AUDIO: error occured! - code: " + (audioPlayer.error? audioPlayer.error.code : error.name));			//debug
+			if (error && error.name && error.name == "NotAllowedError"){
+				SepiaFW.ui.showInfo("Cannot play audio because access was denied! This can happen if the user didn't interact with the client first.");
+			}else if (error && error.name){
+				SepiaFW.ui.showInfo("Cannot play audio - Error: " + error.name + " (see console for details).");
+			}
 			Alarm.isPlaying = false;
 			Alarm.isLoading = false;
 			//reset audio URL
@@ -907,7 +922,13 @@ function sepiaFW_build_audio(sepiaSessionId){
 			AudioPlayer.broadcastAudioEvent("effects", "error", audioPlayer);
 			SepiaFW.animate.assistant.idle();
 		};
-		audioPlayer.play();
+		var p = audioPlayer.play();
+		if (p && ('catch' in p)){
+			p.catch(function(err){
+				SepiaFW.debug.error(err);
+				audioPlayer.onerror(err);
+			});
+		}
 	}
 	//STOP alarm
 	AudioPlayer.stopAlarmSound = function(source){
