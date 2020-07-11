@@ -433,13 +433,8 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 			if (buttonEle){
 				$(buttonEle).off();
 				SepiaFW.ui.longPressShortPressDoubleTap(buttonEle, function(){
-					//switch issue
-					if (SepiaFW.client.isMessagePending){
-						//e.g.: force reconnect
-						SepiaFW.client.closeClient(true, SepiaFW.client.resumeClient);
-					}else{
-						SepiaFW.ui.resetMicButton();
-					}
+					//smart-reset
+					SepiaFW.ui.longPressMicButton();
 					//custom
 					if (customCallbackLong) customCallbackLong();
 				},'',function(){
@@ -481,6 +476,16 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 			//... else stick to the default
 			}else{
 				SepiaFW.speech.toggleRecognition(SepiaFW.client.asrCallbackFinal, SepiaFW.client.asrCallbackInterim, SepiaFW.client.asrErrorCallback, SepiaFW.client.asrLogCallback);
+			}
+		}
+		//Long-press microphone button - aka: smart-reset
+		SepiaFW.ui.longPressMicButton = function(){
+			//switch issue
+			if (SepiaFW.client.isMessagePending){
+				//e.g.: force reconnect
+				SepiaFW.client.closeClient(true, SepiaFW.client.resumeClient);
+			}else{
+				SepiaFW.ui.resetMicButton();
 			}
 		}
 		//Reset microphone button
