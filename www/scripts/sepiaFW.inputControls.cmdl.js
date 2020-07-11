@@ -84,12 +84,12 @@ function sepiaFW_build_input_controls_cmdl() {
         }
     }
 
-    //Broadcasters to use, usually overwritten by headless settings
+    //Broadcasters to use, usually overwritten by headless/auto-setup settings
     Cmdl.broadcasters = {
         state: true,
         login: false,
         clientError: true,
-        accountError: false,
+        accountError: true,
         speech: true,
         wakeWord: true,
         alarm: true
