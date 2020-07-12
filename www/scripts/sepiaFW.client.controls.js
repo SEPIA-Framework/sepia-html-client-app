@@ -91,7 +91,7 @@ function sepiaFW_build_client_controls(sepiaSessionId){
         }
     }
     function switchSettings(){
-        $("#sepiaFW-nav-menu-btn").trigger('click', {bm_force : true});
+        SepiaFW.ui.toggleSettings();
     }
 
     //AlwaysOn mode

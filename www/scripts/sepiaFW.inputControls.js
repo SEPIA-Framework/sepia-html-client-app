@@ -274,10 +274,17 @@ function sepiaFW_build_input_controls() {
 
     //-------------- shared event handler ---------------
 
-    function handleRemoteInputEvent(e){
+    function handleRemoteInputEvent(e, source){
+        //sources: ble-beacon, clexi-remote, sepia-chat-server  - TODO: use for security!
+        var isProtectedSource = false;
+        if (source && source.indexOf("sepia-chat-server") >= 0){
+            isProtectedSource = true;
+        }else if (source && source.indexOf("clexi-remote") >= 0 && SepiaFW.clexi.serverId){
+            isProtectedSource = true;
+        }
         if (!e) return;        
         //MIC with permission check
-        if (e == "F4"){
+        if (e == "F4" || e == "1"){
             if (SepiaFW.wakeTriggers && SepiaFW.wakeTriggers.useWakeWord){
                 toggleMicrophone();
             }else{
@@ -285,29 +292,40 @@ function sepiaFW_build_input_controls() {
             }
         //MIC
         }else if (e == "mic"){
-            toggleMicrophone();
-        }else if (e == "micReset"){
+            if (isProtectedSource) toggleMicrophone(); else logProtectedRemoteInputFail(e, source);
+        }else if (e == "mr" || e == "micReset"){
             resetMic();
         //BACK
-        }else if (e == "back"){
+        }else if (e == "back" || e == "2"){
             backButton();
         //AO-Mode
-        }else if (e == "ao"){
+        }else if (e == "ao" || e == "5"){
             openAlwaysOn();
         //Next and previous view
-        }else if (e == "next"){
+        }else if (e == "next" || e == "3"){
             nextView();
-        }else if (e == "prev"){
+        }else if (e == "prev" || e == "4"){
             previousView();
         //Client connection
-        }else if (e == "connect"){
-            clientConnect();
-        }else if (e == "disconnect"){
-            clientDisconnect();
+        }else if (e == "co" || e == "connect"){
+            if (isProtectedSource) clientConnect(); else logProtectedRemoteInputFail(e, source);
+        }else if (e == "dc" || e == "disconnect"){
+            if (isProtectedSource) clientDisconnect(); else logProtectedRemoteInputFail(e, source);
+        //Wake-word
+        }else if (e == "ww" || e == "wakeWordOn"){
+            if (isProtectedSource) wakeWordOn(); else logProtectedRemoteInputFail(e, source);
+        }else if (e == "wm" || e == "wakeWordOff"){
+            if (isProtectedSource) wakeWordOff(); else logProtectedRemoteInputFail(e, source);
+        //Reload client
+        }else if (e == "F5" || e == "reload"){
+            if (isProtectedSource) reloadClient(); else logProtectedRemoteInputFail(e, source);
         //Unknown
         }else{
             SepiaFW.debug.log("InputControls remoteAction - no handler yet for key:", e);
         }
+    }
+    function logProtectedRemoteInputFail(e, source){
+        SepiaFW.debug.error("InputControls remoteAction - failed to call protected action: " + e + " - source: " + source);
     }
 
     //---------------- Bluetooth Beacons ----------------
@@ -416,7 +434,7 @@ function sepiaFW_build_input_controls() {
                 blockAllFurtherBeaconEvents = false;
             }
             var e = getBeaconEvent(beaconData);
-            handleRemoteInputEvent(e);
+            handleRemoteInputEvent(e, "ble-beacon");
 
             blockAllFurtherBeaconEvents = true;
         }
@@ -477,8 +495,8 @@ function sepiaFW_build_input_controls() {
 
     //This will be sent over the chat-server connection
     InputControls.handleRemoteHotkeys = function(data){
-        handleRemoteInputEvent(data.key);
-        //TODO: there is an optional 'language' parameter available aas well ...
+        handleRemoteInputEvent(data.key, "sepia-chat-server");
+        //TODO: there is an optional 'language' parameter available as well ...
     }
 
     //This will be received via CLEXI connection
@@ -486,7 +504,7 @@ function sepiaFW_build_input_controls() {
         //console.log(remoteData);
         var deviceId = SepiaFW.config.getDeviceId();
         if (remoteData.deviceId && remoteData.deviceId == deviceId){
-            handleRemoteInputEvent(remoteData.button);
+            handleRemoteInputEvent(remoteData.button, "clexi-remote");
         }
     }
     //This will listen to the proper event
@@ -803,6 +821,21 @@ function sepiaFW_build_input_controls() {
     function clientDisconnect(){
         SepiaFW.client.closeClient();
     }
+    function wakeWordOn(){
+        if (!SepiaFW.wakeTriggers.engineLoaded){
+            SepiaFW.wakeTriggers.setupWakeWords();      //will auto-start after setup
+        }else if (!SepiaFW.wakeTriggers.isListening()){
+            SepiaFW.wakeTriggers.listenToWakeWords();
+        }
+    }
+    function wakeWordOff(){
+        if (SepiaFW.wakeTriggers.engineLoaded && SepiaFW.wakeTriggers.isListening()){
+            SepiaFW.wakeTriggers.stopListeningToWakeWords();
+        }
+    }
+    function reloadClient(){
+        location.reload();
+    }
     function test1(){
         console.log('TEST 1');
     }
@@ -818,7 +851,10 @@ function sepiaFW_build_input_controls() {
         "openAlwaysOn": openAlwaysOn,
         "resetMic": resetMic,
         "clientConnect": clientConnect,
-        "clientDisconnect": clientDisconnect
+        "clientDisconnect": clientDisconnect,
+        "wakeWordOn": wakeWordOn,
+        "wakeWordOff": wakeWordOff,
+        "reloadClient": reloadClient
     }
 
     return InputControls;
