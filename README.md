@@ -29,7 +29,7 @@ Features of the app are:
 
 The latest release version is always **online** at: `https://sepia-framework.github.io/app/index.html` (requires server with SSL)  
 When you've installed **SEPIA-Home** the default link is: `http://[sepia-home-IP]:20721/app/index.html`  
-The Android app can be installed via the **Google Play Store**: [Play Store link](https://play.google.com/store/apps/details?id=de.bytemind.sepia.app.web) (currently only German)  
+The Android app can be installed via the **Google Play Store**: [Play Store link](https://play.google.com/store/apps/details?id=de.bytemind.sepia.app.web)  
   
 Note: If you don't operate your own SEPIA server you can still open the app in "demo-mode" (simply skip the log-in) and look around a bit though most of the features will not be active in this mode.  
 More languages for Android and an iOS app are in beta-test phase and will be release "when they are done" :-p  

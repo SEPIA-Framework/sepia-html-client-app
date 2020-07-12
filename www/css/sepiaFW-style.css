@@ -512,10 +512,25 @@ body {
 	border: 0px;
 	background: transparent;
 	color: #fff;
-	padding-right: 5px;
+	width: 32px;
 }
 #sepiaFW-language-selector option {
 	color: #2f3035;
+}
+#sepiaFW-login-box-menu-btn {
+	position: absolute;
+    top: 7px;
+    left: 7px;
+    padding: 2px;
+    margin: 0px;
+	width: 35px;
+	border-radius: 3px;
+	/*opacity: 0.25;
+    transition: opacity 0.5s;*/
+}
+#sepiaFW-login-box-menu-btn:hover {
+	background: rgba(255, 255, 255, 0.5);
+	/*opacity: 1.0;*/
 }
 
 #sepiaFW-login-box, #sepiaFW-login-box input, #sepiaFW-login-box button{

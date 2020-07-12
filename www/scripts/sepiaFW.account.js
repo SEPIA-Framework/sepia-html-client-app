@@ -628,6 +628,13 @@ function sepiaFW_build_account(sepiaSessionId){
 				SepiaFW.ui.showPopup(SepiaFW.local.g('oneMoment'));
 			}));
 		}
+		//login box menu button
+		$("#sepiaFW-login-box-menu-btn").off().on('click', function(){
+			Account.toggleLoginBox();
+			setTimeout(function(){
+				SepiaFW.ui.toggleSettings(1, function(){ Account.toggleLoginBox(); });
+			}, 200);
+		});
 		
 		//login-button
 		var logSendBtn = $("#sepiaFW-login-send").off().on("click", function(){

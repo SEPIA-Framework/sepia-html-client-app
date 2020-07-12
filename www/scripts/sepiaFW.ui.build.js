@@ -174,20 +174,30 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 		//TOP BUTTONS
 		
 		//open close menue
+		SepiaFW.ui.toggleSettings = function(page, onceOnClose){
+			//previously: $("#sepiaFW-nav-menu-btn").trigger('click', {bm_force : true});
+			var menu = $("#sepiaFW-chat-menu");
+			if (menu.css('display') == 'none'){
+				menu.fadeIn(300);
+				SepiaFW.ui.closeAllMenusThatCollide("#sepiaFW-chat-menu");
+				$('#sepiaFW-main-window').trigger('sepiaFwOpen-sepiaFW-chat-menu');
+				if (page != undefined){
+					SepiaFW.ui.soc.showPane(page);
+				}
+				if (onceOnClose){
+					$('#sepiaFW-main-window').one('sepiaFwClose-sepiaFW-chat-menu', function(){ onceOnClose(); });
+				}
+			}else{
+				menu.fadeOut(300);
+				$('#sepiaFW-main-window').trigger('sepiaFwClose-sepiaFW-chat-menu');
+			}
+		}
 		var menuBtn = document.getElementById("sepiaFW-nav-menu-btn");
 		if (menuBtn){
 			$(menuBtn).off();
 			SepiaFW.ui.onclick(menuBtn, function(){
 			//$(menuBtn).on("click", function (){
-				var menu = $("#sepiaFW-chat-menu");
-				if (menu.css('display') == 'none'){
-					menu.fadeIn(300);
-					SepiaFW.ui.closeAllMenusThatCollide("#" + menu[0].id);
-					$('#sepiaFW-main-window').trigger(('sepiaFwOpen-' + menu[0].id));
-				}else{
-					menu.fadeOut(300);
-					$('#sepiaFW-main-window').trigger(('sepiaFwClose-' + menu[0].id));
-				}
+				SepiaFW.ui.toggleSettings();
 			});
 		}
 		//kind'a tricky way to catch the main menue close/open event
@@ -412,7 +422,7 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 				}
 			}, function(){
 				//Long press - open settings menu
-				$("#sepiaFW-nav-menu-btn").trigger('click', {bm_force : true});
+				SepiaFW.ui.toggleSettings();
 			}, animateShortPress);
 		}
 		//catch the shortcuts menue close/open event
@@ -1302,7 +1312,7 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 				menuPageSelector.appendChild(closeBtn);
 				SepiaFW.ui.onclick(closeBtn, function(){
 				//closeBtn.addEventListener("click", function(){
-					$('#sepiaFW-nav-menu-btn').trigger('click', { bm_force : true });
+					SepiaFW.ui.toggleSettings();
 				});
 			}
 		}
