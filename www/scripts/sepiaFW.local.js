@@ -388,14 +388,23 @@ function sepiaFW_build_strings(){
 		return [
 			{value:"", name:"Default (app lang.)"},
 			{value:"en-AU", name:"Australia (en-AU)"},
+			{value:"ar-XA", name:"Arabia (ar-XA)"},
+			{value:"es-AR", name:"Argentina (es-AR)"},
+			{value:"pt-BR", name:"Brasil (pt-BR)"},
 			{value:"en-CA", name:"Canada (en-CA)"},
+			{value:"zh-CN", name:"China (zh-CN)"},
+			{value:"es-CO", name:"Colombia (es-CO)"},
 			{value:"fr-FR", name:"France (fr-FR)"},
+			{value:"de-DE", name:"Germany (de-DE)"},
 			{value:"el-GR", name:"Greece (el-GR)"},
 			{value:"en-IE", name:"Ireland (en-IE)"},
 			{value:"it-IT", name:"Italy (it-IT)"},
 			{value:"ja-JP", name:"Japan (ja-JP)"},
+			{value:"ko-KR", name:"Korea (ko-KR)"},
+			{value:"es-MX", name:"Mexico (es-MX)"},
 			{value:"nl-NL", name:"Netherlands (nl-NL)"},
 			{value:"en-NZ", name:"New Zealand (en-NZ)"},
+			{value:"pl-PL", name:"Poland (pl-PL)"},
 			{value:"pt-PT", name:"Portugal (pt-PT)"},
 			{value:"ru-RU", name:"Russia (ru-RU)"},
 			{value:"en-ZA", name:"South Africa (en-ZA)"},
@@ -403,7 +412,8 @@ function sepiaFW_build_strings(){
 			{value:"es-ES", name:"Spain (es-ES)"},
 			{value:"sv-SE", name:"Sweden (sv-SE)"},
 			{value:"tr-TR", name:"Turkey (tr-TR)"},
-			{value:"en-GB", name:"United Kingdom (en-GB)"}
+			{value:"en-GB", name:"United Kingdom (en-GB)"},
+			{value:"en-US", name:"USA (en-US)"}
 		];
 	}
 	
