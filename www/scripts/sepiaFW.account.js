@@ -581,6 +581,7 @@ function sepiaFW_build_account(sepiaSessionId){
 			SepiaFW.debug.log('Account: preventing auto-login due to changed hostname ... please login again if you trust the host!');
 			hostnameChange = true;
 		}
+		//use existing token - skip refresh
 		if (safe && account && account.userToken && account.lastRefresh && ((new Date().getTime() - account.lastRefresh) < (1000*60*60*12))){
 			//primary
 			userId = account.userId;
@@ -597,6 +598,8 @@ function sepiaFW_build_account(sepiaSessionId){
 			var lBox = document.getElementById("sepiaFW-login-box");
 			if (lBox && lBox.style.display != 'none'){
 				Account.toggleLoginBox();
+			}else{
+				$('#sepiaFW-login-retry').off().hide();		//prevent abuse of retry button!
 			}
 			broadcastLoginRestored();
 			Account.afterLogin();
@@ -724,6 +727,7 @@ function sepiaFW_build_account(sepiaSessionId){
 	}
 	function sendLoginFromBox(forceId, forcePwd){
 		clearInterval(loginRetryIntervalTimer);
+		$('#sepiaFW-login-retry').off().hide();
 		loginRetryFailed = 0;
 		pwdIsToken = false;
 		var id;
@@ -738,7 +742,16 @@ function sepiaFW_build_account(sepiaSessionId){
 		pwdField.value = '';
 		if (id && pwd && (id.length > 3) && (pwd.length > 5)) {
 			userId = id;
-			Account.login(userId, pwd, onLoginSuccess, onLoginError, onLoginDebug);
+			Account.login(userId, pwd, onLoginSuccess, function(errorText, errorCode, retryAction){
+				//prevent retry automatic retry
+				if (retryAction){
+					$('#sepiaFW-login-retry').show().off().on("click", function(){
+						clearInterval(loginRetryIntervalTimer);
+						retryAction();
+					});
+				}
+				onLoginError(errorText, errorCode, undefined);
+			}, onLoginDebug);
 		}else{
 			onLoginError(SepiaFW.local.g('loginFailedPlain'), 0);
 		}
@@ -747,6 +760,8 @@ function sepiaFW_build_account(sepiaSessionId){
 		var lBox = document.getElementById("sepiaFW-login-box");
 		if (lBox && lBox.style.display != 'none'){
 			Account.toggleLoginBox();
+		}else{
+			$('#sepiaFW-login-retry').off().hide();		//prevent abuse of retry button!
 		}
 		//console.log(data);		//DEBUG
 		
@@ -863,7 +878,7 @@ function sepiaFW_build_account(sepiaSessionId){
 	Account.toggleLoginBox = function(){
 		Account.hideSplashscreen();
 		clearInterval(loginRetryIntervalTimer);
-		$('#sepiaFW-login-retry').hide();
+		$('#sepiaFW-login-retry').off().hide();		//prevent abuse of retry button!
 		//reset status text
 		var lBoxError = document.getElementById("sepiaFW-login-status");
 		if (lBoxError){
@@ -1000,15 +1015,18 @@ function sepiaFW_build_account(sepiaSessionId){
 			return;
 		}
 		//hash password
+		var pwTokenOrHash;
 		if (pwd && !pwdIsToken){
 			//encrypt
-			pwd = getSHA256(pwd);
+			pwTokenOrHash = getSHA256(pwd);
+		}else{
+			pwTokenOrHash = pwd;
 		}
 		//call authentication API for validation
 		var api_url = SepiaFW.config.assistAPI + "authentication";
 		var dataBody = new Object();
 		dataBody.action = "validate";
-		dataBody.KEY = userid + ";" + pwd;
+		dataBody.KEY = userid + ";" + pwTokenOrHash;
 		//dataBody.GUUID = userid;		//<-- DONT USE THAT IF ITS NOT ABSOLUTELY NECESSARY (its bad practice and a much heavier load for the server!)
 		//dataBody.PWD = pwd;
 		dataBody.client = SepiaFW.config.getClientDeviceInfo(); //SepiaFW.config.clientInfo;

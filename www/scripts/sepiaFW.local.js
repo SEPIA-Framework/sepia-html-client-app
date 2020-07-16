@@ -41,7 +41,8 @@ function sepiaFW_build_strings(){
 	StringsDE.loginFailedUser = 'Login fehlgeschlagen! - Username oder Password ist falsch.';
 	StringsDE.loginFailedHost = 'Login fehlgeschlagen! - Hostname wurde geändert, bitte prüfen.';
 	StringsDE.loginFailedBlocked = 'Login fehlgeschlagen! - Zu viele fehlgeschlagene Versuche. Bitte etwas warten.';
-	StringsDE.logoutAndReload = 'Diese Aktion erfordert einen Log-out und App Neustart.';
+	StringsDE.loginFailedExpired = 'Es sieht so aus als wäre deine Sitzung abgelaufen. Bitte logge dich erneut ein.';
+	StringsDE.logoutAndReload = 'Diese Aktion erfordert einen Logout und App Neustart.';
 	StringsDE.noConnectionToNetwork = 'Es tut mir leid, aber sieht so aus als wärest du offline :-(';
 	StringsDE.connecting = 'Verbindung wird hergestellt ...';
 	StringsDE.stillConnecting = 'Versuche immer noch die Verbindung herzustellen...';
@@ -207,7 +208,8 @@ function sepiaFW_build_strings(){
 	StringsEN.loginFailedUser = 'Login failed! - Wrong username or password.';
 	StringsEN.loginFailedHost = 'Login failed! - Hostname was changed, please check.';
 	StringsEN.loginFailedBlocked = 'Login failed! - Too many failed attempts. Please wait a bit.';
-	StringsEN.logoutAndReload = 'This action requires a log-out and app reload.';
+	StringsEN.loginFailedExpired = 'It looks like your session expired. Please login again.';
+	StringsEN.logoutAndReload = 'This action requires a logout and app reload.';
 	StringsEN.noConnectionToNetwork = 'I\'m sorry but it seems that you are offline :-(';
 	StringsEN.connecting = 'Connecting ...';
 	StringsEN.stillConnecting = 'Still trying to connect ...';

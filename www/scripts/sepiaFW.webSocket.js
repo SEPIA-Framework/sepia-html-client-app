@@ -615,6 +615,7 @@ function sepiaFW_build_webSocket_client(sepiaSessionId){
 				}
 			},
 			error: function(data) {
+				SepiaFW.ui.hideLoader();
 				if (!failOfflineCallback) failOfflineCallback = SepiaFW.ui.showPopup(SepiaFW.local.g('noConnectionToNetwork'), getTryAgainPopupConfigAfterConnectionFail());
 				Client.checkNetwork(failCallback, failOfflineCallback);
 			}
@@ -2215,6 +2216,21 @@ function sepiaFW_build_webSocket_client(sepiaSessionId){
 				if (message.textType && message.textType === "status"){
 					notAnsweredYet = false;
 					var isErrorMessage = true;
+					//check error type
+					if (message.data && message.data.errorType == "authentication" && message.data.errorCode == 401){	
+						//Note: 429 - temp. block is possible too
+						//most likely the token expired before it got too old (e.g. overwritten or killed by other client)
+						//info message
+						var config = {
+							buttonOneName : SepiaFW.local.g("ok"),
+							buttonOneAction : function(){
+								SepiaFW.account.logoutAction(false);
+							},
+							buttonTwoName : SepiaFW.local.g("abort"),
+							buttonTwoAction : function(){},
+						};
+						SepiaFW.ui.showPopup(SepiaFW.local.g("loginFailedExpired"), config);
+					}
 					publishStatusMessage(message, username, isErrorMessage);
 					if (SepiaFW.ui.moc){
 						SepiaFW.ui.moc.showPane(1);

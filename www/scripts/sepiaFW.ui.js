@@ -1093,14 +1093,14 @@ function sepiaFW_build_ui(){
 	}
 	
 	//loading animation
-	var loaderTimer = [];
+	var loaderTimers = [];
 	UI.showLoader = function(noDelay){
-		loaderTimer.push(setTimeout(function(){ 
+		loaderTimers.push(setTimeout(function(){ 
 			$('#sepiaFW-loader').show();
 		}, (noDelay? 0 : 750)));
 	}
 	UI.hideLoader = function(){
-		clearTimeout(loaderTimer.shift());
+		clearTimeout(loaderTimers.shift());
 		$('#sepiaFW-loader').hide();
 	}
 
