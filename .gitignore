@@ -6,3 +6,5 @@ SepiaFW-P4-bck-old
 Thumbs.db
 Desktop.ini
 *.DS_Store
+node_modules
+tmp
