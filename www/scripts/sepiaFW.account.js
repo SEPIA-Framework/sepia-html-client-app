@@ -608,6 +608,9 @@ function sepiaFW_build_account(sepiaSessionId){
 		}else if (safe && account && account.userToken){
 			SepiaFW.debug.log('Account: trying login auto-refresh with token');
 			pwdIsToken = true;
+			//indicated ID
+			$('#sepiaFW-login-id').val(account.userId);
+			//send to refresh token
 			Account.login(account.userId, account.userToken, onLoginSuccess, onLoginError, onLoginDebug);
 
 		//warn about changed host
@@ -1213,7 +1216,9 @@ function sepiaFW_build_account(sepiaSessionId){
 		SepiaFW.ui.showLoader();
 		//Demo mode?
 		if (SepiaFW.client.isDemoMode()){
-			SepiaFW.ui.showPopup(SepiaFW.local.g('notPossibleInDemoMode'));
+			setTimeout(function(){
+				SepiaFW.ui.showPopup(SepiaFW.local.g('notPossibleInDemoMode'));
+			}, 500);
 			SepiaFW.ui.hideLoader();
 			return;
 		}
