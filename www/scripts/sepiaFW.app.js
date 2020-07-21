@@ -417,16 +417,25 @@ function sepiaFW_build_tools(){
 
 	//Escape HTML to make it "secure"
 	Tools.escapeHtml = function(htmlString){
+		if (!htmlString) return htmlString;
 		return htmlString.replace(/\&/gi, "&amp;")
 			.replace(/</gi, "&lt;").replace(/>/gi, "&gt;")
 			.replace(/"/gi, "&quot;").replace(/'/gi, "&#x27;")
 			.replace(/\//gi, "&#x2F;");
 	}
 	Tools.unescapeHtml = function(textString){
+		if (!textString) return textString;
 		return textString.replace(/\&amp;/gi, "&")
 			.replace(/\&lt;/gi, "<").replace(/\&gt;/gi, ">")
-			.replace(/\&quot;/gi, '"').replace(/\&#x27;/gi, "'")
-			.replace(/\&#x2F;/gi, "/");
+			.replace(/\&quot;|\&#34;|\&#x22;/gi, '"').replace(/\&#x27;|\&#39;/gi, "'")
+			.replace(/\&#x2F;|\&#47;/gi, "/");
+	}
+	Tools.sanitizeHtml = function(htmlString, options){
+		if (options){
+			return DOMPurify.sanitize(htmlString, options);
+		}else{
+			return DOMPurify.sanitize(htmlString);
+		}
 	}
 
 	//get pure SHA256 hash
