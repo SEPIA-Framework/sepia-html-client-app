@@ -287,7 +287,7 @@ function sepiaFW_build_embedded_services(){
 
 	//Build a list with custom or dummy data
 	Services.buildListCardInfoDummy = function(id, title, section, indexType, group, listData){
-		if (!title) title = "Demo To-Do List";
+		if (!title) title = "Demo <i>To-Do</i>&nbsp;List";
 		if (!section) section = "productivity";
 		if (!indexType) indexType = "todo";
 		if (!group) group = "todo";
@@ -299,11 +299,13 @@ function sepiaFW_build_embedded_services(){
 		}, {
 			"name": "Check-out tutorial and (this) demo", "checked": false, "state": "inProgress", "dateAdded": dateAdded
 		}, {
-			"name": "Install own SEPIA server", "checked": false, "dateAdded": dateAdded
+			"name": "Install <b>own</b> SEPIA server", "checked": false, "dateAdded": dateAdded
 		}, {
 			"name": "Create own services and commands", "checked": false, "dateAdded": dateAdded
 		}, {
 			"name": "Find alarms in shortcut-menu", "checked": false, "dateAdded": dateAdded
+		}, {
+			"name": "Don't use HTML like <script>console.log(':-p');</script>", "checked": false, "dateAdded": dateAdded
 		}];
 		var user = "userid";
 
@@ -410,11 +412,15 @@ function sepiaFW_build_embedded_services(){
 			"N": 1,
 			"info": [{
 				"image": "",
+				"feedName": "Blog – Hackaday",
 				"nameClean": "HACKADAY",
+				"name": "<span style='color:#000;'><b>HACKADAY</b></span>",
+				"type": "news",
+				"group": "1",
 				"data": [{
 					"link": "https://hackaday.com/2019/10/07/dry-your-clothes-in-one-minute-or-less/",
 					"description": "<p>If you&#8217;re like most people, then washing clothes is probably a huge pain for you. Figuring out the odd number of minutes necessary to run a wash and dry cycle, trying desperately not to end up with clothes that are still wet, and worst of all having to wait <em>so</em> <a href=\"https://hackaday.com/2019/10/07/dry-your-clothes-in-one-minute-or-less/\" class=\"read_more\">&#8230;read more</a></p>",
-					"title": "Dry Your Clothes In One Minute or Less",
+					"title": "Dry Your Clothes In <b>One Minute</b> or Less",
 					"pubDate": "2019.10.07_18:30:59"
 				}, {
 					"link": "https://hackaday.com/2019/10/07/ask-hackaday-whats-the-perfect-hacker-smart-watch/",
@@ -446,11 +452,7 @@ function sepiaFW_build_embedded_services(){
 					"description": "<p>We&#8217;ve always felt that sections of PVC pipe from the home improvement store are a criminally underutilized construction material, and it looks like [Troy Proffitt] feels the same way. Rather than trying to entirely 3D print the enclosure for his recently completed portable Bluetooth speaker, he combined printed parts with <a href=\"https://hackaday.com/2019/10/07/pvc-pipe-turned-portable-bluetooth-speaker/\" class=\"read_more\">&#8230;read more</a></p>",
 					"title": "PVC Pipe Turned Portable Bluetooth Speaker",
 					"pubDate": "2019.10.07_08:00:09"
-				}],
-				"feedName": "Blog – Hackaday",
-				"name": "<span style='color:#000;'><b>HACKADAY</b></span>",
-				"type": "news",
-				"group": "1"
+				}]
 			}]
 		}];
 		return cardInfo;
@@ -463,7 +465,7 @@ function sepiaFW_build_embedded_services(){
 			"N": 1,
 			"info": [{
 				"streamURL": "http://stream.radiojar.com/atr1e8aswa5tv",
-				"name": "SIZE RADIO",
+				"name": "<i>SIZE</i>&nbsp;RADIO",
 				"type": "radio"
 			}]
 		}];

@@ -188,7 +188,7 @@ function sepiaFW_build_ui_cards(){
 		cardElement.id = newId;
 		
 		//console.log('DATA: ' + JSON.stringify(htmlData));
-		cardElement.innerHTML = htmlData;
+		cardElement.innerHTML = htmlData; 		//TODO: check and either sandbox or use SepiaFW.tools.sanitizeHtml(..)
 		return cardElement;
 	}
 	
@@ -430,7 +430,7 @@ function sepiaFW_build_ui_cards(){
 		var listEle = document.createElement('DIV');
 		listEle.className = 'listElement cardBodyItem';
 		if (cardElementInfo.indexType === INDEX_TYPE_TODO){
-			//TODO LIST
+			//TO-DO LIST
 			if (elementData.checked){
 				listEle.innerHTML = "<div class='listLeft checked' oncontextmenu='return false;'></div>";
 			}else if (elementData.state && elementData.state == "inProgress"){
@@ -446,7 +446,7 @@ function sepiaFW_build_ui_cards(){
 				listEle.innerHTML = "<div class='listLeft unchecked' oncontextmenu='return false;'></div>";
 			}
 		}
-		listEle.innerHTML += "<div class='listCenter' contentEditable='true'>" + elementData.name + "</div>"
+		listEle.innerHTML += "<div class='listCenter' contentEditable='true'>" + SepiaFW.tools.escapeHtml(elementData.name) + "</div>"
 		listEle.innerHTML += "<div class='listRight'><i class='material-icons md-24'>&#xE15B;</i></div>";
 		listEle.setAttribute('data-element', JSON.stringify(elementData));
 		
@@ -472,7 +472,7 @@ function sepiaFW_build_ui_cards(){
 				var eleData = JSON.parse($listEle.attr('data-element'));
 				var classesToClean = "checked unchecked inProgress";
 				if (listInfoObj.indexType === INDEX_TYPE_TODO){
-					//TODO
+					//TO-DO
 					if ($that.hasClass('checked')){
 						$that.removeClass(classesToClean).addClass('unchecked');
 						eleData.state = "open";
@@ -546,11 +546,11 @@ function sepiaFW_build_ui_cards(){
 		$listEle.find('.listCenter').each(function(){
 			$(this).on('focusout', function(){
 				//update data
-				var newName = $(this).html().replace(/<br>|<div>|<\/div>/g,"").trim();
+				var newName = $(this).text().trim();
 				if (newName){
 					var eleData = JSON.parse($listEle.attr('data-element'));
 					eleData.name = newName;
-					$(this).html(newName);
+					$(this).text(newName);
 					$listEle.attr('data-element', JSON.stringify(eleData));
 					//activate save button
 					var $saveBtn = $listBody.parent().find('.sepiaFW-cards-list-saveBtn'); 	//note: we need to load the button here
@@ -580,7 +580,8 @@ function sepiaFW_build_ui_cards(){
 		
 		var radioStation = document.createElement('DIV');
 		radioStation.className = 'radioStation cardBodyItem';
-		radioStation.innerHTML = "<div class='radioLeft'><i class='material-icons md-24'>&#xE03E;</i></div><div class='radioCenter'>" + cardElementInfo.name + "</div><div class='radioRight'><i class='material-icons md-24'>&#xE037;</i></div>";
+		radioStation.innerHTML = "<div class='radioLeft'><i class='material-icons md-24'>&#xE03E;</i></div><div class='radioCenter'>" 
+								+ SepiaFW.tools.sanitizeHtml(cardElementInfo.name) + "</div><div class='radioRight'><i class='material-icons md-24'>&#xE037;</i></div>";
 		radioStation.setAttribute('data-element', JSON.stringify(cardElementInfo));
 		cardBody.appendChild(radioStation);
 		
@@ -671,7 +672,7 @@ function sepiaFW_build_ui_cards(){
 		timeEvent.className = 'timeEvent cardBodyItem';
 		timeEvent.innerHTML = "<div class='timeEventLeft'><i class='material-icons md-24'>&#xE425;</i></div>"
 							+ "<div class='timeEventCenter'>"
-								+ "<div class='sepiaFW-timer-name' contentEditable='true'>" + actionInfoI.name + "</div>"
+								+ "<div class='sepiaFW-timer-name' contentEditable='true'>" + SepiaFW.tools.escapeHtml(actionInfoI.name) + "</div>"
 								+ "<div class='sepiaFW-timer-indicator'>" + SepiaFW.local.g('loading') + " ..." + "</div>"
 							+ "</div>"
 							+ "<div class='timeEventRight'><i class='material-icons md-24'>&#xE15B;</i></div>";
@@ -692,7 +693,7 @@ function sepiaFW_build_ui_cards(){
 		timeEvent.className = 'timeEvent cardBodyItem';
 		timeEvent.innerHTML = "<div class='timeEventLeft'><i class='material-icons md-24'>&#xE855;</i></div>"
 							+ "<div class='timeEventCenter'>"
-								+ "<div class='sepiaFW-timer-name' contentEditable='true'>" + actionInfoI.name + "</div>"
+								+ "<div class='sepiaFW-timer-name' contentEditable='true'>" + SepiaFW.tools.escapeHtml(actionInfoI.name) + "</div>"
 								+ "<div class='sepiaFW-timer-indicator'>" + actionInfoI.date + " " + actionInfoI.time.replace(/:\d\d$/, " " + SepiaFW.local.g('oclock')) + "</div>"
 							+ "</div>"
 							+ "<div class='timeEventRight'><i class='material-icons md-24'>&#xE15B;</i></div>";
@@ -939,10 +940,24 @@ function sepiaFW_build_ui_cards(){
 		var N = elementsData.length;
 		for (i=0; i<N; i++){
 			var newsHeadline = elementsData[i].title;
+			if (newsHeadline){
+				newsHeadline = SepiaFW.tools.sanitizeHtml(newsHeadline)
+					.replace(/(<p>|<\/p>|<strong>|<\/strong>|<b>|<\/b>|<em>|<\/em>|<i>|<\/i>|<br>)/gi," ")
+					.replace(/<a .*?>|<\/a>/gi, " ")
+					.replace(/\s+/g, " ")
+					.trim();
+				newsHeadline = SepiaFW.tools.sanitizeHtml(newsHeadline);	//we do this again just to make sure the mods did not reintroduce code
+			}
 			var newsLink = elementsData[i].link;
-			var newsBody = elementsData[i].description;		
+			var newsBody = elementsData[i].description;
 			if (newsBody){
-				newsBody = newsBody.replace(/(<p>|<\/p>|<strong>|<\/strong>|<b>|<\/b>)/g," ").replace(/\s+/g, " ");
+				newsBody = SepiaFW.tools.sanitizeHtml(newsBody)
+					.replace(/(<p>|<\/p>|<strong>|<\/strong>|<b>|<\/b>|<em>|<\/em>|<i>|<\/i>|<br>)/gi," ")
+					.replace(/<a .*?>|<\/a>/gi, " ")
+					.replace(/<img .*?>/gi, " ")
+					.replace(/\s+/g, " ")
+					.trim();
+				newsBody = SepiaFW.tools.sanitizeHtml(newsBody);
 				newsBody = (newsBody.length > 360)? (newsBody.substring(0, 360) + "...") : newsBody;
 			}
 			var newsPublished = elementsData[i].pubDate;
@@ -1001,9 +1016,9 @@ function sepiaFW_build_ui_cards(){
 		var weatherNowTmoSmall = document.createElement('DIV');
 		weatherNowTmoSmall.className = 'weatherNowSmall';
 		//console.log(JSON.stringify(data));
-		weatherNowTmoSmall.innerHTML = "<div class='weatherNowSmallImage'><img src='img/weather/" + data.icon + ".png' alt='icon'></div>"
+		weatherNowTmoSmall.innerHTML = SepiaFW.tools.sanitizeHtml("<div class='weatherNowSmallImage'><img src='img/weather/" + data.icon + ".png' alt='icon'></div>"
 									+ "<div class='weatherNowSmallIntro'><b>" + ((data.dateTag)? data.dateTag : data.date) + ":</b><p>" + data.desc + "</p></div>"
-									+ "<div class='weatherNowSmallData'>" + makeWeatherNowTmoSmallData(data) + "</div>";
+									+ "<div class='weatherNowSmallData'>" + makeWeatherNowTmoSmallData(data) + "</div>"); 		//NOTE: this is inside one big SANITIZER
 		//weatherNowTmoSmall.setAttribute('data-element', JSON.stringify(cardElementInfo));
 		cardBody.appendChild(weatherNowTmoSmall);
 		//details part
@@ -1085,10 +1100,10 @@ function sepiaFW_build_ui_cards(){
 				}
 			}
 			detailsHTML += "<li>"
-							+ "<div>" + data[i].tag + "</div>"
-							+ "<div>" + temp + "</div>"
+							+ "<div>" + SepiaFW.tools.sanitizeHtml(data[i].tag) + "</div>"
+							+ "<div>" + SepiaFW.tools.sanitizeHtml(temp) + "</div>"
 							+ "<div>" + ((precipValue > 2)? (precipSymbol + "<span>" + precipValue + "%</span>") : (precipSymbol)) + "</div>"
-						+"</li>";
+						+ "</li>";
 		}
 		detailsHTML += "</ul>";
 		return detailsHTML;
@@ -1137,9 +1152,9 @@ function sepiaFW_build_ui_cards(){
 		var description = data.desc;
 		if (description && description.length > 120) description = description.substring(0, 119) + "...";
 
-		linkCardEle.innerHTML = leftElement
+		linkCardEle.innerHTML = SepiaFW.tools.sanitizeHtml(leftElement
 								+ "<div class='linkCardCenter'>" + (data.title? ("<h3>" + data.title + "</h3>") : ("")) + "<p>" + description + "</p></div>"
-								+ "<div class='linkCardRight'><a href='" + linkUrl + "' target='_blank' rel='noopener'>" + "<i class='material-icons md-mnu'>&#xE895;</i>" + "</a></div>";
+								+ "<div class='linkCardRight'><a href='" + linkUrl + "' target='_blank' rel='noopener'>" + "<i class='material-icons md-mnu'>&#xE895;</i>" + "</a></div>");
 		//linkCardEle.setAttribute('data-element', JSON.stringify(cardElementInfo));
 		cardBody.appendChild(linkCardEle);
 
@@ -1157,7 +1172,7 @@ function sepiaFW_build_ui_cards(){
 				webPlayerDiv.className = "spotifyWebPlayer embeddedWebPlayer cardBodyItem fullWidthItem";
 				var contentUrl = "https://" + linkUrl.replace("spotify:", "open.spotify.com/embed/").replace(":play", "").replace(/:/g, "/").trim();
 				webPlayerDiv.innerHTML = '<iframe '
-					+ 'src="' + contentUrl + '" width="100%" height="80" frameborder="0" allowtransparency="true" '
+					+ 'src="' + contentUrl + '" width="100%" height="80" frameborder="0" allowtransparency="true" ' 		//TODO: fix URL security
 					+ 'allow="' + allowIframe + '" '
 					+ 'sandbox="allow-forms allow-popups allow-same-origin allow-scripts" ' + '>'
 				+ '</iframe>';
@@ -1177,7 +1192,7 @@ function sepiaFW_build_ui_cards(){
 					+ 'frameborder="0" height="150" '
 					+ 'style="width:100%;max-width:660px;overflow:hidden;background:transparent;" '
 					+ 'sandbox="allow-forms allow-popups allow-same-origin allow-scripts ' 
-						+ ((SepiaFW.ui.isSafari)? 'allow-storage-access-by-user-activation' : '')
+						+ ((SepiaFW.ui.isSafari)? 'allow-storage-access-by-user-activation' : '') 							//TODO: fix URL security
 						+ ' allow-top-navigation-by-user-activation" '
 					+ 'src="' + contentUrl + '">'
 				+ '</iframe>';
@@ -1222,7 +1237,7 @@ function sepiaFW_build_ui_cards(){
 					f.src = "https://www.youtube.com/embed?autoplay=1&enablejsapi=1&playsinline=1&iv_load_policy=3&fs=1&listType=search&list=" 
 						+ linkUrl.replace(/.*?search_query=/, "").trim();
 				}else{
-					f.src = linkUrl;
+					f.src = linkUrl; 				 		//TODO: fix URL security
 				}
 				if (!isSafeSource){
 					//remove autoplay flag
@@ -1287,7 +1302,7 @@ function sepiaFW_build_ui_cards(){
 				
 	//Card header
 	function makeHeader(headerConfig, cardElement){
-		var titleName = headerConfig.name;
+		var titleName = SepiaFW.tools.sanitizeHtml(headerConfig.name);
 		var titleBackground = headerConfig.background || '';
 		var titleTextColor = headerConfig.textColor || '';
 		var titleCssClass = headerConfig.cssClass || '';
@@ -1318,12 +1333,12 @@ function sepiaFW_build_ui_cards(){
 				//update data
 				var listEle = $(this).parent().parent();
 				var eleData = JSON.parse(listEle.attr('data-list'));
-				var newTitle = $(this).html();
-				newTitle = newTitle.replace(/<br>|<div>|<\/div>/g, "").trim(); 			//happens when the user presses enter(?)
-				newTitle = newTitle.replace(/-|_|!|\?|,|\.|'/g, " ").trim();			//remove some special chars
+				var newTitle = $(this).text();
+				newTitle = newTitle.replace(/<br>|<div>|<\/div>/g, "").trim(); 		//happens when the user presses enter(?)
+				newTitle = newTitle.replace(/!|\?|,|\.|'/g, " ").trim();			//remove some special chars
 				newTitle = (newTitle.length > 25)? newTitle.substring(0,24) : newTitle; //brutally shorten title - TODO: improve
 				eleData.title = newTitle;
-				$(this).html(newTitle);
+				$(this).text(newTitle);
 				listEle.attr('data-list', JSON.stringify(eleData));
 				//activate save button
 				var saveButton = $(this).closest('.sepiaFW-cards-flexSize-container').find('.sepiaFW-cards-list-saveBtn');
@@ -1402,8 +1417,8 @@ function sepiaFW_build_ui_cards(){
 			cmDelBtn.innerHTML = '<i class="material-icons md-24">delete</i>'; //SepiaFW.local.g('deleteItem');
 			cmDelBtn.title = SepiaFW.local.g('deleteItem');
 			SepiaFW.ui.onclick(cmDelBtn, function(){
-				var listInfo = JSON.parse(cmDelBtn.parentElement.parentElement.parentElement.parentElement.getAttribute('data-list')); 		//TODO: replace with $().closest('...')
-				var parentCard = $(cmDelBtn).parent().parent().parent().parent();															//TODO: replace with $().closest('...')
+				var parentCard = $(cmDelBtn).closest('.sepiaFW-cards-flexSize-container');														
+				var listInfo = JSON.parse(parentCard.attr('data-list'));
 				SepiaFW.ui.build.askConfirm(SepiaFW.local.g('deleteItemConfirm'), function(){
 					//ok
 					SepiaFW.account.deleteList(listInfo, function(data){
@@ -1616,7 +1631,7 @@ function sepiaFW_build_ui_cards(){
 				//create button
 				var androidIntentBtn = document.createElement('LI');
 				androidIntentBtn.className = "sepiaFW-cards-button sepiaFW-cards-list-contextMenu-androidIntentBtn";
-				androidIntentBtn.innerHTML = intent.buttonName || 'Android';
+				androidIntentBtn.innerHTML = SepiaFW.tools.sanitizeHtml(intent.buttonName) || 'Android';
 				if (intent.buttonTitle) androidIntentBtn.title = intent.buttonTitle;
 				SepiaFW.ui.onclick(androidIntentBtn, function(){
 					//call intent
