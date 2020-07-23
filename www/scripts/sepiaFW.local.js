@@ -23,6 +23,8 @@ function sepiaFW_build_strings(){
 	StringsDE.apps_admin = 'Apps verwalten';
 	StringsDE.account = 'Account';
 	StringsDE.addresses = 'Adressen';
+	StringsDE.contacts = 'Kontakte';
+	StringsDE.favorites = 'Favoriten';
 	StringsDE.logout = 'Logout';
 	StringsDE.closeLogin = 'Weiter ohne Login';
 	StringsDE.info_and_help = 'Infos und Support';
@@ -137,6 +139,8 @@ function sepiaFW_build_strings(){
 	StringsDE.tried_but_not_sure = "Hab's versucht aber bin nicht sicher ob es geklappt hat.";
 	StringsDE.result_unclear = "Das Ergebnis der folgenden Anfrage ist unklar.";
 	StringsDE.possible_reason_origin_unsecure = "Mögliche Ursache: Unsicherer Ursprung (SSL Zertifikat)";
+	StringsDE.check_browser_settings = "Bitte prüfe die Browsereinstellungen (z.B. 'chrome://settings/content' oder 'about:preferences#privacy')";
+	StringsDE.notification_error = "Benachrichtigungsfehler";
 	StringsDE.missing_clexi_connection = "Keine Verbindung zum CLEXI Server.";
 	StringsDE.missing_clexi_plugin = "CLEXI Server fehlt ein Plugin.";
 	StringsDE.runtime_command_success = "Systembefehl erfolgreich.";
@@ -190,6 +194,8 @@ function sepiaFW_build_strings(){
 	StringsEN.apps_admin = 'Manage apps';
 	StringsEN.account = 'Account';
 	StringsEN.addresses = 'Addresses';
+	StringsEN.contacts = 'Contacts';
+	StringsEN.favorites = 'Favorites';
 	StringsEN.logout = 'Logout';
 	StringsEN.closeLogin = 'Continue without login';
 	StringsEN.info_and_help = 'Info and support';
@@ -304,6 +310,8 @@ function sepiaFW_build_strings(){
 	StringsEN.tried_but_not_sure = "I've tried but I'm not sure if it worked.";
 	StringsEN.result_unclear = "The result of the following request is unclear.";
 	StringsEN.possible_reason_origin_unsecure = "Possible reason: Unsecure origin (SSL certificate)";
+	StringsEN.check_browser_settings = "Please check your browser settings (e.g. 'chrome://settings/content' or 'about:preferences#privacy')";
+	StringsEN.notification_error = "Notification error";
 	StringsEN.missing_clexi_connection = "No connection to CLEXI server.";
 	StringsEN.missing_clexi_plugin = "CLEXI server is missing a plugin.";
 	StringsEN.runtime_command_success = "System command was successful.";
