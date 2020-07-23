@@ -177,7 +177,7 @@ function sepiaFW_build_ui_cards(){
 	
 	//-----------------------------------------------------------------------------------
 	
-	//CUSTOM HTML CARD
+	//CUSTOM HTML CARD - NOTE: Currently these are only accessible via ACTIONS (and thus skipped in user chat)
 	
 	//build flex container with custom HTML RESULTS from actionInfo
 	Cards.buildCustomHtmlCardFromAction = function(actionInfoI){
@@ -188,9 +188,11 @@ function sepiaFW_build_ui_cards(){
 		cardElement.id = newId;
 		
 		//console.log('DATA: ' + JSON.stringify(htmlData));
-		cardElement.innerHTML = htmlData; 		//TODO: check and either sandbox or use SepiaFW.tools.sanitizeHtml(..)
+		cardElement.innerHTML = SepiaFW.tools.sanitizeHtml(htmlData); 		//NOTE: this can only have basic HTML (no script, no iframe etc.)
 		return cardElement;
 	}
+	//build flex container with sandboxed custom HTML from actionInfo
+	//TODO
 	
 	//build generic flex-card with body
 	function buildGenericCard(bodyContentElement){
