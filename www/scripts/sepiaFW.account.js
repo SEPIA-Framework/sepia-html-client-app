@@ -16,6 +16,7 @@ function sepiaFW_build_account(sepiaSessionId){
 
 	var demoAccounts = {
 		"appstore": "eval20192X",
+		"test": "test123",
 		"setup": "setup123"
 	}
 	
@@ -1218,7 +1219,7 @@ function sepiaFW_build_account(sepiaSessionId){
 		if (SepiaFW.client.isDemoMode()){
 			setTimeout(function(){
 				SepiaFW.ui.showPopup(SepiaFW.local.g('notPossibleInDemoMode'));
-			}, 500);
+			}, 606);
 			SepiaFW.ui.hideLoader();
 			return;
 		}
