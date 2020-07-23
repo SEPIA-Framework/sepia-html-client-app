@@ -104,16 +104,36 @@ function sepiaFW_build_frames(){
 	Frames.setup = function(info, finishCallback){
 		//get HTML - is there a language dependent version?
 		var framePage = Frames.getLocalOrDefaultPage(info.pageUrl, SepiaFW.config.appLanguage);
+		var isRemote = (framePage.indexOf("http:") == 0) || (framePage.indexOf("https:") == 0) || (framePage.indexOf("ftp:") == 0);
+		if (isRemote){
+			var isSameOrigin = SepiaFW.tools.isSameOrigin(framePage);
+			var isSepiaFileHost = SepiaFW.config.urlIsSepiaFileHost(framePage);
+			if (isSameOrigin || isSepiaFileHost) isRemote = false;
+		}
 
 		//$.get(framePage, function(frameHtml){
         SepiaFW.files.fetch(framePage, function(frameHtml){
-            $('#sepiaFW-frames-view').html(frameHtml);
+			if (isRemote){
+				SepiaFW.debug.error("WARNING: Frame page has remote location and can contain harmful code. It has been BLOCKED! - URL: " + framePage);
+				SepiaFW.ui.showPopup("<h3 style='color:#f00; width:100%; text-align: center;'>Warning</h3>" 
+					+ "<p>SEPIA was asked to open a remote URL in a custom view (frame). The request has been blocked due to security concerns.</p>" 
+					+ "<p>URL: " + framePage + "</p>"
+					+ "<p>If you want to use this view please ask an admin to move it to a secure location (e.g. the SEPIA file server).</p>"
+				);
+				Frames.close();
+				return;
+			}else{
+				$('#sepiaFW-frames-view').html(frameHtml);
+			}
 			
 			//nav-bar
 			$('#sepiaFW-frames-close').off().on('click', function(){
 				Frames.close();
 			});
-
+			$('#sepiaFW-frames-mic').off().each(function(){
+				if (this.removeLongPressShortPressDoubleTap) this.removeLongPressShortPressDoubleTap();
+				SepiaFW.ui.buildDefaultMicLogic(this);
+			});
 			$('#sepiaFW-frames-show-next-page').off().on('click', function(){
 				Frames.uic.next();
 			});

@@ -368,6 +368,16 @@ function sepiaFW_build_tools(){
 		var yyyy = d.getFullYear();
 		return yyyy + separator + MM + separator + dd;
 	}
+
+	//URL is same origin?
+	Tools.isSameOrigin = function(uri1, uri2){
+		uri1 = new URL(uri1);
+		uri2 = new URL(uri2 || window.location.href);
+		if(uri1.host !== uri2.host) return false;
+		if(uri1.port !== uri2.port) return false;
+		if(uri1.protocol !== uri2.protocol) return false;
+		return true;
+	}
 	
 	//get URL parameters
 	Tools.getURLParameter = function(name){

@@ -49,6 +49,11 @@ function sepiaFW_build_config(){
 			}
 		}
 	}
+	//check any URL if its from server
+	Config.urlIsSepiaFileHost = function(url){
+		//return SepiaFW.tools.isSameOrigin(url, Config.assistAPI); 		//protocol + host + port
+		return (url.indexOf(Config.assistAPI) == 0);
+	}
 	
 	//language
 	var lang = SepiaFW.tools.getURLParameter("lang") || SepiaFW.data.get('app-language') || navigator.language || navigator.userLanguage;
