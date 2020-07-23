@@ -39,50 +39,79 @@ function sepiaFW_build_ui_actions(){
 	Actions.clearDelayQueue = function(){
 		delayQueue = {};
 	}
+
+	//custom action event dispatcher
+	function dispatchCustomActionEvent(actionEvent){
+		if (actionEvent && actionEvent.name){
+			var evn = 'sepia_action_custom_event_' + actionEvent.name;
+			var event = new CustomEvent(evn, { 
+				detail: actionEvent.data
+			});
+			document.dispatchEvent(event);
+		}
+	}
 	
 	//note: 'action' is 'actionInfo[i]'
+
+	//button BUILDER
+	function buildActionButton(title, className, fun){
+		var btn = document.createElement('BUTTON');
+		btn.className = className;
+		if (fun){
+			addFunToActionButton(btn, fun);
+		}
+		btn.textContent = title;
+		return btn;
+	}
+	function addFunToActionButton(btn, fun){
+		SepiaFW.ui.onclick(btn, function(){
+			fun();
+		}, true);
+	}
 	
 	//BUTTON Help
 	Actions.addButtonHelp = function(action, parentBlock){
-		var urlBtn = document.createElement('BUTTON');
-		urlBtn.className = 'chat-button-help';
-		SepiaFW.ui.onclick(urlBtn, function(){
-		//urlBtn.addEventListener("click", function(){ 
-			var newAction = {};
-			newAction.info = "direct_cmd";
-			newAction.cmd = "chat;;type=help;;";
-			newAction.options = { skipTTS : true, skipText : true, targetView : "bigResults" };
-			Actions.openCMD(newAction);
-		}, true);
-		urlBtn.innerHTML = action.title || SepiaFW.local.g('help');
-		parentBlock.appendChild(urlBtn);
+		var helpBtn = buildActionButton(
+			action.title || SepiaFW.local.g('help'),
+			'chat-button-help',
+			function(){
+				var newAction = {};
+				newAction.info = "direct_cmd";
+				newAction.cmd = "chat;;type=help;;";
+				newAction.options = { skipTTS : true, skipText : true, targetView : "bigResults" };
+				Actions.openCMD(newAction);
+			}
+		);
+		parentBlock.appendChild(helpBtn);
 	}
 	
 	//BUTTON TeachUI
 	Actions.addButtonTeachUI = function(action, parentBlock){
 		if (SepiaFW.teach){
-			var teachBtn = document.createElement('BUTTON');
-			teachBtn.className = 'chat-button-teach';
 			var info = action.info;
-			SepiaFW.ui.onclick(teachBtn, function(){
-				SepiaFW.ui.closeAllMenus();
-				SepiaFW.teach.openUI(info);
-			}, true);
-			teachBtn.innerHTML = action.title || SepiaFW.local.g('teach_ui_btn');
+			var teachBtn = buildActionButton(
+				action.title || SepiaFW.local.g('teach_ui_btn'),
+				'chat-button-teach',
+				function(){
+					SepiaFW.ui.closeAllMenus();
+					SepiaFW.teach.openUI(info);
+				}
+			);
 			parentBlock.appendChild(teachBtn);
 		}
 	}
 	//BUTTON Frames-layer view
 	Actions.addButtonFrameView = function(action, parentBlock){
 		if (SepiaFW.frames){
-			var framesBtn = document.createElement('BUTTON');
-			framesBtn.className = 'chat-button-frames';
 			var info = action.info;
-			SepiaFW.ui.onclick(framesBtn, function(){
-				SepiaFW.ui.closeAllMenus();
-				SepiaFW.frames.open(info);
-			}, true);
-			framesBtn.innerHTML = action.title || info.frameName || SepiaFW.local.g('frames_view_btn');
+			var framesBtn = buildActionButton(
+				action.title || info.frameName || SepiaFW.local.g('frames_view_btn'),
+				'chat-button-frames',
+				function(){
+					SepiaFW.ui.closeAllMenus();
+					SepiaFW.frames.open(info);
+				}
+			);
 			parentBlock.appendChild(framesBtn);
 		}
 	}
@@ -91,16 +120,23 @@ function sepiaFW_build_ui_actions(){
 		if (SepiaFW.frames){
 			SepiaFW.ui.closeAllMenus();
 			SepiaFW.frames.open(action.info);
+			//alternative: SepiaFW.ui.openViewOrFrame(action.info.pageUrl);
 		}
 	}
 	
 	//BUTTON Custom function
 	Actions.addButtonCustomFunction = function(action, sender, parentBlock){
-		var funBtn = document.createElement('BUTTON');
-		funBtn.className = 'chat-button-custom-fun';
+		if (!action.fun) return;
 		if (sender) action.sender = sender;
+		var funBtn = buildActionButton(
+			action.title || "FUNCTION",
+			'chat-button-custom-fun'
+		);
 		funBtn.setAttribute("data-sender", action.sender);
-		if (action.fun && (typeof action.fun === 'string')){
+		funBtn.setAttribute("data-fun", action.fun);
+		//funBtn.title = ("Function: " + action.fun);
+		var actionFun;
+		if (typeof action.fun === 'string'){
 			if (action.fun.indexOf("controlFun;;") >= 0){
 				//it is a control function given as string...
 				var funParts = action.fun.split(";;");
@@ -110,21 +146,19 @@ function sepiaFW_build_ui_actions(){
 				if (act && act.indexOf("{") == 0){
 					act = JSON.parse(act);
 				}
-				SepiaFW.ui.onclick(funBtn, function(){
+				actionFun = function(){
 					Actions.clientControlFun({
 						"fun": fun,
 						"controlData": act
 					}, sender);
-				}, true);	
+				};	
 			}
-		}else if (action.fun){
-			SepiaFW.ui.onclick(funBtn, function(){
+		}else{
+			actionFun = function(){
 				action.fun(funBtn);
-			}, true);
+			};
 		}
-		funBtn.innerHTML = action.title;
-		funBtn.setAttribute("data-fun", action.fun);
-		//funBtn.title = ("Function: " + action.fun);
+		addFunToActionButton(funBtn, actionFun);
 		parentBlock.appendChild(funBtn);
 	}
 	//CLIENT Control function
@@ -136,14 +170,14 @@ function sepiaFW_build_ui_actions(){
 	
 	//BUTTON URLs
 	Actions.addButtonURL = function(action, parentBlock){
-		var urlBtn = document.createElement('BUTTON');
-		urlBtn.className = 'chat-button-url';
+		var urlBtn = buildActionButton(
+			action.title || "URL",
+			'chat-button-url',
+			function(){
+				Actions.openURL(action);
+			}
+		);
 		urlBtn.setAttribute("data-url", action.url);
-		SepiaFW.ui.onclick(urlBtn, function(){
-		//urlBtn.addEventListener("click", function(){ 
-			Actions.openURL(action);
-		}, true);
-		urlBtn.innerHTML = action.title;
 		parentBlock.appendChild(urlBtn);
 	}
 	
@@ -194,20 +228,20 @@ function sepiaFW_build_ui_actions(){
 	
 	//BUTTON CMDs
 	Actions.addButtonCMD = function(action, sender, parentBlock){
-		var cmdBtn = document.createElement('BUTTON');
-		cmdBtn.className = 'chat-button-cmd';
 		if (sender) action.sender = sender;
+		var cmdBtn = buildActionButton(
+			action.title || "CMD",
+			'chat-button-cmd',
+			function(){
+				Actions.openCMD(action);
+				SepiaFW.debug.info("Action - sending button-cmd: " + action.cmd);
+			}
+		);
 		cmdBtn.setAttribute("data-sender", action.sender);
 		cmdBtn.setAttribute("data-cmd", action.cmd);
-		SepiaFW.ui.onclick(cmdBtn, function(){
-		//cmdBtn.addEventListener("click", function(){ 
-			Actions.openCMD(action);
-			SepiaFW.debug.info("Action - sending button-cmd: " + action.cmd); 
-		}, true);
-		cmdBtn.innerHTML = action.title;
 		parentBlock.appendChild(cmdBtn);
 	}
-	
+
 	//OPEN CMDs
 	Actions.openCMD = function(action){
 		if (SepiaFW.client){
@@ -231,6 +265,20 @@ function sepiaFW_build_ui_actions(){
 		}else{
 			SepiaFW.debug.info("Action: 'queueCMD' is not supported yet.");
 		}
+	}
+
+	//BUTTON custom action event
+	Actions.addButtonCustomActionEvent = function(action, parentBlock){
+		var evBtn = buildActionButton(
+			action.title || "EVENT",
+			'chat-button-custom-action-event',
+			function(){
+				dispatchCustomActionEvent(action);
+				SepiaFW.debug.info("Action - dispatching custom action ev.: " + action.name);
+			}
+		);
+		evBtn.setAttribute("data-ca-event", action.name);
+		parentBlock.appendChild(evBtn);
 	}
 	
 	//HTML RESULT ACTION
@@ -519,9 +567,18 @@ function sepiaFW_build_ui_actions(){
 						parentBlock.removeChild(aButtonsArea); 	//we will create a new one
 						aButtonsArea = Actions.buildClientFirstStartBox(data.actionInfo[i], parentBlock);
 
+					//Open URL
+					}else if (type === 'open_in_app_browser'){
+						Actions.openURL(data.actionInfo[i]);
+					}else if (type === 'open_url'){
+						Actions.openURL(data.actionInfo[i], true);
+
 					//HTML result
 					}else if (type === 'show_html_result'){
 						Actions.buildHtmlResultAction(data.actionInfo[i], parentBlock, handleOptions);
+					}else if (type === 'show_html_sandbox'){
+						//TODO: ...
+						console.error("TODO: show_html_sandbox");
 					
 					//BUTTON - help
 					}else if (type === 'button_help'){
@@ -546,24 +603,39 @@ function sepiaFW_build_ui_actions(){
 					//BUTTON - cmd
 					}else if (type === 'button_cmd'){
 						Actions.addButtonCMD(data.actionInfo[i], sender, aButtonsArea);
-						
-					//BUTTON - custom function
-					}else if (type === 'button_custom_fun'){	
-						Actions.addButtonCustomFunction(data.actionInfo[i], sender, aButtonsArea);
 
-					//Open client control function (pre-defined, "safe" functions)
-					}else if (type === 'client_control_fun'){	
-						Actions.clientControlFun(data.actionInfo[i], sender);
-						
-					//Open URL
-					}else if (type === 'open_in_app_browser'){
-						Actions.openURL(data.actionInfo[i]);
-					}else if (type === 'open_url'){
-						Actions.openURL(data.actionInfo[i], true);
-						
 					//Queue CMD - Note: these commands are executed in idle state with "openCMD" (so they have to support this)
 					}else if (type === 'queue_cmd'){
 						Actions.queueCMD(data.actionInfo[i]);
+						
+					//Schedule CMD - Note: will wait for idle
+					}else if (type === 'schedule_cmd'){
+						//TODO (targetTimeUnix, can we give timers an action?)
+						console.error("TODO: schedule_cmd");
+						
+					//BUTTON - custom function
+					}else if (type === 'button_custom_fun'){
+						Actions.addButtonCustomFunction(data.actionInfo[i], sender, aButtonsArea);
+
+					//Open client control function (pre-defined, "safe" functions)
+					}else if (type === 'client_control_fun'){
+						Actions.clientControlFun(data.actionInfo[i], sender);
+
+					//Open settings - NOTE: we use this as button because its usually used for "you can add your address" notes etc.
+					}else if (type === 'open_settings'){
+						//section: addresses (3), favorites (x), contacts (x)
+						Actions.addButtonCustomFunction({
+							title: SepiaFW.local.g(data.actionInfo[i].section),
+							fun: function(){ SepiaFW.ui.toggleSettings(0); }
+						}, sender, aButtonsArea);
+
+					//BUTTON - custom action event
+					}else if (type === 'button_custom_event'){
+						Actions.addButtonCustomActionEvent(data.actionInfo[i], aButtonsArea);
+
+					//Trigger - custom action event
+					}else if (type === 'trigger_custom_event'){
+						dispatchCustomActionEvent(data.actionInfo[i]);
 
 					//Show dialog abort button
 					}else if (type === 'show_abort'){
