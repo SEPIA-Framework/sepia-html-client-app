@@ -4,7 +4,7 @@ function sepiaFW_build_files(){
 	
 	//Read file and decide for yourself if it's remote or local
 	Files.fetch = function(fileUrl, successCallback, errorCallback, responseType){
-		if(fileUrl.indexOf("http") == 0){
+		if(fileUrl.indexOf("http:") == 0 || fileUrl.indexOf("https:") == 0 || fileUrl.indexOf("ftp:") == 0){
 			Files.fetchRemote(fileUrl, successCallback, errorCallback, responseType);
 		}else{
 			Files.fetchLocal(fileUrl, successCallback, errorCallback, responseType);

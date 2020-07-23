@@ -65,6 +65,10 @@ function sepiaFW_build_embedded_services(){
 			}else if (nluResult.command == "events_personal"){
 				serviceResult = Services.personalEvents(nluInput, nluResult);
 
+			//Chat with custom actio or card test
+			}else if (nluResult.command == "chat" && nluResult.parameters.data){
+				serviceResult = Services.customChatWithActionOrCardTest(nluInput, nluResult);
+
 			//Other
 			}else{
 				serviceResult = notPossibleInDemo(nluInput, nluResult);
@@ -260,7 +264,43 @@ function sepiaFW_build_embedded_services(){
 		return serviceResult;
 	}
 
+	//Custom chat with action or card test
+	Services.customChatWithActionOrCardTest = function(nluInput, nluResult){
+		//Get dummy answer
+		var answerText = "Ok";
+		
+		//Get dummy action or card
+		var serviceResult;
+		if (SepiaFW.offline && nluResult.parameters && nluResult.parameters.data){
+			var cardInfo = "";
+			var actionInfo = "";
+			var t = nluResult.parameters.data.test;
+			if (nluResult.parameters.data.type == "action"){
+				actionInfo = dummyActions[t];
+			}else if (nluResult.parameters.data.type == "card"){
+				cardInfo = ""; 		//TODO
+			}
+			var htmlInfo = "";
+			serviceResult = Services.buildServiceResult(
+				nluInput.user, nluInput.language, 
+				nluResult.command, answerText, cardInfo, actionInfo, htmlInfo
+			);
+		}
+		return serviceResult;
+	}
+
 	//----- Actions builder -----
+
+	Services.buildCustomActionInfo = function(actionType, actionData, actionOptions, existingActionInfo){
+		var actionInfo = existingActionInfo || [];
+		var newAction = actionData || {};
+		newAction.type = actionType;
+		if (actionOptions){
+			newAction.options = actionOptions;
+		}
+		actionInfo.push(newAction);
+		return actionInfo;
+	}
 
 	Services.buildPersonalEventsActionDummy = function(){
 		var actionInfo = [{
@@ -283,11 +323,39 @@ function sepiaFW_build_embedded_services(){
 		return actionInfo;
 	}
 
+	var dummyActions = {
+		"html_1": Services.buildCustomActionInfo("show_html_result", {
+			"data": "<div class='card-box'>" 
+				+ "<div style='background:#fff; color:#111; padding:5px;'><span>Hello World</span></div>" 
+				+ "<script>alert('fail');</script></div>" 	//<-- script will be filtered out
+		}),
+		"frame_1": Services.buildCustomActionInfo("open_frames_view", {
+			"info": {"pageUrl": "frames_template.html"}
+		}),
+		"frame_2": Services.buildCustomActionInfo("open_frames_view", {
+			"info": {"pageUrl": (location.href.replace(/index.html$/, "") + "frames_template.html")}
+		}),
+		"frame_3": Services.buildCustomActionInfo("open_frames_view", {
+			"info": {"pageUrl": "https://b07z.net/downloads/cors/frames_template.html"}
+		}),
+		"custom_event_btn_1": Services.buildCustomActionInfo("button_custom_event", {
+			"title": "Test", "name": "test", "data": {"button": 1}
+		}),
+		"custom_event_1": Services.buildCustomActionInfo("trigger_custom_event", {
+			"name": "test", "data": {"direct": 1}
+		}),
+		"settings_1": Services.buildCustomActionInfo("open_settings", {
+			"section": "addresses"
+		})
+		
+		//NOTE: trigger test via chat "action html_1" etc.
+	}
+
 	//----- Cards dummy data -----
 
 	//Build a list with custom or dummy data
 	Services.buildListCardInfoDummy = function(id, title, section, indexType, group, listData){
-		if (!title) title = "Demo <i>To-Do</i>&nbsp;List";
+		if (!title) title = "Demo To-Do List";
 		if (!section) section = "productivity";
 		if (!indexType) indexType = "todo";
 		if (!group) group = "todo";
