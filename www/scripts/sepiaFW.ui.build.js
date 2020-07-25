@@ -441,7 +441,7 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 		//Add default mic button logic to an element
 		SepiaFW.ui.buildDefaultMicLogic = function(buttonEle, customCallbackShort, customCallbackLong){
 			if (buttonEle){
-				$(buttonEle).off();
+				if (buttonEle.removeLongPressShortPressDoubleTap) buttonEle.removeLongPressShortPressDoubleTap();
 				SepiaFW.ui.longPressShortPressDoubleTap(buttonEle, function(){
 					//smart-reset
 					SepiaFW.ui.longPressMicButton();
@@ -587,7 +587,7 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 					+ "<li id='sepiaFW-menu-toggle-wake-word-li' title='Use client wake-word detection?'><span>Hey SEPIA: </span></li>"
 					+ "<li id='sepiaFW-menu-select-stt-li' title='Speech recognition engine.'><span>ASR engine: </span></li>"
 					+ "<li id='sepiaFW-menu-stt-socket-url-li' title='Server for custom (socket) speech recognition engine.'>"
-						+ "<span>" + "ASR server" + ": </span>"
+						+ "<span id='sepiaFW-menu-stt-label'>" + "ASR server" + ": </span>"
 						+ "<input id='sepiaFW-menu-stt-socket-url' type='url' spellcheck='false'>"
 					+ "</li>"
 					+ "<li id='sepiaFW-menu-toggle-clexi-li' title='Connect to CLEXI server on start.'><span>Connect to CLEXI: </span></li>"
@@ -838,6 +838,33 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 				});
 				if (!SepiaFW.speechWebSocket || !SepiaFW.speechWebSocket.isAsrSupported){
 					$("#sepiaFW-menu-stt-socket-url-li").hide();
+				}else{
+					SepiaFW.ui.longPressShortPressDoubleTap($("#sepiaFW-menu-stt-label")[0], function(){
+						SepiaFW.ui.showPopup("Set new ASR streaming audio default buffer length", {
+							inputLabelOne: "New buffer length (currently: " + RecorderJS.defaultBufferLength + ")",
+							buttonOneName: SepiaFW.local.g("ok"),
+							buttonOneAction: function(btn, input1){
+								input1 = Number.parseInt(input1);
+								console.log(input1);
+								if (input1){
+									RecorderJS.defaultBufferLength = input1;
+									SepiaFW.data.setPermanent("sepia-asr-buffer-length", input1);
+									setTimeout(function(){
+										SepiaFW.ui.showPopup("New buffer length for custom ASR: " + input1);
+									}, 303);
+								}
+							},
+							buttonTwoName: "Default",
+							buttonTwoAction: function(){
+								SepiaFW.data.delPermanent("sepia-asr-buffer-length");
+								setTimeout(function(){
+									SepiaFW.ui.showPopup("Buffer length for custom ASR will reset after client reload.");
+								}, 303);
+							},
+							buttonThreeName: SepiaFW.local.g("abort"),
+							buttonThreeAction: function(){}
+						});
+					},'', undefined, '', true);
 				}
 			}
 			//Smart microphone auto-toggle

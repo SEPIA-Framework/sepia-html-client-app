@@ -1,7 +1,7 @@
 <div id='sepiaFW-frame-carousel' class="sepiaFW-inner-container sepiaFW-carousel">
 	<div class='sepiaFW-carousel-pane-container'>
 		<!-- Page 1 -->
-		<div id="sepiaFW-frame-page-1" class='sepiaFW-frames-page sepiaFW-carousel-pane'>
+		<div id="sepiaFW-frame-page-1" class='sepiaFW-frames-page sepiaFW-carousel-pane sepiaFW-wake-word-settings-page'>
 			<h3>Wake-Word Settings</h3>
 			<div style="display: flex; flex-direction: column; justify-content: center; align-items: center;">
 				<img id="sepiaFW-wake-word-indicator" src="img/icon-512-w.png" style="border-radius: 50%; overflow: hidden; max-width: 512px; max-height: 25vh;">
@@ -28,12 +28,19 @@
 					<label>Allow wake-word during audio output:</label>
 					<div id="sepiaFW-wake-word-during-stream-box"></div>
 				</div>
-				<div class="group" id="sepiaFW-wake-word-switcher" style="display: none;">
+				<div class="group expert-setting" id="sepiaFW-wake-word-switcher" style="display: none;">
 					<div>
 						<input id="sepiaFW-wake-word-version" style="width: 56px !important;" placeholder="version" value="1.4">
 						<input id="sepiaFW-wake-word-name" placeholder="wake-word name" value="Hey SEPIA">
 					</div>
 					<button style="margin: 0 8px; width: 56px;" onclick="SepiaFW.wakeWordSettings.updateWakeWordFile()">SET</button>
+				</div>
+				<div class="group expert-setting" id="sepiaFW-wake-word-buffer" style="display: none;">
+					<div>
+						<label>Buffer Length:</label>
+						<input id="sepiaFW-wake-word-buffer-length" placeholder="2048" value="2048" style="max-width: 142px;">
+					</div>
+					<button style="margin: 0 8px; width: 56px;" onclick="SepiaFW.wakeWordSettings.setBufferLength()">SET</button>
 				</div>
 				<div class="group">
 					<label>Debug info:</label>
