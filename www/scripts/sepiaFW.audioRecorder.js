@@ -355,7 +355,7 @@ function sepiaFW_build_audio_recorder(){
 				*/
 				var sourceConfig = {
 					sampleRate: 16000,
-					bufferSize: 4096,
+					bufferSize: RecorderInstance.defaultBufferLength || 4096,
 					channels: 1,
 					format: audioinput.FORMAT.PCM_16BIT,
 					audioSourceType: audioinput.AUDIOSOURCE_TYPE.VOICE_COMMUNICATION,	//VOICE_COMMUNICATION UNPROCESSED DEFAULT

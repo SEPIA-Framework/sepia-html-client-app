@@ -131,8 +131,8 @@ function sepiaFW_build_frames(){
 				Frames.close();
 			});
 			$('#sepiaFW-frames-mic').off().each(function(){
-				if (this.removeLongPressShortPressDoubleTap) this.removeLongPressShortPressDoubleTap();
 				SepiaFW.ui.buildDefaultMicLogic(this);
+				//we could add some animation-listeners as well (read state and add on-open and remove them on-close maybe?)
 			});
 			$('#sepiaFW-frames-show-next-page').off().on('click', function(){
 				Frames.uic.next();
@@ -185,18 +185,22 @@ function sepiaFW_build_frames(){
 		if (onMissedMessageHandler) onMissedMessageHandler(msgObject);
 	}
 
-	Frames.canShowSpeechToTextInput = function(){
+	Frames.canHandleSpeechToTextInput = function(){
 		return !!onSpeechToTextInputHandler;
 	}
 	Frames.handleSpeechToTextInput = function(msgObject){
-		if (onSpeechToTextInputHandler) onSpeechToTextInputHandler(msgObject);
+		if (onSpeechToTextInputHandler){
+			return onSpeechToTextInputHandler(msgObject);
+		}
 	}
 
 	Frames.canShowChatOutput = function(){
 		return !!onChatOutputHandler;
 	}
 	Frames.handleChatOutput = function(msgObject){
-		if (onChatOutputHandler) onChatOutputHandler(msgObject);
+		if (onChatOutputHandler){
+			onChatOutputHandler(msgObject);
+		}
 	}
 	
 	return Frames;

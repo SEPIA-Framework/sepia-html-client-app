@@ -21,11 +21,27 @@ DEALINGS IN THE SOFTWARE.
 
 (function (window) {
 
-    var Recorder = function(source, audioProcessor, startFun, stopFun) {
+    var Recorder = function(sourceOrConfig, audioProcessor, startFun, stopFun) {
+        //NOTE: 'sourceOrConfig' is 'source' for Web Audio API and 'config' for AudioInput plugin (I know its a bad workaround ... :-p).
+        //      This recorder is optimzed to stream audio buffer chunks with a sample rate of 16000 (will downsample if required)
+
         var websocket;
-        var audioContext = source.context;
-        var inputSampleRate = (audioContext)? audioContext.sampleRate : source.sampleRate;
+        var audioContext = sourceOrConfig.context;
+        var source;
+        var inputSampleRate;
         var outputSampleRate = 16000;
+        var bufferLen;
+        if (audioContext){
+            //Web Audio API
+            source = sourceOrConfig;
+            inputSampleRate = audioContext.sampleRate;
+            bufferLen = Recorder.defaultBufferLength || 2048;
+        }else{
+            //AudioInput plugin (Cordova)
+            inputSampleRate = sourceOrConfig.sampleRate;
+            bufferLen = sourceOrConfig.bufferSize || this.defaultBufferLength;
+            //NOTE: requires audioProcessor, startFun, stopFun
+        }
 
         var recording = false;
 
@@ -52,8 +68,7 @@ DEALINGS IN THE SOFTWARE.
                 processAudio(inputAudioFrame);
             }
         //Web-Audio
-        }else if (audioContext){
-            var bufferLen = 4096;
+        }else if (audioContext && source){
             var processNode;
             if ('createScriptProcessor' in audioContext){
                 processNode = audioContext.createScriptProcessor(bufferLen, 1, 1);
@@ -101,7 +116,7 @@ DEALINGS IN THE SOFTWARE.
         }
 
         this.sendHeader = function(ws){
-            var sampleLength = 1000000;
+            var sampleLength = 1000000;         //TODO: where does this come from? Does it matter?
             var mono = true;
             var buffer = new ArrayBuffer(44);
             var view = new DataView(buffer);
@@ -209,6 +224,8 @@ DEALINGS IN THE SOFTWARE.
             return result;
         }
     };
+    //some defaults
+    Recorder.defaultBufferLength = Number.parseInt(SepiaFW.data.getPermanent("sepia-asr-buffer-length") || 2048);
 
     window.RecorderJS = Recorder;
 
