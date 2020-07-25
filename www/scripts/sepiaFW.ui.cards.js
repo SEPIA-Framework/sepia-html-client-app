@@ -48,6 +48,7 @@ function sepiaFW_build_ui_cards(){
 	
 	//get a full card result as DOM element
 	Cards.get = function(assistAnswer, sender, isSafeSource){
+		//Note: 'isSafeSource' is a message sent by an assistant to the user specifically or in a private channel
 		var card = {};
 		if (assistAnswer.hasCard){
 			card.dataInline = [];
@@ -1131,25 +1132,30 @@ function sepiaFW_build_ui_cards(){
 		var linkCardEle = document.createElement('DIV');
 		linkCardEle.className = 'linkCard cardBodyItem';
 		linkCardEle.id = 'link-' + currentLinkItemId++;		//links have no database event ID (compare: time-events) so we just create one here to connect item and context-menu
-		var leftElement = "<div class='linkCardLogo' " + ((linkLogoBack)? ("style='background:" + linkLogoBack + ";'") : ("")) + "><img src='" + linkLogo + "' alt='logo'></div>";
+		var leftElement;
 		if (data.type){
 			linkCardEle.className += (" " + data.type);
 			if (data.type == "websearch"){
-				//overwrite with websearch icon
+				//websearch icon
 				leftElement = "<div class='linkCardLogo'>" + "<i class='material-icons md-mnu'>search</i>" + "</div>";
 			}else if (data.type == "locationDefault"){
-				//overwrite with default map icon
+				//default map icon
 				leftElement = "<div class='linkCardLogo'>" + "<i class='material-icons md-mnu'>room</i>" + "</div>";
 			}else if (data.type == "default"){
-				//overwrite with default link icon
+				//default link icon
 				leftElement = "<div class='linkCardLogo'>" + "<i class='material-icons md-mnu'>link</i>" + "</div>";	//language
 			}else if (data.type == "musicSearch" || data.type == "videoSearch"){
 				//we could check the brand here: data.brand, e.g. Spotify, YouTube, ...
 				linkCardEle.className += (" " + data.brand);
 			}
 		}else if (!linkLogo){
-			//overwrite with default link icon
+			//default link icon
 			leftElement = "<div class='linkCardLogo'>" + "<i class='material-icons md-mnu'>link</i>" + "</div>";	//language
+		}
+		if (!leftElement){
+			//default if nothing was set before
+			leftElement = "<div class='linkCardLogo' " 
+				+ ((linkLogoBack)? ("style='background:" + linkLogoBack + ";'") : ("")) + "><img src='" + linkLogo + "' alt='logo'></div>";
 		}
 		var description = data.desc;
 		if (description && description.length > 120) description = description.substring(0, 119) + "...";

@@ -1283,11 +1283,12 @@ function sepiaFW_build_webSocket_client(sepiaSessionId){
 		}
 
 		//show results in frame as well? (SHOW ONLY!)
-		if (SepiaFW.frames && SepiaFW.frames.isOpen && SepiaFW.frames.canShowSpeechToTextInput()){
-			SepiaFW.frames.handleSpeechToTextInput({
+		if (SepiaFW.frames && SepiaFW.frames.isOpen && SepiaFW.frames.canHandleSpeechToTextInput()){
+			var modText = SepiaFW.frames.handleSpeechToTextInput({
 				"text": text,
 				"isFinal": true
 			});
+			if (modText) text = modText;
 		}
 		
 		//try speech-bubble
@@ -1316,11 +1317,12 @@ function sepiaFW_build_webSocket_client(sepiaSessionId){
 	}
 	Client.asrCallbackInterim = function(text){
 		//show results in frame as well? (SHOW ONLY!)
-		if (SepiaFW.frames && SepiaFW.frames.isOpen && SepiaFW.frames.canShowSpeechToTextInput()){
-			SepiaFW.frames.handleSpeechToTextInput({
+		if (SepiaFW.frames && SepiaFW.frames.isOpen && SepiaFW.frames.canHandleSpeechToTextInput()){
+			var modText = SepiaFW.frames.handleSpeechToTextInput({
 				"text": text,
 				"isFinal": false
 			});
+			if (modText) text = modText;
 		}
 
 		//try speech-bubble
