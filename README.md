@@ -53,6 +53,12 @@ You can modify the client configuration via several URL parameters:
 * `cordova` - Set Cordova framework mode if 'true'
 * `isTest` - tbd
 
+### App deeplinks
+
+* `https://b07z.net/dl/sepia/index.html?q=[my request as text]` - e.g. `test`
+* `https://b07z.net/dl/sepia/index.html?view=[app view]` - e.g. `aomode`, `teachui`
+* `https://b07z.net/dl/sepia/index.html?share=[base64 encoded share data]` - use long-press on your user name of one of your chat entries inside the app to generate share links
+
 ### Version history ...
 
 ... can be found [here](https://github.com/SEPIA-Framework/SEPIA-Framework.github.io/blob/master/app/README.md).
