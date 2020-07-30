@@ -241,7 +241,7 @@ function sepiaFW_build_teach(sepiaSessionId){
 			$.each(services, function(key, value){
 				var option = document.createElement('OPTION');
 				option.value = value.command;
-				option.innerHTML = value.name;
+				option.textContent = value.name;
 				$('#sepiaFW-teach-commands').append(option);
 			});
 
@@ -483,7 +483,7 @@ function sepiaFW_build_teach(sepiaSessionId){
 	//make parameter entry
 	function makeParameter(uiName, pName, isOptional, pType, pExamples, parentBlock){
 		var label = document.createElement('LABEL');
-		label.innerHTML = uiName;
+		label.textContent = uiName;
 		var input = document.createElement('INPUT');
 		input.className = "sepiaFW-teach-parameter-input";
 		input.placeholder = "click here";
@@ -638,7 +638,7 @@ function sepiaFW_build_teach(sepiaSessionId){
 		var newCard = document.createElement('DIV');
 		newCard.className = 'sepiaFW-command-card';
 		newCard.innerHTML = "<div class='cmdLabel'>"
-								+ "<span>" + (sentence.text.replace(/</g, "&lt;") || sentence.tagged_text.replace(/</g, "&lt;")) + "</span>"
+								+ "<span>" + SepiaFW.tools.escapeHtml(sentence.text || sentence.tagged_text) + "</span>"
 							+ "</div>"
 							+ "<div class='cmdRemoveBtn'>"
 								+ "<span>" + "<i class='material-icons md-24'>&#xE15B;</i>" + "</span>"

@@ -1295,9 +1295,9 @@ function sepiaFW_build_webSocket_client(sepiaSessionId){
 		var inBox =	document.getElementById('sepiaFW-chat-controls-speech-box-bubble');
 		if (inBox){
 			if (text){
-				inBox.innerHTML = text;
+				inBox.textContent = text;
 			}else if (textRaw){
-				inBox.innerHTML = textRaw;
+				inBox.textContent = textRaw;
 			}
 			inputCameViaAsr = true;
 			SepiaFW.client.sendInputText();
@@ -1329,7 +1329,7 @@ function sepiaFW_build_webSocket_client(sepiaSessionId){
 		var inBox =	document.getElementById('sepiaFW-chat-controls-speech-box-bubble');
 		if (inBox){
 			if (text){
-				inBox.innerHTML = text;
+				inBox.textContent = text;
 			}
 		//try default text input field
 		}else{

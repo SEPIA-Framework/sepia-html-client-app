@@ -18,11 +18,12 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 	Build.optionSelector = function(btnId, optionsObjectArray, selectedValue, optionChangeAction){
 		var ele = document.createElement("SELECT");
 		if (btnId) ele.id = btnId;
-		var code = "";
 		optionsObjectArray.forEach(function(option){
-			code += '<option value="' + option.value + '">' + option.name + '</option>';
+			var opt = document.createElement("OPTION");
+			opt.value = option.value;
+			opt.textContent = option.name;
+			ele.appendChild(opt);
 		});
-		ele.innerHTML = code;
 		
 		//initialize selected value
 		for(var i, j = 0; i = ele.options[j]; j++) {
@@ -146,7 +147,7 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 	Build.inlineActionButton = function(btnId, btnName, callback){
 		var btn = document.createElement('BUTTON');
 		btn.className = "sepiaFW-button-inline";
-		if (btnName) btn.innerHTML = btnName;
+		if (btnName) btn.innerHTML = SepiaFW.tools.sanitizeHtml(btnName);
 		if (btnId) btn.id = btnId;
 		SepiaFW.ui.onclick(btn, function(){
 			callback(this);
@@ -759,7 +760,7 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 			var skins = $('.sepiaFW-style-skin');
 			skins.each(function(i, obj) {
 				var option = document.createElement('OPTION');
-					option.innerHTML = obj.dataset.name;
+					option.textContent = obj.dataset.name;
 					option.value = i+1;
 				document.getElementById('sepiaFW-menu-select-skin').appendChild(option);
 			});
@@ -1326,7 +1327,7 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 				for (var i=0; i<pages; i++){
 					(function(menuPageSelector, index){
 						var pageBtn = document.createElement('BUTTON');
-						pageBtn.innerHTML = index+1;
+						pageBtn.textContent = index+1;
 						menuPageSelector.appendChild(pageBtn);
 						pageBtn.addEventListener("click", function(){
 							SepiaFW.ui.soc.showPane(index);
@@ -1335,7 +1336,7 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 				}
 				//... and a close button
 				var closeBtn = document.createElement('BUTTON');
-				closeBtn.innerHTML = "×";
+				closeBtn.textContent = "×";
 				menuPageSelector.appendChild(closeBtn);
 				SepiaFW.ui.onclick(closeBtn, function(){
 				//closeBtn.addEventListener("click", function(){
@@ -1354,7 +1355,7 @@ function sepiaFW_build_ui_build(sepiaSessionId){
         Object.keys(appCollection).forEach(function(appTag){
             var option = document.createElement('option');
             option.value = appTag;
-            option.innerHTML = appCollection[appTag].name;
+            option.textContent = appCollection[appTag].name;
             selector.appendChild(option);
             if (appTag == SepiaFW.config.getDefaultMusicApp()){
                 option.selected = true;
@@ -1380,7 +1381,7 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 			userListEle.innerHTML = "";
 			var avoidDoubles = [];
 			var activeChatPartner = SepiaFW.client.getActiveChatPartner();
-			userList.forEach(function (user) {
+			userList.forEach(function(user){
 				var entryClass = "";
 				var name = user.name; 		//TODO: distinguish identical names
 				//prevent names that are like IDs
@@ -1401,8 +1402,12 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 					if (user.id == SepiaFW.assistant.id){
 						entryClass += " assistant";
 					}
-					SepiaFW.ui.insert("sepiaFW-chat-userlist", "<li class='" + entryClass + "' data-user-entry='" + JSON.stringify(user) + "' title='" + user.id + "'>" 
-							+ name + "</li>");
+					var ele = document.createElement("li");
+					ele.className = entryClass;
+					ele.dataset.userEntry = JSON.stringify(user);
+					ele.title = user.id;
+					ele.textContent = name;
+					$(ele).appendTo("#sepiaFW-chat-userlist");
 					avoidDoubles.push(user.id + "_" + user.deviceId);
 				}
 			});
@@ -1460,10 +1465,16 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 				if (channel.isOpen || channel.isPublic){
 					entryClass += " public";
 				}
-				SepiaFW.ui.insert("sepiaFW-chat-channellist", 
-					"<li class='" + entryClass + "' data-channel-entry='" + JSON.stringify(channel) + "' title='" + channel.name + "'>"
-					+ "<span data-channel-id='" + channel.id + "'>" + channel.name + "</span></li>"
-				);
+				var ele = document.createElement("li");
+				ele.className = entryClass;
+				ele.dataset.channelEntry = JSON.stringify(channel);
+				ele.title = channel.name;
+				ele.textContent = name;
+				var spanEle = document.createElement("span");
+				spanEle.dataset.channelId = channel.id;
+				spanEle.textContent = channel.name;
+				ele.appendChild(spanEle);
+				$(ele).appendTo("#sepiaFW-chat-channellist");
 			});
 			//add on click again - @user to input
 			$('#sepiaFW-chat-channellist li.channel').on( "click", function(){
@@ -1601,12 +1612,12 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 			var msgArticle = document.createElement('ARTICLE');
 			var msgHead = document.createElement('DIV');
 			msgHead.className = 'header';
-			msgHead.innerHTML = ""
+			msgHead.innerHTML = SepiaFW.tools.sanitizeHtml(""
 				+ "<b class='sender' data-sender='" + sender + "'>" + senderText + ": </b>"
-				+ "<span class='timestamp'>" + time + "</span>";
+				+ "<span class='timestamp'>" + time + "</span>");
 			msgArticle.className = classes;
-			msgArticle.innerHTML = ""
-				+ "<p>" + text.replace(/\n|\s\s/g,"<br>") + "</p>";		//NOTE: the server will deliver 'text' as HTML escaped string UNLESS its from the assistant data object (then we escape above)
+			msgArticle.innerHTML = SepiaFW.tools.sanitizeHtml(""
+				+ "<p>" + text.replace(/\n|\s\s/g, "<br>") + "</p>");		//NOTE: the server will deliver 'text' as HTML escaped string UNLESS its from the assistant data object (then we escape above)
 			
 			msgArticle.insertBefore(msgHead, msgArticle.childNodes[0]);	
 			block.appendChild(msgArticle);
@@ -1788,17 +1799,17 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 		//inner HTML:
 		var articleSender = document.createElement('b');
 		articleSender.className = classes;
-		articleSender.innerHTML = (senderText + ": ");
+		articleSender.textContent = (senderText + ": ");
 		article.appendChild(articleSender);
 
 		var articleText = document.createElement('span');
 		articleText.className = 'status';
-		articleText.innerHTML = text;			//NOTE: the server will deliver 'text' as HTML escaped string
+		articleText.innerHTML = SepiaFW.tools.sanitizeHtml(text);			//NOTE: the server will deliver 'text' as HTML escaped string (XSS vector?)
 		article.appendChild(articleText);
 
 		var articleTimestamp = document.createElement('span');
 		articleTimestamp.className = 'timestamp';
-		articleTimestamp.innerHTML = time;
+		articleTimestamp.textContent = time;
 		article.appendChild(articleTimestamp);
 			
 		block.appendChild(article);

@@ -697,7 +697,7 @@ function sepiaFW_build_ui_cards(){
 		timeEvent.innerHTML = "<div class='timeEventLeft'><i class='material-icons md-24'>&#xE855;</i></div>"
 							+ "<div class='timeEventCenter'>"
 								+ "<div class='sepiaFW-timer-name' contentEditable='true'>" + SepiaFW.tools.escapeHtml(actionInfoI.name) + "</div>"
-								+ "<div class='sepiaFW-timer-indicator'>" + actionInfoI.date + " " + actionInfoI.time.replace(/:\d\d$/, " " + SepiaFW.local.g('oclock')) + "</div>"
+								+ "<div class='sepiaFW-timer-indicator'>" + SepiaFW.tools.escapeHtml(actionInfoI.date + " " + actionInfoI.time.replace(/:\d\d$/, " " + SepiaFW.local.g('oclock'))) + "</div>"
 							+ "</div>"
 							+ "<div class='timeEventRight'><i class='material-icons md-24'>&#xE15B;</i></div>";
 		timeEvent.setAttribute('data-element', JSON.stringify(actionInfoI));
@@ -1105,7 +1105,7 @@ function sepiaFW_build_ui_cards(){
 			detailsHTML += "<li>"
 							+ "<div>" + SepiaFW.tools.sanitizeHtml(data[i].tag) + "</div>"
 							+ "<div>" + SepiaFW.tools.sanitizeHtml(temp) + "</div>"
-							+ "<div>" + ((precipValue > 2)? (precipSymbol + "<span>" + precipValue + "%</span>") : (precipSymbol)) + "</div>"
+							+ "<div>" + ((precipValue > 2)? (precipSymbol + "<span>" + SepiaFW.tools.sanitizeHtml(precipValue) + "%</span>") : (precipSymbol)) + "</div>"
 						+ "</li>";
 		}
 		detailsHTML += "</ul>";
@@ -1126,7 +1126,7 @@ function sepiaFW_build_ui_cards(){
 		cardBody.className = "sepiaFW-cards-list-body sepiaFW-cards-list-link";
 		
 		var data = cardElementInfo.data;
-		var linkUrl = cardElementInfo.url;
+		var linkUrl = cardElementInfo.url || "";
 		var linkLogo = cardElementInfo.image;
 		var linkLogoBack = cardElementInfo.imageBackground || '';
 		var linkCardEle = document.createElement('DIV');
@@ -1154,20 +1154,32 @@ function sepiaFW_build_ui_cards(){
 		}
 		if (!leftElement){
 			//default if nothing was set before
-			leftElement = "<div class='linkCardLogo' " 
-				+ ((linkLogoBack)? ("style='background:" + linkLogoBack + ";'") : ("")) + "><img src='" + linkLogo + "' alt='logo'></div>";
+			leftElement = SepiaFW.tools.sanitizeHtml("<div class='linkCardLogo' " 
+				+ ((linkLogoBack)? ("style='background:" + linkLogoBack + ";'") : ("")) + "><img src='" + linkLogo + "' alt='logo'></div>");
 		}
 		var description = data.desc;
 		if (description && description.length > 120) description = description.substring(0, 119) + "...";
 
-		linkCardEle.innerHTML = SepiaFW.tools.sanitizeHtml(leftElement
-								+ "<div class='linkCardCenter'>" + (data.title? ("<h3>" + data.title + "</h3>") : ("")) + "<p>" + description + "</p></div>"
-								+ "<div class='linkCardRight'><a href='" + linkUrl + "' target='_blank' rel='noopener'>" + "<i class='material-icons md-mnu'>&#xE895;</i>" + "</a></div>");
+		//check link
+		var testUrlProtocol = linkUrl.match(/^[a-zA-Z-_]+:/);
+		if (linkUrl && (!testUrlProtocol || !!linkUrl.match(/^(javascript|data):/i))){
+			SepiaFW.ui.showInfo("URL has been removed from link card because it looked suspicious", true);
+			SepiaFW.debug.error("Link-Card - Tried to create card with suspicious URL: " + linkUrl);
+			linkUrl = "";
+		}
+		
+		//build actual card element
+		linkCardEle.innerHTML = leftElement
+				+ SepiaFW.tools.sanitizeHtml("<div class='linkCardCenter'>" + (data.title? ("<h3>" + data.title + "</h3>") : ("")) + "<p>" + description + "</p></div>")
+				+ "<div class='linkCardRight'><a href='' target='_blank' rel='noopener'><i class='material-icons md-mnu'>&#xE895;</i></a></div>";
+		linkCardEle.title = linkUrl;
 		//linkCardEle.setAttribute('data-element', JSON.stringify(cardElementInfo));
+		$(linkCardEle).find(".linkCardRight").find("a").attr("href", linkUrl);
 		cardBody.appendChild(linkCardEle);
 
 		//Experimenting with web players - note: use data.embedded ?
-		if (Cards.canEmbedWebPlayer(data.brand) && linkUrl && data.type && (data.type == "musicSearch" || data.type == "videoSearch")){
+		var embedWebPlayer = Cards.canEmbedWebPlayer(data.brand) && linkUrl && data.type && (data.type == "musicSearch" || data.type == "videoSearch");
+		if (embedWebPlayer){
 			var allowIframe;
 			if (isSafeSource){
 				allowIframe = 'autoplay *; encrypted-media *;';
@@ -1180,10 +1192,11 @@ function sepiaFW_build_ui_cards(){
 				webPlayerDiv.className = "spotifyWebPlayer embeddedWebPlayer cardBodyItem fullWidthItem";
 				var contentUrl = "https://" + linkUrl.replace("spotify:", "open.spotify.com/embed/").replace(":play", "").replace(/:/g, "/").trim();
 				webPlayerDiv.innerHTML = '<iframe '
-					+ 'src="' + contentUrl + '" width="100%" height="80" frameborder="0" allowtransparency="true" ' 		//TODO: fix URL security
+					+ 'src="" width="100%" height="80" frameborder="0" allowtransparency="true" '
 					+ 'allow="' + allowIframe + '" '
 					+ 'sandbox="allow-forms allow-popups allow-same-origin allow-scripts" ' + '>'
 				+ '</iframe>';
+				$(webPlayerDiv).find("iframe").attr("src", contentUrl);
 				cardBody.appendChild(webPlayerDiv);
 			//Apple Music
 			}else if (data.brand == "Apple Music"){
@@ -1191,7 +1204,7 @@ function sepiaFW_build_ui_cards(){
 				webPlayerDiv.className = "appleMusicWebPlayer embeddedWebPlayer cardBodyItem fullWidthItem";
 				var contentUrl;
 				if (linkUrl.indexOf("/artist/") > 0){
-					contentUrl = linkUrl.replace(/^https:\/\/.*?\//, "https://geo.itunes.apple.com/");		//TODO: basically not working
+					contentUrl = linkUrl.replace(/^https:\/\/.*?\//, "https://geo.itunes.apple.com/");
 				}else{
 					contentUrl = linkUrl.replace(/^https:\/\/.*?\//, "https://embed.music.apple.com/");
 				}
@@ -1200,10 +1213,11 @@ function sepiaFW_build_ui_cards(){
 					+ 'frameborder="0" height="150" '
 					+ 'style="width:100%;max-width:660px;overflow:hidden;background:transparent;" '
 					+ 'sandbox="allow-forms allow-popups allow-same-origin allow-scripts ' 
-						+ ((SepiaFW.ui.isSafari)? 'allow-storage-access-by-user-activation' : '') 							//TODO: fix URL security
+						+ ((SepiaFW.ui.isSafari)? 'allow-storage-access-by-user-activation' : '')
 						+ ' allow-top-navigation-by-user-activation" '
-					+ 'src="' + contentUrl + '">'
+					+ 'src="">'
 				+ '</iframe>';
+				$(webPlayerDiv).find("iframe").attr("src", contentUrl);
 				cardBody.appendChild(webPlayerDiv);
 			//YouTube
 			}else if (data.brand == "YouTube"){

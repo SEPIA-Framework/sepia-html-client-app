@@ -106,23 +106,23 @@ function sepiaFW_build_audio(sepiaSessionId){
 	
 	function broadcastAudioRequested(){
 		//EXAMPLE: 
-		if (audioTitle) audioTitle.innerHTML = 'Loading ...';
+		if (audioTitle) audioTitle.textContent = 'Loading ...';
 	}
 	function broadcastAudioFinished(){
 		//EXAMPLE: 
 		if (gotPlayerAudioContext) setTimeout(function(){ if (!Stream.isPlaying) clearInterval(playerSpectrum); },1500);
 		else SepiaFW.animate.audio.playerIdle();
-		if (audioTitle.innerHTML === "Loading ...") audioTitle.innerHTML = "Stopped";
+		if (audioTitle.innerHTML === "Loading ...") audioTitle.textContent = "Stopped";
 	}
 	function broadcastAudioStarted(){
 		//EXAMPLE: 
-		if (audioTitle) audioTitle.innerHTML = player.title;
+		if (audioTitle) audioTitle.textContent = player.title;
 		if (gotPlayerAudioContext){ 	clearInterval(playerSpectrum); playerSpectrum = setInterval(playerDrawSpectrum, 30); 	}
 		else SepiaFW.animate.audio.playerActive();
 	}
 	function broadcastAudioError(){
 		//EXAMPLE: 
-		if (audioTitle) audioTitle.innerHTML = 'Error';
+		if (audioTitle) audioTitle.textContent = 'Error';
 		if (gotPlayerAudioContext) setTimeout(function(){ if (!Stream.isPlaying) clearInterval(playerSpectrum); },1500);
 		else SepiaFW.animate.audio.playerIdle();
 	}
@@ -172,7 +172,7 @@ function sepiaFW_build_audio(sepiaSessionId){
 			playerSetVolume(playerGetVolume() - 1.0);
 		});
 		audioVol = document.getElementById('sepiaFW-audio-ctrls-vol');
-		if (audioVol) audioVol.innerHTML = Math.round(player.volume*10.0);
+		if (audioVol) audioVol.textContent = Math.round(player.volume*10.0);
 	}
 	
 	//connect / disconnect AudioContext
@@ -633,7 +633,7 @@ function sepiaFW_build_audio(sepiaSessionId){
 	AudioPlayer.setPlayerTitle = function(newTitle, audioPlayer){
 		if (!audioPlayer) audioPlayer = player;
 		audioPlayer.title = newTitle;
-		if (audioTitle) audioTitle.innerHTML = newTitle || "SepiaFW audio player";
+		if (audioTitle) audioTitle.textContent = newTitle || "SepiaFW audio player";
 		if (audioPlayer == player){
 			lastAudioStreamTitle = newTitle;
 		}

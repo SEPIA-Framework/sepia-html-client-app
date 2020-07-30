@@ -46,7 +46,7 @@ function sepiaFW_build_account(sepiaSessionId){
 		//first app visit of this user?
 		checkClientFirstVisit();
 		//set user ID indicator
-		$('#sepiaFW-menu-account-my-id').html(userId);
+		$('#sepiaFW-menu-account-my-id').text(userId);
 		//show/hide some stuff depending on user roles (note that this is just cosmetics, NOT about security)
 		if (userRoles){
 			if ($.inArray("developer", userRoles) == -1 && $.inArray("tinkerer", userRoles) == -1 && $.inArray("smarthomeadmin", userRoles) == -1){
@@ -68,7 +68,7 @@ function sepiaFW_build_account(sepiaSessionId){
 		//TODO: this should prepare demo-mode ...
 		SepiaFW.client.setDemoMode(true);
 		//set user ID indicator
-		$('#sepiaFW-menu-account-my-id').html("Demo");
+		$('#sepiaFW-menu-account-my-id').text("Demo");
 		//play sound?
 		if (Account.getUserRoles() && Account.getUserRoles()[0] == "setup"){
 			//TODO: should we play another sound when CLEXI connected?
@@ -841,7 +841,7 @@ function sepiaFW_build_account(sepiaSessionId){
 		Account.prepareLoginBoxForInput(0);
 		var lBoxError = document.getElementById("sepiaFW-login-status");
 		if(lBoxError){
-			lBoxError.innerHTML = errorText;
+			lBoxError.textContent = errorText;
 			SepiaFW.animate.flash("sepiaFW-login-status", 150);
 		}else{
 			SepiaFW.debug.err('Login: ' + errorText);
@@ -860,11 +860,11 @@ function sepiaFW_build_account(sepiaSessionId){
 					clearInterval(loginRetryIntervalTimer);
 				}else if (retryAction && targetDelay > 0){
 					if(lBoxError){
-						lBoxError.innerHTML = errorText.replace(/:-\(/, "").replace(/\s\(.*?\)$/, "") + " (" + (Math.round(targetDelay/1000)) + "s)";
+						lBoxError.textContent = errorText.replace(/:-\(/, "").replace(/\s\(.*?\)$/, "") + " (" + (Math.round(targetDelay/1000)) + "s)";
 					}
 				}else{
 					if(lBoxError){
-						lBoxError.innerHTML = SepiaFW.local.g("sendLogin") + "...";
+						lBoxError.textContent = SepiaFW.local.g("sendLogin") + "...";
 					}
 					clearInterval(loginRetryIntervalTimer);
 					SepiaFW.debug.info("Automatic login retry ...");

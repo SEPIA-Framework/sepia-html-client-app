@@ -389,8 +389,8 @@ function sepiaFW_build_strings(){
 	//ISO639-1 language codes
 	StringsLocale.getSupportedAppLanguages = function(){
 		return [
-			{value:"de", name:"&nbsp;DE&nbsp;"},
-			{value:"en", name:"&nbsp;EN&nbsp;"},
+			{value:"de", name:"DE"},
+			{value:"en", name:"EN"},
 		];
 	}
 	//BCP47 language-REGION codes

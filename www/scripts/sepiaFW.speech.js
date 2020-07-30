@@ -103,7 +103,7 @@ function sepiaFW_build_speech(){
 		var headerOption = document.createElement('option');
 		headerOption.selected = true;
 		headerOption.disabled = true;
-		headerOption.innerHTML = "- select -";
+		headerOption.textContent = "- select -";
 		sttSelector.appendChild(headerOption);
 		//check others
 		if (Speech.isWebKitAsrSupported){
@@ -117,7 +117,7 @@ function sepiaFW_build_speech(){
 		engines.forEach(function(engine){
 			var option = document.createElement('option');
 			option.value = engine;
-			option.innerHTML = engineNames[engine];
+			option.textContent = engineNames[engine];
 			sttSelector.appendChild(option);
 			if (Speech.asrEngine == engine){
 				option.selected = true;
@@ -132,7 +132,7 @@ function sepiaFW_build_speech(){
 		if (engines.length === 0){
 			var option = document.createElement('option');
 			option.value = '';
-			option.innerHTML = 'not supported';
+			option.textContent = 'not supported';
 			sttSelector.appendChild(option);
 		}
 		return sttSelector;
@@ -221,7 +221,7 @@ function sepiaFW_build_speech(){
 		var headerOption = document.createElement('option');
 		headerOption.selected = true;
 		headerOption.disabled = true;
-		headerOption.innerHTML = "- select -";
+		headerOption.textContent = "- select -";
 		ttsSelector.appendChild(headerOption);
 		//check others
 		if (Speech.isNativeTtsSupported){
@@ -235,7 +235,7 @@ function sepiaFW_build_speech(){
 		voiceEngines.forEach(function(engine){
 			var option = document.createElement('option');
 			option.value = engine;
-			option.innerHTML = voiceEngineNames[engine];
+			option.textContent = voiceEngineNames[engine];
 			ttsSelector.appendChild(option);
 			if (Speech.voiceEngine == engine){
 				option.selected = true;
@@ -251,7 +251,7 @@ function sepiaFW_build_speech(){
 		if (voiceEngines.length === 0){
 			var option = document.createElement('option');
 			option.value = '';
-			option.innerHTML = 'not supported';
+			option.textContent = 'not supported';
 			ttsSelector.appendChild(option);
 		}
 		return ttsSelector;
@@ -872,7 +872,7 @@ function sepiaFW_build_speech(){
 		var headerOption = document.createElement('option');
 		headerOption.selected = true;
 		headerOption.disabled = true;
-		headerOption.innerHTML = "- select -";
+		headerOption.textContent = "- select -";
 		voiceSelector.appendChild(headerOption);
 
 		if (Speech.useSepiaServerTTS){
@@ -881,7 +881,7 @@ function sepiaFW_build_speech(){
 				//success
 				var option = document.createElement('option');
 				option.value = "";
-				option.innerHTML = "- automatic -";
+				option.textContent = "- automatic -";
 				voiceSelector.appendChild(option);
 				//build voices array
 				if (res.voices && res.voices.length > 0){
@@ -905,7 +905,7 @@ function sepiaFW_build_speech(){
 				SepiaFW.debug.error("Failed to get SEPIA server voices. Please check connection and support.");
 				var option = document.createElement('option');
 				option.value = "";
-				option.innerHTML = "- no voices -";
+				option.textContent = "- no voices -";
 				voiceSelector.appendChild(option);
 				addVoicesToSelector(voices, voiceSelector);
 				if (successCallback) successCallback(voices, voiceSelector);
@@ -917,10 +917,10 @@ function sepiaFW_build_speech(){
 			var option = document.createElement('option');
 			if (voices.length === 0){
 				option.value = "";
-				option.innerHTML = "- no voices -";
+				option.textContent = "- no voices -";
 			}else{
 				option.value = "";
-				option.innerHTML = "- automatic -";
+				option.textContent = "- automatic -";
 			}
 			voiceSelector.appendChild(option);
 			addVoicesToSelector(voices, voiceSelector);
@@ -930,7 +930,7 @@ function sepiaFW_build_speech(){
 			//Cordova system voices not yet implemented
 			var option = document.createElement('option');
 			option.value = '';
-			option.innerHTML = '- system -';
+			option.textContent = '- system -';
 			voiceSelector.appendChild(option);
 			//TODO: extend?
 			addVoicesToSelector(voices, voiceSelector);
@@ -942,7 +942,7 @@ function sepiaFW_build_speech(){
 			voices.forEach(function(voice){
 				var option = document.createElement('option');
 				option.value = voice.name;
-				option.innerHTML = voice.name; //.replace(/(microsoft|google|apple)/ig, '').replace(/(\(.*?\))/g, '').trim();
+				option.textContent = voice.name; //.replace(/(microsoft|google|apple)/ig, '').replace(/(\(.*?\))/g, '').trim();
 				voiceSelector.appendChild(option);
 			});
 		}

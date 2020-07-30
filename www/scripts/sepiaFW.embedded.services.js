@@ -533,7 +533,7 @@ function sepiaFW_build_embedded_services(){
 			"N": 1,
 			"info": [{
 				"streamURL": "http://stream.radiojar.com/atr1e8aswa5tv",
-				"name": "<i>SIZE</i>&nbsp;RADIO",
+				"name": "SIZE RADIO",
 				"type": "radio"
 			}]
 		}];

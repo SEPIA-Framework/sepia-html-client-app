@@ -1206,11 +1206,11 @@ function sepiaFW_build_ui(){
 				if (timeLeft <= 0){
 					clearInterval(messagePopupAutoActionInterval);
 					messagePopupAutoActionTry++;
-					autoActionButton.innerHTML = (autoActionButton.innerHTML.replace(/ \(\d+s\)$/, "") + " (0s)");
+					autoActionButton.innerHTML = SepiaFW.tools.sanitizeHtml(autoActionButton.innerHTML.replace(/ \(\d+s\)$/, "") + " (0s)");
 					$(autoActionButton).trigger('click');
 				}else{
 					//show timer inside button one
-					autoActionButton.innerHTML = (autoActionButton.innerHTML.replace(/ \(\d+s\)$/, "") 
+					autoActionButton.innerHTML = SepiaFW.tools.sanitizeHtml(autoActionButton.innerHTML.replace(/ \(\d+s\)$/, "") 
 						+ " (" + Math.floor(timeLeft/1000) + "s)");
 				}
 			}, 1000);

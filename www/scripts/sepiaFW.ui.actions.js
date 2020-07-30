@@ -488,7 +488,7 @@ function sepiaFW_build_ui_actions(){
 		var titleNote = document.createElement('P');
 		titleNote.className = 'sepiaFW-myEvents-titleNote';
 		var d = new Date();
-		titleNote.innerHTML = SepiaFW.local.g('recommendationsFor') + " " 
+		titleNote.textContent = SepiaFW.local.g('recommendationsFor') + " " 
 			+ SepiaFW.account.getUserName() + " " + SepiaFW.local.g('from') + " "
 			+ d.toLocaleTimeString(SepiaFW.config.appLanguage, {hour: 'numeric', minute:'2-digit'}) + " " + SepiaFW.local.g('oclock') + ":";
 		$(aButtonsArea).prepend(titleNote);
@@ -524,7 +524,7 @@ function sepiaFW_build_ui_actions(){
 		//header
 		var titleNote = document.createElement('P');
 		titleNote.className = 'sepiaFW-myFirstStart-titleNote';
-		titleNote.innerHTML = SepiaFW.local.g('forNewcomers') + ":";
+		titleNote.textContent = SepiaFW.local.g('forNewcomers') + ":";
 		$(aButtonsArea).prepend(titleNote);
 		
 		//show again on top

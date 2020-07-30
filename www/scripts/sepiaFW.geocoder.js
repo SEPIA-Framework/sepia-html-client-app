@@ -72,7 +72,7 @@ function sepiaFW_build_geocoder(){
 	function broadcastGpsIsLocating(){
 		//EXAMPLE:
 		var statusIndicator = document.getElementById("sepiaFW-menue-status-text");
-		if (SepiaFW.ui && statusIndicator){ statusIndicator.innerHTML = 'locating ...'; }
+		if (SepiaFW.ui && statusIndicator){ statusIndicator.textContent = 'locating ...'; }
 	}
 	function broadcastGpsFinished(){
 		//UPDATE
@@ -82,24 +82,24 @@ function sepiaFW_build_geocoder(){
 		if (SepiaFW.ui){
 			var statusIndicator = document.getElementById("sepiaFW-menue-status-text");
 			if (statusIndicator && longitude && latitude){
-				statusIndicator.innerHTML = "latitude: " + SepiaFW.tools.round3(latitude) + ", longitude: " + SepiaFW.tools.round3(longitude);
+				statusIndicator.textContent = "latitude: " + SepiaFW.tools.round3(latitude) + ", longitude: " + SepiaFW.tools.round3(longitude);
 			}
 		}
 	}
 	function broadcastGpsFailed(msg){
 		//EXAMPLE:
 		var statusIndicator = document.getElementById("sepiaFW-menue-status-text");
-		if (SepiaFW.ui && statusIndicator){ statusIndicator.innerHTML = ((msg)? msg : "GPS failed!"); }
+		if (SepiaFW.ui && statusIndicator){ statusIndicator.textContent = ((msg)? msg : "GPS failed!"); }
 	}
 	function broadcastGpsBusy(){
 		//EXAMPLE:
 		var statusIndicator = document.getElementById("sepiaFW-menue-status-text");
-		if (SepiaFW.ui && statusIndicator){ statusIndicator.innerHTML = 'GPS is busy, try again in a few seconds.'; }
+		if (SepiaFW.ui && statusIndicator){ statusIndicator.textContent = 'GPS is busy, try again in a few seconds.'; }
 	}
 	function broadcastAddressIsLocating(){
 		//EXAMPLE:
 		var statusIndicator = document.getElementById("sepiaFW-menue-status-text");
-		if (SepiaFW.ui && statusIndicator){ statusIndicator.innerHTML += ' - fetching address ...'; }
+		if (SepiaFW.ui && statusIndicator){ statusIndicator.textContent += ' - fetching address ...'; }
 	}
 	function broadcastAddressIsNew(addressResult){
 		//Got new GPS coordinates (according to distance threshold) and with that a new address
@@ -114,9 +114,9 @@ function sepiaFW_build_geocoder(){
 		if (SepiaFW.ui){
 			var statusIndicator = document.getElementById("sepiaFW-menue-status-text");
 			if (statusIndicator && addressResult.summary){
-				statusIndicator.innerHTML = addressResult.summary; // + " (GPS)"
+				statusIndicator.textContent = addressResult.summary; // + " (GPS)"
 			}else if (statusIndicator && addressResult.longitude){
-				statusIndicator.innerHTML = "latitude: " + SepiaFW.tools.round3(addressResult.latitude) + ", longitude: " + SepiaFW.tools.round3(addressResult.longitude);
+				statusIndicator.textContent = "latitude: " + SepiaFW.tools.round3(addressResult.latitude) + ", longitude: " + SepiaFW.tools.round3(addressResult.longitude);
 			}
 		}
 	}
@@ -124,13 +124,13 @@ function sepiaFW_build_geocoder(){
 		//UPDATE
 		var statusIndicator = document.getElementById("sepiaFW-menue-status-text");
 		if (statusIndicator && addressResult.summary){
-			statusIndicator.innerHTML = addressResult.summary + " (IP)";
+			statusIndicator.textContent = addressResult.summary + " (IP)";
 		}
 	}
 	function broadcastAddressFailed(){
 		//EXAMPLE:
 		var statusIndicator = document.getElementById("sepiaFW-menue-status-text");
-		if (SepiaFW.ui && statusIndicator){ statusIndicator.innerHTML = 'Address failed!'; }
+		if (SepiaFW.ui && statusIndicator){ statusIndicator.textContent = 'Address failed!'; }
 	}
 	
 	//----------------------------
