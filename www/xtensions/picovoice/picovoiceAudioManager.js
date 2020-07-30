@@ -133,7 +133,7 @@ var PicovoiceAudioManager = (function() {
         isProcessing = true;
 
         //Get audio recorder
-		SepiaFW.audioRecorder.getRecorder(PicovoiceRecorder, function(audioRecorder){
+		SepiaFW.audioRecorder.getRecorder(PicovoiceRecorder, function(audioRecorder, streamSource){
             //Start recorder
             SepiaFW.audioRecorder.start(function(activeAudioContext, audioRec){
                 //Started

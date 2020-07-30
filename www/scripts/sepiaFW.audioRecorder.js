@@ -211,8 +211,8 @@ function sepiaFW_build_audio_recorder(){
 		//Official MediaDevices interface
 		}else if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia){
 			navigator.mediaDevices.getUserMedia({ video : false, audio: true }).then(function(stream) {
-				getStreamRecorder(RecorderInstance, stream, function(audioRec){
-					callback(audioRec);
+				getStreamRecorder(RecorderInstance, stream, function(audioRec, streamSource){
+					callback(audioRec, streamSource);
 				});
 			}).catch(function(err) {
 				errorCallback(err);
@@ -225,8 +225,8 @@ function sepiaFW_build_audio_recorder(){
 				"audio": true,
 				"video": false,
 			}, function(stream){
-				getStreamRecorder(RecorderInstance, stream, function(audioRec){
-					callback(audioRec);
+				getStreamRecorder(RecorderInstance, stream, function(audioRec, streamSource){
+					callback(audioRec, streamSource);
 				});
 			}, function(e){
 				errorCallback(err);
@@ -254,7 +254,7 @@ function sepiaFW_build_audio_recorder(){
 		recorderAudioSource = stream;
 		var inputPoint = recorderAudioContext.createMediaStreamSource(recorderAudioSource);
 		audioRec = new RecorderInstance(inputPoint);
-		if (callback) callback(audioRec);
+		if (callback) callback(audioRec, inputPoint);
 	}
 
 	// ---------------- Audioinput plugin stuff ----------------------
