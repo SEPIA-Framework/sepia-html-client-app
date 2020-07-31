@@ -47,9 +47,9 @@ function sepiaFW_build_wake_word_settings() {
     WakeWordSettings.debugLog = function(info, isError){
         if (debugInfo || isError){
             if (isError){
-                $('#sepiaFW-wake-word-audio-info').append("<span style='color: #ff0000;'>" + info + "</span><br>");
+                $('#sepiaFW-wake-word-audio-info').append("<span style='color: #ff0000;'>" + SepiaFW.tools.sanitizeHtml(info) + "</span><br>");
             }else{
-                $('#sepiaFW-wake-word-audio-info').append(info + "<br>");
+                $('#sepiaFW-wake-word-audio-info').append(SepiaFW.tools.sanitizeHtml(info) + "<br>");
             }
             console.log(info);
         }

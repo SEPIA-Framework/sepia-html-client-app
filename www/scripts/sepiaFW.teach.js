@@ -448,16 +448,16 @@ function sepiaFW_build_teach(sepiaSessionId){
 			//examples for 'all'
 			if (examples['all']){
 				examples['all'].forEach(function(ex){
-					$exBox.append("<span class='parameter-example'>" + ex + "</span>");
+					$exBox.append("<span class='parameter-example'>" + SepiaFW.tools.sanitizeHtml(ex) + "</span>");
 				});
 			}
 			//examples for types
 			examples[type].forEach(function(ex){
 				if (type == "2"){
 					ex = JSON.stringify(ex, undefined, 4);
-					$exBox.append("<span class='parameter-example json'>" + ex + "</span>");
+					$exBox.append("<span class='parameter-example json'>" + SepiaFW.tools.sanitizeHtml(ex) + "</span>");
 				}else{
-					$exBox.append("<span class='parameter-example'>" + ex + "</span>");
+					$exBox.append("<span class='parameter-example'>" + SepiaFW.tools.sanitizeHtml(ex) + "</span>");
 				}
 			});
 			$examples.append(exBox);

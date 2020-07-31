@@ -444,7 +444,7 @@ function sepiaFW_build_tools(){
 		if (options){
 			return DOMPurify.sanitize(htmlString, options);
 		}else{
-			return DOMPurify.sanitize(htmlString);
+			return DOMPurify.sanitize(htmlString, { ADD_ATTR: ['target'] });
 		}
 	}
 

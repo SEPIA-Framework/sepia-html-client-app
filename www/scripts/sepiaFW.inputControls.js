@@ -209,7 +209,7 @@ function sepiaFW_build_input_controls() {
         InputControls.settingsAreOpen = false;
     }
     function settingsAppendDebug(msg){
-        $settingsDebugField.append("<p>" + msg + "</p>");
+        $settingsDebugField.append(SepiaFW.tools.sanitizeHtml("<p>" + msg + "</p>"));
         $settingsDebugField[0].scrollIntoView(false);
     }
 

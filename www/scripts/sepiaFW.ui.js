@@ -1180,7 +1180,14 @@ function sepiaFW_build_ui(){
 		if (typeof content == 'object'){
 			$('#sepiaFW-popup-message-content').html('').append(content);
 		}else{
-			$('#sepiaFW-popup-message-content').html(content);
+			var saferContent = SepiaFW.tools.sanitizeHtml(content);
+			var diff = content.length - saferContent.length;
+			if (diff != 0){
+				SepiaFW.debug.error("UI.showPopup - Had to change content to prevent XSS vector - Size change: " + diff);
+				SepiaFW.debug.info("UI.showPopup - Original:", content);
+				SepiaFW.debug.info("UI.showPopup - Changed:", saferContent);
+			}
+			$('#sepiaFW-popup-message-content').html(saferContent); 		//TODO: what if e.g. an error message contains stuff that disappears ?? (XSS)
 		}
 		//optional auto-action - NOTE: requires ID
 		if (config.popupId && config.autoAction){
