@@ -339,7 +339,10 @@ function sepiaFW_build_embedded_services(){
 			info: {pageUrl: "https://b07z.net/downloads/cors/frames_template.html"}
 		}),
 		"frame_4": Services.buildCustomActionInfo("open_frames_view", {
-			info: {pageUrl: "<custom_data>/demo-view.html", onOpen: "sayHelloOnOpen", onSpeechToTextInputHandler: "handleSttData"}
+			info: {
+				pageUrl: "<custom_data>/demo-view.html", onOpen: "sayHelloOnOpen", 
+				onSpeechToTextInputHandler: "handleSttData", onChatOutputHandler: "handleChatOutput"
+			}
 		}),
 		"custom_event_btn_1": Services.buildCustomActionInfo("button_custom_event", {
 			title: "Test", name: "test", data: {"button": 1}

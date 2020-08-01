@@ -7,8 +7,9 @@
 		</div>
 		<!-- Page 2 -->
 		<div id="sepiaFW-frame-page-2" class='sepiaFW-frames-page sepiaFW-carousel-pane'>
-			<h3>Page 2 - This page shows microphone output</h3>
-			<textarea id="sepiaFW-frame-c-stt-data" style="width: 100%; height: calc(100% - 60px);"></textarea>
+			<h3>Page 2 - Microphone and chat output</h3>
+			<textarea id="sepiaFW-frame-c-stt-data" style="width: 100%; height: calc(50% - 35px);"></textarea>
+			<textarea id="sepiaFW-frame-c-chat-data" style="width: 100%; height: calc(50% - 35px);"></textarea>
 		</div>
 	</div>
 </div>
@@ -33,24 +34,37 @@
 	});
 	//Define scope
 	SepiaFW.frames.currentScope = {
-		//Load scope (default method)
+		//Load scope (default method, kind of like a 'onDocumentReady')
 		load: function(){
+			$('#sepiaFW-frames-mic').attr('class', 'entry');
 		},
 		sayHelloOnOpen: function(){
-			//we use '$('#sepiaFW-frame-page-...')' to avoid conflictswith global ID:
-			$('#sepiaFW-frame-page-1').find('#sepiaFW-frame-c-hello').html(
-				"Welcome to the Demo-View frame.<br>" 
-				+ "This frame runs inside the scope of the SEPIA client and has open access to all features.<br>"
-				+ "This type of frames can only be used when loaded from safe origins (e.g. app folder, or SEPIA server)."
+			//we use '$('#sepiaFW-frame-page-...')' to avoid conflicts with global ID:
+			$('#sepiaFW-frame-page-1 #sepiaFW-frame-c-hello').html(
+				"<p>Welcome to the Demo-View frame.</p>" 
+				+ "<p>This frame runs inside the scope of the SEPIA client and has open access to all features.</p>"
+				+ "<p>This type of frames can only be used when loaded from safe origins (e.g. app folder, or SEPIA server).</p>"
 			);
 		},
 		handleSttData: function(data){
-			$('#sepiaFW-frame-page-2').find('#sepiaFW-frame-c-stt-data').val(JSON.stringify(data, "", 2));
+			$('#sepiaFW-frame-page-2 #sepiaFW-frame-c-stt-data').val(JSON.stringify(data, "", 2));
+			//modify text to include custom tag (can be used to redirect all input to a custom service for example)
+			if (data.text && data.isFinal){
+				var textWithPrefix = "customdemo " + data.text;
+				return textWithPrefix;	//<-- return the data to actually modify it
+			}
+		},
+		handleChatOutput: function(data){
+			$('#sepiaFW-frame-page-2').find('#sepiaFW-frame-c-chat-data').val(JSON.stringify(data, "", 2));
+		},
+		//Animation state "listener" (listening, speaking, loading, idle, etc.)
+		onAnimationStateChange: function(animState){
+			$('#sepiaFW-frames-mic').attr('class', 'entry state-' + animState);
 		}
 		
 		//Use this action in your service to trigger the demo frame:
 		//Action name: "open_frames_view";
-		//Action data: "info": {"pageUrl": "<custom_data>/demo-view.html", "onOpen": "sayHelloOnOpen", "onSpeechToTextInputHandler": "handleSttData"}
+		//Action data: "info": {"pageUrl": "<custom_data>/demo-view.html", "onOpen": "sayHelloOnOpen", "onSpeechToTextInputHandler": "handleSttData", "onChatOutputHandler": "handleChatOutput"}
 	}
 	SepiaFW.frames.currentScope.load();
 </script>

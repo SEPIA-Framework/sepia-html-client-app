@@ -221,3 +221,18 @@
 	margin: 4px;
 	border-bottom: 0;
 }
+
+/* mic animations (idle, loading, speaking, listening, awaitDialog) */
+
+#sepiaFW-frames-view #sepiaFW-frames-mic.state-loading {
+	color: #8e8e8e;
+}
+#sepiaFW-frames-view #sepiaFW-frames-mic.state-speaking {
+	color: #16ABC3;
+}
+#sepiaFW-frames-view #sepiaFW-frames-mic.state-listening {
+	color: #ba2a2a;
+}
+#sepiaFW-frames-view #sepiaFW-frames-mic.state-awaitDialog {
+	color: #ffeb3b;
+}

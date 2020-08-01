@@ -31,8 +31,12 @@
 	});
 	//Define scope
 	SepiaFW.frames.currentScope = {
-		//Load scope (default method)
+		//Load scope (default method, kind of like 'onDocumentReady')
 		load: function(){
+		},
+		//Animation state "listener" (listening, speaking, loading, idle, etc.)
+		onAnimationStateChange: function(animState){
+			$('#sepiaFW-frames-mic').attr('class', 'entry state-' + animState);
 		}
 	}
 	SepiaFW.frames.currentScope.load();

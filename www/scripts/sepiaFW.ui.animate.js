@@ -196,6 +196,12 @@ function sepiaFW_build_animate(){
 			state: animEvent
 		}});
 		document.dispatchEvent(event);
+		//call frame scope directly (to avoid state listeners)
+		if (SepiaFW.frames.isOpen && SepiaFW.frames.currentScope && SepiaFW.frames.currentScope.onAnimationStateChange){
+			setTimeout(function(){
+				SepiaFW.frames.currentScope.onAnimationStateChange(animEvent);
+			}, 0);
+		}
 	}
 	
 	//audio player animations:
