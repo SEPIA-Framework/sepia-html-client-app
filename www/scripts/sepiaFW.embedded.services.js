@@ -325,27 +325,30 @@ function sepiaFW_build_embedded_services(){
 
 	var dummyActions = {
 		"html_1": Services.buildCustomActionInfo("show_html_result", {
-			"data": "<div class='card-box'>" 
+			data: "<div class='card-box'>" 
 				+ "<div style='background:#fff; color:#111; padding:5px;'><span>Hello World</span></div>" 
 				+ "<script>alert('fail');</script></div>" 	//<-- script will be filtered out
 		}),
 		"frame_1": Services.buildCustomActionInfo("open_frames_view", {
-			"info": {"pageUrl": "frames_template.html"}
+			info: {pageUrl: "templates/frames_template.html"}
 		}),
 		"frame_2": Services.buildCustomActionInfo("open_frames_view", {
-			"info": {"pageUrl": (location.href.replace(/index.html$/, "") + "frames_template.html")}
+			info: {pageUrl: (location.href.replace(/index.html$/, "") + "templates/frames_template.html")}
 		}),
 		"frame_3": Services.buildCustomActionInfo("open_frames_view", {
-			"info": {"pageUrl": "https://b07z.net/downloads/cors/frames_template.html"}
+			info: {pageUrl: "https://b07z.net/downloads/cors/frames_template.html"}
+		}),
+		"frame_4": Services.buildCustomActionInfo("open_frames_view", {
+			info: {pageUrl: "<custom_data>/demo-view.html", onOpen: "sayHelloOnOpen", onSpeechToTextInputHandler: "handleSttData"}
 		}),
 		"custom_event_btn_1": Services.buildCustomActionInfo("button_custom_event", {
-			"title": "Test", "name": "test", "data": {"button": 1}
+			title: "Test", name: "test", data: {"button": 1}
 		}),
 		"custom_event_1": Services.buildCustomActionInfo("trigger_custom_event", {
-			"name": "test", "data": {"direct": 1}
+			name: "test", data: {"direct": 1}
 		}),
 		"settings_1": Services.buildCustomActionInfo("open_settings", {
-			"section": "addresses"
+			section: "addresses"
 		})
 		
 		//NOTE: trigger test via chat "action html_1" etc.

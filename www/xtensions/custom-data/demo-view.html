@@ -1,0 +1,56 @@
+<div id='sepiaFW-frame-carousel' class="sepiaFW-inner-container sepiaFW-carousel">
+	<div class='sepiaFW-carousel-pane-container'>
+		<!-- Page 1 -->
+		<div id="sepiaFW-frame-page-1" class='sepiaFW-frames-page sepiaFW-carousel-pane'>
+			<h3>Page 1 - Welcome to the demo</h3>
+			<p id="sepiaFW-frame-c-hello"></p>
+		</div>
+		<!-- Page 2 -->
+		<div id="sepiaFW-frame-page-2" class='sepiaFW-frames-page sepiaFW-carousel-pane'>
+			<h3>Page 2 - This page shows microphone output</h3>
+			<textarea id="sepiaFW-frame-c-stt-data" style="width: 100%; height: calc(100% - 60px);"></textarea>
+		</div>
+	</div>
+</div>
+<div id="sepiaFW-frames-nav-bar" class='sepiaFW-layer-header'>
+	<button id="sepiaFW-frames-close" class='entry'>
+		<i class="material-icons md-btn2">close</i>
+	</button>
+	<button id="sepiaFW-frames-mic" class='entry'>
+		<i class="material-icons md-btn2">mic</i>
+	</button>
+	<button id="sepiaFW-frames-show-prev-page" class='entry'>
+		<i class="material-icons md-btn2">keyboard_arrow_left</i><span data-localize="back">back</span>
+	</button>
+	<button id="sepiaFW-frames-show-next-page" class='entry'>
+		<span data-localize="next">next</span><i class="material-icons md-btn2">keyboard_arrow_right</i>
+	</button>
+	<div id="sepiaFW-frames-nav-bar-page-indicator"><div>&nbsp;</div><div>&nbsp;</div></div>
+</div>
+<script>
+	$('#sepiaFW-frame-carousel').find('[data-localize]').each(function(){
+		$(this).html(SepiaFW.local.g(this.dataset.localize));
+	});
+	//Define scope
+	SepiaFW.frames.currentScope = {
+		//Load scope (default method)
+		load: function(){
+		},
+		sayHelloOnOpen: function(){
+			//we use '$('#sepiaFW-frame-page-...')' to avoid conflictswith global ID:
+			$('#sepiaFW-frame-page-1').find('#sepiaFW-frame-c-hello').html(
+				"Welcome to the Demo-View frame.<br>" 
+				+ "This frame runs inside the scope of the SEPIA client and has open access to all features.<br>"
+				+ "This type of frames can only be used when loaded from safe origins (e.g. app folder, or SEPIA server)."
+			);
+		},
+		handleSttData: function(data){
+			$('#sepiaFW-frame-page-2').find('#sepiaFW-frame-c-stt-data').val(JSON.stringify(data, "", 2));
+		}
+		
+		//Use this action in your service to trigger the demo frame:
+		//Action name: "open_frames_view";
+		//Action data: "info": {"pageUrl": "<custom_data>/demo-view.html", "onOpen": "sayHelloOnOpen", "onSpeechToTextInputHandler": "handleSttData"}
+	}
+	SepiaFW.frames.currentScope.load();
+</script>
