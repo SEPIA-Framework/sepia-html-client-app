@@ -210,7 +210,7 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 			if (SepiaFW.ui.soc) SepiaFW.ui.soc.refresh();
 		}).on("sepiaFwClose-sepiaFW-chat-menu", function(){
 			//close
-			SepiaFW.ui.switchSwipeBars('chat');
+			SepiaFW.ui.switchSwipeBars("chat");		//we force "chat" here because its the only way to reset properly 
 			$('#sepiaFW-chat-controls').removeClass('chat-menu');
 			SepiaFW.ui.isMenuOpen = false;
 		});
@@ -721,7 +721,7 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 			var ctrlHubBtn = document.getElementById("sepiaFW-menu-btn-control-hub");
 			ctrlHubBtn.addEventListener("click", function(){
 				SepiaFW.frames.open({ 
-					pageUrl: "dynamic-frame.html",
+					pageUrl: "templates/dynamic-frame.html",
 					theme: "dark flat",	//dark_full flat
 					onFinishSetup: function(){
 						var page1 = document.getElementById('sepiaFW-frame-page-1');

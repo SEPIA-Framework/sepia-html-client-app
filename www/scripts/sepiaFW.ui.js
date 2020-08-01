@@ -347,34 +347,34 @@ function sepiaFW_build_ui(){
 	UI.switchSwipeBars = function(setName){
 		var hideLeftRightBars = UI.hideSideSwipeForTouchBarControls && UI.useTouchBarControls;
 		$('.sepiaFW-swipeBar-switchable').hide();
-		if (setName){
-			lastActiveSwipeBars = activeSwipeBars;
-		}else{
+		if (!setName){
+			//return to previous
 			setName = lastActiveSwipeBars;
 		}
-		if (setName === "chat"){
+		if (setName == "chat"){
 			if (!hideLeftRightBars){
 				$('#sepiaFW-swipeBar-chat-left').show();
 				$('#sepiaFW-swipeBar-chat-right').show();
 			}
 			$('#sepiaFW-swipeBar-chat-controls').show();
-		}else if (setName === "menu"){
+		}else if (setName == "menu"){
 			if (!hideLeftRightBars){
 				$('#sepiaFW-swipeBar-menu-left').show();
 				$('#sepiaFW-swipeBar-menu-right').show();
 			}
 			$('#sepiaFW-swipeBar-menu-controls').show();
-		}else if (setName === "teach"){
+		}else if (setName == "teach"){
 			if (!hideLeftRightBars){
 				$('#sepiaFW-swipeBar-teach-left').show();
 				$('#sepiaFW-swipeBar-teach-right').show();
 			}
-		}else if (setName === "frames"){
+		}else if (setName == "frames"){
 			if (!hideLeftRightBars){
 				$('#sepiaFW-swipeBar-frames-left').show();
 				$('#sepiaFW-swipeBar-frames-right').show();
 			}
 		}
+		lastActiveSwipeBars = activeSwipeBars;
 		activeSwipeBars = setName;
 	}
 	UI.getActiveSwipeBars = function(){
@@ -1640,6 +1640,8 @@ function sepiaFW_build_ui(){
 	
 	//do these elements collide?
 	UI.doCollide = function($el1, $el2){
+		if ($el1.length == 0 || $el2.length == 0) return false;
+		if ($el1.css("display") == "none" || $el2.css("display") == "none") return false;
 		//TODO: should we check for element visibility first?
 		var x1 = $el1.offset().left;
 		var y1 = $el1.offset().top;
@@ -1659,7 +1661,10 @@ function sepiaFW_build_ui(){
 	
 	//helper: close all menues ... except
 	UI.closeAllMenus = function (except){
-		$('.sepiaFW-menu').not(except).fadeOut(100, function(){
+		$('.sepiaFW-menu')
+		.not(except)
+		.filter(function(){ return (this.style.display != "none"); })
+		.fadeOut(100, function(){
 			$('#sepiaFW-main-window').trigger(('sepiaFwClose-' + $(this)[0].id));
 		});
 	}
@@ -1667,7 +1672,10 @@ function sepiaFW_build_ui(){
 	UI.closeAllMenusThatCollide = function (ref, except){
 		//wait for other element to show up before checking collision
 		setTimeout(function(){
-			$('.sepiaFW-menu').not(except).not(ref).each(function(){
+			$('.sepiaFW-menu')
+			.not(except).not(ref)
+			.filter(function(){ return (this.style.display != "none"); })
+			.each(function(){
 				if (UI.doCollide($(ref), $(this))){
 					$(this).fadeOut(100, function(){
 						$('#sepiaFW-main-window').trigger(('sepiaFwClose-' + $(this)[0].id));
@@ -1675,6 +1683,7 @@ function sepiaFW_build_ui(){
 				}
 			});
 			//stupid Apple bug in Safari requires last-element margin-bottom refresh
+			//TODO: only necessary if previous function actually did something?
 			if (UI.isSafari || UI.isIOS){
 				var spacer = document.createElement('DIV');
 				spacer.className = 'sepiaFW-safari-bug-fix-spacer';
