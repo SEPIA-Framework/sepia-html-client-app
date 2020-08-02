@@ -4,6 +4,7 @@ function sepiaFW_build_account(sepiaSessionId){
 	
 	var userId = "";
 	var userToken = "";
+	var userTokenValidUntil = 0;
 	var userName = "Boss";
 	var language = SepiaFW.config.appLanguage;
 	var clientFirstVisit = true;
@@ -242,6 +243,9 @@ function sepiaFW_build_account(sepiaSessionId){
 			return "";
 		}
 		return userToken;
+	}
+	Account.getTokenValidUntil = function(){
+		return userTokenValidUntil;
 	}
 	//get language
 	Account.getLanguage = function(){
@@ -583,10 +587,15 @@ function sepiaFW_build_account(sepiaSessionId){
 			hostnameChange = true;
 		}
 		//use existing token - skip refresh
-		if (safe && account && account.userToken && account.lastRefresh && ((new Date().getTime() - account.lastRefresh) < (1000*60*60*12))){
+		var now = new Date().getTime();
+		var isFresh = (account && account.lastRefresh && ((now - account.lastRefresh) < (1000*60*60*12)));
+		var isExpired = (account && account.userTokenValidUntil && ((account.userTokenValidUntil - now) <= 0));
+		if (isExpired) isFresh = false;
+		if (safe && account && account.userToken && account.lastRefresh && isFresh){
 			//primary
 			userId = account.userId;
 			userToken = account.userToken;
+			userTokenValidUntil = account.userTokenValidUntil;
 			userName = account.userName;	if (userName)	SepiaFW.config.broadcastUserName(userName);
 			language = account.language;	if (language)	SepiaFW.config.broadcastLanguage(language);
 
@@ -606,13 +615,17 @@ function sepiaFW_build_account(sepiaSessionId){
 			Account.afterLogin();
 
 		//try refresh
-		}else if (safe && account && account.userToken){
+		}else if (safe && account && account.userToken && !isExpired){
 			SepiaFW.debug.log('Account: trying login auto-refresh with token');
 			pwdIsToken = true;
 			//indicated ID
 			$('#sepiaFW-login-id').val(account.userId);
 			//send to refresh token
 			Account.login(account.userId, account.userToken, onLoginSuccess, onLoginError, onLoginDebug);
+
+		//warn about expired
+		}else if (isExpired){
+			onLoginError(SepiaFW.local.g('loginFailedExpired'), 5);
 
 		//warn about changed host
 		}else if (hostnameChange){
@@ -747,7 +760,7 @@ function sepiaFW_build_account(sepiaSessionId){
 		if (id && pwd && (id.length > 3) && (pwd.length > 5)) {
 			userId = id;
 			Account.login(userId, pwd, onLoginSuccess, function(errorText, errorCode, retryAction){
-				//prevent retry automatic retry
+				//prevent automatic retry
 				if (retryAction){
 					$('#sepiaFW-login-retry').show().off().on("click", function(){
 						clearInterval(loginRetryIntervalTimer);
@@ -779,6 +792,7 @@ function sepiaFW_build_account(sepiaSessionId){
 		//unit_pref_temp
 		
 		userToken = data.keyToken;
+		userTokenValidUntil = data.validUntil;
 		userId = data.uid;
 		//get call name
 		if (data["user_name"]){
@@ -810,6 +824,7 @@ function sepiaFW_build_account(sepiaSessionId){
 		var account = new Object();
 		account.userId = userId;
 		account.userToken = userToken;
+		account.userTokenValidUntil = userTokenValidUntil;
 		account.userName = userName;
 		account.language = language;
 		account.lastRefresh = new Date().getTime();
@@ -832,8 +847,9 @@ function sepiaFW_build_account(sepiaSessionId){
 			2 - no server answer
 			3 - login failed
 			4 - login blocked
-			5 - internal server error (wrong input format?)
+			5 - login token correct but expired
 			6 - hostname changed
+			7 - internal server error (wrong input format?)
 			10 - unknown error
 		*/
 		clearInterval(loginRetryIntervalTimer);
@@ -979,6 +995,7 @@ function sepiaFW_build_account(sepiaSessionId){
 				//final clean-ups
 				userId = "";
 				userToken = "";
+				userTokenValidUntil = 0;
 				userName = "";
 				SepiaFW.client.setDemoMode(false);
 				//done
@@ -1054,10 +1071,13 @@ function sepiaFW_build_account(sepiaSessionId){
 				if (data && data.result){
 					var status = data.result;
 					if (status == "fail"){
+						//error code remapping
 						if (data.code && data.code == 3){
-							if (errorCallback) errorCallback(SepiaFW.local.g('loginFailedServer'), 5, retryAction);
+							if (errorCallback) errorCallback(SepiaFW.local.g('loginFailedServer'), 7, retryAction);
 						}else if (data.code && data.code == 10){
 							if (errorCallback) errorCallback(SepiaFW.local.g('loginFailedBlocked'), 4, retryAction);
+						}else if (data.code && data.code == 5){
+							if (errorCallback) errorCallback(SepiaFW.local.g('loginFailedExpired'), 5, retryAction);	//token was correct but expired
 						}else{
 							if (errorCallback) errorCallback(SepiaFW.local.g('loginFailedUser'), 3, retryAction);
 						}
