@@ -683,7 +683,7 @@ function sepiaFW_build_events(){
 				trigger: {
 					at: (d)
 				},
-				sound: "file://sounds/alarm.mp3",
+				sound: "file://sounds/alarm.mp3", 		//TODO: is this path working at all?? Its not really a typical valid path :-/
 				smallIcon: "res://ic_popup_reminder",
 				color: "303030",
 				data: noteData,

@@ -28,19 +28,27 @@
 					<label>Allow wake-word during audio output:</label>
 					<div id="sepiaFW-wake-word-during-stream-box"></div>
 				</div>
-				<div class="group expert-setting" id="sepiaFW-wake-word-switcher" style="display: none;">
-					<div>
-						<input id="sepiaFW-wake-word-version" style="width: 56px !important;" placeholder="version" value="1.4">
-						<input id="sepiaFW-wake-word-name" placeholder="wake-word name" value="Hey SEPIA">
+				<div class="group fit expert-setting" id="sepiaFW-wake-word-switcher" style="display: none;">
+					<div class="entry-content">
+						<label style="width: 100%;">Wake-word (+ version):</label>
+						<input id="sepiaFW-wake-word-version" style="max-width: 56px !important; margin-right: 0 !important;" placeholder="version" value="1.4" spellcheck="false">
+						<input id="sepiaFW-wake-word-name" style="max-width: calc(100% - 80px);" placeholder="wake-word name" value="Hey SEPIA" spellcheck="false">
 					</div>
-					<button style="margin: 0 8px; width: 56px;" onclick="SepiaFW.wakeWordSettings.updateWakeWordFile()">SET</button>
+					<button class="set-button" onclick="SepiaFW.wakeWordSettings.updateWakeWordFile()">SET</button>
 				</div>
-				<div class="group expert-setting" id="sepiaFW-wake-word-buffer" style="display: none;">
-					<div>
-						<label>Buffer Length:</label>
-						<input id="sepiaFW-wake-word-buffer-length" placeholder="2048" value="2048" style="max-width: 142px;">
+				<div class="group fit expert-setting" id="sepiaFW-wake-word-confirm-sound" style="display: none;">
+					<div class="entry-content">
+						<label>Confirm sound:</label>
+						<input id="sepiaFW-wake-word-confirm-sound-path" placeholder="sounds/coin.mp3" value="" spellcheck="false">
 					</div>
-					<button style="margin: 0 8px; width: 56px;" onclick="SepiaFW.wakeWordSettings.setBufferLength()">SET</button>
+					<button class="set-button" onclick="SepiaFW.wakeWordSettings.setMicConfirmationSound()">SET</button>
+				</div>
+				<div class="group fit expert-setting" id="sepiaFW-wake-word-buffer" style="display: none;">
+					<div class="entry-content">
+						<label>Buffer Length:</label>
+						<input id="sepiaFW-wake-word-buffer-length" placeholder="2048" value="2048" spellcheck="false">
+					</div>
+					<button class="set-button" onclick="SepiaFW.wakeWordSettings.setBufferLength()">SET</button>
 				</div>
 				<div class="group">
 					<label>Debug info:</label>

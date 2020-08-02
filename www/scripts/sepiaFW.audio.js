@@ -4,6 +4,24 @@ function sepiaFW_build_audio(sepiaSessionId){
 	var Stream = {};
 	var TTS = {};			//TTS parameters for SepiaFW external TTS like Acapela. I've tried to seperate TTS and AudioPlayer as good as possible, but there might be some bugs using both
 	var Alarm = {};
+
+	//Sounds
+	AudioPlayer.micConfirmSound = 'sounds/coin.mp3';
+	AudioPlayer.alarmSound = 'sounds/alarm.mp3'; 		//please NOTE: UI.events is using 'file://sounds/alarm.mp3' for 'cordova.plugins.notification' (is it wokring? Idk)
+	AudioPlayer.setCustomSound = function(name, path){
+		//system: 'micConfirm', 'alarm'
+		var customSounds = SepiaFW.data.getPermanent("deviceSounds") || {};
+		customSounds[name] = path;
+		SepiaFW.data.setPermanent("deviceSounds", customSounds);
+		AudioPlayer.loadCustomSounds(customSounds);
+	}
+	AudioPlayer.loadCustomSounds = function(sounds){
+		var customSounds = sounds || SepiaFW.data.getPermanent("deviceSounds");
+		if (customSounds){
+			if (customSounds.micConfirm) AudioPlayer.micConfirmSound = customSounds.micConfirm;
+			if (customSounds.alarm) AudioPlayer.alarmSound = customSounds.alarm;
+		}
+	}
 	
 	//Parameters and states:
 
@@ -138,6 +156,9 @@ function sepiaFW_build_audio(sepiaSessionId){
 	
 	//set default parameters for audio
 	AudioPlayer.setup = function (){
+		//modified sounds by user?
+		AudioPlayer.loadCustomSounds();
+
 		//get players
 		player = document.getElementById('sepiaFW-audio-player');
 		player2 = document.getElementById('sepiaFW-audio-player2');
@@ -810,7 +831,7 @@ function sepiaFW_build_audio(sepiaSessionId){
 		if (skippedN == undefined) skippedN = 0;
 
 		var audioPlayer = player2;
-		var alarmSound = "sounds/alarm.mp3";
+		var alarmSound = AudioPlayer.alarmSound;
 		//var emptySound = "sounds/empty.mp3";
 		/*
 		if (audioPlayer.src !== alarmSound && audioPlayer.src !== emptySound && audioPlayer.src !== ''){
