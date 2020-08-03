@@ -506,6 +506,9 @@ function sepiaFW_build_speech(){
 		recognizerWaitingForResult = false;
 		isRecognizing = false;
 		if (Speech.asrEngine == "native"){
+			if (recognition.clearWaitTimeoutAndIgnoreEnd){
+				recognition.clearWaitTimeoutAndIgnoreEnd();
+			}
 			recognition = (SepiaFW.ui.isCordova)? (new SpeechRecognition()) : (new webkitSpeechRecognition());
 		}
 	}
@@ -637,6 +640,10 @@ function sepiaFW_build_speech(){
 				log_callback('-LOG- ABORT REQUESTED');
 				recognition.stop();
 			};
+			recognition.clearWaitTimeoutAndIgnoreEnd = function(){
+				clearTimeout(waitTimeout);
+				ignore_onend = true;
+			}
 			
 			//ON ERROR
 			recognition.onerror = function(event) {
@@ -682,12 +689,10 @@ function sepiaFW_build_speech(){
 					if (orgEvent && typeof orgEvent == "object"){
 						var err = JSON.stringify(orgEvent);
 						if (err != '{"type":"error"}'){		//usually happens when you simply abort recording
-							SepiaFW.debug.err('ASR: unknown ERROR!');
-							console.log(err);
+							SepiaFW.debug.err('ASR: unknown ERROR!', err);
 						}
 					}else{
-						SepiaFW.debug.err('ASR: unknown ERROR!');
-					    console.log(orgEvent);
+						SepiaFW.debug.err('ASR: unknown ERROR!', orgEvent);
 					}
 					//TODO: do something here!
 					var err_msg = 'E0? - unknown error!';
@@ -702,13 +707,13 @@ function sepiaFW_build_speech(){
 				onEndWasAlreadyCalled = true;
 				asrAutoStop = false;
 				//check for ignore and log error or check for empty result
-				if (ignore_onend & !restart_anyway) {
+				if (ignore_onend && !restart_anyway) {
 					isRecognizing = false;
 					recognizerWaitingForResult = false;
 					log_callback('-LOG- REC END. input ignored');		//only an ERROR can lead here that has been broadcasted before so we just LOG and go
 					return;
 				}
-				if (!final_transcript & quit_on_final_result){			//this will trigger aswell if final result is empty
+				if (!final_transcript && quit_on_final_result){			//this will trigger aswell if final result is empty
 					//we might need to go in a loop here since onend can fire before final result (e.g. on Android)
 					if (interim_transcript || partialWasTriggered || (resultWasNeverCalled && !onErrorWasAlreadyCalled)){
 						recognizerWaitingForResult = true;
@@ -719,7 +724,11 @@ function sepiaFW_build_speech(){
 						if ((new Date().getTime() - wait_timestamp) < maxAsrResultWait){
 							clearTimeout(waitTimeout);
 							waitTimeout = setTimeout(function(){
-								recognition.onend();
+								if (recognition.onend){
+									recognition.onend();
+								}else{
+									SepiaFW.debug.err("ASR: tried to call 'onend' but was already killed");
+								}
 							}, 334);
 							return;
 						}
