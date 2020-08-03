@@ -22,6 +22,7 @@ function sepiaFW_build_audio(sepiaSessionId){
 			if (customSounds.alarm) AudioPlayer.alarmSound = customSounds.alarm;
 		}
 	}
+	//NOTE: you can use for example 'deviceSounds: { micConfirm: "...", alarm: "..." } in 'settings.js' device section
 	
 	//Parameters and states:
 

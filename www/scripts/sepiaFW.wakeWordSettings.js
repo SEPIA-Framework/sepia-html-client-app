@@ -38,6 +38,9 @@ function sepiaFW_build_wake_word_settings() {
         var path = $("#sepiaFW-wake-word-confirm-sound-path").val();
         SepiaFW.audio.setCustomSound("micConfirm", path);
     }
+    WakeWordSettings.testMicConfirmationSound = function(){
+        SepiaFW.audio.playURL($("#sepiaFW-wake-word-confirm-sound-path").val(), '2');
+    }
     //Change default buffer length
     WakeWordSettings.setBufferLength = function(){
         var buffLen = Number.parseInt($("#sepiaFW-wake-word-buffer-length").val());
