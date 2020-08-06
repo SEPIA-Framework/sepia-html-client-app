@@ -29,6 +29,7 @@ SepiaFW.settings = {
 			"autoloadWakeWord": false,
 			"allowWakeWordDuringStream": false,
 			"activeSkin": "2",
+			"activeAvatar": "0",
 			"proactiveNotes": false,
 			"autoGPS": false
 		},

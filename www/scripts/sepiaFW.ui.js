@@ -139,6 +139,7 @@ function sepiaFW_build_ui(){
 	UI.lastInput = "";
 	var activeSkin = 0;
 	var activeSkinStyle = "light";
+	var activeAvatar = 0;
 	
 	//get/refresh skin colors
 	UI.refreshSkinColors = function(){
@@ -214,14 +215,17 @@ function sepiaFW_build_ui(){
 	UI.setSkin = function(newIndex, rememberSelection){
 		if (rememberSelection == undefined) rememberSelection = true;
 		var skins = $('.sepiaFW-style-skin');
+		var defaultAvatar = "";
 		if (newIndex == 0){
 			activeSkin = 0;
+			defaultAvatar = 0;
 			if (rememberSelection){
 				SepiaFW.data.set('activeSkin', activeSkin);
 			}
 		}
 		skins.each(function(index){
-			if (index == (newIndex-1)){	
+			var id = this.dataset.id;
+			if (id == newIndex){	
 				$(this).prop('title', 'main');
 				$(this).prop('disabled', false);
 				SepiaFW.debug.log("UI active skin: " + $(this).attr('href'));
@@ -229,11 +233,15 @@ function sepiaFW_build_ui(){
 				if (rememberSelection){
 					SepiaFW.data.set('activeSkin', activeSkin);
 				}
+				defaultAvatar = this.dataset.avatar;
 			}else{
 				$(this).prop('title', '');
 				$(this).prop('disabled', true);
 			}
 		});
+		var avatar = SepiaFW.data.get('activeAvatar') || defaultAvatar || "0";
+		UI.setAvatar(avatar, false);
+
 		UI.refreshSkinColors();
 		$(window).trigger('resize'); 	//this might not work on IE
 		setTimeout(function(){
@@ -246,6 +254,38 @@ function sepiaFW_build_ui(){
 	}
 	UI.getSkinStyle = function(){
 		return activeSkinStyle;
+	}
+	UI.setAvatar = function(newIndex, rememberSelection){
+		if (rememberSelection == undefined) rememberSelection = true;
+		var avatars = $('.sepiaFW-style-avatar');
+		if (newIndex == 0){
+			if (rememberSelection){
+				SepiaFW.data.set('activeAvatar', "0");
+			}
+			$('.sepiaFW-style-skin').each(function(index){
+				if ($(this).prop('title') == 'main'){
+					newIndex = this.dataset.avatar;
+				}
+			});
+		}
+		avatars.each(function(index){
+			var id = this.dataset.id;
+			if (id == newIndex){	
+				$(this).prop('title', 'main');
+				$(this).prop('disabled', false);
+				SepiaFW.debug.log("UI active avatar: " + $(this).attr('href'));
+				activeAvatar = newIndex;
+				if (rememberSelection){
+					SepiaFW.data.set('activeAvatar', activeAvatar);
+				}
+			}else{
+				$(this).prop('title', '');
+				$(this).prop('disabled', true);
+			}
+		});
+	}
+	UI.getAvatar = function(){
+		return activeAvatar;
 	}
 	
 	//setup dynamic label
@@ -602,7 +642,7 @@ function sepiaFW_build_ui(){
 		
 		//---------------------- LOAD other SETTINGS before building the UI:
 
-		//load skin
+		//load skin and avatar
 		var lastSkin = SepiaFW.data.get('activeSkin');
 		if (lastSkin){
 			UI.setSkin(lastSkin, false);

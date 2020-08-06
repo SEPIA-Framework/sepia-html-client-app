@@ -6,51 +6,26 @@
    xmlns:svg="http://www.w3.org/2000/svg"
    xmlns="http://www.w3.org/2000/svg"
    xmlns:xlink="http://www.w3.org/1999/xlink"
-   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
-   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    version="1.1"
    viewBox="0 0 60.854165 89.429176"
    height="338.00003"
    width="230"
-   id="svg10"
-   sodipodi:docname="SEPIA_space.svg"
-   inkscape:version="0.92.3 (2405546, 2018-03-11)">
+   id="svg10">
   <metadata
-     id="metadata14">
+     id="metadata41">
     <rdf:RDF>
       <cc:Work
          rdf:about="">
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
       </cc:Work>
     </rdf:RDF>
   </metadata>
-  <sodipodi:namedview
-     pagecolor="#ffffff"
-     bordercolor="#666666"
-     borderopacity="1"
-     objecttolerance="10"
-     gridtolerance="10"
-     guidetolerance="10"
-     inkscape:pageopacity="0"
-     inkscape:pageshadow="2"
-     inkscape:window-width="1920"
-     inkscape:window-height="1017"
-     id="namedview12"
-     showgrid="false"
-     inkscape:zoom="1.3081475"
-     inkscape:cx="-161.79041"
-     inkscape:cy="51.361312"
-     inkscape:window-x="-8"
-     inkscape:window-y="-8"
-     inkscape:window-maximized="1"
-     inkscape:current-layer="svg10"
-     inkscape:snap-global="true" />
   <defs
      id="defs2">
     <linearGradient
-       inkscape:collect="always"
        id="linearGradient4546">
       <stop
          style="stop-color:#ffad0f;stop-opacity:1"
@@ -62,7 +37,6 @@
          id="stop4544" />
     </linearGradient>
     <linearGradient
-       inkscape:collect="always"
        xlink:href="#linearGradient4546"
        id="linearGradient4548"
        x1="28.575002"
@@ -72,7 +46,6 @@
        gradientUnits="userSpaceOnUse" />
     <filter
        style="color-interpolation-filters:sRGB;"
-       inkscape:label="Drop Shadow"
        id="filter5394">
       <feFlood
          flood-opacity="0.498039"
@@ -236,7 +209,5 @@
   <path
      id="path5544"
      style="fill:none;stroke:#b3c8fd;stroke-width:0.26458332;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;paint-order:normal"
-     d="m 30.407586,60.356437 0.0195,3.937317 m 0.0047,-19.971593 -0.0047,-43.96387731 m 0.04262,44.09028931 -0.02528,-0.07585 c 4.484999,0.0371 8.086064,3.76835 8.079412,8.104606 -0.0067,4.336255 -3.631169,7.854864 -8.116261,7.879106"
-     inkscape:connector-curvature="0"
-     sodipodi:nodetypes="cccccccc" />
+     d="m 30.407586,60.356437 0.0195,3.937317 m 0.0047,-19.971593 -0.0047,-43.96387731 m 0.04262,44.09028931 -0.02528,-0.07585 c 4.484999,0.0371 8.086064,3.76835 8.079412,8.104606 -0.0067,4.336255 -3.631169,7.854864 -8.116261,7.879106" />
 </svg>

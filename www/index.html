@@ -291,42 +291,68 @@
 	//Optimized skin loader
 	(function(){
 		var skins = {
-			"Neo Sepia": 			"css/sepiaFW-skin-neo-sepia.css",
-			"Neo Sepia Dark": 		"css/sepiaFW-skin-neo-sepia-dark.css",
-			"Legacy": 				"css/sepiaFW-skin-legacy.css",
-			"Legacy Dark":			"css/sepiaFW-skin-dark-sepia.css",
-			"Bytemind":				"css/sepiaFW-skin-bytemind.css",
-			"Street":				"css/sepiaFW-skin-street.css",
-			"Sakura":				"css/sepiaFW-skin-sakura.css",
-			"9 to 5":				"css/sepiaFW-skin-9to5.css",
-			"Autum":				"css/sepiaFW-skin-autum.css",
-			"Nippon":				"css/sepiaFW-skin-nippon.css",
-			"Poppy":				"css/sepiaFW-skin-poppy.css",
-			"Orange Style 1":		"css/sepiaFW-skin-os1.css",
-			"My Message":			"css/sepiaFW-skin-myMessage.css",
-			"Uplink":				"css/sepiaFW-skin-uplink.css",
-			"Tasty":				"css/sepiaFW-skin-pizza.css",
-			"The Grid":				"css/sepiaFW-skin-grid.css",
-			"Canny": 				"css/sepiaFW-skin-canny.css",
-			"Essential": 			"css/sepiaFW-skin-minimal.css",
-			"Study": 				"css/sepiaFW-skin-study.css",
-			"Professional": 		"css/sepiaFW-skin-professional.css",
-			"Odyssey 1": 			"css/sepiaFW-skin-odyssey1.css",
-			"Odyssey 2": 			"css/sepiaFW-skin-odyssey2.css",
-			"Malachite": 			"css/sepiaFW-skin-malachite.css",
-			"Nightlife": 			"css/sepiaFW-skin-neon.css",
-			"Spots": 				"css/sepiaFW-skin-spot.css",
-			"Dark Canary": 			"css/sepiaFW-skin-canary-dark.css",
-			"ILA Legacy": 			"css/sepiaFW-skin-ILA-legacy.css",
-			"Historic Future": 		"css/sepiaFW-skin-history-of-future.css"
+			"Neo Sepia": 			{id:  1, css: "css/sepiaFW-skin-neo-sepia.css", 		avatar: "1"},
+			"Neo Sepia Dark": 		{id:  2, css: "css/sepiaFW-skin-neo-sepia-dark.css", 	avatar: "1"},
+			"Legacy": 				{id:  3, css: "css/sepiaFW-skin-legacy.css", 			avatar: "1"},
+			"Legacy Dark":			{id:  4, css: "css/sepiaFW-skin-dark-sepia.css", 		avatar: "1"},
+			"Bytemind":				{id:  5, css: "css/sepiaFW-skin-bytemind.css", 			avatar: "1"},
+			"Street":				{id:  6, css: "css/sepiaFW-skin-street.css", 			avatar: "1"},
+			"Sakura":				{id:  7, css: "css/sepiaFW-skin-sakura.css", 			avatar: "1"},
+			"9 to 5":				{id:  8, css: "css/sepiaFW-skin-9to5.css", 				avatar: "1"},
+			"Autum":				{id:  9, css: "css/sepiaFW-skin-autum.css", 			avatar: "1"},
+			"Nippon":				{id: 10, css: "css/sepiaFW-skin-nippon.css", 			avatar: "1"},
+			"Poppy":				{id: 11, css: "css/sepiaFW-skin-poppy.css", 			avatar: "1"},
+			"Orange Style 1":		{id: 12, css: "css/sepiaFW-skin-os1.css", 				avatar: "1"},
+			"My Message":			{id: 13, css: "css/sepiaFW-skin-myMessage.css", 		avatar: "1"},
+			"Uplink":				{id: 14, css: "css/sepiaFW-skin-uplink.css", 			avatar: "1"},
+			"Tasty":				{id: 15, css: "css/sepiaFW-skin-pizza.css", 			avatar: "1"},
+			"The Grid":				{id: 16, css: "css/sepiaFW-skin-grid.css", 				avatar: "1"},
+			"Canny": 				{id: 17, css: "css/sepiaFW-skin-canny.css", 			avatar: "1"},
+			"Essential": 			{id: 18, css: "css/sepiaFW-skin-minimal.css", 			avatar: "1"},
+			"Study": 				{id: 19, css: "css/sepiaFW-skin-study.css", 			avatar: "1"},
+			"Professional": 		{id: 20, css: "css/sepiaFW-skin-professional.css", 		avatar: "1"},
+			"Odyssey 1": 			{id: 21, css: "css/sepiaFW-skin-odyssey1.css", 			avatar: "3"},
+			"Odyssey 2": 			{id: 22, css: "css/sepiaFW-skin-odyssey2.css", 			avatar: "3"},
+			"Malachite": 			{id: 23, css: "css/sepiaFW-skin-malachite.css", 		avatar: "1"},
+			"Nightlife": 			{id: 24, css: "css/sepiaFW-skin-neon.css", 				avatar: "1"},
+			"Spots": 				{id: 25, css: "css/sepiaFW-skin-spot.css", 				avatar: "1"},
+			"Dark Canary": 			{id: 26, css: "css/sepiaFW-skin-canary-dark.css", 		avatar: "1"},
+			"ILA Legacy": 			{id: 27, css: "css/sepiaFW-skin-ILA-legacy.css", 		avatar: "2"},
+			"Historic Future": 		{id: 28, css: "css/sepiaFW-skin-history-of-future.css", avatar: "3"},
+			//"Future Reloaded": 	{id: 29, css: "css/sepiaFW-skin-future-reloaded.css", avatar: "3"},
+			"Flaming Squirrel":		{id: 30, css: "css/sepiaFW-skin-flaming-squirrel.css", 	avatar: "4"}
+		}
+		var avatars = {
+			"Classic": 				{id:  1, css: "css/sepiaFW-avatar-classic.css"},
+			"ILA": 					{id:  2, css: "css/sepiaFW-avatar-ILA.css"},
+			"Star Control": 		{id:  3, css: "css/sepiaFW-avatar-star-control.css"},
+			"Flaming Squirrel":		{id:  4, css: "css/sepiaFW-avatar-flaming-squirrel.css"}
 		}
 		var skinNames = Object.keys(skins);
-		var askin = parseInt(SepiaFW.data.get("activeSkin") || "1") - 1;
+		var askin = SepiaFW.data.get("activeSkin") || "1";
+		var defaultAvatar = "1";
+		if (!isNaN(+askin)) askin = +askin;
+		else askin = skins[askin].id;
 		for (var i=0; i<skinNames.length; i++){
-			var r = (askin == i)? "stylesheet" : "stylesheet alternate";
-			var t = (askin == i)? "main" : "";
-			document.write("<link rel='" + r + "' href='" + skins[skinNames[i]] + "' class='sepiaFW-style-skin' title='" + t + "' data-name='"+ skinNames[i] + "'>");
+			var id = skins[skinNames[i]].id;
+			var r = (askin == id)? "stylesheet" : "stylesheet alternate";
+			var t = (askin == id)? "main" : "";
+			if (askin == id) defaultAvatar = skins[skinNames[i]].avatar;
+			document.write("<link rel='" + r + "' href='" + skins[skinNames[i]].css + "' class='sepiaFW-style-skin' title='" + t + "' "
+				+ "data-id='"+ id + "' " + "data-name='"+ skinNames[i] + "' " + "data-avatar='" + skins[skinNames[i]].avatar + "' " + ">");
 		}
+		var avatarNames = Object.keys(avatars);
+		var aav = SepiaFW.data.get("activeAvatar") || defaultAvatar;
+		if (!isNaN(+aav)) aav = +aav;
+		else aav = avatars[aav].id;
+		for (var i=0; i<avatarNames.length; i++){
+			var id = avatars[avatarNames[i]].id;
+			var r = (aav == id)? "stylesheet" : "stylesheet alternate";
+			var t = (aav == id)? "main" : "";
+			document.write("<link rel='" + r + "' href='" + avatars[avatarNames[i]].css + "' class='sepiaFW-style-avatar' title='" + t + "' "
+				+ "data-id='"+ id + "' " + "data-name='"+ avatarNames[i] + "' " + ">");
+		}
+		SepiaFW.debug.info("Config - Loaded skin: " + askin + " - Loaded avatar: " + aav);
 	})();
 </script>
 <!-- START JS -->

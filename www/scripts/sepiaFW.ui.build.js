@@ -567,6 +567,7 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 			centerPage2.innerHTML = ""
 				+ "<ul class='sepiaFW-menu-settings-list'>"
 					+ "<li id='sepiaFW-menu-select-skin-li'><span>Skin: </span><select id='sepiaFW-menu-select-skin'><option disabled selected value>- select -</option></select></li>"
+					+ "<li id='sepiaFW-menu-select-avatar-li'><span>Avatar: </span><select id='sepiaFW-menu-select-avatar'><option disabled selected value>- select -</option></select></li>"
 					+ "<li id='sepiaFW-menu-server-access-li' title='Settings for core server connections'><span>" + SepiaFW.local.g('serverConnections') + ": </span></li>"
 					+ "<li id='sepiaFW-menu-deviceId-li'><span>" + SepiaFW.local.g('deviceId') + ": </span><input id='sepiaFW-menu-deviceId' type='text' maxlength='24'></li>"
 					+ "<li id='sepiaFW-menu-device-site-li' title='Settings for device local site'><span>" + SepiaFW.local.g('deviceSite') + ": </span></li>"
@@ -756,21 +757,38 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 				});
 			});
 			
-			//add skins
+			//add skins and avatars
 			var skins = $('.sepiaFW-style-skin');
 			skins.each(function(i, obj) {
 				var option = document.createElement('OPTION');
 					option.textContent = obj.dataset.name;
-					option.value = i+1;
+					option.value = obj.dataset.id;
 				document.getElementById('sepiaFW-menu-select-skin').appendChild(option);
 			});
 			var activeSkin = SepiaFW.data.get('activeSkin');
 			if (activeSkin){
 				$('#sepiaFW-menu-select-skin').val(activeSkin);
 			}
-			$('#sepiaFW-menu-select-skin').off();
-			$('#sepiaFW-menu-select-skin').on('change', function() {
+			$('#sepiaFW-menu-select-skin').off().on('change', function(){
 				SepiaFW.ui.setSkin($('#sepiaFW-menu-select-skin').val());
+			});
+			var avatars = $('.sepiaFW-style-avatar');
+			var defaultAvatarOption = document.createElement('OPTION');
+				defaultAvatarOption.textContent = "Let skin choose";
+				defaultAvatarOption.value = "0";
+				document.getElementById('sepiaFW-menu-select-avatar').appendChild(defaultAvatarOption);
+			avatars.each(function(i, obj) {
+				var option = document.createElement('OPTION');
+					option.textContent = obj.dataset.name;
+					option.value = obj.dataset.id;
+				document.getElementById('sepiaFW-menu-select-avatar').appendChild(option);
+			});
+			var activeAvatar = SepiaFW.data.get('activeAvatar');
+			if (activeAvatar != undefined){
+				$('#sepiaFW-menu-select-avatar').val(activeAvatar);
+			}
+			$('#sepiaFW-menu-select-avatar').off().on('change', function(){
+				SepiaFW.ui.setAvatar($('#sepiaFW-menu-select-avatar').val());
 			});
 			//server access
 			var serverAccess = document.getElementById('sepiaFW-menu-server-access-li');
