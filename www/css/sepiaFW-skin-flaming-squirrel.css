@@ -1,6 +1,6 @@
 html {
-	background-image: url(../img/SEPIA_back.png);
-	background-size: auto 50%;
+	background-image: url(../img/flaming_squirrel.png);
+    background-size: auto 40%;
 }
 #sepiaFW-main-window {
 	color: #000000;
@@ -15,37 +15,44 @@ html {
 	scrollbar-color: #eee #fff;
 }
 
-#sepiaFW-pC  { background-color: #000000; } 					/* Primary color - used for status bar and browser theme as well */
-#sepiaFW-sC  { background-color: #16ABC3; }						/* Secondary color - should be in contrast to primary */
-#sepiaFW-sC2 { background-color: rgba(225, 225, 245, 0.96); }	/* Secondary color 2 - should be in contrast to 1 and 2 */
-#sepiaFW-aC  { background-color: rgb(186, 42, 42); }			/* Accent color 1 - e.g. used during listening in assistant button */
-#sepiaFW-aC2 { background-color: #4ec48f; }							/* Accent color 2 - e.g. used during speaking in assistant button */
-#sepiaFW-asC { background-color: #CEFF1A; }	/*#c4ff3e, #69d177;*/	/* Assistant color - the signature color of the assistant */
-#sepiaFW-adC { background-color: #ffeb3b; }							/* Await-dialog color - used during "wait for interaction" in assistant button */
-#sepiaFW-lC  { background-color: #8e8e8e; }						/* Loading color - used during loading in assistant button */
+#sepiaFW-pC  { background-color: #ff7139; }
+#sepiaFW-sC  { background-color: #e31683; }
+#sepiaFW-sC2 { background-color: #7542e4; }
+#sepiaFW-aC  { background-color: #e31683; }
+#sepiaFW-aC2 { background-color: #0a8bed; }
+#sepiaFW-asC { background-color: #ff7139; }
+#sepiaFW-adC { background-color: #ffdd64; }
+#sepiaFW-lC  { background-color: #d2d2d2; }
 
-#sepiaFW-login-box, #sepiaFW-nav-bar, #sepiaFW-chat-controls-form, #sepiaFW-chat-controls-right {
-	background: #ff6900;
-	color: #000;
+#sepiaFW-navC 	{ background-color: #000; }
+#sepiaFW-statC 	{ background-color: #000; }
+
+#sepiaFW-login-box, #sepiaFW-nav-bar, #sepiaFW-chat-controls-form {
+	background: linear-gradient(to right, #ff7139 0%, #fb535b 100%);
+	color: #fff;
+}
+#sepiaFW-chat-controls-right {
+	background: #ff7139;
+	color: #fff;
 }
 
 #sepiaFW-nav-bar-page-indicator {
-	background: linear-gradient(to right, #CEFF1A 0%, #16ABC3 100%);
+	background: linear-gradient(to right, #0a8bed 0%, #7542e4 100%);
 }
 #sepiaFW-nav-menu-go-left {
-	color: #8be158 !important;
+	color: #ffdd64 !important;
 }
 #sepiaFW-nav-menu-go-right {
-	color: #58c987 !important;
+	color: #ffdd64 !important;
 }
 
 #sepiaFW-login-box button {
-	background: linear-gradient(to right, #CEFF1A 0%, #16ABC3 100%);
+	background: linear-gradient(to right, #ffdd64 0%, #ff983a 100%);
 	color: #000;
 }
 .sepiaFW-notouch-device #sepiaFW-login-box button:hover {
-	background: linear-gradient(to right, #fff 0%, #bbb 100%);
-	color: #000;
+	background: linear-gradient(to right, #e31683 0%, #7542e4 100%);
+	color: #fff;
 }
 
 #sepiaFW-main-window button {
@@ -54,19 +61,33 @@ html {
 }
 .sepiaFW-notouch-device #sepiaFW-main-window button:hover {
 	background: transparent;
-	color: #CEFF1A;
+	color: #ffdd64;
 }
 #sepiaFW-assist-btn-area {
-	border-color: #000000;
+	border-color: #ff7139;
+	background: #ff7139;
 }
 #sepiaFW-assist-btn {
-	background: linear-gradient(to right, #CEFF1A 0%, #16ABC3 100%) !important;
+	background: linear-gradient(to right, #0a8bed 0%, #7542e4 100%) !important;
+	border: 0 !important;
 }
 .sepiaFW-notouch-device #sepiaFW-assist-btn:hover {
-	background: linear-gradient(to right, #fff 0%, #bbb 100%) !important;
+	background: linear-gradient(to right, #e31683 0%, #7542e4 100%) !important;
 }
 #sepiaFW-assist-btn i {
 	display: none !important;
+}
+#sepiaFW-assist-btn-area.listening {
+	border-color: #e31683;
+}
+#sepiaFW-assist-btn-area.speaking {
+	border-color: #0a8bed;
+}
+#sepiaFW-assist-btn-area.awaitDialog {
+	border-color: #a346ef;
+}
+#sepiaFW-assist-btn-area.loading {
+	border-color: #d9d9d9;
 }
 
 #sepiaFW-chat-controls-speech-box > div {
@@ -75,74 +96,81 @@ html {
 }
 
 .sepiaFW-menu {
-	/*background: rgba(206, 255, 26, 0.95);*/
-	background:#000;
-	color: #fff;
+	background:#20123a;
+	color: #eee;
 }
 .sepiaFW-cards-list-contextMenu {
-	background: #222;
+	background: #20123a;
 }
 #sepiaFW-chat-controls-more-menu button {
-	background: #fff;
-	color: #000;
-}
-.sepiaFW-notouch-device #sepiaFW-chat-controls-more-menu button:hover {
-	background-color: #CEFF1A !important;
-	color: #000 !important;
-}
-#sepiaFW-chat-menu {
-	background: #000;
+	background: linear-gradient(to right, #505de8 0%, #7542e4 100%);
 	color: #fff;
 }
+.sepiaFW-notouch-device #sepiaFW-chat-controls-more-menu button:hover {
+	background-color: #e31683 !important;
+	color: #fff !important;
+}
+#sepiaFW-chat-menu {
+	background: #20123a;
+    color: #eee;
+}
 #sepiaFW-chat-menu button {
-	/*background: rgba(255, 255, 255, 0.15);*/
-	background: #262626;
-	color: #CEFF1A;
-	box-shadow: 0px 0px 0px 1px #dfdfdf inset;
+	background: linear-gradient(to right, #ff7139 0%, #fc5c50 100%);
+	color: #fff;
+	/*box-shadow: 0px 0px 0px 1px #dfdfdf inset;*/
 }
 .sepiaFW-notouch-device #sepiaFW-chat-menu button:hover {
-    background-color: #fff !important;
-    color: #000 !important;
+	background: linear-gradient(to right, #ffb454 0%, #ff7139 100%) !important;
+	color: #fff !important;
 }
 #sepiaFW-chat-menu li {
-	background: rgba(255, 255, 255, 0.15);
+	background: rgba(255, 255, 255, 0.10);
 }
-/*#sepiaFW-chat-menu li .sepiaFW-button-inline {
-	background: #363636;
-}*/
-.sepiaFW-notouch-device #sepiaFW-chat-menu li .sepiaFW-button-inline:hover {
-	background-color: #fff !important;
-    color: #000 !important;
+.sepiaFW-notouch-device .sepiaFW-menu li:not(.sepiaFW-cards-button):hover {
+    background: rgba(255, 255, 255, 0.20) !important;
 }
 
-#sepiaFW-myEvents-buttons button,
-#sepiaFW-myEvents-buttons-replaced button {
-    background: #CEFF1A !important;
-	color: #333 !important;
-}
-.sepiaFW-notouch-device #sepiaFW-myEvents-buttons button:hover {
-	background-color: rgba(225, 225, 245, 0.96) !important;
-	color: #000000 !important;
+.sepiaFW-notouch-device #sepiaFW-main-window .chat-buttons-area button:hover {
+    background: #5d54e7 !important;
+	color: #fff !important;
 }
 #sepiaFW-main-window .chat-buttons-area button {
-	background: rgba(225, 225, 245, 0.96);
-	color: #000000;
+    background: #0a8bed;
+	color: #fff;
 }
-.sepiaFW-notouch-device #sepiaFW-main-window .chat-buttons-area button:hover {
-	background: #CEFF1A;
-	color: #333;
+#sepiaFW-main-window .chat-buttons-area .my-view-custom-button {
+	background: linear-gradient(to right, #3f68e9 0%, #5d54e7 100%);
+	color: #fff;
+}
+.sepiaFW-notouch-device #sepiaFW-main-window .chat-buttons-area .my-view-custom-button:hover {
+	background: #0a8bed;
+	color: #fff;
+}
+#sepiaFW-main-window #sepiaFW-myFirstStart-buttons button {
+	background: #e31683;
+    color: #fff;
+}
+.sepiaFW-notouch-device #sepiaFW-main-window #sepiaFW-myFirstStart-buttons button:hover {
+	background: #ffdd64 !important;
+    color: #222!important;
+}
+#sepiaFW-main-window #sepiaFW-myEvents-buttons button,
+#sepiaFW-main-window #sepiaFW-myEvents-buttons-replaced button,
+.sepiaFW-touch-device #sepiaFW-main-window #sepiaFW-myEvents-buttons button {
+    background: #0a8bed;
+    color: #fff;
 }
 
-#sepiaFW-nav-label-note{
-    border: 1px solid #16ABC3;
+#sepiaFW-nav-label-note {
+    border: 0;
 }
 
 #sepiaFW-chat-output article {
-    background: #4ec48f;
-	color: #fff;
+    background: #ffdd64;
+	color: #222;
 }
 #sepiaFW-chat-output article.chatMe {
-	background: #16ABC3;
+	background: #fc5c50;
 	color: #fff;
 }
 #sepiaFW-chat-output article.chatMe b {
@@ -158,57 +186,55 @@ html {
 	border-left-color: rgba(255, 255,255, 0.40);
 }
 #sepiaFW-chat-output article.chatAssistant {
-	background: #CEFF1A;
-	color: #333;
+	background: #7542e4;
+	color: #fff;
 }
 #sepiaFW-chat-output article.chatAssistant b {
-	color: #000000;
+	color: #fff;
 }
 #sepiaFW-chat-output article.chatAssistant.chatPm {
 	border-left-color: rgba(255, 255, 255, 0.40);
 }
 
 .sepiaFW-button {
-	background-color: #333;
-	color: #CEFF1A;
+	background-color: #20123a;
+	color: #ff7139;
 }
 .sepiaFW-notouch-device .sepiaFW-button:hover {
-	background-color: #CEFF1A;
-	color: #333;
+	background-color: #ff7139;
+	color: #20123a;
 }
 
 #sepiaFW-chat-controls-swipe-area .sepiaFW-swipeBar-switchable {
-	/*background: #16ABC3;*/
-	/*background: #4ec48f;*/
-	background: #CEFF1A;
-    color: #000;
-	/*color: #fff;*/
+	background: linear-gradient(90deg, #ff7139, #e31683);
+    color: #fff;
 }
 #sepiaFW-chat-controls-form.touch-bar-controls #sepiaFW-swipeBar-menu-controls {
-	background: #000;
+	background: #fc5c50;
     color: #fff;
 }
 
-/*----- Popup ------*/
+/*----- Popup -----*/
 
 #sepiaFW-popup-message  {
-	background: #000;
+	background: #1a0f30;
 }
 #sepiaFW-popup-message button {
-	background-color: #CEFF1A;
+	background-color: #ff7139 !important;
+	color: #fff !important;
 }
 
-/*----- cards ------*/
+/*----- cards -----*/
 
 .sepiaFW-cards-button,
 .sepiaFW-notouch-device .sepiaFW-cards-button:hover {
-	background: #CEFF1A;
-    color: #121212;
+	background: #ff7139;
+    color: #fff;
 }
 
 .sepiaFW-cards-list-title {
-	background: #121212; /*rgba(225, 225, 245, 1.00);*/
-	color: #fff; /*#000;*/
+	background: #20123a;
+	color: #fff;
 }
 
 .sepiaFW-cards-list-title.newsHeader {
@@ -216,7 +242,7 @@ html {
 	color: #000;
 }
 .sepiaFW-cards-list-title.newsHeader button {
-	color: #CEFF1A !important;
+	color: #7542e4 !important;
 }
 .sepiaFW-cards-list-title.newsHeader button:hover {
 	color: #000 !important;
@@ -227,33 +253,53 @@ html {
 }
 
 .sepiaFW-cards-list-body .listElement .checked {
-    background: #4ec48f;
+    background: #0a8bed;
 }
 .sepiaFW-cards-list-body .listElement .inProgress {
-    background: #CEFF1A;
+    background: #ffdd64;
 }
 .sepiaFW-cards-list-body .listElement .listRight {
     border-color: #fcfcfc;
 	background: #d2d2dd;
 }
+.sepiaFW-notouch-device .sepiaFW-cards-list-body .listElement .listRight:hover {
+    background: #fc5c50;
+}
+/*.sepiaFW-cards-list-body .timeEvent div {
+	background: #ffdd64;
+	color: #1a0f30;
+}*/
+.sepiaFW-notouch-device .sepiaFW-cards-list-body .timeEvent .timeEventRight:hover {
+	background: #fc5c50;
+	color: #fff;
+}
 .sepiaFW-cards-list-footer {
-	background: #CEFF1A;
-	color: #000;
+	background: rgba(255, 255, 255, 0.90);
+    color: #ff7139;
 }
 .sepiaFW-cards-list-body .weatherNowSmall .weatherNowSmallImage {
-	background: #121212;
+	background: #fc5c50;
 }
+
+.sepiaFW-cards-list-body .radioStation div {
+	background: #e31683;
+	color: #fff;
+}
+/*.sepiaFW-cards-list-body .linkCard > div {
+	background: #ffdd64;
+	color: #1a0f30;
+}*/
 
 /*----- channels -----*/
 
 #sepiaFW-chat-channel-controls button {
-	color: #CEFF1A;
+	color: #ff7139;
 }
 #sepiaFW-chat-channellist .my-channel::after,
 #sepiaFW-chat-channellist .public::after,
 #sepiaFW-chat-userlist .assistant::after,
 #sepiaFW-chat-channellist .active::before {
-    color: #CEFF1A;
+    color: #ff7139;
 }
 
 /*----- teachUI -----*/

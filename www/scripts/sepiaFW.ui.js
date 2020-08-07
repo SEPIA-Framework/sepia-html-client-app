@@ -223,9 +223,17 @@ function sepiaFW_build_ui(){
 				SepiaFW.data.set('activeSkin', activeSkin);
 			}
 		}
+		var base;
 		skins.each(function(index){
 			var id = this.dataset.id;
-			if (id == newIndex){	
+			if (id == newIndex){
+				base = this.dataset.base || "";
+			}
+		});
+		skins.each(function(index){
+			var id = this.dataset.id;
+			var that = this;
+			if (id == newIndex){
 				$(this).prop('title', 'main');
 				$(this).prop('disabled', false);
 				SepiaFW.debug.log("UI active skin: " + $(this).attr('href'));
@@ -234,6 +242,10 @@ function sepiaFW_build_ui(){
 					SepiaFW.data.set('activeSkin', activeSkin);
 				}
 				defaultAvatar = this.dataset.avatar;
+			}else if (base && id == base){
+				$(that).prop('title', 'main');
+				$(that).prop('disabled', false);
+				SepiaFW.debug.log("UI base skin: " + $(this).attr('href'));
 			}else{
 				$(this).prop('title', '');
 				$(this).prop('disabled', true);
@@ -257,17 +269,24 @@ function sepiaFW_build_ui(){
 	}
 	UI.setAvatar = function(newIndex, rememberSelection){
 		if (rememberSelection == undefined) rememberSelection = true;
+		if (rememberSelection){
+			SepiaFW.data.set('activeAvatar', newIndex);
+		}
 		var avatars = $('.sepiaFW-style-avatar');
 		if (newIndex == 0){
-			if (rememberSelection){
-				SepiaFW.data.set('activeAvatar', "0");
-			}
 			$('.sepiaFW-style-skin').each(function(index){
 				if ($(this).prop('title') == 'main'){
 					newIndex = this.dataset.avatar;
 				}
 			});
 		}
+		var base;
+		avatars.each(function(index){
+			var id = this.dataset.id;
+			if (id == newIndex){
+				base = this.dataset.base || "";
+			}
+		});
 		avatars.each(function(index){
 			var id = this.dataset.id;
 			if (id == newIndex){	
@@ -275,9 +294,10 @@ function sepiaFW_build_ui(){
 				$(this).prop('disabled', false);
 				SepiaFW.debug.log("UI active avatar: " + $(this).attr('href'));
 				activeAvatar = newIndex;
-				if (rememberSelection){
-					SepiaFW.data.set('activeAvatar', activeAvatar);
-				}
+			}else if (id == base){
+				$(this).prop('title', 'main');
+				$(this).prop('disabled', false);
+				SepiaFW.debug.log("UI base avatar: " + $(this).attr('href'));
 			}else{
 				$(this).prop('title', '');
 				$(this).prop('disabled', true);

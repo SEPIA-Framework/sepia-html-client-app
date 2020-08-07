@@ -320,11 +320,12 @@
 			"ILA Legacy": 			{id: 27, css: "css/sepiaFW-skin-ILA-legacy.css", 		avatar: "2"},
 			"Historic Future": 		{id: 28, css: "css/sepiaFW-skin-history-of-future.css", avatar: "3"},
 			//"Future Reloaded": 	{id: 29, css: "css/sepiaFW-skin-future-reloaded.css", avatar: "3"},
-			"Flaming Squirrel":		{id: 30, css: "css/sepiaFW-skin-flaming-squirrel.css", 	avatar: "4"}
+			"Flaming Squirrel":			{id: 30, css: "css/sepiaFW-skin-flaming-squirrel.css", 		avatar: "4"},
+			"Flaming Dark Squirrel":	{id: 31, css: "css/sepiaFW-skin-flaming-squirrel-dark.css", avatar: "4", base: 30}
 		}
 		var avatars = {
 			"Classic": 				{id:  1, css: "css/sepiaFW-avatar-classic.css"},
-			"ILA": 					{id:  2, css: "css/sepiaFW-avatar-ILA.css"},
+			"ILA 9000":				{id:  2, css: "css/sepiaFW-avatar-ILA.css"},
 			"Star Control": 		{id:  3, css: "css/sepiaFW-avatar-star-control.css"},
 			"Flaming Squirrel":		{id:  4, css: "css/sepiaFW-avatar-flaming-squirrel.css"}
 		}
@@ -333,24 +334,45 @@
 		var defaultAvatar = "1";
 		if (!isNaN(+askin)) askin = +askin;
 		else askin = skins[askin].id;
+		var aSkinBase;
 		for (var i=0; i<skinNames.length; i++){
 			var id = skins[skinNames[i]].id;
-			var r = (askin == id)? "stylesheet" : "stylesheet alternate";
-			var t = (askin == id)? "main" : "";
+			if (id == askin){
+				aSkinBase = skins[skinNames[i]].base || "";
+				break;
+			}
+		}
+		for (var i=0; i<skinNames.length; i++){
+			var id = skins[skinNames[i]].id;
+			var baseId = skins[skinNames[i]].base || "";
+			var r = (askin == id || id == aSkinBase)? "stylesheet" : "stylesheet alternate";
+			var t = (askin == id || id == aSkinBase)? "main" : "";
+			var d = (askin == id || id == aSkinBase)? "" : "disabled";
 			if (askin == id) defaultAvatar = skins[skinNames[i]].avatar;
 			document.write("<link rel='" + r + "' href='" + skins[skinNames[i]].css + "' class='sepiaFW-style-skin' title='" + t + "' "
-				+ "data-id='"+ id + "' " + "data-name='"+ skinNames[i] + "' " + "data-avatar='" + skins[skinNames[i]].avatar + "' " + ">");
+				+ "data-id='" + id + "' " + "data-base='" + baseId + "' " + "data-name='" + skinNames[i] + "' " 
+				+ "data-avatar='" + skins[skinNames[i]].avatar + "' " + d + ">");
 		}
 		var avatarNames = Object.keys(avatars);
 		var aav = SepiaFW.data.get("activeAvatar") || defaultAvatar;
 		if (!isNaN(+aav)) aav = +aav;
 		else aav = avatars[aav].id;
+		var aAvBase;
 		for (var i=0; i<avatarNames.length; i++){
 			var id = avatars[avatarNames[i]].id;
-			var r = (aav == id)? "stylesheet" : "stylesheet alternate";
-			var t = (aav == id)? "main" : "";
+			if (id == aav){
+				aAvBase = avatars[avatarNames[i]].base || "";
+				break;
+			}
+		}
+		for (var i=0; i<avatarNames.length; i++){
+			var id = avatars[avatarNames[i]].id;
+			var base = avatars[avatarNames[i]].base || "";
+			var r = (aav == id || id == aAvBase)? "stylesheet" : "stylesheet alternate";
+			var t = (aav == id || id == aAvBase)? "main" : "";
+			var d = (aav == id || id == aAvBase)? "" : "disabled";
 			document.write("<link rel='" + r + "' href='" + avatars[avatarNames[i]].css + "' class='sepiaFW-style-avatar' title='" + t + "' "
-				+ "data-id='"+ id + "' " + "data-name='"+ avatarNames[i] + "' " + ">");
+				+ "data-id='" + id + "' " + "data-base='" + base + "' " + "data-name='" + avatarNames[i] + "' " + d + ">");
 		}
 		SepiaFW.debug.info("Config - Loaded skin: " + askin + " - Loaded avatar: " + aav);
 	})();
