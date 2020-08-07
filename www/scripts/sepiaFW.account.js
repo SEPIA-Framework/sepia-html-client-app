@@ -732,6 +732,7 @@ function sepiaFW_build_account(sepiaSessionId){
 		});
 	}
 	function skipLogin(demoId){
+		userId = "";		//demo logins don't have an ID (reset here if a test account was used to login)
 		if (demoId && demoId == "setup"){
 			//temporarily disabled
 			SepiaFW.speech.skipTTS = true;
@@ -997,14 +998,16 @@ function sepiaFW_build_account(sepiaSessionId){
 				userToken = "";
 				userTokenValidUntil = 0;
 				userName = "";
-				SepiaFW.client.setDemoMode(false);
 				//done
 				listenForLogoutActions = false;
 				logoutSectionsFinished = 0;
 				//info message
 				var config = {
 					buttonOneName : "Return to sign in",
-					buttonOneAction : function(){ location.reload(); }
+					buttonOneAction : function(){
+						SepiaFW.client.setDemoMode(false);
+						location.reload(); 
+					}
 				};
 				SepiaFW.ui.showPopup('Sign-out done!', config);
 				Account.afterLogout();
@@ -1028,11 +1031,11 @@ function sepiaFW_build_account(sepiaSessionId){
 	Account.login = function(userid, pwd, successCallback, errorCallback, debugCallback){
 		SepiaFW.ui.showLoader();
 		//demo login?
-		if (demoAccounts[userId] && pwd == demoAccounts[userId]){
-			SepiaFW.data.set('isDemoLogin', userId);
-			userRoles = [userId];
+		if (demoAccounts[userid] && pwd == demoAccounts[userid]){
+			SepiaFW.data.set('isDemoLogin', userid);
+			userRoles = [userid];
 			SepiaFW.ui.hideLoader();
-			skipLogin(userId);
+			skipLogin(userid);
 			return;
 		}
 		//hash password

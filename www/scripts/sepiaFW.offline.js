@@ -115,7 +115,7 @@ function sepiaFW_build_offline(){
 
 	//Handle a message offline sent via Client.sendMessage - currently used for demo-mode
 	Offline.handleClientSendMessage = function(message){
-		var userId = 'username';
+		var userId = SepiaFW.account.getUserId() || 'username';
 		var dataIn = { sender: userId };
 		//console.log(message); 								//DEBUG
 		var nluResult;
