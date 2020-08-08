@@ -1619,6 +1619,20 @@ html.dark-skin #sepiaFW-login-help-btn {
 	max-width: 35px;
 	border-radius: 18px;
 }
+@media (max-width: 350px) {
+	#sepiaFW-chat-controls-form.touch-bar-controls #sepiaFW-chat-send {
+		transition: width .3s, padding .3s, margin .3s, opacity .3s;
+	}
+	#sepiaFW-chat-controls-form.touch-bar-controls #sepiaFW-chat-send.no-focus {
+		width: 5px;
+		padding: 0;
+		margin: 0;
+		opacity: 0;
+	}
+	#sepiaFW-chat-controls-form.touch-bar-controls #sepiaFW-chat-controls-swipe-area {
+		width: calc(100% - 46px);
+	}
+}
 #sepiaFW-chat-controls-right {
 	flex: 0 0 auto;
 	/*padding: 10px 5px 10px 5px; */
