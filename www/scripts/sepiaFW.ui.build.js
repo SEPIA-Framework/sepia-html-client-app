@@ -327,18 +327,21 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 				}else{
 					if (SepiaFW.ui.useTouchBarControls){
 						$('#sepiaFW-chat-input').addClass("no-focus");
+						$('#sepiaFW-chat-send').addClass("no-focus");
 					}
 				}
 			})
 			.on('focusin', function(e){
 				if (SepiaFW.ui.useTouchBarControls){
 					$('#sepiaFW-chat-input').removeClass("no-focus");
+					$('#sepiaFW-chat-send').removeClass("no-focus");
 				}
 			});
 		}
 		//Touch-bar controls
 		if (SepiaFW.ui.useTouchBarControls){
 			$('#sepiaFW-chat-input').addClass("no-focus");
+			$('#sepiaFW-chat-send').addClass("no-focus");
 			$('#sepiaFW-chat-controls-form').addClass('touch-bar-controls');
 		}
 		//Edit message in Speech-bubble field and abort auto-send of result

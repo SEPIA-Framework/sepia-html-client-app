@@ -263,9 +263,9 @@ html {
 	background: #16ABC3;*/
 	border-top: 1px solid #333;
 }
-#sepiaFW-teachUI-nav-bar button:hover {
-	color: #fff !important;
-    background-color: #000 !important;
+.sepiaFW-notouch-device #sepiaFW-teachUI-nav-bar button:hover {
+	color: #000 !important;
+    background-color: #fff !important;
 }
 #sepiaFW-teachUI-view {
     background: #000;

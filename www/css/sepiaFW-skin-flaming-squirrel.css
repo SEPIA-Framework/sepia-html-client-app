@@ -305,22 +305,21 @@ html {
 /*----- teachUI -----*/
 
 #sepiaFW-teachUI-nav-bar {
-	/*color: #fff;
-	background: #16ABC3;*/
-	border-top: 1px solid #333;
+    background: linear-gradient(to right, #ff7139 0%, #fb535b 100%);
+    color: #fff;
 }
-#sepiaFW-teachUI-nav-bar button:hover {
-	color: #fff !important;
-    background-color: #000 !important;
+.sepiaFW-notouch-device #sepiaFW-teachUI-nav-bar button:hover {
+	color: #1f1534 !important;
+    background-color: #ffdd64 !important;
 }
 #sepiaFW-teachUI-view {
-    background: #000;
+    background: #1f1534;
 }
 #sepiaFW-teachUI-view label {
-    color: #CEFF1A;
+    color: #ff7139;
 }
 #sepiaFW-teachUI-editor button, 
 #sepiaFW-teachUI-manager button {
-    background: #CEFF1A !important;
-    color: #333 !important;
+    background: #ff7139 !important;
+    color: #fff !important;
 }

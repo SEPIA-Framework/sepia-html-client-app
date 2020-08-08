@@ -2,6 +2,13 @@ html {
 	background-image: url(../img/blocksAlpha.png);
 	background-color: #000;
 }
+@media (min-width: 480px) and (min-height: 481px) {
+	#sepiaFW-main-window {
+		border: 6px solid #2f3035;	/* use it or don't? ^^ */
+		border-bottom-width: 0;
+		border-radius: 0;
+	}
+}
 
 #sepiaFW-pC  { background-color: #ceff1a; }
 #sepiaFW-sC  { background-color: #000; }
