@@ -518,6 +518,28 @@ html {
     color: #111111;
 }
 
+/*----- Tiny style -----*/
+
+.sepiaFW-tiny-app #sepiaFW-login-box {
+	border-radius: 0;
+}
+.sepiaFW-tiny-app #sepiaFW-nav-bar {
+	border-top: 0;
+}
+.sepiaFW-tiny-app #sepiaFW-chat-controls {
+	border: 0;
+}
+.sepiaFW-tiny-app #sepiaFW-chat-controls-right {
+	border-radius: 28px 0 0 28px;
+	border: 2px solid #111;
+	border-right: 1px solid #111;
+}
+.sepiaFW-tiny-app #sepiaFW-assist-btn-area {
+	border-radius: 0 28px 28px 0;
+	border: 2px solid #111;
+	border-left: 1px solid #111;
+}
+
 /*----- teachUI -----*/
 
 #sepiaFW-teachUI-nav-bar {

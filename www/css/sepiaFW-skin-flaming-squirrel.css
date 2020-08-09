@@ -302,6 +302,12 @@ html {
     color: #ff7139;
 }
 
+/*----- Tiny style -----*/
+
+.sepiaFW-tiny-app #sepiaFW-chat-controls-right {
+    border-color: #ff7139;
+}
+
 /*----- teachUI -----*/
 
 #sepiaFW-teachUI-nav-bar {

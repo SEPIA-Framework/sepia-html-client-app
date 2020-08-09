@@ -98,3 +98,13 @@
 	50% {	  top: 48%;	}
 	50.25% {  top: 8%;	}
 }
+
+/* --- tiny style --- */
+
+.sepiaFW-tiny-app #sepiaFW-alwaysOn-avatar {
+    width: 320px;
+    height: 344px;
+    left: calc(50% - 160px);
+    top: calc(50% - 172px);
+    transform: scale3d(0.60, 0.60, 0.60);
+}

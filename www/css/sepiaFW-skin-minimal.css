@@ -324,6 +324,13 @@ html {
     background: #404050;
 }
 
+/*----- Tiny style -----*/
+
+.sepiaFW-tiny-app #sepiaFW-chat-controls-right {
+	border: 1px solid #eeeeee;
+	border-radius: 50%;
+}
+
 /*----- teachUI -----*/
 
 #sepiaFW-teachUI-view {
