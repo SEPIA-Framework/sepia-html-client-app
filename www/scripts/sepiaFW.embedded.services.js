@@ -302,6 +302,8 @@ function sepiaFW_build_embedded_services(){
 		return actionInfo;
 	}
 
+	//more specific actions at: SepiaFW.offline
+	
 	Services.buildPersonalEventsActionDummy = function(){
 		var actionInfo = [{
 			"type": "events_start",
@@ -533,14 +535,14 @@ function sepiaFW_build_embedded_services(){
 	}
 
 	//Build a radio dummy card
-	Services.buildRadioCardInfoDummy =  function(){
+	Services.buildRadioCardInfoDummy =  function(language, streamUrl, name, type){
 		var cardInfo = [{
 			"cardType": "uni_list",
 			"N": 1,
 			"info": [{
-				"streamURL": "http://stream.radiojar.com/atr1e8aswa5tv",
-				"name": "SIZE RADIO",
-				"type": "radio"
+				"streamURL": streamUrl || "http://stream.radiojar.com/atr1e8aswa5tv",
+				"name": name || "SIZE RADIO",
+				"type": type || "radio"
 			}]
 		}];
 		return cardInfo;

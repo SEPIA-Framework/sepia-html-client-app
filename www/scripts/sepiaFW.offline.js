@@ -3,6 +3,8 @@ function sepiaFW_build_offline(){
 	var Offline = {};
 		
 	//----- Offline answers and actions -----
+
+	//more at: SepiaFW.embedded.services
 	
 	//Get action to open an URL
 	Offline.getUrlOpenAction = function(_url){
@@ -74,6 +76,8 @@ function sepiaFW_build_offline(){
 
 	//----- Cards builder -----
 
+	//more at: SepiaFW.embedded.services
+	
 	Offline.getLinkCard = function(url, title, description, imageUrl, imageBackground, data){
 		if (!data) data = {};
 		data.title = title || "Link Card";

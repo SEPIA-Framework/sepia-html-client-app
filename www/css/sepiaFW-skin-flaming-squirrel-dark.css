@@ -24,6 +24,11 @@ html {
     color: #eee;
 }
 
+.sepiaFW-results-container .statusUpdate, #sepiaFW-chat-output .statusUpdate {
+	background: rgb(44, 34, 63);
+	color: #eee;
+}
+
 /*----- cards -----*/
 
 .sepiaFW-cards-flexSize-container {

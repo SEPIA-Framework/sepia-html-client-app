@@ -57,6 +57,7 @@ function sepiaFW_build_client_interface(){
 	ClientInterface.sendMessage = SepiaFW.webSocket.client.sendMessage;
 	ClientInterface.sendCommand = SepiaFW.webSocket.client.sendCommand;
 	ClientInterface.requestDataUpdate = SepiaFW.webSocket.client.requestDataUpdate;
+	ClientInterface.requestAlivePing = SepiaFW.webSocket.client.requestAlivePing;
 
 	ClientInterface.optimizeAndPublishChatMessage = SepiaFW.webSocket.client.optimizeAndPublishChatMessage;
 	
@@ -166,7 +167,7 @@ function sepiaFW_build_client_interface(){
 		}
 	}
 	
-	//broadcast some events:
+	//broadcast some [internal] events:
 	
 	//-connection status
 	ClientInterface.STATUS_CONNECTING = "status_connecting";
@@ -1840,6 +1841,16 @@ function sepiaFW_build_webSocket_client(sepiaSessionId){
 		Client.sendMessage(msg);
 	}
 
+	//Request an alive ping - use delay=-1 to trigger continous procedure
+	Client.requestAlivePing = function(delay){
+		var data = new Object();
+		data.dataType = "ping";
+		data.sendPing = delay;
+		var newId = ("ping" + "-" + ++msgId);
+		var msg = buildSocketMessage(username, serverName, "", "", data, "", newId, "");
+		Client.sendMessage(msg);
+	}
+
 	//Request data update via Socket connection (alternative to HTTP request to server endpoint)
 	Client.requestDataUpdate = function(updateData, dataObj){
 		//build data
@@ -1987,22 +1998,20 @@ function sepiaFW_build_webSocket_client(sepiaSessionId){
 		
 		//data
 		if (message.data){
+			//ping
+			if (message.sender === serverName && message.data.dataType === "ping"){
+				var data = new Object();
+				data.dataType = "ping";
+				//return ping ID
+				data.replyId = message.msgId;
+				var newId = ("ping" + "-" + ++msgId);
+				var msg = buildSocketMessage(username, serverName, "", "", data, "", newId, "");
+				Client.sendMessage(msg);
 
 			//authenticate
-			if (message.sender === serverName && message.data.dataType === "authenticate"){
+			}else if (message.sender === serverName && message.data.dataType === "authenticate"){
 				//send credentials and then wait until the server sends channel info
 				sendAuthenticationRequest();
-
-				/*
-				if ('isAuthenticated' in message.data){
-					var userIsAuthenticated = message.data.isAuthenticated;
-					if (!userIsAuthenticated || userIsAuthenticated === "false"){
-						var statusMessage = SepiaFW.ui.build.makeMessageObject(SepiaFW.local.g('noConnectionToAssistant'), "Server", "assistant", username);
-						statusMessage.textType = "status";
-						publishStatusMessage(statusMessage, username);
-					}
-				}
-				*/
 				
 			//get channel-join confirmation of server
 			}else if (message.sender === serverName && message.data.dataType === "joinChannel"){
@@ -2086,7 +2095,7 @@ function sepiaFW_build_webSocket_client(sepiaSessionId){
 			}else if (message.sender === serverName && message.data.dataType === "welcome"){
 				broadcastChannelJoin(activeChannelId);
 
-			//get new data
+			//get new data - NOTE: this is similar to 'dataType == "remoteAction", type == "sync"' but usually contains two-way data (not only an sync request)
 			}else if (message.sender === serverName && message.data.dataType === "updateData"){
 				if (message.data && message.data.updateData){
 					handleUpdateRequest(message.data);
@@ -2096,6 +2105,8 @@ function sepiaFW_build_webSocket_client(sepiaSessionId){
 
 			//assistant answer
 			}else if (message.data.dataType === "assistAnswer"){
+				//console.error("assistAnswer", JSON.stringify(message, "", 2), username);		//DEBUG
+				//console.error("options", Client.getMessageIdOptions(message.msgId));			//DEBUG
 				Client.optimizeAndPublishChatMessage(message, username);
 				notAnsweredYet = false;
 
@@ -2154,7 +2165,7 @@ function sepiaFW_build_webSocket_client(sepiaSessionId){
 						}
 					}
 
-				//SYNC
+				//SYNC - NOTE: this is similar to 'dataType == "updateData"' but usually is only the update request event (no data)
 				}else if (message.data.type === "sync"){
 					if (typeof action == "string"){
 						action = {
@@ -2205,6 +2216,29 @@ function sepiaFW_build_webSocket_client(sepiaSessionId){
 						//console.error("action", action); 		//DEBUG
 						
 						//TODO: add e.g. "userAddress", "toDoLists", "userData", ...
+					}
+
+				//Music
+				}else if (message.data.type === "music"){
+					if (typeof action == "string"){
+						action = {
+							type: "audio_stream",
+							streamURL: action
+						}
+					}
+					SepiaFW.debug.info("remoteAction - music: " + JSON.stringify(action));
+
+					//user has to be same! (security)
+					if (actionUser !== SepiaFW.account.getUserId()){
+						SepiaFW.debug.error("remoteAction - tried to use type 'music' with wrong user");
+					}else{
+						//handle
+						//TODO
+						//serviceResult = SepiaFW.embedded.services.radio(nluInput, nluResult);
+						//resultMessage = SepiaFW.offline.buildAssistAnswerMessageForHandlerWithLogin(serviceResult);
+						//SepiaFW.offline.sendToClienMessagetHandler(resultMessage);
+						
+						SepiaFW.debug.log("remoteAction - no handler yet for type: " + message.data.type);	
 					}
 				
 				//Unknown
@@ -2389,6 +2423,7 @@ function sepiaFW_build_webSocket_client(sepiaSessionId){
 		}else{
 			if (options.loadOnlyData){
 				options.skipTTS = true;
+				options.skipText = true;
 				options.skipInsert = true;
 				options.skipActions = true;
 				options.skipLocalNotification = true;
@@ -2494,7 +2529,7 @@ function sepiaFW_build_webSocket_client(sepiaSessionId){
 			}
 		}
 		//show results in frame as well? (SHOW ONLY!)
-		if (!options.skipInsert && message.senderType === "assistant" && messageTextSpeak){
+		if (!options.skipInsert && !options.skipText && message.senderType === "assistant" && messageTextSpeak){
 			//some exceptions
 			if (messageTextSpeak != '<silent>'){
 				if (SepiaFW.frames && SepiaFW.frames.isOpen && SepiaFW.frames.canShowChatOutput()){
