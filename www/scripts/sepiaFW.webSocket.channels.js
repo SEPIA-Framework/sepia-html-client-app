@@ -132,7 +132,7 @@ function sepiaFW_build_webSocket_channels(sepiaSessionId){
 	//Get set of channels that might contain missed messages
 	Channels.loadChannelsWithMissedMessages = function(){
 		//we use the socket connection to get this data:
-		SepiaFW.client.requestDataUpdate("missedChannelMessage");
+		SepiaFW.client.sendOrRequestDataUpdate("missedChannelMessage");
 		/* --- Endpoint version (got some endless loader issues with this): ---
 		channelApiCall("getChannelsWithMissedMessages", {}, function(res){
 			//SUCCESS

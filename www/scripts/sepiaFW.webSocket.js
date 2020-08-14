@@ -56,7 +56,7 @@ function sepiaFW_build_client_interface(){
 	ClientInterface.sendInputText = SepiaFW.webSocket.client.sendInputText;
 	ClientInterface.sendMessage = SepiaFW.webSocket.client.sendMessage;
 	ClientInterface.sendCommand = SepiaFW.webSocket.client.sendCommand;
-	ClientInterface.requestDataUpdate = SepiaFW.webSocket.client.requestDataUpdate;
+	ClientInterface.sendOrRequestDataUpdate = SepiaFW.webSocket.client.sendOrRequestDataUpdate;
 	ClientInterface.requestAlivePing = SepiaFW.webSocket.client.requestAlivePing;
 
 	ClientInterface.optimizeAndPublishChatMessage = SepiaFW.webSocket.client.optimizeAndPublishChatMessage;
@@ -1852,7 +1852,7 @@ function sepiaFW_build_webSocket_client(sepiaSessionId){
 	}
 
 	//Request data update via Socket connection (alternative to HTTP request to server endpoint)
-	Client.requestDataUpdate = function(updateData, dataObj){
+	Client.sendOrRequestDataUpdate = function(updateData, dataObj){
 		//build data
 		var data = new Object();
 		data.dataType = "updateData";
@@ -2094,6 +2094,8 @@ function sepiaFW_build_webSocket_client(sepiaSessionId){
 			//get welcome message after channel-join
 			}else if (message.sender === serverName && message.data.dataType === "welcome"){
 				broadcastChannelJoin(activeChannelId);
+				//transfer some info to chat server (should we move this to 'onActive'? - I prefer to have it here because its chat-server data)
+				sendWelcomeData();
 
 			//get new data - NOTE: this is similar to 'dataType == "remoteAction", type == "sync"' but usually contains two-way data (not only an sync request)
 			}else if (message.sender === serverName && message.data.dataType === "updateData"){
@@ -2387,6 +2389,15 @@ function sepiaFW_build_webSocket_client(sepiaSessionId){
 		var newId = ("auth" + "-" + ++msgId);
 		var msg = buildSocketMessage(username, serverName, "", "", data, "", newId, "");		//note: no channel during auth.
 		Client.sendMessage(msg);
+	}
+
+	function sendWelcomeData(){
+		//userOrDeviceInfo
+		//--local and global location
+		Client.sendOrRequestDataUpdate("userOrDeviceInfo", {
+			deviceLocalSite: SepiaFW.config.getDeviceLocalSiteData(),
+			deviceGlobalLocation: SepiaFW.config.getDeviceGlobalLocation()
+		});
 	}
 	
 	//-- publish a status message

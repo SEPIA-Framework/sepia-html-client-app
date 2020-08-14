@@ -138,8 +138,8 @@
 			SepiaFW.config.setDeviceLocalSiteData(siteData);
 			
 			var globalLocation = {
-				latitude: $('#sepiaFW-device-site-global-latitude').val(),
-				longitude: $('#sepiaFW-device-site-global-longitude').val()
+				latitude: $('#sepiaFW-device-site-global-latitude').val().replace(",","."),
+				longitude: $('#sepiaFW-device-site-global-longitude').val().replace(",",".")
 			}
 			SepiaFW.config.setDeviceGlobalLocation(globalLocation);
 

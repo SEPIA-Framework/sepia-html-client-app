@@ -229,6 +229,12 @@ function sepiaFW_build_config(){
 		if (data.updates != undefined) deviceLocalSiteData.updates = data.updates;
 		if (!skipStorageWrite){
 			SepiaFW.data.setPermanent('deviceLocalSiteData', deviceLocalSiteData);
+			//publish to chat server
+			if (SepiaFW.client.isActive() && !SepiaFW.client.isDemoMode()){
+				SepiaFW.client.sendOrRequestDataUpdate("userOrDeviceInfo", {
+					deviceLocalSite: deviceLocalSiteData
+				});
+			}
 		}
 	}
 	Config.getDeviceLocalSiteData = function(){
@@ -245,6 +251,12 @@ function sepiaFW_build_config(){
 		if (data.longitude != undefined) deviceGlobalLocation.longitude = data.longitude;
 		if (!skipStorageWrite){
 			SepiaFW.data.setPermanent('deviceGlobalLocation', deviceGlobalLocation);
+			//publish to chat server
+			if (SepiaFW.client.isActive() && !SepiaFW.client.isDemoMode()){
+				SepiaFW.client.sendOrRequestDataUpdate("userOrDeviceInfo", {
+					deviceGlobalLocation: deviceGlobalLocation
+				});
+			}
 		}
 	}
 	Config.getDeviceGlobalLocation = function(){
