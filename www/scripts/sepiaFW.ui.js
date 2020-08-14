@@ -408,8 +408,18 @@ function sepiaFW_build_ui(){
 		var hideLeftRightBars = UI.hideSideSwipeForTouchBarControls && UI.useTouchBarControls;
 		$('.sepiaFW-swipeBar-switchable').hide();
 		if (!setName){
-			//return to previous
-			setName = lastActiveSwipeBars;
+			if (SepiaFW.frames.isOpen){
+				//could also be: SepiaFW.alwaysOn.isOpen
+				setName = "frames";
+			}else if (SepiaFW.teach.isOpen){
+				setName = "teach";
+			}else if (SepiaFW.ui.isMenuOpen){
+				setName = "menu";
+			}else{
+				setName = "chat";
+			}
+			//return to previous - NOTE: was not reliable enough
+			//setName = lastActiveSwipeBars;
 		}
 		if (setName == "chat"){
 			if (!hideLeftRightBars){
