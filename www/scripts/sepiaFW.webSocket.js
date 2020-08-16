@@ -1870,6 +1870,26 @@ function sepiaFW_build_webSocket_client(sepiaSessionId){
 		var msg = buildSocketMessage(username, serverName, "", "", data, "", newId, activeChannelId);
 		Client.sendMessage(msg);
 	}
+
+	//Send remote action via client connection
+	//Request data update via Socket connection (alternative to HTTP request to server endpoint)
+	/*Client.sendRemoteAction = function(type, action, data){
+		//build data
+		var data = new Object();
+		data.dataType = "remoteAction";
+		data = addCredentialsAndParametersToData(data, true);
+		//remoteAction object
+		data.type = type;
+		data.action = action;
+		//TODO:
+		//msg.data.get("remoteUserId");
+		//msg.data.get("targetDeviceId");
+		//msg.data.get("targetChannelId");
+		//msg.data.get("skipDeviceId");
+		var newId = ("remote-act" + "-" + ++msgId);
+		var msg = buildSocketMessage(username, serverName, "", "", data, "", newId, activeChannelId);
+		Client.sendMessage(msg);
+	}*/
 	
 	Client.switchChannel = function(channelId, channelKey){
 		lastActivatedChannelId = channelId;
@@ -2221,26 +2241,48 @@ function sepiaFW_build_webSocket_client(sepiaSessionId){
 					}
 
 				//Music
-				}else if (message.data.type === "music"){
+				}else if (message.data.type === "media"){
 					if (typeof action == "string"){
 						action = {
 							type: "audio_stream",
 							streamURL: action
 						}
 					}
-					SepiaFW.debug.info("remoteAction - music: " + JSON.stringify(action));
+					if (action.streamUrl) action.streamURL = action.streamUrl; 		//avoid typo problems
+					SepiaFW.debug.info("remoteAction - media: " + JSON.stringify(action));
 
 					//user has to be same! (security)
 					if (actionUser !== SepiaFW.account.getUserId()){
 						SepiaFW.debug.error("remoteAction - tried to use type 'music' with wrong user");
 					}else{
 						//handle
-						//TODO
-						//serviceResult = SepiaFW.embedded.services.radio(nluInput, nluResult);
-						//resultMessage = SepiaFW.offline.buildAssistAnswerMessageForHandlerWithLogin(serviceResult);
-						//SepiaFW.offline.sendToClienMessagetHandler(resultMessage);
-						
-						SepiaFW.debug.log("remoteAction - no handler yet for type: " + message.data.type);	
+						if (action.type == "audio_stream"){
+							if (action.streamURL){
+								//wait for opportunity and execute
+								SepiaFW.assistant.waitForOpportunitySayLocalTextAndRunAction(
+									SepiaFW.local.g('remote_action_audio_stream'), 
+									function(){
+										SepiaFW.ui.showInfo(SepiaFW.local.g('remote_action') + " - Media Audio Stream: " + (action.name || action.streamURL), false);
+										//SepiaFW.ui.showCustomChatMessage(msg);
+										SepiaFW.ui.actions.playAudioURL({
+											audio_url: action.streamURL,
+											audio_title: action.name || "Audio Stream"
+										}, true);
+									}, 
+									undefined, 10000
+								);
+							}
+						}else if (action.type == "control"){
+							//control audio (stop, pause, resume, next, ...)
+							if (SepiaFW.client.controls && action.controlAction){
+								SepiaFW.ui.showInfo(SepiaFW.local.g('remote_action') + " - Media Control: " + action.controlAction, false);
+								SepiaFW.client.controls.media({
+									action: action.controlAction
+								});
+							}
+						}else{
+							SepiaFW.debug.error("remoteAction - type: media - no support yet for action type: " + action.type);
+						}
 					}
 				
 				//Unknown
