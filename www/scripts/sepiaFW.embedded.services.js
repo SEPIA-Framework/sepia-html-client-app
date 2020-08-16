@@ -535,14 +535,15 @@ function sepiaFW_build_embedded_services(){
 	}
 
 	//Build a radio dummy card
-	Services.buildRadioCardInfoDummy =  function(language, streamUrl, name, type){
+	Services.buildRadioCardInfoDummy =  function(language){
 		var cardInfo = [{
 			"cardType": "uni_list",
 			"N": 1,
 			"info": [{
-				"streamURL": streamUrl || "http://stream.radiojar.com/atr1e8aswa5tv",
-				"name": name || "SIZE RADIO",
-				"type": type || "radio"
+				"streamURL": "http://stream.radiojar.com/atr1e8aswa5tv",
+				"playlistURL": "https://www.size-radio.com/",
+				"name": "SIZE RADIO",
+				"type": "radio"
 			}]
 		}];
 		return cardInfo;

@@ -170,7 +170,7 @@ function sepiaFW_build_ui_cards(){
 				if (isFirstMove){
 					$('#sepiaFW-my-view-intro').remove();
 					isFirstMove = false;
-					SepiaFW.ui.moc.showPane(0);
+					//SepiaFW.ui.moc.showPane(0);	//after user gets the concept this is more annoying than helpful ;-)
 				}
 			});
 		});
@@ -594,7 +594,7 @@ function sepiaFW_build_ui_cards(){
 			var that = this;
 			SepiaFW.ui.onclick(that, function(){
 			//$(this).on('click', function(){
-				SepiaFW.animate.flash(newId, 2000);
+				SepiaFW.animate.flashObj(radioStation, 500);
 				var station = JSON.parse($(that).parent().attr('data-element'));
 				var action = {};
 				action.audio_url = station.streamURL;
@@ -603,16 +603,42 @@ function sepiaFW_build_ui_cards(){
 			});
 		});
 		
-		$(radioStation).find('.radioLeft').each(function(){
-			var that = this;
-			SepiaFW.ui.onclick(that, function(){
-			//$(this).on('click', function(){
-				Cards.moveToMyViewOrDelete($(that).closest(".sepiaFW-cards-flexSize-container")[0]);
-			});
-		});
+		makeRadioCardContextMenu(cardElement.id, cardBody, radioStation, cardElementInfo);
 		
 		cardElement.appendChild(cardBody);
 		return cardElement;
+	}
+	function makeRadioCardContextMenu(flexCardId, cardBody, cardBodyItem, radioElementInfo){
+		//some additional data
+		var newBodyClass = "sepiaFW-cards-list-body sepiaFW-cards-list-radioStations";			//class in case we need to create new body
+		var shareButton = false;
+		var copyUrlButton = false;
+		var customButtons = [];
+		if (radioElementInfo.playlistURL){
+			var plu = radioElementInfo.playlistURL;
+			customButtons.push({
+				buttonName: '<i class="material-icons md-inherit">queue_music</i>&nbsp;Playlist</i>',
+				fun: function(){
+					SepiaFW.ui.actions.openUrlAutoTarget(plu);
+				}
+			});
+		}
+		if (radioElementInfo.playOn){ 		//TODO: implement
+			customButtons.push({
+				buttonName: '<i class="material-icons md-inherit">airplay</i>&nbsp;Play On</i>',
+				fun: function(){
+					SepiaFW.ui.showPopup("Under construction");
+				}
+			});
+		}
+		//context menu
+		var contextMenu = makeBodyElementContextMenu(flexCardId, cardBody, cardBodyItem, cardBodyItem.id, {
+			toggleButtonSelector: ".radioLeft",
+			newBodyClass: newBodyClass,
+			shareButton: shareButton,
+			copyUrlButton: copyUrlButton,
+			customButtons: customButtons
+		});
 	}
 	
 	//TIMER AND ALARM
@@ -1161,8 +1187,9 @@ function sepiaFW_build_ui_cards(){
 		if (description && description.length > 120) description = description.substring(0, 119) + "...";
 
 		//check link
-		var testUrlProtocol = linkUrl.match(/^[a-zA-Z-_]+:/);
-		if (linkUrl && (!testUrlProtocol || !!linkUrl.match(/^(javascript|data):/i))){
+		var testUrlProtocol = linkUrl.match(/^[a-zA-Z1-9-_]+:/);
+		var testLocalPage = linkUrl.match(/^[a-zA-Z1-9-_\/]+\.html(\?|$)/);
+		if (linkUrl && ((!testUrlProtocol && !testLocalPage) || !!linkUrl.match(/^(javascript|data):/i))){
 			SepiaFW.ui.showInfo("URL has been removed from link card because it looked suspicious", true);
 			SepiaFW.debug.error("Link-Card - Tried to create card with suspicious URL: " + linkUrl);
 			linkUrl = "";
@@ -1673,7 +1700,7 @@ function sepiaFW_build_ui_cards(){
 			//create button
 			var shareBtn = document.createElement('LI');
 			shareBtn.className = "sepiaFW-cards-button sepiaFW-cards-list-contextMenu-shareBtn";
-			shareBtn.innerHTML = menuConfig.shareButton.buttonName;
+			shareBtn.innerHTML = SepiaFW.tools.sanitizeHtml(menuConfig.shareButton.buttonName);
 			SepiaFW.ui.onclick(shareBtn, function(){
 				//copy link
 				//$(contextMenu).fadeOut(500);
@@ -1703,7 +1730,7 @@ function sepiaFW_build_ui_cards(){
 			//create button
 			var copyUrlBtn = document.createElement('LI');
 			copyUrlBtn.className = "sepiaFW-cards-button sepiaFW-cards-list-contextMenu-copyUrlBtn";
-			copyUrlBtn.innerHTML = menuConfig.copyUrlButton.buttonName;
+			copyUrlBtn.innerHTML = SepiaFW.tools.sanitizeHtml(menuConfig.copyUrlButton.buttonName);
 			SepiaFW.ui.onclick(copyUrlBtn, function(){
 				//copy link
 				SepiaFW.ui.showPopup("Click OK to copy link to clipboard", {
@@ -1722,6 +1749,18 @@ function sepiaFW_build_ui_cards(){
 				});
 			}, true);
 			cmList.appendChild(copyUrlBtn);
+		}
+
+		//Custom buttons (array) - NOTE: CAREFUL! this should not be generated dynamically by user content because it can call any JS code
+		if (menuConfig.customButtons){
+			menuConfig.customButtons.forEach(function(customButtonData){
+				//create custom button
+				var btn = document.createElement('LI');
+				btn.className = "sepiaFW-cards-button sepiaFW-cards-list-contextMenu-customBtn";
+				btn.innerHTML = SepiaFW.tools.sanitizeHtml(customButtonData.buttonName);
+				SepiaFW.ui.onclick(btn, customButtonData.fun, true);	//TODO: make sure this never falls into user hands!
+				cmList.appendChild(btn);
+			});
 		}
 
 		//hide
