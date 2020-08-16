@@ -608,6 +608,8 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 					+ "<li id='sepiaFW-menu-select-music-app-li' title='Select default music app for search intents.'>"
 						+ "<span>Default music app: </span></li>"
 						//+ "<span id='sepiaFW-menu-toggle-music-cards-btn'><i class='material-icons'>art_track</i></span>"
+					+ "<li id='sepiaFW-menu-select-search-engine-li' title='Select preferred search engine for search intents.'>"
+						+ "<span>Default search engine: </span></li>"
 					+ "<li id='sepiaFW-menu-clear-app-cache-li'><span>Clear app data: </span></li>"
 					+ "<li id='sepiaFW-menu-experimental-settings-li'><span>Experimental settings </span></li>"
 						+ "<li class='sepiaFW-menu-experimental'><span><u>Note: Changes will not be permanent</u></span></li>"
@@ -981,6 +983,9 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 				//Long press - this hidden setting moved to "experimental" below
 			}, true);
 			//$('#sepiaFW-menu-toggle-music-cards-btn').off().on('click', function(){});
+
+			//Search engine selector
+			document.getElementById('sepiaFW-menu-select-search-engine-li').appendChild(Build.searchEngineSelector(SepiaFW.config.webSearchEngines));
 
 			//Wake-word stuff - Hey SEPIA
 			if (!SepiaFW.wakeTriggers){
@@ -1385,6 +1390,28 @@ function sepiaFW_build_ui_build(sepiaSessionId){
         //add button listener
         $(selector).off().on('change', function() {
             SepiaFW.config.setDefaultMusicApp($('#sepiaFW-menu-select-music-app').val());
+        });
+        return selector;
+	}
+	
+	//Build music app selector
+    Build.searchEngineSelector = function(engineCollection){
+        var selector = document.getElementById('sepiaFW-menu-select-search-engine') || document.createElement('select');
+        selector.id = 'sepiaFW-menu-select-search-engine';
+        $(selector).find('option').remove();
+        //fill
+        Object.keys(engineCollection).forEach(function(engine){
+            var option = document.createElement('option');
+            option.value = engine;
+            option.textContent = engineCollection[engine].name;
+            selector.appendChild(option);
+            if (engine == SepiaFW.config.getPreferredSearchEngine()){
+                option.selected = true;
+            }
+        });
+        //add button listener
+        $(selector).off().on('change', function() {
+            SepiaFW.config.setPreferredSearchEngine($('#sepiaFW-menu-select-search-engine').val());
         });
         return selector;
     }

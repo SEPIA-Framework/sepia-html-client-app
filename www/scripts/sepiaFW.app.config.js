@@ -263,6 +263,29 @@ function sepiaFW_build_config(){
 		return deviceGlobalLocation;
 	}
 
+	//Collection of selectable search engines
+	Config.webSearchEngines = {
+		"google": {name: "Google"},
+		"bing": {name: "Bing"},
+		"yahoo": {name: "Yahoo"},
+		"duck duck go": {name: "Duck Duck Go"},
+		"qwant": {name: "Qwant"},
+		"ecosia": {name: "Ecosia"}
+	}
+	Config.getPreferredSearchEngine = function(){
+		return prefSearchEngine;
+	}
+	Config.setPreferredSearchEngine = function(engine){
+		if (engine && Config.webSearchEngines[engine]){
+			prefSearchEngine = engine;
+			SepiaFW.debug.info("Preferred web search engine set to " + engine);
+			SepiaFW.data.set('prefSearchEngine', engine);
+		}else{
+			SepiaFW.debug.error("Preferred web search engine NOT found in list: " + engine);
+		}
+	}
+	var prefSearchEngine = "google";
+
 	//Collection of universally supported apps and their names
     Config.musicApps = {
 		"youtube": {name: "YouTube"},
@@ -284,7 +307,7 @@ function sepiaFW_build_config(){
             SepiaFW.data.set('defaultMusicApp', appTag);
 			SepiaFW.debug.info("Default music app is set to " + appTag);
         }else{
-            SepiaFW.debug.error("Music app-name not found in list: " + appTag);
+            SepiaFW.debug.error("Music app-name NOT found in list: " + appTag);
         }
     }
     Config.getDefaultMusicApp = function(){
@@ -437,6 +460,12 @@ function sepiaFW_build_config(){
 		var defaultMusicAppStored = SepiaFW.data.get('defaultMusicApp');
 		if (defaultMusicAppStored){
 			Config.setDefaultMusicApp(defaultMusicAppStored);
+		}
+
+		//Preferred search engine
+		var prefSearchEngineStored = SepiaFW.data.get('prefSearchEngine');
+		if (prefSearchEngineStored){
+			Config.setPreferredSearchEngine(prefSearchEngineStored);
 		}
 	}
 	

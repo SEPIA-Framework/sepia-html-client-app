@@ -104,6 +104,9 @@
 		padding: 5px 12px;
 		margin: 4px 2px;
 	}
+	.buttonBlock button.default-engine {
+		background: linear-gradient(45deg, #a8ee3c, #4ac293);
+	}
 	.buttonBlock button:hover {
 		color: #000;
 		background: #fff;
@@ -128,49 +131,80 @@
 			<button id="bing">Bing</button>
 			<button id="yahoo">Yahoo</button>
 			<button id="duckduck">DuckDuck</button>
+			<button id="qwant">Qwant</button>
+			<button id="ecosia">Ecosia</button>
 		</div>
 	</section>
 <!-- START JS -->
 <script type="text/javascript">
+function getURLParameter(name){
+	return decodeURIComponent((new RegExp('[?|&]' + name + '=' + '([^&;]+?)(&|#|;|$)').exec(location.search)||[,""])[1].replace(/\+/g, '%20'))||null
+}
 function ready(){
+	//default engine
+	var defaultEngine = getURLParameter("default") || "ecosia";
+	if (defaultEngine.indexOf("duck") == 0) defaultEngine = "duckduck";
+	document.getElementById(defaultEngine).className = "default-engine";
+	//search
+	var q = document.getElementById('q');
+	var urlSearch = getURLParameter("q");
+	if (urlSearch){
+		q.value = urlSearch;
+	}
+	
 	document.getElementById('google').addEventListener("click", function(){
-		var q = document.getElementById('q');
-		if(q){
+		if(q.value){
 			location.href = "https://www.google.com/search?q=" + encodeURIComponent(q.value);
 		}else{
 			location.href = "https://www.google.com";
 		}
 	});
 	document.getElementById('bing').addEventListener("click", function(){
-		var q = document.getElementById('q');
-		if(q){
+		if(q.value){
 			location.href = "https://www.bing.com/search?q=" + encodeURIComponent(q.value);
 		}else{
 			location.href = "https://www.bing.com";
 		}
 	});
 	document.getElementById('yahoo').addEventListener("click", function(){
-		var q = document.getElementById('q');
-		if(q){
+		if(q.value){
 			location.href = "https://search.yahoo.com/search;?p=" + encodeURIComponent(q.value);
 		}else{
 			location.href = "https://www.yahoo.com";
 		}
 	});
 	document.getElementById('duckduck').addEventListener("click", function(){
-		var q = document.getElementById('q');
-		if(q){
+		if(q.value){
 			location.href = "https://duckduckgo.com/?kae=d&k7=%23000000&k9=007AFF&k1=-1&q=" + encodeURIComponent(q.value);
 		}else{
 			location.href = "https://duckduckgo.com";
 		}
 	});
+	document.getElementById('qwant').addEventListener("click", function(){
+		if(q.value){
+			location.href = "https://www.qwant.com/?h=1&s=1&a=1&b=0&vt=0&hc=0&smartNews=0&theme=0&i=1&q=" + encodeURIComponent(q.value);
+		}else{
+			location.href = "https://www.qwant.com";
+		}
+	});
+	document.getElementById('ecosia').addEventListener("click", function(){
+		if(q.value){
+			location.href = "https://www.ecosia.org/search?q=" + encodeURIComponent(q.value);
+		}else{
+			location.href = "https://www.ecosia.org";
+		}
+	});
 	document.getElementById('q').addEventListener("keypress", function(e){
 		if (e.keyCode === 13){
 			//Return-Key
-			document.getElementById('duckduck').dispatchEvent(new CustomEvent("click"));
+			document.getElementById(defaultEngine).dispatchEvent(new CustomEvent("click"));
 		}
 	});
+	
+	//run directly
+	if (q.value && getURLParameter("direct")){
+		document.getElementById(defaultEngine).dispatchEvent(new CustomEvent("click"));
+	}
 }
 ready();
 </script>

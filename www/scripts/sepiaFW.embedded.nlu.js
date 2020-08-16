@@ -97,8 +97,9 @@ function sepiaFW_build_embedded_nlu(){
 			title = "Link";
 			desc = "<i>" + inputText + "</i>";
 		}else if (inputText){
-			url = "https://www.google.com/search?q=" + encodeURIComponent(inputText);
-			title = "Google Search";
+			var prefSE = SepiaFW.config.getPreferredSearchEngine();
+			url = "search.html?default="+ encodeURIComponent(prefSE) + "&direct=1&q=" + encodeURIComponent(inputText);
+			title = "Web Search";
 			desc = "<i>" + inputText + "</i>";
 		}else{
 			iconUrl = "https://sepia-framework.github.io/img/icon.png";

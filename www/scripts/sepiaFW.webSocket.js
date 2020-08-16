@@ -1260,15 +1260,15 @@ function sepiaFW_build_webSocket_client(sepiaSessionId){
 			var inAppBrowserBtn = document.getElementById("sepiaFW-shortcut-btn-inAppBrowser");
 			if (inAppBrowserBtn){
 				if (SepiaFW.ui.isCordova){
-					$(inAppBrowserBtn).off();
-					$(inAppBrowserBtn).on("click", function () {
+					$(inAppBrowserBtn).off().on("click", function(){
 						SepiaFW.ui.actions.openUrlAutoTarget("<inappbrowser-last>");	//also valid: <inappbrowser-home>
 						closeControlsMenueWithDelay();
 					});
 				}else{
-					$(inAppBrowserBtn).hide();
-					$(inAppBrowserBtn).on("click", function () {
-						SepiaFW.ui.actions.openUrlAutoTarget("search.html");
+					//$(inAppBrowserBtn).hide();
+					$(inAppBrowserBtn).off().on("click", function(){
+						var prefSE = SepiaFW.config.getPreferredSearchEngine();
+						SepiaFW.ui.actions.openUrlAutoTarget("search.html?default="+ encodeURIComponent(prefSE));
 						closeControlsMenueWithDelay();
 					});
 				}

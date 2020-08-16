@@ -127,6 +127,7 @@ function sepiaFW_build_assistant(sepiaSessionId){
 			recentPAE: ((SepiaFW.events)? SepiaFW.events.getRecentProActiveEventsReduced() : ""),
 			embeddedPlayers: SepiaFW.ui.cards.getSupportedWebPlayers(),
 			prefTempUnit: (SepiaFW.account.getUserPreferredTemperatureUnit() || "C"),
+			prefSearchEngine: (SepiaFW.config.getPreferredSearchEngine() || "google"),
 			deviceLocalSite: SepiaFW.config.getDeviceLocalSiteData()
 			//TODO: add 'SepiaFW.config.isUiHeadless' info ? Or rely on 'env' parameter?
 		};

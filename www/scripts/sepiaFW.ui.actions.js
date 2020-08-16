@@ -183,10 +183,12 @@ function sepiaFW_build_ui_actions(){
 	
 	//OPEN URLs
 	Actions.openURL = function(action, forceExternal){
+		if (!action.url) return;
 		Actions.openUrlAutoTarget(action.url, forceExternal);
 	}
 	var inAppBrowserOptions = 'location=yes,toolbar=yes,mediaPlaybackRequiresUserAction=yes,allowInlineMediaPlayback=yes,hardwareback=yes,disableswipenavigation=no,clearsessioncache=no,clearcache=no';
 	Actions.openUrlAutoTarget = function(url, forceExternal){
+		if (!url) return;
 		var urlLower = url.toLowerCase();
 		if (SepiaFW.ui.isTinyApp || SepiaFW.ui.isHeadless){
 			//Tiny and headless apps usually have no ability to open in-app browser
