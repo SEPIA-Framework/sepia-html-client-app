@@ -710,7 +710,6 @@ function sepiaFW_build_ui_cards(){
 		//buttons
 		makeTimeEventNameEditable(timeEvent);
 		makeTimeEventRemoveButton(timeEvent, cardBody);
-		//makeTimeEventToMyViewButton(timeEvent, SepiaFW.events.TIMER);
 		if (!skipAdd){
 			cardBody.appendChild(timeEvent);
 		}
@@ -731,7 +730,6 @@ function sepiaFW_build_ui_cards(){
 		//buttons
 		makeTimeEventNameEditable(timeEvent);
 		makeTimeEventRemoveButton(timeEvent, cardBody);
-		//makeTimeEventToMyViewButton(timeEvent, SepiaFW.events.ALARM);
 		if (!skipAdd){
 			cardBody.appendChild(timeEvent);
 		}
@@ -838,50 +836,6 @@ function sepiaFW_build_ui_cards(){
 			shareButton: shareButton
 		});
 	}
-	//NOTE: replaced by context menu
-	function makeTimeEventToMyViewButton(timeEvent, eventType){
-		$(timeEvent).find('.timeEventLeft').each(function(){
-			var that = this;
-
-			SepiaFW.ui.onclick(that, function(){
-				var flexCard = $(that).closest(".sepiaFW-cards-flexSize-container");
-				var title = flexCard.find('.sepiaFW-cards-list-title');
-				if (title.length > 0){
-					//single element?
-					/*
-					var isOnlyElement = false;
-					if (flexCard.find('.sepiaFW-cards-list-body').children().length == 1){
-						isOnlyElement = true;
-					}
-					*/
-					//hide save button (just to be sure the user does not save an incomplete list)
-					title.find(".sepiaFW-cards-list-saveBtn").animate({ opacity: 0.0 }, 500, function(){
-						$(this).css({opacity: 0.5, visibility: "hidden"});
-					});
-					//create new body for element
-					var cardBody = document.createElement('DIV');
-					if (eventType === SepiaFW.events.TIMER){
-						//TIMER
-						cardBody.className = "sepiaFW-cards-list-body sepiaFW-cards-list-timers";
-					}else{
-						//ALARM
-						cardBody.className = "sepiaFW-cards-list-body sepiaFW-cards-list-alarms";
-					}
-					//fade out the element, add it to new body and then move it over
-					$(timeEvent).fadeOut(500, function(){
-						var parentN = timeEvent.parentNode;
-						parentN.removeChild(timeEvent);
-						$(timeEvent).fadeIn(0);
-						cardBody.style.display = "none";
-						cardBody.appendChild(timeEvent);
-						Cards.moveToMyViewOrDelete(cardBody);
-					});
-				}else{
-					Cards.moveToMyViewOrDelete(flexCard[0]);
-				}
-			});
-		});
-	}
 	function makeTimeEventRemoveButton(timeEvent, cardBody){
 		$button = $(timeEvent).find('.timeEventRight');
 		if ($button.length > 0){
@@ -977,7 +931,7 @@ function sepiaFW_build_ui_cards(){
 					.trim();
 				newsHeadline = SepiaFW.tools.sanitizeHtml(newsHeadline);	//we do this again just to make sure the mods did not reintroduce code
 			}
-			var newsLink = elementsData[i].link;
+			//var newsLink = elementsData[i].link;
 			var newsBody = elementsData[i].description;
 			if (newsBody){
 				newsBody = SepiaFW.tools.sanitizeHtml(newsBody)
@@ -989,7 +943,7 @@ function sepiaFW_build_ui_cards(){
 				newsBody = SepiaFW.tools.sanitizeHtml(newsBody);
 				newsBody = (newsBody.length > 360)? (newsBody.substring(0, 360) + "...") : newsBody;
 			}
-			var newsPublished = elementsData[i].pubDate;
+			//var newsPublished = elementsData[i].pubDate;
 			var newsArticle = document.createElement('DIV');
 			if (i >= maxShow){
 				newsArticle.className = 'newsArticle cardBodyItem itemHidden';
@@ -998,8 +952,10 @@ function sepiaFW_build_ui_cards(){
 			}
 			//newsArticle.setAttribute('data-element', JSON.stringify(elementsData[i]));
 			newsArticle.innerHTML = "<div class='newsCenter'><h3 class='newsArticleHeadline'>" + newsHeadline + "</h3><div class='newsArticleBody'>" + newsBody + "</div></div>";
+			cardBody.appendChild(newsArticle);
+
 			//article "button"
-			(function(newsLink, newsArticle){
+			/*(function(newsLink, newsArticle){
 				SepiaFW.ui.longPressShortPressDoubleTab(newsArticle, function(){
 					//long-press - move
 					Cards.moveToMyViewOrDelete(newsArticle);
@@ -1007,8 +963,8 @@ function sepiaFW_build_ui_cards(){
 					//short-press - open
 					SepiaFW.ui.actions.openUrlAutoTarget(newsLink);
 				},'', true);
-			})(newsLink, newsArticle);
-			cardBody.appendChild(newsArticle);
+			})(newsLink, newsArticle);*/
+			makeNewsCardContextMenu(cardElement.id, cardBody, newsArticle, elementsData[i]);
 		}
 		cardElement.appendChild(cardBody);
 		
@@ -1026,6 +982,27 @@ function sepiaFW_build_ui_cards(){
 		}
 		
 		return cardElement;
+	}
+	function makeNewsCardContextMenu(flexCardId, cardBody, cardBodyItem, newsElementInfo){
+		//some additional data
+		var newBodyClass = "sepiaFW-cards-list-body sepiaFW-cards-list-newsOutlet";
+		var shareButton = false;
+		var copyUrlButton = false;
+		var newsLink = newsElementInfo.link;
+		var customButtons = [{
+			buttonName: '<i class="material-icons md-inherit">local_library</i>&nbsp;' + SepiaFW.local.g("read_article") + '</i>',
+			fun: function(){
+				SepiaFW.ui.actions.openUrlAutoTarget(newsLink);
+			}
+		}];
+		//context menu
+		var contextMenu = makeBodyElementContextMenu(flexCardId, cardBody, cardBodyItem, cardBodyItem.id, {
+			toggleButtonSelector: ".newsCenter",
+			newBodyClass: newBodyClass,
+			shareButton: shareButton,
+			copyUrlButton: copyUrlButton,
+			customButtons: customButtons
+		});
 	}
 	
 	//WEATHER

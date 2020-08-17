@@ -71,6 +71,7 @@ function sepiaFW_build_strings(){
 	StringsDE.edit = 'Bearbeiten';
 	StringsDE.copy = 'Kopieren';
 	StringsDE.show = 'Anzeigen';
+	StringsDE.open = 'Öffnen';
 	StringsDE.new = 'Neu';
 	StringsDE.retry = 'Nochmal versuchen';
 	StringsDE.tryAgain = 'Nochmal versuchen';
@@ -149,6 +150,7 @@ function sepiaFW_build_strings(){
 	StringsDE.no_music_playing = "Kannst du was hören? Wahrscheinlich wurde keine Musik gefunden.";
 	StringsDE.remote_action = "Remote-Zugriff";
 	StringsDE.remote_action_audio_stream = "Habe einen Audio Stream via Remote-Zugriff empfangen. Stream wird gestartet.";
+	StringsDE.read_article = "Artikel lesen";
 	//Link sharing
 	StringsDE.link_join_channel = "Einem Chat-Kanal beitreten."
 	StringsDE.link_open_url = "Einen Link öffnen."
@@ -244,6 +246,7 @@ function sepiaFW_build_strings(){
 	StringsEN.edit = 'Edit';
 	StringsEN.copy = 'Copy';
 	StringsEN.show = 'Show';
+	StringsEN.open = 'Open';
 	StringsEN.new = 'New';
 	StringsEN.retry = 'Retry';
 	StringsEN.tryAgain = 'Try again';
@@ -322,6 +325,7 @@ function sepiaFW_build_strings(){
 	StringsEN.no_music_playing = "Can you hear something? Probably no music found.";
 	StringsEN.remote_action = "Remote access";
 	StringsEN.remote_action_audio_stream = "I received an audio stream via remote access. Starting now.";
+	StringsEN.read_article = "Read article";
 	//Link sharing
 	StringsEN.link_join_channel = "Join a chat-channel."
 	StringsEN.link_open_url = "Open a link."
