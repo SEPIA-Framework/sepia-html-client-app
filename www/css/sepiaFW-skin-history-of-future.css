@@ -293,6 +293,11 @@ html {
 .sepiaFW-myEvents-dateHeader {
     margin: 4px 0 12px 0;
 }
+#sepiaFW-main-window .chat-buttons-area button.chat-button-custom-fun::after { 
+	bottom: calc(50% - 7px);
+    right: -4px;
+    transform: rotate(180deg);
+}
 
 #sepiaFW-chat-output .statusUpdate {
     background: #212121;

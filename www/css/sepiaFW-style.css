@@ -758,17 +758,19 @@ html.dark-skin #sepiaFW-login-help-btn {
 }
 #sepiaFW-main-window .chat-buttons-area button.chat-button-custom-fun {
 	padding-left: 16px;
-    padding-right: 16px;
+	padding-right: 16px;
+	overflow: hidden;
 }
 #sepiaFW-main-window .chat-buttons-area button.chat-button-custom-fun::after { 
 	position: absolute;
 	/*color: #181818;*/
-	bottom: 0px;
-    right: 0px;
-    content: "signal_cellular_connected_no_internet_4_bar";
     font-family: "Material Icons";
     font-size: 12px;
-    opacity: 0.25;
+	opacity: 0.25;
+	bottom: 2px;
+	right: 0px;
+	content: "hdr_strong";	/*motion_photos_on, signal_cellular_connected_no_internet_4_bar, bubble_chart*/
+	transform: rotate(90deg);
 }
 
 .sepiaFW-button {
