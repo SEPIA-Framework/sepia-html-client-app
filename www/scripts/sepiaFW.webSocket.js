@@ -49,6 +49,10 @@ function sepiaFW_build_client_interface(){
 	ClientInterface.refreshChannelList = SepiaFW.webSocket.client.refreshChannelList;			//Note: refreshes UI (not data, see above)
 	ClientInterface.getChannelInviteLink = SepiaFW.webSocket.channels.getChannelInviteLink;
 
+	ClientInterface.getConnectedUserClients = SepiaFW.webSocket.client.getConnectedUserClients;
+	ClientInterface.showConnectedUserClientsAsMenu = SepiaFW.webSocket.client.showConnectedUserClientsAsMenu;
+	ClientInterface.sendRemoteActionToOwnDevice = SepiaFW.webSocket.client.sendRemoteActionToOwnDevice;
+
 	ClientInterface.getNewMessageId = SepiaFW.webSocket.client.getNewMessageId;
 	ClientInterface.handleServerMessage = SepiaFW.webSocket.client.handleServerMessage;
 	
@@ -1872,24 +1876,24 @@ function sepiaFW_build_webSocket_client(sepiaSessionId){
 	}
 
 	//Send remote action via client connection
-	//Request data update via Socket connection (alternative to HTTP request to server endpoint)
-	/*Client.sendRemoteAction = function(type, action, data){
+	Client.sendRemoteActionToOwnDevice = function(type, action, deviceId){
+		if (!SepiaFW.account.getUserId() || !deviceId) return;	//required
 		//build data
 		var data = new Object();
 		data.dataType = "remoteAction";
 		data = addCredentialsAndParametersToData(data, true);
 		//remoteAction object
 		data.type = type;
-		data.action = action;
-		//TODO:
-		//msg.data.get("remoteUserId");
-		//msg.data.get("targetDeviceId");
-		//msg.data.get("targetChannelId");
-		//msg.data.get("skipDeviceId");
+		data.action = (typeof action != "string")? JSON.stringify(action) : action;
+		//source and target
+		data.remoteUserId = SepiaFW.account.getUserId();
+		data.targetDeviceId = deviceId;
+		data.skipDeviceId = SepiaFW.config.getDeviceId();	//skip own
+		//msg.data.get("targetChannelId");					//auto
 		var newId = ("remote-act" + "-" + ++msgId);
-		var msg = buildSocketMessage(username, serverName, "", "", data, "", newId, activeChannelId);
+		var msg = buildSocketMessage(username, serverName, "", "", data, "", newId, "<auto>");
 		Client.sendMessage(msg);
-	}*/
+	}
 	
 	Client.switchChannel = function(channelId, channelKey){
 		lastActivatedChannelId = channelId;
@@ -2223,7 +2227,8 @@ function sepiaFW_build_webSocket_client(sepiaSessionId){
 							//mark list as out-of-sync
 							if (action.details && action.details.groupId){
 								SepiaFW.ui.cards.findAllUserDataLists(action.details.groupId).forEach(function(l){
-									$(l.ele).addClass("sepiaFW-card-out-of-sync").find('.sepiaFW-cards-list-saveBtn i').html('cloud_off');
+									$(l.ele).addClass("sepiaFW-card-out-of-sync").find('.sepiaFW-cards-list-saveBtn')
+											.addClass('active').find('i').html('sync_problem'); 	//cloud_off
 								});
 							}
 
@@ -2623,6 +2628,104 @@ function sepiaFW_build_webSocket_client(sepiaSessionId){
 			SepiaFW.debug.error("Missing handler for message updateData-type: " + JSON.stringify(msgData));
 		}
 		//TODO: add 'events' refresh request
+	}
+
+	//--- WebSocket server clients endpoint ---//
+
+	Client.getConnectedUserClients = function(successCallback, errorCallback){
+		if (SepiaFW.client.isDemoMode()){
+			successCallback({clients:[
+				{role:"user", name:"Testy", id:"uid202", sessionId:3, isActive:true, deviceId:"test1", info:{
+					deviceLocalSite:null, deviceGlobalLocation:null
+				}
+			}]});
+			return;
+		}
+		SepiaFW.ui.showLoader();
+		var apiUrl = SepiaFW.config.webSocketAPI + "getOwnClientConnections";
+		var dataBody = new Object();
+		dataBody.KEY = SepiaFW.account.getKey(sepiaSessionId);
+		dataBody.client = SepiaFW.config.getClientDeviceInfo();
+		$.ajax({
+			url: apiUrl,
+			timeout: 8000,
+			type: "POST",
+			data: JSON.stringify(dataBody),
+			headers: {
+				"content-type": "application/json",
+				"cache-control": "no-cache"
+			},
+			success: function(data) {
+				SepiaFW.ui.hideLoader();
+				if (data.result && data.result === "fail"){
+					if (errorCallback) errorCallback(data);
+					return;
+				}
+				//--callback--
+				if (successCallback) successCallback(data);
+			},
+			error: function(data) {
+				SepiaFW.ui.hideLoader();
+				if (errorCallback) errorCallback("connection or authentication error");
+			}
+		});
+	}
+	Client.showConnectedUserClientsAsMenu = function(title, deviceButtonFun, closeAfterPress){
+		SepiaFW.client.getConnectedUserClients(function(data){
+			if (data.clients && data.clients.length > 0){
+				var menu = buildUserDevicesListForAction(data.clients, title, function(deviceInfo){
+					if (closeAfterPress) SepiaFW.ui.hidePopup();
+					if (deviceButtonFun) deviceButtonFun(deviceInfo);
+				});
+				SepiaFW.ui.showPopup(menu, {
+					buttonOneName: SepiaFW.local.g("abort"),
+					buttonOneAction: function(){}
+				});
+			}else{
+				SepiaFW.ui.showPopup(SepiaFW.local.g('no_other_user_clients_found'));
+			}
+		}, function(err){
+			SepiaFW.ui.showPopup(SepiaFW.local.g('error_after_try'));
+			SepiaFW.debug.error("Failed to get connected clients - Msg.:", err);
+		});
+	}
+	function buildUserDevicesListForAction(clients, title, deviceButtonFun){
+		var menu = document.createElement("div");
+		var header = document.createElement("p");
+		header.style.fontWeight = "bold";
+		header.style.fontSize = "16px";
+		header.innerText = title;
+		menu.appendChild(header);
+		clients.forEach(function(cl){
+			if (!cl.deviceId) return;
+			var type = "", name = "", index = "";
+			if (cl.info && cl.info.deviceLocalSite && cl.info.deviceLocalSite.type){
+				type = cl.info.deviceLocalSite.type || "";
+				name = cl.info.deviceLocalSite.name || "";
+				index = cl.info.deviceLocalSite.index || "";
+			}
+			var info;
+			if (type == "room"){
+				info = (name + " " + index).trim() || "Undefined room";
+			}else{
+				info = (type + " " + name + " " + index ).replace(/\s+/, " ").trim() 
+					|| SepiaFW.local.g("not_defined");
+			}
+			var device = document.createElement("div");
+			device.style.display = "flex";
+			device.style.flexDirection = "column";
+			device.innerHTML = SepiaFW.tools.sanitizeHtml(
+				"<button>" 
+					+ "<span>" + SepiaFW.local.g("deviceId") + ": <b>" + cl.deviceId + "</b></span><br>"
+					+ "<span>Info: " + info.replace(/^./, info[0].toUpperCase()) + "</span>" +
+				"</button>"
+			);
+			menu.appendChild(device);
+			$(device).on("click", function(){
+				deviceButtonFun(cl);
+			});
+		});
+		return menu;
 	}
 	
 	return Client;
