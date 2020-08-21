@@ -89,6 +89,11 @@ html {
 #sepiaFW-assist-btn-area.loading {
 	border-color: #d9d9d9;
 }
+#sepiaFW-assist-btn-orbiter1 {
+	bottom: 0px;
+    right: 0px;
+    border-radius: 3px;
+}
 
 #sepiaFW-chat-controls-speech-box > div {
 	background: #000;

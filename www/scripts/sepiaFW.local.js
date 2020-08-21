@@ -73,6 +73,8 @@ function sepiaFW_build_strings(){
 	StringsDE.show = 'Anzeigen';
 	StringsDE.open = 'Öffnen';
 	StringsDE.new = 'Neu';
+	StringsDE.unknown = 'Unbekannt';
+	StringsDE.not_defined = 'Nicht definiert';
 	StringsDE.retry = 'Nochmal versuchen';
 	StringsDE.tryAgain = 'Nochmal versuchen';
 	StringsDE.tryReconnect = 'Neu verbinden';
@@ -133,6 +135,7 @@ function sepiaFW_build_strings(){
 	StringsDE.atClock = 'um';
 	StringsDE.toMe = 'zu mir';
 	//More errors/info
+	StringsDE.error_after_try = "Habs versucht aber irgendwas ging schief. Versuch es vielleicht später noch mal?!";
 	StringsDE.serverVersionTooLow = 'Beachte: Deine SEPIA Server Version ist niedrig und manche Features des Clients funktionieren eventuell nicht wie erwartet. Bitte führe ein Server Update durch, wenn möglich!';
 	StringsDE.mesh_node_fail = 'Sorry, die Mesh-Node Funktion zeigte einen Fehler.';
 	StringsDE.no_client_support = 'Sorry, aber diese Version der App unterstütz die aufgerufene Aktion nicht.';
@@ -145,12 +148,14 @@ function sepiaFW_build_strings(){
 	StringsDE.missing_clexi_connection = "Keine Verbindung zum CLEXI Server.";
 	StringsDE.missing_clexi_plugin = "CLEXI Server fehlt ein Plugin.";
 	StringsDE.runtime_command_success = "Systembefehl erfolgreich.";
+	StringsDE.no_other_user_clients_found = "Sorry, aber ich habe keine weiteren, aktiven Geräte gefunden von dir.";
 	//Service and action texts
 	StringsDE.opening_link = "Link wird geöffnet.";
 	StringsDE.no_music_playing = "Kannst du was hören? Wahrscheinlich wurde keine Musik gefunden.";
 	StringsDE.remote_action = "Remote-Zugriff";
 	StringsDE.remote_action_audio_stream = "Habe einen Audio Stream via Remote-Zugriff empfangen. Stream wird gestartet.";
 	StringsDE.read_article = "Artikel lesen";
+	StringsDE.choose_device_for_music = "Wähle ein Gerät auf dem du die Musik abspielen willst";
 	//Link sharing
 	StringsDE.link_join_channel = "Einem Chat-Kanal beitreten."
 	StringsDE.link_open_url = "Einen Link öffnen."
@@ -248,6 +253,8 @@ function sepiaFW_build_strings(){
 	StringsEN.show = 'Show';
 	StringsEN.open = 'Open';
 	StringsEN.new = 'New';
+	StringsEN.unknown = 'Unknown';
+	StringsEN.not_defined = 'Not defined';
 	StringsEN.retry = 'Retry';
 	StringsEN.tryAgain = 'Try again';
 	StringsEN.tryReconnect = 'Try reconnect';
@@ -308,6 +315,7 @@ function sepiaFW_build_strings(){
 	StringsEN.atClock = 'at';
 	StringsEN.toMe = 'to me';
 	//More errors/info
+	StringsEN.error_after_try = "I've tried but something went wrong. Try again later maybe?!";
 	StringsEN.serverVersionTooLow = 'Note: Your SEPIA server version is low and some features of the client might not work as expected. Please update the server when possible!';
 	StringsEN.mesh_node_fail = 'Sorry, the Mesh-Node function showed an error.';
 	StringsEN.no_client_support = 'Sorry, but this version of the app does not support the requested action.';
@@ -320,12 +328,14 @@ function sepiaFW_build_strings(){
 	StringsEN.missing_clexi_connection = "No connection to CLEXI server.";
 	StringsEN.missing_clexi_plugin = "CLEXI server is missing a plugin.";
 	StringsEN.runtime_command_success = "System command was successful.";
+	StringsEN.no_other_user_clients_found = "I'm sorry, but I haven't found any other active devices of yours.";
 	//Service and action texts
 	StringsEN.opening_link = "Opening link.";
 	StringsEN.no_music_playing = "Can you hear something? Probably no music found.";
 	StringsEN.remote_action = "Remote access";
-	StringsEN.remote_action_audio_stream = "I received an audio stream via remote access. Starting now.";
+	StringsEN.remote_action_audio_stream = "I've received an audio stream via remote access. Starting now.";
 	StringsEN.read_article = "Read article";
+	StringsEN.choose_device_for_music = "Choose a device to play your music on";
 	//Link sharing
 	StringsEN.link_join_channel = "Join a chat-channel."
 	StringsEN.link_open_url = "Open a link."

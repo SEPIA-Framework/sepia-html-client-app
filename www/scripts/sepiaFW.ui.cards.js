@@ -400,7 +400,8 @@ function sepiaFW_build_ui_cards(){
 		if (cardElementInfo._id){
 			Cards.findAllUserDataLists(cardElementInfo._id).forEach(function(l){
 				if (l.data && l.data.lastEdit != cardElementInfo.lastEdit){
-					$(l.ele).addClass("sepiaFW-card-out-of-sync").find('.sepiaFW-cards-list-saveBtn i').html('cloud_off');
+					$(l.ele).addClass("sepiaFW-card-out-of-sync").find('.sepiaFW-cards-list-saveBtn')
+							.addClass('active').find('i').html('sync_problem'); 	//cloud_off
 				}
 			});
 		}
@@ -623,11 +624,21 @@ function sepiaFW_build_ui_cards(){
 				}
 			});
 		}
-		if (radioElementInfo.playOn){ 		//TODO: implement
+		if (radioElementInfo.streamURL){
 			customButtons.push({
 				buttonName: '<i class="material-icons md-inherit">airplay</i>&nbsp;Play On</i>',
 				fun: function(){
-					SepiaFW.ui.showPopup("Under construction");
+					//play stream on different device
+					SepiaFW.client.showConnectedUserClientsAsMenu(SepiaFW.local.g('choose_device_for_music'), 
+						function(deviceInfo){
+							SepiaFW.client.sendRemoteActionToOwnDevice("media", {
+								type: "audio_stream",
+								name: radioElementInfo.name,
+								streamURL: radioElementInfo.streamURL,
+								playlistURL: radioElementInfo.playlistURL
+							}, deviceInfo.deviceId);
+						}, true
+					);
 				}
 			});
 		}
@@ -1027,16 +1038,17 @@ function sepiaFW_build_ui_cards(){
 									+ "<div class='weatherNowSmallData'>" + makeWeatherNowTmoSmallData(data) + "</div>"); 		//NOTE: this is inside one big SANITIZER
 		//weatherNowTmoSmall.setAttribute('data-element', JSON.stringify(cardElementInfo));
 		cardBody.appendChild(weatherNowTmoSmall);
+
+		cardElement.appendChild(cardBody);
+
+		//context menu
+		makeWeatherCardContextMenu(cardElement.id, cardBody, cardElement, cardElementInfo);
+
 		//details part
 		var weatherNowTmoDetails = document.createElement('DIV');
 		weatherNowTmoDetails.className = 'weatherNowDetails itemHidden cardBodyItem';
 		weatherNowTmoDetails.innerHTML = makeWeatherNowTmoDetailsData(cardElementInfo.details, data.units);
 		cardBody.appendChild(weatherNowTmoDetails);
-		
-		cardElement.appendChild(cardBody);
-
-		//context menu - TODO: add?
-		//var contextMenu = makeBodyElementContextMenu(cardBody, {});
 		
 		//footer
 		var footerConfig = {
@@ -1047,16 +1059,21 @@ function sepiaFW_build_ui_cards(){
 		var cardFooter = makeFooter(footerConfig);
 		//cardBody.style.paddingBottom = '0px';
 		cardElement.appendChild(cardFooter);
-		
-		//extra buttons
-		$(weatherNowTmoSmall).find('.weatherNowSmallImage').each(function(){
-			var that = this;
-			SepiaFW.ui.onclick(that, function(){
-				Cards.moveToMyViewOrDelete($(that).parent().parent().parent()[0]);
-			});
-		});
 				
 		return cardElement;
+	}
+	function makeWeatherCardContextMenu(flexCardId, cardBody, cardBodyItem, weatherElementInfo){
+		//some additional data
+		var newBodyClass = "sepiaFW-cards-list-body sepiaFW-cards-list-weatherA";			//class in case we need to create new body
+		var shareButton = false;
+		var copyUrlButton = false;
+		//context menu
+		var contextMenu = makeBodyElementContextMenu(flexCardId, cardBody, cardBodyItem, cardBodyItem.id, {
+			toggleButtonSelector: ".weatherNowSmallImage",
+			newBodyClass: newBodyClass,
+			shareButton: shareButton,
+			copyUrlButton: copyUrlButton
+		});
 	}
 	function makeWeatherNowTmoSmallData(data){
 		var unitReduced = data.units.replace(/C|celsius|F|fahrenheit/, "");
@@ -1467,19 +1484,21 @@ function sepiaFW_build_ui_cards(){
 		if (addSaveListButton){
 			var saveBtn = document.createElement('BUTTON');
 			saveBtn.className = "sepiaFW-cards-list-saveBtn";
-			saveBtn.innerHTML = "<i class='material-icons md-mnu'>&#xE864;</i>";
+			saveBtn.innerHTML = "<i class='material-icons md-mnu'>cloud_upload</i>";
 			var storeFun = function(listInfoObj){
 				var writeData = {};
 				writeData.lists = listInfoObj;
 				SepiaFW.account.saveList(listInfoObj, function(data){
 					SepiaFW.debug.log('Account - successfully stored list: ' + listInfoObj.indexType + ", " + listInfoObj.title);
 					//deactivate save button
-					$(saveBtn).removeClass('active');
+					$(saveBtn).removeClass('active').find('i').html('cloud_upload');
+					$(cardElement).removeClass("sepiaFW-card-out-of-sync");
 					//mark all same lists as out-of-sync - TODO: should we remove or update them instead?
 					if (listInfoObj._id){
 						Cards.findAllUserDataLists(listInfoObj._id).forEach(function(l){
 							if (l.ele != cardElement){
-								$(l.ele).addClass("sepiaFW-card-out-of-sync").find('.sepiaFW-cards-list-saveBtn i').html('cloud_off');
+								$(l.ele).addClass("sepiaFW-card-out-of-sync").find('.sepiaFW-cards-list-saveBtn')
+										.addClass('active').find('i').html('sync_problem'); 	//cloud_off
 							}
 						});
 					}
