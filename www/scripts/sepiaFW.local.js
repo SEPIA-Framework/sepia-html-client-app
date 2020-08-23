@@ -156,6 +156,7 @@ function sepiaFW_build_strings(){
 	StringsDE.remote_action_audio_stream = "Habe einen Audio Stream via Remote-Zugriff empfangen. Stream wird gestartet.";
 	StringsDE.read_article = "Artikel lesen";
 	StringsDE.choose_device_for_music = "Wähle ein Gerät auf dem du die Musik abspielen willst";
+	StringsDE.relative_precipitation = "relativer Niederschlag";
 	//Link sharing
 	StringsDE.link_join_channel = "Einem Chat-Kanal beitreten."
 	StringsDE.link_open_url = "Einen Link öffnen."
@@ -336,6 +337,7 @@ function sepiaFW_build_strings(){
 	StringsEN.remote_action_audio_stream = "I've received an audio stream via remote access. Starting now.";
 	StringsEN.read_article = "Read article";
 	StringsEN.choose_device_for_music = "Choose a device to play your music on";
+	StringsEN.relative_precipitation = "relative precipitation";
 	//Link sharing
 	StringsEN.link_join_channel = "Join a chat-channel."
 	StringsEN.link_open_url = "Open a link."

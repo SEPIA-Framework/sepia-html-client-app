@@ -1096,36 +1096,65 @@ function sepiaFW_build_ui_cards(){
 		}
 		var detailsHTML = "<ul>";
 		for (i=0; i<data.length; i++){
+			//console.error(JSON.stringify(data[i]));
+			var isPrecipAmmount = (data[i].precipRelative != undefined)? true : false;
 			var precipValue = Math.round((data[i].precipRelative || data[i].precipProb || 0.0) * 100);	//NOTE: -100 means NO DATA
 			var precipType = data[i].precipType;
 			var precipSymbol = "";
+			var precipIcon = data[i].icon;
+			if (!precipType && precipIcon){
+				if (precipIcon.indexOf("rain") >= 0) precipType = "rain";
+				else if (precipIcon.indexOf("snow") >= 0) precipType = "snow";
+				else if (precipIcon.indexOf("sleet") >= 0) precipType = "sleet";
+			}
 			var temp = (isHourly)? (data[i].tempA + unit) : (data[i].tempA  + unit + " - " + data[i].tempB + unit);
-			if (precipType && (precipValue>2)){
+			var warning = data[i].warning;
+			if (precipType && (isPrecipAmmount || precipValue > 2)){
 				if (precipType === "snow"){
 					precipSymbol = "<img src='img/weather/snowflakes.svg' onload='SVGInject(this)' alt='snow' class='precipSymbol'>";
 				}else{
 					precipSymbol = "<img src='img/weather/rain-drops.svg' onload='SVGInject(this)' alt='rain' class='precipSymbol'>";
 				}
 			}else{
-				if (data[i].icon){
-					if (data[i].icon.indexOf("fair") >= 0 || data[i].icon.indexOf("clear") >= 0 || data[i].icon.indexOf("partly-cloudy") >= 0){
-						if (data[i].icon.indexOf("night") >= 0){
+				if (precipIcon){
+					if (precipIcon.indexOf("fair") >= 0 || precipIcon.indexOf("clear") >= 0){
+						if (precipIcon.indexOf("night") >= 0){
 							precipSymbol = "<img src='img/weather/clear-night.svg' onload='SVGInject(this)' alt='clear' class='precipSymbol'>";
 						}else{
 							precipSymbol = "<img src='img/weather/clear-day.svg' onload='SVGInject(this)' alt='clear' class='precipSymbol'>";
 						}
+					}else if (precipIcon.indexOf("partly-cloudy") >= 0){
+						if (precipIcon.indexOf("night") >= 0){
+							precipSymbol = "<img src='img/weather/partly-cloudy-night.svg' onload='SVGInject(this)' alt='cloudy' class='precipSymbol'>";
+						}else{
+							precipSymbol = "<img src='img/weather/partly-cloudy-day.svg' onload='SVGInject(this)' alt='cloudy' class='precipSymbol'>";
+						}
 					}else{
-						precipSymbol = "<img src='img/weather/default.svg' onload='SVGInject(this)' alt='clear' class='precipSymbol'>";	
+						precipSymbol = "<img src='img/weather/default.svg' onload='SVGInject(this)' alt='default' class='precipSymbol'>";	
 					}
 				}else{
-					//precipSymbol = "<img src='img/weather/clear-day.png' alt='clear' class='precipSymbol'>";
-					precipSymbol = "<img src='img/weather/default.svg' onload='SVGInject(this)' alt='clear' class='precipSymbol'>";
+					precipSymbol = "<img src='img/weather/default.svg' onload='SVGInject(this)' alt='default' class='precipSymbol'>";
 				}
+			}
+			if (warning){
+				if (warning.indexOf("wind") >= 0){
+					precipSymbol += "<img src='img/weather/wind.svg' onload='SVGInject(this)' alt='wind' class='precipSymbol'>";
+				}
+				if (warning.indexOf("fog") >= 0){
+					precipSymbol += "<img src='img/weather/fog.svg' onload='SVGInject(this)' alt='fog' class='precipSymbol'>";
+				}
+			}
+			var precipInfo;
+			if ((isPrecipAmmount && precipValue > 0) || precipValue > 2){
+				precipInfo = precipSymbol + "<span title='relative amount of precipitation compared to very heavy rain/snow (similar to QPF)'>" 
+					+ SepiaFW.tools.sanitizeHtml(precipValue) + (isPrecipAmmount? " rp" : "%") + "</span>";
+			}else{
+				precipInfo = precipSymbol;
 			}
 			detailsHTML += "<li>"
 							+ "<div>" + SepiaFW.tools.sanitizeHtml(data[i].tag) + "</div>"
 							+ "<div>" + SepiaFW.tools.sanitizeHtml(temp) + "</div>"
-							+ "<div>" + ((precipValue > 2)? (precipSymbol + "<span>" + SepiaFW.tools.sanitizeHtml(precipValue) + "%</span>") : (precipSymbol)) + "</div>"
+							+ "<div>" + precipInfo + "</div>"
 						+ "</li>";
 		}
 		detailsHTML += "</ul>";

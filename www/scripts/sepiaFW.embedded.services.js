@@ -581,19 +581,21 @@ function sepiaFW_build_embedded_services(){
 					}, {
 						"timeUNIX": 1571479200000, "precipType": null,	"tag": "12:00",	"precipRelative": 0, "tempA": 14
 					}, {
-						"timeUNIX": 1571486400000, "precipType": "rain", "tag": "14:00", "precipRelative": 0.04, "tempA": 15
+						"timeUNIX": 1571486400000, "precipType": null, "tag": "14:00", "icon": "rain", "precipRelative": 0.02, "tempA": 15, "warning": null
 					}, {
-						"timeUNIX": 1571493600000, "precipType": "rain", "tag": "16:00", "precipRelative": 0.03, "tempA": 16
+						"timeUNIX": 1571493600000, "precipType": null, "tag": "16:00", "icon": "partly-cloudy-day", "precipRelative": 0, "tempA": 12, "warning": "wind"
 					}, {
-						"timeUNIX": 1571500800000, "precipType": "rain", "tag": "18:00", "precipRelative": 0.03, "tempA": 16
+						"timeUNIX": 1571500800000, "precipType": "rain", "tag": "18:00", "icon": "partly-cloudy-day", "precipRelative": 0.05, "tempA": 10, "warning": "wind"
 					}, {
-						"timeUNIX": 1571508000000, "precipType": "rain", "tag": "20:00", "precipRelative": 0.16, "tempA": 14
+						"timeUNIX": 1571508000000, "precipType": "rain", "tag": "20:00", "precipRelative": 0.16, "tempA": 8
 					}, {
-						"timeUNIX": 1571515200000, "precipType": "rain", "tag": "22:00", "precipRelative": 0.15, "tempA": 13
+						"timeUNIX": 1571515200000, "precipType": "rain", "tag": "22:00", "precipRelative": 0.15, "tempA": 5, "warning": "fog"
 					}, {
-						"timeUNIX": 1571522400000, "precipType": "snow", "tag": "00:00", "precipRelative": 0.11, "tempA": 12
+						"timeUNIX": 1571522400000, "precipType": "snow", "tag": "00:00", "precipRelative": 0.11, "tempA": 0
 					}, {
-						"timeUNIX": 1571529600000, "precipType": "snow", "tag": "02:00", "precipRelative": 0.08, "tempA": 12
+						"timeUNIX": 1571529600000, "precipType": "snow", "tag": "02:00", "precipRelative": 1.18, "tempA": -10, "warning": "wind"
+					}, {
+						"timeUNIX": 1571529600000, "precipType": null, "tag": "04:00", "icon": "partly-cloudy-night", "precipRelative": 0, "tempA": -5
 					}]
 				},
 				"type": "weatherNow"

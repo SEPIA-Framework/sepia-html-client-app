@@ -552,6 +552,9 @@
 	margin: 2px 0px 0px 0px;
 	padding: 0px;
 	text-align: center;
+	display: flex;
+    justify-content: center;
+    align-items: center;
 }
 .sepiaFW-cards-list-body .weatherNowDetails li:first-of-type {
 	border-radius: 3px 3px 0 0;
@@ -560,11 +563,14 @@
 	border-radius: 0 0 3px 3px;
 }
 .sepiaFW-cards-list-body .weatherNowDetails li div {
-	display: inline-block;
-    width: calc(33% - 10px);
-	padding: 5px;
-	margin: 0 5px 0 5px;
-	text-align: center;
+	display: flex;
+    flex: 0 1 33%;
+    justify-content: center;
+    align-items: center;
+    max-width: 33.3%;
+    padding: 5px;
+    margin: 0;
+    text-align: center;
 }
 .sepiaFW-cards-list-body .weatherNowDetails li div img.precipSymbol,
 .sepiaFW-cards-list-body .weatherNowDetails li div object.precipSymbol {
@@ -572,17 +578,18 @@
     vertical-align: bottom;
 	-webkit-filter: invert(1);
     filter: invert(1);
-	margin-right: 5px;
+	margin: 0;
 }
 .sepiaFW-cards-list-body .weatherNowDetails li div svg.precipSymbol {
 	width: 20px;
 	height: 20px;
     vertical-align: bottom;
-	margin-right: 5px;
+	margin: 0;
 }
 .sepiaFW-cards-list-body .weatherNowDetails li div span {
-	min-width: 40px;
-    display: inline-block;
+	min-width: 35px;
+	display: inline-block;
+	margin: 0 0 0 5px;
 }
 
 /* --- LINK CARDS --- */
