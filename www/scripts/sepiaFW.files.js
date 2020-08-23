@@ -7,6 +7,7 @@ function sepiaFW_build_files(){
 	//- <custom_data> 	- Browser: "xtensions/custom-data" 	- Android: (cordova.file.externalDataDirectory) 	- iOS: (cordova.file.documentsDirectory)
 	//- <local_data> 	- Browser: "xtensions/local-data" 	- Android/iOS: (cordova.file.dataDirectory)
 	//- <app_data> 		- Browser: [base folder] 			- Android/iOS: (cordova.file.applicationDirectory + "www")
+	//NOTE: for server paths (including this) see: SepiaFW.config.replacePathTagWithActualPath
 	Files.replaceSystemFilePath = function(path){
 		if (SepiaFW.ui.isCordova && cordova.file && (SepiaFW.ui.isAndroid || SepiaFW.ui.isIOS)){
 			if (path.indexOf("<custom_data>") == 0){

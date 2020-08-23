@@ -346,6 +346,12 @@ function sepiaFW_build_embedded_services(){
 				onSpeechToTextInputHandler: "handleSttData", onChatOutputHandler: "handleChatOutput"
 			}
 		}),
+		"frame_5": Services.buildCustomActionInfo("open_frames_view", {
+			info: {
+				pageUrl: "<assist_server>/views/demo-view.html", onOpen: "sayHelloOnOpen", 
+				onSpeechToTextInputHandler: "handleSttData", onChatOutputHandler: "handleChatOutput"
+			}
+		}),
 		"custom_event_btn_1": Services.buildCustomActionInfo("button_custom_event", {
 			title: "Test", name: "test", data: {"button": 1}
 		}),

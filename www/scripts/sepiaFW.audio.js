@@ -691,6 +691,7 @@ function sepiaFW_build_audio(sepiaSessionId){
 		}else if (audioPlayer === 'tts'){
 			audioPlayer = speaker;
 		}
+		if (audioURL) audioURL = SepiaFW.config.replacePathTagWithActualPath(audioURL);
 		
 		if (audioURL && audioPlayer == player){
 			beforeLastAudioStream = lastAudioStream;

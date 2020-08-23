@@ -54,6 +54,17 @@ function sepiaFW_build_config(){
 		//return SepiaFW.tools.isSameOrigin(url, Config.assistAPI); 		//protocol + host + port
 		return (url.indexOf(Config.assistAPI) == 0);
 	}
+	//replace specific path
+	Config.replacePathTagWithActualPath = function(path){
+		//server paths
+		path = path
+			.replace("<assist_server>/", Config.assistAPI)
+			.replace("<teach_server>/", Config.teachAPI)
+			.replace("<chat_server>/", Config.webSocketAPI);
+		//local app paths - e.g. <custom_data>, <local_data>, <app_data>
+		path = SepiaFW.files.replaceSystemFilePath(path);
+		return path;
+	}
 	
 	//language
 	var lang = SepiaFW.tools.getURLParameter("lang") || SepiaFW.data.get('app-language') || navigator.language || navigator.userLanguage;

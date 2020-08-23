@@ -28,10 +28,14 @@ function sepiaFW_build_frames(){
 
 	Frames.getLocalOrDefaultPage = function(pageUrl, languageCode){
 		var localCollection = localPages[pageUrl];
+		var resPageUrl;
 		if (localCollection){
-			return localCollection[languageCode] || pageUrl;
+			resPageUrl = localCollection[languageCode] || pageUrl;
+		}else{
+			resPageUrl = pageUrl;
 		}
-		return pageUrl;
+		resPageUrl = SepiaFW.config.replacePathTagWithActualPath(resPageUrl);
+		return resPageUrl;
 	}
 	Frames.setLocalPage = function(pageUrl, languageCode, localPage){
 		var localCollection = localPages[pageUrl];
