@@ -997,9 +997,12 @@ function sepiaFW_build_ui_cards(){
 	function makeNewsCardContextMenu(flexCardId, cardBody, cardBodyItem, newsElementInfo){
 		//some additional data
 		var newBodyClass = "sepiaFW-cards-list-body sepiaFW-cards-list-newsOutlet";
-		var shareButton = false;
-		var copyUrlButton = false;
 		var newsLink = newsElementInfo.link;
+		var shareButton = false;
+		var copyUrlButton = {
+			buttonName: SepiaFW.local.g('copyUrl'),
+			url: newsLink
+		}
 		var customButtons = [{
 			buttonName: '<i class="material-icons md-inherit">local_library</i>&nbsp;' + SepiaFW.local.g("read_article") + '</i>',
 			fun: function(){
@@ -1334,15 +1337,6 @@ function sepiaFW_build_ui_cards(){
 		})(linkUrl);
 		
 		//extra buttons
-		/*
-		$(linkCardEle).find('.linkCardLogo').each(function(){
-			var that = this;
-			SepiaFW.ui.onclick(that, function(){
-			//$(this).on('click', function(){
-				Cards.moveToMyViewOrDelete($(that).closest('.sepiaFW-cards-flexSize-container')[0]);
-			});
-		});
-		*/
 		makeLinkCardContextMenu(cardElement.id, cardBody, linkCardEle, cardElementInfo, data.type);
 		
 		cardElement.appendChild(cardBody);
@@ -1433,7 +1427,7 @@ function sepiaFW_build_ui_cards(){
 		//move to my view
 		var moveToMyViewBtn = document.createElement('LI');
 		moveToMyViewBtn.className = "sepiaFW-cards-list-moveBtn";
-		moveToMyViewBtn.innerHTML = '<i class="material-icons md-24">add_to_home_screen</i>'; //SepiaFW.local.g('moveToMyView');
+		moveToMyViewBtn.innerHTML = '<i class="material-icons md-24">add_to_home_screen</i>'; //SepiaFW.local.g('moveToMyViewWithIcon');
 		moveToMyViewBtn.title = SepiaFW.local.g('moveToMyView');
 		SepiaFW.ui.onclick(moveToMyViewBtn, function(){
 			var flexBox = $(moveToMyViewBtn).closest('.sepiaFW-cards-flexSize-container');
@@ -1473,7 +1467,7 @@ function sepiaFW_build_ui_cards(){
 		//hide
 		var cmHideBtn = document.createElement('LI');
 		cmHideBtn.className = "sepiaFW-cards-list-contextMenu-hideBtn";
-		cmHideBtn.innerHTML = '<i class="material-icons md-24">visibility_off</i>'; //SepiaFW.local.g('hideItem');
+		cmHideBtn.innerHTML = '<i class="material-icons md-24">visibility_off</i>'; //SepiaFW.local.g('hideItemWithIcon');
 		cmHideBtn.title = SepiaFW.local.g('hideItem');
 		SepiaFW.ui.onclick(cmHideBtn, function(){
 			$(cmHideBtn).closest('.sepiaFW-cards-flexSize-container').fadeOut(300, function(){
@@ -1649,7 +1643,7 @@ function sepiaFW_build_ui_cards(){
 		if (menuConfig.myViewButton == undefined || menuConfig.myViewButton == true){
 			var moveToMyViewBtn = document.createElement('LI');
 			moveToMyViewBtn.className = "sepiaFW-cards-button sepiaFW-cards-list-moveBtn"; 		//will be surpressed inside '#sepiaFW-my-view' via CSS (here we have no destination yet)
-			moveToMyViewBtn.innerHTML = SepiaFW.local.g('moveToMyView'); //'<i class="material-icons md-24">add_to_home_screen</i>';
+			moveToMyViewBtn.innerHTML = SepiaFW.local.g('moveToMyViewWithIcon');
 			moveToMyViewBtn.title = SepiaFW.local.g('moveToMyView');
 			SepiaFW.ui.onclick(moveToMyViewBtn, function(){
 				var flexCard = $(moveToMyViewBtn).closest(".sepiaFW-cards-flexSize-container");
@@ -1792,7 +1786,7 @@ function sepiaFW_build_ui_cards(){
 		if (menuConfig.hideButton == undefined || menuConfig.hideButton == true){
 			var cmHideBtn = document.createElement('LI');
 			cmHideBtn.className = "sepiaFW-cards-button sepiaFW-cards-list-contextMenu-hideBtn";
-			cmHideBtn.innerHTML = SepiaFW.local.g('hideItem'); //'<i class="material-icons md-24">visibility_off</i>';
+			cmHideBtn.innerHTML = SepiaFW.local.g('hideItemWithIcon');
 			cmHideBtn.title = SepiaFW.local.g('hideItem');
 			SepiaFW.ui.onclick(cmHideBtn, function(){
 				var flexCard = $(cmHideBtn).closest(".sepiaFW-cards-flexSize-container");

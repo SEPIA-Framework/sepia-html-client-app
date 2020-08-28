@@ -64,7 +64,7 @@ function sepiaFW_build_speech(){
 	Speech.getAsrEngine = function(){
 		return Speech.asrEngine;
 	}
-	Speech.setAsrEngine = function(asrEngine){
+	Speech.setAsrEngine = function(asrEngine, asrEngineInfo){
 		if (asrEngine == 'native'){
 			if (!Speech.isWebKitAsrSupported){
 				SepiaFW.debug.err("ASR: Tried to set native ASR engine but it is not supported by this client!");
@@ -74,6 +74,10 @@ function sepiaFW_build_speech(){
 			if (!Speech.isWebSocketAsrSupported){
 				SepiaFW.debug.err("ASR: Tried to set (SEPIA compatible) socket ASR engine but it is not supported by this client!");
 				asrEngine = "";
+			}else{
+				if (asrEngineInfo && asrEngineInfo.url){
+					SepiaFW.speechWebSocket.setSocketURI(asrEngineInfo.url);
+				}
 			}
 		}
 		if (!asrEngine){
@@ -89,6 +93,10 @@ function sepiaFW_build_speech(){
 			Speech.asrEngine = asrEngine;
 			SepiaFW.debug.log("ASR: Using '" + asrEngine + "' engine.");
 		}
+		//refresh UI
+		$('#sepiaFW-menu-select-stt').val(asrEngine);
+		
+		return asrEngine;
 	} 
 	Speech.setAsrEngine(Speech.asrEngine);
 

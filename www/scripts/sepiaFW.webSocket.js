@@ -2696,8 +2696,10 @@ function sepiaFW_build_webSocket_client(sepiaSessionId){
 		header.style.fontSize = "16px";
 		header.innerText = title;
 		menu.appendChild(header);
+		var thisDevice = SepiaFW.config.getDeviceId();
 		clients.forEach(function(cl){
 			if (!cl.deviceId) return;
+			var isThisDevice = (cl.deviceId == thisDevice);
 			var type = "", name = "", index = "";
 			if (cl.info && cl.info.deviceLocalSite && cl.info.deviceLocalSite.type){
 				type = cl.info.deviceLocalSite.type || "";
@@ -2715,8 +2717,9 @@ function sepiaFW_build_webSocket_client(sepiaSessionId){
 			device.style.display = "flex";
 			device.style.flexDirection = "column";
 			device.innerHTML = SepiaFW.tools.sanitizeHtml(
-				"<button>" 
-					+ "<span>" + SepiaFW.local.g("deviceId") + ": <b>" + cl.deviceId + "</b></span><br>"
+				"<button class='" + (isThisDevice? "same-device" : "") + "'>" 
+					+ "<span>" + SepiaFW.local.g("deviceId") + ": <b>" + cl.deviceId + "</b>" 
+						+ (isThisDevice? (" (<i>" + SepiaFW.local.g("thisDevice") + "</i>)") : "") + "</span><br>"
 					+ "<span>Info: " + info.replace(/^./, info[0].toUpperCase()) + "</span>" +
 				"</button>"
 			);
