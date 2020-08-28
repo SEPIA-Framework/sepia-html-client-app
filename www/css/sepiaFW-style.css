@@ -257,6 +257,9 @@ body {
 #sepiaFW-popup-message i {
 	color: #ceff1a;
 }
+#sepiaFW-popup-message button i {
+	color: inherit;
+}
 #sepiaFW-popup-message .accent {
 	color: #4ec48f;
 }
