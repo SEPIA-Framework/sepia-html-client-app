@@ -37,7 +37,9 @@
 		//Animation state "listener" (listening, speaking, loading, idle, etc.)
 		onAnimationStateChange: function(animState){
 			$('#sepiaFW-frames-mic').attr('class', 'entry state-' + animState);
-		}
+		},
+		//Custom action handler
+		actionHandler: function(customAction){}
 	}
 	SepiaFW.frames.currentScope.load();
 </script>

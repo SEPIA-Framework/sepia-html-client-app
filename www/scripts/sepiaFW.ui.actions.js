@@ -123,6 +123,25 @@ function sepiaFW_build_ui_actions(){
 			//alternative: SepiaFW.ui.openViewOrFrame(action.info.pageUrl);
 		}
 	}
+	//CLOSE Frames-layer view
+	Actions.closeFrameView = function(action){
+		if (SepiaFW.frames && SepiaFW.frames.isOpen){
+			SepiaFW.frames.close();
+		}
+	}
+	//Send ACTION to Frames-layer view
+	Actions.frameViewAction = function(action){
+		var didSubmit = false;
+		if (SepiaFW.frames && SepiaFW.frames.isOpen){
+			if (SepiaFW.frames.currentScope && SepiaFW.frames.currentScope.actionHandler){
+				SepiaFW.frames.currentScope.actionHandler(action.info);
+				didSubmit = true;
+			}
+		}
+		if (!didSubmit){
+			//TODO: error note
+		}
+	}
 	
 	//BUTTON Custom function
 	Actions.addButtonCustomFunction = function(action, sender, parentBlock){
@@ -463,6 +482,20 @@ function sepiaFW_build_ui_actions(){
 			}
 		}
 	}
+
+	//SWITCH STT ENGINE
+	Actions.switchSttEngine = function(action){
+		if (action.engine){
+			var info;
+			if (action.url){
+				info = { url: action.url };
+			}
+			var engineSet = SepiaFW.speech.setAsrEngine(action.engine, info);
+			if (engineSet != action.engine){
+				//TODO: error message
+			}
+		}
+	}
 	
 	//EVENTS START
 	Actions.buildMyEventsBox = function(action, parentBlock){
@@ -598,6 +631,14 @@ function sepiaFW_build_ui_actions(){
 					}else if (type === 'open_frames_view'){
 						Actions.openFrameView(data.actionInfo[i]);
 					
+					//Close frames view
+					}else if (type === 'close_frames_view'){
+						Actions.closeFrameView(data.actionInfo[i]);
+
+					//Frames view action
+					}else if (type === 'frames_view_action'){
+						Actions.frameViewAction(data.actionInfo[i]);
+					
 					//BUTTON - url
 					}else if (type === 'button_url' || type === 'button_in_app_browser'){
 						Actions.addButtonURL(data.actionInfo[i], aButtonsArea);
@@ -676,6 +717,10 @@ function sepiaFW_build_ui_actions(){
 					//Language switcher
 					}else if (type === 'switch_language'){
 						Actions.switchLanguage(data.actionInfo[i]);
+
+					//STT switcher
+					}else if (type === 'switch_stt_engine'){
+						Actions.switchSttEngine(data.actionInfo[i]);
 					
 					//UNKNOWN
 					}else{

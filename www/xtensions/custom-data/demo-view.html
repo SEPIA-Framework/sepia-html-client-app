@@ -60,7 +60,9 @@
 		//Animation state "listener" (listening, speaking, loading, idle, etc.)
 		onAnimationStateChange: function(animState){
 			$('#sepiaFW-frames-mic').attr('class', 'entry state-' + animState);
-		}
+		},
+		//Custom action handler
+		actionHandler: function(customAction){}
 		
 		//Use this action in your service to trigger the demo frame:
 		//Action name: "open_frames_view";
