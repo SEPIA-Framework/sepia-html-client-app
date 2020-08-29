@@ -285,6 +285,9 @@
 	-webkit-animation: sepiaFW-animation-enter_fade .5s 1 linear;
             animation: sepiaFW-animation-enter_fade .5s 1 linear;
 }
+.sepiaFW-cards-list-body .itemHidden + .sepiaFW-cards-list-contextMenu {
+	display: none !important;
+}
 
 /* footer */
 .sepiaFW-cards-list-footer {

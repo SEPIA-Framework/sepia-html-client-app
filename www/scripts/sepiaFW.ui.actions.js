@@ -139,7 +139,11 @@ function sepiaFW_build_ui_actions(){
 			}
 		}
 		if (!didSubmit){
-			//TODO: error note
+			//error message
+			SepiaFW.assistant.waitForOpportunityAndSay("<error_client_control_0b>", function(){
+				//Fallback after max-wait:
+				SepiaFW.ui.showInfo(SepiaFW.local.g('cant_execute') + " - Frame view action");
+			}, 2000, 30000);    //min-wait, max-wait
 		}
 	}
 	
@@ -211,12 +215,10 @@ function sepiaFW_build_ui_actions(){
 		var urlLower = url.toLowerCase();
 		if (SepiaFW.ui.isTinyApp || SepiaFW.ui.isHeadless){
 			//Tiny and headless apps usually have no ability to open in-app browser
-			if (SepiaFW.assistant){
-                SepiaFW.assistant.waitForOpportunityAndSay("<error_client_support_0a>", function(){
-                    //Fallback after max-wait:
-                    SepiaFW.ui.showInfo(SepiaFW.local.g('no_client_support'));
-                }, 2000, 30000);    //min-wait, max-wait
-            }
+			SepiaFW.assistant.waitForOpportunityAndSay("<error_client_support_0a>", function(){
+				//Fallback after max-wait:
+				SepiaFW.ui.showInfo(SepiaFW.local.g('no_client_support'));
+			}, 2000, 30000);    //min-wait, max-wait
 			
 		}else if (SepiaFW.ui.isCordova){
 			if (forceExternal 
@@ -492,7 +494,11 @@ function sepiaFW_build_ui_actions(){
 			}
 			var engineSet = SepiaFW.speech.setAsrEngine(action.engine, info);
 			if (engineSet != action.engine){
-				//TODO: error message
+				//error message
+				SepiaFW.assistant.waitForOpportunityAndSay("<error_client_control_0a>", function(){
+					//Fallback after max-wait:
+					SepiaFW.ui.showInfo(SepiaFW.local.g('cant_execute') + " - STT engine");
+				}, 2000, 30000);    //min-wait, max-wait
 			}
 		}
 	}
