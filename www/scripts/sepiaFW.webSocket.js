@@ -1769,14 +1769,18 @@ function sepiaFW_build_webSocket_client(sepiaSessionId){
 			if (showReloadOption){
 				config.buttonTwoName = SepiaFW.local.g('reload');
 				config.buttonTwoAction = function(){
-					location.reload();
+					setTimeout(function(){
+						window.location.reload();
+					}, 1000);
 				}
 			}
 			if (showLoginOption){
 				config.buttonThreeName = SepiaFW.local.g('sendLogin');
 				config.buttonThreeAction = function(){
 					SepiaFW.account.afterLogout = function(){
-						location.reload();
+						setTimeout(function(){
+							window.location.reload();
+						}, 1000);
 					}
 					SepiaFW.account.logoutAction();
 				}

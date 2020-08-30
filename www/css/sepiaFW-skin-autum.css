@@ -35,6 +35,9 @@ html {
 	border-color: #44451F;
 }
 
+#sepiaFW-chat-controls-speech-box {
+	background: linear-gradient(to right, #f3b547 0%, #ebd2a6 100%);
+}
 #sepiaFW-chat-controls-speech-box > div {
 	background: #44451F;
 	color: #fff;

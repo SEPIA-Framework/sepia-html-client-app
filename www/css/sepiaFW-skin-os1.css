@@ -36,6 +36,9 @@ html {
 	background: linear-gradient(rgba(45,45,45,0), #232323, #232323);
 	border-bottom-color: #232323;
 }
+#sepiaFW-chat-controls.full-screen {
+	background: linear-gradient(rgba(45,45,45,0), #232323);
+}
 
 #sepiaFW-main-window {
 	color: #fcf9ee;
@@ -76,6 +79,9 @@ html {
 	background-color: #fcf9ee;
 }
 
+#sepiaFW-chat-controls-speech-box {
+	background: linear-gradient(to right, #85807e 0%, #f0cbad 100%);
+}
 #sepiaFW-chat-controls-speech-box > div {
 	background: #232323;
 	color: #fcf9ee;

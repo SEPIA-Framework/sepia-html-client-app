@@ -81,6 +81,9 @@ html {
 	background: linear-gradient(rgba(17, 17, 17, 0), #111111, #111111);
 	border-bottom-color: #111111;
 }
+#sepiaFW-chat-controls.full-screen {
+	background: linear-gradient(rgba(17, 17, 17, 0), #111111);
+}
 
 #sepiaFW-main-window button,
 .sepiaFW-touch-device #sepiaFW-main-window button:hover {
@@ -120,6 +123,9 @@ html {
 }
 */
 
+#sepiaFW-chat-controls-speech-box {
+	background: linear-gradient(to right, #2572d6 0%, #4d4aae 100%);
+}
 #sepiaFW-chat-controls-speech-box > div {
 	background: #111111;
 	color: #F4F4F4;
@@ -254,7 +260,8 @@ html {
 #sepiaFW-chat-controls-swipe-area .sepiaFW-swipeBar-switchable {
 	background: #bc263e;
     color: #F4F4F4;
-    border-radius: 28px;
+	border-radius: 28px;
+	border: 3px solid #191919;
 }
 
 /*----- pop-ups / overlays -----*/

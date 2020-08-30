@@ -1858,12 +1858,8 @@ function sepiaFW_build_ui(){
 	//Toggle interface "soft" fullscreen mode
 	UI.toggleInterfaceFullscreen = function(){
 		$navBar = $('#sepiaFW-nav-bar');
-		$inputBar = $('#sepiaFW-chat-controls-form');
 		if ($navBar.css('display') == 'none'){
 			$navBar.fadeIn(300);
-			if (inputBarFullscreenFadeIn){
-				$inputBar.fadeIn(300);
-			}
 			$('.sepiaFW-carousel-pane').removeClass('full-screen');
 			$('#sepiaFW-chat-menu').removeClass('full-screen');
 			$('#sepiaFW-chat-controls').removeClass('full-screen');
@@ -1877,10 +1873,6 @@ function sepiaFW_build_ui(){
 			UI.isInterfaceFullscreen = false;
 		}else{
 			$navBar.fadeOut(300);
-			if ($inputBar.css('display') != 'none'){
-				$inputBar.fadeOut(300);
-				inputBarFullscreenFadeIn = true;
-			}
 			$('.sepiaFW-carousel-pane').addClass('full-screen');
 			$('#sepiaFW-chat-menu').addClass('full-screen');
 			$('#sepiaFW-chat-controls').addClass('full-screen');
@@ -1899,7 +1891,6 @@ function sepiaFW_build_ui(){
 		UI.closeAllMenus();
 	}
 	UI.isInterfaceFullscreen = ($('#sepiaFW-nav-bar').css('display') == 'none');
-	var inputBarFullscreenFadeIn = false;
 	
 	//Use fullscreen API
 	UI.toggleFullscreen = function(elem){

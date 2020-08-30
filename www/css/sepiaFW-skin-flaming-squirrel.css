@@ -95,6 +95,9 @@ html {
     border-radius: 3px;
 }
 
+#sepiaFW-chat-controls-speech-box {
+	background: linear-gradient(to right, #0a8bed 0%, #7542e4 100%);
+}
 #sepiaFW-chat-controls-speech-box > div {
 	background: #000;
 	color: #fff;

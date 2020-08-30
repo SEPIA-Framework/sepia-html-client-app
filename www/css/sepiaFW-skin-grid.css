@@ -45,6 +45,9 @@ html {
 	border-bottom: 1px solid #051525;
 	overflow: visible;
 }
+#sepiaFW-chat-controls.full-screen {
+	background: linear-gradient(rgba(5,25,45,0), #051525) !important;
+}
 #sepiaFW-chat-controls.chat-menu {
 	background: #051525;
 }

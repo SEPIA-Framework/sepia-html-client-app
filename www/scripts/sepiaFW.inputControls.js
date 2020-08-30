@@ -834,7 +834,9 @@ function sepiaFW_build_input_controls() {
         }
     }
     function reloadClient(){
-        location.reload();
+        setTimeout(function(){
+            window.location.reload();
+        }, 1000);
     }
     function test1(){
         console.log('TEST 1');

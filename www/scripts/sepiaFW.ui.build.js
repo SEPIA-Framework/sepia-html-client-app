@@ -1068,7 +1068,7 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 				function(btn){
 					var config = {
 						buttonOneName : SepiaFW.local.g('reload'),
-						buttonOneAction : function(){ location.reload(); }
+						buttonOneAction : function(){ setTimeout(function(){ window.location.reload(); }, 1000); }
 					};
 					var keepPermanent = true;
 					var localDataStatus = "---";
@@ -1119,7 +1119,7 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 					SepiaFW.debug.info("Alternative touch-bar controls activated, please reload client.");
 					SepiaFW.ui.showPopup("Please reload the interface to fully activate alternative controls.", {
 						buttonOneName : "Reload now",
-						buttonOneAction : function(){ location.reload(); },
+						buttonOneAction : function(){ setTimeout(function(){ location.reload(); }, 1000); },
 						buttonTwoName : "Later",
 						buttonTwoAction : function(){}
 					});
@@ -1129,7 +1129,7 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 					SepiaFW.debug.info("Alternative touch-bar controls deactivated, please reload client.");
 					SepiaFW.ui.showPopup("Please reload the interface to fully activate alternative controls.", {
 						buttonOneName : "Reload now",
-						buttonOneAction : function(){ location.reload(); },
+						buttonOneAction : function(){ setTimeout(function(){ location.reload(); }, 1000); },
 						buttonTwoName : "Later",
 						buttonTwoAction : function(){}
 					});

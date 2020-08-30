@@ -1006,7 +1006,9 @@ function sepiaFW_build_account(sepiaSessionId){
 					buttonOneName : "Return to sign in",
 					buttonOneAction : function(){
 						SepiaFW.client.setDemoMode(false);
-						location.reload(); 
+						setTimeout(function(){
+							window.location.reload();
+						}, 1000);
 					}
 				};
 				SepiaFW.ui.showPopup('Sign-out done!', config);

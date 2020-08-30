@@ -203,9 +203,12 @@ html {
 	border-radius: 3px;
 }
 
+#sepiaFW-chat-controls-speech-box {
+	background: linear-gradient(to right, #cc99cc 0%, #9d9dff 100%);
+}
 #sepiaFW-chat-controls-speech-box > div {
 	background: #111111;
-	color: #F4F4F4;
+	color: #9d9dff;
 }
 
 .sepiaFW-menu {

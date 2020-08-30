@@ -72,7 +72,8 @@ html {
 	border-bottom-color: #101418;
 }
 #sepiaFW-chat-controls.full-screen {
-	background: transparent;
+	/*background: transparent;*/
+	background: linear-gradient(rgba(16, 20, 24, 0), #101418);
 }
 
 #sepiaFW-main-window button,

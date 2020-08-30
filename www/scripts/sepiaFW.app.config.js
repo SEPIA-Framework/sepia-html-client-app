@@ -169,7 +169,9 @@ function sepiaFW_build_config(){
 				buttonOneName : SepiaFW.local.g('doit'),
 				buttonOneAction : function(){ 
 					SepiaFW.account.afterLogout = function(){
-						location.reload();
+						setTimeout(function(){
+							window.location.reload();
+						}, 500);
 					}
 					SepiaFW.account.logoutAction();
 				},

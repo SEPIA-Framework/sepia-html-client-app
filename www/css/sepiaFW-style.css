@@ -1575,6 +1575,19 @@ html.dark-skin #sepiaFW-login-help-btn {
 	display: -webkit-flex;
 	display: -ms-flexbox;
 	display: flex;
+	transition: opacity 0.4s;
+}
+#sepiaFW-chat-controls.full-screen #sepiaFW-chat-controls-form:not(.touch-bar-controls) {
+	visibility: hidden;
+	opacity: 0.0;
+	transition: visibility 0s 0.4s, opacity 0.4s;
+}
+#sepiaFW-chat-controls.full-screen #sepiaFW-chat-controls-form.touch-bar-controls {
+	opacity: 0.0;
+	transition: visibility 0s 0.4s, opacity 0.4s;
+}
+#sepiaFW-chat-controls.full-screen #sepiaFW-chat-controls-form.touch-bar-controls > *:not(#sepiaFW-chat-controls-swipe-area) {
+	visibility: hidden;
 }
 #sepiaFW-chat-controls-swipe-area {
 	width: 100%;
@@ -1591,6 +1604,9 @@ html.dark-skin #sepiaFW-login-help-btn {
 	z-index: 1;
 	width: calc(100% - 72px);
 	display: unset;
+}
+#sepiaFW-chat-controls.full-screen #sepiaFW-chat-controls-swipe-area {
+	width: 100% !important;
 }
 #sepiaFW-chat-controls-swipe-area .sepiaFW-swipeBar-switchable {
 	background: #2f3035;
@@ -1711,7 +1727,8 @@ html.dark-skin #sepiaFW-login-help-btn {
 #sepiaFW-chat-controls-speech-box {
     display: flex;
     position: absolute;
-    background: rgba(189, 189, 189, 0.66);
+	/*background: rgba(189, 189, 189, 0.66);*/
+	background: linear-gradient(to right, #CEFF1A 0%, #16ABC3 100%);
     border-radius: 3px;
     bottom: 58px;
     z-index: 6;
@@ -1726,19 +1743,19 @@ html.dark-skin #sepiaFW-login-help-btn {
 	color: #fff;
 }
 #sepiaFW-chat-controls-speech-box-edit {
-	flex: 0 1 50px;
+	flex: 0 1 45px;
 	display: flex;
     align-items: center;
     justify-content: center;
 	border-radius: 3px 0 0 3px;
-	min-width: 50px;
+	min-width: 45px;
 	padding: 5px;
 	user-select: none;
 	cursor: pointer;
 }
 #sepiaFW-chat-controls-speech-box-bubble {
 	flex: 1 0 auto;
-	max-width: calc(100% - 100px);
+	max-width: calc(100% - 90px);
 	border-radius: 0px;
 	padding: 8px;
 	margin: 0 0px;
@@ -1747,12 +1764,12 @@ html.dark-skin #sepiaFW-login-help-btn {
 	overflow: hidden;
 }
 #sepiaFW-chat-controls-speech-box-finish {
-	flex: 0 1 50px;
+	flex: 0 1 45px;
 	display: flex;
     align-items: center;
     justify-content: center;
 	border-radius: 0 3px 3px 0;
-	min-width: 50px;
+	min-width: 45px;
 	padding: 5px;
 	user-select: none;
 	cursor: pointer;

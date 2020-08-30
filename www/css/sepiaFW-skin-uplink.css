@@ -47,6 +47,9 @@ html {
 	/*border-color: rgba(255, 255, 255, 0.67);*/
 }
 
+#sepiaFW-chat-controls-speech-box {
+	background: linear-gradient(to right, #1bffe6 0%, #4470ae 100%);
+}
 #sepiaFW-chat-controls-speech-box > div {
 	background: #283059;
 	color: #1BFFE6;
