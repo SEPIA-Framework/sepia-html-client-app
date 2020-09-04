@@ -175,6 +175,7 @@ function sepiaFW_build_wake_triggers() {
 			}, switchOnWakeWordTimerDelay);
 		}else{
 			//Porcupine integration
+			SepiaFW.debug.info('Starting wake-word listener ...'); 		//DEBUG
 			ppListenToWakeWords(onSuccessCallback, onErrorCallback);
 		}
 	}

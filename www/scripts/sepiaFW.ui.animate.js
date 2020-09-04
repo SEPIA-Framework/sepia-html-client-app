@@ -224,6 +224,7 @@ function sepiaFW_build_animate(){
 			state: "active"
 		}});
 		document.dispatchEvent(event);
+		SepiaFW.debug.info('Wake-word listener activated'); 		//DEBUG
 	}
 	Animate.wakeWord.inactive = function(){
 		$('#sepiaFW-nav-label-online-status').removeClass("wake-word-active");

@@ -740,6 +740,7 @@ function sepiaFW_build_speech(){
 							}, 334);
 							return;
 						}
+						//else: continue below
 					}else{
 						resetsOnUnexpectedEnd();
 						
