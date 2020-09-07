@@ -1282,10 +1282,11 @@ function sepiaFW_build_webSocket_client(sepiaSessionId){
 	//MIC CONTROLS
 	Client.asrCallbackFinal = function(text){
 		//text optimizations
-		var textRaw = text;
-		if (optimizeAsrResult && (SepiaFW.speech.getLanguage() === "de") && text && text.match(/^(GTA|GPA|PPA|WPA|dpa|liebherr)( ).+/ig)){
-			text = text.replace(/^(GTA|GPA|PPA|WPA|dpa|liebherr)( )/i, "Sepia ");
+		if (optimizeAsrResult 
+				&& (SepiaFW.speech.getLanguage() === "de") && text && text.match(/^(GPA|PPA|WPA|dpa)( ).+/ig)){
+			text = text.replace(/^(GPA|PPA|WPA|dpa)( )/i, "Sepia ");
 		}
+		text = text.trim();
 
 		//show results in frame as well? (SHOW ONLY!)
 		if (SepiaFW.frames && SepiaFW.frames.isOpen && SepiaFW.frames.canHandleSpeechToTextInput()){
@@ -1296,28 +1297,15 @@ function sepiaFW_build_webSocket_client(sepiaSessionId){
 			if (modText) text = modText;
 		}
 		
-		//try speech-bubble
-		var inBox =	document.getElementById('sepiaFW-chat-controls-speech-box-bubble');
-		if (inBox){
-			if (text){
-				inBox.textContent = text;
-			}else if (textRaw){
-				inBox.textContent = textRaw;
-			}
+		//draw speech (e.g. into speech bubble or input field)
+		drawSpeech(text, true);
+		if (text){
 			inputCameViaAsr = true;
 			SepiaFW.client.sendInputText();
-		//try default text input field
 		}else{
-			var inBox =	document.getElementById("sepiaFW-chat-input");
-			if (inBox){ 
-				if (text){
-					inBox.value = text;
-				}else if (textRaw){
-					inBox.value = textRaw;
-				}
-				inputCameViaAsr = true;
-				SepiaFW.client.sendInputText();
-			}
+			//rare cases were callback triggers but there is no input
+			SepiaFW.animate.assistant.idle('asrNoResult');
+			//TODO: is this all or do we need to reset anything else?
 		}
 	}
 	Client.asrCallbackInterim = function(text){
@@ -1330,35 +1318,42 @@ function sepiaFW_build_webSocket_client(sepiaSessionId){
 			if (modText) text = modText;
 		}
 
-		//try speech-bubble
-		var inBox =	document.getElementById('sepiaFW-chat-controls-speech-box-bubble');
-		if (inBox){
-			if (text){
-				inBox.textContent = text;
-			}
-		//try default text input field
-		}else{
-			var textRaw = text;
-			inBox = $('#sepiaFW-chat-input');
-			if (inBox.length > 0){
-				var maxWidth = inBox.innerWidth();
-				if (text.length*7.5 > maxWidth) {
-					//cut text to fit in input
-					text = text.slice(-1 * Math.floor(maxWidth / 7.5));
-				}
-				if (text){
-					inBox[0].value = text;
-				}else if (textRaw){
-					inBox[0].value = textRaw;
-				}
-			}
-		}
+		//draw speech (e.g. into speech bubble or input field)
+		drawSpeech(text, false);
 	}
 	Client.asrErrorCallback = function(error){
 		SepiaFW.debug.err("UI-ASR: " + error);
 	}
 	Client.asrLogCallback = function(msg){
 		SepiaFW.debug.info("UI-ASR: " + msg);
+	}
+	function drawSpeech(text, isFinal){
+		//try speech-bubble
+		var inBox =	document.getElementById('sepiaFW-chat-controls-speech-box-bubble');
+		if (inBox){
+			if (text){
+				inBox.textContent = text;
+			}else if (isFinal){
+				inBox.textContent = "";
+			}
+		//try default text input field
+		}else{
+			var inBox =	document.getElementById("sepiaFW-chat-input");
+			if (inBox){ 
+				if (text && isFinal){
+					inBox.value = text;
+				}else if (text){
+					//cut text to fit in input?
+					var maxWidth = $(inBox).innerWidth();
+					if (text.length*7.5 > maxWidth){
+						text = text.slice(-1 * Math.floor(maxWidth / 7.5));
+					}
+					inBox.value = text;
+				}else if (isFinal){
+					inBox.value = "";
+				}
+			}
+		}
 	}
 	
 	//add credentials and parameters
@@ -1503,7 +1498,7 @@ function sepiaFW_build_webSocket_client(sepiaSessionId){
 		}
 		clearTimeout(sendInputTimeout);
 		//prep text
-		var text = inputText || document.getElementById("sepiaFW-chat-controls-speech-box-bubble").innerHTML || document.getElementById("sepiaFW-chat-input").value;
+		var text = inputText || document.getElementById("sepiaFW-chat-controls-speech-box-bubble").innerText || document.getElementById("sepiaFW-chat-input").value;
 		if (text && text.trim()){
 			//specials?
 			var inputSpecialCommand = Client.inputHasSpecialCommand(text);
