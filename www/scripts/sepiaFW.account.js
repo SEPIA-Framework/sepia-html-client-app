@@ -586,12 +586,16 @@ function sepiaFW_build_account(sepiaSessionId){
 			SepiaFW.debug.log('Account: preventing auto-login due to changed hostname ... please login again if you trust the host!');
 			hostnameChange = true;
 		}
+		var clientIdChanged = false;
+		if (account && account.clientDeviceId && account.clientDeviceId != SepiaFW.config.getClientDeviceInfo()){
+			clientIdChanged = true;
+		}
 		//use existing token - skip refresh
 		var now = new Date().getTime();
 		var isFresh = (account && account.lastRefresh && ((now - account.lastRefresh) < (1000*60*60*12)));
 		var isExpired = (account && account.userTokenValidUntil && ((account.userTokenValidUntil - now) <= 0));
 		if (isExpired) isFresh = false;
-		if (safe && account && account.userToken && account.lastRefresh && isFresh){
+		if (safe && account && account.userToken && account.lastRefresh && isFresh && !clientIdChanged){
 			//primary
 			userId = account.userId;
 			userToken = account.userToken;
@@ -615,7 +619,7 @@ function sepiaFW_build_account(sepiaSessionId){
 			Account.afterLogin();
 
 		//try refresh
-		}else if (safe && account && account.userToken && !isExpired){
+		}else if (safe && account && account.userToken && !isExpired && !clientIdChanged){
 			SepiaFW.debug.log('Account: trying login auto-refresh with token');
 			pwdIsToken = true;
 			//indicated ID
@@ -630,6 +634,10 @@ function sepiaFW_build_account(sepiaSessionId){
 		//warn about changed host
 		}else if (hostnameChange){
 			onLoginError(SepiaFW.local.g('loginFailedHost'), 6);
+
+		//warn about client-device-id change
+		}else if (clientIdChanged){
+			onLoginError(SepiaFW.local.g('loginFailedClientId'), 6);
 
 		}else{
 			Account.prepareLoginBoxForInput();
@@ -830,6 +838,7 @@ function sepiaFW_build_account(sepiaSessionId){
 		account.language = language;
 		account.lastRefresh = new Date().getTime();
 		account.hostname = SepiaFW.config.host;
+		account.clientDeviceId = SepiaFW.config.getClientDeviceInfo();
 		//secondary infos (not necessarily in login-data)
 		account.userRoles = userRoles;
 		account.userPreferredTempUnit = userPreferredTempUnit;
@@ -849,7 +858,7 @@ function sepiaFW_build_account(sepiaSessionId){
 			3 - login failed
 			4 - login blocked
 			5 - login token correct but expired
-			6 - hostname changed
+			6 - hostname or client changed
 			7 - internal server error (wrong input format?)
 			10 - unknown error
 		*/

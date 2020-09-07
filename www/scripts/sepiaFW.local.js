@@ -42,6 +42,7 @@ function sepiaFW_build_strings(){
 	StringsDE.loginFailedServer = 'Login fehlgeschlagen! - Das Problem könnte der Server sein.';
 	StringsDE.loginFailedUser = 'Login fehlgeschlagen! - Username oder Password ist falsch.';
 	StringsDE.loginFailedHost = 'Login fehlgeschlagen! - Hostname wurde geändert, bitte prüfen.';
+	StringsDE.loginFailedClientId = 'Login fehlgeschlagen! - Client- oder Geräte-ID wurde geändert, bitte prüfen.';
 	StringsDE.loginFailedBlocked = 'Login fehlgeschlagen! - Zu viele fehlgeschlagene Versuche. Bitte etwas warten.';
 	StringsDE.loginFailedExpired = 'Es sieht so aus als wäre deine Sitzung abgelaufen. Bitte logge dich erneut ein.';
 	StringsDE.logoutAndReload = 'Diese Aktion erfordert einen Logout und App Neustart.';
@@ -226,6 +227,7 @@ function sepiaFW_build_strings(){
 	StringsEN.loginFailedServer = 'Login failed! - Problem could be the server.';
 	StringsEN.loginFailedUser = 'Login failed! - Wrong username or password.';
 	StringsEN.loginFailedHost = 'Login failed! - Hostname was changed, please check.';
+	StringsEN.loginFailedClientId = 'Login failed! - Client- or device-ID was changed, please check.';
 	StringsEN.loginFailedBlocked = 'Login failed! - Too many failed attempts. Please wait a bit.';
 	StringsEN.loginFailedExpired = 'It looks like your session expired. Please login again.';
 	StringsEN.logoutAndReload = 'This action requires a logout and app reload.';
