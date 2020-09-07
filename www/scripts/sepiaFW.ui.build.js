@@ -580,6 +580,7 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 					+ "<li id='sepiaFW-menu-select-voice-li'><span>Voice: </span></li>" 	//option: <i class='material-icons md-mnu'>&#xE5C6;</i>
 					+ "<li id='sepiaFW-menu-toggle-proactiveNotes-li' title='The assistant will remind you in a funny way to make a coffee break etc. :-)'><span>Well-being reminders: </span></li>"
 					+ "<li id='sepiaFW-menu-toggle-channelMessages-li' title='Show status messages in chat like someone joined the channel?'><span>Channel status messages: </span></li>"
+					+ "<li id='sepiaFW-menu-toggle-bigScreenMode-li' title='Switch big-screen mode on/off'><span>Big-screen mode: </span></li>"
 					+ "<li id='sepiaFW-menu-toggle-touchBarControls-li' title='Switch new touch-bar controls mode on/off'><span>Touch-bar controls: </span></li>"
 					//NOTE: we show this only if battery status API supported:
 					+ "<li id='sepiaFW-menu-toggle-trackPowerStatus-li' title='Observe power plug and battery status?'><span>Track power status: </span></li>"
@@ -1110,6 +1111,36 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 					});
 					SepiaFW.debug.info("Channel status messages are deactivated");
 				}, SepiaFW.ui.showChannelStatusMessages)
+			);
+			//toggle big-screen mode
+			document.getElementById('sepiaFW-menu-toggle-bigScreenMode-li').appendChild(Build.toggleButton('sepiaFW-menu-toggle-bigScreenMode', 
+				function(){
+					SepiaFW.ui.useBigScreenMode = true;
+					SepiaFW.data.setPermanent('big-screen-mode', true);
+					SepiaFW.debug.info("Big-screen mode activated, please reload client.");
+					SepiaFW.ui.showPopup("Please reload the interface to fully activate alternative controls.", {
+						buttonOneName : "Reload now",
+						buttonOneAction : function(){ setTimeout(function(){ location.reload(); }, 1000); },
+						buttonTwoName : "Later",
+						buttonTwoAction : function(){}
+					});
+					//resize
+					$(window.document.body).removeClass("limit-size");
+					$(window).trigger('resize');
+				},function(){
+					SepiaFW.ui.useBigScreenMode = false;
+					SepiaFW.data.setPermanent('big-screen-mode', false);
+					SepiaFW.debug.info("Big-screen mode deactivated, please reload client.");
+					SepiaFW.ui.showPopup("Please reload the interface to fully activate alternative controls.", {
+						buttonOneName : "Reload now",
+						buttonOneAction : function(){ setTimeout(function(){ location.reload(); }, 1000); },
+						buttonTwoName : "Later",
+						buttonTwoAction : function(){}
+					});
+					//resize
+					$(window.document.body).addClass("limit-size");
+					$(window).trigger('resize');
+				}, SepiaFW.ui.useBigScreenMode)
 			);
 			//toggle touch-bar controls
 			document.getElementById('sepiaFW-menu-toggle-touchBarControls-li').appendChild(Build.toggleButton('sepiaFW-menu-toggle-touchBarControls', 

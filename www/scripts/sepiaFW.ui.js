@@ -132,6 +132,10 @@ function sepiaFW_build_ui(){
 	UI.navBarColor = '';
 	UI.statusBarColor = '';
 
+	UI.useBigScreenMode = SepiaFW.data.getPermanent('big-screen-mode') || false;
+	if (!UI.useBigScreenMode){
+		$(window.document.body).addClass("limit-size");
+	}
 	UI.useTouchBarControls = SepiaFW.data.getPermanent('touch-bar-controls') || false;
 	UI.hideSideSwipeForTouchBarControls = true;
 	
