@@ -1154,16 +1154,24 @@ function sepiaFW_build_ui(){
 			var target = document.getElementById(targetId);
 			newEle.style.height = "0px";
 			$(newEle).appendTo(target);
-			autoHeightAnimate($(newEle), 150);
+			autoHeightAnimateNoInterrupt($(newEle), 150);
 		}
 	}
-	function autoHeightAnimate($element, time){
+	function autoHeightAnimateNoInterrupt($element, time){
 		var curHeight = $element.height();
 		var autoHeight = $element.css('height', 'auto').height();
 		$element.height(curHeight);
-		$element.stop().animate({ height: autoHeight }, time, function(){
+		/*$element.stop().animate({ height: autoHeight }, time, function(){ 	//old version
 			$element.css('height', 'auto');
-		});
+		});*/
+		var orgTransition = $element[0].style.transition;
+		$element.css('transition', 'height ' + time + "ms");
+		$element.height(autoHeight);
+		setTimeout(function(){
+			$element.css('height', 'auto');
+			if (orgTransition) $element.css('transition', orgTransition);
+			else $element.css('transition', '');
+		}, time + 5);
 	}
 	
 	//loading animation

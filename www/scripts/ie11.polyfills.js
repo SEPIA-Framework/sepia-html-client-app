@@ -7,4 +7,6 @@
 		return evt;
 	}
 	window.CustomEvent = CustomEvent;
+
+	if (Number.parseInt === undefined) Number.parseInt = window.parseInt;
 })();
