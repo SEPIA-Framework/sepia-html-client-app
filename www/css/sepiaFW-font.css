@@ -20,6 +20,9 @@
 .sepia-icon-font {
 	font-size: 24px;
 }
+.sepia-icon-font * {
+  font-weight: normal !important;
+}
 .sepia-icon-font.s18 {
 	font-size: 18px;
 }
@@ -31,15 +34,20 @@
 }
 .sepia-icon-font span {
 	padding: 0 !important;
-	margin: 0 !important;
+  margin: 0 !important;
 }
 
+.sepia-icon-sepia_bw span {
+  position: relative;
+}
 .sepia-icon-sepia_bw .path1:before {
   content: "\e900";
   color: inherit;
 }
 .sepia-icon-sepia_bw .path2:before {
   content: "\e901";
-  margin-left: -0.73046875em;
+  position: absolute;
+  right: 0;
+  bottom: 0;
   color: rgba(155, 155, 155, 0.5);
 }

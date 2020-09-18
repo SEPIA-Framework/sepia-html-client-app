@@ -304,7 +304,10 @@ body.limit-size {
 	padding-bottom: 10%;
 }
 .sepiaFW-input-popup {
-	position: absolute;
+	position: relative;
+	/*top: 40%;
+	left: 50%;
+	transform: translate(-50%, -45%);*/
 	background: #111;
 	color: #eee;
 	border-radius: 3px;
@@ -313,9 +316,6 @@ body.limit-size {
 	width: 86%;
     max-width: 380px;
 	padding: 16px;
-	/*top: 40%;
-	left: 50%;
-	transform: translate(-50%, -45%);*/
 	text-align: center;
 	z-index: 90;
 	overflow: hidden;
