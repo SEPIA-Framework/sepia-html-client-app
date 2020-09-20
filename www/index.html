@@ -48,6 +48,9 @@
 	<meta property="og:locale" content="en_GB"/>
 	<meta property="og:locale:alternate" content="en_US"/>
 	<meta property="og:locale:alternate" content="de_DE"/>
+
+	<!-- PWA manifest -->
+	<link rel="manifest" href="sepia.webmanifest">
 	
 	<!-- imports -->
 	<!--<link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">-->
@@ -665,6 +668,16 @@
 			'%3Cscript src="js/index.js"%3E%3C/script%3E'
 		));
 	}else{
+		//register service worker in non-Cordova app only for now
+		if('serviceWorker' in navigator){
+			navigator.serviceWorker
+				.register('sw.js')
+				.then(function(){ 
+					SepiaFW.debug.log('Service Worker: Registered');
+				});
+		};
+
+		//call setup
 		appSetup();
 	}
 </script>
