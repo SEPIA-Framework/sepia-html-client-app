@@ -674,8 +674,12 @@
 				.register('sw.js')
 				.then(function(){ 
 					SepiaFW.debug.log('Service Worker: Registered');
+				}, function(err){
+					SepiaFW.debug.error('Service Worker: Failed to register', err);
 				});
-		};
+		}else{
+			SepiaFW.debug.log('Service Worker: Not available');
+		}
 
 		//call setup
 		appSetup();

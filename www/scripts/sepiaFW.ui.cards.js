@@ -400,13 +400,17 @@ function sepiaFW_build_ui_cards(){
 		if (cardElementInfo._id){
 			Cards.findAllUserDataLists(cardElementInfo._id).forEach(function(l){
 				if (l.data && l.data.lastEdit != cardElementInfo.lastEdit){
-					$(l.ele).addClass("sepiaFW-card-out-of-sync").find('.sepiaFW-cards-list-saveBtn')
-							.addClass('active').find('i').html('sync_problem'); 	//cloud_off
+					markUserDataListAsOutOfSync(l);
 				}
 			});
 		}
 		
 		return cardElement;
+	}
+	//mark userDataList as oos
+	function markUserDataListAsOutOfSync(l){
+		$(l.ele).addClass("sepiaFW-card-out-of-sync").find('.sepiaFW-cards-list-saveBtn')
+				.addClass('active').find('i').html('sync_problem'); 	//cloud_off
 	}
 	//get userDataList
 	function getUserDataList(theList){
@@ -759,8 +763,8 @@ function sepiaFW_build_ui_cards(){
 				newName = newName.replace(/<br>|<div>|<\/div>/g, "").trim(); 			//happens when the user presses enter(?)
 				newName = newName.replace(/-|_|!|\?|,|\.|'/g, " ").trim();				//remove some special chars
 				newName = (newName.length > 100)? newName.substring(0,99) : newName; 	//brutally shorten name - TODO: improve
-				eleData.name = newName;
-				$(this).html(newName);
+				eleData.name = newName.trim();
+				$(this).html(eleData.name);
 				$(timeEvent).attr('data-element', JSON.stringify(eleData));
 				//update stored TIMER
 				var Timer = SepiaFW.events.getRunningOrActivatedTimeEventById(eleData.eventId);
@@ -1509,8 +1513,7 @@ function sepiaFW_build_ui_cards(){
 			saveBtn.className = "sepiaFW-cards-list-saveBtn";
 			saveBtn.innerHTML = "<i class='material-icons md-mnu'>cloud_upload</i>";
 			var storeFun = function(listInfoObj){
-				var writeData = {};
-				writeData.lists = listInfoObj;
+				//TODO: check list timestamp?
 				SepiaFW.account.saveList(listInfoObj, function(data){
 					SepiaFW.debug.log('Account - successfully stored list: ' + listInfoObj.indexType + ", " + listInfoObj.title);
 					//deactivate save button
@@ -1520,12 +1523,12 @@ function sepiaFW_build_ui_cards(){
 					if (listInfoObj._id){
 						Cards.findAllUserDataLists(listInfoObj._id).forEach(function(l){
 							if (l.ele != cardElement){
-								$(l.ele).addClass("sepiaFW-card-out-of-sync").find('.sepiaFW-cards-list-saveBtn')
-										.addClass('active').find('i').html('sync_problem'); 	//cloud_off
+								markUserDataListAsOutOfSync(l);
 							}
 						});
 					}
 				}, function(msg){
+					//error
 					SepiaFW.ui.showPopup(msg);
 				});
 			}
@@ -1549,8 +1552,8 @@ function sepiaFW_build_ui_cards(){
 						//e.g. "timeEvents"
 						SepiaFW.ui.showPopup(SepiaFW.local.g('cantCopyList'));
 					}
+				//same user
 				}else{
-					//same user
 					if (listContainer.className.indexOf("out-of-sync") >= 0){
 						//ask because list may be out of sync
 						SepiaFW.ui.build.askConfirm(SepiaFW.local.g('listOutOfSync'), function(){

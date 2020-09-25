@@ -428,7 +428,7 @@ function sepiaFW_build_tools(){
 	//Escape HTML to make it "secure"
 	Tools.escapeHtml = function(htmlString){
 		if (!htmlString) return htmlString;
-		return htmlString.replace(/\&/gi, "&amp;")
+		return htmlString.trim().replace(/\&/gi, "&amp;")
 			.replace(/</gi, "&lt;").replace(/>/gi, "&gt;")
 			.replace(/"/gi, "&quot;").replace(/'/gi, "&#x27;")
 			.replace(/\//gi, "&#x2F;");
