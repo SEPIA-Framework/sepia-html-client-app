@@ -383,7 +383,8 @@ function sepiaFW_build_speech(){
 		dispatchSpeechEvent("asr_error", msg);
 	}
 	function broadcastUnknownAsrError(err){
-		var msg = err || "unknown";
+		var msg = SepiaFW.local.g('asrOtherError') + " Error: '" + (err || "unknown") + "'";
+		SepiaFW.ui.showInfo(msg);
 		dispatchSpeechEvent("asr_error", msg);
 	}
 	
@@ -616,9 +617,8 @@ function sepiaFW_build_speech(){
 			
 			//ON START
 			recognition.onstart = function(event) {
-				eventCorrected = {};
-				if ((event && !event.timeStamp) || !event) eventCorrected.timeStamp = new Date().getTime();
-				if (eventCorrected.length > 0) event = eventCorrected;
+				if (!event) event = {};
+				if (!event.timeStamp) event.timeStamp = new Date().getTime();
 				isRecognizing = true;
 				recognizerWaitingForResult = false;
 				asrAutoStop = false;
@@ -637,9 +637,8 @@ function sepiaFW_build_speech(){
 			
 			//ON MY ABORT
 			recognition.onmyabort = function(event) {
-				eventCorrected = {};
-				if (event && !event.timeStamp) eventCorrected.timeStamp = new Date().getTime();
-				if (eventCorrected.length > 0) event = eventCorrected;
+				if (!event) event = {};
+				if (!event.timeStamp) event.timeStamp = new Date().getTime();
 				quit_on_final_result = true;
 				recognizerWaitingForResult = true;
 				wait_timestamp = new Date().getTime();
@@ -667,43 +666,36 @@ function sepiaFW_build_speech(){
 					before_error(error_callback, err_msg);
 					return;
 				}
-				var orgEvent = event;
-				eventCorrected = {};
-				if (event && !event.timeStamp) eventCorrected.timeStamp = new Date().getTime();
-				if (event && !event.error) eventCorrected.error = event;
-				if (eventCorrected.length > 0) event = eventCorrected;
-				
+				if (!event) event = {error: "unknown"};
+				else if (typeof event == "string") event = {error: event};
+				if (!event.timeStamp) event.timeStamp = new Date().getTime();
+
 				//light errors
-				if (event.error == 'no-speech' || event.error == 1 || event.error == 2 || event.error == 4 || event.error == 6 || event.error == 7 || event.error == 8) {
+				if (event.error == 'no-speech' || event.error == 1 || event.error == 2 || event.error == 4 || event.error == 6 || event.error == 7 || event.error == 8){
 					before_error(error_callback, 'E01 - no speech detected!');
 					if (!quit_on_final_result){	
 						restart_anyway = true;
 					}
-				}
+				
 				//severe errors
-				else if (event.error == 'audio-capture' || event.error == 3 || event.error == 5) {
+				}else if (event.error == 'audio-capture' || event.error == 3 || event.error == 5){
 					broadcastWrongAsrSettings();
 					before_error(error_callback, 'E02 - no microphone found!');
-				}
-				else if (event.error == 'not-allowed' || event.error == 9) {
+				
+				}else if (event.error == 'not-allowed' || event.error == 9){
 					broadcastWrongAsrSettings();
 					if (event.timeStamp - start_timestamp < 100) {
 						before_error(error_callback, 'E03 - Permission to use microphone was blocked!'); //<br>To change that plz go to chrome://settings/contentExceptions#media-stream');
 					} else {
 						before_error(error_callback, 'E03 - Permission to use microphone was denied!'); //<br>To change that plz go to chrome://settings/contentExceptions#media-stream');
 					}
-				}
-				else {
-					if (orgEvent && typeof orgEvent == "object"){
-						var err = JSON.stringify(orgEvent);
-						if (err != '{"type":"error"}'){		//usually happens when you simply abort recording
-							SepiaFW.debug.err('ASR: unknown ERROR!', err);
-						}
-					}else{
-						SepiaFW.debug.err('ASR: unknown ERROR!', orgEvent);
+				
+				}else{
+					if (JSON.stringify(event) != '{"type":"error"}'){	//usually happens when you simply abort recording
+						SepiaFW.debug.err('ASR: '+ (event.error? event.error : 'unknown ERROR!'), event);
 					}
 					//TODO: do something here!
-					var err_msg = 'E0? - unknown error!';
+					var err_msg = 'E0? - ' + (event.error? event.error : 'unknown ERROR!');
 					broadcastUnknownAsrError(err_msg);
 					before_error(error_callback, err_msg);
 					return;
@@ -789,8 +781,9 @@ function sepiaFW_build_speech(){
 				recognition.onresult(event);
 			}
 			recognition.onresult = function(event) {
+				if (!event) event = {};
 				resultWasNeverCalled = false;
-				var iosPlugin = (typeof event.results == "undefined") ? true : false;
+				var iosPlugin = (typeof event.results == "undefined")? true : false;
 				if (iosPlugin && event.message){
 					//rebuild as default result
 					var item = { transcript:event.message, final:true };
@@ -801,9 +794,7 @@ function sepiaFW_build_speech(){
 					event.results = [resN];
 				}
 				
-				eventCorrected = {};
-				if (event && !event.timeStamp) eventCorrected.timeStamp = new Date().getTime();
-				if (eventCorrected.length > 0) event = eventCorrected;
+				if (!event.timeStamp) event.timeStamp = new Date().getTime();
 				
 				interim_transcript = '';
 				var mod_str = '';

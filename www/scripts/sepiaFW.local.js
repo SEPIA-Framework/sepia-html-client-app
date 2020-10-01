@@ -56,6 +56,7 @@ function sepiaFW_build_strings(){
 	StringsDE.noAsrSupport = 'Es tut mir leid, aber dieser Client unterstütz die Spracherkennung leider nicht :-(';
 	StringsDE.asrMissingServer = 'Mir fehlen noch Server Informationen um diese Spracherkennungsengine nutzen zu können, check noch mal die Settings bitte (ASR server).';
 	StringsDE.asrSettingsProblem = 'Mikrofon nicht richtig erkannt oder Zugriff verweigert.';
+	StringsDE.asrOtherError = 'Es tut mir leid, aber es gab ein unerwartetes Problem mit der Spracherkennung.';
 	StringsDE.nobodyThere = 'Uups, es scheint zur Zeit leider keiner hier zu sein, der dir antworten könnte :-(';
 	StringsDE.userNotFound = 'Uups, dieser User scheint gerade nicht hier zu sein :-(';
 	StringsDE.loading = 'Lädt';
@@ -241,6 +242,7 @@ function sepiaFW_build_strings(){
 	StringsEN.noAsrSupport = 'I\'m sorry but this client does not support speech recognition :-(';
 	StringsEN.asrMissingServer = 'I\'m missing some server info to use this speech recognition engine, please check the settings again (ASR server).';
 	StringsEN.asrSettingsProblem = 'Microphone has not been recognized properly or access was denied.';
+	StringsEN.asrOtherError = 'I\'m sorry but there was an unexpected problem with the speech recognition.';
 	StringsEN.nobodyThere = 'Uups, sorry but it seems there is nobody here to answer your message :-(';
 	StringsEN.userNotFound = 'Uups, this user seems to be not available right now :-(';
 	StringsEN.loading = 'Loading';
