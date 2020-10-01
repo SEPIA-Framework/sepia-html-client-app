@@ -473,13 +473,15 @@ function sepiaFW_build_ui(){
 	//show/hide speech-input-box
 	UI.showLiveSpeechInputBox = function(){
 		$('#sepiaFW-chat-controls-speech-box').fadeIn(300);
+		$('#sepiaFW-chat-controls-speech-box-bubble').hide();
+		$('#sepiaFW-chat-controls-speech-box-bubble-loader').show();
 		//hide swipe areas for better button access
 		$('#sepiaFW-swipeBar-container-left').hide();
 		$('#sepiaFW-swipeBar-container-right').hide();
 	}
 	UI.hideLiveSpeechInputBox = function(){
 		$('#sepiaFW-chat-controls-speech-box').fadeOut(300);
-		document.getElementById("sepiaFW-chat-controls-speech-box-bubble").contentEditable='false';
+		$('#sepiaFW-chat-controls-speech-box-bubble')[0].contentEditable = 'false';
 		//restore swipe areas
 		$('#sepiaFW-swipeBar-container-left').show();
 		$('#sepiaFW-swipeBar-container-right').show();

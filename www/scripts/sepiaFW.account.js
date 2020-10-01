@@ -719,7 +719,7 @@ function sepiaFW_build_account(sepiaSessionId){
 		
 		//extend button
 		var $extendBtn = $('#sepiaFW-login-extend-btn');
-		$extendBtn.find('i').html('arrow_drop_down');
+		//$extendBtn.find('i').html('arrow_drop_down');
 		$extendBtn.off().on("click", function(){
 			var isVisible = ($extendBtn.find('i').html() == 'arrow_drop_up');
 			$('#sepiaFW-login-box').find('.extended-controls').each(function(){

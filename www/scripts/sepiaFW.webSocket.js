@@ -1332,6 +1332,8 @@ function sepiaFW_build_webSocket_client(sepiaSessionId){
 		var inBox =	document.getElementById('sepiaFW-chat-controls-speech-box-bubble');
 		if (inBox){
 			if (text){
+				$(inBox).show();
+				$('#sepiaFW-chat-controls-speech-box-bubble-loader').hide();
 				inBox.textContent = text;
 			}else if (isFinal){
 				inBox.textContent = "";

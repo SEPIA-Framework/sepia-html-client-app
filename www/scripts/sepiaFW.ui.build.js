@@ -353,7 +353,9 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 				if (SepiaFW.speech && SepiaFW.speech.isRecognizing()){
 					SepiaFW.speech.abortRecognition();
 					var bubble = document.getElementById("sepiaFW-chat-controls-speech-box-bubble");
-					bubble.contentEditable='true';
+					$(bubble).show();
+					$('#sepiaFW-chat-controls-speech-box-bubble-loader').hide();
+					bubble.contentEditable = 'true';
 					bubble.focus();
 				}else{
 					document.getElementById("sepiaFW-chat-controls-speech-box-bubble").innerHTML = '';

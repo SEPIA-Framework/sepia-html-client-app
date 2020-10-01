@@ -57,6 +57,7 @@
 	<!-- <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,600" rel="stylesheet"> -->
 	<link rel="stylesheet" href="css/sepiaFW-style.css" title='main'>
 	<link rel="stylesheet" href="css/sepiaFW-style-tiny.css" title='main'>	<!-- TODO: we should load this only when needed -->
+	<link rel="stylesheet" href="css/sepiaFW-style-dual-screen.css" title='main'>
 	<!-- FOR MORE STYLESHEETS SEE END-OF-BODY -->
 	<script src="scripts/sepiaFW.app.config.js"></script>
 	<script src="scripts/sepiaFW.app.js"></script>
@@ -110,7 +111,7 @@
 		</div>
 		<!-- extend button -->
 		<div id="sepiaFW-login-extend-box" style="visibility: hidden;">
-			<button id="sepiaFW-login-extend-btn"><i class="material-icons md-btn2">arrow_drop_down</i></button>
+			<button id="sepiaFW-login-extend-btn"><i class="material-icons md-btn2">&#xE5C5;</i></button>
 		</div>
 		<!-- help button -->
 		<button id="sepiaFW-login-help-btn" onclick="SepiaFW.ui.actions.openUrlAutoTarget('https://github.com/SEPIA-Framework/sepia-docs#welcome-to-the-documentation-page-for-sepia');"><i class="material-icons md-inherit">help</i></button>
@@ -191,7 +192,7 @@
 				<div id="sepiaFW-nav-label-online-status" class="offline">offline</div>
 			</div>
 			<button id="sepiaFW-nav-menu-go-right">•</button>
-			<button id="sepiaFW-nav-users-btn"><i class="material-icons md-btn2">speaker_notes</i></button>
+			<button id="sepiaFW-nav-users-btn"><i class="material-icons md-btn2">&#xE8CD;</i></button>
 			<div id="sepiaFW-nav-bar-page-indicator"><div>&nbsp;</div><div>&nbsp;</div><div>&nbsp;</div></div>
 		</div>
 		<!-- Output views -->
@@ -207,7 +208,7 @@
 		<!-- Controls -->
 		<div id="sepiaFW-chat-controls">
 			<div id="sepiaFW-chat-controls-right">
-				<button id="sepiaFW-chat-controls-more-btn" class="eButton"><i class="material-icons md-btn">apps</i></button>
+				<button id="sepiaFW-chat-controls-more-btn" class="eButton"><i class="material-icons md-btn">&#xE5C3;</i></button>
 			</div>
 			<div id="sepiaFW-assist-btn-area">
 				<button id="sepiaFW-assist-btn"><i class="material-icons md-mic">&#xE029;</i></button>
@@ -224,7 +225,8 @@
 		</div>
 		<div id="sepiaFW-chat-controls-speech-box" style="display:none;">
 			<div id="sepiaFW-chat-controls-speech-box-edit"><i class="material-icons md-18">&#xE14C;</i></div><!-- &#xE3C9; -->
-			<div id="sepiaFW-chat-controls-speech-box-bubble"></div>
+			<div id="sepiaFW-chat-controls-speech-box-bubble" style="display: none;"></div>
+			<div id="sepiaFW-chat-controls-speech-box-bubble-loader"><div></div><div></div><div></div></div>
 			<div id="sepiaFW-chat-controls-speech-box-finish"><i class="material-icons md-18">&#xE409;</i></div><!-- &#xE163; -->
 		</div>
 		<!-- TeachUI layer -->

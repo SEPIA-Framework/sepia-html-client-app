@@ -90,10 +90,12 @@ body {
 	min-width: 320px;
 	height: 100%;
     margin: 0 auto;
-    padding: 8px 8px;
+	padding: 8px 8px;
+	position: relative;
 }
 body.limit-size {
 	max-width: 480px;
+	padding: 0px;
 }
 .sepiaFW-standalone-app body {
 	padding: 0px;
@@ -1776,6 +1778,34 @@ html.dark-skin #sepiaFW-login-help-btn {
 	padding: 5px;
 	user-select: none;
 	cursor: pointer;
+}
+#sepiaFW-chat-controls-speech-box-bubble-loader {
+	flex: 1 0 auto;
+	max-width: calc(100% - 90px);
+	margin: 0 0px;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+#sepiaFW-chat-controls-speech-box-bubble-loader div {
+	margin: 0 6px;
+	width: 5px;
+	background: currentColor;
+	border-radius: 3px;
+	animation: speech-box-bubble-loader-ani 1.2s cubic-bezier(0, 0.5, 0.5, 1) infinite;
+}
+#sepiaFW-chat-controls-speech-box-bubble-loader div:nth-child(1) {
+	animation-delay: -0.24s;
+}
+#sepiaFW-chat-controls-speech-box-bubble-loader div:nth-child(2) {
+	animation-delay: -0.12s;
+}
+#sepiaFW-chat-controls-speech-box-bubble-loader div:nth-child(3) {
+	animation-delay: 0;
+}
+@keyframes speech-box-bubble-loader-ani {
+	0% { height: 24px; }
+	50%, 100% {	height: 6px; }
 }
 
 .sepiaFW-inner-container {
