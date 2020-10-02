@@ -1007,6 +1007,7 @@ function sepiaFW_build_account(sepiaSessionId){
 				userToken = "";
 				userTokenValidUntil = 0;
 				userName = "";
+				SepiaFW.client.setDemoMode(false);
 				//done
 				listenForLogoutActions = false;
 				logoutSectionsFinished = 0;
@@ -1014,7 +1015,6 @@ function sepiaFW_build_account(sepiaSessionId){
 				var config = {
 					buttonOneName : "Return to sign in",
 					buttonOneAction : function(){
-						SepiaFW.client.setDemoMode(false);
 						setTimeout(function(){
 							window.location.reload();
 						}, 1000);
