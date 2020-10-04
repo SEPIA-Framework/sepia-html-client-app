@@ -293,6 +293,7 @@ function sepiaFW_build_events(){
 	var SyncSchedulers = {};
 
 	var lastTimeEventsCheck = 0;
+	var timeEventsCheckTimer;
 
 	//----------------- Broadcasting -------------------
 
@@ -308,7 +309,10 @@ function sepiaFW_build_events(){
 		}
 		//prevent multiple consecutive calls in short intervall...
 		var now = new Date().getTime();
-		if (forceNew || (now - lastTimeEventsCheck) > 10*1000){ 		//interval: 10s
+		var timePassedSinceLastCheck = (now - lastTimeEventsCheck);
+		var targetTime = 10*1000; 	//at least 10s
+		if (forceNew || timePassedSinceLastCheck > targetTime){ 		//interval: 10s
+			clearTimeout(timeEventsCheckTimer);
 			lastTimeEventsCheck = now;
 			
 			//reset ids tracking timeEvents - basically just reload all active background time events to 'timeEventNotificationIds'
@@ -342,8 +346,11 @@ function sepiaFW_build_events(){
 				SepiaFW.client.sendCommand(dataset2, options);
 			});
 		}else{
-			SepiaFW.debug.log("Events: skipped time events update because requests came too quickly!");
-			//TODO: buffer calls and schedule update for later
+			SepiaFW.debug.log("Events: Delayed time events update because requests came too quickly!");
+			//buffer calls and schedule update for later
+			timeEventsCheckTimer = setTimeout(function(){
+				Events.setupTimeEvents();
+			}, (targetTime - timePassedSinceLastCheck + 2000));
 		}
 	}
 	
