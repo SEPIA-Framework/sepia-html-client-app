@@ -45,6 +45,9 @@ html {
 #sepiaFW-nav-menu-go-right {
 	color: #ffdd64 !important;
 }
+#sepiaFW-nav-users-btn.marked::after {
+	color: #5957e8;
+}
 
 #sepiaFW-login-box button {
 	background: linear-gradient(to right, #ffdd64 0%, #ff983a 100%);

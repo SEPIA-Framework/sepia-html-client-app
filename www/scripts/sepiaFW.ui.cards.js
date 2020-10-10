@@ -555,14 +555,17 @@ function sepiaFW_build_ui_cards(){
 			$(this).on('focusout', function(){
 				//update data
 				var newName = $(this).text().trim();
+				var eleData = JSON.parse($listEle.attr('data-element'));
 				if (newName){
-					var eleData = JSON.parse($listEle.attr('data-element'));
+					newName = (newName.length > 320)? (newName.substring(0,319) + "...") : newName; 	//brutally shorten name - TODO: improve
 					eleData.name = newName;
-					$(this).text(newName);
+					$(this).text(eleData.name);
 					$listEle.attr('data-element', JSON.stringify(eleData));
 					//activate save button
 					var $saveBtn = $listBody.parent().find('.sepiaFW-cards-list-saveBtn'); 	//note: we need to load the button here
 					$saveBtn.addClass('active');		//saveBtn.css({"opacity": 0.92, "color": saveBtn.parent().css("color")});
+				}else{
+					$(this).text(eleData.name);
 				}
 			});
 			$(this).keypress(function(event){
@@ -759,24 +762,27 @@ function sepiaFW_build_ui_cards(){
 			var dataString = $(timeEvent).attr('data-element');
 			if (dataString){
 				var eleData = JSON.parse(dataString);
-				var newName = $(this).html();
-				newName = newName.replace(/<br>|<div>|<\/div>/g, "").trim(); 			//happens when the user presses enter(?)
-				newName = newName.replace(/-|_|!|\?|,|\.|'/g, " ").trim();				//remove some special chars
-				newName = (newName.length > 100)? newName.substring(0,99) : newName; 	//brutally shorten name - TODO: improve
-				eleData.name = newName.trim();
-				$(this).html(eleData.name);
-				$(timeEvent).attr('data-element', JSON.stringify(eleData));
-				//update stored TIMER
-				var Timer = SepiaFW.events.getRunningOrActivatedTimeEventById(eleData.eventId);
-				if (Timer){
-					eleData.lastChange = new Date().getTime();
-					Timer.data = eleData;
-					//trigger auto-save
-					SepiaFW.events.scheduleTimeEventsSync(eleData.eleType);
+				var newName = $(this).text().trim();
+				if (newName){
+					//newName = newName.replace(/-|_|!|\?|,|\.|'/g, " ").trim();			//remove some special chars (?)
+					newName = (newName.length > 100)? (newName.substring(0,99) + "..."): newName; 	//brutally shorten name - TODO: improve
+					eleData.name = newName.trim();
+					$(this).text(eleData.name);
+					$(timeEvent).attr('data-element', JSON.stringify(eleData));
+					//update stored TIMER
+					var Timer = SepiaFW.events.getRunningOrActivatedTimeEventById(eleData.eventId);
+					if (Timer){
+						eleData.lastChange = new Date().getTime();
+						Timer.data = eleData;
+						//trigger auto-save
+						SepiaFW.events.scheduleTimeEventsSync(eleData.eleType);
+					}
+					//activate save button
+					var saveBtn = $(this).closest('.sepiaFW-cards-flexSize-container').find('.sepiaFW-cards-list-saveBtn');
+					saveBtn.addClass('active');
+				}else{
+					$(this).text(eleData.name);
 				}
-				//activate save button
-				var saveBtn = $(this).closest('.sepiaFW-cards-flexSize-container').find('.sepiaFW-cards-list-saveBtn');
-				saveBtn.addClass('active');
 			}
 		});
 		timerEventName.keypress(function(event){

@@ -490,8 +490,8 @@ function sepiaFW_build_client_controls(sepiaSessionId){
                 if (shortcutFun){
                     cmdData = shortcutFun(cmdData);
                 }else{
-                    cmdData = undefined;
                     SepiaFW.debug.error("Client controls - Runtime-Commands missing shortcut for: " + cmdData.shortcut);
+                    cmdData = undefined;
                 }
             }
             //console.error(cmdData);               //DEBUG
