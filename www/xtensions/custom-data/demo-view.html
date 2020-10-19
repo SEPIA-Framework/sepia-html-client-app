@@ -29,6 +29,8 @@
 	<div id="sepiaFW-frames-nav-bar-page-indicator"><div>&nbsp;</div><div>&nbsp;</div></div>
 </div>
 <script>
+	//NOTE: this is a more basic version of "<assist_server>/views/custom-view-demo.html"
+	
 	$('#sepiaFW-frame-carousel').find('[data-localize]').each(function(){
 		$(this).html(SepiaFW.local.g(this.dataset.localize));
 	});
@@ -50,7 +52,7 @@
 			$('#sepiaFW-frame-page-2 #sepiaFW-frame-c-stt-data').val(JSON.stringify(data, "", 2));
 			//modify text to include custom tag (can be used to redirect all input to a custom service for example)
 			if (data.text && data.isFinal){
-				var textWithPrefix = "customdemo " + data.text;
+				var textWithPrefix = SepiaFW.frames.currentScope.nluPrefix? (SepiaFW.frames.currentScope.nluPrefix + " " + data.text) : data.text;
 				return textWithPrefix;	//<-- return the data to actually modify it
 			}
 		},
@@ -61,8 +63,10 @@
 		onAnimationStateChange: function(animState){
 			$('#sepiaFW-frames-mic').attr('class', 'entry state-' + animState);
 		},
-		//Custom action handler
-		actionHandler: function(customAction){}
+		//Custom actions
+		actionHandler: function(action){
+			console.error(action);
+		}
 		
 		//Use this action in your service to trigger the demo frame:
 		//Action name: "open_frames_view";
