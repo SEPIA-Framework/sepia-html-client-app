@@ -4,15 +4,15 @@
 		<div id="sepiaFW-frame-page-1" class='sepiaFW-frames-page sepiaFW-carousel-pane'>
 			Page 1
 		</div>
-		<!-- Page 2 -->
-		<div id="sepiaFW-frame-page-2" class='sepiaFW-frames-page sepiaFW-carousel-pane'>
-			Page 2
-		</div>
 	</div>
 </div>
 <div id="sepiaFW-frames-nav-bar" class='sepiaFW-layer-header'>
 	<button id="sepiaFW-frames-close" class='entry'>
 		<i class="material-icons md-btn2">close</i>
+	</button>
+	<!--
+	<button id="sepiaFW-frames-mic" class='entry'>
+		<i class="material-icons md-btn2">mic</i>
 	</button>
 	<button id="sepiaFW-frames-show-prev-page" class='entry'>
 		<i class="material-icons md-btn2">keyboard_arrow_left</i><span data-localize="back">back</span>
@@ -20,7 +20,8 @@
 	<button id="sepiaFW-frames-show-next-page" class='entry'>
 		<span data-localize="next">next</span><i class="material-icons md-btn2">keyboard_arrow_right</i>
 	</button>
-	<div id="sepiaFW-frames-nav-bar-page-indicator"><div>&nbsp;</div><div>&nbsp;</div></div>
+	-->
+	<div id="sepiaFW-frames-nav-bar-page-indicator"><div>&nbsp;</div></div>
 </div>
 <script>
 	$('#sepiaFW-frame-carousel').find('[data-localize]').each(function(){
@@ -28,8 +29,12 @@
 	});
 	//Define scope
 	SepiaFW.frames.currentScope = {
-		//Load scope (default method)
+		//Load scope (default method, kind of like 'onDocumentReady')
 		load: function(){
+		},
+		//Animation state "listener" (listening, speaking, loading, idle, etc.)
+		onAnimationStateChange: function(animState){
+			$('#sepiaFW-frames-mic').attr('class', 'entry state-' + animState);
 		}
 	}
 	SepiaFW.frames.currentScope.load();

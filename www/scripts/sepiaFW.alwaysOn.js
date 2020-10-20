@@ -184,13 +184,13 @@ function sepiaFW_build_always_on(){
             }else{
                 //console.log('AO saw text: ' + sttResult.text);
             }
-            $sttOut.html(sttResult.text);
+            $sttOut.text(sttResult.text);
             if (fadeSttTimer) clearTimeout(fadeSttTimer);
             $sttOut.stop().fadeIn(0);
             fadeSttTimer = setTimeout(function(){
                 $sttOut.stop();
                 $sttOut.fadeOut(3000, function(){
-                    $sttOut.html("");
+                    $sttOut.text("");
                 });
             }, 4000);
         }
@@ -200,7 +200,7 @@ function sepiaFW_build_always_on(){
     //TTS output handler
     AlwaysOn.onChatOutputHandler = function(textResult){
         if ($ttsOut && $ttsOut.length > 0 && textResult && textResult.text){
-            $ttsOut.html("");
+            $ttsOut.text("");
             if (fadeTtsTimer) clearTimeout(fadeTtsTimer);
             if (ttsBuildUpTimer){
                 clearTimeout(ttsBuildUpTimer);
@@ -215,7 +215,7 @@ function sepiaFW_build_always_on(){
         ttsLastText = fullTextArray;
         if (fullTextArray && index < fullTextArray.length){
             intermediateText = (intermediateText + " " + fullTextArray[index]).trim();
-            $ttsOut.html(intermediateText);
+            $ttsOut.text(intermediateText);
             index++;
             var delay = (fullTextArray.length > index)? (fullTextArray[index-1].length + fullTextArray[index].length) * avgCharacterLength : fullTextArray[index-1].length * avgCharacterLength;
             ttsBuildUpTimer = setTimeout(function(){
@@ -229,14 +229,14 @@ function sepiaFW_build_always_on(){
         if (fadeTtsTimer) clearTimeout(fadeTtsTimer);
         if (ttsBuildUpTimer) clearTimeout(ttsBuildUpTimer);
         if (ttsLastText && ttsLastText.length > 0){
-            $ttsOut.html(ttsLastText.join(" ").trim());
+            $ttsOut.text(ttsLastText.join(" ").trim());
             ttsLastText = undefined;
         }
         $ttsOut.stop().fadeIn(0);
         fadeTtsTimer = setTimeout(function(){
             $ttsOut.stop();
             $ttsOut.fadeOut(3000, function(){
-                $ttsOut.html("");
+                $ttsOut.text("");
             });
         }, 4000);
     }
@@ -340,7 +340,7 @@ function sepiaFW_build_always_on(){
             if (alarmTriggerTimer) clearTimeout(alarmTriggerTimer);
             //stop alarm sound
             if (SepiaFW.audio){
-                SepiaFW.audio.stopAlarmSound();
+                SepiaFW.audio.stopAlarmSound("alwaysOn");
             }
             //remove animation
             removeAlarmAnimation();

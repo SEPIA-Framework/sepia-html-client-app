@@ -1,0 +1,26 @@
+@media (screen-spanning: single-fold-vertical) {
+	body.limit-size {
+		max-width: none;
+	}
+	#sepiaFW-main-window {
+		width: calc(50% - env(fold-width)/2);
+	}
+	.sepiaFW-popup-cover-layer {
+		padding-right: calc(50% + env(fold-width)/2);
+	}
+	#sepiaFW-login-box {
+		left: calc(25% - env(fold-width)/4);
+	}
+	#sepiaFW-swipeBar-container-right {
+		right: calc(50% + env(fold-width)/2);
+	}
+}
+@media (screen-spanning: single-fold-horizontal) {
+	#sepiaFW-main-window {
+		height: env(fold-top);
+		margin-bottom: calc(env(fold-top) + env(fold-height));
+	}
+	.sepiaFW-popup-cover-layer {
+		padding-bottom: calc(env(fold-top) + env(fold-height));
+	}
+}

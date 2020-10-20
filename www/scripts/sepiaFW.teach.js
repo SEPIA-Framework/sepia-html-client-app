@@ -241,7 +241,7 @@ function sepiaFW_build_teach(sepiaSessionId){
 			$.each(services, function(key, value){
 				var option = document.createElement('OPTION');
 				option.value = value.command;
-				option.innerHTML = value.name;
+				option.textContent = value.name;
 				$('#sepiaFW-teach-commands').append(option);
 			});
 
@@ -448,16 +448,16 @@ function sepiaFW_build_teach(sepiaSessionId){
 			//examples for 'all'
 			if (examples['all']){
 				examples['all'].forEach(function(ex){
-					$exBox.append("<span class='parameter-example'>" + ex + "</span>");
+					$exBox.append("<span class='parameter-example'>" + SepiaFW.tools.sanitizeHtml(ex) + "</span>");
 				});
 			}
 			//examples for types
 			examples[type].forEach(function(ex){
 				if (type == "2"){
 					ex = JSON.stringify(ex, undefined, 4);
-					$exBox.append("<span class='parameter-example json'>" + ex + "</span>");
+					$exBox.append("<span class='parameter-example json'>" + SepiaFW.tools.sanitizeHtml(ex) + "</span>");
 				}else{
-					$exBox.append("<span class='parameter-example'>" + ex + "</span>");
+					$exBox.append("<span class='parameter-example'>" + SepiaFW.tools.sanitizeHtml(ex) + "</span>");
 				}
 			});
 			$examples.append(exBox);
@@ -483,7 +483,7 @@ function sepiaFW_build_teach(sepiaSessionId){
 	//make parameter entry
 	function makeParameter(uiName, pName, isOptional, pType, pExamples, parentBlock){
 		var label = document.createElement('LABEL');
-		label.innerHTML = uiName;
+		label.textContent = uiName;
 		var input = document.createElement('INPUT');
 		input.className = "sepiaFW-teach-parameter-input";
 		input.placeholder = "click here";
@@ -638,7 +638,7 @@ function sepiaFW_build_teach(sepiaSessionId){
 		var newCard = document.createElement('DIV');
 		newCard.className = 'sepiaFW-command-card';
 		newCard.innerHTML = "<div class='cmdLabel'>"
-								+ "<span>" + (sentence.text.replace(/</g, "&lt;") || sentence.tagged_text.replace(/</g, "&lt;")) + "</span>"
+								+ "<span>" + SepiaFW.tools.escapeHtml(sentence.text || sentence.tagged_text) + "</span>"
 							+ "</div>"
 							+ "<div class='cmdRemoveBtn'>"
 								+ "<span>" + "<i class='material-icons md-24'>&#xE15B;</i>" + "</span>"
@@ -834,10 +834,18 @@ function sepiaFW_build_teach(sepiaSessionId){
 		$.ajax(config);
 	}
 	
-	//load personal commands
+	//load personal and custom assistant commands
 	Teach.loadPersonalCommands = function(key, startingFrom, loadSize, successCallback, errorCallback, debugCallback, with_button_only){
+		loadPersonalOrCustomAssistantCommands("getAllPersonalCommands", key, startingFrom, loadSize, 
+			successCallback, errorCallback, debugCallback, with_button_only);
+	}
+	Teach.loadCustomAssistantCommands = function(key, startingFrom, loadSize, successCallback, errorCallback, debugCallback, with_button_only){
+		loadPersonalOrCustomAssistantCommands("getAllCustomAssistantCommands", key, startingFrom, loadSize, 
+			successCallback, errorCallback, debugCallback, with_button_only);
+	}
+	function loadPersonalOrCustomAssistantCommands(endpoint, key, startingFrom, loadSize, successCallback, errorCallback, debugCallback, with_button_only){
 		SepiaFW.ui.showLoader();
-		var apiUrl = SepiaFW.config.teachAPI + "getAllPersonalCommands";
+		var apiUrl = SepiaFW.config.teachAPI + endpoint;
 		var submitData = new Object();
 		submitData.KEY = key;
 		submitData.client = SepiaFW.config.getClientDeviceInfo(); //SepiaFW.config.clientInfo;

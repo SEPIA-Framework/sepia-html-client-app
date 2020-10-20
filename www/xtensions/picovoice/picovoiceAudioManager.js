@@ -1,4 +1,4 @@
-let PicovoiceAudioManager = (function() {
+var PicovoiceAudioManager = (function() {
     var engine;
     var processCallback;
     var isProcessing = false;
@@ -11,15 +11,32 @@ let PicovoiceAudioManager = (function() {
         }
     }
 
-    var PicovoiceRecorder = function(audioSource, audioProcessor, startFun, stopFun){
+    var PicovoiceRecorder = function(sourceOrConfig, audioProcessor, startFun, stopFun){
+        //NOTE: 'sourceOrConfig' is 'source' for Web Audio API and 'config' for AudioInput plugin.
+        //      This recorder is optimzed to fill the 'inputAudioBuffer' and then process audio buffer chunks via 'engine.process' (will downsample if required)
+
         logInfo('CREATED PicovoiceRecorder');
 
-        var audioContext = audioSource.context;
+        var audioContext = sourceOrConfig.context;
+        var audioSource;
+        var inputSampleRate;
+        var inputBufferLength;
+        if (audioContext){
+            //Web Audio API
+            audioSource = sourceOrConfig;
+            inputSampleRate = audioContext.sampleRate;
+            inputBufferLength = PicovoiceRecorder.defaultBufferLength || 2048;
+        }else{
+            //AudioInput plugin (Cordova)
+            inputSampleRate = sourceOrConfig.sampleRate;
+            inputBufferLength = sourceOrConfig.bufferSize || this.defaultBufferLength;
+            //NOTE: requires audioProcessor, startFun, stopFun
+        }
 
-        let inputSampleRate = (audioContext)? audioContext.sampleRate : audioSource.sampleRate;
         logInfo('inputSampleRate: ' + inputSampleRate);
+        logInfo('inputBufferLength: ' + inputBufferLength);
 
-        let inputAudioBuffer = [];
+        var inputAudioBuffer = [];      //this is kind of a ring buffer I guess
 
         function processAudio(inputAudioFrame){
             if (!isProcessing) {
@@ -28,17 +45,17 @@ let PicovoiceAudioManager = (function() {
             //console.log('+');
             
             //fill inputAudioBuffer
-            for (let i = 0 ; i < inputAudioFrame.length ; i++) {
+            for (var i = 0 ; i < inputAudioFrame.length ; i++) {
                 inputAudioBuffer.push((inputAudioFrame[i]) * 32767);    //0x7FFF
             }
 
             //downsample if necessary
             while(inputAudioBuffer.length * engine.sampleRate / inputSampleRate > engine.frameLength) {
-                let result = new Int16Array(engine.frameLength);
-                let bin = 0;
-                let num = 0;
-                let indexIn = 0;
-                let indexOut = 0;
+                var result = new Int16Array(engine.frameLength);
+                var bin = 0;
+                var num = 0;
+                var indexIn = 0;
+                var indexOut = 0;
     
                 while(indexIn < engine.frameLength) {
                     bin = 0;
@@ -66,10 +83,9 @@ let PicovoiceAudioManager = (function() {
             }
         //Web-Audio
         }else if (audioContext){
-            let inputBufferLength = 4096;
-            let engineNode = audioContext.createScriptProcessor(inputBufferLength, 1, 1);
+            var engineNode = audioContext.createScriptProcessor(inputBufferLength, 1, 1);
             engineNode.onaudioprocess = function(ev){
-                let inputAudioFrame = ev.inputBuffer.getChannelData(0);
+                var inputAudioFrame = ev.inputBuffer.getChannelData(0);
                 processAudio(inputAudioFrame);
             }
             startFun = function(){
@@ -98,6 +114,8 @@ let PicovoiceAudioManager = (function() {
             stopFun();
         }
     }
+    //some defaults
+    PicovoiceRecorder.defaultBufferLength = Number.parseInt(SepiaFW.data.getPermanent("porcupine-ww-buffer-length") || 2048);
       
     //Create recorder and start processing
     this.start = function(ppKeywordIDs, ppSensitivities, picovoiceProcessCallback, errorCallback){
@@ -115,7 +133,7 @@ let PicovoiceAudioManager = (function() {
         isProcessing = true;
 
         //Get audio recorder
-		SepiaFW.audioRecorder.getRecorder(PicovoiceRecorder, function(audioRecorder){
+		SepiaFW.audioRecorder.getRecorder(PicovoiceRecorder, function(audioRecorder, streamSource){
             //Start recorder
             SepiaFW.audioRecorder.start(function(activeAudioContext, audioRec){
                 //Started

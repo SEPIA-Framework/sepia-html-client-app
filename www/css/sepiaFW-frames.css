@@ -154,9 +154,30 @@
 	flex: 1 0 auto;
 	max-width: 100%;
 }
+.sepiaFW-frames-page .group.fit {
+	max-width: calc(100% - 16px);
+	overflow: hidden;
+}
 .sepiaFW-frames-page .group .sepiaFW-toggle-btn {
 	border: 1px solid;
 	border-color: inherit;
+}
+.sepiaFW-frames-page .group .entry-content {
+	flex: 1 1 auto;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+}
+.sepiaFW-frames-page .group .entry-content input {
+	flex-grow: 1;
+	margin: 0 8px !important;
+	width: 180px !important; /* idk why but this fixes it for <=320px width screens */
+}
+.sepiaFW-frames-page .group .set-button {
+	margin: 0 8px !important; 
+	width: 56px;
+	flex: 0 0 auto;
 }
 .sepiaFW-frames-page .group .inside-button {
 	position: absolute;
@@ -220,4 +241,19 @@
     padding: 0;
 	margin: 4px;
 	border-bottom: 0;
+}
+
+/* mic animations (idle, loading, speaking, listening, awaitDialog) */
+
+#sepiaFW-frames-view #sepiaFW-frames-mic.state-loading {
+	color: #8e8e8e;
+}
+#sepiaFW-frames-view #sepiaFW-frames-mic.state-speaking {
+	color: #16ABC3;
+}
+#sepiaFW-frames-view #sepiaFW-frames-mic.state-listening {
+	color: #ba2a2a;
+}
+#sepiaFW-frames-view #sepiaFW-frames-mic.state-awaitDialog {
+	color: #ffeb3b;
 }

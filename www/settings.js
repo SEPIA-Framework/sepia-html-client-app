@@ -29,6 +29,7 @@ SepiaFW.settings = {
 			"autoloadWakeWord": false,
 			"allowWakeWordDuringStream": false,
 			"activeSkin": "2",
+			"activeAvatar": "0",
 			"proactiveNotes": false,
 			"autoGPS": false
 		},
@@ -39,8 +40,12 @@ SepiaFW.settings = {
 		broadcast: {
 			"state": true,
 			"login": true,
+			"clientError": true,
+			"accountError": true,
 			"speech": true,
-			"wakeWord": true
+			"wakeWord": true,
+			"audioPlayer": true,
+			"alarm": true
 		}
 	}
 };

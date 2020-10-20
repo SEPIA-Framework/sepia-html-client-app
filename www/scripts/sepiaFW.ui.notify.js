@@ -25,14 +25,18 @@ function sepiaFW_build_ui_notifications(){
 				if (permission === "granted") {
 					makeNote(text, title, options, pressCallback, closeCallback);
 				}else{
-					SepiaFW.debug.log('Notifications are deactivated, please check your browser settings, e.g. chrome://settings/content');
+					var msg = SepiaFW.local.g("notification_error") + " - " + SepiaFW.local.g("check_browser_settings");
+					SepiaFW.debug.log(msg);
+					SepiaFW.ui.showInfo(msg);
 				}
 			});
 		}
 		//comment denied
 		else{
 			if (!userHasBeenAsked){
-				SepiaFW.debug.log('Notifications are deactivated, please check your browser settings, e.g. chrome://settings/content');
+				var msg = SepiaFW.local.g("notification_error") + " - " + SepiaFW.local.g("check_browser_settings");
+				SepiaFW.debug.log(msg);
+				SepiaFW.ui.showInfo(msg);
 				userHasBeenAsked = true;
 			}
 		}

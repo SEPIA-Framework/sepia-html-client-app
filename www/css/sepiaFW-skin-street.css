@@ -139,6 +139,8 @@ html {
 #sepiaFW-chat-controls-swipe-area .sepiaFW-swipeBar-switchable {
 	background: #ceff1a;
 	color: #000;
+	border: 3px solid #000;
+    border-right: 0;
 }
 
 /*----- cards ------*/

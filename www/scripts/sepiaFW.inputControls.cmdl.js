@@ -39,6 +39,16 @@ function sepiaFW_build_input_controls_cmdl() {
             }else{
                 document.removeEventListener('sepia_login_event', loginBroadcaster);
             }
+            if (Cmdl.broadcasters.clientError){
+                document.addEventListener('sepia_client_error', clientErrorBroadcaster);
+            }else{
+                document.removeEventListener('sepia_client_error', clientErrorBroadcaster);
+            }
+            if (Cmdl.broadcasters.accountError){
+                document.addEventListener('sepia_account_error', accountErrorBroadcaster);
+            }else{
+                document.removeEventListener('sepia_account_error', accountErrorBroadcaster);
+            }
             if (Cmdl.broadcasters.speech){
                 document.addEventListener('sepia_speech_event', speechBroadcaster);
             }else{
@@ -49,34 +59,51 @@ function sepiaFW_build_input_controls_cmdl() {
             }else{
                 document.removeEventListener('sepia_wake_word', wakeWordBroadcaster);
             }
+            if (Cmdl.broadcasters.audioPlayer){
+                document.addEventListener('sepia_audio_player_event', audioPlayerBroadcaster);
+            }else{
+                document.removeEventListener('sepia_audio_player_event', audioPlayerBroadcaster);
+            }
+            if (Cmdl.broadcasters.alarm){
+                document.addEventListener('sepia_alarm_event', alarmBroadcaster);
+            }else{
+                document.removeEventListener('sepia_alarm_event', alarmBroadcaster);
+            }
 
             //say hello
             broadcastEvent("event", {
-                state: "active",
+                state: (SepiaFW.client.isActive()? "active" : "transient"),
                 user: getActiveUserOrDemoRole()
             });
+
         }else if (SepiaFW.clexi){
             //clean-up
             SepiaFW.clexi.removeBroadcastListener("sepia-client");
             document.removeEventListener('sepia_state_change', stateBroadcaster);
             document.removeEventListener('sepia_login_event', loginBroadcaster);
+            document.removeEventListener('sepia_client_error', clientErrorBroadcaster);
+            document.removeEventListener('sepia_account_error', accountErrorBroadcaster);
             document.removeEventListener('sepia_speech_event', speechBroadcaster);
             document.removeEventListener('sepia_wake_word', wakeWordBroadcaster);
+            document.removeEventListener('sepia_audio_player_event', audioPlayerBroadcaster);
+            document.removeEventListener('sepia_alarm_event', alarmBroadcaster);
         }
     }
 
-    //Broadcasters to use, usually overwritten by headless settings
+    //Broadcasters to use, usually overwritten by headless/auto-setup settings
     Cmdl.broadcasters = {
-        state: false,
+        state: true,
         login: false,
-        speech: false,
-        wakeWord: false
+        clientError: true,
+        accountError: true,
+        speech: true,
+        wakeWord: true,
+        audioPlayer: true,
+        alarm: true
     };
     function stateBroadcaster(ev){
-        if (Cmdl.broadcasters.state && ev.detail && ev.detail.state){
-            broadcastEvent("sepia-state", {
-                state: ev.detail.state
-            });
+        if (Cmdl.broadcasters.state && ev.detail && (ev.detail.state || ev.detail.connection)){
+            broadcastEvent("sepia-state", ev.detail);
         }
     }
     function loginBroadcaster(ev){
@@ -84,6 +111,16 @@ function sepiaFW_build_input_controls_cmdl() {
             broadcastEvent("sepia-login", {
                 note: ev.detail.note
             });
+        }
+    }
+    function clientErrorBroadcaster(ev){
+        if (Cmdl.broadcasters.clientError && ev.detail){
+            broadcastEvent("sepia-client-error", ev.detail);
+        }
+    }
+    function accountErrorBroadcaster(ev){
+        if (Cmdl.broadcasters.accountError && ev.detail){
+            broadcastEvent("sepia-account-error", ev.detail);
         }
     }
     function speechBroadcaster(ev){
@@ -106,6 +143,25 @@ function sepiaFW_build_input_controls_cmdl() {
                 d.msg = ev.detail.msg;
             }
             broadcastEvent("sepia-wake-word", d);
+        }
+    }
+    function audioPlayerBroadcaster(ev){
+        if (Cmdl.broadcasters.audioPlayer && ev.detail){
+            //we ignore 'effects' and 'tts' player ... for now if its not an error
+            if (ev.detail.action == "error" || (ev.detail.source != "effects" && ev.detail.source != "tts-player")){
+                broadcastEvent("sepia-audio-player-event", ev.detail);
+            }
+        }
+    }
+    function alarmBroadcaster(ev){
+        if (Cmdl.broadcasters.alarm && ev.detail && ev.detail.action){
+            var d = {
+                action: ev.detail.action
+            }
+            if (ev.detail.info){
+                d.info = ev.detail.info;
+            }
+            broadcastEvent("sepia-alarm-event", d);
         }
     }
 
@@ -186,6 +242,20 @@ function sepiaFW_build_input_controls_cmdl() {
         }
     }
 
+    Cmdl.set.connections = function(ev){
+        if (ev.client){
+            if (ev.client == "off" || ev.client == "close" || ev.client == "disconnect" || ev.client == "disable" || ev.client == "deactivate"){
+                SepiaFW.client.closeClient();
+            }else if (ev.client == "on" || ev.client == "open" || ev.client == "connect" || ev.client == "enable" || ev.client == "activate"){
+                SepiaFW.client.resumeClient();
+            }
+        }else if (ev.clexi){
+            if (ev.clexi == "off" || ev.clexi == "close" || ev.clexi == "disconnect" || ev.clexi == "disable" || ev.clexi == "deactivate"){
+                SepiaFW.clexi.close();
+            }
+        }
+    }
+
     //---------- GET ------------
 
     Cmdl.get = {};
@@ -195,12 +265,16 @@ function sepiaFW_build_input_controls_cmdl() {
     }
 
     Cmdl.get.user = function(){
-        broadcastEvent("msg", "User is: " + getActiveUserOrDemoRole());
+        broadcastEvent("msg", {
+            user: getActiveUserOrDemoRole(), 
+            active: SepiaFW.client.isActive()
+        });
     }
 
     Cmdl.get.wakeword = function(){
         broadcastEvent("sepia-wake-word", {
-            state: (SepiaFW.wakeTriggers.isListening()? "active" : "inactive")
+            state: (SepiaFW.wakeTriggers.isListening()? "active" : "inactive"),
+            keywords: SepiaFW.wakeTriggers.getWakeWords()
         });
     }
 

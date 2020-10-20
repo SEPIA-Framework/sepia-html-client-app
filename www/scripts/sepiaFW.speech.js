@@ -64,7 +64,7 @@ function sepiaFW_build_speech(){
 	Speech.getAsrEngine = function(){
 		return Speech.asrEngine;
 	}
-	Speech.setAsrEngine = function(asrEngine){
+	Speech.setAsrEngine = function(asrEngine, asrEngineInfo){
 		if (asrEngine == 'native'){
 			if (!Speech.isWebKitAsrSupported){
 				SepiaFW.debug.err("ASR: Tried to set native ASR engine but it is not supported by this client!");
@@ -74,6 +74,10 @@ function sepiaFW_build_speech(){
 			if (!Speech.isWebSocketAsrSupported){
 				SepiaFW.debug.err("ASR: Tried to set (SEPIA compatible) socket ASR engine but it is not supported by this client!");
 				asrEngine = "";
+			}else{
+				if (asrEngineInfo && asrEngineInfo.url){
+					SepiaFW.speechWebSocket.setSocketURI(asrEngineInfo.url);
+				}
 			}
 		}
 		if (!asrEngine){
@@ -89,6 +93,10 @@ function sepiaFW_build_speech(){
 			Speech.asrEngine = asrEngine;
 			SepiaFW.debug.log("ASR: Using '" + asrEngine + "' engine.");
 		}
+		//refresh UI
+		$('#sepiaFW-menu-select-stt').val(asrEngine);
+		
+		return asrEngine;
 	} 
 	Speech.setAsrEngine(Speech.asrEngine);
 
@@ -103,7 +111,7 @@ function sepiaFW_build_speech(){
 		var headerOption = document.createElement('option');
 		headerOption.selected = true;
 		headerOption.disabled = true;
-		headerOption.innerHTML = "- select -";
+		headerOption.textContent = "- select -";
 		sttSelector.appendChild(headerOption);
 		//check others
 		if (Speech.isWebKitAsrSupported){
@@ -117,7 +125,7 @@ function sepiaFW_build_speech(){
 		engines.forEach(function(engine){
 			var option = document.createElement('option');
 			option.value = engine;
-			option.innerHTML = engineNames[engine];
+			option.textContent = engineNames[engine];
 			sttSelector.appendChild(option);
 			if (Speech.asrEngine == engine){
 				option.selected = true;
@@ -132,7 +140,7 @@ function sepiaFW_build_speech(){
 		if (engines.length === 0){
 			var option = document.createElement('option');
 			option.value = '';
-			option.innerHTML = 'not supported';
+			option.textContent = 'not supported';
 			sttSelector.appendChild(option);
 		}
 		return sttSelector;
@@ -221,7 +229,7 @@ function sepiaFW_build_speech(){
 		var headerOption = document.createElement('option');
 		headerOption.selected = true;
 		headerOption.disabled = true;
-		headerOption.innerHTML = "- select -";
+		headerOption.textContent = "- select -";
 		ttsSelector.appendChild(headerOption);
 		//check others
 		if (Speech.isNativeTtsSupported){
@@ -235,7 +243,7 @@ function sepiaFW_build_speech(){
 		voiceEngines.forEach(function(engine){
 			var option = document.createElement('option');
 			option.value = engine;
-			option.innerHTML = voiceEngineNames[engine];
+			option.textContent = voiceEngineNames[engine];
 			ttsSelector.appendChild(option);
 			if (Speech.voiceEngine == engine){
 				option.selected = true;
@@ -251,7 +259,7 @@ function sepiaFW_build_speech(){
 		if (voiceEngines.length === 0){
 			var option = document.createElement('option');
 			option.value = '';
-			option.innerHTML = 'not supported';
+			option.textContent = 'not supported';
 			ttsSelector.appendChild(option);
 		}
 		return ttsSelector;
@@ -375,7 +383,8 @@ function sepiaFW_build_speech(){
 		dispatchSpeechEvent("asr_error", msg);
 	}
 	function broadcastUnknownAsrError(err){
-		var msg = err || "unknown";
+		var msg = SepiaFW.local.g('asrOtherError') + " Error: '" + (err || "unknown") + "'";
+		SepiaFW.ui.showInfo(msg);
 		dispatchSpeechEvent("asr_error", msg);
 	}
 	
@@ -506,6 +515,9 @@ function sepiaFW_build_speech(){
 		recognizerWaitingForResult = false;
 		isRecognizing = false;
 		if (Speech.asrEngine == "native"){
+			if (recognition.clearWaitTimeoutAndIgnoreEnd){
+				recognition.clearWaitTimeoutAndIgnoreEnd();
+			}
 			recognition = (SepiaFW.ui.isCordova)? (new SpeechRecognition()) : (new webkitSpeechRecognition());
 		}
 	}
@@ -605,9 +617,8 @@ function sepiaFW_build_speech(){
 			
 			//ON START
 			recognition.onstart = function(event) {
-				eventCorrected = {};
-				if ((event && !event.timeStamp) || !event) eventCorrected.timeStamp = new Date().getTime();
-				if (eventCorrected.length > 0) event = eventCorrected;
+				if (!event) event = {};
+				if (!event.timeStamp) event.timeStamp = new Date().getTime();
 				isRecognizing = true;
 				recognizerWaitingForResult = false;
 				asrAutoStop = false;
@@ -626,9 +637,8 @@ function sepiaFW_build_speech(){
 			
 			//ON MY ABORT
 			recognition.onmyabort = function(event) {
-				eventCorrected = {};
-				if (event && !event.timeStamp) eventCorrected.timeStamp = new Date().getTime();
-				if (eventCorrected.length > 0) event = eventCorrected;
+				if (!event) event = {};
+				if (!event.timeStamp) event.timeStamp = new Date().getTime();
 				quit_on_final_result = true;
 				recognizerWaitingForResult = true;
 				wait_timestamp = new Date().getTime();
@@ -637,6 +647,10 @@ function sepiaFW_build_speech(){
 				log_callback('-LOG- ABORT REQUESTED');
 				recognition.stop();
 			};
+			recognition.clearWaitTimeoutAndIgnoreEnd = function(){
+				clearTimeout(waitTimeout);
+				ignore_onend = true;
+			}
 			
 			//ON ERROR
 			recognition.onerror = function(event) {
@@ -652,45 +666,36 @@ function sepiaFW_build_speech(){
 					before_error(error_callback, err_msg);
 					return;
 				}
-				var orgEvent = event;
-				eventCorrected = {};
-				if (event && !event.timeStamp) eventCorrected.timeStamp = new Date().getTime();
-				if (event && !event.error) eventCorrected.error = event;
-				if (eventCorrected.length > 0) event = eventCorrected;
-				
+				if (!event) event = {error: "unknown"};
+				else if (typeof event == "string") event = {error: event};
+				if (!event.timeStamp) event.timeStamp = new Date().getTime();
+
 				//light errors
-				if (event.error == 'no-speech' || event.error == 1 || event.error == 2 || event.error == 4 || event.error == 6 || event.error == 7 || event.error == 8) {
+				if (event.error == 'no-speech' || event.error == 1 || event.error == 2 || event.error == 4 || event.error == 6 || event.error == 7 || event.error == 8){
 					before_error(error_callback, 'E01 - no speech detected!');
 					if (!quit_on_final_result){	
 						restart_anyway = true;
 					}
-				}
+				
 				//severe errors
-				else if (event.error == 'audio-capture' || event.error == 3 || event.error == 5) {
+				}else if (event.error == 'audio-capture' || event.error == 3 || event.error == 5){
 					broadcastWrongAsrSettings();
 					before_error(error_callback, 'E02 - no microphone found!');
-				}
-				else if (event.error == 'not-allowed' || event.error == 9) {
+				
+				}else if (event.error == 'not-allowed' || event.error == 9){
 					broadcastWrongAsrSettings();
 					if (event.timeStamp - start_timestamp < 100) {
 						before_error(error_callback, 'E03 - Permission to use microphone was blocked!'); //<br>To change that plz go to chrome://settings/contentExceptions#media-stream');
 					} else {
 						before_error(error_callback, 'E03 - Permission to use microphone was denied!'); //<br>To change that plz go to chrome://settings/contentExceptions#media-stream');
 					}
-				}
-				else {
-					if (orgEvent && typeof orgEvent == "object"){
-						var err = JSON.stringify(orgEvent);
-						if (err != '{"type":"error"}'){		//usually happens when you simply abort recording
-							SepiaFW.debug.err('ASR: unknown ERROR!');
-							console.log(err);
-						}
-					}else{
-						SepiaFW.debug.err('ASR: unknown ERROR!');
-					    console.log(orgEvent);
+				
+				}else{
+					if (JSON.stringify(event) != '{"type":"error"}'){	//usually happens when you simply abort recording
+						SepiaFW.debug.err('ASR: '+ (event.error? event.error : 'unknown ERROR!'), event);
 					}
 					//TODO: do something here!
-					var err_msg = 'E0? - unknown error!';
+					var err_msg = 'E0? - ' + (event.error? event.error : 'unknown ERROR!');
 					broadcastUnknownAsrError(err_msg);
 					before_error(error_callback, err_msg);
 					return;
@@ -702,13 +707,13 @@ function sepiaFW_build_speech(){
 				onEndWasAlreadyCalled = true;
 				asrAutoStop = false;
 				//check for ignore and log error or check for empty result
-				if (ignore_onend & !restart_anyway) {
+				if (ignore_onend && !restart_anyway) {
 					isRecognizing = false;
 					recognizerWaitingForResult = false;
 					log_callback('-LOG- REC END. input ignored');		//only an ERROR can lead here that has been broadcasted before so we just LOG and go
 					return;
 				}
-				if (!final_transcript & quit_on_final_result){			//this will trigger aswell if final result is empty
+				if (!final_transcript && quit_on_final_result){			//this will trigger aswell if final result is empty
 					//we might need to go in a loop here since onend can fire before final result (e.g. on Android)
 					if (interim_transcript || partialWasTriggered || (resultWasNeverCalled && !onErrorWasAlreadyCalled)){
 						recognizerWaitingForResult = true;
@@ -719,10 +724,15 @@ function sepiaFW_build_speech(){
 						if ((new Date().getTime() - wait_timestamp) < maxAsrResultWait){
 							clearTimeout(waitTimeout);
 							waitTimeout = setTimeout(function(){
-								recognition.onend();
+								if (recognition.onend){
+									recognition.onend();
+								}else{
+									SepiaFW.debug.err("ASR: tried to call 'onend' but was already killed");
+								}
 							}, 334);
 							return;
 						}
+						//else: continue below
 					}else{
 						resetsOnUnexpectedEnd();
 						
@@ -771,8 +781,9 @@ function sepiaFW_build_speech(){
 				recognition.onresult(event);
 			}
 			recognition.onresult = function(event) {
+				if (!event) event = {};
 				resultWasNeverCalled = false;
-				var iosPlugin = (typeof event.results == "undefined") ? true : false;
+				var iosPlugin = (typeof event.results == "undefined")? true : false;
 				if (iosPlugin && event.message){
 					//rebuild as default result
 					var item = { transcript:event.message, final:true };
@@ -783,9 +794,7 @@ function sepiaFW_build_speech(){
 					event.results = [resN];
 				}
 				
-				eventCorrected = {};
-				if (event && !event.timeStamp) eventCorrected.timeStamp = new Date().getTime();
-				if (eventCorrected.length > 0) event = eventCorrected;
+				if (!event.timeStamp) event.timeStamp = new Date().getTime();
 				
 				interim_transcript = '';
 				var mod_str = '';
@@ -872,7 +881,7 @@ function sepiaFW_build_speech(){
 		var headerOption = document.createElement('option');
 		headerOption.selected = true;
 		headerOption.disabled = true;
-		headerOption.innerHTML = "- select -";
+		headerOption.textContent = "- select -";
 		voiceSelector.appendChild(headerOption);
 
 		if (Speech.useSepiaServerTTS){
@@ -881,7 +890,7 @@ function sepiaFW_build_speech(){
 				//success
 				var option = document.createElement('option');
 				option.value = "";
-				option.innerHTML = "- automatic -";
+				option.textContent = "- automatic -";
 				voiceSelector.appendChild(option);
 				//build voices array
 				if (res.voices && res.voices.length > 0){
@@ -905,7 +914,7 @@ function sepiaFW_build_speech(){
 				SepiaFW.debug.error("Failed to get SEPIA server voices. Please check connection and support.");
 				var option = document.createElement('option');
 				option.value = "";
-				option.innerHTML = "- no voices -";
+				option.textContent = "- no voices -";
 				voiceSelector.appendChild(option);
 				addVoicesToSelector(voices, voiceSelector);
 				if (successCallback) successCallback(voices, voiceSelector);
@@ -917,10 +926,10 @@ function sepiaFW_build_speech(){
 			var option = document.createElement('option');
 			if (voices.length === 0){
 				option.value = "";
-				option.innerHTML = "- no voices -";
+				option.textContent = "- no voices -";
 			}else{
 				option.value = "";
-				option.innerHTML = "- automatic -";
+				option.textContent = "- automatic -";
 			}
 			voiceSelector.appendChild(option);
 			addVoicesToSelector(voices, voiceSelector);
@@ -930,7 +939,7 @@ function sepiaFW_build_speech(){
 			//Cordova system voices not yet implemented
 			var option = document.createElement('option');
 			option.value = '';
-			option.innerHTML = '- system -';
+			option.textContent = '- system -';
 			voiceSelector.appendChild(option);
 			//TODO: extend?
 			addVoicesToSelector(voices, voiceSelector);
@@ -942,7 +951,7 @@ function sepiaFW_build_speech(){
 			voices.forEach(function(voice){
 				var option = document.createElement('option');
 				option.value = voice.name;
-				option.innerHTML = voice.name; //.replace(/(microsoft|google|apple)/ig, '').replace(/(\(.*?\))/g, '').trim();
+				option.textContent = voice.name; //.replace(/(microsoft|google|apple)/ig, '').replace(/(\(.*?\))/g, '').trim();
 				voiceSelector.appendChild(option);
 			});
 		}

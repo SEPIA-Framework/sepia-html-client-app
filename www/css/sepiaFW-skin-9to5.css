@@ -35,6 +35,9 @@ html {
 	border-color: #4B6688;
 }
 
+#sepiaFW-chat-controls-speech-box {
+	background: linear-gradient(to right, #e1e1f5 0%, #b5b8c9 100%);
+}
 #sepiaFW-chat-controls-speech-box > div {
 	background: #4B6688;
 	color: #fff;
@@ -109,7 +112,8 @@ html {
 }
 
 #sepiaFW-chat-controls-swipe-area .sepiaFW-swipeBar-switchable {
-	background-color: #b5b8c9;
+	/*background-color: #b5b8c9;*/
+	background-color: #61403d;
 	color: #fff;
 }
 

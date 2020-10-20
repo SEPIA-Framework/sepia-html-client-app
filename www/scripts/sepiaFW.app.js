@@ -55,8 +55,32 @@ function sepiaFW_build_dataService(){
 	var data = load();					//deleted after log-out
 	var dataPermanent = load(true);		//remains after log-out, e.g. host-name
 
-	if (!window.localStorage){
+	var hasStorageAccess;
+	var hasRequestedStorageAccess = false;
+	var requestStorageAccess = function(){
+		if (!hasRequestedStorageAccess && ('requestStorageAccess' in document)){
+			hasRequestedStorageAccess = true;
+			document.requestStorageAccess().then(function(){
+				SepiaFW.debug.log("Localstorage access was granted.");
+				hasStorageAccess = true;
+			}, function(){
+				SepiaFW.debug.err("Localstorage access NOT granted.");
+				hasStorageAccess = false;
+			});
+		}
+		window.removeEventListener('click', requestStorageAccess);
+	}
+	if (!('localStorage' in window)){
 		SepiaFW.debug.err("Data: localStorage not supported! Storing data will most likely fail.");
+	
+	}else if ('hasStorageAccess' in document){
+		document.hasStorageAccess().then(function(hasAccess){
+			hasStorageAccess = hasAccess;
+			if (hasAccess === false){
+				SepiaFW.debug.err("Localstorage access might be restriced, probably due to third-party-cookies policy. Page exception (via browser settings) possible.");
+				window.addEventListener('click', requestStorageAccess);
+			}
+		});
 	}
 	
 	//NativeStorage abstraction layer - we need to manage the async nature (compared to localStorage)
@@ -344,6 +368,16 @@ function sepiaFW_build_tools(){
 		var yyyy = d.getFullYear();
 		return yyyy + separator + MM + separator + dd;
 	}
+
+	//URL is same origin?
+	Tools.isSameOrigin = function(uri1, uri2){
+		uri1 = new URL(uri1);
+		uri2 = new URL(uri2 || window.location.href);
+		if(uri1.host !== uri2.host) return false;
+		if(uri1.port !== uri2.port) return false;
+		if(uri1.protocol !== uri2.protocol) return false;
+		return true;
+	}
 	
 	//get URL parameters
 	Tools.getURLParameter = function(name){
@@ -393,16 +427,25 @@ function sepiaFW_build_tools(){
 
 	//Escape HTML to make it "secure"
 	Tools.escapeHtml = function(htmlString){
-		return htmlString.replace(/\&/gi, "&amp;")
+		if (!htmlString) return htmlString;
+		return htmlString.trim().replace(/\&/gi, "&amp;")
 			.replace(/</gi, "&lt;").replace(/>/gi, "&gt;")
 			.replace(/"/gi, "&quot;").replace(/'/gi, "&#x27;")
 			.replace(/\//gi, "&#x2F;");
 	}
 	Tools.unescapeHtml = function(textString){
+		if (!textString) return textString;
 		return textString.replace(/\&amp;/gi, "&")
 			.replace(/\&lt;/gi, "<").replace(/\&gt;/gi, ">")
-			.replace(/\&quot;/gi, '"').replace(/\&#x27;/gi, "'")
-			.replace(/\&#x2F;/gi, "/");
+			.replace(/\&quot;|\&#34;|\&#x22;/gi, '"').replace(/\&#x27;|\&#39;/gi, "'")
+			.replace(/\&#x2F;|\&#47;/gi, "/");
+	}
+	Tools.sanitizeHtml = function(htmlString, options){
+		if (options){
+			return DOMPurify.sanitize(htmlString, options);
+		}else{
+			return DOMPurify.sanitize(htmlString, { ADD_ATTR: ['target'] });
+		}
 	}
 
 	//get pure SHA256 hash
@@ -526,9 +569,14 @@ function sepiaFW_build_tools(){
 	Tools.rnd9 = rnd9;
 
 	//get random id
-	Tools.getRandomToken = function(){
-		if ('crypto' in window){
-			return window.crypto.getRandomValues(new Uint32Array(5)).join("-");
+	Tools.getRandomToken = function(useBasic){
+		if (!useBasic && ('crypto' in window)){
+			var rndVals = window.crypto.getRandomValues(new Uint32Array(5));
+			if (rndVals && ('join' in rndVals)){	//this seems to be browser dependent oO
+				return rndVals.join("-");
+			}else{
+				return Tools.getRandomToken(true);
+			}
 		}else{
 			var token = Math.round(Math.random()*(new Date().getTime()));
 			for (var i=0; i<4; i++){

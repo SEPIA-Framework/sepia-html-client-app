@@ -74,12 +74,31 @@ html {
 #sepiaFW-assist-btn i {
 	display: none !important;
 }
-/* see avatar below for center eye piece */
 #sepiaFW-assist-btn-orbiter1 {
 	background: #fff;
     border: 1px solid #111;
 }
+/* center eye piece */
+#sepiaFW-assist-btn::after {
+	position: absolute;
+	display: block;
+    top: calc(50% - 5px);
+    left: calc(50% - 5px);
+    width: 11px;
+    height: 11px;
+    background: #fff;
+    border-radius: 50%;
+	content: '';
+	box-shadow: 0px 1px 2px 0px rgba(0,0,0,0.75);
+}
+#sepiaFW-assist-btn::after {
+    top: calc(50% - 5.5px);
+	left: calc(50% - 5.5px);
+}
 
+#sepiaFW-chat-controls-speech-box {
+	background: linear-gradient(to right, #e5e5e5 0%, #acacac 100%);
+}
 #sepiaFW-chat-controls-speech-box > div {
 	background: #002d70;
     color: #fff;
@@ -153,6 +172,11 @@ html {
 .sepiaFW-myEvents-dateHeader {
     margin: 4px 0 12px 0;
 }
+#sepiaFW-main-window .chat-buttons-area button.chat-button-custom-fun::after { 
+	bottom: calc(50% - 7px);
+    right: -4px;
+    transform: rotate(180deg);
+}
 
 #sepiaFW-chat-output article {
 	background: #044ab0;
@@ -199,7 +223,7 @@ html {
 }
 
 #sepiaFW-chat-controls-swipe-area .sepiaFW-swipeBar-switchable {
-	background-color: #002d70;
+	background-color: #0057d6;
 	color: #fff;
 }
 
@@ -280,81 +304,4 @@ html {
 #sepiaFW-teachUI-manager button {
     background: #01fca0 !important;
     color: #333 !important;
-}
-
-/*----- Avatar (AO-Mode) -----*/
-
-#sepiaFW-alwaysOn-avatar {
-    width: 320px;
-    height: 344px;
-    left: calc(50% - 160px);
-    top: calc(50% - 172px);
-    background: url(../img/avatars/ILA_v1.svg);
-    background-repeat: no-repeat;
-	background-size: 100%;
-}
-#sepiaFW-alwaysOn-avatar-touch-area {
-	left: 27%;
-	top: 11%;
-	width: 46%;
-	height: 72%;
-}
-
-#sepiaFW-alwaysOn-stt-out {
-    color: #fff;
-}
-#sepiaFW-alwaysOn-tts-out {
-    color: #3285ff;
-}
-
-#sepiaFW-alwaysOn-avatar .avatar-activity {
-    top: calc(50% - 10px);
-    left: calc(50% - 21px);
-    width: 42px;
-    height: 42px;
-    border: 2px solid rgba(100, 100, 100, 0.25);
-	background: #01fca0;
-}
-#sepiaFW-alwaysOn-avatar .avatar-activity::after,
-#sepiaFW-assist-btn::after {
-	position: absolute;
-	display: block;
-    top: calc(50% - 5px);
-    left: calc(50% - 5px);
-    width: 11px;
-    height: 11px;
-    background: #fff;
-    border-radius: 50%;
-	content: '';
-	box-shadow: 0px 1px 2px 0px rgba(0,0,0,0.75);
-}
-#sepiaFW-assist-btn::after {
-    top: calc(50% - 5.5px);
-	left: calc(50% - 5.5px);
-}
-#sepiaFW-alwaysOn-avatar .avatar-activity::after {
-	animation: ila-blink 20s 0s infinite ease-in, ila-look-around 40s 10s infinite;
-}
-#sepiaFW-alwaysOn-avatar .avatar-activity.listening {
-	background: #f20710;
-}
-#sepiaFW-alwaysOn-avatar .avatar-activity.speaking {
-	background: #3285ff;
-}
-#sepiaFW-alwaysOn-avatar .avatar-activity.waiting {
-	background: #ffff00;
-}
-#sepiaFW-alwaysOn-avatar .avatar-activity.loading {
-	background: #d9d9d9;
-}
-
-#sepiaFW-alwaysOn-avatar .avatar-eye {
-    display: none;
-}
-#sepiaFW-alwaysOn-avatar .avatar-mouth {
-    width: 20%;
-    height: 10%;
-    top: 62%;
-    left: 40%;
-    border-color: transparent transparent #646464 transparent;
 }

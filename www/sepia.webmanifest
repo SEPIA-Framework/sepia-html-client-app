@@ -1,0 +1,40 @@
+{
+    "name": "SEPIA Open Assistant",
+    "short_name": "S.E.P.I.A.",
+    "description": "S.E.P.I.A. is an app and framework for your own server-based, extendable, private, intelligent assistant.",
+    "icons": [
+        {
+            "src": "./img/icon.png",
+            "sizes": "192x192",
+            "type": "image/png"
+        }, {
+            "src": "./img/icon-512.png",
+            "sizes": "512x512",
+            "type": "image/png"
+        }
+    ],
+    "start_url": "./index.html?pwa=true",
+    "display": "standalone",
+    "theme_color": "#000000",
+    "background_color": "#000000",
+	"shortcuts": [
+		{
+			"name": "Always-ON Avatar",
+			"short_name": "Always-ON",
+			"description": "Start SEPIA in always-ON avatar mode.",
+			"url": "./index.html?pwa=true&view=aomode",
+			"icons": [{ "src": "./img/icon.png", "sizes": "192x192" }]
+		}, {
+			"name": "Teach Interface",
+			"short_name": "Teach-UI",
+			"description": "Teach SEPIA a new command.",
+			"url": "./index.html?pwa=true&view=teachui",
+			"icons": [{ "src": "./img/icon.png", "sizes": "192x192" }]
+		}
+	],
+	"related_applications": [{
+		"platform": "play",
+		"url": "https://play.google.com/store/apps/details?id=de.bytemind.sepia.app.web"
+	}],
+	"prefer_related_applications": true
+}

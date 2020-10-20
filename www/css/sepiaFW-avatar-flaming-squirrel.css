@@ -1,0 +1,110 @@
+#sepiaFW-alwaysOn-avatar {
+    width: 320px;
+    height: 344px;
+    left: calc(50% - 160px);
+    top: calc(50% - 172px);
+    background: url(../img/avatars/flaming_squirrel.svg);
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 60%;
+}
+#sepiaFW-alwaysOn-avatar-touch-area {
+	left: 25%;
+    top: 20%;
+    width: 50%;
+    height: 72%;
+}
+
+#sepiaFW-alwaysOn-stt-out {
+    color: #fff;
+}
+#sepiaFW-alwaysOn-tts-out {
+    color: #3285ff;
+}
+
+#sepiaFW-alwaysOn-avatar .avatar-activity {
+    top: 63%;
+    left: 23%;
+    width: 17px;
+    height: 17px;
+    border: 0;
+    background: #fea948;
+    transition: background-color 1s, top 0.5s;
+}
+
+#sepiaFW-alwaysOn-avatar .avatar-activity.listening {
+	background: #e31683;
+}
+#sepiaFW-alwaysOn-avatar .avatar-activity.speaking {
+	background: #0a8bed;
+}
+#sepiaFW-alwaysOn-avatar .avatar-activity.waiting {
+	background: #a346ef;
+}
+#sepiaFW-alwaysOn-avatar .avatar-activity.loading {
+	background: #d9d9d9;
+}
+
+#sepiaFW-alwaysOn-avatar .avatar-eye.right,
+#sepiaFW-alwaysOn-avatar .avatar-eye .avatar-pupil,
+#sepiaFW-alwaysOn-avatar .avatar-eye::after {
+    display: none;
+}
+#sepiaFW-alwaysOn-avatar .avatar-eye.left {
+    background: transparent;
+    border: 0;
+    width: 4%;
+    height: 7%;
+    top: 49%;
+    left: 27%;
+}
+#sepiaFW-alwaysOn-avatar .avatar-eyelid {
+    background: #fc8544;
+    width: 100%;
+    height: 50%;
+    top: 0;
+    left: 0;
+    animation: squirrel-blink 20s infinite ease-in;
+}
+#sepiaFW-alwaysOn-avatar .avatar-eyelid.sleep {
+	animation: squirrel-sleep 40s infinite ease-in;
+}
+#sepiaFW-alwaysOn-avatar .avatar-eye.left .avatar-iris {
+    background: #fcc485;
+    width: 90%;
+    height: 45%;
+    top: 52%;
+    left: 4%;
+}
+
+#sepiaFW-alwaysOn-avatar .avatar-mouth {
+    display: none;
+}
+
+@keyframes squirrel-blink {
+	0% {	  top: 2%;	}
+	98% {	  top: 2%;	}
+	98.5% {	  top: 48%;	}
+	99% {	  top: 23%;	}
+	99.5% {	  top: 48%;	}
+	100% {	  top: 23%;	}
+}
+@keyframes squirrel-sleep {
+	0% {	  top: 2%;	}
+	10% {	  top: 8%;	}
+	18% {	  top: 48%;	}
+	18.25% {  top: 8%;	}
+	30% {	  top: 48%;	}
+	50% {	  top: 48%;	}
+	50.25% {  top: 8%;	}
+}
+
+/* --- tiny style --- */
+
+.sepiaFW-tiny-app #sepiaFW-alwaysOn-avatar {
+    width: 320px;
+    height: 344px;
+    left: calc(50% - 160px);
+    top: calc(50% - 172px);
+    transform: scale3d(0.60, 0.60, 0.60);
+}

@@ -99,12 +99,13 @@ public class SpeechRecognition extends CordovaPlugin {
         }
         else if (ACTION_SPEECH_RECOGNIZE_START.equals(action)) {
             // recognize speech
-            if (!recognizerPresent) {
+            if (!this.recognizerPresent) {
                 callbackContext.sendPluginResult(new PluginResult(PluginResult.Status.ERROR, NOT_PRESENT_MESSAGE));
-            }
-            this.lang = args.optString(0, "en");
-            this.speechRecognizerCallbackContext = callbackContext;
-            this.promptForMic();
+            }else{
+				this.lang = args.optString(0, "en");
+				this.speechRecognizerCallbackContext = callbackContext;
+				this.promptForMic();
+			}
         }
         else if (ACTION_SPEECH_RECOGNIZE_STOP.equals(action)) {
             stop(false);
@@ -135,7 +136,9 @@ public class SpeechRecognition extends CordovaPlugin {
 
             @Override
             public void run() {
-                recognizer.startListening(intent);
+				if (recognizer != null){
+					recognizer.startListening(intent);
+				}
             }
 
         });
@@ -152,7 +155,9 @@ public class SpeechRecognition extends CordovaPlugin {
 
             @Override
             public void run() {
-                recognizer.stopListening();
+				if (recognizer != null){
+					recognizer.stopListening();
+				}
             }
             
         });

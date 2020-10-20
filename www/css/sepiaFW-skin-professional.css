@@ -62,7 +62,8 @@ html {
 	border-bottom-color: #1b1e20;
 }
 #sepiaFW-chat-controls.full-screen {
-	background: transparent;
+	/*background: transparent;*/
+	background: linear-gradient(rgba(27,30,32,0), #1b1e20);
 }
 #sepiaFW-chat-controls input {
 	background: transparent;
@@ -220,8 +221,14 @@ html {
 }
 
 #sepiaFW-chat-controls-swipe-area .sepiaFW-swipeBar-switchable {
-	background: #23292e;
+	background: #1b1e20;
 	color: #fff;
+}
+#sepiaFW-chat-controls-form input {
+	background: #1b1e20;
+}
+#sepiaFW-chat-controls-form input.no-focus {
+    background: #fff;
 }
 
 /*----- pop-ups / overlays -----*/

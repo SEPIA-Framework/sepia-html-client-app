@@ -23,6 +23,8 @@ function sepiaFW_build_strings(){
 	StringsDE.apps_admin = 'Apps verwalten';
 	StringsDE.account = 'Account';
 	StringsDE.addresses = 'Adressen';
+	StringsDE.contacts = 'Kontakte';
+	StringsDE.favorites = 'Favoriten';
 	StringsDE.logout = 'Logout';
 	StringsDE.closeLogin = 'Weiter ohne Login';
 	StringsDE.info_and_help = 'Infos und Support';
@@ -39,8 +41,11 @@ function sepiaFW_build_strings(){
 	StringsDE.loginFailedPlain = 'Login fehlgeschlagen!';
 	StringsDE.loginFailedServer = 'Login fehlgeschlagen! - Das Problem könnte der Server sein.';
 	StringsDE.loginFailedUser = 'Login fehlgeschlagen! - Username oder Password ist falsch.';
+	StringsDE.loginFailedHost = 'Login fehlgeschlagen! - Hostname wurde geändert, bitte prüfen.';
+	StringsDE.loginFailedClientId = 'Login fehlgeschlagen! - Client- oder Geräte-ID wurde geändert, bitte prüfen.';
 	StringsDE.loginFailedBlocked = 'Login fehlgeschlagen! - Zu viele fehlgeschlagene Versuche. Bitte etwas warten.';
-	StringsDE.logoutAndReload = 'Diese Aktion erfordert einen Log-out und App Neustart.';
+	StringsDE.loginFailedExpired = 'Es sieht so aus als wäre deine Sitzung abgelaufen. Bitte logge dich erneut ein.';
+	StringsDE.logoutAndReload = 'Diese Aktion erfordert einen Logout und App Neustart.';
 	StringsDE.noConnectionToNetwork = 'Es tut mir leid, aber sieht so aus als wärest du offline :-(';
 	StringsDE.connecting = 'Verbindung wird hergestellt ...';
 	StringsDE.stillConnecting = 'Versuche immer noch die Verbindung herzustellen...';
@@ -51,6 +56,7 @@ function sepiaFW_build_strings(){
 	StringsDE.noAsrSupport = 'Es tut mir leid, aber dieser Client unterstütz die Spracherkennung leider nicht :-(';
 	StringsDE.asrMissingServer = 'Mir fehlen noch Server Informationen um diese Spracherkennungsengine nutzen zu können, check noch mal die Settings bitte (ASR server).';
 	StringsDE.asrSettingsProblem = 'Mikrofon nicht richtig erkannt oder Zugriff verweigert.';
+	StringsDE.asrOtherError = 'Es tut mir leid, aber es gab ein unerwartetes Problem mit der Spracherkennung.';
 	StringsDE.nobodyThere = 'Uups, es scheint zur Zeit leider keiner hier zu sein, der dir antworten könnte :-(';
 	StringsDE.userNotFound = 'Uups, dieser User scheint gerade nicht hier zu sein :-(';
 	StringsDE.loading = 'Lädt';
@@ -67,25 +73,33 @@ function sepiaFW_build_strings(){
 	StringsDE.edit = 'Bearbeiten';
 	StringsDE.copy = 'Kopieren';
 	StringsDE.show = 'Anzeigen';
+	StringsDE.open = 'Öffnen';
 	StringsDE.new = 'Neu';
+	StringsDE.unknown = 'Unbekannt';
+	StringsDE.not_defined = 'Nicht definiert';
+	StringsDE.retry = 'Nochmal versuchen';
 	StringsDE.tryAgain = 'Nochmal versuchen';
 	StringsDE.tryReconnect = 'Neu verbinden';
 	StringsDE.wait = 'Warten';
 	StringsDE.forget = 'Vergessen';
 	StringsDE.abort = 'Abbrechen';
-	StringsDE.continueOffline = 'Offline weitermachen';
+	StringsDE.continueOffline = 'Offline weiter';
 	StringsDE.locateMe = 'Standort bestimmen';
 	StringsDE.serverConnections = 'Server Verbindungen';
 	StringsDE.deviceId = 'Geräte ID';
 	StringsDE.deviceSite = 'Gerätestandort';
+	StringsDE.thisDevice = 'dieses Gerät';
 	StringsDE.allowedToExecuteThisCommand = 'Darf ich diesen Befehl ausführen: ';
 	StringsDE.copyList = 'Diese Liste gehört einem anderen User, möchtest du sie in deinen Account kopieren?';
 	StringsDE.cantCopyList = 'Diese Liste gehört einem anderen User und kann nicht gespeichert werden, aber du kannst eventuell einzelne Einträge via share-Funktion kopieren.';
+	StringsDE.listOutOfSync = 'Der Inhalt der Liste ist eventuell nicht mehr aktuell. Wenn du diese Liste speicherst werden vorherige Änderungen überschrieben.';
 	StringsDE.deleteItemConfirm = 'Bist du sicher, dass du das löschen möchtest?';
 	StringsDE.deleteItem = 'Löschen';
-	StringsDE.hideItem = 'Verstecken';
+	StringsDE.hideItem = 'Ausblenden';
+	StringsDE.hideItemWithIcon = '<i class="material-icons md-inherit">visibility_off</i>';
 	StringsDE.addItem = 'Item hinzufügen';
-	StringsDE.moveToMyView = '← MyView';
+	StringsDE.moveToMyView = '← Zu My-View hinzufügen';
+	StringsDE.moveToMyViewWithIcon = '<i class="material-icons md-inherit">add_to_home_screen</i>';
 	StringsDE.exportToCalendar = '<i class="material-icons md-inherit">share</i>&nbsp;Kalender';
 	StringsDE.exportToAlarms = '<i class="material-icons md-inherit">share</i>&nbsp;Alarm</i>';
 	StringsDE.exportToUrl = '<i class="material-icons md-inherit">share</i>&nbsp;Link</i>';
@@ -126,6 +140,7 @@ function sepiaFW_build_strings(){
 	StringsDE.atClock = 'um';
 	StringsDE.toMe = 'zu mir';
 	//More errors/info
+	StringsDE.error_after_try = "Habs versucht aber irgendwas ging schief. Versuch es vielleicht später noch mal?!";
 	StringsDE.serverVersionTooLow = 'Beachte: Deine SEPIA Server Version ist niedrig und manche Features des Clients funktionieren eventuell nicht wie erwartet. Bitte führe ein Server Update durch, wenn möglich!';
 	StringsDE.mesh_node_fail = 'Sorry, die Mesh-Node Funktion zeigte einen Fehler.';
 	StringsDE.no_client_support = 'Sorry, aber diese Version der App unterstütz die aufgerufene Aktion nicht.';
@@ -133,12 +148,20 @@ function sepiaFW_build_strings(){
 	StringsDE.tried_but_not_sure = "Hab's versucht aber bin nicht sicher ob es geklappt hat.";
 	StringsDE.result_unclear = "Das Ergebnis der folgenden Anfrage ist unklar.";
 	StringsDE.possible_reason_origin_unsecure = "Mögliche Ursache: Unsicherer Ursprung (SSL Zertifikat)";
+	StringsDE.check_browser_settings = "Bitte prüfe die Browsereinstellungen (z.B. 'chrome://settings/content' oder 'about:preferences#privacy')";
+	StringsDE.notification_error = "Benachrichtigungsfehler";
 	StringsDE.missing_clexi_connection = "Keine Verbindung zum CLEXI Server.";
 	StringsDE.missing_clexi_plugin = "CLEXI Server fehlt ein Plugin.";
 	StringsDE.runtime_command_success = "Systembefehl erfolgreich.";
+	StringsDE.no_other_user_clients_found = "Sorry, aber ich habe keine weiteren, aktiven Geräte gefunden von dir.";
 	//Service and action texts
 	StringsDE.opening_link = "Link wird geöffnet.";
 	StringsDE.no_music_playing = "Kannst du was hören? Wahrscheinlich wurde keine Musik gefunden.";
+	StringsDE.remote_action = "Remote-Zugriff";
+	StringsDE.remote_action_audio_stream = "Habe einen Audio Stream via Remote-Zugriff empfangen. Stream wird gestartet.";
+	StringsDE.read_article = "Artikel lesen";
+	StringsDE.choose_device_for_music = "Wähle ein Gerät auf dem du die Musik abspielen willst";
+	StringsDE.relative_precipitation = "relativer Niederschlag";
 	//Link sharing
 	StringsDE.link_join_channel = "Einem Chat-Kanal beitreten."
 	StringsDE.link_open_url = "Einen Link öffnen."
@@ -186,6 +209,8 @@ function sepiaFW_build_strings(){
 	StringsEN.apps_admin = 'Manage apps';
 	StringsEN.account = 'Account';
 	StringsEN.addresses = 'Addresses';
+	StringsEN.contacts = 'Contacts';
+	StringsEN.favorites = 'Favorites';
 	StringsEN.logout = 'Logout';
 	StringsEN.closeLogin = 'Continue without login';
 	StringsEN.info_and_help = 'Info and support';
@@ -202,8 +227,11 @@ function sepiaFW_build_strings(){
 	StringsEN.loginFailedPlain = 'Login failed!';
 	StringsEN.loginFailedServer = 'Login failed! - Problem could be the server.';
 	StringsEN.loginFailedUser = 'Login failed! - Wrong username or password.';
+	StringsEN.loginFailedHost = 'Login failed! - Hostname was changed, please check.';
+	StringsEN.loginFailedClientId = 'Login failed! - Client- or device-ID was changed, please check.';
 	StringsEN.loginFailedBlocked = 'Login failed! - Too many failed attempts. Please wait a bit.';
-	StringsEN.logoutAndReload = 'This action requires a log-out and app reload.';
+	StringsEN.loginFailedExpired = 'It looks like your session expired. Please login again.';
+	StringsEN.logoutAndReload = 'This action requires a logout and app reload.';
 	StringsEN.noConnectionToNetwork = 'I\'m sorry but it seems that you are offline :-(';
 	StringsEN.connecting = 'Connecting ...';
 	StringsEN.stillConnecting = 'Still trying to connect ...';
@@ -214,6 +242,7 @@ function sepiaFW_build_strings(){
 	StringsEN.noAsrSupport = 'I\'m sorry but this client does not support speech recognition :-(';
 	StringsEN.asrMissingServer = 'I\'m missing some server info to use this speech recognition engine, please check the settings again (ASR server).';
 	StringsEN.asrSettingsProblem = 'Microphone has not been recognized properly or access was denied.';
+	StringsEN.asrOtherError = 'I\'m sorry but there was an unexpected problem with the speech recognition.';
 	StringsEN.nobodyThere = 'Uups, sorry but it seems there is nobody here to answer your message :-(';
 	StringsEN.userNotFound = 'Uups, this user seems to be not available right now :-(';
 	StringsEN.loading = 'Loading';
@@ -230,7 +259,11 @@ function sepiaFW_build_strings(){
 	StringsEN.edit = 'Edit';
 	StringsEN.copy = 'Copy';
 	StringsEN.show = 'Show';
+	StringsEN.open = 'Open';
 	StringsEN.new = 'New';
+	StringsEN.unknown = 'Unknown';
+	StringsEN.not_defined = 'Not defined';
+	StringsEN.retry = 'Retry';
 	StringsEN.tryAgain = 'Try again';
 	StringsEN.tryReconnect = 'Try reconnect';
 	StringsEN.wait = 'Wait';
@@ -241,14 +274,18 @@ function sepiaFW_build_strings(){
 	StringsEN.serverConnections = 'Server connections';
 	StringsEN.deviceId = 'Device ID';
 	StringsEN.deviceSite = 'Device site';
+	StringsEN.thisDevice = 'this device';
 	StringsEN.allowedToExecuteThisCommand = 'Am I allowed to send this request: ';
 	StringsEN.copyList = 'This list belongs to another user, do you want to copy it to your account?';
 	StringsEN.cantCopyList = 'This list belongs to another user and cannot be stored, but you might be able to copy single items with the share function.';
+	StringsEN.listOutOfSync = 'The content of the list may be out of date. If you store this list previous changes will be overwritten.';
 	StringsEN.deleteItemConfirm = 'Are you sure you want to delete this?';
 	StringsEN.deleteItem = 'Delete';
 	StringsEN.hideItem = 'Hide';
+	StringsEN.hideItemWithIcon = '<i class="material-icons md-inherit">visibility_off</i>';
 	StringsEN.addItem = 'Add item';
-	StringsEN.moveToMyView = '← MyView';
+	StringsEN.moveToMyView = '← Move to My-View';
+	StringsEN.moveToMyViewWithIcon = '<i class="material-icons md-inherit">add_to_home_screen</i>';
 	StringsEN.exportToCalendar = '<i class="material-icons md-inherit">share</i>&nbsp;Calendar';
 	StringsEN.exportToAlarms = '<i class="material-icons md-inherit">share</i>&nbsp;Alarm</i>';
 	StringsEN.exportToUrl = '<i class="material-icons md-inherit">share</i>&nbsp;Link</i>';
@@ -289,6 +326,7 @@ function sepiaFW_build_strings(){
 	StringsEN.atClock = 'at';
 	StringsEN.toMe = 'to me';
 	//More errors/info
+	StringsEN.error_after_try = "I've tried but something went wrong. Try again later maybe?!";
 	StringsEN.serverVersionTooLow = 'Note: Your SEPIA server version is low and some features of the client might not work as expected. Please update the server when possible!';
 	StringsEN.mesh_node_fail = 'Sorry, the Mesh-Node function showed an error.';
 	StringsEN.no_client_support = 'Sorry, but this version of the app does not support the requested action.';
@@ -296,13 +334,20 @@ function sepiaFW_build_strings(){
 	StringsEN.tried_but_not_sure = "I've tried but I'm not sure if it worked.";
 	StringsEN.result_unclear = "The result of the following request is unclear.";
 	StringsEN.possible_reason_origin_unsecure = "Possible reason: Unsecure origin (SSL certificate)";
+	StringsEN.check_browser_settings = "Please check your browser settings (e.g. 'chrome://settings/content' or 'about:preferences#privacy')";
+	StringsEN.notification_error = "Notification error";
 	StringsEN.missing_clexi_connection = "No connection to CLEXI server.";
 	StringsEN.missing_clexi_plugin = "CLEXI server is missing a plugin.";
 	StringsEN.runtime_command_success = "System command was successful.";
+	StringsEN.no_other_user_clients_found = "I'm sorry, but I haven't found any other active devices of yours.";
 	//Service and action texts
 	StringsEN.opening_link = "Opening link.";
 	StringsEN.no_music_playing = "Can you hear something? Probably no music found.";
-	StringsEN.no_music_playing = "Can you hear something? Probably no music found.";
+	StringsEN.remote_action = "Remote access";
+	StringsEN.remote_action_audio_stream = "I've received an audio stream via remote access. Starting now.";
+	StringsEN.read_article = "Read article";
+	StringsEN.choose_device_for_music = "Choose a device to play your music on";
+	StringsEN.relative_precipitation = "relative precipitation";
 	//Link sharing
 	StringsEN.link_join_channel = "Join a chat-channel."
 	StringsEN.link_open_url = "Open a link."
@@ -373,8 +418,8 @@ function sepiaFW_build_strings(){
 	//ISO639-1 language codes
 	StringsLocale.getSupportedAppLanguages = function(){
 		return [
-			{value:"de", name:"&nbsp;DE&nbsp;"},
-			{value:"en", name:"&nbsp;EN&nbsp;"},
+			{value:"de", name:"DE"},
+			{value:"en", name:"EN"},
 		];
 	}
 	//BCP47 language-REGION codes
@@ -382,14 +427,23 @@ function sepiaFW_build_strings(){
 		return [
 			{value:"", name:"Default (app lang.)"},
 			{value:"en-AU", name:"Australia (en-AU)"},
+			{value:"ar-XA", name:"Arabia (ar-XA)"},
+			{value:"es-AR", name:"Argentina (es-AR)"},
+			{value:"pt-BR", name:"Brasil (pt-BR)"},
 			{value:"en-CA", name:"Canada (en-CA)"},
+			{value:"zh-CN", name:"China (zh-CN)"},
+			{value:"es-CO", name:"Colombia (es-CO)"},
 			{value:"fr-FR", name:"France (fr-FR)"},
+			{value:"de-DE", name:"Germany (de-DE)"},
 			{value:"el-GR", name:"Greece (el-GR)"},
 			{value:"en-IE", name:"Ireland (en-IE)"},
 			{value:"it-IT", name:"Italy (it-IT)"},
 			{value:"ja-JP", name:"Japan (ja-JP)"},
+			{value:"ko-KR", name:"Korea (ko-KR)"},
+			{value:"es-MX", name:"Mexico (es-MX)"},
 			{value:"nl-NL", name:"Netherlands (nl-NL)"},
 			{value:"en-NZ", name:"New Zealand (en-NZ)"},
+			{value:"pl-PL", name:"Poland (pl-PL)"},
 			{value:"pt-PT", name:"Portugal (pt-PT)"},
 			{value:"ru-RU", name:"Russia (ru-RU)"},
 			{value:"en-ZA", name:"South Africa (en-ZA)"},
@@ -397,7 +451,8 @@ function sepiaFW_build_strings(){
 			{value:"es-ES", name:"Spain (es-ES)"},
 			{value:"sv-SE", name:"Sweden (sv-SE)"},
 			{value:"tr-TR", name:"Turkey (tr-TR)"},
-			{value:"en-GB", name:"United Kingdom (en-GB)"}
+			{value:"en-GB", name:"United Kingdom (en-GB)"},
+			{value:"en-US", name:"USA (en-US)"}
 		];
 	}
 	

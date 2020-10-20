@@ -84,6 +84,9 @@ html {
 	background: linear-gradient(rgba(4, 4, 4, 0), #040404, #040404);
 	border-bottom-color: #040404;
 }
+#sepiaFW-chat-controls.full-screen {
+	background: linear-gradient(rgba(4, 4, 4, 0), #040404);
+}
 #sepiaFW-chat-controls-more-btn {
 	color: #040404 !important;
 }
@@ -257,7 +260,8 @@ html {
 #sepiaFW-chat-controls-swipe-area .sepiaFW-swipeBar-switchable {
 	background: linear-gradient(to right, #eded00 0%, #d0ed00 100%);
     color: #040404;
-    border-radius: 28px;
+	border-radius: 28px;
+	border: 3px solid #191919;
 }
 
 /*----- pop-ups / overlays -----*/

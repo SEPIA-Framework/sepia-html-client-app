@@ -78,15 +78,19 @@
 			{ "value": "kitchen", "name": "Kitchen"	},
 			{ "value": "bedroom", "name": "Bedroom" },
 			{ "value": "bath", "name": "Bath" },
-			{ "value": "study", "name": "Study room" },
 			{ "value": "office", "name": "Office" },
+			{ "value": "study", "name": "Study room" },
 			{ "value": "childsroom", "name": "Child's room" },
 			{ "value": "garage", "name": "Garage" },
 			{ "value": "basement", "name": "Basement" },
 			{ "value": "garden", "name": "Garden" },
 			{ "value": "sunroom", "name": "Winter garden" },
-			{ "value": "shack", "name": "Shack" },
+			{ "value": "terrace", "name": "Terrace" },
+			{ "value": "balcony", "name": "Balcony" },
 			{ "value": "hallway", "name": "Hallway" },
+			{ "value": "entrance", "name": "Entrance" },
+			{ "value": "shack", "name": "Shack" },
+			{ "value": "attic", "name": "Attic" },
 			{ "value": "other", "name": "Other" }
 		],
 		updates: [
@@ -138,8 +142,8 @@
 			SepiaFW.config.setDeviceLocalSiteData(siteData);
 			
 			var globalLocation = {
-				latitude: $('#sepiaFW-device-site-global-latitude').val(),
-				longitude: $('#sepiaFW-device-site-global-longitude').val()
+				latitude: $('#sepiaFW-device-site-global-latitude').val().replace(",","."),
+				longitude: $('#sepiaFW-device-site-global-longitude').val().replace(",",".")
 			}
 			SepiaFW.config.setDeviceGlobalLocation(globalLocation);
 

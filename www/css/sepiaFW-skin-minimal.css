@@ -31,6 +31,9 @@ html {
 #sepiaFW-chat-controls {
 	background: linear-gradient(rgba(0,0,0,0), #000, #000);
 }
+#sepiaFW-chat-controls.full-screen {
+	background: linear-gradient(rgba(0,0,0,0), #000);
+}
 
 #sepiaFW-main-window {
 	color: #eeeeee;
@@ -116,9 +119,6 @@ html {
 	border-radius: 3px;
 }
 
-#sepiaFW-chat-controls-speech-box {
-	background: rgba(0, 0, 0, 0.8);
-}
 #sepiaFW-chat-controls-speech-box > div {
 	background: #19191b;
 	color: #e8e8e8;
@@ -322,6 +322,13 @@ html {
 
 #sepiaFW-audio-ctrls-canvas {
     background: #404050;
+}
+
+/*----- Tiny style -----*/
+
+.sepiaFW-tiny-app #sepiaFW-chat-controls-right {
+	border: 1px solid #eeeeee;
+	border-radius: 50%;
 }
 
 /*----- teachUI -----*/

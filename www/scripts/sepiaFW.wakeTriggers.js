@@ -66,7 +66,7 @@ function sepiaFW_build_wake_triggers() {
 		SepiaFW.debug.info("Wake-word during audio streaming is " + ((WakeTriggers.allowWakeWordDuringStream)? "ALLOWED" : "NOT ALLOWED"));
 
 		//Add onActive action:
-		SepiaFW.client.addOnActiveOneTimeAction(wakeTriggersOnActiveAction);
+		SepiaFW.client.addOnActiveOneTimeAction(wakeTriggersOnActiveAction);		//Note: we reset this to 'addOnActive' after setup (below)
 		
 		//Event listeners
 		document.addEventListener('sepia_audio_player_event', function(e){
@@ -94,7 +94,16 @@ function sepiaFW_build_wake_triggers() {
 		//start setup?
 		if (WakeTriggers.autoLoadWakeWord){ 		//Client.onActive good place?
 			setTimeout(function(){
-				WakeTriggers.setupWakeWords();
+				WakeTriggers.setupWakeWords(function(){
+					//now we can install the permanent 'onActive' event (because it will be closed during 'client.broadcastOnActiveReset')
+					SepiaFW.client.addOnActiveAction(function(){
+						var state = SepiaFW.animate.assistant.getState();
+						if (WakeTriggers.useWakeWord && WakeTriggers.engineLoaded 
+								&& !WakeTriggers.isListening() && state == "idle"){		//NOte: if not idle it will be triggerd on state change
+							SepiaFW.wakeTriggers.listenToWakeWords(undefined, undefined, true);
+						}
+					});
+				});
 			}, 50);
 		}
 	}
@@ -166,6 +175,7 @@ function sepiaFW_build_wake_triggers() {
 			}, switchOnWakeWordTimerDelay);
 		}else{
 			//Porcupine integration
+			SepiaFW.debug.info('Starting wake-word listener ...'); 		//DEBUG
 			ppListenToWakeWords(onSuccessCallback, onErrorCallback);
 		}
 	}

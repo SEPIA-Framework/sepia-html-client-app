@@ -39,50 +39,79 @@ function sepiaFW_build_ui_actions(){
 	Actions.clearDelayQueue = function(){
 		delayQueue = {};
 	}
+
+	//custom action event dispatcher
+	function dispatchCustomActionEvent(actionEvent){
+		if (actionEvent && actionEvent.name){
+			var evn = 'sepia_action_custom_event_' + actionEvent.name;
+			var event = new CustomEvent(evn, { 
+				detail: actionEvent.data
+			});
+			document.dispatchEvent(event);
+		}
+	}
 	
 	//note: 'action' is 'actionInfo[i]'
+
+	//button BUILDER
+	function buildActionButton(title, className, fun){
+		var btn = document.createElement('BUTTON');
+		btn.className = className;
+		if (fun){
+			addFunToActionButton(btn, fun);
+		}
+		btn.textContent = title;
+		return btn;
+	}
+	function addFunToActionButton(btn, fun){
+		SepiaFW.ui.onclick(btn, function(){
+			fun();
+		}, true);
+	}
 	
 	//BUTTON Help
 	Actions.addButtonHelp = function(action, parentBlock){
-		var urlBtn = document.createElement('BUTTON');
-		urlBtn.className = 'chat-button-help';
-		SepiaFW.ui.onclick(urlBtn, function(){
-		//urlBtn.addEventListener("click", function(){ 
-			var newAction = {};
-			newAction.info = "direct_cmd";
-			newAction.cmd = "chat;;type=help;;";
-			newAction.options = { skipTTS : true, skipText : true, targetView : "bigResults" };
-			Actions.openCMD(newAction);
-		}, true);
-		urlBtn.innerHTML = action.title || SepiaFW.local.g('help');
-		parentBlock.appendChild(urlBtn);
+		var helpBtn = buildActionButton(
+			action.title || SepiaFW.local.g('help'),
+			'chat-button-help',
+			function(){
+				var newAction = {};
+				newAction.info = "direct_cmd";
+				newAction.cmd = "chat;;type=help;;";
+				newAction.options = { skipTTS : true, skipText : true, targetView : "bigResults" };
+				Actions.openCMD(newAction);
+			}
+		);
+		parentBlock.appendChild(helpBtn);
 	}
 	
 	//BUTTON TeachUI
 	Actions.addButtonTeachUI = function(action, parentBlock){
 		if (SepiaFW.teach){
-			var teachBtn = document.createElement('BUTTON');
-			teachBtn.className = 'chat-button-teach';
 			var info = action.info;
-			SepiaFW.ui.onclick(teachBtn, function(){
-				SepiaFW.ui.closeAllMenus();
-				SepiaFW.teach.openUI(info);
-			}, true);
-			teachBtn.innerHTML = action.title || SepiaFW.local.g('teach_ui_btn');
+			var teachBtn = buildActionButton(
+				action.title || SepiaFW.local.g('teach_ui_btn'),
+				'chat-button-teach',
+				function(){
+					SepiaFW.ui.closeAllMenus();
+					SepiaFW.teach.openUI(info);
+				}
+			);
 			parentBlock.appendChild(teachBtn);
 		}
 	}
 	//BUTTON Frames-layer view
 	Actions.addButtonFrameView = function(action, parentBlock){
 		if (SepiaFW.frames){
-			var framesBtn = document.createElement('BUTTON');
-			framesBtn.className = 'chat-button-frames';
 			var info = action.info;
-			SepiaFW.ui.onclick(framesBtn, function(){
-				SepiaFW.ui.closeAllMenus();
-				SepiaFW.frames.open(info);
-			}, true);
-			framesBtn.innerHTML = action.title || info.frameName || SepiaFW.local.g('frames_view_btn');
+			var framesBtn = buildActionButton(
+				action.title || info.frameName || SepiaFW.local.g('frames_view_btn'),
+				'chat-button-frames',
+				function(){
+					SepiaFW.ui.closeAllMenus();
+					SepiaFW.frames.open(info);
+				}
+			);
 			parentBlock.appendChild(framesBtn);
 		}
 	}
@@ -91,16 +120,46 @@ function sepiaFW_build_ui_actions(){
 		if (SepiaFW.frames){
 			SepiaFW.ui.closeAllMenus();
 			SepiaFW.frames.open(action.info);
+			//alternative: SepiaFW.ui.openViewOrFrame(action.info.pageUrl);
+		}
+	}
+	//CLOSE Frames-layer view
+	Actions.closeFrameView = function(action){
+		if (SepiaFW.frames && SepiaFW.frames.isOpen){
+			SepiaFW.frames.close();
+		}
+	}
+	//Send ACTION to Frames-layer view
+	Actions.frameViewAction = function(action){
+		var didSubmit = false;
+		if (SepiaFW.frames && SepiaFW.frames.isOpen){
+			if (SepiaFW.frames.currentScope && SepiaFW.frames.currentScope.actionHandler){
+				SepiaFW.frames.currentScope.actionHandler(action.info);
+				didSubmit = true;
+			}
+		}
+		if (!didSubmit){
+			//error message
+			SepiaFW.assistant.waitForOpportunityAndSay("<error_client_control_0b>", function(){
+				//Fallback after max-wait:
+				SepiaFW.ui.showInfo(SepiaFW.local.g('cant_execute') + " - Frame view action");
+			}, 2000, 30000);    //min-wait, max-wait
 		}
 	}
 	
 	//BUTTON Custom function
 	Actions.addButtonCustomFunction = function(action, sender, parentBlock){
-		var funBtn = document.createElement('BUTTON');
-		funBtn.className = 'chat-button-custom-fun';
+		if (!action.fun) return;
 		if (sender) action.sender = sender;
+		var funBtn = buildActionButton(
+			action.title || "FUNCTION",
+			'chat-button-custom-fun'
+		);
 		funBtn.setAttribute("data-sender", action.sender);
-		if (action.fun && (typeof action.fun === 'string')){
+		funBtn.setAttribute("data-fun", action.fun);
+		//funBtn.title = ("Function: " + action.fun);
+		var actionFun;
+		if (typeof action.fun === 'string'){
 			if (action.fun.indexOf("controlFun;;") >= 0){
 				//it is a control function given as string...
 				var funParts = action.fun.split(";;");
@@ -110,21 +169,19 @@ function sepiaFW_build_ui_actions(){
 				if (act && act.indexOf("{") == 0){
 					act = JSON.parse(act);
 				}
-				SepiaFW.ui.onclick(funBtn, function(){
+				actionFun = function(){
 					Actions.clientControlFun({
 						"fun": fun,
 						"controlData": act
 					}, sender);
-				}, true);	
+				};	
 			}
-		}else if (action.fun){
-			SepiaFW.ui.onclick(funBtn, function(){
+		}else{
+			actionFun = function(){
 				action.fun(funBtn);
-			}, true);
+			};
 		}
-		funBtn.innerHTML = action.title;
-		funBtn.setAttribute("data-fun", action.fun);
-		//funBtn.title = ("Function: " + action.fun);
+		addFunToActionButton(funBtn, actionFun);
 		parentBlock.appendChild(funBtn);
 	}
 	//CLIENT Control function
@@ -136,32 +193,32 @@ function sepiaFW_build_ui_actions(){
 	
 	//BUTTON URLs
 	Actions.addButtonURL = function(action, parentBlock){
-		var urlBtn = document.createElement('BUTTON');
-		urlBtn.className = 'chat-button-url';
+		var urlBtn = buildActionButton(
+			action.title || "URL",
+			'chat-button-url',
+			function(){
+				Actions.openURL(action);
+			}
+		);
 		urlBtn.setAttribute("data-url", action.url);
-		SepiaFW.ui.onclick(urlBtn, function(){
-		//urlBtn.addEventListener("click", function(){ 
-			Actions.openURL(action);
-		}, true);
-		urlBtn.innerHTML = action.title;
 		parentBlock.appendChild(urlBtn);
 	}
 	
 	//OPEN URLs
 	Actions.openURL = function(action, forceExternal){
+		if (!action.url) return;
 		Actions.openUrlAutoTarget(action.url, forceExternal);
 	}
 	var inAppBrowserOptions = 'location=yes,toolbar=yes,mediaPlaybackRequiresUserAction=yes,allowInlineMediaPlayback=yes,hardwareback=yes,disableswipenavigation=no,clearsessioncache=no,clearcache=no';
 	Actions.openUrlAutoTarget = function(url, forceExternal){
+		if (!url) return;
 		var urlLower = url.toLowerCase();
 		if (SepiaFW.ui.isTinyApp || SepiaFW.ui.isHeadless){
 			//Tiny and headless apps usually have no ability to open in-app browser
-			if (SepiaFW.assistant){
-                SepiaFW.assistant.waitForOpportunityAndSay("<error_client_support_0a>", function(){
-                    //Fallback after max-wait:
-                    SepiaFW.ui.showInfo(SepiaFW.local.g('no_client_support'));
-                }, 2000, 30000);    //min-wait, max-wait
-            }
+			SepiaFW.assistant.waitForOpportunityAndSay("<error_client_support_0a>", function(){
+				//Fallback after max-wait:
+				SepiaFW.ui.showInfo(SepiaFW.local.g('no_client_support'));
+			}, 2000, 30000);    //min-wait, max-wait
 			
 		}else if (SepiaFW.ui.isCordova){
 			if (forceExternal 
@@ -194,20 +251,20 @@ function sepiaFW_build_ui_actions(){
 	
 	//BUTTON CMDs
 	Actions.addButtonCMD = function(action, sender, parentBlock){
-		var cmdBtn = document.createElement('BUTTON');
-		cmdBtn.className = 'chat-button-cmd';
 		if (sender) action.sender = sender;
+		var cmdBtn = buildActionButton(
+			action.title || "CMD",
+			'chat-button-cmd',
+			function(){
+				Actions.openCMD(action);
+				SepiaFW.debug.info("Action - sending button-cmd: " + action.cmd);
+			}
+		);
 		cmdBtn.setAttribute("data-sender", action.sender);
 		cmdBtn.setAttribute("data-cmd", action.cmd);
-		SepiaFW.ui.onclick(cmdBtn, function(){
-		//cmdBtn.addEventListener("click", function(){ 
-			Actions.openCMD(action);
-			SepiaFW.debug.info("Action - sending button-cmd: " + action.cmd); 
-		}, true);
-		cmdBtn.innerHTML = action.title;
 		parentBlock.appendChild(cmdBtn);
 	}
-	
+
 	//OPEN CMDs
 	Actions.openCMD = function(action){
 		if (SepiaFW.client){
@@ -231,6 +288,20 @@ function sepiaFW_build_ui_actions(){
 		}else{
 			SepiaFW.debug.info("Action: 'queueCMD' is not supported yet.");
 		}
+	}
+
+	//BUTTON custom action event
+	Actions.addButtonCustomActionEvent = function(action, parentBlock){
+		var evBtn = buildActionButton(
+			action.title || "EVENT",
+			'chat-button-custom-action-event',
+			function(){
+				dispatchCustomActionEvent(action);
+				SepiaFW.debug.info("Action - dispatching custom action ev.: " + action.name);
+			}
+		);
+		evBtn.setAttribute("data-ca-event", action.name);
+		parentBlock.appendChild(evBtn);
 	}
 	
 	//HTML RESULT ACTION
@@ -413,6 +484,24 @@ function sepiaFW_build_ui_actions(){
 			}
 		}
 	}
+
+	//SWITCH STT ENGINE
+	Actions.switchSttEngine = function(action){
+		if (action.engine){
+			var info;
+			if (action.url){
+				info = { url: action.url };
+			}
+			var engineSet = SepiaFW.speech.setAsrEngine(action.engine, info);
+			if (engineSet != action.engine){
+				//error message
+				SepiaFW.assistant.waitForOpportunityAndSay("<error_client_control_0a>", function(){
+					//Fallback after max-wait:
+					SepiaFW.ui.showInfo(SepiaFW.local.g('cant_execute') + " - STT engine");
+				}, 2000, 30000);    //min-wait, max-wait
+			}
+		}
+	}
 	
 	//EVENTS START
 	Actions.buildMyEventsBox = function(action, parentBlock){
@@ -440,7 +529,7 @@ function sepiaFW_build_ui_actions(){
 		var titleNote = document.createElement('P');
 		titleNote.className = 'sepiaFW-myEvents-titleNote';
 		var d = new Date();
-		titleNote.innerHTML = SepiaFW.local.g('recommendationsFor') + " " 
+		titleNote.textContent = SepiaFW.local.g('recommendationsFor') + " " 
 			+ SepiaFW.account.getUserName() + " " + SepiaFW.local.g('from') + " "
 			+ d.toLocaleTimeString(SepiaFW.config.appLanguage, {hour: 'numeric', minute:'2-digit'}) + " " + SepiaFW.local.g('oclock') + ":";
 		$(aButtonsArea).prepend(titleNote);
@@ -476,7 +565,7 @@ function sepiaFW_build_ui_actions(){
 		//header
 		var titleNote = document.createElement('P');
 		titleNote.className = 'sepiaFW-myFirstStart-titleNote';
-		titleNote.innerHTML = SepiaFW.local.g('forNewcomers') + ":";
+		titleNote.textContent = SepiaFW.local.g('forNewcomers') + ":";
 		$(aButtonsArea).prepend(titleNote);
 		
 		//show again on top
@@ -519,9 +608,18 @@ function sepiaFW_build_ui_actions(){
 						parentBlock.removeChild(aButtonsArea); 	//we will create a new one
 						aButtonsArea = Actions.buildClientFirstStartBox(data.actionInfo[i], parentBlock);
 
+					//Open URL
+					}else if (type === 'open_in_app_browser'){
+						Actions.openURL(data.actionInfo[i]);
+					}else if (type === 'open_url'){
+						Actions.openURL(data.actionInfo[i], true);
+
 					//HTML result
 					}else if (type === 'show_html_result'){
 						Actions.buildHtmlResultAction(data.actionInfo[i], parentBlock, handleOptions);
+					}else if (type === 'show_html_sandbox'){
+						//TODO: ...
+						console.error("TODO: show_html_sandbox");
 					
 					//BUTTON - help
 					}else if (type === 'button_help'){
@@ -539,6 +637,14 @@ function sepiaFW_build_ui_actions(){
 					}else if (type === 'open_frames_view'){
 						Actions.openFrameView(data.actionInfo[i]);
 					
+					//Close frames view
+					}else if (type === 'close_frames_view'){
+						Actions.closeFrameView(data.actionInfo[i]);
+
+					//Frames view action
+					}else if (type === 'frames_view_action'){
+						Actions.frameViewAction(data.actionInfo[i]);
+					
 					//BUTTON - url
 					}else if (type === 'button_url' || type === 'button_in_app_browser'){
 						Actions.addButtonURL(data.actionInfo[i], aButtonsArea);
@@ -546,24 +652,39 @@ function sepiaFW_build_ui_actions(){
 					//BUTTON - cmd
 					}else if (type === 'button_cmd'){
 						Actions.addButtonCMD(data.actionInfo[i], sender, aButtonsArea);
-						
-					//BUTTON - custom function
-					}else if (type === 'button_custom_fun'){	
-						Actions.addButtonCustomFunction(data.actionInfo[i], sender, aButtonsArea);
 
-					//Open client control function (pre-defined, "safe" functions)
-					}else if (type === 'client_control_fun'){	
-						Actions.clientControlFun(data.actionInfo[i], sender);
-						
-					//Open URL
-					}else if (type === 'open_in_app_browser'){
-						Actions.openURL(data.actionInfo[i]);
-					}else if (type === 'open_url'){
-						Actions.openURL(data.actionInfo[i], true);
-						
 					//Queue CMD - Note: these commands are executed in idle state with "openCMD" (so they have to support this)
 					}else if (type === 'queue_cmd'){
 						Actions.queueCMD(data.actionInfo[i]);
+						
+					//Schedule CMD - Note: will wait for idle
+					}else if (type === 'schedule_cmd'){
+						//TODO (targetTimeUnix, can we give timers an action?)
+						console.error("TODO: schedule_cmd");
+						
+					//BUTTON - custom function
+					}else if (type === 'button_custom_fun'){
+						Actions.addButtonCustomFunction(data.actionInfo[i], sender, aButtonsArea);
+
+					//Open client control function (pre-defined, "safe" functions)
+					}else if (type === 'client_control_fun'){
+						Actions.clientControlFun(data.actionInfo[i], sender);
+
+					//Open settings - NOTE: we use this as button because its usually used for "you can add your address" notes etc.
+					}else if (type === 'open_settings'){
+						//section: addresses (3), favorites (x), contacts (x)
+						Actions.addButtonCustomFunction({
+							title: SepiaFW.local.g(data.actionInfo[i].section),
+							fun: function(){ SepiaFW.ui.toggleSettings(0); }
+						}, sender, aButtonsArea);
+
+					//BUTTON - custom action event
+					}else if (type === 'button_custom_event'){
+						Actions.addButtonCustomActionEvent(data.actionInfo[i], aButtonsArea);
+
+					//Trigger - custom action event
+					}else if (type === 'trigger_custom_event'){
+						dispatchCustomActionEvent(data.actionInfo[i]);
 
 					//Show dialog abort button
 					}else if (type === 'show_abort'){
@@ -602,6 +723,10 @@ function sepiaFW_build_ui_actions(){
 					//Language switcher
 					}else if (type === 'switch_language'){
 						Actions.switchLanguage(data.actionInfo[i]);
+
+					//STT switcher
+					}else if (type === 'switch_stt_engine'){
+						Actions.switchSttEngine(data.actionInfo[i]);
 					
 					//UNKNOWN
 					}else{

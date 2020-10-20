@@ -72,7 +72,8 @@ html {
 	border-bottom-color: #101418;
 }
 #sepiaFW-chat-controls.full-screen {
-	background: transparent;
+	/*background: transparent;*/
+	background: linear-gradient(rgba(16, 20, 24, 0), #101418);
 }
 
 #sepiaFW-main-window button,
@@ -233,7 +234,8 @@ html {
 
 #sepiaFW-chat-controls-swipe-area .sepiaFW-swipeBar-switchable {
 	/*background: #08a0c8;*/
-	background: #24262a;
+	/*background: #24262a;*/
+	background: #101418;
 	color: #fff;
 }
 

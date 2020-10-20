@@ -1,0 +1,43 @@
+/* Base: Flaming Squirrel (light) */
+html {
+	background-color: #1a0f30;
+}
+#sepiaFW-main-window {
+	color: #eee;
+}
+.sepiaFW-results-container {
+	scrollbar-color: #322845 #241b37;
+}
+@media (min-width: 480px) and (min-height: 481px) {
+	#sepiaFW-main-window {
+		border: 6px solid #1f1534;
+	}
+}
+
+#sepiaFW-chat-controls {
+	background: linear-gradient(rgba(26,15,48,0), #1a0f30);
+	border-bottom-color: #1a0f30;
+}
+
+#sepiaFW-chat-menu {
+    background: #1a0f30;
+    color: #eee;
+}
+
+.sepiaFW-results-container .statusUpdate, #sepiaFW-chat-output .statusUpdate {
+	background: rgb(44, 34, 63);
+	color: #eee;
+}
+
+/*----- cards -----*/
+
+.sepiaFW-cards-flexSize-container {
+    background: #322845;
+	color: #000;
+}
+
+/*.sepiaFW-cards-list-body .linkCard > div,*/
+.sepiaFW-cards-list-body .timeEvent div {
+	background: #ffdd64;
+	color: #1a0f30;
+}

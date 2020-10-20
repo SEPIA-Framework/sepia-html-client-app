@@ -45,6 +45,9 @@ html {
 	border-bottom: 1px solid #050525;
 	overflow: visible;
 }
+#sepiaFW-chat-controls.full-screen {
+	background: linear-gradient(rgba(5, 5, 37, 0), #050525) !important;
+}
 #sepiaFW-chat-controls.chat-menu {
 	background: #051525;
 }
@@ -286,6 +289,10 @@ html {
 #sepiaFW-chat-controls-swipe-area .sepiaFW-swipeBar-switchable {
 	background: #102030;
 	color: #fff;
+}
+#sepiaFW-chat-controls-form.touch-bar-controls #sepiaFW-chat-controls-swipe-area .sepiaFW-swipeBar-switchable {
+	background: transparent;
+    color: #3f51b5;
 }
 
 /*----- cards ------*/

@@ -3,8 +3,8 @@ function sepiaFW_build_ui(){
 	var UI = {};
 	
 	//some constants
-	UI.version = "v0.22.0";
-	UI.requiresServerVersion = "2.5.0";
+	UI.version = "v0.23.0";
+	UI.requiresServerVersion = "2.5.1";
 	UI.JQ_RES_VIEW_IDS = "#sepiaFW-result-view, #sepiaFW-chat-output, #sepiaFW-my-view";	//a selector to get all result views e.g. $(UI.JQ_RES_VIEW_IDS).find(...) - TODO: same as $('.sepiaFW-results-container') ??
 	UI.JQ_ALL_MAIN_VIEWS = "#sepiaFW-result-view, #sepiaFW-chat-output, #sepiaFW-my-view, #sepiaFW-teachUI-editor, #sepiaFW-teachUI-manager, #sepiaFW-frame-page-0, #sepiaFW-frame-page-1, #sepiaFW-frame-page-2, #sepiaFW-frame-page-3"; 	//TODO: frames can have more ...
 	UI.JQ_ALL_SETTINGS_VIEWS = ".sepiaFW-chat-menu-list-container";
@@ -131,11 +131,19 @@ function sepiaFW_build_ui(){
 	UI.htmlBackgroundColor = window.getComputedStyle(document.documentElement).getPropertyValue("background-color") || "#fff";
 	UI.navBarColor = '';
 	UI.statusBarColor = '';
+
+	UI.useBigScreenMode = SepiaFW.data.getPermanent('big-screen-mode') || false;
+	if (!UI.useBigScreenMode){
+		$(window.document.body).addClass("limit-size");
+	}
+	UI.useTouchBarControls = SepiaFW.data.getPermanent('touch-bar-controls') || false;
+	UI.hideSideSwipeForTouchBarControls = true;
 	
 	UI.isMenuOpen = false;
 	UI.lastInput = "";
 	var activeSkin = 0;
 	var activeSkinStyle = "light";
+	var activeAvatar = 0;
 	
 	//get/refresh skin colors
 	UI.refreshSkinColors = function(){
@@ -191,12 +199,9 @@ function sepiaFW_build_ui(){
 				StatusBar.backgroundColorByHexString(statusBarColor);
 				StatusBar.styleLightContent();
 			}else{
-				if (UI.isAndroid){
-					StatusBar.backgroundColorByHexString('#000000');
-				}else{
-					StatusBar.backgroundColorByHexString(statusBarColor);
-					StatusBar.styleDefault();
-				}
+				//if (UI.isAndroid){ StatusBar.backgroundColorByHexString('#000000'); }else{
+				StatusBar.backgroundColorByHexString(statusBarColor);
+				StatusBar.styleDefault();
 			}
 		}
 		if ('NavigationBar' in window){
@@ -214,14 +219,25 @@ function sepiaFW_build_ui(){
 	UI.setSkin = function(newIndex, rememberSelection){
 		if (rememberSelection == undefined) rememberSelection = true;
 		var skins = $('.sepiaFW-style-skin');
+		var defaultAvatar = "";
 		if (newIndex == 0){
 			activeSkin = 0;
+			defaultAvatar = 0;
 			if (rememberSelection){
 				SepiaFW.data.set('activeSkin', activeSkin);
 			}
 		}
+		var base;
 		skins.each(function(index){
-			if (index == (newIndex-1)){	
+			var id = this.dataset.id;
+			if (id == newIndex){
+				base = this.dataset.base || "";
+			}
+		});
+		skins.each(function(index){
+			var id = this.dataset.id;
+			var that = this;
+			if (id == newIndex){
 				$(this).prop('title', 'main');
 				$(this).prop('disabled', false);
 				SepiaFW.debug.log("UI active skin: " + $(this).attr('href'));
@@ -229,11 +245,19 @@ function sepiaFW_build_ui(){
 				if (rememberSelection){
 					SepiaFW.data.set('activeSkin', activeSkin);
 				}
+				defaultAvatar = this.dataset.avatar;
+			}else if (base && id == base){
+				$(that).prop('title', 'main');
+				$(that).prop('disabled', false);
+				SepiaFW.debug.log("UI base skin: " + $(this).attr('href'));
 			}else{
 				$(this).prop('title', '');
 				$(this).prop('disabled', true);
 			}
 		});
+		var avatar = SepiaFW.data.get('activeAvatar') || defaultAvatar || "0";
+		UI.setAvatar(avatar, false);
+
 		UI.refreshSkinColors();
 		$(window).trigger('resize'); 	//this might not work on IE
 		setTimeout(function(){
@@ -246,6 +270,46 @@ function sepiaFW_build_ui(){
 	}
 	UI.getSkinStyle = function(){
 		return activeSkinStyle;
+	}
+	UI.setAvatar = function(newIndex, rememberSelection){
+		if (rememberSelection == undefined) rememberSelection = true;
+		if (rememberSelection){
+			SepiaFW.data.set('activeAvatar', newIndex);
+		}
+		var avatars = $('.sepiaFW-style-avatar');
+		if (newIndex == 0){
+			$('.sepiaFW-style-skin').each(function(index){
+				if ($(this).prop('title') == 'main'){
+					newIndex = this.dataset.avatar;
+				}
+			});
+		}
+		var base;
+		avatars.each(function(index){
+			var id = this.dataset.id;
+			if (id == newIndex){
+				base = this.dataset.base || "";
+			}
+		});
+		avatars.each(function(index){
+			var id = this.dataset.id;
+			if (id == newIndex){	
+				$(this).prop('title', 'main');
+				$(this).prop('disabled', false);
+				SepiaFW.debug.log("UI active avatar: " + $(this).attr('href'));
+				activeAvatar = newIndex;
+			}else if (id == base){
+				$(this).prop('title', 'main');
+				$(this).prop('disabled', false);
+				SepiaFW.debug.log("UI base avatar: " + $(this).attr('href'));
+			}else{
+				$(this).prop('title', '');
+				$(this).prop('disabled', true);
+			}
+		});
+	}
+	UI.getAvatar = function(){
+		return activeAvatar;
 	}
 	
 	//setup dynamic label
@@ -345,27 +409,46 @@ function sepiaFW_build_ui(){
 	
 	//get/switch/show/hide active swipe-bars - TODO: can we get rid of the hard-coded dom ids?
 	UI.switchSwipeBars = function(setName){
+		var hideLeftRightBars = UI.hideSideSwipeForTouchBarControls && UI.useTouchBarControls;
 		$('.sepiaFW-swipeBar-switchable').hide();
-		if (setName){
-			lastActiveSwipeBars = activeSwipeBars;
-		}else{
-			setName = lastActiveSwipeBars;
+		if (!setName){
+			if (SepiaFW.frames.isOpen){
+				//could also be: SepiaFW.alwaysOn.isOpen
+				setName = "frames";
+			}else if (SepiaFW.teach.isOpen){
+				setName = "teach";
+			}else if (SepiaFW.ui.isMenuOpen){
+				setName = "menu";
+			}else{
+				setName = "chat";
+			}
+			//return to previous - NOTE: was not reliable enough
+			//setName = lastActiveSwipeBars;
 		}
-		if (setName === "chat"){
-			$('#sepiaFW-swipeBar-chat-left').show();
-			$('#sepiaFW-swipeBar-chat-right').show();
+		if (setName == "chat"){
+			if (!hideLeftRightBars){
+				$('#sepiaFW-swipeBar-chat-left').show();
+				$('#sepiaFW-swipeBar-chat-right').show();
+			}
 			$('#sepiaFW-swipeBar-chat-controls').show();
-		}else if (setName === "menu"){
-			$('#sepiaFW-swipeBar-menu-left').show();
-			$('#sepiaFW-swipeBar-menu-right').show();
+		}else if (setName == "menu"){
+			if (!hideLeftRightBars){
+				$('#sepiaFW-swipeBar-menu-left').show();
+				$('#sepiaFW-swipeBar-menu-right').show();
+			}
 			$('#sepiaFW-swipeBar-menu-controls').show();
-		}else if (setName === "teach"){
-			$('#sepiaFW-swipeBar-teach-left').show();
-			$('#sepiaFW-swipeBar-teach-right').show();
-		}else if (setName === "frames"){
-			$('#sepiaFW-swipeBar-frames-left').show();
-			$('#sepiaFW-swipeBar-frames-right').show();
+		}else if (setName == "teach"){
+			if (!hideLeftRightBars){
+				$('#sepiaFW-swipeBar-teach-left').show();
+				$('#sepiaFW-swipeBar-teach-right').show();
+			}
+		}else if (setName == "frames"){
+			if (!hideLeftRightBars){
+				$('#sepiaFW-swipeBar-frames-left').show();
+				$('#sepiaFW-swipeBar-frames-right').show();
+			}
 		}
+		lastActiveSwipeBars = activeSwipeBars;
 		activeSwipeBars = setName;
 	}
 	UI.getActiveSwipeBars = function(){
@@ -390,13 +473,15 @@ function sepiaFW_build_ui(){
 	//show/hide speech-input-box
 	UI.showLiveSpeechInputBox = function(){
 		$('#sepiaFW-chat-controls-speech-box').fadeIn(300);
+		$('#sepiaFW-chat-controls-speech-box-bubble').hide();
+		$('#sepiaFW-chat-controls-speech-box-bubble-loader').show();
 		//hide swipe areas for better button access
 		$('#sepiaFW-swipeBar-container-left').hide();
 		$('#sepiaFW-swipeBar-container-right').hide();
 	}
 	UI.hideLiveSpeechInputBox = function(){
 		$('#sepiaFW-chat-controls-speech-box').fadeOut(300);
-		document.getElementById("sepiaFW-chat-controls-speech-box-bubble").contentEditable='false';
+		$('#sepiaFW-chat-controls-speech-box-bubble')[0].contentEditable = 'false';
 		//restore swipe areas
 		$('#sepiaFW-swipeBar-container-left').show();
 		$('#sepiaFW-swipeBar-container-right').show();
@@ -548,11 +633,19 @@ function sepiaFW_build_ui(){
 			//if client not active or in demo-mode after 8s run setup
 			setTimeout(function(){
 				if (!SepiaFW.client.isActive() && !SepiaFW.client.isDemoMode()){
-					SepiaFW.data.set('isDemoLogin', 'setup');
-					setTimeout(function(){
-						window.location.reload();
-					}, 2000);
-					SepiaFW.debug.log("Client will restart automatically in 2s to activate settings!");
+					if (SepiaFW.account.getUserId()){
+						//client is most likely trying to restore login and connection fails - we need to restore CLEXI connection
+						SepiaFW.debug.log("Client auto-setup was skipped because client still tries to restore old login. CLEXI connection will be restored.");
+						SepiaFW.clexi.setup(); 
+						SepiaFW.inputControls.cmdl.setup();
+					}else{
+						//free for auto-setup
+						SepiaFW.data.set('isDemoLogin', 'setup');
+						setTimeout(function(){
+							window.location.reload();
+						}, 2000);
+						SepiaFW.debug.log("Client will restart automatically in 2s to activate settings!");
+					}
 				}
 			}, 8000);
 		}
@@ -585,7 +678,7 @@ function sepiaFW_build_ui(){
 		
 		//---------------------- LOAD other SETTINGS before building the UI:
 
-		//load skin
+		//load skin and avatar
 		var lastSkin = SepiaFW.data.get('activeSkin');
 		if (lastSkin){
 			UI.setSkin(lastSkin, false);
@@ -1063,33 +1156,45 @@ function sepiaFW_build_ui(){
 			var target = document.getElementById(targetId);
 			newEle.style.height = "0px";
 			$(newEle).appendTo(target);
-			autoHeightAnimate($(newEle), 150);
+			autoHeightAnimateNoInterrupt($(newEle), 150);
 		}
 	}
-	function autoHeightAnimate($element, time){
+	function autoHeightAnimateNoInterrupt($element, time){
 		var curHeight = $element.height();
 		var autoHeight = $element.css('height', 'auto').height();
 		$element.height(curHeight);
-		$element.stop().animate({ height: autoHeight }, time, function(){
+		/*$element.stop().animate({ height: autoHeight }, time, function(){ 	//old version
 			$element.css('height', 'auto');
-		});
+		});*/
+		var orgTransition = $element[0].style.transition;
+		$element.css('transition', 'height ' + time + "ms");
+		$element.height(autoHeight);
+		setTimeout(function(){
+			$element.css('height', 'auto');
+			if (orgTransition) $element.css('transition', orgTransition);
+			else $element.css('transition', '');
+		}, time + 5);
 	}
 	
 	//loading animation
-	var loaderTimer;
+	var loaderTimers = [];
 	UI.showLoader = function(noDelay){
-		if (noDelay){
+		loaderTimers.push(setTimeout(function(){ 
 			$('#sepiaFW-loader').show();
-		}else{
-			loaderTimer = setTimeout(function(){ 
-				$('#sepiaFW-loader').show();
-			}, 750);
-		}
+		}, (noDelay? 0 : 750)));
 	}
 	UI.hideLoader = function(){
-		clearTimeout(loaderTimer);
+		clearTimeout(loaderTimers.shift());
 		$('#sepiaFW-loader').hide();
 	}
+
+	//---- Pop-up messages:
+
+	var messagePopupId;
+	var messagePopupAutoActionInterval;
+	var messagePopupAutoActionTargetTime = 31000;
+	var maxMessagePopupAutoActionTargetTime = 300000;
+	var messagePopupAutoActionTry = 0;
 	
 	//Show message popup - TODO: there can only be one pop-up at the same time
 	UI.showPopup = function(content, config){
@@ -1107,9 +1212,13 @@ function sepiaFW_build_ui(){
 		}else{
 			$input2.val("").attr("placeholder", "").hide();
 		}
+		var btn1 = $('#sepiaFW-popup-message-btn-one');
+		var btn2 = $('#sepiaFW-popup-message-btn-two');
+		var btn3 = $('#sepiaFW-popup-message-btn-three');
+		var btn4 = $('#sepiaFW-popup-message-btn-four');
+		var buttons = [btn1, btn2, btn3, btn4];
 		//NOTE: currently only button one and two receive the input data
 		if (config.buttonOneName && config.buttonOneAction){
-			var btn1 = $('#sepiaFW-popup-message-btn-one');
 			btn1.html(config.buttonOneName);	
 			btn1.off().on('click', function(){	
 				config.buttonOneAction(
@@ -1122,12 +1231,10 @@ function sepiaFW_build_ui(){
 				UI.hidePopup();		
 			});
 		}else{
-			var btn1 = $('#sepiaFW-popup-message-btn-one');
 			btn1.html('OK');			
 			btn1.off().on('click', function(){	UI.hidePopup();		});
 		}
 		if (config.buttonTwoName && config.buttonTwoAction){
-			var btn2 = $('#sepiaFW-popup-message-btn-two');
 			btn2.html(config.buttonTwoName).show();	
 			btn2.off().on('click', function(){	
 				config.buttonTwoAction(
@@ -1140,33 +1247,78 @@ function sepiaFW_build_ui(){
 				UI.hidePopup();		
 			});
 		}else{
-			$('#sepiaFW-popup-message-btn-two').off().hide();
+			btn2.off().hide();
 		}
 		if (config.buttonThreeName && config.buttonThreeAction){
-			var btn3 = $('#sepiaFW-popup-message-btn-three');
 			btn3.html(config.buttonThreeName).show();	
 			btn3.off().on('click', function(){	config.buttonThreeAction(this); 	UI.hidePopup();		});
 		}else{
-			$('#sepiaFW-popup-message-btn-three').off().hide();
+			btn3.off().hide();
 		}
 		if (config.buttonFourName && config.buttonFourAction){
-			var btn4 = $('#sepiaFW-popup-message-btn-four');
 			btn4.html(config.buttonFourName).show();	
 			btn4.off().on('click', function(){	config.buttonFourAction(this); 	UI.hidePopup();		});
 		}else{
-			$('#sepiaFW-popup-message-btn-four').off().hide();
+			btn4.off().hide();
 		}
 		if (typeof content == 'object'){
 			$('#sepiaFW-popup-message-content').html('').append(content);
 		}else{
-			$('#sepiaFW-popup-message-content').html(content);
+			var saferContent = SepiaFW.tools.sanitizeHtml(content);
+			var diff = content.length - saferContent.length;
+			if (diff != 0){
+				SepiaFW.debug.error("UI.showPopup - Had to change content to prevent XSS vector - Size change: " + diff);
+				SepiaFW.debug.info("UI.showPopup - Original:", content);
+				SepiaFW.debug.info("UI.showPopup - Changed:", saferContent);
+			}
+			$('#sepiaFW-popup-message-content').html(saferContent); 		//TODO: what if e.g. an error message contains stuff that disappears ?? (XSS)
 		}
+		//optional auto-action - NOTE: requires ID
+		if (config.popupId && config.autoAction){
+			clearInterval(messagePopupAutoActionInterval);
+			if (messagePopupId == config.popupId){
+				//continue
+			}else{
+				//reset
+				messagePopupAutoActionTry = 0;
+				messagePopupId = config.popupId;
+			}
+			var n = 0;
+			var autoActionButton = (config.autoActionIndex)? buttons[config.autoActionIndex - 1][0] : btn1[0];
+			var targetTime = config.autoActionTargetTime || messagePopupAutoActionTargetTime;
+			if (config.autoActionBackoff){
+				targetTime = targetTime + (messagePopupAutoActionTry * messagePopupAutoActionTry * 2000);
+			}
+			targetTime = Math.min(targetTime, maxMessagePopupAutoActionTargetTime);
+			messagePopupAutoActionInterval = setInterval(function(){
+				n++;
+				var timeLeft = targetTime - (n * 1000);
+				//trigger
+				if (timeLeft <= 0){
+					clearInterval(messagePopupAutoActionInterval);
+					messagePopupAutoActionTry++;
+					autoActionButton.innerHTML = SepiaFW.tools.sanitizeHtml(autoActionButton.innerHTML.replace(/ \(\d+s\)$/, "") + " (0s)");
+					$(autoActionButton).trigger('click');
+				}else{
+					//show timer inside button one
+					autoActionButton.innerHTML = SepiaFW.tools.sanitizeHtml(autoActionButton.innerHTML.replace(/ \(\d+s\)$/, "") 
+						+ " (" + Math.floor(timeLeft/1000) + "s)");
+				}
+			}, 1000);
+		}
+		//open
 		$('#sepiaFW-cover-layer').fadeIn(200);
 		//$('#sepiaFW-popup-message').fadeIn(300);
 	}
 	UI.hidePopup = function(){
 		//$('#sepiaFW-popup-message').fadeOut(300);
 		$('#sepiaFW-cover-layer').fadeOut(200);
+		clearInterval(messagePopupAutoActionInterval);
+	}
+	UI.resetPopupAutoAction = function(){
+		clearInterval(messagePopupAutoActionInterval);
+		messagePopupId = undefined;
+		messagePopupAutoActionTry = 0;
 	}
 
 	//Use pop-up to ask for permission
@@ -1199,6 +1351,8 @@ function sepiaFW_build_ui(){
 			}
 		});
 	}
+
+	//----
 	
 	//Test for support of special sepiaFW trigger events
 	UI.elementSupportsCustomTriggers = function(ele){
@@ -1570,6 +1724,8 @@ function sepiaFW_build_ui(){
 	
 	//do these elements collide?
 	UI.doCollide = function($el1, $el2){
+		if ($el1.length == 0 || $el2.length == 0) return false;
+		if ($el1.css("display") == "none" || $el2.css("display") == "none") return false;
 		//TODO: should we check for element visibility first?
 		var x1 = $el1.offset().left;
 		var y1 = $el1.offset().top;
@@ -1589,7 +1745,10 @@ function sepiaFW_build_ui(){
 	
 	//helper: close all menues ... except
 	UI.closeAllMenus = function (except){
-		$('.sepiaFW-menu').not(except).fadeOut(100, function(){
+		$('.sepiaFW-menu')
+		.not(except)
+		.filter(function(){ return (this.style.display != "none"); })
+		.fadeOut(100, function(){
 			$('#sepiaFW-main-window').trigger(('sepiaFwClose-' + $(this)[0].id));
 		});
 	}
@@ -1597,7 +1756,10 @@ function sepiaFW_build_ui(){
 	UI.closeAllMenusThatCollide = function (ref, except){
 		//wait for other element to show up before checking collision
 		setTimeout(function(){
-			$('.sepiaFW-menu').not(except).not(ref).each(function(){
+			$('.sepiaFW-menu')
+			.not(except).not(ref)
+			.filter(function(){ return (this.style.display != "none"); })
+			.each(function(){
 				if (UI.doCollide($(ref), $(this))){
 					$(this).fadeOut(100, function(){
 						$('#sepiaFW-main-window').trigger(('sepiaFwClose-' + $(this)[0].id));
@@ -1605,6 +1767,7 @@ function sepiaFW_build_ui(){
 				}
 			});
 			//stupid Apple bug in Safari requires last-element margin-bottom refresh
+			//TODO: only necessary if previous function actually did something?
 			if (UI.isSafari || UI.isIOS){
 				var spacer = document.createElement('DIV');
 				spacer.className = 'sepiaFW-safari-bug-fix-spacer';
@@ -1709,12 +1872,8 @@ function sepiaFW_build_ui(){
 	//Toggle interface "soft" fullscreen mode
 	UI.toggleInterfaceFullscreen = function(){
 		$navBar = $('#sepiaFW-nav-bar');
-		$inputBar = $('#sepiaFW-chat-controls-form');
 		if ($navBar.css('display') == 'none'){
 			$navBar.fadeIn(300);
-			if (inputBarFullscreenFadeIn){
-				$inputBar.fadeIn(300);
-			}
 			$('.sepiaFW-carousel-pane').removeClass('full-screen');
 			$('#sepiaFW-chat-menu').removeClass('full-screen');
 			$('#sepiaFW-chat-controls').removeClass('full-screen');
@@ -1728,10 +1887,6 @@ function sepiaFW_build_ui(){
 			UI.isInterfaceFullscreen = false;
 		}else{
 			$navBar.fadeOut(300);
-			if ($inputBar.css('display') != 'none'){
-				$inputBar.fadeOut(300);
-				inputBarFullscreenFadeIn = true;
-			}
 			$('.sepiaFW-carousel-pane').addClass('full-screen');
 			$('#sepiaFW-chat-menu').addClass('full-screen');
 			$('#sepiaFW-chat-controls').addClass('full-screen');
@@ -1750,7 +1905,6 @@ function sepiaFW_build_ui(){
 		UI.closeAllMenus();
 	}
 	UI.isInterfaceFullscreen = ($('#sepiaFW-nav-bar').css('display') == 'none');
-	var inputBarFullscreenFadeIn = false;
 	
 	//Use fullscreen API
 	UI.toggleFullscreen = function(elem){

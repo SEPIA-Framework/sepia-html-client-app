@@ -3,6 +3,8 @@ function sepiaFW_build_offline(){
 	var Offline = {};
 		
 	//----- Offline answers and actions -----
+
+	//more at: SepiaFW.embedded.services
 	
 	//Get action to open an URL
 	Offline.getUrlOpenAction = function(_url){
@@ -74,6 +76,8 @@ function sepiaFW_build_offline(){
 
 	//----- Cards builder -----
 
+	//more at: SepiaFW.embedded.services
+	
 	Offline.getLinkCard = function(url, title, description, imageUrl, imageBackground, data){
 		if (!data) data = {};
 		data.title = title || "Link Card";
@@ -115,7 +119,7 @@ function sepiaFW_build_offline(){
 
 	//Handle a message offline sent via Client.sendMessage - currently used for demo-mode
 	Offline.handleClientSendMessage = function(message){
-		var userId = 'username';
+		var userId = SepiaFW.account.getUserId() || 'username';
 		var dataIn = { sender: userId };
 		//console.log(message); 								//DEBUG
 		var nluResult;

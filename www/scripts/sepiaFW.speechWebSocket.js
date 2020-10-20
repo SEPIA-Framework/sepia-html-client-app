@@ -9,12 +9,17 @@ function sepiaFW_build_speechWebSocket(){
 	//Parameters and states
 	
 	Speech.socketURI = SepiaFW.data.get('speech-websocket-uri') || '';		//add your ASR WebSocket server here
+	Speech.getSocketURI = function(){
+		return Speech.socketURI;
+	}
 	Speech.setSocketURI = function(socketURI){
 		SepiaFW.data.set('speech-websocket-uri', socketURI);
 		Speech.socketURI = socketURI;
 		Speech.isAsrSupported = testWebSocketAsrSupport();
 		//refresh speech info
 		SepiaFW.speech.testAsrSupport();
+		//refresh UI
+		$('#sepiaFW-menu-stt-socket-url').val(Speech.socketURI);
 	} 		
 
 	function testWebSocketAsrSupport(){
@@ -137,7 +142,7 @@ function sepiaFW_build_speechWebSocket(){
 		}
 
 		//Get audio recorder and start socket transfer - RecorderInstance: RecorderJS (SEPIA version for sockets)
-		SepiaFW.audioRecorder.getRecorder(RecorderJS, function(audioRecorder){
+		SepiaFW.audioRecorder.getRecorder(RecorderJS, function(audioRecorder, streamSource){
 			//Start stream to socket
 			startWebSocketForMic(audioRecorder);		//note: uses internal global audio-recorder
 

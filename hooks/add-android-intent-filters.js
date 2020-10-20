@@ -13,7 +13,11 @@ module.exports = function (context) {
 		<category android:name="android.intent.category.DEFAULT" />
 	</intent-filter>
     `;
-    const manifestPath = context.opts.projectRoot + '/platforms/android/AndroidManifest.xml';
+    let manifestPath = context.opts.projectRoot + '/platforms/android/AndroidManifest.xml';
+	if (!fs.existsSync(manifestPath)){
+		//new path
+		manifestPath = context.opts.projectRoot + '/platforms/android/app/src/main/AndroidManifest.xml';
+	}
     const androidManifest = fs.readFileSync(manifestPath).toString();
     if (!androidManifest.includes(`android:scheme="${scheme}"`)) {
         const manifestLines = androidManifest.split(/\r?\n/);

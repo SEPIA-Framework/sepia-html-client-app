@@ -49,6 +49,22 @@ function sepiaFW_build_config(){
 			}
 		}
 	}
+	//check any URL if its from server
+	Config.urlIsSepiaFileHost = function(url){
+		//return SepiaFW.tools.isSameOrigin(url, Config.assistAPI); 		//protocol + host + port
+		return (url.indexOf(Config.assistAPI) == 0);
+	}
+	//replace specific path
+	Config.replacePathTagWithActualPath = function(path){
+		//server paths
+		path = path
+			.replace("<assist_server>/", Config.assistAPI)
+			.replace("<teach_server>/", Config.teachAPI)
+			.replace("<chat_server>/", Config.webSocketAPI);
+		//local app paths - e.g. <custom_data>, <local_data>, <app_data>
+		path = SepiaFW.files.replaceSystemFilePath(path);
+		return path;
+	}
 	
 	//language
 	var lang = SepiaFW.tools.getURLParameter("lang") || SepiaFW.data.get('app-language') || navigator.language || navigator.userLanguage;
@@ -153,7 +169,9 @@ function sepiaFW_build_config(){
 				buttonOneName : SepiaFW.local.g('doit'),
 				buttonOneAction : function(){ 
 					SepiaFW.account.afterLogout = function(){
-						location.reload();
+						setTimeout(function(){
+							window.location.reload();
+						}, 500);
 					}
 					SepiaFW.account.logoutAction();
 				},
@@ -224,6 +242,12 @@ function sepiaFW_build_config(){
 		if (data.updates != undefined) deviceLocalSiteData.updates = data.updates;
 		if (!skipStorageWrite){
 			SepiaFW.data.setPermanent('deviceLocalSiteData', deviceLocalSiteData);
+			//publish to chat server
+			if (SepiaFW.client.isActive() && !SepiaFW.client.isDemoMode()){
+				SepiaFW.client.sendOrRequestDataUpdate("userOrDeviceInfo", {
+					deviceLocalSite: deviceLocalSiteData
+				});
+			}
 		}
 	}
 	Config.getDeviceLocalSiteData = function(){
@@ -240,11 +264,40 @@ function sepiaFW_build_config(){
 		if (data.longitude != undefined) deviceGlobalLocation.longitude = data.longitude;
 		if (!skipStorageWrite){
 			SepiaFW.data.setPermanent('deviceGlobalLocation', deviceGlobalLocation);
+			//publish to chat server
+			if (SepiaFW.client.isActive() && !SepiaFW.client.isDemoMode()){
+				SepiaFW.client.sendOrRequestDataUpdate("userOrDeviceInfo", {
+					deviceGlobalLocation: deviceGlobalLocation
+				});
+			}
 		}
 	}
 	Config.getDeviceGlobalLocation = function(){
 		return deviceGlobalLocation;
 	}
+
+	//Collection of selectable search engines
+	Config.webSearchEngines = {
+		"google": {name: "Google"},
+		"bing": {name: "Bing"},
+		"yahoo": {name: "Yahoo"},
+		"duck duck go": {name: "Duck Duck Go"},
+		"qwant": {name: "Qwant"},
+		"ecosia": {name: "Ecosia"}
+	}
+	Config.getPreferredSearchEngine = function(){
+		return prefSearchEngine;
+	}
+	Config.setPreferredSearchEngine = function(engine){
+		if (engine && Config.webSearchEngines[engine]){
+			prefSearchEngine = engine;
+			SepiaFW.debug.info("Preferred web search engine set to " + engine);
+			SepiaFW.data.set('prefSearchEngine', engine);
+		}else{
+			SepiaFW.debug.error("Preferred web search engine NOT found in list: " + engine);
+		}
+	}
+	var prefSearchEngine = "google";
 
 	//Collection of universally supported apps and their names
     Config.musicApps = {
@@ -267,7 +320,7 @@ function sepiaFW_build_config(){
             SepiaFW.data.set('defaultMusicApp', appTag);
 			SepiaFW.debug.info("Default music app is set to " + appTag);
         }else{
-            SepiaFW.debug.error("Music app-name not found in list: " + appTag);
+            SepiaFW.debug.error("Music app-name NOT found in list: " + appTag);
         }
     }
     Config.getDefaultMusicApp = function(){
@@ -329,6 +382,7 @@ function sepiaFW_build_config(){
 			}
 		}
 	}
+	//NOTE: see SepiaFW.account #skipLogin for temporary setup settings (e.g. TTS off)
 
 	Config.loadAppSettings = function(){
 		//TODO: this should be simplified with a service! ...
@@ -419,6 +473,12 @@ function sepiaFW_build_config(){
 		var defaultMusicAppStored = SepiaFW.data.get('defaultMusicApp');
 		if (defaultMusicAppStored){
 			Config.setDefaultMusicApp(defaultMusicAppStored);
+		}
+
+		//Preferred search engine
+		var prefSearchEngineStored = SepiaFW.data.get('prefSearchEngine');
+		if (prefSearchEngineStored){
+			Config.setPreferredSearchEngine(prefSearchEngineStored);
 		}
 	}
 	

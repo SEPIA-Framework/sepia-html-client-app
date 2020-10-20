@@ -18,11 +18,12 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 	Build.optionSelector = function(btnId, optionsObjectArray, selectedValue, optionChangeAction){
 		var ele = document.createElement("SELECT");
 		if (btnId) ele.id = btnId;
-		var code = "";
 		optionsObjectArray.forEach(function(option){
-			code += '<option value="' + option.value + '">' + option.name + '</option>';
+			var opt = document.createElement("OPTION");
+			opt.value = option.value;
+			opt.textContent = option.name;
+			ele.appendChild(opt);
 		});
-		ele.innerHTML = code;
 		
 		//initialize selected value
 		for(var i, j = 0; i = ele.options[j]; j++) {
@@ -146,7 +147,7 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 	Build.inlineActionButton = function(btnId, btnName, callback){
 		var btn = document.createElement('BUTTON');
 		btn.className = "sepiaFW-button-inline";
-		if (btnName) btn.innerHTML = btnName;
+		if (btnName) btn.innerHTML = SepiaFW.tools.sanitizeHtml(btnName);
 		if (btnId) btn.id = btnId;
 		SepiaFW.ui.onclick(btn, function(){
 			callback(this);
@@ -174,20 +175,30 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 		//TOP BUTTONS
 		
 		//open close menue
+		SepiaFW.ui.toggleSettings = function(page, onceOnClose){
+			//previously: $("#sepiaFW-nav-menu-btn").trigger('click', {bm_force : true});
+			var menu = $("#sepiaFW-chat-menu");
+			if (menu.css('display') == 'none'){
+				menu.fadeIn(300);
+				SepiaFW.ui.closeAllMenusThatCollide("#sepiaFW-chat-menu");
+				$('#sepiaFW-main-window').trigger('sepiaFwOpen-sepiaFW-chat-menu');
+				if (page != undefined){
+					SepiaFW.ui.soc.showPane(page);
+				}
+				if (onceOnClose){
+					$('#sepiaFW-main-window').one('sepiaFwClose-sepiaFW-chat-menu', function(){ onceOnClose(); });
+				}
+			}else{
+				menu.fadeOut(300);
+				$('#sepiaFW-main-window').trigger('sepiaFwClose-sepiaFW-chat-menu');
+			}
+		}
 		var menuBtn = document.getElementById("sepiaFW-nav-menu-btn");
 		if (menuBtn){
 			$(menuBtn).off();
 			SepiaFW.ui.onclick(menuBtn, function(){
 			//$(menuBtn).on("click", function (){
-				var menu = $("#sepiaFW-chat-menu");
-				if (menu.css('display') == 'none'){
-					menu.fadeIn(300);
-					SepiaFW.ui.closeAllMenusThatCollide("#" + menu[0].id);
-					$('#sepiaFW-main-window').trigger(('sepiaFwOpen-' + menu[0].id));
-				}else{
-					menu.fadeOut(300);
-					$('#sepiaFW-main-window').trigger(('sepiaFwClose-' + menu[0].id));
-				}
+				SepiaFW.ui.toggleSettings();
 			});
 		}
 		//kind'a tricky way to catch the main menue close/open event
@@ -199,7 +210,7 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 			if (SepiaFW.ui.soc) SepiaFW.ui.soc.refresh();
 		}).on("sepiaFwClose-sepiaFW-chat-menu", function(){
 			//close
-			SepiaFW.ui.switchSwipeBars('chat');
+			SepiaFW.ui.switchSwipeBars("chat");		//we force "chat" here because its the only way to reset properly 
 			$('#sepiaFW-chat-controls').removeClass('chat-menu');
 			SepiaFW.ui.isMenuOpen = false;
 		});
@@ -270,11 +281,13 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 				}
 			},function(){
 				//double-tab
-				$('#sepiaFW-chat-controls-swipe-area').fadeIn(300, function(){
-					//workaround to prevent ugly glitches at the frame
-					$('#sepiaFW-chat-controls-form').css({"background-color" : $('#sepiaFW-chat-controls-swipe-area').find('.sepiaFW-swipeBar-switchable').css('background-color')});
-				});
-				//$('#sepiaFW-chat-controls-swipe-area').css({'background-color': SepiaFW.ui.secondaryColor}).fadeIn(300);
+				if (!SepiaFW.ui.useTouchBarControls){
+					$('#sepiaFW-chat-controls-swipe-area').fadeIn(300, function(){
+						//workaround to prevent ugly glitches at the frame
+						$('#sepiaFW-chat-controls-form').css({"background-color" : $('#sepiaFW-chat-controls-swipe-area').find('.sepiaFW-swipeBar-switchable').css('background-color')});
+					});
+					//$('#sepiaFW-chat-controls-swipe-area').css({'background-color': SepiaFW.ui.secondaryColor}).fadeIn(300);
+				}
 			}, true);
 		}
 		//Send message if enter is pressed in the input field
@@ -306,13 +319,30 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 			//prevent input blur by send button (on mobile)
 			.on('focusout', function(e){
 				if (e.relatedTarget && (e.relatedTarget.id == 'sepiaFW-chat-send')){	// || e.relatedTarget.id == 'sepiaFW-assist-btn'
-					if (SepiaFW.ui.isMobile){
+					//if (SepiaFW.ui.isMobile){
 						setTimeout(function(){
 							$('#sepiaFW-chat-input').get(0).focus();
 						}, 0);
+					//}
+				}else{
+					if (SepiaFW.ui.useTouchBarControls){
+						$('#sepiaFW-chat-input').addClass("no-focus");
+						$('#sepiaFW-chat-send').addClass("no-focus");
 					}
 				}
+			})
+			.on('focusin', function(e){
+				if (SepiaFW.ui.useTouchBarControls){
+					$('#sepiaFW-chat-input').removeClass("no-focus");
+					$('#sepiaFW-chat-send').removeClass("no-focus");
+				}
 			});
+		}
+		//Touch-bar controls
+		if (SepiaFW.ui.useTouchBarControls){
+			$('#sepiaFW-chat-input').addClass("no-focus");
+			$('#sepiaFW-chat-send').addClass("no-focus");
+			$('#sepiaFW-chat-controls-form').addClass('touch-bar-controls');
 		}
 		//Edit message in Speech-bubble field and abort auto-send of result
 		var speechEditBtn = document.getElementById("sepiaFW-chat-controls-speech-box-edit");
@@ -323,7 +353,9 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 				if (SepiaFW.speech && SepiaFW.speech.isRecognizing()){
 					SepiaFW.speech.abortRecognition();
 					var bubble = document.getElementById("sepiaFW-chat-controls-speech-box-bubble");
-					bubble.contentEditable='true';
+					$(bubble).show();
+					$('#sepiaFW-chat-controls-speech-box-bubble-loader').hide();
+					bubble.contentEditable = 'true';
 					bubble.focus();
 				}else{
 					document.getElementById("sepiaFW-chat-controls-speech-box-bubble").innerHTML = '';
@@ -366,8 +398,13 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 			$(chatSwipeBar).off();
 			SepiaFW.ui.simpleDoubleTab(chatSwipeBar, function(){
 				//double-tab
-				$('#sepiaFW-chat-controls-form').css({"background-color" : ""});	//$('#sepiaFW-chat-controls-right').css('background-color')
-				$('#sepiaFW-chat-controls-swipe-area').fadeOut(300);
+				if (SepiaFW.ui.useTouchBarControls){
+					//TODO: make configurable?
+					SepiaFW.ui.backButtonAction();
+				}else{
+					$('#sepiaFW-chat-controls-form').css({"background-color" : ""});	//$('#sepiaFW-chat-controls-right').css('background-color')
+					$('#sepiaFW-chat-controls-swipe-area').fadeOut(300);
+				}
 			});
 		}
 		//open close chat controls more menue
@@ -391,7 +428,7 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 				}
 			}, function(){
 				//Long press - open settings menu
-				$("#sepiaFW-nav-menu-btn").trigger('click', {bm_force : true});
+				SepiaFW.ui.toggleSettings();
 			}, animateShortPress);
 		}
 		//catch the shortcuts menue close/open event
@@ -410,15 +447,10 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 		//Add default mic button logic to an element
 		SepiaFW.ui.buildDefaultMicLogic = function(buttonEle, customCallbackShort, customCallbackLong){
 			if (buttonEle){
-				$(buttonEle).off();
+				if (buttonEle.removeLongPressShortPressDoubleTap) buttonEle.removeLongPressShortPressDoubleTap();
 				SepiaFW.ui.longPressShortPressDoubleTap(buttonEle, function(){
-					//switch issue
-					if (SepiaFW.client.isMessagePending){
-						//e.g.: force reconnect
-						SepiaFW.client.closeClient(true, SepiaFW.client.resumeClient);
-					}else{
-						SepiaFW.ui.resetMicButton();
-					}
+					//smart-reset
+					SepiaFW.ui.longPressMicButton();
 					//custom
 					if (customCallbackLong) customCallbackLong();
 				},'',function(){
@@ -444,7 +476,7 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 			}
 			//stop alarm
 			if (SepiaFW.audio && SepiaFW.audio.alarm.isPlaying){
-				SepiaFW.audio.stopAlarmSound();
+				SepiaFW.audio.stopAlarmSound("toggleMic");
 			}
 			//fade audio
 			SepiaFW.audio.fadeOut();
@@ -454,12 +486,22 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 			}
 			//play a sound before activating mic?
 			if (useConfirmationSound && !SepiaFW.speech.isRecognizing() && SepiaFW.audio){ 		//&& (SepiaFW.config.clientInfo.indexOf('chrome_')>-1)
-				SepiaFW.audio.playURL('sounds/coin.mp3', '2', '', function(){
+				SepiaFW.audio.playURL(SepiaFW.audio.micConfirmSound, '2', '', function(){
 					SepiaFW.speech.toggleRecognition(SepiaFW.client.asrCallbackFinal, SepiaFW.client.asrCallbackInterim, SepiaFW.client.asrErrorCallback, SepiaFW.client.asrLogCallback);
 				}, SepiaFW.client.asrErrorCallback);
 			//... else stick to the default
 			}else{
 				SepiaFW.speech.toggleRecognition(SepiaFW.client.asrCallbackFinal, SepiaFW.client.asrCallbackInterim, SepiaFW.client.asrErrorCallback, SepiaFW.client.asrLogCallback);
+			}
+		}
+		//Long-press microphone button - aka: smart-reset
+		SepiaFW.ui.longPressMicButton = function(){
+			//switch issue
+			if (SepiaFW.client.isMessagePending){
+				//e.g.: force reconnect
+				SepiaFW.client.closeClient(true, SepiaFW.client.resumeClient);
+			}else{
+				SepiaFW.ui.resetMicButton();
 			}
 		}
 		//Reset microphone button
@@ -530,6 +572,7 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 			centerPage2.innerHTML = ""
 				+ "<ul class='sepiaFW-menu-settings-list'>"
 					+ "<li id='sepiaFW-menu-select-skin-li'><span>Skin: </span><select id='sepiaFW-menu-select-skin'><option disabled selected value>- select -</option></select></li>"
+					+ "<li id='sepiaFW-menu-select-avatar-li'><span>Avatar: </span><select id='sepiaFW-menu-select-avatar'><option disabled selected value>- select -</option></select></li>"
 					+ "<li id='sepiaFW-menu-server-access-li' title='Settings for core server connections'><span>" + SepiaFW.local.g('serverConnections') + ": </span></li>"
 					+ "<li id='sepiaFW-menu-deviceId-li'><span>" + SepiaFW.local.g('deviceId') + ": </span><input id='sepiaFW-menu-deviceId' type='text' maxlength='24'></li>"
 					+ "<li id='sepiaFW-menu-device-site-li' title='Settings for device local site'><span>" + SepiaFW.local.g('deviceSite') + ": </span></li>"
@@ -539,6 +582,8 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 					+ "<li id='sepiaFW-menu-select-voice-li'><span>Voice: </span></li>" 	//option: <i class='material-icons md-mnu'>&#xE5C6;</i>
 					+ "<li id='sepiaFW-menu-toggle-proactiveNotes-li' title='The assistant will remind you in a funny way to make a coffee break etc. :-)'><span>Well-being reminders: </span></li>"
 					+ "<li id='sepiaFW-menu-toggle-channelMessages-li' title='Show status messages in chat like someone joined the channel?'><span>Channel status messages: </span></li>"
+					+ "<li id='sepiaFW-menu-toggle-bigScreenMode-li' title='Switch big-screen mode on/off'><span>Big-screen mode: </span></li>"
+					+ "<li id='sepiaFW-menu-toggle-touchBarControls-li' title='Switch new touch-bar controls mode on/off'><span>Touch-bar controls: </span></li>"
 					//NOTE: we show this only if battery status API supported:
 					+ "<li id='sepiaFW-menu-toggle-trackPowerStatus-li' title='Observe power plug and battery status?'><span>Track power status: </span></li>"
 					//---
@@ -550,7 +595,7 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 					+ "<li id='sepiaFW-menu-toggle-wake-word-li' title='Use client wake-word detection?'><span>Hey SEPIA: </span></li>"
 					+ "<li id='sepiaFW-menu-select-stt-li' title='Speech recognition engine.'><span>ASR engine: </span></li>"
 					+ "<li id='sepiaFW-menu-stt-socket-url-li' title='Server for custom (socket) speech recognition engine.'>"
-						+ "<span>" + "ASR server" + ": </span>"
+						+ "<span id='sepiaFW-menu-stt-label'>" + "ASR server" + ": </span>"
 						+ "<input id='sepiaFW-menu-stt-socket-url' type='url' spellcheck='false'>"
 					+ "</li>"
 					+ "<li id='sepiaFW-menu-toggle-clexi-li' title='Connect to CLEXI server on start.'><span>Connect to CLEXI: </span></li>"
@@ -566,6 +611,8 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 					+ "<li id='sepiaFW-menu-select-music-app-li' title='Select default music app for search intents.'>"
 						+ "<span>Default music app: </span></li>"
 						//+ "<span id='sepiaFW-menu-toggle-music-cards-btn'><i class='material-icons'>art_track</i></span>"
+					+ "<li id='sepiaFW-menu-select-search-engine-li' title='Select preferred search engine for search intents.'>"
+						+ "<span>Default search engine: </span></li>"
 					+ "<li id='sepiaFW-menu-clear-app-cache-li'><span>Clear app data: </span></li>"
 					+ "<li id='sepiaFW-menu-experimental-settings-li'><span>Experimental settings </span></li>"
 						+ "<li class='sepiaFW-menu-experimental'><span><u>Note: Changes will not be permanent</u></span></li>"
@@ -683,7 +730,7 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 			var ctrlHubBtn = document.getElementById("sepiaFW-menu-btn-control-hub");
 			ctrlHubBtn.addEventListener("click", function(){
 				SepiaFW.frames.open({ 
-					pageUrl: "dynamic-frame.html",
+					pageUrl: "templates/dynamic-frame.html",
 					theme: "dark flat",	//dark_full flat
 					onFinishSetup: function(){
 						var page1 = document.getElementById('sepiaFW-frame-page-1');
@@ -718,21 +765,38 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 				});
 			});
 			
-			//add skins
+			//add skins and avatars
 			var skins = $('.sepiaFW-style-skin');
 			skins.each(function(i, obj) {
 				var option = document.createElement('OPTION');
-					option.innerHTML = obj.dataset.name;
-					option.value = i+1;
+					option.textContent = obj.dataset.name;
+					option.value = obj.dataset.id;
 				document.getElementById('sepiaFW-menu-select-skin').appendChild(option);
 			});
 			var activeSkin = SepiaFW.data.get('activeSkin');
 			if (activeSkin){
 				$('#sepiaFW-menu-select-skin').val(activeSkin);
 			}
-			$('#sepiaFW-menu-select-skin').off();
-			$('#sepiaFW-menu-select-skin').on('change', function() {
+			$('#sepiaFW-menu-select-skin').off().on('change', function(){
 				SepiaFW.ui.setSkin($('#sepiaFW-menu-select-skin').val());
+			});
+			var avatars = $('.sepiaFW-style-avatar');
+			var defaultAvatarOption = document.createElement('OPTION');
+				defaultAvatarOption.textContent = "Let skin choose";
+				defaultAvatarOption.value = "0";
+				document.getElementById('sepiaFW-menu-select-avatar').appendChild(defaultAvatarOption);
+			avatars.each(function(i, obj) {
+				var option = document.createElement('OPTION');
+					option.textContent = obj.dataset.name;
+					option.value = obj.dataset.id;
+				document.getElementById('sepiaFW-menu-select-avatar').appendChild(option);
+			});
+			var activeAvatar = SepiaFW.data.get('activeAvatar');
+			if (activeAvatar != undefined){
+				$('#sepiaFW-menu-select-avatar').val(activeAvatar);
+			}
+			$('#sepiaFW-menu-select-avatar').off().on('change', function(){
+				SepiaFW.ui.setAvatar($('#sepiaFW-menu-select-avatar').val());
 			});
 			//server access
 			var serverAccess = document.getElementById('sepiaFW-menu-server-access-li');
@@ -801,6 +865,33 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 				});
 				if (!SepiaFW.speechWebSocket || !SepiaFW.speechWebSocket.isAsrSupported){
 					$("#sepiaFW-menu-stt-socket-url-li").hide();
+				}else{
+					SepiaFW.ui.longPressShortPressDoubleTap($("#sepiaFW-menu-stt-label")[0], function(){
+						SepiaFW.ui.showPopup("Set new ASR streaming audio default buffer length", {
+							inputLabelOne: "New buffer length (currently: " + RecorderJS.defaultBufferLength + ")",
+							buttonOneName: SepiaFW.local.g("ok"),
+							buttonOneAction: function(btn, input1){
+								input1 = Number.parseInt(input1);
+								console.log(input1);
+								if (input1){
+									RecorderJS.defaultBufferLength = input1;
+									SepiaFW.data.setPermanent("sepia-asr-buffer-length", input1);
+									setTimeout(function(){
+										SepiaFW.ui.showPopup("New buffer length for custom ASR: " + input1);
+									}, 303);
+								}
+							},
+							buttonTwoName: "Default",
+							buttonTwoAction: function(){
+								SepiaFW.data.delPermanent("sepia-asr-buffer-length");
+								setTimeout(function(){
+									SepiaFW.ui.showPopup("Buffer length for custom ASR will reset after client reload.");
+								}, 303);
+							},
+							buttonThreeName: SepiaFW.local.g("abort"),
+							buttonThreeAction: function(){}
+						});
+					},'', undefined, '', true);
 				}
 			}
 			//Smart microphone auto-toggle
@@ -896,6 +987,9 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 			}, true);
 			//$('#sepiaFW-menu-toggle-music-cards-btn').off().on('click', function(){});
 
+			//Search engine selector
+			document.getElementById('sepiaFW-menu-select-search-engine-li').appendChild(Build.searchEngineSelector(SepiaFW.config.webSearchEngines));
+
 			//Wake-word stuff - Hey SEPIA
 			if (!SepiaFW.wakeTriggers){
 				$('#"sepiaFW-menu-toggle-wake-word-li"').remove();
@@ -977,7 +1071,7 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 				function(btn){
 					var config = {
 						buttonOneName : SepiaFW.local.g('reload'),
-						buttonOneAction : function(){ location.reload(); }
+						buttonOneAction : function(){ setTimeout(function(){ window.location.reload(); }, 1000); }
 					};
 					var keepPermanent = true;
 					var localDataStatus = "---";
@@ -1019,6 +1113,60 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 					});
 					SepiaFW.debug.info("Channel status messages are deactivated");
 				}, SepiaFW.ui.showChannelStatusMessages)
+			);
+			//toggle big-screen mode
+			document.getElementById('sepiaFW-menu-toggle-bigScreenMode-li').appendChild(Build.toggleButton('sepiaFW-menu-toggle-bigScreenMode', 
+				function(){
+					SepiaFW.ui.useBigScreenMode = true;
+					SepiaFW.data.setPermanent('big-screen-mode', true);
+					SepiaFW.debug.info("Big-screen mode activated, please reload client.");
+					SepiaFW.ui.showPopup("Please reload the interface to fully activate alternative controls.", {
+						buttonOneName : "Reload now",
+						buttonOneAction : function(){ setTimeout(function(){ location.reload(); }, 1000); },
+						buttonTwoName : "Later",
+						buttonTwoAction : function(){}
+					});
+					//resize
+					$(window.document.body).removeClass("limit-size");
+					$(window).trigger('resize');
+				},function(){
+					SepiaFW.ui.useBigScreenMode = false;
+					SepiaFW.data.setPermanent('big-screen-mode', false);
+					SepiaFW.debug.info("Big-screen mode deactivated, please reload client.");
+					SepiaFW.ui.showPopup("Please reload the interface to fully activate alternative controls.", {
+						buttonOneName : "Reload now",
+						buttonOneAction : function(){ setTimeout(function(){ location.reload(); }, 1000); },
+						buttonTwoName : "Later",
+						buttonTwoAction : function(){}
+					});
+					//resize
+					$(window.document.body).addClass("limit-size");
+					$(window).trigger('resize');
+				}, SepiaFW.ui.useBigScreenMode)
+			);
+			//toggle touch-bar controls
+			document.getElementById('sepiaFW-menu-toggle-touchBarControls-li').appendChild(Build.toggleButton('sepiaFW-menu-toggle-touchBarControls', 
+				function(){
+					SepiaFW.ui.useTouchBarControls = true;
+					SepiaFW.data.setPermanent('touch-bar-controls', true);
+					SepiaFW.debug.info("Alternative touch-bar controls activated, please reload client.");
+					SepiaFW.ui.showPopup("Please reload the interface to fully activate alternative controls.", {
+						buttonOneName : "Reload now",
+						buttonOneAction : function(){ setTimeout(function(){ location.reload(); }, 1000); },
+						buttonTwoName : "Later",
+						buttonTwoAction : function(){}
+					});
+				},function(){
+					SepiaFW.ui.useTouchBarControls = false;
+					SepiaFW.data.setPermanent('touch-bar-controls', false);
+					SepiaFW.debug.info("Alternative touch-bar controls deactivated, please reload client.");
+					SepiaFW.ui.showPopup("Please reload the interface to fully activate alternative controls.", {
+						buttonOneName : "Reload now",
+						buttonOneAction : function(){ setTimeout(function(){ location.reload(); }, 1000); },
+						buttonTwoName : "Later",
+						buttonTwoAction : function(){}
+					});
+				}, SepiaFW.ui.useTouchBarControls)
 			);
 			//Android only stuff
 			if (!SepiaFW.ui.isAndroid){
@@ -1238,7 +1386,7 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 				for (var i=0; i<pages; i++){
 					(function(menuPageSelector, index){
 						var pageBtn = document.createElement('BUTTON');
-						pageBtn.innerHTML = index+1;
+						pageBtn.textContent = index+1;
 						menuPageSelector.appendChild(pageBtn);
 						pageBtn.addEventListener("click", function(){
 							SepiaFW.ui.soc.showPane(index);
@@ -1247,11 +1395,11 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 				}
 				//... and a close button
 				var closeBtn = document.createElement('BUTTON');
-				closeBtn.innerHTML = "×";
+				closeBtn.textContent = "×";
 				menuPageSelector.appendChild(closeBtn);
 				SepiaFW.ui.onclick(closeBtn, function(){
 				//closeBtn.addEventListener("click", function(){
-					$('#sepiaFW-nav-menu-btn').trigger('click', { bm_force : true });
+					SepiaFW.ui.toggleSettings();
 				});
 			}
 		}
@@ -1266,7 +1414,7 @@ function sepiaFW_build_ui_build(sepiaSessionId){
         Object.keys(appCollection).forEach(function(appTag){
             var option = document.createElement('option');
             option.value = appTag;
-            option.innerHTML = appCollection[appTag].name;
+            option.textContent = appCollection[appTag].name;
             selector.appendChild(option);
             if (appTag == SepiaFW.config.getDefaultMusicApp()){
                 option.selected = true;
@@ -1275,6 +1423,28 @@ function sepiaFW_build_ui_build(sepiaSessionId){
         //add button listener
         $(selector).off().on('change', function() {
             SepiaFW.config.setDefaultMusicApp($('#sepiaFW-menu-select-music-app').val());
+        });
+        return selector;
+	}
+	
+	//Build music app selector
+    Build.searchEngineSelector = function(engineCollection){
+        var selector = document.getElementById('sepiaFW-menu-select-search-engine') || document.createElement('select');
+        selector.id = 'sepiaFW-menu-select-search-engine';
+        $(selector).find('option').remove();
+        //fill
+        Object.keys(engineCollection).forEach(function(engine){
+            var option = document.createElement('option');
+            option.value = engine;
+            option.textContent = engineCollection[engine].name;
+            selector.appendChild(option);
+            if (engine == SepiaFW.config.getPreferredSearchEngine()){
+                option.selected = true;
+            }
+        });
+        //add button listener
+        $(selector).off().on('change', function() {
+            SepiaFW.config.setPreferredSearchEngine($('#sepiaFW-menu-select-search-engine').val());
         });
         return selector;
     }
@@ -1292,7 +1462,7 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 			userListEle.innerHTML = "";
 			var avoidDoubles = [];
 			var activeChatPartner = SepiaFW.client.getActiveChatPartner();
-			userList.forEach(function (user) {
+			userList.forEach(function(user){
 				var entryClass = "";
 				var name = user.name; 		//TODO: distinguish identical names
 				//prevent names that are like IDs
@@ -1313,8 +1483,12 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 					if (user.id == SepiaFW.assistant.id){
 						entryClass += " assistant";
 					}
-					SepiaFW.ui.insert("sepiaFW-chat-userlist", "<li class='" + entryClass + "' data-user-entry='" + JSON.stringify(user) + "' title='" + user.id + "'>" 
-							+ name + "</li>");
+					var ele = document.createElement("li");
+					ele.className = entryClass;
+					ele.dataset.userEntry = JSON.stringify(user);
+					ele.title = user.id;
+					ele.textContent = name;
+					$(ele).appendTo("#sepiaFW-chat-userlist");
 					avoidDoubles.push(user.id + "_" + user.deviceId);
 				}
 			});
@@ -1372,10 +1546,16 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 				if (channel.isOpen || channel.isPublic){
 					entryClass += " public";
 				}
-				SepiaFW.ui.insert("sepiaFW-chat-channellist", 
-					"<li class='" + entryClass + "' data-channel-entry='" + JSON.stringify(channel) + "' title='" + channel.name + "'>"
-					+ "<span data-channel-id='" + channel.id + "'>" + channel.name + "</span></li>"
-				);
+				var ele = document.createElement("li");
+				ele.className = entryClass;
+				ele.dataset.channelEntry = JSON.stringify(channel);
+				ele.title = channel.name;
+				ele.textContent = name;
+				var spanEle = document.createElement("span");
+				spanEle.dataset.channelId = channel.id;
+				spanEle.textContent = channel.name;
+				ele.appendChild(spanEle);
+				$(ele).appendTo("#sepiaFW-chat-channellist");
 			});
 			//add on click again - @user to input
 			$('#sepiaFW-chat-channellist li.channel').on( "click", function(){
@@ -1513,12 +1693,12 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 			var msgArticle = document.createElement('ARTICLE');
 			var msgHead = document.createElement('DIV');
 			msgHead.className = 'header';
-			msgHead.innerHTML = ""
+			msgHead.innerHTML = SepiaFW.tools.sanitizeHtml(""
 				+ "<b class='sender' data-sender='" + sender + "'>" + senderText + ": </b>"
-				+ "<span class='timestamp'>" + time + "</span>";
+				+ "<span class='timestamp'>" + time + "</span>");
 			msgArticle.className = classes;
-			msgArticle.innerHTML = ""
-				+ "<p>" + text + "</p>";		//NOTE: the server will deliver 'text' as HTML escaped string UNLESS its from the assistant data object (then we escape above)
+			msgArticle.innerHTML = SepiaFW.tools.sanitizeHtml(""
+				+ "<p>" + text.replace(/\n|\s\s/g, "<br>") + "</p>");		//NOTE: the server will deliver 'text' as HTML escaped string UNLESS its from the assistant data object (then we escape above)
 			
 			msgArticle.insertBefore(msgHead, msgArticle.childNodes[0]);	
 			block.appendChild(msgArticle);
@@ -1700,17 +1880,17 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 		//inner HTML:
 		var articleSender = document.createElement('b');
 		articleSender.className = classes;
-		articleSender.innerHTML = (senderText + ": ");
+		articleSender.textContent = (senderText + ": ");
 		article.appendChild(articleSender);
 
 		var articleText = document.createElement('span');
 		articleText.className = 'status';
-		articleText.innerHTML = text;			//NOTE: the server will deliver 'text' as HTML escaped string
+		articleText.innerHTML = SepiaFW.tools.sanitizeHtml(text);			//NOTE: the server will deliver 'text' as HTML escaped string (XSS vector?)
 		article.appendChild(articleText);
 
 		var articleTimestamp = document.createElement('span');
 		articleTimestamp.className = 'timestamp';
-		articleTimestamp.innerHTML = time;
+		articleTimestamp.textContent = time;
 		article.appendChild(articleTimestamp);
 			
 		block.appendChild(article);

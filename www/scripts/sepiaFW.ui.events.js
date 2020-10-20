@@ -14,12 +14,53 @@ function sepiaFW_build_events(){
 	//----------------- Broadcasting -------------------
 
 	//Alarm/reminder has been triggered
-	function broadcastAlarmTrigger(){
+	function broadcastAlarmTrigger(info){
 		//Always-On mode
 		if (SepiaFW.alwaysOn && SepiaFW.alwaysOn.isOpen){
 			SepiaFW.alwaysOn.triggerAlarm();
 		}
+		//dispatch event
+		var event = new CustomEvent('sepia_alarm_event', { detail: {
+			action: "triggered",
+			info: info
+		}});
+		document.dispatchEvent(event);
+		//console.error("broadcastAlarmTrigger", info);		//DEBUG
 	}
+	Events.broadcastAlarmTrigger = broadcastAlarmTrigger;
+
+	function broadcastAlarmSet(info){
+		//dispatch event
+		var event = new CustomEvent('sepia_alarm_event', { detail: {
+			action: "set",
+			info: info
+		}});
+		document.dispatchEvent(event);
+		//console.error("broadcastAlarmSet", info);		//DEBUG
+	}
+	Events.broadcastAlarmSet = broadcastAlarmSet;
+
+	function broadcastAlarmStop(info){
+		//dispatch event
+		var event = new CustomEvent('sepia_alarm_event', { detail: {
+			action: "stopped",
+			info: info
+		}});
+		document.dispatchEvent(event);
+		//console.error("broadcastAlarmStop", info);		//DEBUG
+	}
+	Events.broadcastAlarmStop = broadcastAlarmStop;
+
+	function broadcastAlarmRemove(info){
+		//dispatch event
+		var event = new CustomEvent('sepia_alarm_event', { detail: {
+			action: "remove",
+			info: info
+		}});
+		document.dispatchEvent(event);
+		//console.error("broadcastAlarmRemove", info);		//DEBUG
+	}
+	Events.broadcastAlarmRemove = broadcastAlarmRemove;
 	
 	//--------------------------------------------------
 	
@@ -252,6 +293,7 @@ function sepiaFW_build_events(){
 	var SyncSchedulers = {};
 
 	var lastTimeEventsCheck = 0;
+	var timeEventsCheckTimer;
 
 	//----------------- Broadcasting -------------------
 
@@ -267,7 +309,10 @@ function sepiaFW_build_events(){
 		}
 		//prevent multiple consecutive calls in short intervall...
 		var now = new Date().getTime();
-		if (forceNew || (now - lastTimeEventsCheck) > 10*1000){ 		//interval: 10s
+		var timePassedSinceLastCheck = (now - lastTimeEventsCheck);
+		var targetTime = 10*1000; 	//at least 10s
+		if (forceNew || timePassedSinceLastCheck > targetTime){ 		//interval: 10s
+			clearTimeout(timeEventsCheckTimer);
 			lastTimeEventsCheck = now;
 			
 			//reset ids tracking timeEvents - basically just reload all active background time events to 'timeEventNotificationIds'
@@ -279,7 +324,11 @@ function sepiaFW_build_events(){
 			});
 			Timers = {};
 
-			//TODO: this will not remove old timer cards only add new ones and disable old background notifications
+			//NOTE: this will not remove old timer cards only add new ones and disable old background notifications
+			SepiaFW.ui.cards.findAllTimeEventCards(false, true).forEach(function(item){ 
+				item.remove();
+				//more info: SepiaFW.events.getRunningOrActivatedTimeEventById(item.data.eventId)
+			});
 
 			//clear all background notifications
 			Events.clearAllTimeEventBackgroundNotifications(function(){
@@ -296,6 +345,12 @@ function sepiaFW_build_events(){
 					dataset2.newReceiver = SepiaFW.assistant.id;
 				SepiaFW.client.sendCommand(dataset2, options);
 			});
+		}else{
+			SepiaFW.debug.log("Events: Delayed time events update because requests came too quickly!");
+			//buffer calls and schedule update for later
+			timeEventsCheckTimer = setTimeout(function(){
+				Events.setupTimeEvents();
+			}, (targetTime - timePassedSinceLastCheck + 2000));
 		}
 	}
 	
@@ -303,6 +358,7 @@ function sepiaFW_build_events(){
 	Events.addOrRefreshTimeEvent = function(targetTimeUnix, eventType, eventData){
 		var Timer = Events.getRunningOrActivatedTimeEventById(eventData.eventId);
 		var reloadBackgroundNotification = false;
+		var now = new Date().getTime();
 		if (!Timer){
 			reloadBackgroundNotification = true;
 			Timer = {};
@@ -311,6 +367,15 @@ function sepiaFW_build_events(){
 			Timer.type = eventType;
 			Timer.data = eventData;
 			Timers[Timer.name] = Timer;
+
+			if ((now - targetTimeUnix) < 0){
+				broadcastAlarmSet({
+					timeUnix: Timer.targetTime,
+					type: Timer.type,
+					id: Timer.name,
+					title: (Timer.data? Timer.data.name : Timer.type)
+				});
+			}
 		}
 		
 		//final action
@@ -402,6 +467,12 @@ function sepiaFW_build_events(){
 				scheduleTimeEventsSync(Timer.type);
 			}
 			SepiaFW.debug.info("TimeEvent - " + name + ': REMOVED');		//DEBUG
+			broadcastAlarmRemove({
+				timeUnix: Timer.targetTime,
+				type: Timer.type,
+				id: Timer.name,
+				title: (Timer.data? Timer.data.name : Timer.type)
+			});
 		
 		}else if (resyncList){
 			var activatedTimer = Events.getActivatedTimeEvent(name);
@@ -619,7 +690,7 @@ function sepiaFW_build_events(){
 				trigger: {
 					at: (d)
 				},
-				sound: "file://sounds/alarm.mp3",
+				sound: "file://sounds/alarm.mp3", 		//TODO: is this path working at all?? Its not really a typical valid path :-/
 				smallIcon: "res://ic_popup_reminder",
 				color: "303030",
 				data: noteData,
@@ -690,7 +761,7 @@ function sepiaFW_build_events(){
 		}
 	}
 	
-	//Alarm clock - Triggered when UI is on foreground (system notification is removed before)
+	//Alarm clock - Triggered when UI is in foreground (system notification is removed before)
 	Events.triggerAlarm = function(Timer, startCallback, endCallback, errorCallback){
 		//console.log('triggerAlarm'); 			//DEBUG
 		var showSimpleNote = true;
@@ -738,7 +809,12 @@ function sepiaFW_build_events(){
 		}
 		//broadcast event
 		if (doBroadcast){
-			broadcastAlarmTrigger();
+			broadcastAlarmTrigger({
+				timeUnix: Timer.targetTime,
+				type: Timer.type,
+				id: Timer.name,
+				title: (Timer.data? Timer.data.name : Timer.type)
+			});
 		}
 	}
 	
@@ -791,7 +867,7 @@ function sepiaFW_build_events(){
 			}
 			//schedule
 			if (date){
-				options.trigger= {
+				options.trigger = {
 					at: date
 				}
 			}
@@ -843,7 +919,7 @@ function sepiaFW_build_events(){
 			if (data.onClickType == "stopAlarmSound"){
 				//stop alarm
 				if (SepiaFW.audio && SepiaFW.audio.alarm.isPlaying){
-					SepiaFW.audio.stopAlarmSound();
+					SepiaFW.audio.stopAlarmSound("notificationClick");
 				}
 			}
 		
@@ -868,7 +944,7 @@ function sepiaFW_build_events(){
 			if (data.onCloseType == "stopAlarmSound"){
 				//stop alarm
 				if (SepiaFW.audio && SepiaFW.audio.alarm.isPlaying){
-					SepiaFW.audio.stopAlarmSound();
+					SepiaFW.audio.stopAlarmSound("notificationClose");
 				}
 			}
 		}

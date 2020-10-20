@@ -4,6 +4,25 @@ function sepiaFW_build_audio(sepiaSessionId){
 	var Stream = {};
 	var TTS = {};			//TTS parameters for SepiaFW external TTS like Acapela. I've tried to seperate TTS and AudioPlayer as good as possible, but there might be some bugs using both
 	var Alarm = {};
+
+	//Sounds
+	AudioPlayer.micConfirmSound = 'sounds/coin.mp3';
+	AudioPlayer.alarmSound = 'sounds/alarm.mp3'; 		//please NOTE: UI.events is using 'file://sounds/alarm.mp3' for 'cordova.plugins.notification' (is it wokring? Idk)
+	AudioPlayer.setCustomSound = function(name, path){
+		//system: 'micConfirm', 'alarm'
+		var customSounds = SepiaFW.data.getPermanent("deviceSounds") || {};
+		customSounds[name] = path;
+		SepiaFW.data.setPermanent("deviceSounds", customSounds);
+		AudioPlayer.loadCustomSounds(customSounds);
+	}
+	AudioPlayer.loadCustomSounds = function(sounds){
+		var customSounds = sounds || SepiaFW.data.getPermanent("deviceSounds");
+		if (customSounds){
+			if (customSounds.micConfirm) AudioPlayer.micConfirmSound = customSounds.micConfirm;
+			if (customSounds.alarm) AudioPlayer.alarmSound = customSounds.alarm;
+		}
+	}
+	//NOTE: you can use for example 'deviceSounds: { micConfirm: "...", alarm: "..." } in 'settings.js' device section
 	
 	//Parameters and states:
 
@@ -19,6 +38,7 @@ function sepiaFW_build_audio(sepiaSessionId){
 	TTS.isLoading = false;
 	Alarm.isPlaying = false;		//state: alarm player (special feature of effects player)
 	Alarm.isLoading = false;
+	Alarm.lastActive = 0;
 
 	AudioPlayer.getMusicPlayer = function(){
 		return player;
@@ -105,23 +125,23 @@ function sepiaFW_build_audio(sepiaSessionId){
 	
 	function broadcastAudioRequested(){
 		//EXAMPLE: 
-		if (audioTitle) audioTitle.innerHTML = 'Loading ...';
+		if (audioTitle) audioTitle.textContent = 'Loading ...';
 	}
 	function broadcastAudioFinished(){
 		//EXAMPLE: 
 		if (gotPlayerAudioContext) setTimeout(function(){ if (!Stream.isPlaying) clearInterval(playerSpectrum); },1500);
 		else SepiaFW.animate.audio.playerIdle();
-		if (audioTitle.innerHTML === "Loading ...") audioTitle.innerHTML = "Stopped";
+		if (audioTitle.innerHTML === "Loading ...") audioTitle.textContent = "Stopped";
 	}
 	function broadcastAudioStarted(){
 		//EXAMPLE: 
-		if (audioTitle) audioTitle.innerHTML = player.title;
+		if (audioTitle) audioTitle.textContent = player.title;
 		if (gotPlayerAudioContext){ 	clearInterval(playerSpectrum); playerSpectrum = setInterval(playerDrawSpectrum, 30); 	}
 		else SepiaFW.animate.audio.playerActive();
 	}
 	function broadcastAudioError(){
 		//EXAMPLE: 
-		if (audioTitle) audioTitle.innerHTML = 'Error';
+		if (audioTitle) audioTitle.textContent = 'Error';
 		if (gotPlayerAudioContext) setTimeout(function(){ if (!Stream.isPlaying) clearInterval(playerSpectrum); },1500);
 		else SepiaFW.animate.audio.playerIdle();
 	}
@@ -137,6 +157,9 @@ function sepiaFW_build_audio(sepiaSessionId){
 	
 	//set default parameters for audio
 	AudioPlayer.setup = function (){
+		//modified sounds by user?
+		AudioPlayer.loadCustomSounds();
+
 		//get players
 		player = document.getElementById('sepiaFW-audio-player');
 		player2 = document.getElementById('sepiaFW-audio-player2');
@@ -171,7 +194,7 @@ function sepiaFW_build_audio(sepiaSessionId){
 			playerSetVolume(playerGetVolume() - 1.0);
 		});
 		audioVol = document.getElementById('sepiaFW-audio-ctrls-vol');
-		if (audioVol) audioVol.innerHTML = Math.round(player.volume*10.0);
+		if (audioVol) audioVol.textContent = Math.round(player.volume*10.0);
 	}
 	
 	//connect / disconnect AudioContext
@@ -632,7 +655,7 @@ function sepiaFW_build_audio(sepiaSessionId){
 	AudioPlayer.setPlayerTitle = function(newTitle, audioPlayer){
 		if (!audioPlayer) audioPlayer = player;
 		audioPlayer.title = newTitle;
-		if (audioTitle) audioTitle.innerHTML = newTitle || "SepiaFW audio player";
+		if (audioTitle) audioTitle.textContent = newTitle || "SepiaFW audio player";
 		if (audioPlayer == player){
 			lastAudioStreamTitle = newTitle;
 		}
@@ -668,6 +691,7 @@ function sepiaFW_build_audio(sepiaSessionId){
 		}else if (audioPlayer === 'tts'){
 			audioPlayer = speaker;
 		}
+		if (audioURL) audioURL = SepiaFW.config.replacePathTagWithActualPath(audioURL);
 		
 		if (audioURL && audioPlayer == player){
 			beforeLastAudioStream = lastAudioStream;
@@ -756,16 +780,20 @@ function sepiaFW_build_audio(sepiaSessionId){
 				}
 			}
 		};
-		audioPlayer.onended = function() {
+		audioPlayer.onended = function(){
 			if (!audioOnEndFired){
 				SepiaFW.debug.info("AUDIO: ended (onend event)");				//debug
 				audioPlayer.pause();
 			}
 		};
-		audioPlayer.onerror = function(error) {
-			SepiaFW.debug.info("AUDIO: error occured! - code: " + audioPlayer.error.code);			//debug
-			if (audioPlayer.error.code === 4){
-				SepiaFW.ui.showInfo('Cannot play the selected audio stream. Sorry!');		//TODO: localize
+		audioPlayer.onerror = function(error){
+			SepiaFW.debug.info("AUDIO: error occured! - code: " + (audioPlayer.error? audioPlayer.error.code : error.name));			//debug
+			if (audioPlayer.error && audioPlayer.error.code === 4){
+				SepiaFW.ui.showInfo("Cannot play the selected audio stream. Sorry!");		//TODO: localize
+			}else if (error && error.name && error.name == "NotAllowedError"){
+				SepiaFW.ui.showInfo("Cannot play audio because access was denied! This can happen if the user didn't interact with the client first.");
+			}else if (error && error.name){
+				SepiaFW.ui.showInfo("Cannot play audio - Error: " + error.name + " (see console for details).");
 			}
 			if (audioPlayer == player){
 				broadcastAudioError();
@@ -791,7 +819,13 @@ function sepiaFW_build_audio(sepiaSessionId){
 				AudioPlayer.broadcastAudioEvent("unknown", "error", audioPlayer);
 			}
 		};
-		audioPlayer.play();
+		var p = audioPlayer.play();	
+		if (p && ('catch' in p)){
+			p.catch(function(err){
+				SepiaFW.debug.error(err);
+				audioPlayer.onerror(err);
+			});
+		}
 	}
 	
 	//play alarm sound
@@ -799,7 +833,7 @@ function sepiaFW_build_audio(sepiaSessionId){
 		if (skippedN == undefined) skippedN = 0;
 
 		var audioPlayer = player2;
-		var alarmSound = "sounds/alarm.mp3";
+		var alarmSound = AudioPlayer.alarmSound;
 		//var emptySound = "sounds/empty.mp3";
 		/*
 		if (audioPlayer.src !== alarmSound && audioPlayer.src !== emptySound && audioPlayer.src !== ''){
@@ -829,7 +863,7 @@ function sepiaFW_build_audio(sepiaSessionId){
 		if (!stoppedMedia){
 			stoppedMedia = true;
 			//running alarm
-			AudioPlayer.stopAlarmSound(); 						//just to be sure
+			AudioPlayer.stopAlarmSound("playAlarm"); 						//just to be sure
 			//running media
 			SepiaFW.client.controls.media({action: "stop", skipFollowUp: true});	//TODO: consider restarting media-stream later?
 			//running wake-word
@@ -864,6 +898,7 @@ function sepiaFW_build_audio(sepiaSessionId){
 			SepiaFW.debug.info("AUDIO: can be played now (oncanplay event)");		//debug
 			Alarm.isPlaying = true;
 			Alarm.isLoading = false;
+			Alarm.lastActive = new Date().getTime();
 			//callback
 			if (onStartCallback) onStartCallback;
 			AudioPlayer.broadcastAudioEvent("effects", "start", audioPlayer);
@@ -892,7 +927,12 @@ function sepiaFW_build_audio(sepiaSessionId){
 			}
 		};
 		audioPlayer.onerror = function(error) {
-			SepiaFW.debug.info("AUDIO: error occured! - code: " + audioPlayer.error.code);						//debug
+			SepiaFW.debug.info("AUDIO: error occured! - code: " + (audioPlayer.error? audioPlayer.error.code : error.name));			//debug
+			if (error && error.name && error.name == "NotAllowedError"){
+				SepiaFW.ui.showInfo("Cannot play audio because access was denied! This can happen if the user didn't interact with the client first.");
+			}else if (error && error.name){
+				SepiaFW.ui.showInfo("Cannot play audio - Error: " + error.name + " (see console for details).");
+			}
 			Alarm.isPlaying = false;
 			Alarm.isLoading = false;
 			//reset audio URL
@@ -905,12 +945,28 @@ function sepiaFW_build_audio(sepiaSessionId){
 			AudioPlayer.broadcastAudioEvent("effects", "error", audioPlayer);
 			SepiaFW.animate.assistant.idle();
 		};
-		audioPlayer.play();
+		var p = audioPlayer.play();
+		if (p && ('catch' in p)){
+			p.catch(function(err){
+				SepiaFW.debug.error(err);
+				audioPlayer.onerror(err);
+			});
+		}
 	}
 	//STOP alarm
-	AudioPlayer.stopAlarmSound = function(){
+	AudioPlayer.stopAlarmSound = function(source){
+		//sources: alwaysOn, playAlarm, toggleMic, cardRemove, notificationClick
 		SepiaFW.debug.info("AUDIO: stopping alarm sound.");			//debug
 		player2.pause();
+		//event
+		var now = new Date().getTime();
+		if (Alarm.isPlaying || (now - Alarm.lastActive) < 60000){
+			//alarm was active the last 60s
+			if (source && (source == "alwaysOn" || source == "toggleMic" || source == "cardRemove" || source == "notificationClick")){
+				SepiaFW.events.broadcastAlarmStop({});			//NOTE: we have no 'Timer' info here :-|
+				Alarm.lastActive = 0;
+			}
+		}
 	}
 	
 	AudioPlayer.tts = TTS;

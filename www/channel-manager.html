@@ -310,7 +310,7 @@
 					if (ids.length > 0){
 						var note = document.createElement("div");
 						var info = document.createElement("p");
-						info.innerHTML = "Users you've recently interacted with:";
+						info.textContent = "Users you've recently interacted with:";
 						var list = document.createElement("div");
 						list.className = "chooseBox";
 						ids.forEach(function(id){
@@ -318,7 +318,7 @@
 							var entry = document.createElement("div");
 							entry.className = "entry";
 							entry.dataset.id = c.id;
-							entry.innerHTML = c.name + " (" + c.id + ")";
+							entry.textContent = c.name + " (" + c.id + ")";
 							list.appendChild(entry);
 							$(entry).on('click', function(){
 								$('#sepiaFW-channel-manager-invite-user').val(this.dataset.id);

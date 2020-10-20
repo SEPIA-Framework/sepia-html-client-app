@@ -43,7 +43,8 @@ function sepiaFW_build_animate(){
 	}
 	function possibilityToSwitchOnWakeWordListener(source){
 		//check and schedule
-		if (SepiaFW.wakeTriggers.useWakeWord && SepiaFW.wakeTriggers.engineLoaded && !SepiaFW.wakeTriggers.isListening()){
+		if (SepiaFW.client.isActive() && SepiaFW.wakeTriggers.useWakeWord && SepiaFW.wakeTriggers.engineLoaded 
+				&& !SepiaFW.wakeTriggers.isListening()){
 			//console.log('Wake-word window - source: ' + source); 	//TODO: use?
 			SepiaFW.wakeTriggers.listenToWakeWords(undefined, undefined, true);
 		}
@@ -70,6 +71,9 @@ function sepiaFW_build_animate(){
 	//---------------------
 
 	var animState = "idle";		//idle, loading, speaking, listening, awaitDialog
+	var loadingStuckTimer;
+	var loadingStuckDelay = 45000;
+
 	Animate.assistant.getState = function(){
 		return animState;
 	}
@@ -84,6 +88,7 @@ function sepiaFW_build_animate(){
 	Animate.assistant.idle = function(source){
 		if (!source) source = "unknown";
 		SepiaFW.debug.info('Animate.idle, source: ' + source); 		//DEBUG
+		clearTimeout(loadingStuckTimer);
 		if (SepiaFW.assistant && SepiaFW.assistant.isWaitingForDialog){
 			Animate.assistant.awaitDialog(source);
 		}else if (SepiaFW.ui.actions && SepiaFW.client.getCommandQueueSize() > 0){
@@ -125,9 +130,20 @@ function sepiaFW_build_animate(){
 		}
 		//Dispatch
 		dispatchAnimationStateEvent(animState);
+		//Stuck timer
+		clearTimeout(loadingStuckTimer);
+		loadingStuckTimer = setTimeout(function(){
+			//double-check
+			if (animState == "loading"){
+				//smart-reset
+				SepiaFW.debug.log("Client seems to be stuck in 'loading' state. Trying to reset now.");
+				SepiaFW.ui.longPressMicButton();
+			}
+		}, loadingStuckDelay);
 	}
 	Animate.assistant.speaking = function(){
 		animState = "speaking";
+		clearTimeout(loadingStuckTimer);
 		SepiaFW.ui.assistBtn.innerHTML = SepiaFW.ui.assistIconSpeak;
 		SepiaFW.ui.assistBtnArea.style.backgroundColor = SepiaFW.ui.accentColor2;
 		clearAllStateClassesAndAdd(SepiaFW.ui.assistBtnArea, animState);
@@ -140,6 +156,7 @@ function sepiaFW_build_animate(){
 	}
 	Animate.assistant.listening = function(){
 		animState = "listening";
+		clearTimeout(loadingStuckTimer);
 		SepiaFW.ui.assistBtn.innerHTML = SepiaFW.ui.assistIconRec;
 		SepiaFW.ui.assistBtnArea.style.backgroundColor = SepiaFW.ui.accentColor;
 		clearAllStateClassesAndAdd(SepiaFW.ui.assistBtnArea, animState);
@@ -155,6 +172,7 @@ function sepiaFW_build_animate(){
 	}
 	Animate.assistant.awaitDialog = function(source){
 		animState = "awaitDialog";
+		clearTimeout(loadingStuckTimer);
 		SepiaFW.ui.assistBtn.innerHTML = SepiaFW.ui.assistIconAwaitAnswer;
 		SepiaFW.ui.assistBtnArea.style.backgroundColor = SepiaFW.ui.awaitDialogColor;
 		clearAllStateClassesAndAdd(SepiaFW.ui.assistBtnArea, animState);
@@ -178,6 +196,12 @@ function sepiaFW_build_animate(){
 			state: animEvent
 		}});
 		document.dispatchEvent(event);
+		//call frame scope directly (to avoid state listeners)
+		if (SepiaFW.frames.isOpen && SepiaFW.frames.currentScope && SepiaFW.frames.currentScope.onAnimationStateChange){
+			setTimeout(function(){
+				SepiaFW.frames.currentScope.onAnimationStateChange(animEvent);
+			}, 0);
+		}
 	}
 	
 	//audio player animations:
@@ -200,6 +224,7 @@ function sepiaFW_build_animate(){
 			state: "active"
 		}});
 		document.dispatchEvent(event);
+		SepiaFW.debug.info('Wake-word listener activated'); 		//DEBUG
 	}
 	Animate.wakeWord.inactive = function(){
 		$('#sepiaFW-nav-label-online-status').removeClass("wake-word-active");

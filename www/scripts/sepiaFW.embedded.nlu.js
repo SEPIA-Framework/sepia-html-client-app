@@ -67,6 +67,10 @@ function sepiaFW_build_embedded_nlu(){
 			//Websearch
 			}else if (text.match(/(search|find|such(e|)|finde|link|^http(s|):.*)\b/i)){
 				getOpenLinkCmd(nluResult, text);
+
+			//Chat with custom action or card
+			}else if (text.match(/^(action|card) /i)){
+				getActionOrCardCmd(nluResult, text);
 			}
 
 			return nluResult;
@@ -93,8 +97,9 @@ function sepiaFW_build_embedded_nlu(){
 			title = "Link";
 			desc = "<i>" + inputText + "</i>";
 		}else if (inputText){
-			url = "https://www.google.com/search?q=" + encodeURIComponent(inputText);
-			title = "Google Search";
+			var prefSE = SepiaFW.config.getPreferredSearchEngine();
+			url = "search.html?default="+ encodeURIComponent(prefSE) + "&direct=1&q=" + encodeURIComponent(inputText);
+			title = "Web Search";
 			desc = "<i>" + inputText + "</i>";
 		}else{
 			iconUrl = "https://sepia-framework.github.io/img/icon.png";
@@ -187,6 +192,20 @@ function sepiaFW_build_embedded_nlu(){
 			"alarm_type": type
 		};
 		nluResult.command = "timer";
+		return nluResult;
+	}
+
+	//Action and card testing
+	function getActionOrCardCmd(nluResult, inputText){
+		nluResult.result = "success";
+		nluResult.context = "chat";
+		nluResult.parameters = {
+			"data": {
+				"type": inputText.match(/^action|^card/)[0],
+				"test": inputText.match(/ .*/)[0].trim()
+			}
+		};
+		nluResult.command = "chat";
 		return nluResult;
 	}
 	

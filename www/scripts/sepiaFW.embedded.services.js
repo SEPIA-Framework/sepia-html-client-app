@@ -65,6 +65,10 @@ function sepiaFW_build_embedded_services(){
 			}else if (nluResult.command == "events_personal"){
 				serviceResult = Services.personalEvents(nluInput, nluResult);
 
+			//Chat with custom actio or card test
+			}else if (nluResult.command == "chat" && nluResult.parameters.data){
+				serviceResult = Services.customChatWithActionOrCardTest(nluInput, nluResult);
+
 			//Other
 			}else{
 				serviceResult = notPossibleInDemo(nluInput, nluResult);
@@ -260,8 +264,46 @@ function sepiaFW_build_embedded_services(){
 		return serviceResult;
 	}
 
+	//Custom chat with action or card test
+	Services.customChatWithActionOrCardTest = function(nluInput, nluResult){
+		//Get dummy answer
+		var answerText = "Ok";
+		
+		//Get dummy action or card
+		var serviceResult;
+		if (SepiaFW.offline && nluResult.parameters && nluResult.parameters.data){
+			var cardInfo = "";
+			var actionInfo = "";
+			var t = nluResult.parameters.data.test;
+			if (nluResult.parameters.data.type == "action"){
+				actionInfo = dummyActions[t];
+			}else if (nluResult.parameters.data.type == "card"){
+				cardInfo = ""; 		//TODO
+			}
+			var htmlInfo = "";
+			serviceResult = Services.buildServiceResult(
+				nluInput.user, nluInput.language, 
+				nluResult.command, answerText, cardInfo, actionInfo, htmlInfo
+			);
+		}
+		return serviceResult;
+	}
+
 	//----- Actions builder -----
 
+	Services.buildCustomActionInfo = function(actionType, actionData, actionOptions, existingActionInfo){
+		var actionInfo = existingActionInfo || [];
+		var newAction = actionData || {};
+		newAction.type = actionType;
+		if (actionOptions){
+			newAction.options = actionOptions;
+		}
+		actionInfo.push(newAction);
+		return actionInfo;
+	}
+
+	//more specific actions at: SepiaFW.offline
+	
 	Services.buildPersonalEventsActionDummy = function(){
 		var actionInfo = [{
 			"type": "events_start",
@@ -283,6 +325,46 @@ function sepiaFW_build_embedded_services(){
 		return actionInfo;
 	}
 
+	var dummyActions = {
+		"html_1": Services.buildCustomActionInfo("show_html_result", {
+			data: "<div class='card-box'>" 
+				+ "<div style='background:#fff; color:#111; padding:5px;'><span>Hello World</span></div>" 
+				+ "<script>alert('fail');</script></div>" 	//<-- script will be filtered out
+		}),
+		"frame_1": Services.buildCustomActionInfo("open_frames_view", {
+			info: {pageUrl: "templates/frames_template.html"}
+		}),
+		"frame_2": Services.buildCustomActionInfo("open_frames_view", {
+			info: {pageUrl: (location.href.replace(/index.html$/, "") + "templates/frames_template.html")}
+		}),
+		"frame_3": Services.buildCustomActionInfo("open_frames_view", {
+			info: {pageUrl: "https://b07z.net/downloads/cors/frames_template.html"}
+		}),
+		"frame_4": Services.buildCustomActionInfo("open_frames_view", {
+			info: {
+				pageUrl: "<custom_data>/demo-view.html", onOpen: "sayHelloOnOpen", 
+				onSpeechToTextInputHandler: "handleSttData", onChatOutputHandler: "handleChatOutput"
+			}
+		}),
+		"frame_5": Services.buildCustomActionInfo("open_frames_view", {
+			info: {
+				pageUrl: "<assist_server>/views/demo-view.html", onOpen: "sayHelloOnOpen", 
+				onSpeechToTextInputHandler: "handleSttData", onChatOutputHandler: "handleChatOutput"
+			}
+		}),
+		"custom_event_btn_1": Services.buildCustomActionInfo("button_custom_event", {
+			title: "Test", name: "test", data: {"button": 1}
+		}),
+		"custom_event_1": Services.buildCustomActionInfo("trigger_custom_event", {
+			name: "test", data: {"direct": 1}
+		}),
+		"settings_1": Services.buildCustomActionInfo("open_settings", {
+			section: "addresses"
+		})
+		
+		//NOTE: trigger test via chat "action html_1" etc.
+	}
+
 	//----- Cards dummy data -----
 
 	//Build a list with custom or dummy data
@@ -299,11 +381,13 @@ function sepiaFW_build_embedded_services(){
 		}, {
 			"name": "Check-out tutorial and (this) demo", "checked": false, "state": "inProgress", "dateAdded": dateAdded
 		}, {
-			"name": "Install own SEPIA server", "checked": false, "dateAdded": dateAdded
+			"name": "Install <b>own</b> SEPIA server", "checked": false, "dateAdded": dateAdded
 		}, {
 			"name": "Create own services and commands", "checked": false, "dateAdded": dateAdded
 		}, {
 			"name": "Find alarms in shortcut-menu", "checked": false, "dateAdded": dateAdded
+		}, {
+			"name": "Don't use HTML like <script>console.log(':-p');</script>", "checked": false, "dateAdded": dateAdded
 		}];
 		var user = "userid";
 
@@ -410,11 +494,15 @@ function sepiaFW_build_embedded_services(){
 			"N": 1,
 			"info": [{
 				"image": "",
+				"feedName": "Blog – Hackaday",
 				"nameClean": "HACKADAY",
+				"name": "<span style='color:#000;'><b>HACKADAY</b></span>",
+				"type": "news",
+				"group": "1",
 				"data": [{
 					"link": "https://hackaday.com/2019/10/07/dry-your-clothes-in-one-minute-or-less/",
 					"description": "<p>If you&#8217;re like most people, then washing clothes is probably a huge pain for you. Figuring out the odd number of minutes necessary to run a wash and dry cycle, trying desperately not to end up with clothes that are still wet, and worst of all having to wait <em>so</em> <a href=\"https://hackaday.com/2019/10/07/dry-your-clothes-in-one-minute-or-less/\" class=\"read_more\">&#8230;read more</a></p>",
-					"title": "Dry Your Clothes In One Minute or Less",
+					"title": "Dry Your Clothes In <b>One Minute</b> or Less",
 					"pubDate": "2019.10.07_18:30:59"
 				}, {
 					"link": "https://hackaday.com/2019/10/07/ask-hackaday-whats-the-perfect-hacker-smart-watch/",
@@ -446,23 +534,20 @@ function sepiaFW_build_embedded_services(){
 					"description": "<p>We&#8217;ve always felt that sections of PVC pipe from the home improvement store are a criminally underutilized construction material, and it looks like [Troy Proffitt] feels the same way. Rather than trying to entirely 3D print the enclosure for his recently completed portable Bluetooth speaker, he combined printed parts with <a href=\"https://hackaday.com/2019/10/07/pvc-pipe-turned-portable-bluetooth-speaker/\" class=\"read_more\">&#8230;read more</a></p>",
 					"title": "PVC Pipe Turned Portable Bluetooth Speaker",
 					"pubDate": "2019.10.07_08:00:09"
-				}],
-				"feedName": "Blog – Hackaday",
-				"name": "<span style='color:#000;'><b>HACKADAY</b></span>",
-				"type": "news",
-				"group": "1"
+				}]
 			}]
 		}];
 		return cardInfo;
 	}
 
 	//Build a radio dummy card
-	Services.buildRadioCardInfoDummy =  function(){
+	Services.buildRadioCardInfoDummy =  function(language){
 		var cardInfo = [{
 			"cardType": "uni_list",
 			"N": 1,
 			"info": [{
 				"streamURL": "http://stream.radiojar.com/atr1e8aswa5tv",
+				"playlistURL": "https://www.size-radio.com/",
 				"name": "SIZE RADIO",
 				"type": "radio"
 			}]
@@ -502,19 +587,21 @@ function sepiaFW_build_embedded_services(){
 					}, {
 						"timeUNIX": 1571479200000, "precipType": null,	"tag": "12:00",	"precipRelative": 0, "tempA": 14
 					}, {
-						"timeUNIX": 1571486400000, "precipType": "rain", "tag": "14:00", "precipRelative": 0.04, "tempA": 15
+						"timeUNIX": 1571486400000, "precipType": null, "tag": "14:00", "icon": "rain", "precipRelative": 0.02, "tempA": 15, "warning": null
 					}, {
-						"timeUNIX": 1571493600000, "precipType": "rain", "tag": "16:00", "precipRelative": 0.03, "tempA": 16
+						"timeUNIX": 1571493600000, "precipType": null, "tag": "16:00", "icon": "partly-cloudy-day", "precipRelative": 0, "tempA": 12, "warning": "wind"
 					}, {
-						"timeUNIX": 1571500800000, "precipType": "rain", "tag": "18:00", "precipRelative": 0.03, "tempA": 16
+						"timeUNIX": 1571500800000, "precipType": "rain", "tag": "18:00", "icon": "partly-cloudy-day", "precipRelative": 0.05, "tempA": 10, "warning": "wind"
 					}, {
-						"timeUNIX": 1571508000000, "precipType": "rain", "tag": "20:00", "precipRelative": 0.16, "tempA": 14
+						"timeUNIX": 1571508000000, "precipType": "rain", "tag": "20:00", "precipRelative": 0.16, "tempA": 8
 					}, {
-						"timeUNIX": 1571515200000, "precipType": "rain", "tag": "22:00", "precipRelative": 0.15, "tempA": 13
+						"timeUNIX": 1571515200000, "precipType": "rain", "tag": "22:00", "precipRelative": 0.15, "tempA": 5, "warning": "fog"
 					}, {
-						"timeUNIX": 1571522400000, "precipType": "snow", "tag": "00:00", "precipRelative": 0.11, "tempA": 12
+						"timeUNIX": 1571522400000, "precipType": "snow", "tag": "00:00", "precipRelative": 0.11, "tempA": 0
 					}, {
-						"timeUNIX": 1571529600000, "precipType": "snow", "tag": "02:00", "precipRelative": 0.08, "tempA": 12
+						"timeUNIX": 1571529600000, "precipType": "snow", "tag": "02:00", "precipRelative": 1.18, "tempA": -10, "warning": "wind"
+					}, {
+						"timeUNIX": 1571529600000, "precipType": null, "tag": "04:00", "icon": "partly-cloudy-night", "precipRelative": 0, "tempA": -5
 					}]
 				},
 				"type": "weatherNow"

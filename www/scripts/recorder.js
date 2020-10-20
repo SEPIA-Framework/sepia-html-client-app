@@ -21,11 +21,27 @@ DEALINGS IN THE SOFTWARE.
 
 (function (window) {
 
-    var Recorder = function(source, audioProcessor, startFun, stopFun) {
+    var Recorder = function(sourceOrConfig, audioProcessor, startFun, stopFun) {
+        //NOTE: 'sourceOrConfig' is 'source' for Web Audio API and 'config' for AudioInput plugin (I know its a bad workaround ... :-p).
+        //      This recorder is optimzed to stream audio buffer chunks with a sample rate of 16000 (will downsample if required)
+
         var websocket;
-        var audioContext = source.context;
-        var inputSampleRate = (audioContext)? audioContext.sampleRate : source.sampleRate;
+        var audioContext = sourceOrConfig.context;
+        var source;
+        var inputSampleRate;
         var outputSampleRate = 16000;
+        var bufferLen;
+        if (audioContext){
+            //Web Audio API
+            source = sourceOrConfig;
+            inputSampleRate = audioContext.sampleRate;
+            bufferLen = Recorder.defaultBufferLength || 2048;
+        }else{
+            //AudioInput plugin (Cordova)
+            inputSampleRate = sourceOrConfig.sampleRate;
+            bufferLen = sourceOrConfig.bufferSize || this.defaultBufferLength;
+            //NOTE: requires audioProcessor, startFun, stopFun
+        }
 
         var recording = false;
 
@@ -52,9 +68,8 @@ DEALINGS IN THE SOFTWARE.
                 processAudio(inputAudioFrame);
             }
         //Web-Audio
-        }else if (audioContext){
-            var bufferLen = 4096;
-            let processNode;
+        }else if (audioContext && source){
+            var processNode;
             if ('createScriptProcessor' in audioContext){
                 processNode = audioContext.createScriptProcessor(bufferLen, 1, 1);
             }else if ('createJavaScriptNode' in audioContext){
@@ -101,7 +116,7 @@ DEALINGS IN THE SOFTWARE.
         }
 
         this.sendHeader = function(ws){
-            var sampleLength = 1000000;
+            var sampleLength = 1000000;         //TODO: where does this come from? Does it matter?
             var mono = true;
             var buffer = new ArrayBuffer(44);
             var view = new DataView(buffer);
@@ -140,14 +155,14 @@ DEALINGS IN THE SOFTWARE.
         //--- conversion methods ---
 
         function writeString(view, offset, string){
-			for (let i = 0; i < string.length; i++){
+			for (var i = 0; i < string.length; i++){
 				view.setUint8(offset + i, string.charCodeAt(i));
 			}
         }
 
         function floatTo16BitPCM(output, offset, input){
-            for (let i = 0; i < input.length; i++, offset += 2){
-                let s = Math.max(-1, Math.min(1, input[i]));
+            for (var i = 0; i < input.length; i++, offset += 2){
+                var s = Math.max(-1, Math.min(1, input[i]));
                 output.setInt16(offset, s < 0 ? s * 0x8000 : s * 0x7FFF, true);
             }
         }
@@ -181,7 +196,7 @@ DEALINGS IN THE SOFTWARE.
         function downsampleFloat32(array, sampleRate, outSampleRate){
             if (outSampleRate == sampleRate){
                 var result = new Float32Array(array.length);
-                for (let i = 0 ; i < array.length ; i++){
+                for (var i = 0 ; i < array.length ; i++){
                     result[i] = array[i];
                 }
                 return array;
@@ -209,6 +224,8 @@ DEALINGS IN THE SOFTWARE.
             return result;
         }
     };
+    //some defaults
+    Recorder.defaultBufferLength = Number.parseInt(SepiaFW.data.getPermanent("sepia-asr-buffer-length") || 2048);
 
     window.RecorderJS = Recorder;
 

@@ -127,6 +127,7 @@ function sepiaFW_build_assistant(sepiaSessionId){
 			recentPAE: ((SepiaFW.events)? SepiaFW.events.getRecentProActiveEventsReduced() : ""),
 			embeddedPlayers: SepiaFW.ui.cards.getSupportedWebPlayers(),
 			prefTempUnit: (SepiaFW.account.getUserPreferredTemperatureUnit() || "C"),
+			prefSearchEngine: (SepiaFW.config.getPreferredSearchEngine() || "google"),
 			deviceLocalSite: SepiaFW.config.getDeviceLocalSiteData()
 			//TODO: add 'SepiaFW.config.isUiHeadless' info ? Or rely on 'env' parameter?
 		};
@@ -256,7 +257,7 @@ function sepiaFW_build_assistant(sepiaSessionId){
 	 * loaded from server.
 	 */
 	Assistant.waitForOpportunityAndSay = function(dialogTagOrText, fallbackAction, minWait, maxWait, doneCallback){
-		if (!minWait) minWait = 2000;
+		if (!minWait) minWait = 2000;	//NOTE: <2000 not allowed and will be used in any case!
 		if (!maxWait) maxWait = 30000;
 		if (!dialogTagOrText) dialogTagOrText = "<error_client_control_0a>";
 		SepiaFW.client.queueIdleTimeEvent(function(){
@@ -272,6 +273,26 @@ function sepiaFW_build_assistant(sepiaSessionId){
 			//Fallback, e.g.: SepiaFW.ui.showInfo(SepiaFW.local.g('no_client_support'));
 			if (fallbackAction) fallbackAction();
 		});
+	}
+	/**
+	 * Wait for the right opportunity (e.g. idle time), let the assistant say a localized text 
+	 * and then run some action. NOTE: This will be a bit more agressive compared to 'waitForOpportunityAndSay'.
+	 */
+	Assistant.waitForOpportunitySayLocalTextAndRunAction = function(localizedText, actionFun, fallbackAction, maxWait){
+		if (!fallbackAction) fallbackAction = actionFun;		//NOTE: this is different to function above. We try to run even on error!
+		var minWait = 2000;		//NOTE: <2000 not allowed, but will only be used when not idle in first place
+		if (!maxWait) maxWait = 30000;
+		if (SepiaFW.animate.assistant.getState() == "idle"){
+			SepiaFW.speech.speak(localizedText, actionFun, fallbackAction);
+		}else{
+			SepiaFW.client.queueIdleTimeEvent(function(){
+				//Start
+				SepiaFW.speech.speak(localizedText, actionFun, fallbackAction);
+			}, minWait, maxWait, function(){
+				//Fallback
+				fallbackAction();
+			});
+		}
 	}
 	
 	//------------------- SOME BASIC COMMUNICATION METHODS ---------------------
