@@ -670,6 +670,8 @@ function sepiaFW_build_speech(){
 				else if (typeof event == "string") event = {error: event};
 				if (!event.timeStamp) event.timeStamp = new Date().getTime();
 
+				//INFO - Android error codes: https://developer.android.com/reference/android/speech/SpeechRecognizer
+				
 				//light errors
 				if (event.error == 'no-speech' || event.error == 1 || event.error == 2 || event.error == 4 || event.error == 6 || event.error == 7 || event.error == 8){
 					before_error(error_callback, 'E01 - no speech detected!');
@@ -691,9 +693,7 @@ function sepiaFW_build_speech(){
 					}
 				
 				}else{
-					if (JSON.stringify(event) != '{"type":"error"}'){	//usually happens when you simply abort recording
-						SepiaFW.debug.err('ASR: '+ (event.error? event.error : 'unknown ERROR!'), event);
-					}
+					SepiaFW.debug.err('ASR: '+ (event.error? event.error : 'unknown ERROR!'), event);
 					//TODO: do something here!
 					var err_msg = 'E0? - ' + (event.error? event.error : 'unknown ERROR!');
 					broadcastUnknownAsrError(err_msg);

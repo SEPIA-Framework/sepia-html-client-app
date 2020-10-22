@@ -67,7 +67,7 @@ public class SpeechRecognition extends CordovaPlugin {
         {
             if(r == PackageManager.PERMISSION_DENIED)
             {
-                fireErrorEvent();
+                fireErrorEvent(SpeechRecognizer.ERROR_INSUFFICIENT_PERMISSIONS);
                 fireEvent("end");
                 return;
             }
@@ -250,10 +250,22 @@ public class SpeechRecognition extends CordovaPlugin {
         this.speechRecognizerCallbackContext.sendPluginResult(pr); 
     }
 
-    private void fireErrorEvent() {
+    private void fireErrorEvent(int code) {
         JSONObject event = new JSONObject();
         try {
             event.put("type","error");
+            event.put("code", code);
+            if (code == SpeechRecognizer.ERROR_NO_MATCH || code == SpeechRecognizer.ERROR_SPEECH_TIMEOUT){
+                event.put("error", "no-speech");
+            }else if (code == SpeechRecognizer.ERROR_INSUFFICIENT_PERMISSIONS){
+                event.put("error", "not-allowed");
+            }else if (code == SpeechRecognizer.ERROR_SERVER){
+                event.put("error", "speech server");
+            }else if (code == SpeechRecognizer.ERROR_NETWORK || code == SpeechRecognizer.ERROR_NETWORK_TIMEOUT){
+                event.put("error", "network");
+            }else{
+                event.put("error", "code: " + code);
+            }
         } catch (JSONException e) {
             // this will never happen
         }
@@ -295,7 +307,7 @@ public class SpeechRecognition extends CordovaPlugin {
         public void onError(int error) {
             Log.d(LOG_TAG, "error speech "+error);
             if (listening || error == 9) {
-                fireErrorEvent();
+                fireErrorEvent(error);
                 fireEvent("end");
             }
             listening = false;
