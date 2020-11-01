@@ -3,8 +3,8 @@ function sepiaFW_build_ui(){
 	var UI = {};
 	
 	//some constants
-	UI.version = "v0.23.0";
-	UI.requiresServerVersion = "2.5.1";
+	UI.version = "v0.23.2";
+	UI.requiresServerVersion = "2.5.2";
 	UI.JQ_RES_VIEW_IDS = "#sepiaFW-result-view, #sepiaFW-chat-output, #sepiaFW-my-view";	//a selector to get all result views e.g. $(UI.JQ_RES_VIEW_IDS).find(...) - TODO: same as $('.sepiaFW-results-container') ??
 	UI.JQ_ALL_MAIN_VIEWS = "#sepiaFW-result-view, #sepiaFW-chat-output, #sepiaFW-my-view, #sepiaFW-teachUI-editor, #sepiaFW-teachUI-manager, #sepiaFW-frame-page-0, #sepiaFW-frame-page-1, #sepiaFW-frame-page-2, #sepiaFW-frame-page-3"; 	//TODO: frames can have more ...
 	UI.JQ_ALL_SETTINGS_VIEWS = ".sepiaFW-chat-menu-list-container";
@@ -1049,8 +1049,10 @@ function sepiaFW_build_ui(){
 		//became visible
 		if (!SepiaFW.account || !SepiaFW.account.isLoginBoxOpen()){		//SepiaFW.client.isActive()
 			if (!isFirstVisibilityChange && (UI.isVisible() || forceTriggerVisible)){
-				//update myView (is automatically skipped if called too early)
-				UI.updateMyView(false, true, 'visibilityChange');
+				if (SepiaFW.client.isDemoMode() || SepiaFW.client.isActive()){
+					//update myView (is automatically skipped if called too early)
+					UI.updateMyView(false, true, 'visibilityChange');
+				}
 			}
 			isFirstVisibilityChange = false;
 		}

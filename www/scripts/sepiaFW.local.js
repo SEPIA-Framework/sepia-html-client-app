@@ -27,6 +27,7 @@ function sepiaFW_build_strings(){
 	StringsDE.favorites = 'Favoriten';
 	StringsDE.logout = 'Logout';
 	StringsDE.closeLogin = 'Weiter ohne Login';
+	StringsDE.createAccount = 'Account erstellen';
 	StringsDE.info_and_help = 'Infos und Support';
 	StringsDE.control_hub = 'Control HUB';
 	StringsDE.tutorial = 'Tutorial';
@@ -213,6 +214,7 @@ function sepiaFW_build_strings(){
 	StringsEN.favorites = 'Favorites';
 	StringsEN.logout = 'Logout';
 	StringsEN.closeLogin = 'Continue without login';
+	StringsEN.createAccount = 'Create account';
 	StringsEN.info_and_help = 'Info and support';
 	StringsEN.control_hub = 'Control HUB';
 	StringsEN.tutorial = 'Tutorial';

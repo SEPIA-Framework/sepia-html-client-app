@@ -735,7 +735,8 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 					onFinishSetup: function(){
 						var page1 = document.getElementById('sepiaFW-frame-page-1');
 						if (SepiaFW.client.isDemoMode()){
-							page1.innerHTML = "<iframe class='full-size' src='" + "https://sepia-framework.github.io/tools/index.html" + "'>";
+							page1.innerHTML = "<iframe class='full-size' src='" 
+								+ SepiaFW.config.replacePathTagWithActualPath("<assist_server>/tools/index.html") + "'>";
 						}else{
 							page1.innerHTML = "";
 							var hubIframe = document.createElement('iframe');

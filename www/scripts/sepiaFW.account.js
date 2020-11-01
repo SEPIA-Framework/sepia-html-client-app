@@ -680,6 +680,13 @@ function sepiaFW_build_account(sepiaSessionId){
 		$(pwdInput).off().on("keypress", function (e) {
 			if (e.keyCode === 13) { sendLoginFromBox(); }
 		});
+		//create-account-button
+		var $createAccBtn = $('#sepiaFW-login-create').off().on("click", function(){
+			Account.toggleLoginBox();
+			setTimeout(function(){
+				SepiaFW.frames.open({pageUrl: "create-account.html", onClose: Account.toggleLoginBox});
+			}, 200);
+		});
 		//close-button
 		var $clsBtn = $("#sepiaFW-login-close").off().on("click", function(){
 			skipLogin();
