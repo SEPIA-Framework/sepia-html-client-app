@@ -18,6 +18,7 @@ SepiaFW.buildSepiaFwPlugins = function(){
 	SepiaFW.ui.dragDrop = sepiaFW_build_ui_drag_and_drop();
 	SepiaFW.ui.notification = sepiaFW_build_ui_notifications();
 	SepiaFW.ui.build = sepiaFW_build_ui_build(sepiaSessionId);
+	SepiaFW.ui.myView = sepiaFW_build_ui_my_view();
 	SepiaFW.ui.cards = sepiaFW_build_ui_cards();
 	SepiaFW.ui.actions = sepiaFW_build_ui_actions();
 	SepiaFW.ui.customButtons = sepiaFW_build_ui_custom_buttons(sepiaSessionId);

@@ -127,7 +127,6 @@ function sepiaFW_build_ui_cards(){
 	}
 	
 	//Move cards
-	var isFirstMove = true;
 	Cards.moveToMyViewOrDelete = function(eleOrCard, forceDelete){
 		var ele = $(eleOrCard);
 		var myViewParent = ele.closest('#sepiaFW-my-view');
@@ -145,7 +144,7 @@ function sepiaFW_build_ui_cards(){
 				var parentFlexCard = ele.closest(".sepiaFW-cards-flexSize-container");
 				parentN.removeChild(eleOrCard);
 				//parent empty now?
-				if (!parentN.hasChildNodes()){
+				if (!parentN.hasChildNodes() && parentN.className.indexOf('sepiaFW-results-container') < 0){
 					$(parentN).remove();
 				}
 				//parent flex card empty?
@@ -158,21 +157,16 @@ function sepiaFW_build_ui_cards(){
 				return;
 			}
 			//check for flex card container and add one if missing
+			var elementToAdd;
 			if (!ele.hasClass('sepiaFW-cards-flexSize-container')){
 				var newCard = buildGenericCard(eleOrCard);
-				$(newCard).addClass('oneElement');
-				$('#sepiaFW-my-view').prepend(newCard);
+				$(newCard).addClass('oneElement').hide();
+				ele.show();
+				elementToAdd = newCard;
 			}else{
-				$('#sepiaFW-my-view').prepend(eleOrCard);
+				elementToAdd = eleOrCard;
 			}
-			ele.fadeIn(500, function(){
-				//remove intro on first move
-				if (isFirstMove){
-					$('#sepiaFW-my-view-intro').remove();
-					isFirstMove = false;
-					//SepiaFW.ui.moc.showPane(0);	//after user gets the concept this is more annoying than helpful ;-)
-				}
-			});
+			SepiaFW.ui.myView.addCard(elementToAdd);
 		});
 	}
 	
@@ -239,6 +233,7 @@ function sepiaFW_build_ui_cards(){
 		if (indexType === INDEX_TYPE_TODO){
 			//To-Do
 			emptyItemData = {
+				//TODO: add ID?
 				'name' : name,
 				'checked' : false,
 				'state' : 'open',
@@ -247,6 +242,7 @@ function sepiaFW_build_ui_cards(){
 		}else{
 			//Shopping
 			emptyItemData = {
+				//TODO: add ID?
 				'name' : name,
 				'checked' : false,
 				'dateAdded' : (new Date().getTime())

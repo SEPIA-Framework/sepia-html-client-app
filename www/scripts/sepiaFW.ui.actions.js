@@ -427,7 +427,7 @@ function sepiaFW_build_ui_actions(){
 			
 			if (parentBlock){
 				if (parentBlock.id == 'sepiaFW-my-view'){
-					$(parentBlock).prepend(card);
+					SepiaFW.ui.myView.addElement(card, true);
 				}else{
 					parentBlock.appendChild(card);
 				}

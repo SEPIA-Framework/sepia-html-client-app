@@ -133,7 +133,9 @@ function sepiaFW_build_ui(){
 	UI.statusBarColor = '';
 
 	UI.useBigScreenMode = SepiaFW.data.getPermanent('big-screen-mode') || false;
-	if (!UI.useBigScreenMode){
+	if (UI.useBigScreenMode){
+		$(window.document.body).addClass("big-screen");
+	}else{
 		$(window.document.body).addClass("limit-size");
 	}
 	UI.useTouchBarControls = SepiaFW.data.getPermanent('touch-bar-controls') || false;
@@ -1710,8 +1712,9 @@ function sepiaFW_build_ui(){
 	UI.scrollToElement = function(targetEle, scrollViewEle, delay){
 		if (targetEle && scrollViewEle){
 			setTimeout(function(){
+				var $scrollViewEle = $(scrollViewEle);
 				//$(scrollViewEle).finish().animate({ scrollTop: $(targetEle).offset().top}, 250);
-				$(scrollViewEle).finish().animate({ scrollTop: $(targetEle).offset().top - $(scrollViewEle).offset().top + $(scrollViewEle).scrollTop()}, 250);
+				$scrollViewEle.finish().animate({ scrollTop: $(targetEle).offset().top - $scrollViewEle.offset().top + $scrollViewEle.scrollTop()}, 250);
 			}, (delay? delay : 330));
 		}
 	}
@@ -1856,8 +1859,8 @@ function sepiaFW_build_ui(){
 				}
 			}
 		}else if (paneNbr == 0){
-			$target.prepend(entryData);
-			UI.scrollToTop(target);
+			UI.myView.addElement(entryData);
+			UI.myView.scrollToLatest();
 		}else{
 			$target.html('');
 			$target.prepend(entryData);
