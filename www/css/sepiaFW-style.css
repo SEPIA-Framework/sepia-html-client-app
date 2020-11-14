@@ -1848,14 +1848,22 @@ html.dark-skin #sepiaFW-login-help-btn {
 	-webkit-overflow-scrolling: touch;
 	scrollbar-color: rgba(128,128,128,0.24) rgba(128,128,128,0.12);
 }
+body.big-screen .sepiaFW-results-container {
+	display: flex;
+	flex-direction: row;
+	flex-wrap: wrap;
+	align-items: flex-start;
+    align-content: flex-start;
+}
 .sepiaFW-results-container:after {
-    content: "";
+	content: "";
+	width: 100%;
     height: 60px;
     display: block;
 }
-.sepiaFW-results-container  > :last-child {
-	/*margin-bottom: 68px !important;*/
-}
+/* .sepiaFW-results-container  > :last-child {
+	margin-bottom: 68px !important;
+}*/
 .sepiaFW-results-container h2 {
 	padding: 8px;
 }
@@ -1864,7 +1872,7 @@ html.dark-skin #sepiaFW-login-help-btn {
 	color: #4ec48f;
 }
 .sepiaFW-results-container > :first-child {
-	margin-top: 4px !important;
+	margin-top: 5px !important;
 }
 
 .sepiaFW-results-container article,
@@ -1950,6 +1958,10 @@ html.dark-skin #sepiaFW-login-help-btn {
 	padding: 0px;
 	margin: 0px 0 10px 0;
 	text-align: left;
+}
+body.big-screen .sepiaFW-results-container .chatMsg,
+body.big-screen #sepiaFW-chat-output .chatMsg {
+	width: 100%;
 }
 .sepiaFW-results-container .chatMsg p,
 #sepiaFW-chat-output .chatMsg p {
@@ -2047,16 +2059,34 @@ html.dark-skin #sepiaFW-login-help-btn {
 	pointer-events: none;
 	user-select: none;
 }
+.sepiaFW-my-view-section {
+	width: 100%;
+	padding-bottom: 5px !important;
+	margin-bottom: 5px;
+}
+body.big-screen .sepiaFW-my-view-section {
+	display: flex;
+	flex-wrap: wrap;
+    align-content: center;
+	align-items: flex-start;
+	width: calc(100% + 10px);
+    margin-left: -5px;
+    margin-right: -5px;
+}
+.sepiaFW-my-view-section > .sepiaFW-cards-flexSize-container,
 #sepiaFW-my-view > .sepiaFW-cards-flexSize-container {
 	padding-bottom: 5px !important;
 	margin-bottom: 5px; /* we make this smaller (prev. it was 10px ...) */
 }
+.sepiaFW-my-view-section > .sepiaFW-cards-flexSize-container + div:not(.sepiaFW-cards-flexSize-container),
 #sepiaFW-my-view > .sepiaFW-cards-flexSize-container + div:not(.sepiaFW-cards-flexSize-container) {
 	margin-top: 10px;	/* ... and we add it here on every direct sibling that is not a card container */
 }
+.sepiaFW-my-view-section > .sepiaFW-cards-flexSize-container > :last-child,
 #sepiaFW-my-view > .sepiaFW-cards-flexSize-container > :last-child {
 	margin-bottom: 0px !important;
 }
+.sepiaFW-my-view-section > .sepiaFW-cards-flexSize-container > :last-child:not(.sepiaFW-cards-list-footer),
 #sepiaFW-my-view > .sepiaFW-cards-flexSize-container > :last-child:not(.sepiaFW-cards-list-footer) {
 	padding-bottom: 0px !important;
 }
@@ -2075,11 +2105,15 @@ html.dark-skin #sepiaFW-login-help-btn {
     flex-wrap: wrap;
     justify-content: space-between; Note: overwritten by: #sepiaFW-main-window .chat-buttons-area*/
 	text-align: center;
-	padding: 2px 0px;;
+	padding: 2px 0px;
 }
 #sepiaFW-myCustom-buttons,
 #sepiaFW-myCustom-buttons-replaced {
     justify-content: space-evenly !important;
+}
+body.big-screen #sepiaFW-myCustom-buttons,
+body.big-screen #sepiaFW-myCustom-buttons-replaced {
+	width: 100%;
 }
 #sepiaFW-myEvents-buttons button,
 #sepiaFW-myEvents-buttons-replaced button,

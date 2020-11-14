@@ -11,8 +11,12 @@
 	margin: 0px 0px;
 	padding: 0px 0px;
 }
-.sepiaFW-cards-flexSize-container.oneElement.addSpacer{
+.sepiaFW-cards-flexSize-container.oneElement.addSpacer {
 	margin-top: 5px;
+}
+body.big-screen .sepiaFW-cards-flexSize-container {
+	margin: 5px;
+	flex: 1 0 256px;
 }
 .sepiaFW-cards-flexSize-container p {
 	margin: 5px 0;
