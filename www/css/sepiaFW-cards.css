@@ -7,6 +7,11 @@
 	padding: 5px 0px 0px 0px;
 	overflow: hidden;
 }
+@media screen and (min-width: 960px) {
+	body.big-screen .sepiaFW-cards-flexSize-container {
+		min-width: 360px;
+	}
+}
 .sepiaFW-cards-flexSize-container.oneElement {
 	margin: 0px 0px;
 	padding: 0px 0px;
@@ -14,8 +19,8 @@
 .sepiaFW-cards-flexSize-container.oneElement.addSpacer {
 	margin-top: 5px;
 }
-body.big-screen .sepiaFW-cards-flexSize-container {
-	margin: 5px;
+.sepiaFW-my-view-section .sepiaFW-cards-flexSize-container {
+	margin: 5px 5px 0px 5px;
 	flex: 1 0 256px;
 }
 .sepiaFW-cards-flexSize-container p {
@@ -101,10 +106,6 @@ body.big-screen .sepiaFW-cards-flexSize-container {
 	line-height: 27px;
 }
 .sepiaFW-cards-list-title > span {
-	/*position: absolute;
-	left: 50%;
-	top: 50%;
-	transform: translate(-50%, -50%);*/
 	display: flex;
     align-items: center;
 	flex: 0 1 auto;
@@ -119,11 +120,7 @@ body.big-screen .sepiaFW-cards-flexSize-container {
 	padding: 4px 12px !important;
 }
 .sepiaFW-cards-list-contextMenu {
-	/*position: absolute;
-	top: 38px;
-	right: 0px;*/
-	line-height: 17px;
-    font-size: 13px;
+    font-size: 21px;
 	display: none;
 	width: 100%;
     order: 4;
@@ -134,7 +131,9 @@ body.big-screen .sepiaFW-cards-flexSize-container {
     width: calc(100% - 10px);
     border-radius: 3px 3px 3px 3px;
     background: inherit !important;
-    color: inherit !important;
+	color: inherit !important;
+	line-height: 18px;
+    font-size: 14px;
 }
 /*.sepiaFW-cards-contextMenu-single:last-of-type {
 	margin: 0px 5px 0px 5px;
@@ -146,7 +145,7 @@ body.big-screen .sepiaFW-cards-flexSize-container {
 }
 .sepiaFW-cards-contextMenu-single > ul {
 	justify-content: space-evenly;
-	padding-top: 0;
+	padding: 0 6px 8px 6px;
 }
 .sepiaFW-cards-list-contextMenu li {
 	padding: 2px 6px;

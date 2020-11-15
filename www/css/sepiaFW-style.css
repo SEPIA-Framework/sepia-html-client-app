@@ -1858,7 +1858,8 @@ body.big-screen .sepiaFW-results-container {
 .sepiaFW-results-container:after {
 	content: "";
 	width: 100%;
-    height: 60px;
+	height: 60px;
+	min-height: 60px;
     display: block;
 }
 /* .sepiaFW-results-container  > :last-child {
@@ -2060,18 +2061,31 @@ body.big-screen #sepiaFW-chat-output .chatMsg {
 	user-select: none;
 }
 .sepiaFW-my-view-section {
-	width: 100%;
-	padding-bottom: 5px !important;
+	width: calc(100% + 10px);
+    margin-left: -5px;
+    margin-right: -5px;
 	margin-bottom: 5px;
-}
-body.big-screen .sepiaFW-my-view-section {
+	padding-bottom: 5px !important;
 	display: flex;
 	flex-wrap: wrap;
     align-content: center;
 	align-items: flex-start;
-	width: calc(100% + 10px);
-    margin-left: -5px;
-    margin-right: -5px;
+}
+@media screen and (min-width: 960px) {
+	body.big-screen .sepiaFW-my-view-section {
+		width: auto;
+		margin-top: 5px;
+		margin-left: 0;
+		margin-right: 0;
+		flex: 1 1 420px;
+	}
+}
+.sepiaFW-my-view-section .sepiaFW-mySections-titleNote {
+	text-align: left;
+	font-size: 16px;
+    font-weight: bold;
+    margin: 4px 10px 6px 10px;
+	min-width: calc(100% - 20px);
 }
 .sepiaFW-my-view-section > .sepiaFW-cards-flexSize-container,
 #sepiaFW-my-view > .sepiaFW-cards-flexSize-container {

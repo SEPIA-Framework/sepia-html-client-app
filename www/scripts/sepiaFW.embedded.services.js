@@ -544,11 +544,16 @@ function sepiaFW_build_embedded_services(){
 	Services.buildRadioCardInfoDummy =  function(language){
 		var cardInfo = [{
 			"cardType": "uni_list",
-			"N": 1,
+			"N": 2,
 			"info": [{
 				"streamURL": "http://stream.radiojar.com/atr1e8aswa5tv",
 				"playlistURL": "https://www.size-radio.com/",
 				"name": "SIZE RADIO",
+				"type": "radio"
+			},{
+				"streamURL": "https://egofm-pure.cast.addradio.de/egofm/pure/mp3/high/stream.mp3",
+				"playlistURL": "https://www.egofm.de/radio/playlist?stream=egopure",
+				"name": "egoFM Pure",
 				"type": "radio"
 			}]
 		}];
