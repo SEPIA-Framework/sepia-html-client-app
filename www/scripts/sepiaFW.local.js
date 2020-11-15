@@ -101,10 +101,12 @@ function sepiaFW_build_strings(){
 	StringsDE.addItem = 'Item hinzufügen';
 	StringsDE.moveToMyView = '← Zu My-View hinzufügen';
 	StringsDE.moveToMyViewWithIcon = '<i class="material-icons md-inherit">add_to_home_screen</i>';
-	StringsDE.exportToCalendar = '<i class="material-icons md-inherit">share</i>&nbsp;Kalender';
-	StringsDE.exportToAlarms = '<i class="material-icons md-inherit">share</i>&nbsp;Alarm</i>';
-	StringsDE.exportToUrl = '<i class="material-icons md-inherit">share</i>&nbsp;Link</i>';
-	StringsDE.copyUrl = '<i class="material-icons md-inherit">link</i>&nbsp;Kopieren</i>';
+	StringsDE.exportToCalendar = '<i class="material-icons md-inherit">share</i><span>&nbsp;Kalender</span>';
+	StringsDE.exportToAlarms = '<i class="material-icons md-inherit">share</i><span>&nbsp;Alarm</span>';
+	StringsDE.exportToUrl = '<i class="material-icons md-inherit">share</i><span>&nbsp;Link</span>';
+	StringsDE.copyUrl = '<i class="material-icons md-inherit">link</i><span>&nbsp;Kopieren</span>';
+	StringsDE.playOn = '<i class="material-icons md-inherit">airplay</i><span>&nbsp;Play On</span>';
+	StringsDE.readNewsArticle = '<i class="material-icons md-inherit">local_library</i><span>&nbsp;Artikel lesen</span>';
 	StringsDE.alarm = 'Wecker';
 	StringsDE.alarmClock = 'Wecker'; 		//name is title of UserDataList
 	StringsDE.timer = 'Timer';				//name is title of UserDataList
@@ -192,6 +194,15 @@ function sepiaFW_build_strings(){
 	StringsDE.view_home = "Home Screen";
 	StringsDE.view_chat = "Chat";
 	StringsDE.view_extended_results = "SEPIA Service Infos";
+	//My-View sections
+	StringsDE.section_music = "Musik";
+	StringsDE.section_time_events = "Events";
+	StringsDE.section_lists = "Listen";
+	StringsDE.section_news_articles = "Nachrichten";
+	StringsDE.section_news_outlets = "Nachrichtenkanäle";
+	StringsDE.section_weather = "Wetter";
+	StringsDE.section_links = "Links";
+	StringsDE.section_others = "Mehr";
 	
 	//ENGLISH
 	StringsEN.welcome = 'Welcome';
@@ -288,10 +299,12 @@ function sepiaFW_build_strings(){
 	StringsEN.addItem = 'Add item';
 	StringsEN.moveToMyView = '← Move to My-View';
 	StringsEN.moveToMyViewWithIcon = '<i class="material-icons md-inherit">add_to_home_screen</i>';
-	StringsEN.exportToCalendar = '<i class="material-icons md-inherit">share</i>&nbsp;Calendar';
-	StringsEN.exportToAlarms = '<i class="material-icons md-inherit">share</i>&nbsp;Alarm</i>';
-	StringsEN.exportToUrl = '<i class="material-icons md-inherit">share</i>&nbsp;Link</i>';
-	StringsEN.copyUrl = '<i class="material-icons md-inherit">link</i>&nbsp;Copy</i>';
+	StringsEN.exportToCalendar = '<i class="material-icons md-inherit">share</i><span>&nbsp;Calendar</span>';
+	StringsEN.exportToAlarms = '<i class="material-icons md-inherit">share</i><span>&nbsp;Alarm</span>';
+	StringsEN.exportToUrl = '<i class="material-icons md-inherit">share</i><span>&nbsp;Link</span>';
+	StringsEN.copyUrl = '<i class="material-icons md-inherit">link</i><span>&nbsp;Copy</span>';
+	StringsEN.playOn = '<i class="material-icons md-inherit">airplay</i><span>&nbsp;Play On</span>';
+	StringsEN.readNewsArticle = '<i class="material-icons md-inherit">local_library</i><span>&nbsp;Read article</span>';
 	StringsEN.alarm = 'Alarm';
 	StringsEN.alarmClock = 'Alarm';		//name is title of UserDataList
 	StringsEN.timer = 'Timer';			//name is title of UserDataList
@@ -379,6 +392,15 @@ function sepiaFW_build_strings(){
 	StringsEN.view_home = "Home Screen";
 	StringsEN.view_chat = "Chat";
 	StringsEN.view_extended_results = "SEPIA service info";
+	//My-View sections
+	StringsEN.section_music = "Music";
+	StringsEN.section_time_events = "Events";
+	StringsEN.section_lists = "Lists";
+	StringsEN.section_news_articles = "News";
+	StringsEN.section_news_outlets = "News Channels";
+	StringsEN.section_weather = "Weather";
+	StringsEN.section_links = "Links";
+	StringsEN.section_others = "More";
 
 	//--------------------------------------------------------
 	

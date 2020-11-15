@@ -3,6 +3,7 @@ function sepiaFW_build_ui_my_view(){
 	var MyView = {};
 	
 	var useSections = true;
+	var addSectionTitles = true;
 
 	var latestAddedElement;
 	var isFirstCardAdd = true;
@@ -18,14 +19,66 @@ function sepiaFW_build_ui_my_view(){
 		}
 	}
 
-	function findOrCreateMyViewSection(sectionClass){
+	function findOrCreateMyViewSection(sectionName){
+		var sectionClass = "sepiaFW-section-" + sectionName.replace(/_/g, "-");
 		var $res = $('#sepiaFW-my-view').find(".sepiaFW-my-view-section." + sectionClass);
 		if ($res.length > 0){
 			return $res[0];
 		}else{
 			var sectionBox = document.createElement("div");
 			sectionBox.className = "sepiaFW-my-view-section " + sectionClass;
+			if (addSectionTitles){
+				var title = document.createElement("p");
+				title.className = "sepiaFW-mySections-titleNote";
+				title.textContent = SepiaFW.local.g(sectionName) + ": ";
+				sectionBox.appendChild(title);
+			}
+			$('#sepiaFW-my-view').prepend(sectionBox);
+			//observe
+			var observer = new MutationObserver(function(mutationList, observer){
+				mutationList.forEach(function(mutation){
+					if (mutation.type == 'childList'){
+						MyView.handleEmptySection(mutation.target);
+					}
+				});
+			});
+			observer.observe(sectionBox, {childList: true});
+
 			return sectionBox;
+		}
+	}
+	function findSectionNameFromElement(elementToAdd){
+		var sectionIndicator = elementToAdd.firstChild.className;
+		var sectionName;
+		//console.error("elementToAdd", elementToAdd.firstChild.className);		//DEBUG
+		if (sectionIndicator.indexOf("cards-list-title") >= 0){
+			if (sectionIndicator.indexOf("news") >= 0){
+				if (addSectionTitles) 
+				sectionName = "section_news_outlets";
+			}else{
+				sectionName = "section_lists";
+			}
+		}else{
+			if (sectionIndicator.indexOf("news") >= 0){
+				sectionName = "section_news_articles";
+			}else if (sectionIndicator.indexOf("timer") >= 0 || sectionIndicator.indexOf("alarm") >= 0){
+				sectionName = "section_time_events";
+			}else if (sectionIndicator.indexOf("radio") >= 0){
+				sectionName = "section_music";
+			}else if (sectionIndicator.indexOf("link") >= 0){
+				sectionName = "section_links";
+			}else if (sectionIndicator.indexOf("weather") >= 0){
+				sectionName = "section_weather";
+			}else{
+				sectionName = "section_others";
+			}
+		}
+		return sectionName;
+	}
+	//check if section is empty and handle
+	MyView.handleEmptySection = function(sectionElement){
+		if ($(sectionElement).children().not("p").length == 0){
+			$(sectionElement).remove();
 		}
 	}
 
@@ -36,33 +89,11 @@ function sepiaFW_build_ui_my_view(){
 		}
 		//put it in a box?
 		if (useSections && elementToAdd.className.indexOf("sepiaFW-cards-flexSize-container") >= 0){
-			console.error("elementToAdd", elementToAdd.firstChild.className);		//DEBUG
 			//improvised sections - TODO: add sections data (server-client-card)
-			var sectionIndicator = elementToAdd.firstChild.className;
-			var sectionBox;
-			if (elementToAdd.children.length > 1){
-				if (sectionIndicator.indexOf("news") >= 0){
-					sectionBox = findOrCreateMyViewSection("sepiaFW-section-news-outlets");
-				}else{
-					sectionBox = findOrCreateMyViewSection("sepiaFW-section-lists");
-				}
-			}else{
-				if (sectionIndicator.indexOf("news") >= 0){
-					sectionBox = findOrCreateMyViewSection("sepiaFW-section-news-articles");
-				}else if (sectionIndicator.indexOf("timer") >= 0 || sectionIndicator.indexOf("alarm") >= 0){
-					sectionBox = findOrCreateMyViewSection("sepiaFW-section-time-events");
-				}else if (sectionIndicator.indexOf("radio") >= 0){
-					sectionBox = findOrCreateMyViewSection("sepiaFW-section-music");
-				}else if (sectionIndicator.indexOf("link") >= 0){
-					sectionBox = findOrCreateMyViewSection("sepiaFW-section-links");
-				}else if (sectionIndicator.indexOf("weather") >= 0){
-					sectionBox = findOrCreateMyViewSection("sepiaFW-section-weather");
-				}else{
-					sectionBox = findOrCreateMyViewSection("sepiaFW-section-others");
-				}
-			}
-			$(sectionBox).prepend(elementToAdd);
-			$('#sepiaFW-my-view').prepend(sectionBox);
+			var sectionIndicator = findSectionNameFromElement(elementToAdd);
+			var sectionBox = findOrCreateMyViewSection(sectionIndicator);
+			$(sectionBox).append(elementToAdd);
+			//$('#sepiaFW-my-view').prepend(sectionBox);	//this would move it to top again
 		}else{
 			$('#sepiaFW-my-view').prepend(elementToAdd);
 		}
