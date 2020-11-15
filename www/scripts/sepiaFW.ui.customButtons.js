@@ -181,7 +181,11 @@ function sepiaFW_build_ui_custom_buttons(sepiaSessionId){
         var animateShortPress = true;
         SepiaFW.ui.onShortLongPress(button, function(){
             //Short press
-            CustomButtons.callAction(buttonData);
+            if (SepiaFW.audio && SepiaFW.audio.initAudio(function(){ CustomButtons.callAction(buttonData); })){
+                //retry after audio-init
+            }else{
+                CustomButtons.callAction(buttonData);
+            }
             
         }, function(){
             //Long press - used to edit the button

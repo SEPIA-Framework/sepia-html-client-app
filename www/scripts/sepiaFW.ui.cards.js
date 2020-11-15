@@ -629,7 +629,7 @@ function sepiaFW_build_ui_cards(){
 		}
 		if (radioElementInfo.streamURL){
 			customButtons.push({
-				buttonName: '<i class="material-icons md-inherit">airplay</i>&nbsp;Play On</i>',
+				buttonName: SepiaFW.local.g('playOn'),
 				fun: function(){
 					//play stream on different device
 					SepiaFW.client.showConnectedUserClientsAsMenu(SepiaFW.local.g('choose_device_for_music'), 
@@ -1010,7 +1010,7 @@ function sepiaFW_build_ui_cards(){
 			url: newsLink
 		}
 		var customButtons = [{
-			buttonName: '<i class="material-icons md-inherit">local_library</i>&nbsp;' + SepiaFW.local.g("read_article") + '</i>',
+			buttonName: SepiaFW.local.g('readNewsArticle'),
 			fun: function(){
 				SepiaFW.ui.actions.openUrlAutoTarget(newsLink);
 			}
@@ -1433,7 +1433,7 @@ function sepiaFW_build_ui_cards(){
 		//move to my view
 		var moveToMyViewBtn = document.createElement('LI');
 		moveToMyViewBtn.className = "sepiaFW-cards-list-moveBtn";
-		moveToMyViewBtn.innerHTML = '<i class="material-icons md-24">add_to_home_screen</i>'; //SepiaFW.local.g('moveToMyViewWithIcon');
+		moveToMyViewBtn.innerHTML = SepiaFW.local.g('moveToMyViewWithIcon');
 		moveToMyViewBtn.title = SepiaFW.local.g('moveToMyView');
 		SepiaFW.ui.onclick(moveToMyViewBtn, function(){
 			var flexBox = $(moveToMyViewBtn).closest('.sepiaFW-cards-flexSize-container');
@@ -1448,7 +1448,7 @@ function sepiaFW_build_ui_cards(){
 		if (addAddDefaultListItemButton){
 			var addItemBtn = document.createElement('LI');
 			addItemBtn.className = "sepiaFW-cards-list-addBtn";
-			addItemBtn.innerHTML = '<i class="material-icons md-24">add_circle_outline</i>'; //SepiaFW.local.g('addItem');
+			addItemBtn.innerHTML = '<i class="material-icons md-inherit">add_circle_outline</i>'; //SepiaFW.local.g('addItem');
 			addItemBtn.title = SepiaFW.local.g('addItem');
 			SepiaFW.ui.onclick(addItemBtn, function(){
 				var listContainer = $(addItemBtn).closest('.sepiaFW-cards-flexSize-container').get(0);
@@ -1473,7 +1473,7 @@ function sepiaFW_build_ui_cards(){
 		//hide
 		var cmHideBtn = document.createElement('LI');
 		cmHideBtn.className = "sepiaFW-cards-list-contextMenu-hideBtn";
-		cmHideBtn.innerHTML = '<i class="material-icons md-24">visibility_off</i>'; //SepiaFW.local.g('hideItemWithIcon');
+		cmHideBtn.innerHTML = SepiaFW.local.g('hideItemWithIcon');
 		cmHideBtn.title = SepiaFW.local.g('hideItem');
 		SepiaFW.ui.onclick(cmHideBtn, function(){
 			$(cmHideBtn).closest('.sepiaFW-cards-flexSize-container').fadeOut(300, function(){
@@ -1486,7 +1486,7 @@ function sepiaFW_build_ui_cards(){
 		if (addDeleteListButton){
 			var cmDelBtn = document.createElement('LI');
 			cmDelBtn.className = "sepiaFW-cards-list-contextMenu-delBtn";
-			cmDelBtn.innerHTML = '<i class="material-icons md-24">delete</i>'; //SepiaFW.local.g('deleteItem');
+			cmDelBtn.innerHTML = '<i class="material-icons md-inherit">delete</i>'; //SepiaFW.local.g('deleteItem');
 			cmDelBtn.title = SepiaFW.local.g('deleteItem');
 			SepiaFW.ui.onclick(cmDelBtn, function(){
 				var parentCard = $(cmDelBtn).closest('.sepiaFW-cards-flexSize-container');														
@@ -1805,6 +1805,9 @@ function sepiaFW_build_ui_cards(){
 					$(cardBodyItem).fadeOut(500, function(){
 						if (flexCard.find('.cardBodyItem').filter(":visible").length == 0){
 							flexCard.remove();
+						}else{
+							$(contextMenu).remove();
+							$(cardBodyItem).remove();
 						}
 					});
 				}else{
