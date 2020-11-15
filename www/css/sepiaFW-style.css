@@ -2077,7 +2077,7 @@ body.big-screen #sepiaFW-chat-output .chatMsg {
 		margin-top: 5px;
 		margin-left: 0;
 		margin-right: 0;
-		flex: 1 1 420px;
+		flex: 1 1 auto; /*420px*/
 	}
 }
 .sepiaFW-my-view-section .sepiaFW-mySections-titleNote {
