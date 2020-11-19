@@ -229,26 +229,27 @@ function sepiaFW_build_ui_cards(){
 
 	//Make an empty list object for a certain list type
 	function makeProductivityListObject(name, indexType){
-		var emptyItemData;
+		var emptyItemData = {
+			"eleType": "checkable",
+			"itemId": getWeakRandomItemId("item"),
+			"name": name,
+			"checked": false,
+			"dateAdded": (new Date().getTime()),
+			"lastChange": (new Date().getTime())
+		};
 		if (indexType === INDEX_TYPE_TODO){
 			//To-Do
-			emptyItemData = {
-				//TODO: add ID?
-				'name' : name,
-				'checked' : false,
-				'state' : 'open',
-				'dateAdded' : (new Date().getTime())
-			};
+			emptyItemData.checked = false;
+			emptyItemData.state = "open";	//3-step-state
 		}else{
 			//Shopping
-			emptyItemData = {
-				//TODO: add ID?
-				'name' : name,
-				'checked' : false,
-				'dateAdded' : (new Date().getTime())
-			};
+			emptyItemData.checked = false;
 		}
 		return emptyItemData;
+	}
+	function getWeakRandomItemId(prefix){
+		var itemIdSuffix = new Date().getTime() + "-" + (Math.round(Math.random()*899) + 100);	//100-999
+		return (prefix + "-" + itemIdSuffix);
 	}
 	
 	//UserDataList

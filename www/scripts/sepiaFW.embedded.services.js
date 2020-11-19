@@ -377,17 +377,17 @@ function sepiaFW_build_embedded_services(){
 		var dateAdded = new Date().getTime();
 		var id = id || ("ABCDx123456"); 	//usually this is defined by database id generator
 		var data = listData || [{
-			"name": "Find to-do list", "checked": true, "dateAdded": dateAdded
+			"name": "Find to-do list", "checked": true, "dateAdded": dateAdded, "lastChange": dateAdded, "eleType": "checkable"
 		}, {
-			"name": "Check-out tutorial and (this) demo", "checked": false, "state": "inProgress", "dateAdded": dateAdded
+			"name": "Check-out tutorial and (this) demo", "checked": false, "state": "inProgress", "dateAdded": dateAdded, "lastChange": dateAdded, "eleType": "checkable"
 		}, {
-			"name": "Install <b>own</b> SEPIA server", "checked": false, "dateAdded": dateAdded
+			"name": "Install <b>own</b> SEPIA server", "checked": false, "dateAdded": dateAdded, "lastChange": dateAdded, "eleType": "checkable"
 		}, {
-			"name": "Create own services and commands", "checked": false, "dateAdded": dateAdded
+			"name": "Create own services and commands", "checked": false, "dateAdded": dateAdded, "lastChange": dateAdded, "eleType": "checkable"
 		}, {
-			"name": "Find alarms in shortcut-menu", "checked": false, "dateAdded": dateAdded
+			"name": "Find alarms in shortcut-menu", "checked": false, "dateAdded": dateAdded, "lastChange": dateAdded, "eleType": "checkable"
 		}, {
-			"name": "Don't use HTML like <script>console.log(':-p');</script>", "checked": false, "dateAdded": dateAdded
+			"name": "Don't use HTML like <script>console.log(':-p');</script>", "checked": false, "dateAdded": dateAdded, "lastChange": dateAdded, "eleType": "checkable"
 		}];
 		var user = "userid";
 
