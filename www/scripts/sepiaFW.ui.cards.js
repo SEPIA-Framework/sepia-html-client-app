@@ -228,12 +228,13 @@ function sepiaFW_build_ui_cards(){
 	};
 
 	//Make an empty list object for a certain list type
-	function makeProductivityListObject(name, indexType){
+	function makeProductivityListObject(name, indexType, priority){
 		var emptyItemData = {
 			"eleType": "checkable",
 			"itemId": getWeakRandomItemId("item"),
 			"name": name,
 			"checked": false,
+			"priority": ((priority == undefined)? 0 : priority),
 			"dateAdded": (new Date().getTime()),
 			"lastChange": (new Date().getTime())
 		};
@@ -329,10 +330,11 @@ function sepiaFW_build_ui_cards(){
 		
 		//header
 		var headerConfig = {
-			"name" : titleName,
-			"isEditable" : !isTimerAndAlarmsList,
-			"addDeleteListButton" : !isTimerAndAlarmsList,
-			"addSaveListButton" : true
+			name: titleName,
+			isEditable: !isTimerAndAlarmsList,
+			addDeleteListButton: !isTimerAndAlarmsList,
+			addSaveListButton: true,
+			addReloadListButton: true
 		};
 		if (!isTimerAndAlarmsList){
 			headerConfig.addAddDefaultListItemButton = true;
@@ -403,6 +405,35 @@ function sepiaFW_build_ui_cards(){
 		}
 		
 		return cardElement;
+	}
+	//replace userDataList with refreshed one
+	function reloadAndReplaceUserDataList(listContainer){
+		var listInfoObj = getUserDataList(listContainer);
+		//console.error("list INFO", listInfoObj);		//DEBUG
+		if (listInfoObj.section && listInfoObj.indexType && listInfoObj._id){
+			//load list again
+			var listToLoad = {
+				"section": listInfoObj.section,
+				"indexType": listInfoObj.indexType, 		//see e.g.: INDEX_TYPE_ALARMS
+				"_id": listInfoObj._id
+			};
+			SepiaFW.account.loadList(listToLoad, function(data){
+				//check if result is valid
+				if (data && data.lists && data.lists.length == 1 && data.lists[0]._id == listInfoObj._id){
+					var newCard = buildUserDataList(data.lists[0]);
+					listContainer.parentNode.replaceChild(newCard, listContainer);
+					SepiaFW.animate.flashObj(newCard);
+					SepiaFW.debug.log('Account - successfully refreshed list: ' + listInfoObj.indexType + ", " + listInfoObj._id);
+				}else{
+					SepiaFW.debug.error("List reload failed because result was NOT valid! If you see this error please post the BUG in the support section.");
+					SepiaFW.debug.error("Result:", data);
+					SepiaFW.ui.showPopup(SepiaFW.local.g("cant_execute"));
+				}
+			}, function(msg){
+				//error
+				SepiaFW.ui.showPopup(msg);
+			});
+		}
 	}
 	//mark userDataList as oos
 	function markUserDataListAsOutOfSync(l){
@@ -1382,6 +1413,7 @@ function sepiaFW_build_ui_cards(){
 		var titleIsEditable = headerConfig.isEditable || false;
 		var addDeleteListButton = headerConfig.addDeleteListButton || false;
 		var addSaveListButton = headerConfig.addSaveListButton || false;
+		var addReloadListButton = headerConfig.addReloadListButton || false;
 		var addAddDefaultListItemButton = headerConfig.addAddDefaultListItemButton || false;
 		
 		//-Title with context menu
@@ -1445,6 +1477,19 @@ function sepiaFW_build_ui_cards(){
 		}, true);
 		cmList.appendChild(moveToMyViewBtn);
 
+		//reload list
+		if (addReloadListButton){
+			var addItemBtn = document.createElement('LI');
+			addItemBtn.className = "sepiaFW-cards-list-reloadBtn";
+			addItemBtn.innerHTML = '<i class="material-icons md-inherit">refresh</i>';
+			addItemBtn.title = SepiaFW.local.g('reload');
+			SepiaFW.ui.onclick(addItemBtn, function(){
+				var listContainer = $(addItemBtn).closest('.sepiaFW-cards-flexSize-container').get(0);
+				reloadAndReplaceUserDataList(listContainer);
+			}, true);
+			cmList.appendChild(addItemBtn);
+		}
+
 		//add default list item
 		if (addAddDefaultListItemButton){
 			var addItemBtn = document.createElement('LI');
@@ -1454,7 +1499,7 @@ function sepiaFW_build_ui_cards(){
 			SepiaFW.ui.onclick(addItemBtn, function(){
 				var listContainer = $(addItemBtn).closest('.sepiaFW-cards-flexSize-container').get(0);
 				var listInfoObj = getUserDataList(listContainer);
-				var emptyItemData = makeProductivityListObject('', listInfoObj.indexType);
+				var emptyItemData = makeProductivityListObject('', listInfoObj.indexType); 		//TODO: add priority?
 				var emptyEle = makeUserDataListElement(emptyItemData, listInfoObj);
 				var cardBody = $(addItemBtn).closest('.sepiaFW-cards-flexSize-container').find('.sepiaFW-cards-list-body');
 				if (cardBody.length == 0){
@@ -1538,7 +1583,7 @@ function sepiaFW_build_ui_cards(){
 			SepiaFW.ui.onclick(saveBtn, function(){
 				var listContainer = $(saveBtn).closest('.sepiaFW-cards-flexSize-container').get(0);
 				var listInfoObj = getUserDataList(listContainer);
-				//check user
+				//different user
 				if (SepiaFW.account && (SepiaFW.account.getUserId() !== listInfoObj.user)){
 					//check type of list
 					if (listInfoObj.section == "productivity"){
@@ -1565,6 +1610,17 @@ function sepiaFW_build_ui_cards(){
 						}, function(){
 							//abort
 						});
+						SepiaFW.ui.askForConfirmation(SepiaFW.local.g('listOutOfSync'), function(){
+							//overwrite
+							storeFun(listInfoObj);
+						}, function(){
+							//abort
+						}, function(){
+							//alternative: reload
+							setTimeout(function(){
+								reloadAndReplaceUserDataList(listContainer);
+							}, 1000);
+						}, SepiaFW.local.g('reload'));
 					}else{
 						//all good
 						storeFun(listInfoObj);

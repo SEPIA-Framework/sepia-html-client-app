@@ -505,10 +505,11 @@ function sepiaFW_build_events(){
 			SepiaFW.debug.log('UI.Actions timeEvent: Can\'t synchronize type "' + Timer.type + '" yet!');
 			return;
 		}
-		var listToLoad = {};
-			listToLoad.section = "timeEvents";
-			listToLoad.indexType = "alarms"; 		//see UI.cards: INDEX_TYPE_ALARMS
-			if (title) listToLoad.title = title;
+		var listToLoad = {
+			section: "timeEvents",
+			indexType: "alarms" 		//see UI.cards: INDEX_TYPE_ALARMS
+		};
+		if (title) listToLoad.title = title;
 		SepiaFW.account.loadList(listToLoad, function(data){
 			//got list(s)
 			var lists = data.lists;

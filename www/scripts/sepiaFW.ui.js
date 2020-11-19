@@ -38,6 +38,7 @@ function sepiaFW_build_ui(){
 	UI.windowExpectedSize = window.innerHeight;
 	var windowSizeDifference = 0;
 	window.addEventListener('orientationchange', function(){
+		//TODO: replace? https://developer.mozilla.org/en-US/docs/Web/API/ScreenOrientation/onchange
 		//document.getElementById('sepiaFW-chat-output').innerHTML += ('<br>orientationchange, new size: ' + window.innerHeight);
 		$('input').blur();
 		setTimeout(function(){
@@ -1341,8 +1342,8 @@ function sepiaFW_build_ui(){
 			}
 		});
 	}
-	UI.askForConfirmation = function(question, allowedCallback, refusedCallback){
-		UI.showPopup(question, {
+	UI.askForConfirmation = function(question, allowedCallback, refusedCallback, alternativeCallback, alternativeLabel){
+		var config = {
 			buttonOneName : SepiaFW.local.g('ok'),
 			buttonOneAction : function(){
 				//yes
@@ -1353,7 +1354,14 @@ function sepiaFW_build_ui(){
 				//no
 				if (refusedCallback) refusedCallback();
 			}
-		});
+		};
+		if (alternativeCallback && alternativeLabel){
+			config.buttonThreeName = alternativeLabel;
+			config.buttonThreeAction = function(){
+				if (alternativeCallback) alternativeCallback();
+			}
+		}
+		UI.showPopup(question, config);
 	}
 
 	//----
