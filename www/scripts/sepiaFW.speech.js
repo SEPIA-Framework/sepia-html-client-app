@@ -152,6 +152,7 @@ function sepiaFW_build_speech(){
 	}
 	var	isRecognizing = false;					
 	var recognizerWaitingForResult = false;
+	var showedAsrLimitInfo = false;
 	Speech.Interface.isRecognizing = function(is){	isRecognizing = is; } 		//poor workaround to set isRecognizing from e.g. webSocket ASR
 	
 	Speech.isRecognizing = function(){
@@ -609,7 +610,12 @@ function sepiaFW_build_speech(){
 			
 			//workaround till bugfix comes - note: does not work ...
 			if (SepiaFW.ui.isAndroid && !SepiaFW.ui.isCordova){
-				before_error(error_callback, "E05 - Limited browser support for ASR :-(");
+				//before_error(error_callback, "E05 - Limited browser support for ASR :-(");
+				if (!showedAsrLimitInfo){
+					SepiaFW.ui.showInfo("Note: This device might have limited support for speech recognition. Interim results will be deactivated.", false, "", true);
+					SepiaFW.debug.log("ASR: Limited support? Deactivated interim results for Android without Cordova.");
+					showedAsrLimitInfo = true;
+				}
 				recognition.interimResults = false;
 			}else{
 				recognition.interimResults = true;

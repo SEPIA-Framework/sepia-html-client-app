@@ -1487,12 +1487,16 @@ function sepiaFW_build_ui(){
 			if (animateShortPress){
 				SepiaFW.animate.flashObj(ele);
 			}
-			callbackShort(ev);
+			setTimeout(function(){ 	//NOTE: without this we can get key-up event again .-/
+				callbackShort(ev);
+			}, 0);
 			//console.log('tab');
 		});
 		if (callbackDouble) mc.on("doubletap", function(ev){
 			if (useLongPressIndicator) UI.hidelongPressIndicator();
-			callbackDouble(ev);
+			setTimeout(function(){
+				callbackDouble(ev);
+			}, 0);
 			//console.log('doubletab');
 		});
 		if (callbackLong) mc.on("firstpress", function(ev){ 

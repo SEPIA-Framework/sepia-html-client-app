@@ -348,7 +348,7 @@ function sepiaFW_build_embedded_services(){
 		}),
 		"frame_5": Services.buildCustomActionInfo("open_frames_view", {
 			info: {
-				pageUrl: "<assist_server>/views/demo-view.html", onOpen: "sayHelloOnOpen", 
+				pageUrl: "<assist_server>/views/custom-view-demo.html", onOpen: "sayHelloOnOpen", 
 				onSpeechToTextInputHandler: "handleSttData", onChatOutputHandler: "handleChatOutput"
 			}
 		}),
