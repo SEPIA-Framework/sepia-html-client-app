@@ -94,7 +94,7 @@ function sepiaFW_build_always_on(){
         SepiaFW.config.environment = thisEnvironment;
         //make sure there are no frames - TODO: we should reduce the necessary modifiers!
         mainWasFullscreenOpen = $('.sepiaFW-carousel-pane').hasClass('full-screen');        //or use 'UI.isInterfaceFullscreen' ?
-        $mainWindow.removeClass('sepiaFW-skin-mod');
+        $mainWindow.removeClass('sepiaFW-skin-mod').removeClass('sepiaFW-frame-mode');      //remove "normal" frame style
         $mainWindow.addClass('sepiaFW-ao-mode');
         $topLayer.addClass('sepiaFW-ao-mode');
         $carouselPanes.addClass('full-screen');

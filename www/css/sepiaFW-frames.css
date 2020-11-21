@@ -31,6 +31,7 @@
 }
 #sepiaFW-frames-close {
 	max-width: 80px;
+	/*max-height: 42x;*/
 }
 #sepiaFW-frames-close i {
 	margin: 0 !important;
@@ -256,4 +257,41 @@
 }
 #sepiaFW-frames-view #sepiaFW-frames-mic.state-awaitDialog {
 	color: #ffeb3b;
+}
+
+/* Small Landscape Modes */
+
+@media (max-height: 480px) and (min-aspect-ratio: 13/10) and (min-width: 380px) {
+
+	#sepiaFW-main-window.sepiaFW-frame-mode {
+		width: calc(100% - 55px);
+    	margin-left: 55px;
+	}
+	#sepiaFW-main-window.sepiaFW-frame-mode ~ #sepiaFW-swipeBar-container-left {
+		left: 55px;
+	}
+	
+	#sepiaFW-frames-nav-bar {
+		position: fixed;
+		height: 100%;
+		max-height: unset;
+		width: 55px;
+		left: 0;
+		top: 0;
+		padding: 10px 5px;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: space-between;
+	}
+	#sepiaFW-frames-nav-bar-page-indicator {
+		display: none;
+	}
+	#sepiaFW-frames-nav-bar button {
+		max-height: 42px;
+    	max-width: 100%
+	}
+	#sepiaFW-frames-nav-bar button > span {
+		display: none;
+	}
 }

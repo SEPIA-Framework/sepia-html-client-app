@@ -9,7 +9,7 @@
 }
 @media screen and (min-width: 480px) {
 	body.big-screen .sepiaFW-cards-flexSize-container {
-		min-width: 360px;
+		min-width: 308px;
 	}
 }
 .sepiaFW-cards-flexSize-container.oneElement {
@@ -21,8 +21,18 @@
 }
 .sepiaFW-my-view-section .sepiaFW-cards-flexSize-container {
 	margin: 5px 5px 0px 5px;
-	flex: 1 0 256px;
+	/*flex: 1 0 auto;*/ /*256px*/
+    flex: 1 0 30%;
+    min-width: 308px;
+    max-width: calc(100% - 10px);
 }
+/*.sepiaFW-my-view-section .sepiaFW-cards-flexSize-container:only-of-type {
+	max-width: calc(100% - 10px);
+}*/
+/* feaky CSS for last element with "at least 2"
+.sepiaFW-my-view-section .sepiaFW-cards-flexSize-container:nth-last-child(n+2) ~ .sepiaFW-cards-flexSize-container:last-child {
+	background: red;
+}*/
 .sepiaFW-cards-flexSize-container p {
 	margin: 5px 0;
     font-weight: 300;
@@ -350,6 +360,7 @@
 	margin: 5px 5px 0px 5px;
 	padding: 5px;
 	font-weight: bold;
+	text-align: center;
 }
 .sepiaFW-cards-list-body .radioStation .radioRight {
 	display: flex;

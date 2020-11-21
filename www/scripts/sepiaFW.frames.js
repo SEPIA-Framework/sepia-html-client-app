@@ -80,6 +80,9 @@ function sepiaFW_build_frames(){
 				$('.sepiaFW-frames-page').addClass('flat');
 			}
 		}
+		$('#sepiaFW-main-window')
+			.addClass('sepiaFW-frame-mode')
+			.removeClass('sepiaFW-skin-mod');
 
 		if (!isThisFrameActive){
 			//load frame and make active
@@ -103,6 +106,9 @@ function sepiaFW_build_frames(){
 	Frames.close = function(){
 		//design resets (global changes)
 		$('html').removeClass('dark-frame');
+		$('#sepiaFW-main-window')
+			.removeClass('sepiaFW-frame-mode')
+			.addClass('sepiaFW-skin-mod');
 		//close
 		$('#sepiaFW-frames-view').slideUp(300);
 		Frames.isOpen = false;
