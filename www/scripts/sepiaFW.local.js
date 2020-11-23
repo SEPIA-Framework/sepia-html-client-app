@@ -138,6 +138,8 @@ function sepiaFW_build_strings(){
 	StringsDE.credits = 'Credits';
 	StringsDE.data_privacy = 'Datenschutz';
 	StringsDE.way_home = 'Weg nach Hause';
+	StringsDE.audioDevices = "Audiogeräte";
+	StringsDE.mediaDevices = "Mediengeräte";
 	//Fill words
 	StringsDE.from = 'von';
 	StringsDE.atClock = 'um';
@@ -336,6 +338,8 @@ function sepiaFW_build_strings(){
 	StringsEN.credits = 'Credits';
 	StringsEN.data_privacy = 'Data privacy';
 	StringsEN.way_home = 'Way home';
+	StringsEN.audioDevices = "Audio devices";
+	StringsEN.mediaDevices = "Media devices";
 	//Fill words
 	StringsEN.from = 'from';
 	StringsEN.atClock = 'at';

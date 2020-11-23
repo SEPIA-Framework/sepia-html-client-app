@@ -580,6 +580,7 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 					+ "<li id='sepiaFW-menu-toggle-voice-li'><span>Voice output: </span></li>"
 					+ "<li id='sepiaFW-menu-select-voice-engine-li' title='Speech synthesis engine.'><span>Voice engine: </span></li>"
 					+ "<li id='sepiaFW-menu-select-voice-li'><span>Voice: </span></li>" 	//option: <i class='material-icons md-mnu'>&#xE5C6;</i>
+					+ "<li id='sepiaFW-menu-media-devices-li' title='Settings for microphone, audio sources, etc.'><span>" + SepiaFW.local.g('mediaDevices') + ": </span></li>"
 					+ "<li id='sepiaFW-menu-toggle-proactiveNotes-li' title='The assistant will remind you in a funny way to make a coffee break etc. :-)'><span>Well-being reminders: </span></li>"
 					+ "<li id='sepiaFW-menu-toggle-channelMessages-li' title='Show status messages in chat like someone joined the channel?'><span>Channel status messages: </span></li>"
 					+ "<li id='sepiaFW-menu-toggle-bigScreenMode-li' title='Switch big-screen mode on/off'><span>Big-screen mode: </span></li>"
@@ -820,6 +821,23 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 				function(btn){
 					SepiaFW.frames.open({ 
 						pageUrl: "device-site.html",
+						onFinishSetup: function(){
+							SepiaFW.frames.currentScope.onFinishSetup();
+						},
+						onOpen: function(){
+							SepiaFW.frames.currentScope.onOpen();
+						},
+						/*onClose: onSettingsClose,*/
+						theme: SepiaFW.ui.getSkinStyle()
+					});
+				})
+			);
+			//media devices settings
+			var mediaDevicesSettings = document.getElementById('sepiaFW-menu-media-devices-li');
+			mediaDevicesSettings.appendChild(Build.inlineActionButton('sepiaFW-menu-media-devices', "<i class='material-icons md-inherit'>settings</i>",
+				function(btn){
+					SepiaFW.frames.open({ 
+						pageUrl: "media-devices.html",
 						onFinishSetup: function(){
 							SepiaFW.frames.currentScope.onFinishSetup();
 						},

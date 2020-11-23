@@ -1,0 +1,136 @@
+<div id='sepiaFW-frame-carousel' class="sepiaFW-inner-container sepiaFW-carousel">
+	<div class='sepiaFW-carousel-pane-container'>
+		<!-- Page 1 -->
+		<div id="sepiaFW-frame-page-1" class='sepiaFW-frames-page sepiaFW-carousel-pane'>
+			<h3>Media Devices Settings</h3>
+			<p class="info-text">Here you can configure the media devices like microphone and audio sources (speakers) of your device.</p>
+			<div id="sepiaFW-media-devices-settings" class="group-container">
+				<div class="group">
+					<label>Microphone input:</label>
+					<div id="sepiaFW-media-devices-mic-box"></div>
+				</div>
+				<div class="group">
+					<label>Audio player output:</label>
+					<div id="sepiaFW-media-devices-audio-player-box"></div>
+				</div>
+				<div class="group">
+					<label>TTS output:</label>
+					<div id="sepiaFW-media-devices-tts-player-box"></div>
+				</div>
+				<div class="group">
+					<label>FX output:</label>
+					<div id="sepiaFW-media-devices-fx-player-box"></div>
+				</div>
+				<div class="group" style="justify-content: center;">
+					<button id="SepiaFW-media-devices-refresh" onclick="SepiaFW.frames.currentScope.refreshDevices()">Refresh devices</button>
+					<button id="SepiaFW-media-devices-store" onclick="SepiaFW.frames.currentScope.store()">Store settings</button>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+<div id="sepiaFW-frames-nav-bar" class='sepiaFW-layer-header'>
+	<button id="sepiaFW-frames-close" class='entry'>
+		<i class="material-icons md-btn2">&#xE5CD;</i>
+	</button>
+	<!--<button id="sepiaFW-frames-show-prev-page" class='entry'>
+		<i class="material-icons md-btn2">keyboard_arrow_left</i><span data-localize="back">back</span>
+	</button>
+	<button id="sepiaFW-frames-show-next-page" class='entry'>
+		<span data-localize="next">next</span><i class="material-icons md-btn2">keyboard_arrow_right</i>
+	</button>-->
+	<div id="sepiaFW-frames-nav-bar-page-indicator"><div>&nbsp;</div></div>
+</div>
+<script>
+	$('#sepiaFW-frame-carousel').find('[data-localize]').each(function(){
+		$(this).html(SepiaFW.local.g(this.dataset.localize));
+	});
+	
+	//Define scope
+	SepiaFW.frames.currentScope = {
+
+		onFinishSetup: function(){
+			SepiaFW.frames.currentScope.refreshDevices();
+		},
+		
+		onOpen: function(){
+			$('#sepiaFW-media-devices-mic').val(SepiaFW.audio.mediaDevicesSelected["mic"].value);
+			$('#sepiaFW-media-devices-audio-player').val(SepiaFW.audio.mediaDevicesSelected["player"].value);
+			$('#sepiaFW-media-devices-tts-player').val(SepiaFW.audio.mediaDevicesSelected["tts"].value);
+			$('#sepiaFW-media-devices-fx-player').val(SepiaFW.audio.mediaDevicesSelected["fx"].value);
+		},
+		
+		refreshDevices: function(){
+			SepiaFW.audio.refreshAvailableMediaDevices(function(mediaDevicesAvailable){
+				//console.log(SepiaFW.audio.mediaDevicesAvailable);	//TODO
+				SepiaFW.frames.currentScope.updateSelectors();
+			}, function(err){
+				console.error(err);		//TODO
+			});
+		},
+		
+		updateSelectors: function(){
+			var micEle = document.getElementById('sepiaFW-media-devices-mic-box');
+			var playerEle = document.getElementById('sepiaFW-media-devices-audio-player-box');
+			var ttsEle = document.getElementById('sepiaFW-media-devices-tts-player-box');
+			var fxEle = document.getElementById('sepiaFW-media-devices-fx-player-box');
+			
+			micEle.innerHTML = "";
+			playerEle.innerHTML = "";
+			ttsEle.innerHTML = "";
+			fxEle.innerHTML = "";
+			
+			var inOptions = [{value: "", name: "Default"}];
+			Object.keys(SepiaFW.audio.mediaDevicesAvailable.in).forEach(function(key){
+				inOptions.push({
+					value: SepiaFW.audio.mediaDevicesAvailable.in[key],
+					name: key
+				});
+			});
+			micEle.appendChild(SepiaFW.ui.build.optionSelector(
+				"sepiaFW-media-devices-mic", inOptions, SepiaFW.audio.mediaDevicesSelected["mic"].value, function(ele){
+					SepiaFW.frames.currentScope.setMediaSink("mic", ele.selectedOptions[0].textContent, ele.value);
+				}
+			));
+			
+			var outOptions = [{value: "", name: "Default"}];
+			Object.keys(SepiaFW.audio.mediaDevicesAvailable.out).forEach(function(key){
+				outOptions.push({
+					value: SepiaFW.audio.mediaDevicesAvailable.out[key],
+					name: key
+				});
+			});
+			playerEle.appendChild(SepiaFW.ui.build.optionSelector(
+				"sepiaFW-media-devices-audio-player", outOptions, SepiaFW.audio.mediaDevicesSelected["player"].value, function(ele){
+					SepiaFW.frames.currentScope.setMediaSink("player", ele.selectedOptions[0].textContent, ele.value);
+				}
+			));
+			ttsEle.appendChild(SepiaFW.ui.build.optionSelector(
+				"sepiaFW-media-devices-tts-player", outOptions, SepiaFW.audio.mediaDevicesSelected["tts"].value, function(ele){
+					SepiaFW.frames.currentScope.setMediaSink("tts", ele.selectedOptions[0].textContent, ele.value);
+				}
+			));
+			fxEle.appendChild(SepiaFW.ui.build.optionSelector(
+				"sepiaFW-media-devices-fx-player", outOptions, SepiaFW.audio.mediaDevicesSelected["fx"].value, function(ele){
+					SepiaFW.frames.currentScope.setMediaSink("fx", ele.selectedOptions[0].textContent, ele.value);
+				}
+			));
+		},
+
+		setMediaSink: function(mediaNodeType, mediaDeviceLabel, mediaDeviceId){
+			console.log(mediaNodeType, mediaDeviceLabel, mediaDeviceId); 		//DEBUG
+			SepiaFW.audio.setMediaDeviceForNode(mediaNodeType, {deviceId: mediaDeviceId, label: mediaDeviceLabel}, 
+				function(){
+					//DONE
+				}, function(err){
+					//FAIL
+					SepiaFW.ui.showPopup("Could not set device for media element. Error: " + err);
+				}
+			);
+		},
+		
+		store: function(){
+			SepiaFW.ui.showPopup(SepiaFW.local.g("UNDER CONSTRUCTION"));
+		}
+	}
+</script>

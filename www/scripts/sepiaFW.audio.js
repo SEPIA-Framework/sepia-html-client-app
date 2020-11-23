@@ -32,6 +32,96 @@ function sepiaFW_build_audio(sepiaSessionId){
 	var doInitAudio = true;			//workaround to activate scripted audio on touch devices
 	var audioOnEndFired = false;	//state: prevent doublefireing of audio onend onpause
 
+	AudioPlayer.mediaDevicesSelected = {
+		mic: { "value": "", "name": "Default" },
+		player: { "value": "", "name": "Default" },
+		tts: { "value": "", "name": "Default" },
+		fx: { "value": "", "name": "Default" }
+	}
+	AudioPlayer.mediaDevicesAvailable = {		//IMPORTANT: deviceId can change any time on client reload. Use label!
+		in: {},
+		out: {}
+	};
+	AudioPlayer.refreshAvailableMediaDevices = function(successCallback, errorCallback){
+		if (!navigator.mediaDevices || !navigator.mediaDevices.enumerateDevices || !navigator.mediaDevices.getUserMedia) {
+			SepiaFW.debug.log("Media-Devices: Device enumeration is not supported on this device.");
+			//TODO: add info message?
+			if (errorCallback) errorCallback({
+				message: "Media device enumeration not supported",
+				name: "NotSupportedError"
+			});
+			return;
+		}
+		//List media devices
+		var didTimeout = false;
+		var timeoutTimer = undefined;
+		function enumDevices(successCallb, errorCallb){
+			if (didTimeout){
+				return;
+			}
+			navigator.mediaDevices.enumerateDevices()
+			.then(function(devices){
+				devices.forEach(function(device){
+					//console.log(device.kind + ": " + device.label + " id = " + device.deviceId);
+					if (device.kind == "audioinput"){
+						AudioPlayer.mediaDevicesAvailable.in[device.label] = device.deviceId;
+					}else if (device.kind == "audiooutput"){
+						AudioPlayer.mediaDevicesAvailable.out[device.label] = device.deviceId;
+					}
+				});
+				if (successCallb) successCallb(AudioPlayer.mediaDevicesAvailable);
+			})
+			.catch(function(err) {
+				SepiaFW.debug.error("Media-Devices: Error in device enumeration -", err.message);
+				if (errorCallb) errorCallb({
+					message: err.message,
+					name: err.name
+				});
+			});
+		};
+		timeoutTimer = setTimeout(function(){
+			didTimeout = true;
+			if (errorCallback) errorCallback({
+				message: "Media device enumeration timeout. Permission might require user interaction.",
+				name: "TimeoutError"
+			});
+		}, 8000);
+		navigator.mediaDevices.getUserMedia({audio: true, video: false})
+		.then(function(stream){
+			/* use the stream ? */
+			clearTimeout(timeoutTimer);
+			enumDevices(successCallback, errorCallback);
+		})
+		.catch(function(err){
+			clearTimeout(timeoutTimer);
+			if (errorCallback) errorCallback({
+				message: err.message,
+				name: err.name		//probably: NotAllowedError or SecurityError
+			});
+		});
+	}
+	AudioPlayer.setMediaDeviceForNode = function(mediaNodeType, mediaDevice, successCallback, errorCallback){
+		var audioNodeElement;
+		if (mediaNodeType == "mic") audioNodeElement = ""; 		//TODO
+		if (mediaNodeType == "player") audioNodeElement = AudioPlayer.getMusicPlayer();
+		if (mediaNodeType == "tts") audioNodeElement = AudioPlayer.getTtsPlayer();
+		if (mediaNodeType == "fx") audioNodeElement = AudioPlayer.getEffectsPlayer();
+
+		if (!audioNodeElement.setSinkId){
+			if (errorCallback) errorCallback("Audio-node does not support custom sink IDs.");
+		}else{
+			audioNodeElement.setSinkId(mediaDevice.deviceId)
+			.then(function(){
+				console.log('Audio sink ID set to: ' + audioNodeElement.sinkId);		//TODO
+				AudioPlayer.mediaDevicesSelected[mediaNodeType] = {name: mediaDevice.label, value: mediaDevice.deviceId};
+				if (successCallback) successCallback();
+			}).catch(function(err){
+				console.error('Audio sink ID cannot be set. Error:', err);		//TODO
+				if (errorCallback) errorCallback(err.message);
+			});
+		}
+	}
+
 	Stream.isPlaying = false;		//state: stream player
 	Stream.isLoading = false;
 	TTS.isSpeaking = false;			//state: TTS player
@@ -241,6 +331,7 @@ function sepiaFW_build_audio(sepiaSessionId){
 	
 	//sound init - returns true if it will be executed, false everytime after first call
 	AudioPlayer.requiresInit = function(){
+		//TODO: is this still up-to-date?
 		return (!SepiaFW.ui.isStandaloneWebApp && (SepiaFW.ui.isMobile || SepiaFW.ui.isSafari) && doInitAudio);
 	}
 	AudioPlayer.initAudio = function(continueCallback){
