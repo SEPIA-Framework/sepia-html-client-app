@@ -384,8 +384,10 @@ function sepiaFW_build_config(){
 	}
 	//NOTE: see SepiaFW.account #skipLogin for temporary setup settings (e.g. TTS off)
 
-	Config.loadAppSettings = function(){
+	Config.loadAppSettings = function(readyCallback){
 		//TODO: this should be simplified with a service! ...
+		addAppSettingsReadyCallback(readyCallback);
+		addAppSettingsReadyCondition("app-settings-tasks");
 		
 		//TTS
 		if (SepiaFW.speech){
@@ -414,6 +416,9 @@ function sepiaFW_build_config(){
 				}
 			}
 		}
+		//Media devices
+		//TODO: load
+
 		//Proactive notes
 		if (SepiaFW.assistant){
 			var storedValue = SepiaFW.data.get('proactiveNotes');
@@ -480,7 +485,26 @@ function sepiaFW_build_config(){
 		if (prefSearchEngineStored){
 			Config.setPreferredSearchEngine(prefSearchEngineStored);
 		}
+
+		finishAppSettingsConditionAndCheckReadyState("app-settings-tasks");
 	}
+	function addAppSettingsReadyCallback(readyFun){
+		appSettingsReadyCallback = readyFun;
+	}
+	function addAppSettingsReadyCondition(conditionName){
+		appSettingsReadyConditions[conditionName] = "pending";
+	}
+	function finishAppSettingsConditionAndCheckReadyState(finishConditionName){
+		delete appSettingsReadyConditions[finishConditionName];
+		SepiaFW.debug.log("App settings finished condition: " + finishConditionName);
+		if (Object.keys(appSettingsReadyConditions).length == 0){
+			SepiaFW.debug.log("App settings complete");
+			if (appSettingsReadyCallback) appSettingsReadyCallback();
+			appSettingsReadyCallback = null;
+		}
+	}
+	var appSettingsReadyCallback;
+	var appSettingsReadyConditions = {};
 	
 	return Config;
 }

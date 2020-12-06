@@ -669,7 +669,10 @@ function sepiaFW_build_ui(){
 	}
 	
 	//setup UI components and client variables - requires UI.beforeSetup() !
-	UI.setup = function(){	
+	UI.setup = function(readyCallback){
+		addSetupReadyCallback(readyCallback);
+		addSetupReadyCondition("setup-tasks");
+
 		//client
 		SepiaFW.config.setClientInfo(
 			((UI.isIOS)? 'iOS_' : '') 
@@ -696,7 +699,10 @@ function sepiaFW_build_ui(){
 		}
 		
 		//module specific settings
-		SepiaFW.config.loadAppSettings();
+		addSetupReadyCondition("load-app-settings");
+		SepiaFW.config.loadAppSettings(function(){
+			finishSetupConditionAndCheckReadyState("load-app-settings");
+		});
 
 		//-------------------------------------------------------------------------------------------------
 
@@ -812,7 +818,26 @@ function sepiaFW_build_ui(){
 		
 		//DEBUG
 		//$('#sepiaFW-chat-output').html();
+
+		finishSetupConditionAndCheckReadyState("setup-tasks");
 	}
+	function addSetupReadyCallback(readyFun){
+		setupReadyCallback = readyFun;
+	}
+	function addSetupReadyCondition(conditionName){
+		setupReadyConditions[conditionName] = "pending";
+	}
+	function finishSetupConditionAndCheckReadyState(finishConditionName){
+		delete setupReadyConditions[finishConditionName];
+		SepiaFW.debug.log("UI setup finished condition: " + finishConditionName);
+		if (Object.keys(setupReadyConditions).length == 0){
+			SepiaFW.debug.log("UI setup complete");
+			if (setupReadyCallback) setupReadyCallback();
+			setupReadyCallback = null;
+		}
+	}
+	var setupReadyCallback;
+	var setupReadyConditions = {};
 	
 	//-------- END SETUP --------
 	

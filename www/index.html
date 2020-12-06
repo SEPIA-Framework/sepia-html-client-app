@@ -525,7 +525,7 @@
 	}
 
 	//define app setup (called either here (index.html) or in cordova device-ready (index.js)
-	function appSetup(){
+	function appSetup(readyCallback){
 		//get some more settings via URL parameters
 		var isTest = SepiaFW.tools.isURLParameterTrue('isTest');
 		var hostParam = SepiaFW.tools.getURLParameter('host');
@@ -659,10 +659,15 @@
 		}
 		
 		//load UI
-		SepiaFW.ui.setup();
-		
-		//load login
-		SepiaFW.account.setupLoginBox();
+		SepiaFW.ui.setup(function(){
+			//after setup:
+			
+			//load login
+			SepiaFW.account.setupLoginBox();
+
+			//ready event
+			if (readyCallback) readyCallback();
+		});
 	}
 	
 	//SETUP via browser or cordova
@@ -671,8 +676,10 @@
 			'%3Cscript src="cordova.js"%3E%3C/script%3E'+
 			'%3Cscript src="js/index.js"%3E%3C/script%3E'
 		));
+		//NOTE: calls 'appSetup()' via index.js
+
 	}else{
-		//register service worker in non-Cordova app only for now
+		//register service worker in non-Cordova app ONLY ... for now
 		if('serviceWorker' in navigator){
 			navigator.serviceWorker
 				.register('sw.js')
@@ -686,7 +693,7 @@
 		}
 
 		//call setup
-		appSetup();
+		appSetup();		//NOTE: supports additional 'readyCallback'
 	}
 </script>
 <!-- Resources for later -->
