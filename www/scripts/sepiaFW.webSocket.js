@@ -1288,20 +1288,23 @@ function sepiaFW_build_webSocket_client(sepiaSessionId){
 		}
 		text = text.trim();
 
-		//show results in frame as well? (SHOW ONLY!)
+		//show results in frame as well ...
 		if (SepiaFW.frames && SepiaFW.frames.isOpen && SepiaFW.frames.canHandleSpeechToTextInput()){
 			var modText = SepiaFW.frames.handleSpeechToTextInput({
 				"text": text,
 				"isFinal": true
 			});
 			if (modText) text = modText;
-		}
 		
-		//draw speech (e.g. into speech bubble or input field)
-		drawSpeech(text, true);
+		//... or default?
+		}else{
+			//draw speech (e.g. into speech bubble or input field)
+			drawSpeech(text, true);
+		}
+
 		if (text){
 			inputCameViaAsr = true;
-			SepiaFW.client.sendInputText();
+			SepiaFW.client.sendInputText(text);
 		}else{
 			//rare cases were callback triggers but there is no input
 			SepiaFW.animate.assistant.idle('asrNoResult');
@@ -1309,17 +1312,19 @@ function sepiaFW_build_webSocket_client(sepiaSessionId){
 		}
 	}
 	Client.asrCallbackInterim = function(text){
-		//show results in frame as well? (SHOW ONLY!)
+		//show results in frame ...
 		if (SepiaFW.frames && SepiaFW.frames.isOpen && SepiaFW.frames.canHandleSpeechToTextInput()){
 			var modText = SepiaFW.frames.handleSpeechToTextInput({
 				"text": text,
 				"isFinal": false
 			});
 			if (modText) text = modText;
+		
+		//... or default?
+		}else{
+			//draw speech (e.g. into speech bubble or input field)
+			drawSpeech(text, false);
 		}
-
-		//draw speech (e.g. into speech bubble or input field)
-		drawSpeech(text, false);
 	}
 	Client.asrErrorCallback = function(error){
 		SepiaFW.debug.err("UI-ASR: " + error);
@@ -1500,7 +1505,7 @@ function sepiaFW_build_webSocket_client(sepiaSessionId){
 		}
 		clearTimeout(sendInputTimeout);
 		//prep text
-		var text = inputText || document.getElementById("sepiaFW-chat-controls-speech-box-bubble").innerText || document.getElementById("sepiaFW-chat-input").value;
+		var text = inputText || document.getElementById("sepiaFW-chat-controls-speech-box-bubble").textContent || document.getElementById("sepiaFW-chat-input").value;
 		if (text && text.trim()){
 			//specials?
 			var inputSpecialCommand = Client.inputHasSpecialCommand(text);
@@ -2211,7 +2216,7 @@ function sepiaFW_build_webSocket_client(sepiaSessionId){
 						if (action.events == "timeEvents" || action.events == SepiaFW.events.TIMER || action.events == SepiaFW.events.ALARM){
 							//if its old we remove the card here (because the update will only refresh future timers)
 							if (action.details && action.details.eventId){
-								//NOTE: currently this will probably never be triggered because we are missing the eventId (event update = complete list sync)
+								//NOTE: this will ONLY be triggered if its not a complete list-sync. because list-sync. is missing individual eventIds
 								SepiaFW.ui.cards.findAllTimeEventCards(true, false).forEach(function(item){
 									if (item.data && item.data.eventId == action.details.eventId){
 										item.remove();
@@ -2289,6 +2294,15 @@ function sepiaFW_build_webSocket_client(sepiaSessionId){
 						}else{
 							SepiaFW.debug.error("remoteAction - type: media - no support yet for action type: " + action.type);
 						}
+					}
+
+				//Notification
+				}else if (message.data.type === "notify"){
+					//user has to be same! (security)
+					if (actionUser !== SepiaFW.account.getUserId()){
+						SepiaFW.debug.error("remoteAction - tried to use type 'notify' with wrong user");
+					}else{
+						SepiaFW.debug.log("remoteAction - no handler yet for type: " + message.data.type);
 					}
 				
 				//Unknown
@@ -2695,7 +2709,7 @@ function sepiaFW_build_webSocket_client(sepiaSessionId){
 		var header = document.createElement("p");
 		header.style.fontWeight = "bold";
 		header.style.fontSize = "16px";
-		header.innerText = title;
+		header.textContent = title;
 		menu.appendChild(header);
 		var thisDevice = SepiaFW.config.getDeviceId();
 		clients.forEach(function(cl){
