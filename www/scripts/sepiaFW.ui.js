@@ -802,7 +802,10 @@ function sepiaFW_build_ui(){
 		//execute stuff on ready:
 		
 		//Setup audio
-		if (SepiaFW.audio) SepiaFW.audio.setup();
+		addSetupReadyCondition("audio-setup");
+		if (SepiaFW.audio) SepiaFW.audio.setup(function(){
+			finishSetupConditionAndCheckReadyState("audio-setup");
+		});
 		
 		//Load GPS
 		if (SepiaFW.geocoder && SepiaFW.geocoder.autoGPS){

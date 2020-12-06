@@ -45,7 +45,6 @@ function sepiaFW_build_audio(sepiaSessionId){
 	AudioPlayer.refreshAvailableMediaDevices = function(successCallback, errorCallback){
 		if (!navigator.mediaDevices || !navigator.mediaDevices.enumerateDevices || !navigator.mediaDevices.getUserMedia) {
 			SepiaFW.debug.log("Media-Devices: Device enumeration is not supported on this device.");
-			//TODO: add info message?
 			if (errorCallback) errorCallback({
 				message: "Media device enumeration not supported",
 				name: "NotSupportedError"
@@ -108,7 +107,7 @@ function sepiaFW_build_audio(sepiaSessionId){
 		if (mediaNodeType == "fx") audioNodeElement = AudioPlayer.getEffectsPlayer();
 
 		if (!audioNodeElement.setSinkId){
-			if (errorCallback) errorCallback("Audio-node does not support custom sink IDs.");
+			if (errorCallback) errorCallback("This audio-node does not support custom sink IDs.");
 		}else{
 			audioNodeElement.setSinkId(mediaDevice.deviceId)
 			.then(function(){
@@ -120,6 +119,11 @@ function sepiaFW_build_audio(sepiaSessionId){
 				if (errorCallback) errorCallback(err.message);
 			});
 		}
+	}
+	AudioPlayer.mediaDevicesSetup = function(successCallback){
+		//TODO: restore sink IDs ... if any
+		//setTimeout(successCallback, 4000);		//DEBUG
+		if (successCallback) successCallback();
 	}
 
 	Stream.isPlaying = false;		//state: stream player
@@ -183,7 +187,6 @@ function sepiaFW_build_audio(sepiaSessionId){
 	var audioStopBtn;
 	var audioVolUp;
 	var audioVolDown;
-	var audioVolD;
 	var lastAudioStream = 'sounds/empty.mp3';
 	var beforeLastAudioStream = 'sounds/empty.mp3';
 	var lastAudioStreamTitle = '';
@@ -246,15 +249,29 @@ function sepiaFW_build_audio(sepiaSessionId){
 	//-----------------------
 	
 	//set default parameters for audio
-	AudioPlayer.setup = function (){
-		//modified sounds by user?
-		AudioPlayer.loadCustomSounds();
-
+	AudioPlayer.setup = function(readyCallback){
 		//get players
 		player = document.getElementById('sepiaFW-audio-player');
 		player2 = document.getElementById('sepiaFW-audio-player2');
 		speaker = document.getElementById('sepiaFW-audio-speaker');
 		if (speaker) speaker.setAttribute('data-tts', true);
+
+		//Part 1
+		audioSetupPart1(function(){
+			//Part 2
+			audioSetupPart2(function(){
+				//Ready
+				if (readyCallback) readyCallback();
+			});
+		});
+	}
+	function audioSetupPart1(readyCallback){
+		//Media devices
+		AudioPlayer.mediaDevicesSetup(readyCallback);
+	}
+	function audioSetupPart2(readyCallback){
+		//modified sounds by user?
+		AudioPlayer.loadCustomSounds();
 		
 		//get audio context (for ios volume and spectrum analyzers)
 		connectAudioContext();
@@ -285,6 +302,8 @@ function sepiaFW_build_audio(sepiaSessionId){
 		});
 		audioVol = document.getElementById('sepiaFW-audio-ctrls-vol');
 		if (audioVol) audioVol.textContent = Math.round(player.volume*10.0);
+
+		if (readyCallback) readyCallback();
 	}
 	
 	//connect / disconnect AudioContext

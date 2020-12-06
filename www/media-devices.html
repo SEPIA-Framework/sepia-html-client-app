@@ -25,6 +25,9 @@
 					<button id="SepiaFW-media-devices-refresh" onclick="SepiaFW.frames.currentScope.refreshDevices()">Refresh devices</button>
 					<button id="SepiaFW-media-devices-store" onclick="SepiaFW.frames.currentScope.store()">Store settings</button>
 				</div>
+				<div class="group">
+					<div id="sepiaFW-media-devices-info-msg" style="padding: 8px;"></div>
+				</div>
 			</div>
 		</div>
 	</div>
@@ -62,10 +65,10 @@
 		
 		refreshDevices: function(){
 			SepiaFW.audio.refreshAvailableMediaDevices(function(mediaDevicesAvailable){
-				//console.log(SepiaFW.audio.mediaDevicesAvailable);	//TODO
 				SepiaFW.frames.currentScope.updateSelectors();
 			}, function(err){
-				console.error(err);		//TODO
+				SepiaFW.debug.error("Media-Devices - failed to load devices:", err);
+				SepiaFW.frames.currentScope.showError(err.message);
 			});
 		},
 		
@@ -118,19 +121,29 @@
 		},
 
 		setMediaSink: function(mediaNodeType, mediaDeviceLabel, mediaDeviceId){
-			console.log(mediaNodeType, mediaDeviceLabel, mediaDeviceId); 		//DEBUG
+			//console.log(mediaNodeType, mediaDeviceLabel, mediaDeviceId); 		//DEBUG
 			SepiaFW.audio.setMediaDeviceForNode(mediaNodeType, {deviceId: mediaDeviceId, label: mediaDeviceLabel}, 
 				function(){
 					//DONE
+					SepiaFW.debug.log("Media-Devices - set device sink for '" + mediaNodeType + "' to (label): " + mediaDeviceLabel);
+					//SepiaFW.frames.currentScope.showInfo("Success - Set device for type '" + mediaNodeType + "' to: " + mediaDeviceLabel);
 				}, function(err){
 					//FAIL
-					SepiaFW.ui.showPopup("Could not set device for media element. Error: " + err);
+					SepiaFW.debug.error("Media-Devices - failed to set device sink for '" + mediaNodeType + "':", err);
+					SepiaFW.frames.currentScope.showError("Failed to set device for '" + mediaNodeType + "' - " + err);
 				}
 			);
 		},
 		
 		store: function(){
 			SepiaFW.ui.showPopup(SepiaFW.local.g("UNDER CONSTRUCTION"));
+		},
+
+		showInfo: function(msg){
+			$('#sepiaFW-media-devices-info-msg').css("color", "").text(msg);
+		},
+		showError: function(msg){
+			$('#sepiaFW-media-devices-info-msg').css("color", "#f00").text(msg);
 		}
 	}
 </script>

@@ -416,9 +416,6 @@ function sepiaFW_build_config(){
 				}
 			}
 		}
-		//Media devices
-		//TODO: load
-
 		//Proactive notes
 		if (SepiaFW.assistant){
 			var storedValue = SepiaFW.data.get('proactiveNotes');
