@@ -17,7 +17,8 @@ function sepiaFW_build_ui(){
 	UI.isIOS = false;
 	UI.isMobile = false;
 	UI.isStandaloneWebApp = false;
-	UI.isChromeDesktop = false;
+	UI.isChromiumDesktop = false;
+	UI.isChrome = false;
 	UI.isSafari = false;
 	UI.isEdge = false;
 
@@ -484,7 +485,7 @@ function sepiaFW_build_ui(){
 	}
 	UI.hideLiveSpeechInputBox = function(){
 		$('#sepiaFW-chat-controls-speech-box').fadeOut(300);
-		$('#sepiaFW-chat-controls-speech-box-bubble')[0].contentEditable = 'false';
+		$('#sepiaFW-chat-controls-speech-box-bubble').text("").get(0).contentEditable = 'false';
 		//restore swipe areas
 		$('#sepiaFW-swipeBar-container-left').show();
 		$('#sepiaFW-swipeBar-container-right').show();
@@ -571,20 +572,20 @@ function sepiaFW_build_ui(){
 			document.documentElement.className += " sepiaFW-notouch-device";
 		}
 		
+		//is Edge (Chromium based)?
+		UI.isEdge = (/Edg/gi.test(navigator.userAgent));
 		//is Android or Chrome? - TODO: what about Chromium?
 		UI.isAndroid = (UI.isCordova)? (device.platform === "Android") : (navigator.userAgent.match(/(Android)/ig)? true : false);
-		UI.isChrome = (/Chrome/gi.test(navigator.userAgent)) && !(/Edge/gi.test(navigator.userAgent));
+		UI.isChrome = (/Chrome/gi.test(navigator.userAgent)) && !UI.isEdge;
 		//is iOS or Safari?
 		UI.isIOS = (UI.isCordova)? (device.platform === "iOS") : (/iPad|iPhone|iPod/g.test(navigator.userAgent) && !window.MSStream);
-		UI.isSafari = /Safari/g.test(navigator.userAgent) && !UI.isAndroid && !UI.isChrome; //exclude iOS chrome (not recommended since its still appleWebKit): && !navigator.userAgent.match('CriOS');
-		//is Chrome Desktop?
-		if (UI.isChrome && !UI.isAndroid){
-			UI.isChromeDesktop = true;
+		UI.isSafari = /Safari/g.test(navigator.userAgent) && !UI.isAndroid && !UI.isChrome && !UI.isEdge; //exclude iOS chrome (not recommended since its still appleWebKit): && !navigator.userAgent.match('CriOS');
+		//is Chromium Desktop?
+		if ((UI.isChrome || UI.isEdge) && !(UI.isAndroid || UI.isIOS)){
+			UI.isChromiumDesktop = true;
 		}
-		//is Edge?
-		UI.isEdge = (/Edge/gi.test(navigator.userAgent));
 		//is mobile?
-		UI.isMobile = !UI.isEdge && !UI.isChromeDesktop && (UI.isAndroid || UI.isIOS);
+		UI.isMobile = !UI.isChromiumDesktop && (UI.isAndroid || UI.isIOS);
 		if (UI.isMobile){
 			document.documentElement.className += " sepiaFW-mobile-device";
 		}
@@ -673,7 +674,7 @@ function sepiaFW_build_ui(){
 		SepiaFW.config.setClientInfo(
 			((UI.isIOS)? 'iOS_' : '') 
 			+ ((UI.isAndroid)? 'android_' : '') 
-			+ ((UI.isChromeDesktop)? 'chrome_' : '')
+			+ ((UI.isChrome)? 'chrome_' : '')
 			+ ((UI.isEdge)? 'edge_' : '')
 			+ ((UI.isSafari)? 'safari_' : '')
 			+ ((UI.isStandaloneWebApp)? "app_" : "browser_") + UI.version

@@ -589,12 +589,16 @@ function sepiaFW_build_speech(){
 		var wait_timestamp = 0;
 		var maxAsrResultWait = 5000;
 		var waitTimeout = '';
+
+		var onAudioEndSafetyTimer;
+		var onAudioEndSafetyTime = 3000;
 		
 		function resetsOnUnexpectedEnd(){
 			ignore_onend = true;
 			asrAutoStop = false;
 			wait_timestamp = 0;
 			clearTimeout(waitTimeout);
+			clearTimeout(onAudioEndSafetyTimer);
 			recognition = (SepiaFW.ui.isCordova)? (new SpeechRecognition()) : (new webkitSpeechRecognition());
 			//TODO: add more?
 		}
@@ -606,9 +610,10 @@ function sepiaFW_build_speech(){
 		
 		}else{
 			if (!recognition) recognition = (SepiaFW.ui.isCordova)? (new SpeechRecognition()) : (new webkitSpeechRecognition());
-			recognition.continuous = true;		//we always use this and abort manually if required. "quit_on_final_result" will also influence this.
+			if (SepiaFW.ui.isChrome) recognition.continuous = true;
+			//NOTE: causes errors in Edge, but may improve performance in Chrome - try to use this and abort manually, "quit_on_final_result" will handle
 			
-			//workaround till bugfix comes - note: does not work ...
+			//workaround till bugfix comes ...
 			if (SepiaFW.ui.isAndroid && !SepiaFW.ui.isCordova){
 				//before_error(error_callback, "E05 - Limited browser support for ASR :-(");
 				if (!showedAsrLimitInfo){
@@ -616,9 +621,26 @@ function sepiaFW_build_speech(){
 					SepiaFW.debug.log("ASR: Limited support? Deactivated interim results for Android without Cordova.");
 					showedAsrLimitInfo = true;
 				}
+				recognition.continuous = false;		//TODO: use?
 				recognition.interimResults = false;
-			}else{
+			
+			}else if (SepiaFW.ui.isCordova){
+				//we trust that native app can handle it (or will ignore the flag)
 				recognition.interimResults = true;
+			
+			}else{
+				//Edge is still buggy
+				if (SepiaFW.ui.isEdge){
+					if (!showedAsrLimitInfo){
+						SepiaFW.ui.showInfo("Note: Speech recognition on this device is still experimental. Expect random bugs ^^.", false, "", true);
+						SepiaFW.debug.log("ASR: Experimental support for Microsoft Edge.");
+						showedAsrLimitInfo = true;
+					}
+					recognition.continuous = false;
+					recognition.interimResults = true;
+				}else{
+					recognition.interimResults = true;
+				}
 			}			
 			
 			//ON START
@@ -640,6 +662,18 @@ function sepiaFW_build_speech(){
 				onEndWasAlreadyCalled = false;
 				onErrorWasAlreadyCalled = false;
 			};
+			//other start events tbd
+			/*
+			recognition.onspeechstart = function() {
+				console.error("onspeechstart"); 		//DEBUG
+			}
+			recognition.onaudiostart = function(e) {
+				console.error("onaudiostart", e); 		//DEBUG
+			}
+			recognition.onsoundstart = function() {
+				console.error("onsoundstart"); 			//DEBUG
+			}
+			*/
 			
 			//ON MY ABORT
 			recognition.onmyabort = function(event) {
@@ -651,7 +685,7 @@ function sepiaFW_build_speech(){
 				broadcastAsrWaitingForResult();
 				asrAutoStop = false;
 				log_callback('-LOG- ABORT REQUESTED');
-				recognition.stop();
+				recognition.stop();			//TODO: currently on Edge this will break successive calls of 'recognition.abort'
 			};
 			recognition.clearWaitTimeoutAndIgnoreEnd = function(){
 				clearTimeout(waitTimeout);
@@ -709,7 +743,31 @@ function sepiaFW_build_speech(){
 			};
 			
 			//ON END
-			recognition.onend = function() {
+			/*
+			recognition.onnomatch = function(e) {
+				console.error("onnomatch", e); 		//DEBUG
+			}
+			recognition.onsoundend = function() {
+				console.error("onsoundend"); 		//DEBUG
+			}
+			recognition.onspeechend = function() {
+				console.error("onspeechend"); 		//DEBUG
+			}
+			*/
+			recognition.onaudioend = function(e) {
+				//console.error("onaudioend", e); 			//DEBUG
+				onAudioEndSafetyTimer = setTimeout(function(){
+					if (recognizerWaitingForResult && recognition.onend){
+						SepiaFW.debug.error("Speech: Had to force 'onend' event via abort because it did not trigger.");
+						if (!!recognition.abort) recognition.abort();
+						//recognition.onend();
+						//recognition.onerror();
+					}
+				}, onAudioEndSafetyTime);
+			}
+			recognition.onend = function(e) {
+				//console.error("onend", e); 				//DEBUG - TODO: this will not fire reliably on Edge
+				clearTimeout(onAudioEndSafetyTimer);
 				onEndWasAlreadyCalled = true;
 				asrAutoStop = false;
 				//check for ignore and log error or check for empty result
@@ -806,7 +864,7 @@ function sepiaFW_build_speech(){
 				var mod_str = '';
 				for (var i = (event.resultIndex || 0); i < event.results.length; ++i){
 					partialWasTriggered = true;
-					//console.log('ASR RES: ' + JSON.stringify(event.results[i][0]));			//DEBUG
+					//console.log('ASR RES:', event.results[i]);			//DEBUG
 					if (event.results[i].isFinal || event.results[i][0]['final']){
 						asrAutoStop = false;
 						//interim_transcript = '';
@@ -820,7 +878,7 @@ function sepiaFW_build_speech(){
 								wait_timestamp = new Date().getTime();
 								broadcastAsrWaitingForResult();
 								log_callback('-LOG- STOP REQUESTED');
-								recognition.stop();
+								if (recognition.continuous) recognition.stop();
 							}
 							return;
 						}else{
@@ -988,13 +1046,13 @@ function sepiaFW_build_speech(){
 			if (Speech.useSepiaServerTTS){
 				selectedVoice = newVoice;
 				selectedVoiceObject = {
-					name: selectedVoice
+					name: newVoice
 				}
-				SepiaFW.debug.log("TTS voice set: " + ((selectedVoiceObject.name)? selectedVoiceObject.name : "undefined"));
-				if (!selectedVoice || selectedVoiceObject.name){
-					$('#sepiaFW-menu-select-voice').val(selectedVoice);
-					SepiaFW.data.setPermanent(Speech.getLanguage() + "-voice", selectedVoice);
-				}
+				SepiaFW.debug.log("TTS voice set: " + ((newVoice)? newVoice : "undefined"));
+				//store in any case
+				$('#sepiaFW-menu-select-voice').val(newVoice);
+				SepiaFW.data.setPermanent(Speech.getLanguage() + "-voice", newVoice);
+
 			}else if (SepiaFW.ui.isCordova){
 				//TODO: implement
 			}else{
@@ -1012,6 +1070,7 @@ function sepiaFW_build_speech(){
 					selectedVoiceObject = {};
 				}
 				SepiaFW.debug.log("TTS voice set: " + ((selectedVoiceObject.name)? selectedVoiceObject.name : "undefined"));
+				//store if deliberately empty or match
 				if (!selectedVoice || selectedVoiceObject.name){
 					$('#sepiaFW-menu-select-voice').val(selectedVoice);
 					SepiaFW.data.setPermanent(Speech.getLanguage() + "-voice", selectedVoice);
@@ -1054,8 +1113,8 @@ function sepiaFW_build_speech(){
 				text = chunkUtterance(text, SepiaFW.audio.tts.maxChunkLength);
 			}
 		}else{
-			//chunk text if there is a limit - TODO: 'isChromeDesktop' is not the entire truth, it depends on the selected voice!
-			if (SepiaFW.ui.isChromeDesktop && text && !Speech.skipTTS && Speech.isTtsSupported){
+			//chunk text if there is a limit - TODO: 'isChromiumDesktop' is not the entire truth, it depends on the selected voice!
+			if (SepiaFW.ui.isChromiumDesktop && text && !Speech.skipTTS && Speech.isTtsSupported){
 				text = chunkUtterance(text);
 			}
 		}
@@ -1119,7 +1178,8 @@ function sepiaFW_build_speech(){
 			var utterance = new SpeechSynthesisUtterance();
 			utterance.text = text;
 			utterance.lang = getLongLanguageCode(Speech.getLanguage());
-			if (selectedVoice) utterance.voice = selectedVoiceObject;
+			//set voice if valid one was selected
+			if (selectedVoiceObject && selectedVoiceObject.name) utterance.voice = selectedVoiceObject;
 			utterance.pitch = 1.0;  	//accepted values: 0-2 inclusive, default value: 1
 			utterance.rate = 1.0; 		//accepted values: 0.1-10 inclusive, default value: 1
 			utterance.volume = 1.0; 	//accepted values: 0-1, default value: 1
@@ -1133,7 +1193,7 @@ function sepiaFW_build_speech(){
 			utterance.onstart = function(event){
 				onTtsStart(event, startedCallback, errorCallback);
 				//observer synth for Chrome bug?
-				if (SepiaFW.ui.isChromeDesktop){
+				if (SepiaFW.ui.isChromiumDesktop){
 					var thisSynthID = synthID;
 					observeTTsOutput(thisSynthID, 200, utterance, errorCallback);
 				}
@@ -1303,14 +1363,15 @@ function sepiaFW_build_speech(){
 
 		//some defaults
 		}else if (!selectedVoice && !Speech.useSepiaServerTTS){
-			if (SepiaFW.ui.isEdge){
+			//TODO: just a guess
+			if (SepiaFW.ui.isChromiumDesktop && SepiaFW.ui.isEdge){
 				if (SepiaFW.config.appLanguage === "de"){
-					Speech.setVoice('Microsoft Katja Mobile - German (Germany)');
+					Speech.setVoice('Microsoft Katja Online (Natural) - German (Germany)');
 				}else if(SepiaFW.config.appLanguage === "en"){
-					Speech.setVoice('Microsoft Zira Mobile - English (United States)');
+					Speech.setVoice('Microsoft Mia Online (Natural) - English (United Kingdom)');
 				}
 			
-			}else if (SepiaFW.ui.isChromeDesktop){
+			}else if (SepiaFW.ui.isChromiumDesktop && SepiaFW.ui.isChrome){
 				if (SepiaFW.config.appLanguage === "de"){
 					Speech.setVoice('Google Deutsch');
 				}else if(SepiaFW.config.appLanguage === "en"){
