@@ -5,8 +5,8 @@
 	font-weight: 400;
 	src: /* local('Material Icons'), 
 			local('MaterialIcons-Regular'),	*/
-		url(googleMaterialIcons-2020-06-01.woff2) format('woff2'),
-		url(googleMaterialIcons-2020-06-01.woff) format('woff');
+		url(googleMaterialIcons-2020-12-03.woff2) format('woff2'),
+		url(googleMaterialIcons-2020-12-03.woff) format('woff');
 	font-display: block;
 }
 

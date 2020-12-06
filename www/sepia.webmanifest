@@ -14,13 +14,13 @@
         }
     ],
     "start_url": "./index.html?pwa=true",
-    "display": "standalone",
+    "display": "fullscreen",
     "theme_color": "#000000",
     "background_color": "#000000",
 	"shortcuts": [
 		{
-			"name": "Always-ON Avatar",
-			"short_name": "Always-ON",
+			"name": "Always-On Avatar",
+			"short_name": "Always-On",
 			"description": "Start SEPIA in always-ON avatar mode.",
 			"url": "./index.html?pwa=true&view=aomode",
 			"icons": [{ "src": "./img/icon.png", "sizes": "192x192" }]

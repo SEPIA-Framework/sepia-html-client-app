@@ -146,7 +146,7 @@ function sepiaFW_build_strings(){
 	StringsDE.toMe = 'zu mir';
 	//More errors/info
 	StringsDE.error_after_try = "Habs versucht aber irgendwas ging schief. Versuch es vielleicht später noch mal?!";
-	StringsDE.serverVersionTooLow = 'Beachte: Deine SEPIA Server Version ist niedrig und manche Features des Clients funktionieren eventuell nicht wie erwartet. Bitte führe ein Server Update durch, wenn möglich!';
+	StringsDE.serverVersionTooLow = 'Beachte: Dein SEPIA Server nutzt nicht die aktuellste Version und manche Features des Clients funktionieren eventuell nicht wie erwartet. Bitte führe ein Server Update durch, wenn möglich!';
 	StringsDE.mesh_node_fail = 'Sorry, die Mesh-Node Funktion zeigte einen Fehler.';
 	StringsDE.no_client_support = 'Sorry, aber diese Version der App unterstütz die aufgerufene Aktion nicht.';
 	StringsDE.cant_execute = "Sorry, aber es sieht so aus als könnte ich diese Aktion nicht ausführen.";
@@ -346,7 +346,7 @@ function sepiaFW_build_strings(){
 	StringsEN.toMe = 'to me';
 	//More errors/info
 	StringsEN.error_after_try = "I've tried but something went wrong. Try again later maybe?!";
-	StringsEN.serverVersionTooLow = 'Note: Your SEPIA server version is low and some features of the client might not work as expected. Please update the server when possible!';
+	StringsEN.serverVersionTooLow = 'Note: Your SEPIA server is not using the latest version and some features of the client might not work as expected. Please update the server when possible!';
 	StringsEN.mesh_node_fail = 'Sorry, the Mesh-Node function showed an error.';
 	StringsEN.no_client_support = 'Sorry, but this version of the app does not support the requested action.';
 	StringsEN.cant_execute = "Sorry, but it seems I can't execute the requested action.";
