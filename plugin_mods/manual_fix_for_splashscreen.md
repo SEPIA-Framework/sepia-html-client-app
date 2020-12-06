@@ -1,5 +1,9 @@
 ## ADD THE CODE FROM BELOW TO 'SplashScreen.java'
 
+* Open: `src\main\java\org\apache\cordova\splashscreen`
+* Go to approx. line 315
+* Do code change described below
+
 ```
 // Create and show the dialog
 splashDialog = new Dialog(context, android.R.style.Theme_Translucent_NoTitleBar);
