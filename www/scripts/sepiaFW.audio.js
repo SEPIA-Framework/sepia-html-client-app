@@ -171,16 +171,6 @@ function sepiaFW_build_audio(sepiaSessionId){
 		return lastAudioPlayerEventSource;
 	}
 	
-	//AudioContext stuff:
-	AudioPlayer.useAudioContext = false;	//experimental feature for things like gain control and music visualization (unfortunately fails for quite a few radio streams)
-	var gotPlayerAudioContext = false;		//state of context
-	var playerAudioContext; 	//AudioContext for player
-	var playerAudioSource;		//Source of player
-	var playerGainNode;			//Gain for player
-	var playerAudioAnalyser;	//Analyzer for player
-	var playerGainFader;		//interval control to fade in and out
-	var playerSpectrum;			//Spectrum of player
-	
 	//controls
 	var audioTitle;
 	var audioStartBtn;
@@ -194,7 +184,6 @@ function sepiaFW_build_audio(sepiaSessionId){
 	var mainAudioIsOnHold = false;
 	var mainAudioStopRequested = false;
 	var orgVolume = 1.0;
-	var orgGain = 1.0;
 	var FADE_OUT_VOL = 0.05; 	//note: on some devices audio is actually stopped so this value does not apply
 
 	//---- broadcasting -----
@@ -222,21 +211,18 @@ function sepiaFW_build_audio(sepiaSessionId){
 	}
 	function broadcastAudioFinished(){
 		//EXAMPLE: 
-		if (gotPlayerAudioContext) setTimeout(function(){ if (!Stream.isPlaying) clearInterval(playerSpectrum); },1500);
-		else SepiaFW.animate.audio.playerIdle();
+		SepiaFW.animate.audio.playerIdle();
 		if (audioTitle.innerHTML === "Loading ...") audioTitle.textContent = "Stopped";
 	}
 	function broadcastAudioStarted(){
 		//EXAMPLE: 
 		if (audioTitle) audioTitle.textContent = player.title;
-		if (gotPlayerAudioContext){ 	clearInterval(playerSpectrum); playerSpectrum = setInterval(playerDrawSpectrum, 30); 	}
-		else SepiaFW.animate.audio.playerActive();
+		SepiaFW.animate.audio.playerActive();
 	}
 	function broadcastAudioError(){
 		//EXAMPLE: 
 		if (audioTitle) audioTitle.textContent = 'Error';
-		if (gotPlayerAudioContext) setTimeout(function(){ if (!Stream.isPlaying) clearInterval(playerSpectrum); },1500);
-		else SepiaFW.animate.audio.playerIdle();
+		SepiaFW.animate.audio.playerIdle();
 	}
 	function broadcastPlayerVolumeSet(){
 	}
@@ -273,9 +259,6 @@ function sepiaFW_build_audio(sepiaSessionId){
 		//modified sounds by user?
 		AudioPlayer.loadCustomSounds();
 		
-		//get audio context (for ios volume and spectrum analyzers)
-		connectAudioContext();
-		
 		//get player controls
 		audioTitle = document.getElementById('sepiaFW-audio-ctrls-title');
 		audioStartBtn = document.getElementById('sepiaFW-audio-ctrls-start');
@@ -305,49 +288,7 @@ function sepiaFW_build_audio(sepiaSessionId){
 
 		if (readyCallback) readyCallback();
 	}
-	
-	//connect / disconnect AudioContext
-	function connectAudioContext(){
-		//get audio context (for ios volume and spectrum analyzers - TODO: why is '!SepiaFW.ui.isIOS' used? Didn't we deactivate the whole thing?)
-		if(AudioPlayer.useAudioContext && !gotPlayerAudioContext 
-					&& ('webkitAudioContext' in window || 'AudioContext' in window) 
-					&& !((window.location.toString().indexOf('file') == 0) 
-					&& !SepiaFW.ui.isSafari && !SepiaFW.ui.isIOS)){
-			player.crossOrigin = "anonymous";
-						
-			playerAudioContext = new (window.AudioContext || window.webkitAudioContext)();
-			playerAudioSource = playerAudioContext.createMediaElementSource(player);
-			
-			playerGainNode = playerAudioContext.createGain();
-			playerGainNode.gain.value = 1.0;
-			
-			playerAudioSource.connect(playerGainNode);
-			
-			// an analyser is used for the spectrum
-			playerAudioAnalyser = playerAudioContext.createAnalyser();
-			playerAudioAnalyser.smoothingTimeConstant = 0.85;
-			
-			playerGainNode.connect(playerAudioAnalyser);
-			playerAudioAnalyser.connect(playerAudioContext.destination);
-			
-			gotPlayerAudioContext = true;
-		}
-	}
-	/*	-- NOT WORKING --
-	function disconnectAudioContext(){
-		if (gotPlayerAudioContext){
-			player.removeAttribute('crossorigin');
-			
-			playerGainNode.disconnect();
-			playerAudioAnalyser.disconnect();
-			playerAudioSource.disconnect();
-			
-			playerAudioContext.close();
-			
-			gotPlayerAudioContext = false;
-		}
-	}*/
-	
+		
 	//sound init - returns true if it will be executed, false everytime after first call
 	AudioPlayer.requiresInit = function(){
 		//TODO: is this still up-to-date?
@@ -426,8 +367,7 @@ function sepiaFW_build_audio(sepiaSessionId){
 			broadcastAudioFinished();
 			mainAudioIsOnHold = false;
 			mainAudioStopRequested = true;		//We try to prevent the race-condition with that (1)
-			if (gotPlayerAudioContext) playerGainNode.gain.value = orgGain;
-			else audioPlayer.volume = orgVolume;
+			audioPlayer.volume = orgVolume;
 		
 		}else if (audioPlayer == player2){
 			//TODO: ?
@@ -455,16 +395,10 @@ function sepiaFW_build_audio(sepiaSessionId){
 				SepiaFW.debug.info('AUDIO: instant fadeOutMain');
 				player.pause(); 		//<-- try without broadcasting, is it save?
 			}
-			if (!gotPlayerAudioContext){
-				//orgVolume = (player.volume < orgVolume)? orgVolume : player.volume;
-				SepiaFW.debug.info('AUDIO: fadeOutMain orgVol=' + orgVolume);
-				$(player).stop(); 	//note: this is an animation stop
-				$(player).animate({volume: FADE_OUT_VOL}, 300);
-			}else{
-				//orgGain = (playerGainNode.gain.value < orgGain)? orgGain : playerGainNode.gain.value;
-				SepiaFW.debug.info('AUDIO: fadeOutMain orgVol=' + orgGain);
-				playerFadeOut(1.0); 	//note: argument is speed of fader
-			}
+			//orgVolume = (player.volume < orgVolume)? orgVolume : player.volume;
+			SepiaFW.debug.info('AUDIO: fadeOutMain orgVol=' + orgVolume);
+			$(player).stop(); 	//note: this is an animation stop
+			$(player).animate({volume: FADE_OUT_VOL}, 300);
 			broadcastPlayerFadeOut();
 			if (!mainAudioStopRequested){		//(if forced ..) We try to prevent the race-condition with that (2)
 				mainAudioIsOnHold = true;
@@ -480,13 +414,8 @@ function sepiaFW_build_audio(sepiaSessionId){
 			AudioPlayer.broadcastAudioEvent("stream", "fadeIn", player);
 		}/*else{
 			//just restore volume
-			if (!gotPlayerAudioContext){
-				SepiaFW.debug.info('AUDIO: fadeInMain - no play just reset vol=' + orgVolume);
-				playerSetVolume(orgVolume * 10.0);
-			}else{
-				SepiaFW.debug.info('AUDIO: fadeInMain - no play just reset vol=' + orgGain);
-				playerSetVolume(orgGain * 10.0);
-			}
+			SepiaFW.debug.info('AUDIO: fadeInMain - no play just reset vol=' + orgVolume);
+			playerSetVolume(orgVolume * 10.0);
 		}*/
 	}
 	//More general functions for fading
@@ -551,41 +480,24 @@ function sepiaFW_build_audio(sepiaSessionId){
 	//player specials
 
 	function playerGetVolume(){
-		if (!gotPlayerAudioContext){
-			return Math.round(10.0 * player.volume);
-		}else{
-			return Math.round(10.0 * playerGainNode.gain.value);
-		}
+		return Math.round(10.0 * player.volume);
 	}
 	AudioPlayer.playerGetVolume = playerGetVolume;
 	AudioPlayer.getOriginalVolume = function(){
-		if (!gotPlayerAudioContext){
-			return Math.round(10.0 * orgVolume);
-		}else{
-			return Math.round(10.0 * orgGain);
-		}
+		return Math.round(10.0 * orgVolume);
 	}
 
 	function playerSetVolume(newVol){
 		var setVol = getValidVolume(newVol)/10.0;
-		if (!gotPlayerAudioContext){
-			player.volume = setVol;
-			orgVolume = setVol;
-		}else{
-			playerGainNode.gain.value = setVol;
-			orgGain = setVol;
-		}
+		player.volume = setVol;
+		orgVolume = setVol;
 		$('#sepiaFW-audio-ctrls-vol').html(Math.floor(setVol*10.0));
 		SepiaFW.debug.info('AUDIO: volume set (and stored) to ' + setVol);
 		broadcastPlayerVolumeSet();
 	}
 	function playerSetVolumeTemporary(newVol){
 		var setVol = getValidVolume(newVol)/10.0;
-		if (!gotPlayerAudioContext){
-			player.volume = setVol;
-		}else{
-			playerGainNode.gain.value = setVol;
-		}
+		player.volume = setVol;
 		SepiaFW.debug.info('AUDIO: volume set temporary (till next fadeIn) to ' + setVol);
 	}
 	function getValidVolume(volumeIn){
@@ -602,11 +514,7 @@ function sepiaFW_build_audio(sepiaSessionId){
 	AudioPlayer.playerSetCurrentOrTargetVolume = function(newVol){
 		if (mainAudioIsOnHold || (SepiaFW.speech.isSpeakingOrListening())){
 			var setVol = getValidVolume(newVol)/10.0;
-			if (!gotPlayerAudioContext){
-				orgVolume = setVol;
-			}else{
-				orgGain = setVol;
-			}
+			orgVolume = setVol;
 			$('#sepiaFW-audio-ctrls-vol').html(Math.floor(setVol*10.0));
 			SepiaFW.debug.info('AUDIO: unfaded volume set to ' + setVol);
 			broadcastPlayerVolumeSet();
@@ -624,57 +532,10 @@ function sepiaFW_build_audio(sepiaSessionId){
 			SepiaFW.audio.playURL(lastStream, ''); 	//<-- potentially looses callBack info here, but since this is stopped
 			SepiaFW.audio.setPlayerTitle(lastStreamTitle, '');
 		}
-		if (!gotPlayerAudioContext){
-			SepiaFW.debug.info('AUDIO: fadeToOriginal - restore vol=' + orgVolume);
-			$(player).stop(); 	//note: this is an animation stop
-			$(player).animate({volume: orgVolume}, 3000);
-		}else{
-			SepiaFW.debug.info('AUDIO: fadeToOriginal - restore vol=' + orgGain);
-			playerFadeIn(10.0); 	//note: argument is speed of fader
-		}
+		SepiaFW.debug.info('AUDIO: fadeToOriginal - restore vol=' + orgVolume);
+		$(player).stop(); 	//note: this is an animation stop
+		$(player).animate({volume: orgVolume}, 3000);
 		broadcastPlayerFadeIn();
-	}
-	function playerFadeOut(slowness){
-		clearInterval(playerGainFader);
-		playerGainFader = setInterval(function(){
-			var gain = playerGainNode.gain.value;
-			if (gain > FADE_OUT_VOL){ 	playerGainNode.gain.value = (gain - 0.05);	}
-			else { 
-				playerGainNode.gain.value = (orgGain<FADE_OUT_VOL)? orgGain : FADE_OUT_VOL;
-				clearInterval(playerGainFader); 
-			}
-		}, (15 * slowness));
-	}
-	function playerFadeIn(slowness){
-		clearInterval(playerGainFader);
-		playerGainFader = setInterval(function(){
-			var gain = playerGainNode.gain.value;
-			if (gain < orgGain){ 	playerGainNode.gain.value = (gain + 0.05);	}
-			else { 
-				playerGainNode.gain.value = orgGain;	
-				clearInterval(playerGainFader); 
-			}
-		}, (15 * slowness));
-	}
-	function playerDrawSpectrum() {
-		var canvas = document.getElementById('sepiaFW-audio-ctrls-canvas');
-		var ctx = canvas.getContext('2d');
-		var width = canvas.width;
-		var height = canvas.height;
-		var bar_width = 10;
-
-		ctx.clearRect(0, 0, width, height);
-		//ctx.fillStyle=SepiaFW.ui.assistantColor;
-
-		var freqByteData = new Uint8Array(playerAudioAnalyser.frequencyBinCount);
-		playerAudioAnalyser.getByteFrequencyData(freqByteData);
-
-		var barCount = Math.round(width / bar_width);
-		for (var i = 0; i < barCount; i++) {
-			var magnitude = freqByteData[i];
-			// some values need adjusting to fit on the canvas
-			ctx.fillRect(bar_width * i, height, bar_width - 2, -magnitude + 80);
-		}
 	}
 
 	//--------helpers----------
