@@ -1856,6 +1856,9 @@ function sepiaFW_build_ui(){
 			"paneNumber": paneNbr
 		});
 	}
+	UI.getAvailableResultViewNames = function(){
+		return ["chat", "myView", "bigResults"];
+	}
 	//Add elements to certain result view
 	UI.maxChatMessages = 40;
 	UI.addDataToResultView = function(resultView, entryData, beSilent, autoSwitchView, switchDelay, skipAnimation){
@@ -1969,6 +1972,21 @@ function sepiaFW_build_ui(){
 			}else if (document.webkitExitFullscreen){	document.webkitExitFullscreen();
 			}
 		}
+	}
+
+	//Add resize observer to element - IMPORTANT: if the element size depends on resizeCallback you are in an endless loop!
+	UI.addResizeObserverWithBuffer = function(elem, resizeCallback, bufferTime){
+		if (bufferTime && bufferTime < 200) bufferTime = 200;
+		else if (!bufferTime) bufferTime = 500;
+		var roBuffer;
+		var ro = new ResizeObserver(function(entries){
+			clearTimeout(roBuffer);
+			roBuffer = setTimeout(function(){
+				resizeCallback();
+			}, bufferTime);
+		});
+		ro.observe(elem);
+		return ro;
 	}
 
 	//Icon stuff

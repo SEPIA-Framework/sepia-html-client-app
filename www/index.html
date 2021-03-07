@@ -53,8 +53,6 @@
 	<link rel="manifest" href="sepia.webmanifest">
 	
 	<!-- imports -->
-	<!--<link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">-->
-	<!-- <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,600" rel="stylesheet"> -->
 	<link rel="stylesheet" href="css/sepiaFW-style.css" title='main'>
 	<link rel="stylesheet" href="css/sepiaFW-style-tiny.css" title='main'>	<!-- TODO: we should load this only when needed -->
 	<link rel="stylesheet" href="css/sepiaFW-style-dual-screen.css" title='main'>
@@ -293,6 +291,7 @@
 <link rel="stylesheet" href="css/sepiaFW-teachUI.css">
 <link rel="stylesheet" href="css/sepiaFW-frames.css">
 <link rel="stylesheet" href="css/sepiaFW-alwaysOn.css">
+<link rel="stylesheet" href="css/sepiaFW-plots.css">
 <script>
 	//Optimized skin loader
 	(function(){
@@ -384,7 +383,9 @@
 	})();
 </script>
 <!-- IE11 Polyfills -->
-<script src="scripts/ie11.polyfills.js"></script>
+<script>if (SepiaFW.config.uiIsIE11){
+	document.write('<script src="scripts/ie11.polyfills.js"><\/script>');
+}</script>
 <!-- START JS -->
 <script src="scripts/jquery-3.4.1.min.js"></script>
 <!--<script src="https://code.jquery.com/jquery-3.1.1.min.js" integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8=" crossorigin="anonymous"></script>-->
@@ -394,6 +395,13 @@
 <script src="scripts/hammer-time.min.js"></script>
 <script src="scripts/svg-inject.min.js"></script>
 <script src="scripts/purify.min.js"></script>
+<script>if (!SepiaFW.config.uiIsIE11){
+	document.write('<script src="scripts/visualization/uPlot.iife.min.js?v=1.5.2"><\/script>');
+	document.write('<link rel="stylesheet" href="scripts/visualization/uPlot.min.css?v=1.5.2">');
+	document.write('<script src="scripts/visualization/uPlot-lazy.min.js?v=0.9.1"><\/script>');
+	document.write('<script src="scripts/visualization/uPlot-lazy-heatmap.min.js?v=0.9.1"><\/script>');
+}</script>
+
 <!-- SEPIA -->
 <script src="scripts/clexi-0.8.2.js"></script>
 <script src="scripts/sepiaFW.ui.js"></script>
@@ -406,11 +414,15 @@
 <script src="scripts/sepiaFW.ui.events.js"></script>
 <script src="scripts/sepiaFW.ui.actions.js"></script>
 <script src="scripts/sepiaFW.ui.cards.js"></script>
+<script src="scripts/sepiaFW.ui.plot.js"></script>
 <script src="scripts/sepiaFW.ui.customButtons.js"></script>
 <script src="scripts/sepiaFW.account.js"></script>
 <script src="scripts/sepiaFW.account.contacts.js"></script>
 <script src="scripts/sepiaFW.assistant.js"></script>
 <script src="scripts/sepiaFW.geocoder.js"></script>
+<script>if (!SepiaFW.config.uiIsIE11){
+	document.write('<script src="scripts/sepiaFW.webAudio.js?v=0.9.0"><\/script>');
+}</script>
 <script src="scripts/sepiaFW.audio.js"></script>
 <script src="scripts/sepiaFW.audioRecorder.js"></script>
 <script src="scripts/sepiaFW.speechWebSocket.js"></script>

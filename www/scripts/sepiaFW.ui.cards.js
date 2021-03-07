@@ -172,30 +172,23 @@ function sepiaFW_build_ui_cards(){
 	
 	//-----------------------------------------------------------------------------------
 	
-	//CUSTOM HTML CARD - NOTE: Currently these are only accessible via ACTIONS (and thus skipped in user chat)
-	
-	//build flex container with custom HTML RESULTS from actionInfo
-	Cards.buildCustomHtmlCardFromAction = function(actionInfoI){
-		var htmlData = actionInfoI.data;
-		var newId = ("sepiaFW-card-id-" + Cards.currentCardId++);
-		var cardElement = document.createElement('DIV');
-		cardElement.className = "sepiaFW-cards-flexSize-container oneElement";
-		cardElement.id = newId;
-		
-		//console.log('DATA: ' + JSON.stringify(htmlData));
-		cardElement.innerHTML = SepiaFW.tools.sanitizeHtml(htmlData); 		//NOTE: this can only have basic HTML (no script, no iframe etc.)
-		return cardElement;
-	}
-	//build flex container with sandboxed custom HTML from actionInfo
-	//TODO
-	
-	//build generic flex-card with body
-	function buildGenericCard(bodyContentElement){
+	//build flex-card container
+	Cards.buildCardContainer = function(hasSingleElement, addSpacer){
 		var newId = ("sepiaFW-card-id-" + Cards.currentCardId++);
 		var cardElement = document.createElement('DIV');
 		cardElement.className = "sepiaFW-cards-flexSize-container";
+		if (hasSingleElement){
+			cardElement.classList.add("oneElement");
+		}
+		if (addSpacer){
+			cardElement.classList.add("addSpacer");
+		}
 		cardElement.id = newId;
-		
+		return cardElement;
+	}
+	//build generic flex-card with body
+	function buildGenericCard(bodyContentElement){
+		var cardElement = Cards.buildCardContainer(false, false);
 		if ($(bodyContentElement).hasClass('sepiaFW-cards-list-body')){
 			cardElement.appendChild(bodyContentElement);
 		}else{
@@ -206,6 +199,19 @@ function sepiaFW_build_ui_cards(){
 		}
 		return cardElement;
 	}
+
+	//CUSTOM HTML CARD - NOTE: Currently these are only accessible via ACTIONS (and thus skipped in user chat)
+	
+	//build flex container with custom HTML RESULTS from actionInfo
+	Cards.buildCustomHtmlCardFromAction = function(actionInfoI){
+		var cardElement = Cards.buildCardContainer(true);
+		var htmlData = actionInfoI.data;
+		//console.log('DATA: ' + JSON.stringify(htmlData));
+		cardElement.innerHTML = SepiaFW.tools.sanitizeHtml(htmlData); 		//NOTE: this can only have basic HTML (no script, no iframe etc.)
+		return cardElement;
+	}
+	//build flex container with sandboxed custom HTML from actionInfo
+	//TODO
 	
 	//USER DATA LIST
 
@@ -304,10 +310,7 @@ function sepiaFW_build_ui_cards(){
 	}
 	//build card of this type
 	function buildUserDataList(cardElementInfo){
-		var newId = ("sepiaFW-card-id-" + Cards.currentCardId++);
-		var cardElement = document.createElement('DIV');
-		cardElement.className = "sepiaFW-cards-flexSize-container"; 	//NOTE: this EXACT class is used to find/edit the lists as well!
-		cardElement.id = newId;
+		var cardElement = Cards.buildCardContainer();		//NOTE: the EXACT class ('sepiaFW-cards-flexSize-container') is used to find/edit the lists as well!
 		var sortData = false;
 		var elementsData = cardElementInfo.data; 		//get data ...
 		delete cardElementInfo.data;					//... and remove it from info ...
@@ -609,11 +612,7 @@ function sepiaFW_build_ui_cards(){
 	
 	//build card of this type
 	function buildRadioElement(cardElementInfo){
-		var newId = ("sepiaFW-card-id-" + Cards.currentCardId++);
-		var cardElement = document.createElement('DIV');
-		cardElement.className = "sepiaFW-cards-flexSize-container oneElement";
-		cardElement.id = newId;
-		
+		var cardElement = Cards.buildCardContainer(true);
 		var cardBody = document.createElement('DIV');
 		cardBody.className = "sepiaFW-cards-list-body sepiaFW-cards-list-radioStations";
 		
@@ -691,11 +690,7 @@ function sepiaFW_build_ui_cards(){
 	
 	//build time event aka timer or alarm (for now) - this is the single element version from 'action' (see buildUserDataList for array)
 	Cards.buildTimeEventElementFromAction = function(actionInfoI, eventType){
-		var newId = ("sepiaFW-card-id-" + Cards.currentCardId++);
-		var cardElement = document.createElement('DIV');
-		cardElement.className = "sepiaFW-cards-flexSize-container oneElement addSpacer";
-		cardElement.id = newId;
-		
+		var cardElement = Cards.buildCardContainer(true, true);
 		var cardBody = document.createElement('DIV');
 		var timeEvent = '';
 		if (eventType === SepiaFW.events.TIMER){
@@ -948,10 +943,7 @@ function sepiaFW_build_ui_cards(){
 	//NEWS
 	
 	function buildNewsElement(cardElementInfo){
-		var newId = ("sepiaFW-card-id-" + Cards.currentCardId++);
-		var cardElement = document.createElement('DIV');
-		cardElement.className = "sepiaFW-cards-flexSize-container";
-		cardElement.id = newId;
+		var cardElement = Cards.buildCardContainer();
 		
 		//header
 		var headerConfig = {
@@ -1061,11 +1053,7 @@ function sepiaFW_build_ui_cards(){
 	
 	//-NOW, DAY, TOMORROW and WEEK (actually all types simply use the NOW cards)
 	function buildWeatherElementA(cardElementInfo){
-		var newId = ("sepiaFW-card-id-" + Cards.currentCardId++);
-		var cardElement = document.createElement('DIV');
-		cardElement.className = "sepiaFW-cards-flexSize-container oneElement addSpacer";
-		cardElement.id = newId;
-		
+		var cardElement = Cards.buildCardContainer(true, true);
 		var cardBody = document.createElement('DIV');
 		cardBody.className = "sepiaFW-cards-list-body sepiaFW-cards-list-weatherA";
 		var visibleItems = 0;
@@ -1207,11 +1195,7 @@ function sepiaFW_build_ui_cards(){
 	var currentLinkItemId = 0;
 	
 	function buildLinkElement(cardElementInfo, isSafeSource){
-		var newId = ("sepiaFW-card-id-" + Cards.currentCardId++);
-		var cardElement = document.createElement('DIV');
-		cardElement.className = "sepiaFW-cards-flexSize-container oneElement addSpacer";
-		cardElement.id = newId;
-		
+		var cardElement = Cards.buildCardContainer(true, true);
 		var cardBody = document.createElement('DIV');
 		cardBody.className = "sepiaFW-cards-list-body sepiaFW-cards-list-link";
 		
