@@ -1,4 +1,4 @@
-//AUDIO PLAYER
+//AUDIO RECORDER (requires SEPIA WebAudio Lib)
 function sepiaFW_build_audio_recorder(){
 	var AudioRecorder = {};
 	
@@ -31,7 +31,218 @@ function sepiaFW_build_audio_recorder(){
 		//console.log('broadcastRecorderError');
 	}
 	
-	//-----------------------
+	//------ SEPIA Web Audio Processor ------
+
+	SepiaFW.webAudio.defaultProcessorOptions.moduleFolder = "audio-modules";
+	var sepiaWebAudioProcessor;
+
+	var targetSampleRate = 16000;
+	var activeAudioModules = [];
+	var activeAudioModuleCapabilities = {};		//e.g.: resample, wakeWordDetection, vad, encode, volume
+	AudioRecorder.webAudioHasCapability = function(testCap){
+		return !!activeAudioModuleCapabilities[testCap];
+	}
+	AudioRecorder.webAudioCapabilities = function(){
+		return JSON.parse(JSON.stringify(activeAudioModuleCapabilities));
+	}
+	var customSepiaWebAudioSource;
+
+	//TODO: add to options - combine with 'SepiaFW.webAudio.getSupportedAudioConstraints()'
+	var micAudioConstraintOptions = {
+		deviceId: "",				//TODO: get this from media devices options menu
+		//sampleRate: targetSampleRate,
+		channelCount: 1,
+		noiseSuppression: true,
+		autoGainControl: false,
+		echoCancellation: false
+	};
+	Object.keys(micAudioConstraintOptions).forEach(function(key){
+		SepiaFW.webAudio.overwriteSupportedAudioConstraints[key] = micAudioConstraintOptions[key];
+	});
+
+	var useLegacyMicInterface = (typeof window.AudioWorkletNode !== 'function' || !("audioWorklet" in (window.AudioContext || window.webkitAudioContext).prototype));
+	var legacyScriptProcessorBufferSize = 512;
+
+	function defaultOnProcessorReady(sepiaWebAudioProcessor, msg){
+		console.log("onProcessorReady", sepiaWebAudioProcessor, msg);
+	}
+	function defaultOnProcessorInitError(err){
+		console.error("onProcessorInitError", err);
+	}
+
+	AudioRecorder.createWebAudioRecorder = function(options, onProcessorReady, onProcessorInitError){
+		if (!onProcessorReady) onProcessorReady = defaultOnProcessorReady;
+		if (!onProcessorInitError) onProcessorInitError = defaultOnProcessorInitError;
+		if (sepiaWebAudioProcessor){
+			onProcessorInitError({name: "ProcessorInitError", message: "SEPIA Web Audio Processor already exists. Release old one before creating new."});
+			return;
+		}
+		if (!options) options = {};
+		prepareSepiaWebAudioProcessor(options, onProcessorReady, onProcessorInitError);
+	}
+	AudioRecorder.existsWebAudioRecorder = function(){
+		return !!sepiaWebAudioProcessor;
+	}
+	AudioRecorder.startWebAudioRecorder = function(successCallback, errorCallback){
+		if (sepiaWebAudioProcessor){
+			sepiaWebAudioProcessor.start();
+			if (successCallback) successCallback();
+		}else{
+			if (errorCallback) errorCallback({name: "ProcessorInitError", message: "SEPIA Web Audio Processor doesn't exist yet."});
+		}
+	}
+	AudioRecorder.stopWebAudioRecorder = function(callback){
+		if (sepiaWebAudioProcessor){
+			sepiaWebAudioProcessor.stop();
+			if (callback) callback();
+		}else{
+			if (callback) callback();	//if it doesn't exist its quasi-stopped ;-)
+		}
+	}
+	AudioRecorder.releaseWebAudioRecorder = function(callback){
+		if (sepiaWebAudioProcessor){
+			sepiaWebAudioProcessor.release(function(){
+				sepiaWebAudioProcessor = undefined;
+				if (callback) callback();
+			});
+		}else{
+			if (callback) callback();	//if it doesn't exist its quasi-released ;-)
+		}
+	}
+
+	//Build modules and custom-source (if required)
+	function prepareSepiaWebAudioProcessor(options, onProcessorReady, onProcessorInitError){
+		//Collect active modules:
+		broadcastRecorderRequested();
+		activeAudioModules = [];
+		activeAudioModuleCapabilities = {};
+		
+		//--- Resampler
+		var resampler;
+		var resamplerQuality = 3;
+		var resamplerBufferSize = 512;
+		var resamplerGain = 1.0;
+		function onResamplerMessage(data){
+			//TODO: implement
+			//console.log("onResamplerMessage", data); 		//DEBUG
+		}
+		if (useLegacyMicInterface || options.forceLegacyMicInterface){
+			resampler = {
+				name: 'speex-resample-worker',
+				type: 'worker',
+				settings: {
+					onmessage: onResamplerMessage,
+					sendToModules: [],
+					options: {
+						setup: {
+							targetSampleRate: targetSampleRate,
+							inputSampleSize: legacyScriptProcessorBufferSize,
+							resampleQuality: resamplerQuality,
+							bufferSize: resamplerBufferSize,
+							calculateRmsVolume: true,
+							gain: resamplerGain
+						}
+					}
+				}
+			}
+			activeAudioModules.push(resampler);
+			activeAudioModuleCapabilities.resample = true;
+		}else{
+			resampler = {
+				name: 'speex-resample-switch',
+				settings: {
+					onmessage: onResamplerMessage,
+					sendToModules: [],
+					options: {
+						setup: {
+							targetSampleRate: targetSampleRate,
+							resampleQuality: resamplerQuality,
+							bufferSize: resamplerBufferSize,
+							passThroughMode: 1,		//0: none, 1: original (float32), 2: 16Bit PCM - NOTE: NOT resampled
+							calculateRmsVolume: true,
+							gain: resamplerGain
+						}
+					}
+				}
+			}
+			activeAudioModules.push(resampler);
+			activeAudioModuleCapabilities.resample = true;
+		}
+
+		//--- Wake-word detection
+		var wakeWordDetector;
+		var wakeWordDetectorIndex;
+		if (SepiaFW.wakeTriggers.engineModule){
+			wakeWordDetector = SepiaFW.wakeTriggers.engineModule;
+			activeAudioModules.push(wakeWordDetector);
+			wakeWordDetectorIndex = activeAudioModules.length;
+			//add wwd to resampler output
+			resampler.settings.sendToModules.push(wakeWordDetectorIndex);
+			activeAudioModuleCapabilities.wakeWordDetection = true;
+		}
+
+		//--- TODO: add more modules later like VAD, WaveEncoder, ASR, etc.
+
+		//Source adjustments
+		var customSourcePromise;
+		if (options.fileSourceUrl){
+			//file
+			customSourcePromise = createFileSource(options.fileSourceUrl);
+		}else if (useLegacyMicInterface || options.forceLegacyMicInterface){
+			//legacy mic
+			customSourcePromise = createLegacyScriptProcessorSource();
+		}
+		if (customSourcePromise){
+			//wait for promise
+			customSourcePromise.then(function(customSource){
+				customSepiaWebAudioSource = customSource;
+				createSepiaWebAudioProcessor(onProcessorReady, onProcessorInitError);
+			}).catch(function(err){
+				onProcessorInitError(err);
+			});
+		}else{
+			//continue with default
+			createSepiaWebAudioProcessor(onProcessorReady, onProcessorInitError);
+		}
+	}
+	//Create processor (init. modules etc.)
+	function createSepiaWebAudioProcessor(onProcessorReady, onProcessorInitError){
+		//Create processor
+		sepiaWebAudioProcessor = new SepiaFW.webAudio.Processor({
+			onaudiostart: console.log,
+			onaudioend: console.log,
+			onrelease: console.log,
+			onerror: console.error,
+			targetSampleRate: targetSampleRate,
+			modules: activeAudioModules,
+			destinationNode: undefined,		//defaults to: new "blind" destination (mic) or audioContext.destination (stream)
+			startSuspended: true,
+			debugLog: console.log,
+			customSourceTest: false,
+			customSource: customSepiaWebAudioSource
+			
+		}, function(msg){
+			//Init. ready
+			onProcessorReady(sepiaWebAudioProcessor, msg);
+			
+		}, function(err){
+			//Init. error
+			onProcessorInitError(err);
+		});
+	}
+	function createLegacyScriptProcessorSource(){
+		return SepiaFW.webAudio.createLegacyMicrophoneScriptProcessor({
+			targetSampleRate: targetSampleRate,
+			bufferSize: legacyScriptProcessorBufferSize
+		});	//Note: Promise
+	}
+	function createFileSource(fileUrl){
+		return SepiaFW.webAudio.createFileSource(fileUrl, {
+			targetSampleRate: targetSampleRate
+		});	//Note: Promise
+	}
+
+	//---------------------------------------
 	
 	var AudioContext = window.AudioContext || window.webkitAudioContext;
 	var isMediaDevicesSupported = undefined;

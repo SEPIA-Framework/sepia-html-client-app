@@ -22,15 +22,15 @@ function sepiaFW_build_wake_word_settings() {
         if (sensitivityEle.value != undefined){
             SepiaFW.wakeTriggers.setWakeWordSensitivities([sensitivityEle.value]);
         }
+        SepiaFW.ui.showPopup("To use the changed wake-word sensitivity please reload the client first!");     //TODO: update
     }
 
     //Change file and version used for wake-word
     WakeWordSettings.updateWakeWordFile = function(){
         var version = $("#sepiaFW-wake-word-version").val();
         var name = $("#sepiaFW-wake-word-name").val();
-        if (version != SepiaFW.wakeTriggers.porcupineVersion){
-            SepiaFW.ui.showPopup("To use a wake-word with a different version please reload the client first!");
-        }
+        //if (version != SepiaFW.wakeTriggers.getWakeWordVersion()){...}
+        SepiaFW.ui.showPopup("To use a new wake-word please reload the client first!");     //TODO: update
         SepiaFW.wakeTriggers.setWakeWord(name, version);
     }
     //Change mic confirmation sound
@@ -44,12 +44,8 @@ function sepiaFW_build_wake_word_settings() {
     //Change default buffer length
     WakeWordSettings.setBufferLength = function(){
         var buffLen = Number.parseInt($("#sepiaFW-wake-word-buffer-length").val());
-        if (buffLen){
-            SepiaFW.data.setPermanent("porcupine-ww-buffer-length", buffLen);
-            SepiaFW.ui.showPopup("Please reload the client to activate new buffer length setting.");
-        }else{
-            SepiaFW.data.delPermanent("porcupine-ww-buffer-length");
-        }
+        SepiaFW.wakeTriggers.setWakeWordBufferSize(buffLen);
+        SepiaFW.ui.showPopup("Please reload the client to activate new buffer length setting.");     //TODO: update
     }
 
     WakeWordSettings.debugLog = function(info, isError){
@@ -137,15 +133,18 @@ function sepiaFW_build_wake_word_settings() {
         wakeWordDebug.appendChild(SepiaFW.ui.build.toggleButton('sepiaFW-menu-toggle-wake-word-debug', 
             function(){
                 debugInfo = true;
+                $('.sepiaFW-wake-word-settings-page .expert-setting').show(300);    //ww expert settings
             },function(){
                 debugInfo = false;
+                $('.sepiaFW-wake-word-settings-page .expert-setting').hide(150);
             }, debugInfo)
         );
-        //ww expert settings
+        //ww expert settings 
+        /*
         var wwDebugLabel = $(wakeWordDebug).closest('.group').find("label")[0];
         SepiaFW.ui.longPressShortPressDoubleTap(wwDebugLabel, function(){
             $('.sepiaFW-wake-word-settings-page .expert-setting').show(300);
-        });
+        });*/
 
         SepiaFW.wakeTriggers.setupWakeWords(function(){
             toggleButton.innerHTML = "START";
@@ -160,9 +159,16 @@ function sepiaFW_build_wake_word_settings() {
                 if (!isListening){
                     isListening = true;
                     toggleButton.innerHTML = "STOP";
-                    SepiaFW.wakeTriggers.listenToWakeWords();
+                    SepiaFW.wakeTriggers.listenToWakeWords(function(){
+                        WakeWordSettings.debugLog("Listening to wake-words...");
+                    }, function(err){
+                        var msg = (err && err.message)? err.message : "Unknown error in 'listenToWakeWords'";
+                        WakeWordSettings.debugLog(msg, true);
+                    });
                 }else{
-                    SepiaFW.wakeTriggers.stopListeningToWakeWords();
+                    SepiaFW.wakeTriggers.stopListeningToWakeWords(function(){
+                        WakeWordSettings.debugLog("Stopped listening to wake-words.");
+                    });
                     isListening = false;
                     toggleButton.innerHTML = "START";
                 }
@@ -210,8 +216,13 @@ function sepiaFW_build_wake_word_settings() {
             //Show confirmation sound
             $('#sepiaFW-wake-word-confirm-sound-path').val(SepiaFW.audio.micConfirmSound);
             //Show Porcupine buffer length
-            var customBuffLen = SepiaFW.data.getPermanent("porcupine-ww-buffer-length");
-            if (customBuffLen) $('#sepiaFW-wake-word-buffer-length').val(customBuffLen);
+            var engineInfo = SepiaFW.wakeTriggers.getEngineInfo();
+            if (engineInfo){
+                //TODO: fix and clean-up (when bufferSize is actually variable for WW module)
+                $('#sepiaFW-wake-word-buffer-length').val(engineInfo.settings.options.setup.inputSampleSize);
+                //var customBuffLen = SepiaFW.data.getPermanent("porcupine-ww-buffer-length");
+                //if (customBuffLen) $('#sepiaFW-wake-word-buffer-length').val(customBuffLen);
+            }
 
             WakeWordSettings.debugLog("UPDATED " + info);
         }

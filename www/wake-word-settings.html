@@ -4,10 +4,9 @@
 		<div id="sepiaFW-frame-page-1" class='sepiaFW-frames-page sepiaFW-carousel-pane sepiaFW-wake-word-settings-page'>
 			<h3>Wake-Word Settings</h3>
 			<div style="display: flex; flex-direction: column; justify-content: center; align-items: center;">
-				<img id="sepiaFW-wake-word-indicator" src="img/icon-512-w.png" style="border-radius: 50%; overflow: hidden; max-width: 512px; max-height: 25vh;">
+				<img id="sepiaFW-wake-word-indicator" src="img/icon-512-w.png" style="border-radius: 50%; overflow: hidden; max-width: 512px; max-height: 18vh;">
 				<p>Press START and say 'Hey SEPIA' to change the logo color. You can play around with the sensitivity as well, but make sure to STOP first.</p>
 			</div>
-			<br>
 			<div class="group-container">
 				<div class="group" style="justify-content: center;">
 					<button id="sepiaFW-wake-word-toggle">START</button>
@@ -27,6 +26,16 @@
 				<div class="group">
 					<label>Allow wake-word during audio output:</label>
 					<div id="sepiaFW-wake-word-during-stream-box"></div>
+				</div>
+				<div class="group">
+					<label>Debug info:</label>
+					<div id="sepiaFW-wake-word-debug-box"></div>
+				</div>
+				<div class="group fit expert-setting" id="sepiaFW-wake-word-engine" style="display: none;">
+					<div class="entry-content">
+						<label>Engine:</label><!-- TODO: implement when more options are available -->
+						<select id="sepiaFW-wake-word-engine-select"><option value="Porcupine">Porcupine</option></select>
+					</div>
 				</div>
 				<div class="group fit expert-setting" id="sepiaFW-wake-word-switcher" style="display: none;">
 					<div class="entry-content">
@@ -51,11 +60,10 @@
 					</div>
 					<button class="set-button" onclick="SepiaFW.wakeWordSettings.setBufferLength()">SET</button>
 				</div>
-				<div class="group">
-					<label>Debug info:</label>
-					<div id="sepiaFW-wake-word-debug-box"></div>
+				<div class="group fit expert-setting" style="display: none; flex-direction: column;">
+					<p>Debug Log:</p>
+					<div id="sepiaFW-wake-word-audio-info"></div>
 				</div>
-				<div id="sepiaFW-wake-word-audio-info"></div>
 			</div>
 		</div>
 		<!-- Page 2 -->
