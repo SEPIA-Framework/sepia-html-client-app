@@ -26,7 +26,8 @@ function sepiaFW_build_strings(){
 	StringsDE.contacts = 'Kontakte';
 	StringsDE.favorites = 'Favoriten';
 	StringsDE.logout = 'Logout';
-	StringsDE.closeLogin = 'Weiter ohne Login';
+	StringsDE.offlineTestMode = 'Offline Test-Modus';
+	StringsDE.continueWithoutLogin = 'Weiter ohne Login';
 	StringsDE.createAccount = 'Account erstellen';
 	StringsDE.info_and_help = 'Infos und Support';
 	StringsDE.control_hub = 'Control HUB';
@@ -226,7 +227,8 @@ function sepiaFW_build_strings(){
 	StringsEN.contacts = 'Contacts';
 	StringsEN.favorites = 'Favorites';
 	StringsEN.logout = 'Logout';
-	StringsEN.closeLogin = 'Continue without login';
+	StringsEN.offlineTestMode = 'Offline test mode';
+	StringsEN.continueWithoutLogin = 'Continue without login';
 	StringsEN.createAccount = 'Create account';
 	StringsEN.info_and_help = 'Info and support';
 	StringsEN.control_hub = 'Control HUB';

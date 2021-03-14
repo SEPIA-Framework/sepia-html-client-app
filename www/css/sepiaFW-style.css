@@ -801,6 +801,9 @@ html.dark-skin #sepiaFW-login-help-btn {
 .sepiaFW-translucent-10 {
 	opacity: 0.10;
 }
+.sepiaFW-translucent-10.no-interaction {
+	pointer-events: none;
+}
 .sepiaFW-right{
 	float: right;
 }

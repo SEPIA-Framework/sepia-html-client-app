@@ -923,7 +923,7 @@ function sepiaFW_build_account(sepiaSessionId){
 		}
 		var box = document.getElementById("sepiaFW-login-box");
 		if (box && box.style.display == 'none'){
-			$("#sepiaFW-main-window").addClass("sepiaFW-translucent-10");
+			$("#sepiaFW-main-window").addClass("sepiaFW-translucent-10 no-interaction");
 			$(box).fadeIn(300, function(){
 				$(box).css({'opacity':1.0}); 		//strange bug here sometimes leaves the box translucent
 			});
@@ -932,7 +932,7 @@ function sepiaFW_build_account(sepiaSessionId){
 			$(box).stop().fadeOut(300, function(){
 				$(box).css({'opacity':1.0}); 		//strange bug here sometimes leaves the box translucent
 			});
-			$("#sepiaFW-main-window").removeClass("sepiaFW-translucent-10");
+			$("#sepiaFW-main-window").removeClass("sepiaFW-translucent-10 no-interaction");
 		}
 	}
 	Account.isLoginBoxOpen = function(){
