@@ -1586,6 +1586,10 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 				//reset active chat partner
 				SepiaFW.client.switchChatPartner('');
 				SepiaFW.client.switchChannel(thisChannel.id); 		//there is also a key-option, but the server currently does it by userId check
+				//switch to chat and close menues
+				SepiaFW.ui.moc.showPane(1);
+				SepiaFW.ui.closeAllMenusThatCollide("#sepiaFW-chat-output");
+				//SepiaFW.ui.closeMenuWithId("sepiaFW-chat-channel-view");
 			});
 		}
 	}

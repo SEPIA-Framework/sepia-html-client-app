@@ -1825,6 +1825,12 @@ function sepiaFW_build_ui(){
 			}
 		}, 15);
 	}
+	UI.closeMenuWithId = function(id){
+		//TODO: replace all fade + 'sepiaFwOpen' and 'sepiaFwClose' events with UI.close.. UI.open...
+		$("#" + id).fadeOut(100, function(){
+			$('#sepiaFW-main-window').trigger('sepiaFwClose-' + id);
+		});
+	}
 	//get all open menus as elemets
 	UI.getOpenMenus = function(){
 		var openMenus = [];

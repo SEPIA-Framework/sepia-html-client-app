@@ -1,4 +1,4 @@
-var cacheName = 'SEPIA_PWA_v0.2X.X_b001'; 		//Note: remember to clear old caches when the versioned SW cache is active
+var cacheName = 'SEPIA_PWA_v0.2X.X_b002'; 		//Note: remember to clear old caches when the versioned SW cache is active
 var ENABLE_DYNAMIC_CACHING = false;
 
 self.addEventListener('install', function(event){
@@ -27,6 +27,11 @@ self.addEventListener('activate', function(e){
 
 //Network-Only Mode - see: https://developers.google.com/web/fundamentals/instant-and-offline/offline-cookbook#network-only
 self.addEventListener('fetch', function(e){
+	//ignore some ...
+	if (e.request.method !== 'GET') { return; }
+	//if (e.request.url.indexOf("...") !== -1) { return; }
+	
+	//... handle rest
 	e.respondWith(async function(){
 		var cachedResponse = await caches.match(e.request);
 		if (cachedResponse !== undefined){
