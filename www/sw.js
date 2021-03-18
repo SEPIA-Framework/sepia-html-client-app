@@ -5,7 +5,7 @@ self.addEventListener('install', function(event){
 	event.waitUntil(
 		caches.open(cacheName).then(function(cache){
 			//Nothing to install yet
-			return cache.addAll([]);
+			return cache.addAll(['offline.html']);
 		})
 	);
 });
@@ -50,15 +50,22 @@ self.addEventListener('fetch', function(e){
 				return response;
 
 			}catch (err){
-				//console.error("error 2", err);
-				return new Response(JSON.stringify({
-					message: "Network error/Timeout"
-				}),{
-					headers: {'Content-Type': 'application/json'},
-					ok: false,
-					status: 408,
-					statusText: "Network error/Timeout"
-				});
+				if (e.request.mode === 'navigate') {
+					return caches.match('offline.html');
+					/*return new Response("<h1>You are offline</h1>", {
+						headers: {'Content-Type': 'text/html'}
+					});*/
+				}else{
+					//console.error("error 2", err);
+					return new Response(JSON.stringify({
+						message: "Network error/Timeout"
+					}),{
+						headers: {'Content-Type': 'application/json'},
+						ok: false,
+						status: 408,
+						statusText: "Network error/Timeout"
+					});
+				}
 			}
 		}
 	}());
