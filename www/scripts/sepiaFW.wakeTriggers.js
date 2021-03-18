@@ -105,6 +105,7 @@ function sepiaFW_build_wake_triggers() {
 		//start setup?
 		if (WakeTriggers.autoLoadWakeWord){ 		//Client.onActive good place?
 			setTimeout(function(){
+				var skipAutostart = true;			//we start manually
 				WakeTriggers.setupWakeWords(function(){
 					//now we can install the permanent 'onActive' event (because it will be closed during 'client.broadcastOnActiveReset')
 					SepiaFW.client.addOnActiveAction(function(){
@@ -114,7 +115,7 @@ function sepiaFW_build_wake_triggers() {
 							SepiaFW.wakeTriggers.listenToWakeWords(undefined, undefined, true);
 						}
 					});
-				});
+				}, skipAutostart);
 			}, 50);
 		}
 	}
@@ -167,7 +168,7 @@ function sepiaFW_build_wake_triggers() {
 		//TODO: track somehow
 	}
 	
-	WakeTriggers.setupWakeWords = function(onFinishCallback){
+	WakeTriggers.setupWakeWords = function(onFinishCallback, skipAutostart, customAutostartDelay){
 		//load Porcupine engine to JS
 		if (!WakeTriggers.engineLoaded && WakeTriggers.engine == "Porcupine"){
 			SepiaFW.tools.loadJS("xtensions/picovoice/wakeWords.js", function(){
@@ -219,18 +220,33 @@ function sepiaFW_build_wake_triggers() {
 					SepiaFW.debug.log("WakeTriggers - Wake word sensitivities: [" + WakeTriggers.porcupineSensitivities.toString() + "]");
 					SepiaFW.wakeWordSettings.refreshUi("Engine");
 					//start listening?
-					setTimeout(function(){
-						if (WakeTriggers.useWakeWord){
-							SepiaFW.debug.log("WakeTriggers - Starting wake-word listener.");
-							WakeTriggers.listenToWakeWords();
-						}
+					if (!skipAutostart){
+						setTimeout(function(){
+							if (WakeTriggers.useWakeWord){
+								SepiaFW.debug.log("WakeTriggers - Starting wake-word listener.");
+								WakeTriggers.listenToWakeWords();
+							}
+						}, customAutostartDelay || 3000);
+						if (onFinishCallback) onFinishCallback();	//NOTE: this will trigger BEFORE auto-start
+					}else{
 						if (onFinishCallback) onFinishCallback();
-					}, 3000);
+					}
 				}
 			});
 		}else{
 			if (onFinishCallback) onFinishCallback();
 		}
+	}
+
+	WakeTriggers.releaseWakeWordEngine = function(onFinishCallback, onErrorCallback){
+		//make sure its stopped
+		WakeTriggers.stopListeningToWakeWords(function(){
+			//release the recorder
+			SepiaFW.audioRecorder.releaseWebAudioRecorder(function(){
+				WakeTriggers.engineLoaded = false;
+				if (onFinishCallback) onFinishCallback();
+			});
+		}, onErrorCallback);
 	}
 	
 	WakeTriggers.listenToWakeWords = function(onSuccessCallback, onErrorCallback, doDelayAndCheck){
@@ -282,6 +298,7 @@ function sepiaFW_build_wake_triggers() {
 				setWakeWordModuleGateState("open");
 				isListening = true;
 				SepiaFW.animate.wakeWord.active();
+				if (onSuccessCallback) onSuccessCallback();
 			}, onErrorCallback);
 		}
 	}

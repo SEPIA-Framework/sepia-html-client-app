@@ -85,16 +85,14 @@ function sepiaFW_build_audio_recorder(){
 	}
 	AudioRecorder.startWebAudioRecorder = function(successCallback, errorCallback){
 		if (sepiaWebAudioProcessor){
-			sepiaWebAudioProcessor.start();
-			if (successCallback) successCallback();
+			sepiaWebAudioProcessor.start(successCallback);
 		}else{
 			if (errorCallback) errorCallback({name: "ProcessorInitError", message: "SEPIA Web Audio Processor doesn't exist yet."});
 		}
 	}
 	AudioRecorder.stopWebAudioRecorder = function(callback){
 		if (sepiaWebAudioProcessor){
-			sepiaWebAudioProcessor.stop();
-			if (callback) callback();
+			sepiaWebAudioProcessor.stop(callback);
 		}else{
 			if (callback) callback();	//if it doesn't exist its quasi-stopped ;-)
 		}
@@ -213,7 +211,7 @@ function sepiaFW_build_audio_recorder(){
 			onaudioend: console.log,
 			onrelease: console.log,
 			onerror: console.error,
-			targetSampleRate: targetSampleRate,
+			//targetSampleRate: targetSampleRate,
 			modules: activeAudioModules,
 			destinationNode: undefined,		//defaults to: new "blind" destination (mic) or audioContext.destination (stream)
 			startSuspended: true,

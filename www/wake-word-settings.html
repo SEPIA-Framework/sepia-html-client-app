@@ -34,7 +34,10 @@
 				<div class="group fit expert-setting" id="sepiaFW-wake-word-engine" style="display: none;">
 					<div class="entry-content">
 						<label>Engine:</label><!-- TODO: implement when more options are available -->
-						<select id="sepiaFW-wake-word-engine-select"><option value="Porcupine">Porcupine</option></select>
+						<div style="display: flex;">
+							<select id="sepiaFW-wake-word-engine-select"><option value="Porcupine">Porcupine</option></select>
+							<button id="sepiaFW-wake-word-engine-reset" class="set-button" onclick="SepiaFW.wakeWordSettings.releaseEngine()">RESET</button>
+						</div>
 					</div>
 				</div>
 				<div class="group fit expert-setting" id="sepiaFW-wake-word-switcher" style="display: none;">
@@ -56,7 +59,7 @@
 				<div class="group fit expert-setting" id="sepiaFW-wake-word-buffer" style="display: none;">
 					<div class="entry-content">
 						<label>Buffer Length:</label>
-						<input id="sepiaFW-wake-word-buffer-length" placeholder="2048" value="2048" spellcheck="false">
+						<input id="sepiaFW-wake-word-buffer-length" placeholder="512" value="512" spellcheck="false">
 					</div>
 					<button class="set-button" onclick="SepiaFW.wakeWordSettings.setBufferLength()">SET</button>
 				</div>

@@ -133,11 +133,14 @@
 	margin-top: 16px; 
 	margin-bottom: 16px;
 }
-.sepiaFW-frames-page .group label {
-	margin: 0 8px !important;
+#sepiaFW-frames-view .sepiaFW-frames-page .group label {
+	margin: 0 8px;
 }
 .sepiaFW-frames-page .group label + * {
 	margin: 0 8px !important;
+}
+#sepiaFW-frames-view .sepiaFW-frames-page .group label + div > button {
+	margin-right: 0 !important;
 }
 .sepiaFW-frames-page .group input {
 	width: auto !important;
@@ -159,7 +162,8 @@
 	max-width: calc(100% - 16px);
 	overflow: hidden;
 }
-.sepiaFW-frames-page .group .sepiaFW-toggle-btn {
+.sepiaFW-frames-page .group .sepiaFW-toggle-btn,
+#sepiaFW-frames-view .group select {
 	border: 1px solid;
 	border-color: inherit;
 }
@@ -177,7 +181,7 @@
 }
 .sepiaFW-frames-page .group .set-button {
 	margin: 0 8px !important; 
-	width: 56px;
+	min-width: 56px;
 	flex: 0 0 auto;
 }
 .sepiaFW-frames-page .group .inside-button {
