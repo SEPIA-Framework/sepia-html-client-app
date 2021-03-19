@@ -111,19 +111,76 @@ function sepiaFW_build_audio(sepiaSessionId){
 		}else{
 			audioNodeElement.setSinkId(mediaDevice.deviceId)
 			.then(function(){
-				console.log('Audio sink ID set to: ' + audioNodeElement.sinkId);		//TODO
+				console.log('Audio sink ID set to: ' + audioNodeElement.sinkId);	//TODO
 				AudioPlayer.mediaDevicesSelected[mediaNodeType] = {name: mediaDevice.label, value: mediaDevice.deviceId};
 				if (successCallback) successCallback();
 			}).catch(function(err){
-				console.error('Audio sink ID cannot be set. Error:', err);		//TODO
+				console.error('Audio sink ID cannot be set. Error:', err);			//TODO
 				if (errorCallback) errorCallback(err.message);
 			});
+			//TODO: add CLEXI 'info' broadcast events (or cache for later onClientActive)
+			/*
+				//dispatch event
+				var event = new CustomEvent('sepia_info_event', { detail: {
+					action: "triggered",
+					info: info
+				}});
+				document.dispatchEvent(event);
+			*/
 		}
 	}
 	AudioPlayer.mediaDevicesSetup = function(successCallback){
-		//TODO: restore sink IDs ... if any
-		//setTimeout(successCallback, 4000);		//DEBUG
-		if (successCallback) successCallback();
+		var mediaDevicesStored = SepiaFW.data.getPermanent("mediaDevices") || {};
+		var deviceNamesStored = Object.keys(mediaDevicesStored);	//mic, tts, etc...
+		if (deviceNamesStored.length > 0){
+			//make sure this is worth it to load because it can slow-down start time:
+			var customSettingsN = 0;
+			for (let i=0; i<deviceNamesStored.length; i++){
+				var d = mediaDevicesStored[deviceNamesStored[i]];
+				if (d.name && d.name.toLowerCase() != "default" && AudioPlayer.mediaDevicesSelected[deviceNamesStored[i]]){
+					customSettingsN++;
+				}
+			}
+			if (customSettingsN > 0){
+				function restoreAsyncAndCheckComplete(mediaDevicesAvailable, deviceTypeName, deviceLabelToSet){
+					//restore sink IDs ... if any
+					if (mediaDevicesAvailable.in[deviceLabelToSet]){
+						//mic
+						var deviceId = mediaDevicesAvailable.in[deviceLabelToSet];
+						//TODO: remeber for audioRecorder
+						countAndFinish();
+					}else if (mediaDevicesAvailable.out[deviceLabelToSet]){
+						//speaker
+						var deviceId = mediaDevicesAvailable.out[deviceLabelToSet];
+						//TODO: set sink and callback
+						countAndFinish();
+					}else{
+						//device gone?
+						//TODO: now?
+						countAndFinish();
+					}
+				}
+				function countAndFinish(){
+					--customSettingsN;
+					if (customSettingsN <= 0 && successCallback) successCallback();
+				}
+				SepiaFW.debug.log("Audio - Restoring media-device settings");
+				//first load all available devices
+				AudioPlayer.refreshAvailableMediaDevices(function(mediaDevicesAvailable){	//NOTE: same as AudioPlayer.mediaDevicesAvailable
+					deviceNamesStored.forEach(function(typeName){
+						//NOTE: we need to check the name (label) since deviceId can change
+						restoreAsyncAndCheckComplete(mediaDevicesAvailable, typeName, mediaDevicesStored[typeName].name);
+					});
+				}, function(err){
+					SepiaFW.debug.error("Audio - FAILED to restore media-device settings", err);
+					if (successCallback) successCallback();		//we still continue
+				});
+			}else{
+				if (successCallback) successCallback();
+			}
+		}else{
+			if (successCallback) successCallback();
+		}
 	}
 
 	Stream.isPlaying = false;		//state: stream player

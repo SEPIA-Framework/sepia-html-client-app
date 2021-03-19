@@ -373,9 +373,11 @@ function sepiaFW_build_wake_triggers() {
 		if (!newBufferSize){
 			SepiaFW.data.delPermanent("porcupine-ww-buffer-length");
 		}else{
-			SepiaFW.data.setPermanent("porcupine-ww-buffer-length", newBufferSize);
+			//TODO: implement when available - for now its disabled
+			SepiaFW.debug.error("Wake-word buffer-size not yet supported. Use general input buffer of audio-interface!");
+			logInfo('ERROR: custom buffer-size not supported yet. Use audio-interface buffer instead.', true);
+			//SepiaFW.data.setPermanent("porcupine-ww-buffer-length", newBufferSize);
 		}
-		//TODO: FIX and reload module
 	}
 
 	//fill sensitivity array as needed

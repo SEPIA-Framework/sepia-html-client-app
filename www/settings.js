@@ -10,6 +10,16 @@ SepiaFW.settings = {
 				"name": "unassigned", 
 				"index": ""
 			},
+			"mediaDevices": {
+				"mic": {},
+				"player": {},
+				"tts": {},
+				"fx": {}
+			},
+			"deviceSounds": {
+				"micConfirm": "sounds/coin.mp3",
+				"alarm": "sounds/alarm.mp3"
+			},
 			"en-voice": "",
 			"de-voice": "",
 			"wakeWordSensitivity": [0.5]
@@ -45,7 +55,8 @@ SepiaFW.settings = {
 			"speech": true,
 			"wakeWord": true,
 			"audioPlayer": true,
-			"alarm": true
+			"alarm": true,
+			"info": false
 		}
 	}
 };

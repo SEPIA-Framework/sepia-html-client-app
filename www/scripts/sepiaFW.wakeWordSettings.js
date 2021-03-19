@@ -22,7 +22,7 @@ function sepiaFW_build_wake_word_settings() {
         if (sensitivityEle.value != undefined){
             SepiaFW.wakeTriggers.setWakeWordSensitivities([sensitivityEle.value]);
         }
-        SepiaFW.ui.showPopup("To use the changed wake-word sensitivity please reload the client first!");     //TODO: update
+        SepiaFW.ui.showPopup("Make sure to reset the engine to load a new wake-word sensitivity!");
     }
 
     //Change file and version used for wake-word
@@ -30,7 +30,7 @@ function sepiaFW_build_wake_word_settings() {
         var version = $("#sepiaFW-wake-word-version").val();
         var name = $("#sepiaFW-wake-word-name").val();
         //if (version != SepiaFW.wakeTriggers.getWakeWordVersion()){...}
-        SepiaFW.ui.showPopup("To use a new wake-word please reload the client first!");     //TODO: update
+        SepiaFW.ui.showPopup("Make sure to reset the engine to load a new wake-word!");
         SepiaFW.wakeTriggers.setWakeWord(name, version);
     }
     //Change mic confirmation sound
@@ -45,7 +45,7 @@ function sepiaFW_build_wake_word_settings() {
     WakeWordSettings.setBufferLength = function(){
         var buffLen = Number.parseInt($("#sepiaFW-wake-word-buffer-length").val());
         SepiaFW.wakeTriggers.setWakeWordBufferSize(buffLen);
-        SepiaFW.ui.showPopup("Please reload the client to activate new buffer length setting.");     //TODO: update
+        SepiaFW.ui.showPopup("This feature is read-only and has currently no effect. Please use audio-recorder buffer-size settings for now.");     //TODO: update
     }
     //Release engine (to start new)
     WakeWordSettings.releaseEngine = function(){
@@ -240,6 +240,9 @@ function sepiaFW_build_wake_word_settings() {
                 }else{
                     document.getElementById('sepiaFW-wake-word-toggle').innerHTML = "START";
                 }
+            }else{
+                isListening = false;
+                document.getElementById('sepiaFW-wake-word-toggle').innerHTML = "LOAD";
             }
 
             //Show active wake-word
