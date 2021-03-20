@@ -106,7 +106,7 @@ function sepiaFW_build_input_controls_cmdl() {
         wakeWord: true,
         audioPlayer: true,
         alarm: true,
-        info: false
+        info: true
     };
     function stateBroadcaster(ev){
         if (Cmdl.broadcasters.state && ev.detail && (ev.detail.state || ev.detail.connection)){
@@ -287,6 +287,17 @@ function sepiaFW_build_input_controls_cmdl() {
         broadcastEvent("sepia-wake-word", {
             state: (SepiaFW.wakeTriggers.isListening()? "active" : "inactive"),
             keywords: SepiaFW.wakeTriggers.getWakeWords()
+        });
+    }
+
+    Cmdl.get.mediadevices = function(){
+        SepiaFW.audio.refreshAvailableMediaDevices(function(mediaDevicesAvailable){
+            broadcastEvent("sepia-info-event", { type: "audio", info: { 
+                mediaDevicesAvailable: { input: Object.keys(mediaDevicesAvailable.in), output: Object.keys(mediaDevicesAvailable.out) },
+                mediaDevicesSelected: SepiaFW.audio.mediaDevicesSelected
+            }});
+        }, function(err){
+            broadcastEvent("sepia-info-event", { type: "audio", error: { message: err.message, name: err.name }});
         });
     }
 

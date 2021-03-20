@@ -5,10 +5,12 @@
 			<h3>Media Devices Settings</h3>
 			<p class="info-text">Here you can configure the media devices like microphone and audio sources (speakers) of your device.</p>
 			<div id="sepiaFW-media-devices-settings" class="group-container">
-				<div class="group">
-					<label>Microphone input:</label>
-					<div id="sepiaFW-media-devices-mic-box"></div>
+				<div class="group" style="justify-content: center;">
+					<button id="SepiaFW-media-devices-refresh" onclick="SepiaFW.frames.currentScope.refreshDevices()">Refresh devices</button>
+					<button id="SepiaFW-media-devices-store" onclick="SepiaFW.frames.currentScope.store()">Store settings</button>
+					<button id="SepiaFW-media-devices-default" onclick="SepiaFW.frames.currentScope.resetToDefault()">Default</button>
 				</div>
+				<h3>Speakers</h3>
 				<div class="group">
 					<label>Audio player output:</label>
 					<div id="sepiaFW-media-devices-audio-player-box"></div>
@@ -21,13 +23,13 @@
 					<label>FX output:</label>
 					<div id="sepiaFW-media-devices-fx-player-box"></div>
 				</div>
-				<div class="group" style="justify-content: center;">
-					<button id="SepiaFW-media-devices-refresh" onclick="SepiaFW.frames.currentScope.refreshDevices()">Refresh devices</button>
-					<button id="SepiaFW-media-devices-store" onclick="SepiaFW.frames.currentScope.store()">Store settings</button>
-				</div>
+				<h3>Microphone</h3>
 				<div class="group">
-					<div id="sepiaFW-media-devices-info-msg" style="padding: 8px;"></div>
+					<label>Microphone input:</label>
+					<div id="sepiaFW-media-devices-mic-box"></div>
 				</div>
+				<h3>Info</h3>
+				<div id="sepiaFW-media-devices-info-msg" style="white-space: break-spaces;"></div>
 			</div>
 		</div>
 	</div>
@@ -64,8 +66,14 @@
 		},
 		
 		refreshDevices: function(){
+			SepiaFW.frames.currentScope.showInfo("Loading devices...");
 			SepiaFW.audio.refreshAvailableMediaDevices(function(mediaDevicesAvailable){
 				SepiaFW.frames.currentScope.updateSelectors();
+				var logMsg = "Found devices:\n\n" 
+					+ "Input: " + (Object.keys(mediaDevicesAvailable.in).length) + "\n"
+					+ "Output: " + (Object.keys(mediaDevicesAvailable.in).length) + "\n"
+					+ '\nPlease note that the "same" device can show up with multiple names.';
+				SepiaFW.frames.currentScope.showInfo(logMsg);
 			}, function(err){
 				SepiaFW.debug.error("Media-Devices - failed to load devices:", err);
 				SepiaFW.frames.currentScope.showError(err.message);
@@ -84,10 +92,11 @@
 			fxEle.innerHTML = "";
 			
 			var inOptions = [{value: "", name: "Default"}];
-			Object.keys(SepiaFW.audio.mediaDevicesAvailable.in).forEach(function(key){
+			Object.keys(SepiaFW.audio.mediaDevicesAvailable.in).forEach(function(label){
+				var deviceId = SepiaFW.audio.mediaDevicesAvailable.in[label];
 				inOptions.push({
-					value: SepiaFW.audio.mediaDevicesAvailable.in[key],
-					name: key
+					value: deviceId,
+					name: label
 				});
 			});
 			micEle.appendChild(SepiaFW.ui.build.optionSelector(
@@ -97,10 +106,11 @@
 			));
 			
 			var outOptions = [{value: "", name: "Default"}];
-			Object.keys(SepiaFW.audio.mediaDevicesAvailable.out).forEach(function(key){
+			Object.keys(SepiaFW.audio.mediaDevicesAvailable.out).forEach(function(label){
+				var deviceId = SepiaFW.audio.mediaDevicesAvailable.out[label];
 				outOptions.push({
-					value: SepiaFW.audio.mediaDevicesAvailable.out[key],
-					name: key
+					value: deviceId,
+					name: label
 				});
 			});
 			playerEle.appendChild(SepiaFW.ui.build.optionSelector(
@@ -136,7 +146,12 @@
 		},
 		
 		store: function(){
-			SepiaFW.ui.showPopup(SepiaFW.local.g("UNDER CONSTRUCTION"));
+			SepiaFW.audio.storeMediaDevicesSetting();
+			SepiaFW.ui.showPopup("Settings stored.");		//SepiaFW.local.g("...")
+		},
+		resetToDefault: function(){
+			SepiaFW.audio.resetMediaDevicesSetting();
+			SepiaFW.ui.showPopup("Reset settings, please reload client.");
 		},
 
 		showInfo: function(msg){

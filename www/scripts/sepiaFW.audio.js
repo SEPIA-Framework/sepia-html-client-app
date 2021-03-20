@@ -111,23 +111,29 @@ function sepiaFW_build_audio(sepiaSessionId){
 		}else{
 			audioNodeElement.setSinkId(mediaDevice.deviceId)
 			.then(function(){
-				console.log('Audio sink ID set to: ' + audioNodeElement.sinkId);	//TODO
-				AudioPlayer.mediaDevicesSelected[mediaNodeType] = {name: mediaDevice.label, value: mediaDevice.deviceId};
-				if (successCallback) successCallback();
+				if (audioNodeElement.sinkId == mediaDevice.deviceId){
+					SepiaFW.debug.log("Audio - Set sink ID for media-node '" + mediaNodeType + "'. Label:", mediaDevice.label);
+					AudioPlayer.mediaDevicesSelected[mediaNodeType] = {name: mediaDevice.label, value: mediaDevice.deviceId};
+					if (successCallback) successCallback();
+				}else{
+					SepiaFW.debug.error("Audio - tried to set sink ID but failed! Label: " + mediaDevice.label);	//can this actually happen?
+					if (errorCallback) errorCallback("Label: " + mediaDevice.label + " - Message: Failed to set sink ID.");
+				}
 			}).catch(function(err){
-				console.error('Audio sink ID cannot be set. Error:', err);			//TODO
-				if (errorCallback) errorCallback(err.message);
+				SepiaFW.debug.error("Audio - sink ID cannot be set. Label: " + mediaDevice.label + " - Error:", err);	//TODO: revert back? delete setting?
+				if (errorCallback) errorCallback("Label: " + mediaDevice.label + " - Message: " + err.message);
 			});
-			//TODO: add CLEXI 'info' broadcast events (or cache for later onClientActive)
-			/*
-				//dispatch event
-				var event = new CustomEvent('sepia_info_event', { detail: {
-					action: "triggered",
-					info: info
-				}});
-				document.dispatchEvent(event);
-			*/
+			/* dispatch event? if we want to use this for CLEXI we may need to wait for connection 
+			document.dispatchEvent(new CustomEvent('sepia_info_event', { detail: {	type: "audio", info: {
+				message: ""
+			}}})); */
 		}
+	}
+	AudioPlayer.storeMediaDevicesSetting = function(){
+		SepiaFW.data.setPermanent("mediaDevices", AudioPlayer.mediaDevicesSelected);
+	}
+	AudioPlayer.resetMediaDevicesSetting = function(){
+		SepiaFW.data.delPermanent("mediaDevices", AudioPlayer.mediaDevicesSelected);	//NOTE: reload client after reset
 	}
 	AudioPlayer.mediaDevicesSetup = function(successCallback){
 		var mediaDevicesStored = SepiaFW.data.getPermanent("mediaDevices") || {};
@@ -142,34 +148,32 @@ function sepiaFW_build_audio(sepiaSessionId){
 				}
 			}
 			if (customSettingsN > 0){
-				function restoreAsyncAndCheckComplete(mediaDevicesAvailable, deviceTypeName, deviceLabelToSet){
-					//restore sink IDs ... if any
-					if (mediaDevicesAvailable.in[deviceLabelToSet]){
-						//mic
-						var deviceId = mediaDevicesAvailable.in[deviceLabelToSet];
-						//TODO: remeber for audioRecorder
-						countAndFinish();
-					}else if (mediaDevicesAvailable.out[deviceLabelToSet]){
-						//speaker
-						var deviceId = mediaDevicesAvailable.out[deviceLabelToSet];
-						//TODO: set sink and callback
-						countAndFinish();
-					}else{
-						//device gone?
-						//TODO: now?
-						countAndFinish();
-					}
-				}
 				function countAndFinish(){
 					--customSettingsN;
 					if (customSettingsN <= 0 && successCallback) successCallback();
+				}
+				function restoreAsyncAndCheckComplete(mediaDevicesAvailable, deviceTypeName, deviceLabelToSet){
+					//restore sink IDs ... if any
+					var deviceId = (deviceTypeName == "mic")? mediaDevicesAvailable.in[deviceLabelToSet] : mediaDevicesAvailable.out[deviceLabelToSet];
+					if (deviceId){
+						//mic or speaker - we distinguish inside set method
+						AudioPlayer.setMediaDeviceForNode(deviceTypeName, {deviceId: deviceId, label: deviceLabelToSet}, countAndFinish, countAndFinish);
+					}else{
+						//device gone - TODO: what now? remove from storage?
+						SepiaFW.debug.error("Audio - sink ID for '" + deviceTypeName + "' cannot be set because ID was not available! Label:", deviceLabelToSet);
+						countAndFinish();
+					}
 				}
 				SepiaFW.debug.log("Audio - Restoring media-device settings");
 				//first load all available devices
 				AudioPlayer.refreshAvailableMediaDevices(function(mediaDevicesAvailable){	//NOTE: same as AudioPlayer.mediaDevicesAvailable
 					deviceNamesStored.forEach(function(typeName){
-						//NOTE: we need to check the name (label) since deviceId can change
-						restoreAsyncAndCheckComplete(mediaDevicesAvailable, typeName, mediaDevicesStored[typeName].name);
+						var d = mediaDevicesStored[typeName];
+						//NOTE: we apply SAME criteria as above
+						if (d.name && d.name.toLowerCase() != "default" && AudioPlayer.mediaDevicesSelected[typeName]){
+							//NOTE: we check the name (label) since deviceId can change
+							restoreAsyncAndCheckComplete(mediaDevicesAvailable, typeName, d.name);
+						}
 					});
 				}, function(err){
 					SepiaFW.debug.error("Audio - FAILED to restore media-device settings", err);
