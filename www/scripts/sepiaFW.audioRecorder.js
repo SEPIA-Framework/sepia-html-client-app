@@ -36,7 +36,7 @@ function sepiaFW_build_audio_recorder(){
 	SepiaFW.webAudio.defaultProcessorOptions.moduleFolder = "audio-modules";
 	var sepiaWebAudioProcessor;
 
-	var targetSampleRate = 16000;
+	var targetSampleRate = 16000;				//TODO: add to options
 	var activeAudioModules = [];
 	var activeAudioModuleCapabilities = {};		//e.g.: resample, wakeWordDetection, vad, encode, volume
 	AudioRecorder.webAudioHasCapability = function(testCap){
@@ -49,16 +49,16 @@ function sepiaFW_build_audio_recorder(){
 
 	//TODO: add to options - combine with 'SepiaFW.webAudio.getSupportedAudioConstraints()'
 	var micAudioConstraintOptions = {
-		deviceId: "",				//TODO: get this from media devices options menu
+		deviceId: "",
 		//sampleRate: targetSampleRate,
 		channelCount: 1,
 		noiseSuppression: true,
 		autoGainControl: false,
 		echoCancellation: false
 	};
-	Object.keys(micAudioConstraintOptions).forEach(function(key){
-		SepiaFW.webAudio.overwriteSupportedAudioConstraints[key] = micAudioConstraintOptions[key];
-	});
+	AudioRecorder.setWebAudioConstraint = function(optionName, value){
+		SepiaFW.webAudio.overwriteSupportedAudioConstraints[optionName] = value;
+	}
 
 	var useLegacyMicInterface = (typeof window.AudioWorkletNode !== 'function' || !("audioWorklet" in (window.AudioContext || window.webkitAudioContext).prototype));
 	var legacyScriptProcessorBufferSize = 512;
@@ -114,12 +114,18 @@ function sepiaFW_build_audio_recorder(){
 		broadcastRecorderRequested();
 		activeAudioModules = [];
 		activeAudioModuleCapabilities = {};
+
+		//mic constraints
+		Object.keys(micAudioConstraintOptions).forEach(function(key){
+			//This is the 'brute-force' method to set microphone constraints ... but they are not yet accessible via options
+			SepiaFW.webAudio.overwriteSupportedAudioConstraints[key] = micAudioConstraintOptions[key];
+		});
 		
 		//--- Resampler
 		var resampler;
-		var resamplerQuality = 3;
-		var resamplerBufferSize = 512;
-		var resamplerGain = 1.0;
+		var resamplerQuality = 3;			//TODO: add to options
+		var resamplerBufferSize = 512;		//TODO: add to options
+		var resamplerGain = 1.0;			//TODO: add to options
 		function onResamplerMessage(data){
 			//TODO: implement
 			//console.log("onResamplerMessage", data); 		//DEBUG
@@ -207,10 +213,10 @@ function sepiaFW_build_audio_recorder(){
 	function createSepiaWebAudioProcessor(onProcessorReady, onProcessorInitError){
 		//Create processor
 		sepiaWebAudioProcessor = new SepiaFW.webAudio.Processor({
-			onaudiostart: console.log,
-			onaudioend: console.log,
-			onrelease: console.log,
-			onerror: console.error,
+			onaudiostart: console.log,		//TODO: implement?
+			onaudioend: console.log,		//TODO: implement (should e.g. stop WW and stuff)
+			onrelease: console.log,			//TODO: implement (should e.g. stop WW and stuff)
+			onerror: console.error,			//TODO: implement
 			//targetSampleRate: targetSampleRate,
 			modules: activeAudioModules,
 			destinationNode: undefined,		//defaults to: new "blind" destination (mic) or audioContext.destination (stream)

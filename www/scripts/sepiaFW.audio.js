@@ -101,10 +101,17 @@ function sepiaFW_build_audio(sepiaSessionId){
 	}
 	AudioPlayer.setMediaDeviceForNode = function(mediaNodeType, mediaDevice, successCallback, errorCallback){
 		var audioNodeElement;
-		if (mediaNodeType == "mic") audioNodeElement = ""; 		//TODO
-		if (mediaNodeType == "player") audioNodeElement = AudioPlayer.getMusicPlayer();
-		if (mediaNodeType == "tts") audioNodeElement = AudioPlayer.getTtsPlayer();
-		if (mediaNodeType == "fx") audioNodeElement = AudioPlayer.getEffectsPlayer();
+		if (mediaNodeType == "mic"){
+			//mic changes need to happen in web-audio recorder (this can only fail when recorder is created)
+			SepiaFW.audioRecorder.setWebAudioConstraint("deviceId", mediaDevice.deviceId);
+			SepiaFW.debug.log("Audio - Set sink ID for media-node '" + mediaNodeType + "'. Label:", mediaDevice.label);
+			AudioPlayer.mediaDevicesSelected[mediaNodeType] = {name: mediaDevice.label, value: mediaDevice.deviceId};
+			if (successCallback) successCallback();
+			return;
+		}
+		else if (mediaNodeType == "player") audioNodeElement = AudioPlayer.getMusicPlayer();
+		else if (mediaNodeType == "tts") audioNodeElement = AudioPlayer.getTtsPlayer();
+		else if (mediaNodeType == "fx") audioNodeElement = AudioPlayer.getEffectsPlayer();
 
 		if (!audioNodeElement.setSinkId){
 			if (errorCallback) errorCallback("This audio-node does not support custom sink IDs.");
@@ -124,9 +131,7 @@ function sepiaFW_build_audio(sepiaSessionId){
 				if (errorCallback) errorCallback("Label: " + mediaDevice.label + " - Message: " + err.message);
 			});
 			/* dispatch event? if we want to use this for CLEXI we may need to wait for connection 
-			document.dispatchEvent(new CustomEvent('sepia_info_event', { detail: {	type: "audio", info: {
-				message: ""
-			}}})); */
+			document.dispatchEvent(new CustomEvent('sepia_info_event', { detail: {	type: "audio", info: { message: "" }}})); */
 		}
 	}
 	AudioPlayer.storeMediaDevicesSetting = function(){
