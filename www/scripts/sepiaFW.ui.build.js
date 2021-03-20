@@ -579,10 +579,10 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 					+ "<li id='sepiaFW-menu-deviceId-li'><span>" + SepiaFW.local.g('deviceId') + ": </span><input id='sepiaFW-menu-deviceId' type='text' maxlength='24'></li>"
 					+ "<li id='sepiaFW-menu-device-site-li' title='Settings for device local site'><span>" + SepiaFW.local.g('deviceSite') + ": </span></li>"
 					+ "<li id='sepiaFW-menu-toggle-GPS-li'><span>GPS: </span></li>"
+					+ "<li id='sepiaFW-menu-media-devices-li' title='Settings for microphone, audio sources, etc.'><span>" + SepiaFW.local.g('mediaDevices') + ": </span></li>"
 					+ "<li id='sepiaFW-menu-toggle-voice-li'><span>Voice output: </span></li>"
 					+ "<li id='sepiaFW-menu-select-voice-engine-li' title='Speech synthesis engine.'><span>Voice engine: </span></li>"
 					+ "<li id='sepiaFW-menu-select-voice-li'><span>Voice: </span></li>" 	//option: <i class='material-icons md-mnu'>&#xE5C6;</i>
-					+ "<li id='sepiaFW-menu-media-devices-li' title='Settings for microphone, audio sources, etc.'><span>" + SepiaFW.local.g('mediaDevices') + ": </span></li>"
 					+ "<li id='sepiaFW-menu-toggle-proactiveNotes-li' title='The assistant will remind you in a funny way to make a coffee break etc. :-)'><span>Well-being reminders: </span></li>"
 					+ "<li id='sepiaFW-menu-toggle-channelMessages-li' title='Show status messages in chat like someone joined the channel?'><span>Channel status messages: </span></li>"
 					+ "<li id='sepiaFW-menu-toggle-bigScreenMode-li' title='Switch big-screen mode on/off'><span>Big-screen mode: </span></li>"

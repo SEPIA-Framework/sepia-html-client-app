@@ -136,7 +136,7 @@ function sepiaFW_build_offline(){
 		if (message.text){
 			//try to get some result from offline interpreter
 			if (SepiaFW.embedded && SepiaFW.embedded.nlu){
-				if (SepiaFW.client.isDemoMode() && SepiaFW.account.getUserRoles() && SepiaFW.account.getUserRoles()[0] == "setup"){
+				if (SepiaFW.account.isSetupMode()){
 					//TODO: should setup generate response?
 				}else{
 					nluResult = SepiaFW.embedded.nlu.interpretMessage(message);

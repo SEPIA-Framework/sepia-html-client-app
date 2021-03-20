@@ -174,6 +174,7 @@ function sepiaFW_build_strings(){
 	StringsDE.link_create_reminder = "Eine Erinnerung einrichten."
 	//Offline demo texts
 	StringsDE.demoMode = 'Du befindest dich im Demo-Modus! In diesem Modus kannst du die Einstellungen ändern (z.B. hostname), das Tutorial anschauen und mit manchen(!) Teilen des Interfaces spielen. Um auf deinen Assistenten zuzugreifen melde dich bitte zuerst an.';
+	StringsDE.setupMode = 'Du befindest dich im Setup-Modus! Dieser Modus kann genutzt werden um den Client lokal oder via Fernzugriff zu konfigurieren. Bitte beachte, dass die meisten Grundfunktionen nicht verfügbar sind in diesem Modus!';
 	StringsDE.notPossibleInDemoMode = 'Sorry aber das geht noch nicht im Demo-Modus.';
 	StringsDE.demoModeBtn = 'Demo-Modus';
 	StringsDE.myNewsDemoBtn = 'Öffne meine persönlichen News';
@@ -375,6 +376,7 @@ function sepiaFW_build_strings(){
 	StringsEN.link_create_reminder = "Create a reminder."
 	//Offline demo texts
 	StringsEN.demoMode = 'You are in demo-mode! This mode only allows you to change settings (e.g. hostname), check out the tutorial and play with some(!) parts of the UI. To get access to your assistant please log-in first.';
+	StringsEN.setupMode = 'You are in setup-mode! This mode is used to configure the client locally or via remote access. Note that most client featires will not work in this mode!';
 	StringsEN.notPossibleInDemoMode = 'Sorry this is not yet possible in demo-mode.';
 	StringsEN.demoModeBtn = 'Demo-Mode';
 	StringsEN.myNewsDemoBtn = 'Open my personal news';

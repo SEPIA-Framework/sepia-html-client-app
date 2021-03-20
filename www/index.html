@@ -623,8 +623,11 @@
 		SepiaFW.account.afterLogin = function(){
 			if (SepiaFW.client.isDemoMode()){
 				//SepiaFW.ui.showInfo(SepiaFW.local.g('demoMode'), true);
-				SepiaFW.ui.showCustomChatMessage(SepiaFW.local.g('demoMode'), { 
+				var demoMsg = SepiaFW.account.isSetupMode()? SepiaFW.local.g('setupMode') : SepiaFW.local.g('demoMode');
+				SepiaFW.ui.showCustomChatMessage(demoMsg, { 
 					channelId: 'info'
+				}, {
+					displayOptions: { beSilent: (SepiaFW.account.getTestUserType() == 2) }
 				});
 				//pseudo client - usually handled by client.startClient()
 				SepiaFW.client.buildUI();
@@ -692,12 +695,13 @@
 	}else{
 		//register service worker in non-Cordova app ONLY ... for now
 		if('serviceWorker' in navigator){
+			var scope = location.pathname.replace(/(.*\/).*?\.html$/, "$1");
 			navigator.serviceWorker
-				.register('sw.js')
+				.register(scope + 'sw.js')
 				.then(function(){ 
-					SepiaFW.debug.log('Service Worker: Registered');
+					SepiaFW.debug.log('Service Worker: Registered for scope: ' + scope);
 				}, function(err){
-					SepiaFW.debug.error('Service Worker: Failed to register', err);
+					SepiaFW.debug.error('Service Worker: Failed to register for scope: ' + scope, err);
 				});
 		}else{
 			SepiaFW.debug.log('Service Worker: Not available');

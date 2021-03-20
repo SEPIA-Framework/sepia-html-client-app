@@ -18,7 +18,24 @@ function sepiaFW_build_account(sepiaSessionId){
 	var demoAccounts = {
 		"appstore": "eval20192X",
 		"test": "test123",
+		"test2": "test123",
 		"setup": "setup123"
+	}
+	Account.getTestUserType = function(){
+		if (SepiaFW.client.isDemoMode()){
+			if (Account.getUserRoles() && (Account.getUserRoles()[0] == "setup" || Account.getUserRoles()[0] == "test2")){
+				//type 2 has reduces automic stuff during test-mode
+				return 2;
+			}else{
+				return 1;
+			}
+		}else{
+			return 0;
+		}
+	}
+	Account.isSetupMode = function(){
+		return (SepiaFW.client.isDemoMode() && Account.getUserRoles() && Account.getUserRoles()[0] == "setup");
+		//NOTE: check for demoId or '== "setup"' as well when looking for references in code
 	}
 	
 	//---- Account settings mapping (to simplify access) and options ----//
@@ -71,7 +88,7 @@ function sepiaFW_build_account(sepiaSessionId){
 		//set user ID indicator
 		$('#sepiaFW-menu-account-my-id').text("Demo");
 		//play sound?
-		if (Account.getUserRoles() && Account.getUserRoles()[0] == "setup"){
+		if (Account.isSetupMode()){
 			//TODO: should we play another sound when CLEXI connected?
 			SepiaFW.client.addOnActiveOneTimeAction(function(){ SepiaFW.audio.playURL("sounds/setup.mp3"); }, "setup");
 		}

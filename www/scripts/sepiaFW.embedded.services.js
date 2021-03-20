@@ -414,10 +414,11 @@ function sepiaFW_build_embedded_services(){
 		var id = id || ("BCDEx123456"); 	//usually this is defined by database id generator
 		var data = alarmData;
 		if (!alarmData){
+			var isTestUser1 = SepiaFW.account.getTestUserType() == 1;
 			//dummy dates
 			var dateAdded = new Date().getTime() - 300000;
-			//5min
-			var time1 = (dateAdded + 600000);
+			//5min (6h for test2)
+			var time1 = !isTestUser1? (dateAdded + 300000 + (60000*60*6)) : (dateAdded + 600000);
 			var date1 = new Date(time1);
 			var dateString1 = date1.toLocaleDateString(language);
 			var day1 = date1.toLocaleDateString(language, {weekday: 'long'});
@@ -470,6 +471,7 @@ function sepiaFW_build_embedded_services(){
 	Services.buildTimerCardInfoDummy = function(id, alarmData, language){
 		var id = id || ("BCDEy123456"); 	//usually this is defined by database id generator
 		if (!alarmData){
+			var isTestUser1 = SepiaFW.account.getTestUserType() == 1;
 			//dummy timers
 			var now = new Date().getTime();
 			alarmData = [{
@@ -479,7 +481,7 @@ function sepiaFW_build_embedded_services(){
 				"type": "timer",
 				"info": "set",
 				"lastChange": now,
-				"targetTimeUnix": (now + 1000*60*30),
+				"targetTimeUnix": (!isTestUser1? (now + 1000*60*60*5) : (now + 1000*60*30)),
 				"activated": false
 			}];
 		}

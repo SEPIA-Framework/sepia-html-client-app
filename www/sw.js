@@ -1,4 +1,4 @@
-var cacheName = 'SEPIA_PWA_v0.2X.X_b002'; 		//Note: remember to clear old caches when the versioned SW cache is active
+var cacheName = 'SEPIA_PWA_v0.2X.X_b003'; 		//Note: remember to clear old caches when the versioned SW cache is active
 var ENABLE_DYNAMIC_CACHING = false;
 
 self.addEventListener('install', function(event){
