@@ -1965,6 +1965,10 @@ body.big-screen .sepiaFW-results-container {
 	margin: 0px 0 10px 0;
 	text-align: left;
 }
+body.big-screen .sepiaFW-results-container .statusMsg,
+body.big-screen #sepiaFW-chat-output .statusMsg {
+	width: 100%;
+}
 body.big-screen .sepiaFW-results-container .chatMsg,
 body.big-screen #sepiaFW-chat-output .chatMsg {
 	width: 100%;
@@ -2082,7 +2086,7 @@ body.big-screen #sepiaFW-chat-output .chatMsg {
 		margin-top: 5px;
 		margin-left: 0;
 		margin-right: 0;
-		flex: 1 1 auto; /*420px*/
+		flex: 1 0 100%; /*420px*/
 	}
 }
 .sepiaFW-my-view-section .sepiaFW-mySections-titleNote {

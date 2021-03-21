@@ -6,10 +6,15 @@
 	transition: min-height 0.3s;
 	padding: 5px 0px 0px 0px;
 	overflow: hidden;
+	flex: 1 0 100%;
 }
 @media screen and (min-width: 480px) {
 	body.big-screen .sepiaFW-cards-flexSize-container {
-		min-width: 308px;
+		min-width: 360px;
+	}
+	body.big-screen #sepiaFW-result-view .sepiaFW-cards-flexSize-container {
+		flex: 1 0 30%;
+    	margin: 5px;
 	}
 }
 .sepiaFW-cards-flexSize-container.oneElement {
