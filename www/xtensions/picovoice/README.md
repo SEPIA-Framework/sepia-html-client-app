@@ -12,9 +12,10 @@ SepiaFW.wakeTriggers.porcupineVersion = "1.5";
 SepiaFW.wakeTriggers.porcupineWakeWords = ["Raspberry"];
 ```
 
-This will automaticall load the file: `keywords/1.5/raspberry_wasm.ppn`.  
+This will automaticall load the file: `audio-modules/picovoice/porcupine-keywords/raspberry_wasm_15.js`.  
+Since SEPIA client v0.24.0 the Porcupine integration is handled by the [SEPIA Web Audio Processor](https://github.com/SEPIA-Framework/sepia-web-audio) (see folder: 'audio-modules').  
   
-The library for Porcupine engine v1.4 is included by default since this is the version "Hey SEPIA" was created for. v1.5 and v1.6 are available via SEPIA's GitHub repository.
+The library for Porcupine engine v1.4 is included in the client by default since this is the version "Hey SEPIA" was created for. v1.5, v1.6 and v1.9 are available via the SEPIA server or SEPIA's GitHub repository.
 You can use the `download_wasm.sh` or `download_wasm.bat` file to download them directly to your folder, by default they will be loaded to browser cache at first start of the Porcupine engine.  
 After you've downloaded the files set `SepiaFW.wakeTriggers.porcupineVersionsDownloaded = true;` in your `wakeWords.js`.
 
