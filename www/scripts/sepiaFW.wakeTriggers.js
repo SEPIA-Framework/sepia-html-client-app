@@ -188,15 +188,15 @@ function sepiaFW_build_wake_triggers() {
 					//version and WASM file
 					var wasmFile;
 					if (WakeTriggers.porcupineVersion == PORCUPINE_DEFAULT_VERSION){
-						wasmFile = PORCUPINE_FOLDER + "pv_porcupine.wasm";											//DEFAULT (INCLUDED)
+						wasmFile = PORCUPINE_FOLDER + "pv_porcupine.wasm";												//DEFAULT (INCLUDED)
 					}else if (WakeTriggers.porcupineVersionsDownloaded){
-						wasmFile = PORCUPINE_FOLDER + "pv_porcupine_" + WakeTriggers.porcupineVersion + ".wasm";	//DOWNLOADED
-					}else if (WakeTriggers.porcupineWasmRemoteUrl){
+						wasmFile = PORCUPINE_FOLDER + "pv_porcupine_" + WakeTriggers.porcupineVersion + ".wasm";		//DOWNLOADED
+					}else if (WakeTriggers.porcupineWasmRemoteUrl && WakeTriggers.porcupineWasmRemoteUrl != "git"){
 						wasmFile = SepiaFW.config.replacePathTagWithActualPath(WakeTriggers.porcupineWasmRemoteUrl)
-								+ WakeTriggers.porcupineVersion + "/pv_porcupine.wasm";										//ONLINE - CUSTOM
+								+ WakeTriggers.porcupineVersion + "/pv_porcupine.wasm";									//ONLINE - CUSTOM
 					}else{
 						wasmFile = "https://sepia-framework.github.io/files/porcupine/" 
-								+ WakeTriggers.porcupineVersion + "/pv_porcupine.wasm";										//ONLINE - DEFAULT
+								+ WakeTriggers.porcupineVersion + "/pv_porcupine.wasm";									//ONLINE - DEFAULT
 					}
 					logInfo('ENGINE URL: ' + wasmFile, false);
 					//sanitize
