@@ -82,6 +82,40 @@ function sepiaFW_build_wake_word_settings() {
         }
     }
 
+    //Select keyword pop-up
+    WakeWordSettings.keywordSelectPopup = function(){
+        if (!SepiaFW.wakeTriggers.engineLoaded){
+            SepiaFW.ui.showPopup("Please load engine first to get a list of available wake-words.");
+            return;
+        }
+        var akw = SepiaFW.wakeTriggers.getAvailableWakeWords() || {};
+        var text = document.createElement("p");
+        text.textContent = "Choose your wake-word:";
+        var selector = document.createElement("select");
+        selector.innerHTML = '<option value=\'{"v": "", "kw": ""}\'>Default</option>';
+        Object.keys(akw).forEach(function(kw, i){
+            var opt = document.createElement("option");
+            opt.value = JSON.stringify({v: akw[kw], kw: kw});
+            opt.textContent = kw + " (v" + akw[kw] + ")";
+            selector.appendChild(opt);
+        });
+        var config = {
+            buttonOneName : SepiaFW.local.g('select'),
+            buttonOneAction : function(){
+                //select
+                var vkw = JSON.parse(selector.value);
+                $("#sepiaFW-wake-word-version").val(vkw.v);
+                $("#sepiaFW-wake-word-name").val(vkw.kw);
+            },
+            buttonTwoName : SepiaFW.local.g('abort'),
+            buttonTwoAction : function(){}
+        };
+        var content = document.createElement("div");
+        content.appendChild(text);
+        content.appendChild(selector);
+        SepiaFW.ui.showPopup(content, config);
+    }
+
     //Test-function for wake-word
     var isWhite = true;
     var isListening = false;
@@ -161,6 +195,11 @@ function sepiaFW_build_wake_word_settings() {
                 $('.sepiaFW-wake-word-settings-page .hidden-expert-setting').hide(150);
             }, debugInfo)
         );
+        //ww hidden expert settings 
+        var wwExpertLabel = $(wakeWordExpert).closest('.group').find("label")[0];
+        SepiaFW.ui.longPressShortPressDoubleTap(wwExpertLabel, function(){
+            $('.sepiaFW-wake-word-settings-page .hidden-expert-setting').show(300);
+        });
         var wakeWordDebug = document.getElementById('sepiaFW-wake-word-debug-box');
         wakeWordDebug.appendChild(SepiaFW.ui.build.toggleButton('sepiaFW-menu-toggle-wake-word-debug', 
             function(){
@@ -171,11 +210,6 @@ function sepiaFW_build_wake_word_settings() {
                 $('.sepiaFW-wake-word-settings-page .debug-setting').hide(150);
             }, debugInfo)
         );
-        //ww hidden expert settings 
-        var wwDebugLabel = $(wakeWordDebug).closest('.group').find("label")[0];
-        SepiaFW.ui.longPressShortPressDoubleTap(wwDebugLabel, function(){
-            $('.sepiaFW-wake-word-settings-page .hidden-expert-setting').show(300);
-        });
 
         if (!SepiaFW.wakeTriggers.engineLoaded){
             isListening = false;

@@ -11,6 +11,7 @@ function sepiaFW_build_strings(){
 	StringsDE.help = 'Hilfe';
 	StringsDE.ok = 'Ok';
 	StringsDE.more = 'Mehr';
+	StringsDE.select = 'Auswählen';
 	StringsDE.username = 'Username';
 	StringsDE.nickname = 'Spitzname';
 	StringsDE.password = 'Passwort';
@@ -213,6 +214,7 @@ function sepiaFW_build_strings(){
 	StringsEN.help = 'Help';
 	StringsEN.ok = 'Ok';
 	StringsEN.more = 'More';
+	StringsEN.select = 'Select';
 	StringsEN.username = 'Username';
 	StringsEN.nickname = 'Nickname';
 	StringsEN.password = 'Password';

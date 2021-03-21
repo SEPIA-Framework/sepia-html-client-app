@@ -201,7 +201,11 @@ function sepiaFW_build_wake_triggers() {
 					logInfo('ENGINE URL: ' + wasmFile, false);
 					//sanitize
 					if (typeof WakeTriggers.porcupineWakeWords == "string"){
-						WakeTriggers.porcupineWakeWords = [WakeTriggers.porcupineWakeWords];
+						if (WakeTriggers.porcupineWakeWords.indexOf(",")){
+							WakeTriggers.porcupineWakeWords = WakeTriggers.porcupineWakeWords.split(/\s*,\s*/);
+						}else{
+							WakeTriggers.porcupineWakeWords = [WakeTriggers.porcupineWakeWords];
+						}
 					}
 					//Uint8Array data instead of names?
 					var keywordsData;
@@ -339,6 +343,10 @@ function sepiaFW_build_wake_triggers() {
 			return WakeTriggers.porcupineWakeWords;
 		}
 	}
+	WakeTriggers.getAvailableWakeWords = function(){
+		//Porcupine integration
+		return WakeTriggers.porcupineAvailableKeywords;
+	}
 	WakeTriggers.getWakeWordVersion = function(){
 		if (!WakeTriggers.engineLoaded) return "";
 		//Porcupine integration
@@ -397,18 +405,15 @@ function sepiaFW_build_wake_triggers() {
 	}
 
 	//fill sensitivity array as needed
-	function sanitizeSensitivities(newValues, n){
-		if (newValues.length < n){
+	function sanitizeSensitivities(givenValues, n){
+		if (givenValues.length < n){
 			var newArray = [];
-			for (var i=newValues.length-1; i<newValues.length; i++){
-				newArray.push(newValues[i]);
-			}
-			for (var i=newValues.length; i<keywords.length; i++){
-				newArray.push(newValues[0]);
+			for (var i=0; i<n; i++){
+				newArray.push(givenValues[i] || givenValues[0]);
 			}
 			return new Float32Array(newArray);
 		}else{
-			return new Float32Array(newValues);
+			return new Float32Array(givenValues);
 		}
 	}
 	
