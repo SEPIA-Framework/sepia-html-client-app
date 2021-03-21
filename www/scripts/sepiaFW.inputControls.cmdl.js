@@ -106,7 +106,7 @@ function sepiaFW_build_input_controls_cmdl() {
         wakeWord: true,
         audioPlayer: true,
         alarm: true,
-        info: true
+        info: false
     };
     function stateBroadcaster(ev){
         if (Cmdl.broadcasters.state && ev.detail && (ev.detail.state || ev.detail.connection)){

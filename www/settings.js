@@ -21,8 +21,7 @@ SepiaFW.settings = {
 				"alarm": "sounds/alarm.mp3"
 			},
 			"en-voice": "",
-			"de-voice": "",
-			"wakeWordSensitivity": [0.5]
+			"de-voice": ""
 		},
 		user: {
 			"clexiSocketURI": "ws://localhost:8080",

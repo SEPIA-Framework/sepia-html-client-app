@@ -24,6 +24,14 @@ function sepiaFW_build_wake_word_settings() {
         }
         SepiaFW.ui.showPopup("Make sure to reset the engine to load a new wake-word sensitivity!");
     }
+    //Store remote download URL
+    WakeWordSettings.storeWakeWordRemoteDownloadUrl = function(){
+        var ele = document.getElementById('sepiaFW-wake-word-remote-url');
+        if (ele.value != undefined){
+            SepiaFW.wakeTriggers.setWakeWordRemoteDownloadUrl(ele.value);
+            SepiaFW.animate.flashObj(ele);
+        }
+    }
 
     //Change file and version used for wake-word
     WakeWordSettings.updateWakeWordFile = function(){
@@ -144,22 +152,30 @@ function sepiaFW_build_wake_word_settings() {
                 SepiaFW.debug.info("Wake-word 'Hey SEPIA' will NOT be allowed during audio stream.");
             }, SepiaFW.wakeTriggers.allowWakeWordDuringStream)
         );
+        var wakeWordExpert = document.getElementById('sepiaFW-wake-word-expert-box');
+        wakeWordExpert.appendChild(SepiaFW.ui.build.toggleButton('sepiaFW-menu-toggle-wake-word-expert', 
+            function(){
+                $('.sepiaFW-wake-word-settings-page .expert-setting').show(300);    //ww expert settings
+            },function(){
+                $('.sepiaFW-wake-word-settings-page .expert-setting').hide(150);
+                $('.sepiaFW-wake-word-settings-page .hidden-expert-setting').hide(150);
+            }, debugInfo)
+        );
         var wakeWordDebug = document.getElementById('sepiaFW-wake-word-debug-box');
         wakeWordDebug.appendChild(SepiaFW.ui.build.toggleButton('sepiaFW-menu-toggle-wake-word-debug', 
             function(){
                 debugInfo = true;
-                $('.sepiaFW-wake-word-settings-page .expert-setting').show(300);    //ww expert settings
+                $('.sepiaFW-wake-word-settings-page .debug-setting').show(300);    //ww debug settings
             },function(){
                 debugInfo = false;
-                $('.sepiaFW-wake-word-settings-page .expert-setting').hide(150);
+                $('.sepiaFW-wake-word-settings-page .debug-setting').hide(150);
             }, debugInfo)
         );
-        //ww expert settings 
-        /*
+        //ww hidden expert settings 
         var wwDebugLabel = $(wakeWordDebug).closest('.group').find("label")[0];
         SepiaFW.ui.longPressShortPressDoubleTap(wwDebugLabel, function(){
-            $('.sepiaFW-wake-word-settings-page .expert-setting').show(300);
-        });*/
+            $('.sepiaFW-wake-word-settings-page .hidden-expert-setting').show(300);
+        });
 
         if (!SepiaFW.wakeTriggers.engineLoaded){
             isListening = false;
@@ -250,6 +266,8 @@ function sepiaFW_build_wake_word_settings() {
             $("#sepiaFW-wake-word-name").val(SepiaFW.wakeTriggers.getWakeWords()[0]);
             //Show confirmation sound
             $('#sepiaFW-wake-word-confirm-sound-path').val(SepiaFW.audio.micConfirmSound);
+            //Show Porcupine remote URL
+            $('#sepiaFW-wake-word-remote-url').val(SepiaFW.wakeTriggers.getWakeWordRemoteDownloadUrl());
             //Show Porcupine buffer length
             var engineInfo = SepiaFW.wakeTriggers.getEngineInfo();
             if (engineInfo){

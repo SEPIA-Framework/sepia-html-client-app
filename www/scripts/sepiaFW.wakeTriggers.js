@@ -105,7 +105,7 @@ function sepiaFW_build_wake_triggers() {
 		//start setup?
 		if (WakeTriggers.autoLoadWakeWord){ 		//Client.onActive good place?
 			setTimeout(function(){
-				var skipAutostart = true;			//we start manually
+				var skipAutostart = false;			//we start directly ('cause we assume this is called onActive)
 				WakeTriggers.setupWakeWords(function(){
 					//now we can install the permanent 'onActive' event (because it will be closed during 'client.broadcastOnActiveReset')
 					SepiaFW.client.addOnActiveAction(function(){
@@ -174,26 +174,31 @@ function sepiaFW_build_wake_triggers() {
 			SepiaFW.tools.loadJS("xtensions/picovoice/wakeWords.js", function(){
 				//restore from client storage (higher priority)
 				var porcupineVersion = SepiaFW.data.getPermanent('wakeWordVersion');
-				var porcupineWakeWords = SepiaFW.data.getPermanent('wakeWordNames');
-				var porcupineSensitivities = SepiaFW.data.getPermanent('wakeWordSensitivity');
 				if (porcupineVersion) WakeTriggers.porcupineVersion = porcupineVersion;
+				var porcupineWakeWords = SepiaFW.data.getPermanent('wakeWordNames');
 				if (porcupineWakeWords) WakeTriggers.porcupineWakeWords = porcupineWakeWords;
+				var porcupineSensitivities = SepiaFW.data.getPermanent('wakeWordSensitivity');
 				if (porcupineSensitivities) WakeTriggers.porcupineSensitivities = porcupineSensitivities;
+				var porcupineVersionsDownloaded = SepiaFW.data.getPermanent('wakeWordIsLocal');
+				if (porcupineVersionsDownloaded != undefined) WakeTriggers.porcupineVersionsDownloaded = porcupineVersionsDownloaded;
+				var porcupineWasmRemoteUrl = SepiaFW.data.getPermanent('wakeWordRemoteUrl');
+				if (porcupineWasmRemoteUrl) WakeTriggers.porcupineWasmRemoteUrl = porcupineWasmRemoteUrl;
 				//load ww and engine
 				if (WakeTriggers.porcupineWakeWords){
 					//version and WASM file
 					var wasmFile;
-					if (WakeTriggers.porcupineVersionsDownloaded){
-						if (WakeTriggers.porcupineVersion == "1.4" || WakeTriggers.porcupineVersion == "14"){	//...for legacy reasons
-							wasmFile = porcupineExtensionFolder + "pv_porcupine.wasm";												//DOWNLOADED
-						}else{
-							wasmFile = porcupineExtensionFolder + "pv_porcupine_" + WakeTriggers.porcupineVersion + ".wasm";		//DOWNLOADED
-						}
+					if (WakeTriggers.porcupineVersion == PORCUPINE_DEFAULT_VERSION){
+						wasmFile = PORCUPINE_FOLDER + "pv_porcupine.wasm";											//DEFAULT (INCLUDED)
+					}else if (WakeTriggers.porcupineVersionsDownloaded){
+						wasmFile = PORCUPINE_FOLDER + "pv_porcupine_" + WakeTriggers.porcupineVersion + ".wasm";	//DOWNLOADED
 					}else if (WakeTriggers.porcupineWasmRemoteUrl){
-						wasmFile = SepiaFW.files.replaceSystemFilePath(WakeTriggers.porcupineWasmRemoteUrl);					//ONLINE - CUSTOM
+						wasmFile = SepiaFW.config.replacePathTagWithActualPath(WakeTriggers.porcupineWasmRemoteUrl)
+								+ WakeTriggers.porcupineVersion + "/pv_porcupine.wasm";										//ONLINE - CUSTOM
 					}else{
-						wasmFile = "https://sepia-framework.github.io/files/porcupine/" + version + "/pv_porcupine.wasm";		//ONLINE - DEFAULT
+						wasmFile = "https://sepia-framework.github.io/files/porcupine/" 
+								+ WakeTriggers.porcupineVersion + "/pv_porcupine.wasm";										//ONLINE - DEFAULT
 					}
+					logInfo('ENGINE URL: ' + wasmFile, false);
 					//sanitize
 					if (typeof WakeTriggers.porcupineWakeWords == "string"){
 						WakeTriggers.porcupineWakeWords = [WakeTriggers.porcupineWakeWords];
@@ -324,7 +329,7 @@ function sepiaFW_build_wake_triggers() {
 	}
 	
 	WakeTriggers.getWakeWords = function(){
-		if (!WakeTriggers.engineLoaded) return ["-NOT-LOADED-"];
+		if (!WakeTriggers.engineLoaded) return [];
 		//Porcupine integration
 		if (typeof WakeTriggers.porcupineWakeWords == "string"){
 			return [WakeTriggers.porcupineWakeWords];
@@ -335,7 +340,7 @@ function sepiaFW_build_wake_triggers() {
 		}
 	}
 	WakeTriggers.getWakeWordVersion = function(){
-		if (!WakeTriggers.engineLoaded) return "0";
+		if (!WakeTriggers.engineLoaded) return "";
 		//Porcupine integration
 		return WakeTriggers.porcupineVersion;
 	}
@@ -368,6 +373,17 @@ function sepiaFW_build_wake_triggers() {
 	WakeTriggers.getEngineInfo = function(){
 		return WakeTriggers.engineModule;
 	}
+	WakeTriggers.setWakeWordRemoteDownloadUrl = function(newUrl){
+		if (newUrl === ""){
+			SepiaFW.data.delPermanent('wakeWordRemoteUrl');
+		}else{
+			SepiaFW.data.setPermanent('wakeWordRemoteUrl', newUrl);
+		}
+	}
+	WakeTriggers.getWakeWordRemoteDownloadUrl = function(){
+		//Porcupine integration
+		return WakeTriggers.porcupineWasmRemoteUrl;
+	}
 	WakeTriggers.setWakeWordBufferSize = function(newBufferSize){
 		//Porcupine integration
 		if (!newBufferSize){
@@ -399,7 +415,8 @@ function sepiaFW_build_wake_triggers() {
 	//------ Porcupine Javascript (Picovoice.ai) ------
 	
 	//some defaults
-	var porcupineExtensionFolder = "xtensions/picovoice/";
+	var PORCUPINE_FOLDER = "xtensions/picovoice/";
+	var PORCUPINE_DEFAULT_VERSION = "1.4";
 	
 	//-------------------------------------------------
 

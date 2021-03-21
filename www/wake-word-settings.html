@@ -28,6 +28,10 @@
 					<div id="sepiaFW-wake-word-during-stream-box"></div>
 				</div>
 				<div class="group">
+					<label>Expert settings:</label>
+					<div id="sepiaFW-wake-word-expert-box"></div>
+				</div>
+				<div class="group">
 					<label>Debug info:</label>
 					<div id="sepiaFW-wake-word-debug-box"></div>
 				</div>
@@ -39,6 +43,13 @@
 							<button id="sepiaFW-wake-word-engine-reset" class="set-button" onclick="SepiaFW.wakeWordSettings.releaseEngine()">RESET</button>
 						</div>
 					</div>
+				</div>
+				<div class="group fit hidden-expert-setting" style="display: none;">
+					<div class="entry-content">
+						<label>URL:</label>
+						<input id="sepiaFW-wake-word-remote-url" placeholder="https://sepia-framework.github.io/files/porcupine/" value="" spellcheck="false">
+					</div>
+					<button class="set-button" onclick="SepiaFW.wakeWordSettings.storeWakeWordRemoteDownloadUrl()">SET</button>
 				</div>
 				<div class="group fit expert-setting" id="sepiaFW-wake-word-switcher" style="display: none;">
 					<div class="entry-content">
@@ -53,18 +64,18 @@
 						<label>Confirm sound:</label>
 						<input id="sepiaFW-wake-word-confirm-sound-path" placeholder="<custom_data>/my.mp3" value="" spellcheck="false">
 					</div>
-					<button onclick="SepiaFW.wakeWordSettings.testMicConfirmationSound()" style="border-radius: 14px; padding: 5px; margin: 0;"><i class="material-icons md-txt">play_arrow</i></button>
+					<button class="trigger-button" onclick="SepiaFW.wakeWordSettings.testMicConfirmationSound()"><i class="material-icons md-txt">play_arrow</i></button>
 					<button class="set-button" onclick="SepiaFW.wakeWordSettings.setMicConfirmationSound()">SET</button>
 				</div>
-				<div class="group fit expert-setting" id="sepiaFW-wake-word-buffer" style="display: none;">
+				<div class="group fit hidden-expert-setting" id="sepiaFW-wake-word-buffer" style="display: none;">
 					<div class="entry-content">
 						<label>Buffer Length:</label>
 						<input id="sepiaFW-wake-word-buffer-length" placeholder="512" value="512" spellcheck="false">
 					</div>
 					<button class="set-button" onclick="SepiaFW.wakeWordSettings.setBufferLength()">SET</button>
 				</div>
-				<div class="group fit expert-setting" style="display: none; flex-direction: column;">
-					<p>Debug Log:</p>
+				<div class="group fit debug-setting" style="display: none; flex-direction: column;">
+					<p>Debug Log &nbsp;<button class="trigger-button" onclick="document.getElementById('sepiaFW-wake-word-audio-info').textContent='';"><i class="material-icons md-txt">delete_sweep</i></button></p>
 					<div id="sepiaFW-wake-word-audio-info"></div>
 				</div>
 			</div>
