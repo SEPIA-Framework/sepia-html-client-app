@@ -234,6 +234,24 @@ html {
     background: rgba(0, 0, 0, 0.05);
 }
 
+/*----- Popup ------*/
+
+.sepiaFW-popup-cover-layer {
+	background: rgba(0, 0, 0, 0.66);
+}
+.sepiaFW-input-popup {
+	border: 1px solid rgb(245, 245, 245);
+    color: #000;
+    background: #e4e3e4;
+}
+#sepiaFW-popup-message button {
+	background-color: #eee;
+}
+#sepiaFW-popup-message button:hover {
+	color: #000;
+    background: linear-gradient(320deg, #ffffff, #efefef) !important;
+}
+
 /*----- cards ------*/
 
 .sepiaFW-cards-flexSize-container {

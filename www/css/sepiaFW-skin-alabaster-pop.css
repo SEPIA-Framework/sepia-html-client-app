@@ -1,5 +1,5 @@
 html {
-	background-image: url(../img/three-colors-blob-blurred-1.svg);
+	background-image: url(../img/color-blobs-1.svg);
 	background-position: center;
 	background-color: #eee;
 	background-size: 818px;
@@ -11,11 +11,11 @@ html {
 	}
 }
 
-#sepiaFW-pC 	{ background-color: #fff; }
-#sepiaFW-sC 	{ background-color: #027BFF; }
+#sepiaFW-pC 	{ background-color: #f0f0f0; }
+#sepiaFW-sC 	{ background-color: #d183f3; }
 #sepiaFW-sC2 	{ background-color: #77b7ff; }
-#sepiaFW-aC 	{ background-color: #ff5c69; }
-#sepiaFW-aC2 	{ background-color: #7fffb5; }
+#sepiaFW-aC 	{ background-color: #f00; }
+#sepiaFW-aC2 	{ background-color: #027BFF; }
 #sepiaFW-asC 	{ background-color: #000; }
 #sepiaFW-adC 	{ background-color: #fff176; }
 #sepiaFW-lC 	{ background-color: #e5e5e5; }
@@ -63,7 +63,8 @@ html {
 
 #sepiaFW-assist-btn-area {
 	border-color: rgb(240, 240, 240);
-    background: rgb(240, 240, 240);
+	/*background: rgb(240, 240, 240);*/
+	background-color: rgb(240 240 240) !important;
     backdrop-filter: unset;
 }
 #sepiaFW-assist-btn-area button {
@@ -73,10 +74,22 @@ html {
 	background: linear-gradient(to right, #bcc9f5 0%, #dfa1f2 100%) !important;
 }
 .sepiaFW-notouch-device #sepiaFW-assist-btn:hover {
-	background: linear-gradient(to right, #e1e1f5 0%, #f0f0f0 100%) !important;
+	background: linear-gradient(to right, #bcc9f5 0%, #dfa1f2 100%) !important;
 }
 #sepiaFW-assist-btn i {
 	display: none !important;
+}
+#sepiaFW-assist-btn-area.listening #sepiaFW-assist-btn {
+	background: #e31683;
+}
+#sepiaFW-assist-btn-area.speaking #sepiaFW-assist-btn {
+	border-color: #027BFF;
+}
+#sepiaFW-assist-btn-area.awaitDialog #sepiaFW-assist-btn {
+	border-color: #fff176;
+}
+#sepiaFW-assist-btn-area.loading #sepiaFW-assist-btn {
+	background: linear-gradient(to right, #e1e1f5 0%, #f0f0f0 100%) !important;
 }
 #sepiaFW-assist-btn-orbiter1 {
     background: #daabee;
@@ -95,8 +108,8 @@ html {
 }
 
 #sepiaFW-chat-output article.chatMe {
-	border: 1px solid rgb(240, 240, 250);
-    background: rgba(245, 245, 255, 0.60);
+	border: 1px solid rgb(244, 236, 245);
+    background: rgba(255, 240, 255, 0.4);
 	color: #000;
 }
 #sepiaFW-chat-output article.chatMe b {
@@ -107,8 +120,8 @@ html {
 }
 
 #sepiaFW-chat-output article.chatAssistant {
-	border: 1px solid rgb(250, 240, 240);
-    background: rgba(255, 245, 245, 0.60);
+	border: 1px solid rgb(238, 238, 245);
+    background: rgba(243, 248, 255, 0.40);
     color: #000;
 }
 
@@ -120,6 +133,12 @@ html {
 }
 .sepiaFW-notouch-device #sepiaFW-main-window .chat-buttons-area button:hover {
 	background: rgba(250, 250, 250, 0.80);
+}
+
+/*----- Popup ------*/
+
+.sepiaFW-input-popup {
+    background: linear-gradient(320deg, #ccc5ce, #d1d8e6);
 }
 
 /*----- cards ------*/
