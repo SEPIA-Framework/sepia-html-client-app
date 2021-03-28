@@ -1,0 +1,154 @@
+html {
+	background-image: url(../img/three-colors-blob-blurred-1.svg);
+	background-position: center;
+	background-color: #eee;
+	background-size: 818px;
+	background-repeat: repeat;
+}
+@media (max-height: 720px) {
+	html {
+		background-size: 640px;
+	}
+}
+
+#sepiaFW-pC 	{ background-color: #fff; }
+#sepiaFW-sC 	{ background-color: #027BFF; }
+#sepiaFW-sC2 	{ background-color: #77b7ff; }
+#sepiaFW-aC 	{ background-color: #ff5c69; }
+#sepiaFW-aC2 	{ background-color: #7fffb5; }
+#sepiaFW-asC 	{ background-color: #000; }
+#sepiaFW-adC 	{ background-color: #fff176; }
+#sepiaFW-lC 	{ background-color: #e5e5e5; }
+
+#sepiaFW-navC 	{ background-color: #000; }
+#sepiaFW-statC 	{ background-color: #000; }
+
+#sepiaFW-login-box, #sepiaFW-nav-bar, #sepiaFW-chat-controls-form, #sepiaFW-chat-controls-right {
+	border: 1px solid rgb(240, 240, 240);
+	background: rgb(240, 240, 240);
+	color: #000;
+}
+#sepiaFW-login-box {
+	background: linear-gradient(320deg, #f0f0f0, #dfe3ec);
+	box-shadow: 1px 1px 12px 0 rgba(0, 0, 0, 0.08), 1px 1px 2px 0 rgba(0, 0, 0, 0.12);
+}
+#sepiaFW-language-selector select {
+	color: #000;
+}
+#sepiaFW-chat-controls {
+    background: linear-gradient(rgba(240, 240, 240, 0), #f0f0f0, #f0f0f0);
+	border-bottom: 2px solid #f0f0f0;
+}
+.sepiaFW-notouch-device #sepiaFW-main-window button:hover {
+    background: #fafafa;
+    color: #000;
+}
+
+.sepiaFW-menu {
+	background: linear-gradient(320deg, #f0f0f0, #dfe3ec) !important;
+	color: #000 !important;
+	border: 1px solid #f0f0f0;
+}
+.sepiaFW-cards-list-contextMenu, 
+.sepiaFW-cards-contextMenu-single {
+    background: rgba(245, 245, 255, 0.33) !important;
+}
+.sepiaFW-menu button:hover {
+    background: #fafafa !important;
+    color: #000 !important;
+}
+.sepiaFW-toggle-btn {
+    border: 1px solid #fff;
+}
+
+#sepiaFW-assist-btn-area {
+	border-color: rgb(240, 240, 240);
+    background: rgb(240, 240, 240);
+    backdrop-filter: unset;
+}
+#sepiaFW-assist-btn-area button {
+    border: 4px solid rgb(225, 225, 245);
+}
+#sepiaFW-assist-btn {
+	background: linear-gradient(to right, #bcc9f5 0%, #dfa1f2 100%) !important;
+}
+.sepiaFW-notouch-device #sepiaFW-assist-btn:hover {
+	background: linear-gradient(to right, #e1e1f5 0%, #f0f0f0 100%) !important;
+}
+#sepiaFW-assist-btn i {
+	display: none !important;
+}
+#sepiaFW-assist-btn-orbiter1 {
+    background: #daabee;
+    border: 0;
+	border-radius: 3px;
+    bottom: 0px;
+    right: 0px;
+}
+
+#sepiaFW-chat-output article {
+	border: 1px solid rgb(245, 245, 245);
+    background: rgba(250, 250, 250, 0.60);
+	color: #000;
+	padding-left: 9px;
+	box-shadow: 1px 1px 12px 0 rgba(0, 0, 0, 0.08), 1px 1px 2px 0 rgba(0, 0, 0, 0.12);
+}
+
+#sepiaFW-chat-output article.chatMe {
+	border: 1px solid rgb(240, 240, 250);
+    background: rgba(245, 245, 255, 0.60);
+	color: #000;
+}
+#sepiaFW-chat-output article.chatMe b {
+	color: #000;
+}
+#sepiaFW-chat-output article.chatMe span {
+	color: #000;
+}
+
+#sepiaFW-chat-output article.chatAssistant {
+	border: 1px solid rgb(250, 240, 240);
+    background: rgba(255, 245, 245, 0.60);
+    color: #000;
+}
+
+#sepiaFW-main-window .chat-buttons-area button,
+#sepiaFW-main-window .chat-buttons-area .my-view-custom-button {
+    border: 1px solid rgb(245, 245, 245);
+    background: rgba(250, 250, 250, 0.60);
+    box-shadow: 1px 1px 12px 0 rgba(0, 0, 0, 0.08), 1px 1px 2px 0 rgba(0, 0, 0, 0.12);
+}
+.sepiaFW-notouch-device #sepiaFW-main-window .chat-buttons-area button:hover {
+	background: rgba(250, 250, 250, 0.80);
+}
+
+/*----- cards ------*/
+
+.sepiaFW-cards-list-body .timeEvent > div,
+.sepiaFW-cards-list-body .radioStation > div,
+.sepiaFW-cards-list-body .weatherNowSmall > div,
+.sepiaFW-cards-list-body .linkCard > div,
+.sepiaFW-cards-list-body .newsArticle > div,
+.sepiaFW-cards-list-body .listElement div,
+.sepiaFW-cards-list-body .listElement .listRight,
+.sepiaFW-cards-list-title,
+.sepiaFW-cards-list-title.newsHeader,
+.sepiaFW-cards-list-footer {
+	border: 1px solid rgb(245, 245, 245);
+    background: rgba(250, 250, 250, 0.60);
+    box-shadow: 1px 1px 12px 0 rgba(0, 0, 0, 0.08), 1px 1px 2px 0 rgba(0, 0, 0, 0.12);
+}
+.sepiaFW-cards-list-body .newsArticle .newsCenter {
+    background: rgba(250, 250, 250, 0.60);
+}
+.sepiaFW-cards-list-body .listElement .inProgress {
+    background: #daabee;
+	border-color: #eabbfe;
+}
+
+.sepiaFW-cards-button, 
+.sepiaFW-notouch-device .sepiaFW-cards-button:hover {
+    background: rgb(250 250 250);
+    color: #000;
+    border: 1px solid rgb(220 224 232);
+}

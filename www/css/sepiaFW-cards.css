@@ -168,6 +168,7 @@
     justify-content: center;
 	align-items: center;
 	min-width: 50px;
+	min-height: 24px;
 }
 .sepiaFW-cards-contextMenu-single li {
 	margin: 8px 4px 0px 4px !important;
@@ -274,6 +275,7 @@
 	color: #fff;
 	margin: 0px 5px 0px 3px;
 	user-select: none;
+	cursor: pointer;
 }
 .sepiaFW-notouch-device .sepiaFW-cards-list-body .listElement .listRight:hover {	
 	background: rgba(255, 0, 0, 0.50);		
