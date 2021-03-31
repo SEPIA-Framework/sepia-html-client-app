@@ -666,29 +666,22 @@ html.dark-skin #sepiaFW-login-help-btn {
 	border-radius: 3px;
 }
 
-#sepiaFW-nav-bar, #sepiaFW-chat-controls-form, #sepiaFW-chat-controls-right {
+#sepiaFW-nav-bar {
 	background-color: #ceff1a;
 	border-radius: 0px;
 }
 #sepiaFW-chat-controls-form {
+	background-color: #ceff1a;
 	border-radius: 28px 0px 0px 28px;
 }
 #sepiaFW-chat-controls-right {
+	background-color: #ceff1a;
 	border-radius: 0px 28px 28px 0px;
 }
-/*
-@media (max-width: 768px), (max-height: 768px) {
-	#sepiaFW-nav-bar {
-		border-radius: 0px 0px 3px 3px;
-	}
-	#sepiaFW-chat-controls-form {
-		border-radius: 28px 3px 0px 28px;
-	}
-	#sepiaFW-chat-controls-right {
-		border-radius: 3px 28px 28px 0px;
-	}
+#sepiaFW-chat-controls-vertical {
+	background-color: transparent;
+	border-radius: 28px;
 }
-*/
 
 #sepiaFW-main-window {
 	position: relative;
@@ -1540,7 +1533,8 @@ html.dark-skin #sepiaFW-login-help-btn {
 #sepiaFW-chat-controls.chat-controls-more-menu {
 	background: transparent;
 }
-#sepiaFW-chat-controls-more-btn {
+#sepiaFW-chat-controls-more-btn,
+#sepiaFW-chat-controls-vertical-btn {
 	padding-left: 0px !important;
 	padding-right: 0px !important;
 	width: 100%;
@@ -1560,12 +1554,9 @@ html.dark-skin #sepiaFW-login-help-btn {
 	max-width: 41px;
 }
 #sepiaFW-chat-controls .eButton {
-	border-radius: 3px 18px 18px 3px;
-	/* margin: 0px 4px 0px 4px; */
-	/* max-width: 41px; */
+	border-radius: 0px 28px 28px 0px;
 	margin: 0;
 	padding: 0;
-	border-radius: 0px 28px 28px 0px;
 }
 .sepiaFW-notouch-device #sepiaFW-chat-controls .eButton:hover {
 	border-radius: 28px;
@@ -1664,7 +1655,8 @@ html.dark-skin #sepiaFW-login-help-btn {
 		width: calc(100% - 46px);
 	}
 }
-#sepiaFW-chat-controls-right {
+#sepiaFW-chat-controls-right,
+#sepiaFW-chat-controls-vertical {
 	flex: 0 0 auto;
 	/*padding: 10px 5px 10px 5px; */
 	padding: 3px 3px 3px 0;
@@ -1676,6 +1668,12 @@ html.dark-skin #sepiaFW-login-help-btn {
 	display: -webkit-flex;
 	display: -ms-flexbox;
 	display: flex;
+}
+#sepiaFW-chat-controls-vertical {
+	border: 0;
+	padding: 0;
+	min-width: 55px;
+	display: none;
 }
 #sepiaFW-assist-btn-area {
 	position: relative;
@@ -2173,13 +2171,17 @@ body.big-screen #sepiaFW-myCustom-buttons-replaced {
 		max-width: unset;
 	}
 	#sepiaFW-main-window.sepiaFW-skin-mod:not(.full-screen) {
-		width: calc(100% - 55px);
+		width: calc(100% - 110px);
     	margin-left: 55px;
 	}
 	#sepiaFW-main-window.sepiaFW-skin-mod ~ #sepiaFW-swipeBar-container-left {
 		left: 55px;
 	}
-	#sepiaFW-nav-bar {
+	#sepiaFW-main-window.sepiaFW-skin-mod ~ #sepiaFW-swipeBar-container-right {
+		right: 55px;
+	}
+	#sepiaFW-nav-bar,
+	#sepiaFW-chat-controls {
 		position: fixed;
 		height: 100%;
 		max-height: unset;
@@ -2191,6 +2193,14 @@ body.big-screen #sepiaFW-myCustom-buttons-replaced {
 		flex-direction: column;
 		align-items: center;
 		justify-content: space-between;
+	}
+	#sepiaFW-chat-controls {
+		left: unset;
+		right: 0;
+		padding: 0;
+		border: 0 !important;
+		background: transparent !important;
+		flex-direction: column-reverse;
 	}
 	#sepiaFW-nav-bar-page-indicator {
 		display: none;
@@ -2206,10 +2216,6 @@ body.big-screen #sepiaFW-myCustom-buttons-replaced {
 		left: 12px;
     	top: 0;
 	}
-	#sepiaFW-chat-controls {
-		width: auto;
-		background: transparent !important;
-	}
 	#sepiaFW-chat-controls-form {
 		display: none;
 	}
@@ -2221,6 +2227,24 @@ body.big-screen #sepiaFW-myCustom-buttons-replaced {
 		top: 0;
 		height: 100%;
 		padding: 4px 8px;
+	}
+	#sepiaFW-chat-controls-more-menu {
+		width: 100%;
+		max-width: 100%;
+		max-height: 100%;
+	}
+	#sepiaFW-chat-controls-right {
+		min-width: 55px;
+		min-height: 55px;
+		border-radius: 28px;
+		border: 0;
+		padding: 3px;
+	}
+	#sepiaFW-chat-controls-vertical {
+		display: flex;
+	}
+	#sepiaFW-chat-controls .eButton {
+		border-radius: 28px;
 	}
 }
 

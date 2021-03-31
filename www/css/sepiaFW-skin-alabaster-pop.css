@@ -35,6 +35,9 @@ html {
 #sepiaFW-language-selector select {
 	color: #000;
 }
+.sepiaFW-results-container {
+    scrollbar-color: #e3daef transparent;
+}
 #sepiaFW-chat-controls {
     background: linear-gradient(rgba(240, 240, 240, 0), #f0f0f0, #f0f0f0);
 	border-bottom: 2px solid #f0f0f0;

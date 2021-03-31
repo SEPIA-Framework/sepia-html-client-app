@@ -24,7 +24,8 @@ html {
 #sepiaFW-adC { background-color: #ffeb3b; }							/* Await-dialog color - used during "wait for interaction" in assistant button */
 #sepiaFW-lC  { background-color: #8e8e8e; }						/* Loading color - used during loading in assistant button */
 
-#sepiaFW-login-box, #sepiaFW-nav-bar, #sepiaFW-chat-controls-form, #sepiaFW-chat-controls-right {
+#sepiaFW-login-box, #sepiaFW-nav-bar, #sepiaFW-chat-controls-form, 
+#sepiaFW-chat-controls-right, #sepiaFW-chat-controls-vertical {
 	background: #000000;
 	color: #fff;
 }

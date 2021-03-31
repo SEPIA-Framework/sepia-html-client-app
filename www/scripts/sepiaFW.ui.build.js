@@ -444,6 +444,17 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 			SepiaFW.ui.isControlsMenuOpen = false;
 		});
 		
+		//vertical extra button (usually only visible in landscape mode)
+		var controlsVerticalExtraBtn = document.getElementById("sepiaFW-chat-controls-vertical-btn");
+		if (controlsVerticalExtraBtn){
+			$(controlsVerticalExtraBtn).off().on("click", function () {
+				if (SepiaFW.alwaysOn){
+					SepiaFW.ui.closeAllMenus();
+					SepiaFW.alwaysOn.start();
+				}
+			});
+		}
+		
 		//MIC and SPEECH CONTROLS
 	
 		//Add default mic button logic to an element
