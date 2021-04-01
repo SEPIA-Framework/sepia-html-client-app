@@ -28,6 +28,10 @@ html {
 	background: rgb(240, 240, 240);
 	color: #000;
 }
+html.landscape-small #sepiaFW-chat-controls {
+	background: rgb(240, 240, 240) !important;
+	color: #000 !important;
+}
 #sepiaFW-login-box {
 	background: linear-gradient(320deg, #f0f0f0, #dfe3ec);
 	box-shadow: 1px 1px 12px 0 rgba(0, 0, 0, 0.08), 1px 1px 2px 0 rgba(0, 0, 0, 0.12);
