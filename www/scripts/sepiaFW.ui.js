@@ -50,6 +50,9 @@ function sepiaFW_build_ui(){
 		UI.resizeEvent();
 	});
 	UI.resizeEvent = function(){
+		//format
+		sepiaFW_landscape_check();
+
 		//document.getElementById('sepiaFW-chat-output').innerHTML += ('<br>resize, new size: ' + window.innerHeight);
 		windowSizeDifference = (window.innerHeight - UI.windowExpectedSize);
 		UI.windowExpectedSize = window.innerHeight;
