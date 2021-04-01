@@ -2163,90 +2163,94 @@ body.big-screen #sepiaFW-myCustom-buttons-replaced {
 
 /* Small Landscape Modes */
 
-@media (max-height: 480px) and (min-aspect-ratio: 13/10) and (min-width: 380px) {
+/*@media (max-height: 480px) and (min-aspect-ratio: 13/10) and (min-width: 380px) {}*/
 
-	/* see as well: sepiaFW-frames.css */
+/* see as well: sepiaFW-frames.css */
 
-	body.limit-size {
-		max-width: unset;
-	}
-	#sepiaFW-main-window.sepiaFW-skin-mod:not(.full-screen) {
-		width: calc(100% - 110px);
-    	margin-left: 55px;
-	}
-	#sepiaFW-main-window.sepiaFW-skin-mod ~ #sepiaFW-swipeBar-container-left {
-		left: 55px;
-	}
-	#sepiaFW-main-window.sepiaFW-skin-mod ~ #sepiaFW-swipeBar-container-right {
-		right: 55px;
-	}
-	#sepiaFW-nav-bar,
-	#sepiaFW-chat-controls {
-		position: fixed;
-		height: 100%;
-		max-height: unset;
-		width: 55px;
-		left: 0;
-		top: 0;
-		padding: 10px 5px;
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-		justify-content: space-between;
-	}
-	#sepiaFW-chat-controls {
-		left: unset;
-		right: 0;
-		padding: 0;
-		border: 0 !important;
-		background: transparent !important;
-		flex-direction: column-reverse;
-	}
-	#sepiaFW-nav-bar-page-indicator {
-		display: none;
-	}
-	#sepiaFW-nav-label-box {
-		padding: 24px 2px;
-    	height: auto;
-	}
-	#sepiaFW-nav-label {
-		font-size: 9px;
-	}
-	#sepiaFW-nav-label-note {
-		left: 12px;
-    	top: 0;
-	}
-	#sepiaFW-chat-controls-form {
-		display: none;
-	}
-
-	#sepiaFW-chat-channel-view {
-		top: 0;
-	}
-	#sepiaFW-chat-menu {
-		top: 0;
-		height: 100%;
-		padding: 4px 8px;
-	}
-	#sepiaFW-chat-controls-more-menu {
-		width: 100%;
-		max-width: 100%;
-		max-height: 100%;
-	}
-	#sepiaFW-chat-controls-right {
-		min-width: 55px;
-		min-height: 55px;
-		border-radius: 28px;
-		border: 0;
-		padding: 3px;
-	}
-	#sepiaFW-chat-controls-vertical {
-		display: flex;
-	}
-	#sepiaFW-chat-controls .eButton {
-		border-radius: 28px;
-	}
+html.landscape-small body.limit-size {
+	max-width: unset;
 }
+html.landscape-small #sepiaFW-main-window.sepiaFW-skin-mod:not(.full-screen) {
+	width: calc(100% - 110px);
+	margin-left: 55px;
+}
+html.landscape-small #sepiaFW-main-window.sepiaFW-skin-mod ~ #sepiaFW-swipeBar-container-left {
+	left: 55px;
+}
+html.landscape-small #sepiaFW-main-window.sepiaFW-skin-mod ~ #sepiaFW-swipeBar-container-right {
+	right: 55px;
+}
+html.landscape-small #sepiaFW-nav-bar,
+html.landscape-small #sepiaFW-chat-controls {
+	position: fixed;
+	height: 100%;
+	max-height: unset;
+	width: 55px;
+	left: 0;
+	top: 0;
+	padding: 10px 5px;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: space-between;
+}
+html.landscape-small #sepiaFW-chat-controls {
+	left: unset;
+	right: 0;
+	padding: 0;
+	border: 0 !important;
+	background: transparent !important;
+	flex-direction: column-reverse;
+}
+html.landscape-small #sepiaFW-assist-btn-area {
+	margin: 0;
+}
+html.landscape-small #sepiaFW-nav-bar-page-indicator {
+	display: none;
+}
+html.landscape-small #sepiaFW-nav-label-box {
+	padding: 24px 2px;
+	height: auto;
+}
+html.landscape-small #sepiaFW-nav-label {
+	font-size: 9px;
+}
+html.landscape-small #sepiaFW-nav-label-note {
+	left: 12px;
+	top: 0;
+}
+html.landscape-small #sepiaFW-chat-controls-form {
+	display: none;
+}
+
+html.landscape-small #sepiaFW-chat-channel-view {
+	top: 0;
+}
+html.landscape-small #sepiaFW-chat-menu {
+	top: 0;
+	height: 100%;
+	padding: 4px 8px;
+}
+html.landscape-small #sepiaFW-chat-controls-more-menu {
+	width: 100%;
+	max-width: 100%;
+	max-height: 100%;
+}
+html.landscape-small #sepiaFW-chat-controls-right {
+	min-width: 55px;
+	min-height: 55px;
+	border-radius: 28px;
+	border: 0;
+	padding: 3px;
+}
+html.landscape-small #sepiaFW-chat-controls-vertical {
+	display: flex;
+}
+html.landscape-small #sepiaFW-chat-controls .eButton {
+	border-radius: 28px;
+}
+
+/* --- landscape-small END --- */
 
 /* Animations */
 

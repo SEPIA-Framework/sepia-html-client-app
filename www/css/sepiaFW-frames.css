@@ -16,11 +16,12 @@
     flex-direction: row;
     justify-content: space-around;
 }
-#sepiaFW-frames-nav-bar .entry {
+#sepiaFW-frames-nav-bar .entry,
+#sepiaFW-frames-nav-bar .entry:hover {
 	flex: 1 1 auto;
 	margin: 0px;
-	background: transparent;
-	color: inherit;
+	background: transparent !important;
+	color: inherit !important;
 	font-size: 18px;
 	display: flex;
     justify-content: center;
@@ -272,37 +273,36 @@
 
 /* Small Landscape Modes */
 
-@media (max-height: 480px) and (min-aspect-ratio: 13/10) and (min-width: 380px) {
+/*@media (max-height: 480px) and (min-aspect-ratio: 13/10) and (min-width: 380px) {}*/
 
-	#sepiaFW-main-window.sepiaFW-frame-mode {
-		width: calc(100% - 55px);
-    	margin-left: 55px;
-	}
-	#sepiaFW-main-window.sepiaFW-frame-mode ~ #sepiaFW-swipeBar-container-left {
-		left: 55px;
-	}
-	
-	#sepiaFW-frames-nav-bar {
-		position: fixed;
-		height: 100%;
-		max-height: unset;
-		width: 55px;
-		left: 0;
-		top: 0;
-		padding: 10px 5px;
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-		justify-content: space-between;
-	}
-	#sepiaFW-frames-nav-bar-page-indicator {
-		display: none;
-	}
-	#sepiaFW-frames-nav-bar button {
-		max-height: 42px;
-    	max-width: 100%
-	}
-	#sepiaFW-frames-nav-bar button > span {
-		display: none;
-	}
+html.landscape-small #sepiaFW-main-window.sepiaFW-frame-mode {
+	width: calc(100% - 55px);
+	margin-left: 55px;
+}
+html.landscape-small #sepiaFW-main-window.sepiaFW-frame-mode ~ #sepiaFW-swipeBar-container-left {
+	left: 55px;
+}
+
+html.landscape-small #sepiaFW-frames-nav-bar {
+	position: fixed;
+	height: 100%;
+	max-height: unset;
+	width: 55px;
+	left: 0;
+	top: 0;
+	padding: 10px 5px;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: space-between;
+}
+html.landscape-small #sepiaFW-frames-nav-bar-page-indicator {
+	display: none;
+}
+html.landscape-small #sepiaFW-frames-nav-bar button {
+	max-height: 42px;
+	max-width: 100%
+}
+html.landscape-small #sepiaFW-frames-nav-bar button > span {
+	display: none;
 }

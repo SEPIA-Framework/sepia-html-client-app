@@ -25,6 +25,10 @@ html {
 	background: #C74927;
 	color: #fcf9ee;
 }
+html.landscape-small #sepiaFW-chat-controls {
+	background: #C74927 !important;
+	color: #fcf9ee !important;
+}
 #sepiaFW-login-box button {
 	background: #685238;
 	color: #fcf9ee;

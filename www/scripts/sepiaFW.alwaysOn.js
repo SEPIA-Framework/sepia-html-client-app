@@ -268,6 +268,10 @@ function sepiaFW_build_always_on(){
             $activityArea.removeClass('speaking');
             $avatarMouth.removeClass('speaking');
             $activityArea.removeClass('waiting');
+            $avatar.removeClass('loading');
+            $avatar.removeClass('listening');
+            $avatar.removeClass('speaking');
+            $avatar.removeClass('waiting');
 
             //modify by mood
             if (SepiaFW.assistant.getState().moodState == 2){
@@ -287,6 +291,7 @@ function sepiaFW_build_always_on(){
         if ($activityArea){
             $activityArea.addClass('loading');
         }
+        $avatar.addClass('loading');
     }
     AlwaysOn.avatarSpeaking = function(){
         AlwaysOn.avatarIdle(true);
@@ -294,12 +299,14 @@ function sepiaFW_build_always_on(){
             $activityArea.addClass('speaking');
             $avatarMouth.addClass('speaking');
         }
+        $avatar.addClass('speaking');
     }
     AlwaysOn.avatarListening = function(){
         AlwaysOn.avatarIdle(true);
         if ($activityArea){
             $activityArea.addClass('listening');
         }
+        $avatar.addClass('listening');
     }
     AlwaysOn.avatarAwaitingInput = function(){
         AlwaysOn.avatarIdle(true);
@@ -307,16 +314,19 @@ function sepiaFW_build_always_on(){
         if ($activityArea){
             $activityArea.addClass('waiting');
         }
+        $avatar.addClass('waiting');
         //prevent text fadeout
         if (fadeTtsTimer) clearTimeout(fadeTtsTimer);
         $ttsOut.stop().fadeIn(0);
     }
     //States
     function wakeAvatar(){
+        $avatar.removeClass('sleep');
         $avatarEyelid.removeClass('sleep');
         $avatarMouth.removeClass('sleep');
     }
     function makeAvatarSleepy(){
+        $avatar.addClass('sleep');
         $avatarEyelid.addClass('sleep');
         $avatarMouth.addClass('sleep');
     }
