@@ -1333,34 +1333,7 @@ function sepiaFW_build_webSocket_client(sepiaSessionId){
 		SepiaFW.debug.info("UI-ASR: " + msg);
 	}
 	function drawSpeech(text, isFinal){
-		//try speech-bubble
-		var inBox =	document.getElementById('sepiaFW-chat-controls-speech-box-bubble');
-		if (inBox){
-			if (text){
-				$(inBox).show();
-				$('#sepiaFW-chat-controls-speech-box-bubble-loader').hide();
-				inBox.textContent = text;
-			}else if (isFinal){
-				inBox.textContent = "";
-			}
-		//try default text input field
-		}else{
-			var inBox =	document.getElementById("sepiaFW-chat-input");
-			if (inBox){ 
-				if (text && isFinal){
-					inBox.value = text;
-				}else if (text){
-					//cut text to fit in input?
-					var maxWidth = $(inBox).innerWidth();
-					if (text.length*7.5 > maxWidth){
-						text = text.slice(-1 * Math.floor(maxWidth / 7.5));
-					}
-					inBox.value = text;
-				}else if (isFinal){
-					inBox.value = "";
-				}
-			}
-		}
+		SepiaFW.ui.drawLiveSpeechInputText(text, isFinal);
 	}
 	
 	//add credentials and parameters
@@ -1505,7 +1478,7 @@ function sepiaFW_build_webSocket_client(sepiaSessionId){
 		}
 		clearTimeout(sendInputTimeout);
 		//prep text
-		var text = inputText || document.getElementById("sepiaFW-chat-controls-speech-box-bubble").textContent || document.getElementById("sepiaFW-chat-input").value;
+		var text = inputText || getInputTextFromInterface();
 		if (text && text.trim()){
 			//specials?
 			var inputSpecialCommand = Client.inputHasSpecialCommand(text);
@@ -1605,12 +1578,11 @@ function sepiaFW_build_webSocket_client(sepiaSessionId){
 		//reset all possible text fields
 		clearInputText();
 	}
+	function getInputTextFromInterface(){
+		return SepiaFW.ui.getActiveSpeechOrChatInputText();
+	}
 	function clearInputText(){
-		//reset all possible text fields
-		var inputField = document.getElementById("sepiaFW-chat-input");
-		if (inputField) inputField.value = "";
-		var speechBubble = document.getElementById("sepiaFW-chat-controls-speech-box-bubble");
-		if (speechBubble) speechBubble.innerHTML = "";
+		SepiaFW.ui.clearSpeechAndChatInputText();
 	}
 	
 	Client.getActiveChannelUsersByIdOrName = function(nameOrId){
@@ -2302,6 +2274,7 @@ function sepiaFW_build_webSocket_client(sepiaSessionId){
 					if (actionUser !== SepiaFW.account.getUserId()){
 						SepiaFW.debug.error("remoteAction - tried to use type 'notify' with wrong user");
 					}else{
+						//TODO: implement
 						SepiaFW.debug.log("remoteAction - no handler yet for type: " + message.data.type);
 					}
 				

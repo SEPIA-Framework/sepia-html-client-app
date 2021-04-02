@@ -14,7 +14,7 @@ html {
 #sepiaFW-pC 	{ background-color: #f0f0f0; }
 #sepiaFW-sC 	{ background-color: #d183f3; }
 #sepiaFW-sC2 	{ background-color: #77b7ff; }
-#sepiaFW-aC 	{ background-color: #f00; }
+#sepiaFW-aC 	{ background-color: #FF5ABD; }
 #sepiaFW-aC2 	{ background-color: #027BFF; }
 #sepiaFW-asC 	{ background-color: #000; }
 #sepiaFW-adC 	{ background-color: #fff176; }
@@ -104,6 +104,24 @@ html.landscape-small #sepiaFW-chat-controls {
 	border-radius: 3px;
     bottom: 0px;
     right: 0px;
+}
+
+#sepiaFW-chat-controls-speech-box {
+    background: linear-gradient(to right, #d4deec 0%, #e1d5e8 100%);
+    border: 0;
+}
+#sepiaFW-chat-controls-speech-box > div {
+    background: rgb(243 241 244);
+    color: #000;
+}
+#sepiaFW-chat-controls-speech-box-bubble-loader div:nth-child(1) {
+	color: #bec7f5;
+}
+#sepiaFW-chat-controls-speech-box-bubble-loader div:nth-child(2) {
+	color: #ceb5f4;
+}
+#sepiaFW-chat-controls-speech-box-bubble-loader div:nth-child(3) {
+	color: #dda3f2;
 }
 
 #sepiaFW-chat-output article {

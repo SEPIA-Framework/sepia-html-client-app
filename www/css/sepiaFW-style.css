@@ -1784,7 +1784,7 @@ html.dark-skin #sepiaFW-login-help-btn {
 }
 #sepiaFW-chat-controls-speech-box-bubble-loader {
 	flex: 1 0 auto;
-	max-width: calc(100% - 90px);
+	/*max-width: calc(100% - 90px);*/
 	margin: 0 0px;
 	display: flex;
 	justify-content: center;
@@ -1804,7 +1804,7 @@ html.dark-skin #sepiaFW-login-help-btn {
 	animation-delay: -0.12s;
 }
 #sepiaFW-chat-controls-speech-box-bubble-loader div:nth-child(3) {
-	animation-delay: 0;
+	animation-delay: 0s;
 }
 @keyframes speech-box-bubble-loader-ani {
 	0% { height: 24px; }
@@ -2201,6 +2201,9 @@ html.landscape-small #sepiaFW-chat-controls {
 	border: 0 !important;
 	background: transparent !important;
 	flex-direction: column-reverse;
+}
+html.landscape-small #sepiaFW-chat-controls-speech-box {
+	bottom: 0;
 }
 html.landscape-small #sepiaFW-assist-btn-area {
 	margin: 0;

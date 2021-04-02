@@ -481,6 +481,8 @@ function sepiaFW_build_ui(){
 	UI.showLiveSpeechInputBox = function(){
 		$('#sepiaFW-chat-controls-speech-box').fadeIn(300);
 		$('#sepiaFW-chat-controls-speech-box-bubble').hide();
+		$("#sepiaFW-chat-controls-speech-box-edit").hide();
+		$("#sepiaFW-chat-controls-speech-box-finish").hide();
 		$('#sepiaFW-chat-controls-speech-box-bubble-loader').show();
 		//hide swipe areas for better button access
 		$('#sepiaFW-swipeBar-container-left').hide();
@@ -494,6 +496,52 @@ function sepiaFW_build_ui(){
 		$('#sepiaFW-swipeBar-container-right').show();
 	}
 	//$('#sepiaFW-chat-controls-speech-box').hide(); 		//initially hidden
+	
+	//draw live speech text input (either into input-box or chat field)
+	UI.drawLiveSpeechInputText = function(text, isFinalResult){
+		//try speech-bubble
+		var inBox =	document.getElementById('sepiaFW-chat-controls-speech-box-bubble');
+		if (inBox){
+			if (text){
+				$(inBox).show();	//make sure its really there
+				$('#sepiaFW-chat-controls-speech-box-bubble-loader').hide();
+				$("#sepiaFW-chat-controls-speech-box-edit").show();
+				$("#sepiaFW-chat-controls-speech-box-finish").show();
+				inBox.textContent = text;
+			}else if (isFinalResult){
+				inBox.textContent = "";
+			}
+		//try default text input field
+		}else{
+			var inBox =	document.getElementById("sepiaFW-chat-input");
+			if (inBox){ 
+				if (text && isFinalResult){
+					inBox.value = text;
+				}else if (text){
+					//cut text to fit in input?
+					var maxWidth = $(inBox).innerWidth();
+					if (text.length*7.5 > maxWidth){
+						text = text.slice(-1 * Math.floor(maxWidth / 7.5));
+					}
+					inBox.value = text;
+				}else if (isFinalResult){
+					inBox.value = "";
+				}
+			}
+		}
+	}
+	UI.getActiveSpeechOrChatInputText = function(){
+		var speechBubble = document.getElementById("sepiaFW-chat-controls-speech-box-bubble") || {};
+		var inputField = document.getElementById("sepiaFW-chat-input") || {};
+		return speechBubble.textContent || inputField.value;
+	}
+	UI.clearSpeechAndChatInputText = function(){
+		//reset all possible text fields
+		var inputField = document.getElementById("sepiaFW-chat-input");
+		if (inputField) inputField.value = "";
+		var speechBubble = document.getElementById("sepiaFW-chat-controls-speech-box-bubble");
+		if (speechBubble) speechBubble.innerHTML = "";
+	}
 	
 	//switch channel view (show messages of specific channel)
 	UI.switchChannelView = function(channelId){

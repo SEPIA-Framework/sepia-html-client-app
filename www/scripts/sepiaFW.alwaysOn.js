@@ -276,8 +276,10 @@ function sepiaFW_build_always_on(){
             //modify by mood
             if (SepiaFW.assistant.getState().moodState == 2){
                 $avatarMouth.addClass('sad');
+                $avatar.addClass('sad');
             }else{
                 $avatarMouth.removeClass('sad');
+                $avatar.removeClass('sad');
             }
         }
         if (!triggeredByOtherAnim){

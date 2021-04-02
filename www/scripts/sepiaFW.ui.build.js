@@ -359,7 +359,7 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 					bubble.focus();
 				}else{
 					document.getElementById("sepiaFW-chat-controls-speech-box-bubble").innerHTML = '';
-					SepiaFW.animate.assistant.idle('closeSpeechBubble');
+					//SepiaFW.animate.assistant.idle('closeSpeechBubble');
 				}
 			});
 		}

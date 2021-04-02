@@ -2,16 +2,17 @@
 #sepiaFW-alwaysOn-avatar .avatar-iris,
 #sepiaFW-alwaysOn-avatar .avatar-eye::after {
     display: none;
+    animation: unset;
 }
 #sepiaFW-alwaysOn-avatar .avatar-eye {
     width: 31%;
     border: 0;
     border-radius: 50%;
     background: #FF5ABD;
-    box-shadow: 0 0 40px 20px #FF5ABD;
+    box-shadow: 0 0 40px 10px #FF5ABD;
     transition: background-color 2s, box-shadow 2s, border-radius 2s, margin .5s;
     transform-origin: 48% 49%;
-    animation: avatar-dots-rotate 20s linear 0s infinite;
+    animation: avatar-dots-flip-and-rotate 40s linear 0s infinite;
 }
 #sepiaFW-alwaysOn-avatar .avatar-eye.left {
     top: 7%;
@@ -19,8 +20,8 @@
     width: 34%;
     height: 33%;
     background-color: #23DCF5;
-    box-shadow: 0 0 40px 20px #23DCF5;
-    animation: avatar-dots-rotate 16s linear 0s infinite;
+    box-shadow: 0 0 40px 10px #23DCF5;
+    animation: avatar-dots-flip-and-rotate 32s linear 0s infinite;
     z-index: 3;
 }
 #sepiaFW-alwaysOn-avatar .avatar-mouth {
@@ -31,28 +32,28 @@
     border: 0;
     border-radius: 50%;
     background: #8A3FFC;
-    box-shadow: 0 0 40px 20px #8A3FFC;
+    box-shadow: 0 0 40px 10px #8A3FFC;
     transition: background-color 2s, box-shadow 2s, border-radius 2s, margin .5s;
     transform-origin: 48% 49%;
-    animation: avatar-dots-rotate 14s linear 0s infinite;
+    animation: avatar-dots-flip-and-rotate 28s linear 0s infinite;
     z-index: 2;
 }
 #sepiaFW-alwaysOn-avatar.sleep .avatar-eye {
     background-color: #d14a9b;
-    box-shadow: 0 0 30px 20px #b54086;
-    margin: 5px 5px 0 0;
+    box-shadow: 0 0 30px 10px #b54086;
+    margin: 7px 12px 0 0;
     animation: unset;
 }
 #sepiaFW-alwaysOn-avatar.sleep .avatar-eye.left {
     background-color: #1cb3c7;
-    box-shadow: 0 0 30px 20px #1f9ebb;
-    margin: 5px 0 0 5px;
+    box-shadow: 0 0 30px 10px #1f9ebb;
+    margin: 6px 0 0 8px;
     animation: unset;
 }
 #sepiaFW-alwaysOn-avatar .avatar-mouth.sleep {
     border-radius: 50%;
     background: #7536d6;
-    box-shadow: 0 0 40px 20px #6f33cc;
+    box-shadow: 0 0 40px 10px #6f33cc;
     animation: unset;
 }
 #sepiaFW-alwaysOn-avatar .avatar-mouth.speaking {
@@ -83,6 +84,8 @@
     box-shadow: 0 0 20px 10px #9294b5;
 }
 
+/*#sepiaFW-alwaysOn-avatar span[class^="avatar-"] {}*/
+
 #sepiaFW-alwaysOn-stt-out {
     color: #23dcf5;
 }
@@ -93,4 +96,11 @@
 @keyframes avatar-dots-rotate {
     0% {   transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
+}
+@keyframes avatar-dots-flip-and-rotate {
+    0% {    transform: rotate(0deg) scale(1, 1); }
+    50% {   transform: rotate(360deg) scale(1, 1); }
+    99% {   transform: rotate(720deg) scale(1, 1); }
+    99.5% { transform: rotate(720deg) scale(0.01, 1); }
+	100% {  transform: rotate(720deg) scale(1, 1); }
 }
