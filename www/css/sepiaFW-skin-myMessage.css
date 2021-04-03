@@ -76,6 +76,9 @@ html {
 	background: #027BFF;
 	color: #fff;
 }
+#sepiaFW-language-selector select {
+	color: #000;
+}
 #sepiaFW-assist-btn-area {
 	border-color: #027BFF;
 	background: rgba(255, 255, 255, 0.85);

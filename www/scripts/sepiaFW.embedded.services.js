@@ -548,7 +548,7 @@ function sepiaFW_build_embedded_services(){
 			"cardType": "uni_list",
 			"N": 2,
 			"info": [{
-				"streamURL": "http://stream.radiojar.com/atr1e8aswa5tv",
+				"streamURL": "https://stream.radiojar.com/atr1e8aswa5tv",
 				"playlistURL": "https://www.size-radio.com/",
 				"name": "SIZE RADIO",
 				"type": "radio"

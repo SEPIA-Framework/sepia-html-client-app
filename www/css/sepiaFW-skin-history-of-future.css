@@ -108,6 +108,12 @@ html {
 	border-bottom: 2px solid #292929;
 	/*border-radius: 28px;*/
 }
+html.landscape-small #sepiaFW-nav-bar {
+    border: 0;
+}
+html.landscape-small #sepiaFW-chat-controls {
+	background: #df616d !important;
+}
 #sepiaFW-chat-controls-form {
 	background: #df616d;
 	color: #111111;
@@ -178,6 +184,13 @@ html {
 	margin: 0;
     min-width: 61px;
     max-width: 61px;
+}
+html.landscape-small #sepiaFW-assist-btn-area {
+    border: 0;
+    border-bottom: 3px solid black;
+    border-top: 3px solid black;
+    max-width: 55px;
+    min-width: 55px;
 }
 #sepiaFW-assist-btn-area button {
 	border: 3px solid #111111;

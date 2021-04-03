@@ -25,11 +25,24 @@ html {
 #sepiaFW-adC 	{ background-color: #ff1af6; }
 #sepiaFW-lC 	{ background-color: rgba(200, 200, 200, 0.50); 	}
 
-#sepiaFW-login-box, #sepiaFW-nav-bar, #sepiaFW-chat-controls-form, #sepiaFW-chat-controls-right {
+#sepiaFW-login-box, #sepiaFW-nav-bar, 
+#sepiaFW-chat-controls-form, #sepiaFW-chat-controls-right {
 	background: rgba(23, 23, 52, 0.93);
 	border: 1px solid #3F51B5;
 	box-shadow: 0 0 5px #3F51B5;
 	color: #fff;
+}
+html.landscape-small #sepiaFW-nav-bar {
+	border: 0;
+	margin: 0;
+}
+html.landscape-small #sepiaFW-chat-controls {
+	background: rgba(23, 23, 52, 0.93) !important;
+}
+html.landscape-small #sepiaFW-chat-controls-right {
+	border: 0;
+    box-shadow: unset;
+    background: transparent;
 }
 .sepiaFW-ao-mode #sepiaFW-nav-bar, 
 .sepiaFW-ao-mode #sepiaFW-chat-controls-form, 
