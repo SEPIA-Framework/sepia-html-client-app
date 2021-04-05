@@ -16,6 +16,9 @@ SepiaFW.settings = {
 				"tts": {},
 				"fx": {}
 			},
+			"microphoneSettings": {
+				"gain": 1.0
+			},
 			"deviceSounds": {
 				"micConfirm": "sounds/coin.mp3",
 				"alarm": "sounds/alarm.mp3"

@@ -36,7 +36,6 @@ function sepiaFW_build_audio_recorder(){
 	SepiaFW.webAudio.defaultProcessorOptions.moduleFolder = "audio-modules";
 	var sepiaWebAudioProcessor;
 
-	var targetSampleRate = 16000;				//TODO: add to options
 	var activeAudioModules = [];
 	var activeAudioModuleCapabilities = {};		//e.g.: resample, wakeWordDetection, vad, encode, volume
 	AudioRecorder.webAudioHasCapability = function(testCap){
@@ -47,21 +46,79 @@ function sepiaFW_build_audio_recorder(){
 	}
 	var customSepiaWebAudioSource;
 
-	//TODO: add to options - combine with 'SepiaFW.webAudio.getSupportedAudioConstraints()'
+	//Mic options (combined 'micAudioConstraintOptions' and 'micAudioRecorderOptions')
+	AudioRecorder.setMicrophoneOption = function(key, value, optionType){
+		if (optionType == "context"){
+			AudioRecorder.setWebAudioConstraint(key, value);
+			SepiaFW.debug.log("AudioRecorder - Set mic. constraint '" + key + "' to:", value);
+		}else if (optionType == "processor"){
+			AudioRecorder.setWebAudioRecorderOption(key, value);
+			SepiaFW.debug.log("AudioRecorder - Set audio processor option '" + key + "' to:", value);
+		}else if (optionType == "source"){
+			AudioRecorder.setWebAudioRecorderOption(key, value);
+			SepiaFW.debug.log("AudioRecorder - Set mic. source option '" + key + "' to:", value);
+		}else{
+			SepiaFW.debug.error("AudioRecorder - Unknown mic. option type: " + optionType);
+		}
+	}
+	//store and restore (used below)
+	AudioRecorder.storeMicrophoneSettings = function(){
+		SepiaFW.data.setPermanent("microphoneSettings", {
+			//constraints
+			noiseSuppression: micAudioConstraintOptions.noiseSuppression,
+			autoGainControl: micAudioConstraintOptions.autoGainControl,
+			echoCancellation: micAudioConstraintOptions.echoCancellation,
+			//options
+			sourceType: micAudioRecorderOptions.sourceType,
+			targetSampleRate: micAudioRecorderOptions.targetSampleRate,
+			processorBufferSize: micAudioRecorderOptions.processorBufferSize,
+			gain: micAudioRecorderOptions.gain,
+			resamplerQuality: micAudioRecorderOptions.resamplerQuality
+		});
+		//NOTE: device label is stored via 'SepiaFW.audio.storeMediaDevicesSetting()'
+	}
+	AudioRecorder.resetMicrophoneSettings = function(){
+		SepiaFW.data.delPermanent("microphoneSettings");	//NOTE: reload client after reset
+	}
+	var webAudioOptions = SepiaFW.data.getPermanent("microphoneSettings") || {};
+
+	//Constraints set during audio-context load
 	var micAudioConstraintOptions = {
-		deviceId: "",
-		//sampleRate: targetSampleRate,
-		channelCount: 1,
-		noiseSuppression: true,
-		autoGainControl: false,
-		echoCancellation: false
+		deviceId: "",						//NOTE: this is set via 'Sepia.audio.mediaDevicesSelected'
+		//sampleRate: targetSampleRate,		//NOTE: use 'micAudioRecorderOptions.targetSampleRate' instead
+		channelCount: 1						//NOTE: this is currently fixed
 	};
+	//Some constraints that might or might not exist
+	if (webAudioOptions.noiseSuppression != undefined) micAudioConstraintOptions.noiseSuppression = webAudioOptions.noiseSuppression;
+	if (webAudioOptions.autoGainControl != undefined) micAudioConstraintOptions.autoGainControl = webAudioOptions.autoGainControl;
+	if (webAudioOptions.echoCancellation != undefined) micAudioConstraintOptions.echoCancellation = webAudioOptions.echoCancellation;
+	//set/get
 	AudioRecorder.setWebAudioConstraint = function(optionName, value){
-		SepiaFW.webAudio.overwriteSupportedAudioConstraints[optionName] = value;
+		micAudioConstraintOptions[optionName] = value;
+	}
+	AudioRecorder.getWebAudioConstraints = function(){
+		return JSON.parse(JSON.stringify(micAudioConstraintOptions));
+	}
+
+	//options applied to recorder source or modules
+	var micAudioRecorderOptions = {
+		sourceType: webAudioOptions.sourceType || "audioWorklet",		//"audioWorklet", "scriptProcessor" (legacy SP)
+		targetSampleRate: webAudioOptions.targetSampleRate || 16000,
+		processorBufferSize: webAudioOptions.processorBufferSize || 512,
+		gain: webAudioOptions.gain || 1.0,
+		resamplerQuality: webAudioOptions.resamplerQuality || 3
+	}
+	//set/get
+	AudioRecorder.setWebAudioRecorderOption = function(optionName, value){
+		micAudioRecorderOptions[optionName] = value;
+	}
+	AudioRecorder.getWebAudioRecorderOptions = function(){
+		return JSON.parse(JSON.stringify(micAudioRecorderOptions));
 	}
 
 	var useLegacyMicInterface = (typeof window.AudioWorkletNode !== 'function' || !("audioWorklet" in (window.AudioContext || window.webkitAudioContext).prototype));
-	var legacyScriptProcessorBufferSize = 512;
+	if (useLegacyMicInterface) micAudioRecorderOptions.sourceType = "scriptProcessor";
+	//var legacyScriptProcessorBufferSize = 512;		//use 'micAudioRecorderOptions.processorBufferSize'
 
 	function defaultOnProcessorReady(sepiaWebAudioProcessor, msg){
 		console.log("onProcessorReady", sepiaWebAudioProcessor, msg);
@@ -123,14 +180,15 @@ function sepiaFW_build_audio_recorder(){
 		
 		//--- Resampler
 		var resampler;
-		var resamplerQuality = 3;			//TODO: add to options
-		var resamplerBufferSize = 512;		//TODO: add to options
-		var resamplerGain = 1.0;			//TODO: add to options
+		var resamplerQuality = micAudioRecorderOptions.resamplerQuality;
+		var resamplerBufferSize = micAudioRecorderOptions.processorBufferSize;
+		var resamplerGain = micAudioRecorderOptions.gain;
 		function onResamplerMessage(data){
 			//TODO: implement
 			//console.log("onResamplerMessage", data); 		//DEBUG
 		}
-		if (useLegacyMicInterface || options.forceLegacyMicInterface){
+		var useLegacySp = micAudioRecorderOptions.sourceType == "scriptProcessor" || options.forceLegacyMicInterface;
+		if (useLegacySp){
 			resampler = {
 				name: 'speex-resample-worker',
 				type: 'worker',
@@ -139,8 +197,8 @@ function sepiaFW_build_audio_recorder(){
 					sendToModules: [],
 					options: {
 						setup: {
-							targetSampleRate: targetSampleRate,
-							inputSampleSize: legacyScriptProcessorBufferSize,
+							targetSampleRate: micAudioRecorderOptions.targetSampleRate,
+							inputSampleSize: resamplerBufferSize,
 							resampleQuality: resamplerQuality,
 							bufferSize: resamplerBufferSize,
 							calculateRmsVolume: true,
@@ -159,7 +217,7 @@ function sepiaFW_build_audio_recorder(){
 					sendToModules: [],
 					options: {
 						setup: {
-							targetSampleRate: targetSampleRate,
+							targetSampleRate: micAudioRecorderOptions.targetSampleRate,
 							resampleQuality: resamplerQuality,
 							bufferSize: resamplerBufferSize,
 							passThroughMode: 1,		//0: none, 1: original (float32), 2: 16Bit PCM - NOTE: NOT resampled
@@ -192,7 +250,7 @@ function sepiaFW_build_audio_recorder(){
 		if (options.fileSourceUrl){
 			//file
 			customSourcePromise = createFileSource(options.fileSourceUrl);
-		}else if (useLegacyMicInterface || options.forceLegacyMicInterface){
+		}else if (useLegacySp){
 			//legacy mic
 			customSourcePromise = createLegacyScriptProcessorSource();
 		}
@@ -213,11 +271,11 @@ function sepiaFW_build_audio_recorder(){
 	function createSepiaWebAudioProcessor(onProcessorReady, onProcessorInitError){
 		//Create processor
 		sepiaWebAudioProcessor = new SepiaFW.webAudio.Processor({
-			onaudiostart: console.log,		//TODO: implement?
-			onaudioend: console.log,		//TODO: implement (should e.g. stop WW and stuff)
-			onrelease: console.log,			//TODO: implement (should e.g. stop WW and stuff)
-			onerror: console.error,			//TODO: implement
-			//targetSampleRate: targetSampleRate,
+			onaudiostart: console.log,		//TODO: implement? - dispatch global event
+			onaudioend: console.log,		//TODO: implement (should e.g. stop WW and stuff) - dispatch global event
+			onrelease: console.log,			//TODO: implement (should e.g. stop WW and stuff) - dispatch global event
+			onerror: console.error,			//TODO: implement - dispatch global event
+			//targetSampleRate: micAudioRecorderOptions.targetSampleRate,
 			modules: activeAudioModules,
 			destinationNode: undefined,		//defaults to: new "blind" destination (mic) or audioContext.destination (stream)
 			startSuspended: true,
@@ -228,21 +286,24 @@ function sepiaFW_build_audio_recorder(){
 		}, function(msg){
 			//Init. ready
 			onProcessorReady(sepiaWebAudioProcessor, msg);
+			//TODO: dispatch global event
+			console.error("WebAudio onProcessorReady", msg);		//DEBUG
 			
 		}, function(err){
 			//Init. error
 			onProcessorInitError(err);
+			//TODO: dispatch global event (this can actually happen before)
 		});
 	}
 	function createLegacyScriptProcessorSource(){
 		return SepiaFW.webAudio.createLegacyMicrophoneScriptProcessor({
-			targetSampleRate: targetSampleRate,
-			bufferSize: legacyScriptProcessorBufferSize
+			targetSampleRate: micAudioRecorderOptions.targetSampleRate,		//NOTE: we use native resampling here if possible
+			bufferSize: micAudioRecorderOptions.processorBufferSize
 		});	//Note: Promise
 	}
 	function createFileSource(fileUrl){
 		return SepiaFW.webAudio.createFileSource(fileUrl, {
-			targetSampleRate: targetSampleRate
+			targetSampleRate: micAudioRecorderOptions.targetSampleRate
 		});	//Note: Promise
 	}
 

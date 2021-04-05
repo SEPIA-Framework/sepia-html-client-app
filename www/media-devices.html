@@ -28,8 +28,25 @@
 					<label>Microphone input:</label>
 					<div id="sepiaFW-media-devices-mic-box"></div>
 				</div>
+				<div class="group" style="justify-content: center;">
+					<button onclick="SepiaFW.frames.showFramePage(2);">Setup</button>
+				</div>
 				<h3>Info</h3>
 				<div id="sepiaFW-media-devices-info-msg" style="white-space: break-spaces;"></div>
+			</div>
+		</div>
+		<!-- Page 2 -->
+		<div id="sepiaFW-frame-page-2" class='sepiaFW-frames-page sepiaFW-carousel-pane'>
+			<h3>Microphone Setup</h3>
+			<p class="info-text">Test your microphone and tweak the device specific parameters to optimize quality.</p>
+			<div id="sepiaFW-media-devices-mic-options-box" class="group-container">
+				<!-- dynamically created -->
+			</div>
+			<div class="group-container">
+				<div class="group" style="justify-content: center;">
+					<button id="SepiaFW-media-devices-mic-opt-store" onclick="SepiaFW.frames.currentScope.storeMicSettings()">Store settings</button>
+					<button id="SepiaFW-media-devices-mic-opt-default" onclick="SepiaFW.frames.currentScope.resetMicSettingsToDefault()">Default</button>
+				</div>
 			</div>
 		</div>
 	</div>
@@ -38,13 +55,13 @@
 	<button id="sepiaFW-frames-close" class='entry'>
 		<i class="material-icons md-btn2">&#xE5CD;</i>
 	</button>
-	<!--<button id="sepiaFW-frames-show-prev-page" class='entry'>
+	<button id="sepiaFW-frames-show-prev-page" class='entry'>
 		<i class="material-icons md-btn2">keyboard_arrow_left</i><span data-localize="back">back</span>
 	</button>
 	<button id="sepiaFW-frames-show-next-page" class='entry'>
 		<span data-localize="next">next</span><i class="material-icons md-btn2">keyboard_arrow_right</i>
-	</button>-->
-	<div id="sepiaFW-frames-nav-bar-page-indicator"><div>&nbsp;</div></div>
+	</button>
+	<div id="sepiaFW-frames-nav-bar-page-indicator"><div>&nbsp;</div><div>&nbsp;</div></div>
 </div>
 <script>
 	$('#sepiaFW-frame-carousel').find('[data-localize]').each(function(){
@@ -63,6 +80,12 @@
 			$('#sepiaFW-media-devices-audio-player').val(SepiaFW.audio.mediaDevicesSelected["player"].value);
 			$('#sepiaFW-media-devices-tts-player').val(SepiaFW.audio.mediaDevicesSelected["tts"].value);
 			$('#sepiaFW-media-devices-fx-player').val(SepiaFW.audio.mediaDevicesSelected["fx"].value);
+		},
+
+		onFramePageChange: function(pageNbr){
+			if (pageNbr == 2){
+				SepiaFW.frames.currentScope.showMicOptions();
+			}
 		},
 		
 		refreshDevices: function(){
@@ -159,6 +182,66 @@
 		},
 		showError: function(msg){
 			$('#sepiaFW-media-devices-info-msg').css("color", "#f00").text(msg);
+		},
+
+		//Mic Settings
+
+		showMicOptions: function(){
+			var micOptionsBox = document.getElementById('sepiaFW-media-devices-mic-options-box');
+			//constraints
+			var constraints = SepiaFW.webAudio.getSupportedAudioConstraints();
+			var activeConstraints = SepiaFW.audioRecorder.getWebAudioConstraints();
+			function buildConstraintOption(key, name, type, disabled, onInputChange){
+				var inputId = 'sepiaFW-media-devices-mic-constraints-' + key;
+				var onInputChange = function(inputVal){
+					SepiaFW.audioRecorder.setMicrophoneOption(key, inputVal, "context");
+				};
+				var val = (activeConstraints[key] != undefined)? activeConstraints[key] : constraints[key];
+				var c = SepiaFW.frames.build.inputGroup(name, val, type, disabled, inputId, onInputChange);
+				micOptionsBox.appendChild(c.element);
+			}
+			micOptionsBox.innerHTML = "";
+			Object.keys(constraints).forEach(function(co){
+				//Know and allowed keys:
+				if (co == "channelCount") buildConstraintOption(co, "Channels", "number", true);
+				else if (co == "noiseSuppression") buildConstraintOption(co, "Noise Suppression", "checkbox", false);
+				else if (co == "autoGainControl") buildConstraintOption(co, "Auto Gain", "checkbox", false);
+				else if (co == "echoCancellation") buildConstraintOption(co, "Echo Cancellation", "checkbox", false);
+				//Skipped, unknown or handled elsewhere:
+				else SepiaFW.debug.log("Media-Devices - Skipped media constraint option: " + co);
+			});
+			//options
+			var activeOptions = SepiaFW.audioRecorder.getWebAudioRecorderOptions();
+			//gain
+			var gainOpt = SepiaFW.frames.build.inputGroup(
+				"Gain (Module)", activeOptions.gain, "number", false, 
+				"sepiaFW-media-devices-mic-options-moduleGain", function(val){
+					SepiaFW.audioRecorder.setMicrophoneOption("gain", +val, "processor");
+				}
+			);
+			gainOpt.input.step = 0.1;
+			micOptionsBox.appendChild(gainOpt.element);
+			//audio source type
+			var typeOpt = SepiaFW.frames.build.inputGroup(
+				"Source Processor", [
+					{value: "audioWorklet", name: "Audio Worklet"},
+					{value: "scriptProcessor", name: "Legacy Audio Node"}
+				], "select", false, 
+				"sepiaFW-media-devices-mic-options-sourceType", function(val){
+					SepiaFW.audioRecorder.setMicrophoneOption("sourceType", val, "source");
+				}
+			);
+			typeOpt.input.value = activeOptions.sourceType;
+			micOptionsBox.appendChild(typeOpt.element);
+		},
+
+		storeMicSettings: function(){
+			SepiaFW.audioRecorder.storeMicrophoneSettings();
+			SepiaFW.ui.showPopup("Microphone settings stored.");		//SepiaFW.local.g("...")
+		},
+		resetMicSettingsToDefault: function(){
+			SepiaFW.audioRecorder.resetMicrophoneSettings();
+			SepiaFW.ui.showPopup("Reset microphone settings, please reload client.");
 		}
 	}
 </script>

@@ -1,7 +1,7 @@
 //SEPIA WEB AUDIO LIB
 function sepiaFW_build_web_audio(){
 	var WebAudio = {};
-	WebAudio.version = "0.9.0";
+	WebAudio.version = "0.9.1";
 	
 	//Preparations
 	var AudioContext = window.AudioContext || window.webkitAudioContext;
@@ -617,6 +617,7 @@ function sepiaFW_build_web_audio(){
 					onAfterRelease: options.customSource.release || options.customSource.afterRelease
 				},{
 					type: (options.customSource.type || "custom"),		//TODO: add more?
+					typeData: options.customSource.typeData,
 					hasWorkletSupport: (options.customSource.hasWorkletSupport != undefined)? 
 						options.customSource.hasWorkletSupport : true
 				});
@@ -627,7 +628,7 @@ function sepiaFW_build_web_audio(){
 			});
 			
 		//Cordova Audioinput plugin
-		}else if (isCordovaAudioinputSupported){
+		//}else if (isCordovaAudioinputSupported){
 			//TODO: implement?
 		
 		//Official MediaDevices interface using microphone
@@ -982,6 +983,7 @@ function sepiaFW_build_web_audio(){
 			var customSource = {
 				node: processNode,
 				type: "scriptProcessor",
+				typeData: res.info,
 				hasWorkletSupport: false, 	//does not fit into audio processing thread (normal worklets)
 				//TODO: ?!?
 				start: function(){},
@@ -1068,6 +1070,10 @@ function sepiaFW_build_web_audio(){
 							audioBufferSourceNode.loop = true;
 							return resolve({
 								node: audioBufferSourceNode,
+								type: "fileAudioBuffer",
+								typeData: {
+									fileUrl: fileUrl
+								},
 								start: function(){ audioBufferSourceNode.start(); },
 								stop: function(){ audioBufferSourceNode.stop(); },
 								release: function(){}	//TODO: ?!?

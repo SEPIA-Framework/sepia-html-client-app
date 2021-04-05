@@ -32,6 +32,7 @@ function sepiaFW_build_audio(sepiaSessionId){
 	var doInitAudio = true;			//workaround to activate scripted audio on touch devices
 	var audioOnEndFired = false;	//state: prevent doublefireing of audio onend onpause
 
+	//Media Devices Options
 	AudioPlayer.mediaDevicesSelected = {
 		mic: { "value": "", "name": "Default" },
 		player: { "value": "", "name": "Default" },
@@ -138,7 +139,7 @@ function sepiaFW_build_audio(sepiaSessionId){
 		SepiaFW.data.setPermanent("mediaDevices", AudioPlayer.mediaDevicesSelected);
 	}
 	AudioPlayer.resetMediaDevicesSetting = function(){
-		SepiaFW.data.delPermanent("mediaDevices", AudioPlayer.mediaDevicesSelected);	//NOTE: reload client after reset
+		SepiaFW.data.delPermanent("mediaDevices");	//NOTE: reload client after reset
 	}
 	AudioPlayer.mediaDevicesSetup = function(successCallback){
 		var mediaDevicesStored = SepiaFW.data.getPermanent("mediaDevices") || {};
