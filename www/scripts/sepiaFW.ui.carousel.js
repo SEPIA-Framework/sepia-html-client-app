@@ -35,6 +35,8 @@ function sepiaFW_build_ui_carousel(){
 		var panBoundary = .25; // if the pane is panned .25, switch to the next pane.
 
 		var currentPane = 0;
+		var paneHistory = [];
+		var HISTORY_MAX_SIZE = 3;
 		
 		var lastDeltaX = 0;
 		var errorResetTimer;
@@ -48,6 +50,10 @@ function sepiaFW_build_ui_carousel(){
 			});
 			$container.outerWidth(paneWidth * paneCount);
 			$container.outerHeight(paneHeight);
+		}
+		function setPaneHistory(current){
+			paneHistory.push(current);
+			if (paneHistory.length > HISTORY_MAX_SIZE) paneHistory.shift();
 		}
 
 		self.init = function() {
@@ -70,10 +76,11 @@ function sepiaFW_build_ui_carousel(){
 		}
 
 		self.showPane = function(index) {
-			currentPane = Math.max(0, Math.min(index, paneCount - 1));
+			currentPane = Math.max(0, Math.min(index, paneCount - 1));		//NOTE: this will jump to last page on overflow
 			setContainerOffsetX(-currentPane * paneWidth, true);
+			setPaneHistory(currentPane);
 			//page set callback
-			if (onPageSet) onPageSet(currentPane);
+			if (onPageSet) onPageSet(currentPane, paneHistory);
 		}
 
 		function setContainerOffsetX(offsetX, doTransition) {
@@ -119,6 +126,9 @@ function sepiaFW_build_ui_carousel(){
 
 		self.getCurrentPane = function() {
 			return currentPane;
+		}
+		self.getPaneHistory = function() {
+			return paneHistory;
 		}
 		self.getNumberOfPanes = function() {
 			return paneCount;

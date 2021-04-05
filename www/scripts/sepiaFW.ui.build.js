@@ -52,9 +52,13 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 	}
 	
 	//toggle button
-	Build.toggleButton = function(btnId, onCallback, offCallback, initialState){
+	Build.toggleButton = function(btnId, onCallback, offCallback, initialState, disabled){
 		var tglBtn = document.createElement('DIV');
 		tglBtn.className = "sepiaFW-toggle-btn";
+		if (disabled){
+			tglBtn.disabled = disabled;
+			tglBtn.classList.add("disabled");
+		}
 		if (btnId) tglBtn.id = btnId;
 		if (initialState){
 			tglBtn.innerHTML = "<div class='on'></div>";
@@ -66,6 +70,7 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 		
 		$(tglBtn).off();
 		$(tglBtn).on('click', function() {
+			if (tglBtn.disabled) return;
 			if (this.getAttribute("data-toggle-state") === "on"){
 				this.setAttribute("data-toggle-state", "off");
 				this.firstChild.className = "off";

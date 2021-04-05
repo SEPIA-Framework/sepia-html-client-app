@@ -168,15 +168,17 @@ function sepiaFW_build_frames(){
 			
 			//frame carousel
 			Frames.uic = new SepiaFW.ui.Carousel('#sepiaFW-frame-carousel', '', '#sepiaFW-swipeBar-frames-left', '#sepiaFW-swipeBar-frames-right', '',
-				function(currentPane){
+				function(currentPane, paneHistory){
 					$("#sepiaFW-frames-nav-bar-page-indicator").find('div').removeClass("active");
 					$("#sepiaFW-frames-nav-bar-page-indicator > div:nth-child(" + (currentPane+1) + ")").addClass('active').fadeTo(350, 1.0).fadeTo(350, 0.0);
-					if (currentPane == 1){
-						//page 1 active
-					}else if (currentPane == 0){
-						//page 2 active
+					if (Frames.currentScope && (Frames.currentScope.onFramePageChange || Frames.currentScope.onPaneChange)){
+						if (paneHistory.length < 2 || paneHistory[paneHistory.length - 2] != currentPane){
+							if (Frames.currentScope.onFramePageChange) Frames.currentScope.onFramePageChange(currentPane + 1);		//NOTE: we count pages: 1, 2, 3, ...
+							else if (Frames.currentScope.onPaneChange) Frames.currentScope.onPaneChange(currentPane, paneHistory);
+						}
 					}
 				});
+			Frames.showFramePage = function(pageNbr){ Frames.uic.showPane(pageNbr - 1); };		//NOTE: don't mix up with localPage (HTML path)
 			Frames.uic.init();
 			Frames.uic.showPane(0);
 			
@@ -231,6 +233,43 @@ function sepiaFW_build_frames(){
 	function getFunctionOrScopeEntry(funOrName){
 		return (funOrName && typeof funOrName == "string")? Frames.currentScope[funOrName] : funOrName;
 	}
+
+	/* --- build helpers --- */
+
+	Frames.build = {};
+
+	Frames.build.inputGroup = function(name, value, type, disabled, inputId, onInputChange){
+		var c = document.createElement("div");
+		c.className = "group";
+		if (disabled){
+			c.classList.add("disabled");
+		}
+		var cName = document.createElement("label");
+		cName.textContent = name;
+		var cVal;
+		if (type == "checkbox"){
+			cVal = SepiaFW.ui.build.toggleButton(inputId, function(){ 
+				onInputChange(true); 
+			},function(){ 
+				onInputChange(false); 
+			}, value, disabled);
+		}else if (type == "select" || Array.isArray(value)){
+			cVal = SepiaFW.ui.build.optionSelector(inputId, value, "", function(ele){
+				onInputChange(ele.value, ele.selectedOptions[0].textContent);
+			});
+			cVal.disabled = disabled;
+		}else{
+			cVal = document.createElement("input");
+			if (inputId) cVal.id = inputId;
+			cVal.type = type;
+			cVal.value = value;
+			cVal.disabled = disabled;
+			cVal.onchange = function(){ onInputChange(cVal.value) };
+		}
+		c.appendChild(cName);
+		c.appendChild(cVal);
+		return {element: c, label: cName, input: cVal};
+	};
 	
 	return Frames;
 }
