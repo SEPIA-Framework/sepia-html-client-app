@@ -92,8 +92,8 @@ html.landscape-small #sepiaFW-chat-controls {
 	background: linear-gradient(45deg, #4a9fff, #3c97fd) !important;
 	color: #fff !important;
 }
-.sepiaFW-menu button:hover {
-    background: #fafafa !important;
+.sepiaFW-notouch-device .sepiaFW-menu button:hover {
+    background: linear-gradient(66deg, #77b7ff, #bec6f4) !important;
     color: #000 !important;
 }
 #sepiaFW-chat-menu-head-border {

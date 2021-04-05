@@ -1042,6 +1042,9 @@ html.dark-skin #sepiaFW-login-help-btn {
     padding: 0px;
 	cursor: pointer;
 }
+.sepiaFW-toggle-btn.disabled {
+	cursor: not-allowed;
+}
 .sepiaFW-toggle-btn .on {
 	user-select: none;
     pointer-events: none;
