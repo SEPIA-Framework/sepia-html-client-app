@@ -271,10 +271,10 @@ function sepiaFW_build_audio_recorder(){
 	function createSepiaWebAudioProcessor(onProcessorReady, onProcessorInitError){
 		//Create processor
 		sepiaWebAudioProcessor = new SepiaFW.webAudio.Processor({
-			onaudiostart: console.log,		//TODO: implement? - dispatch global event
-			onaudioend: console.log,		//TODO: implement (should e.g. stop WW and stuff) - dispatch global event
-			onrelease: console.log,			//TODO: implement (should e.g. stop WW and stuff) - dispatch global event
-			onerror: console.error,			//TODO: implement - dispatch global event
+			onaudiostart: function(msg){ dispatchRecorderEvent({ event: "audiostart", data: msg });},
+			onaudioend: function(msg){ dispatchRecorderEvent({ event: "audioend", data: msg });},	//TODO: should e.g. stop WW and stuff
+			onrelease: function(msg){ dispatchRecorderEvent({ event: "release", data: msg });},		//TODO: should e.g. stop WW and stuff
+			onerror: function(err){ dispatchRecorderEvent({ event: "error", error: msg });},		//TODO: consequences?
 			//targetSampleRate: micAudioRecorderOptions.targetSampleRate,
 			modules: activeAudioModules,
 			destinationNode: undefined,		//defaults to: new "blind" destination (mic) or audioContext.destination (stream)
@@ -286,14 +286,25 @@ function sepiaFW_build_audio_recorder(){
 		}, function(msg){
 			//Init. ready
 			onProcessorReady(sepiaWebAudioProcessor, msg);
-			//TODO: dispatch global event
-			console.error("WebAudio onProcessorReady", msg);		//DEBUG
+			//dispatch global event
+			dispatchRecorderEvent({
+				event: "ready",
+				data: msg
+			});
 			
 		}, function(err){
 			//Init. error
 			onProcessorInitError(err);
-			//TODO: dispatch global event (this can actually happen before)
+			//dispatch global event (this can actually happen before)
+			dispatchRecorderEvent({
+				event: "initError",
+				error: err
+			});
 		});
+	}
+	function dispatchRecorderEvent(data){
+		//console.error("WebAudio recorder event", data);		//DEBUG
+		document.dispatchEvent(new CustomEvent('sepia_web_audio_recorder', { detail: data}));
 	}
 	function createLegacyScriptProcessorSource(){
 		return SepiaFW.webAudio.createLegacyMicrophoneScriptProcessor({
