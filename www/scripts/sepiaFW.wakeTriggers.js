@@ -18,6 +18,7 @@ function sepiaFW_build_wake_triggers() {
     }
 
 	var isListening = false;
+	var isStopping = false;
 	WakeTriggers.isListening = function(){
 		return isListening;
 	}
@@ -191,7 +192,7 @@ function sepiaFW_build_wake_triggers() {
 						wasmFile = PORCUPINE_FOLDER + "pv_porcupine.wasm";												//DEFAULT (INCLUDED)
 					}else if (WakeTriggers.porcupineVersionsDownloaded){
 						wasmFile = PORCUPINE_FOLDER + "pv_porcupine_" + WakeTriggers.porcupineVersion + ".wasm";		//DOWNLOADED
-					}else if (WakeTriggers.porcupineWasmRemoteUrl && WakeTriggers.porcupineWasmRemoteUrl != "git"){
+					}else if (WakeTriggers.porcupineWasmRemoteUrl && WakeTriggers.porcupineWasmRemoteUrl.toLowerCase() != "git"){
 						wasmFile = SepiaFW.config.replacePathTagWithActualPath(WakeTriggers.porcupineWasmRemoteUrl)
 								+ WakeTriggers.porcupineVersion + "/pv_porcupine.wasm";									//ONLINE - CUSTOM
 					}else{
@@ -305,6 +306,7 @@ function sepiaFW_build_wake_triggers() {
 			SepiaFW.audioRecorder.startWebAudioRecorder(function(){
 				logInfo('STARTED wake-Word listener');
 				setWakeWordModuleGateState("open");
+				isStopping = false;
 				isListening = true;
 				SepiaFW.animate.wakeWord.active();
 				if (onSuccessCallback) onSuccessCallback();
@@ -319,10 +321,12 @@ function sepiaFW_build_wake_triggers() {
 			return;
 		}
 		//STOP
+		isStopping = true;
 		SepiaFW.debug.info('Stopping wake-word listener ...'); 		//DEBUG
 		SepiaFW.audioRecorder.stopWebAudioRecorder(function(){
 			logInfo('STOPPED wake-Word listener');
 			setWakeWordModuleGateState("close");
+			isStopping = false;
 			isListening = false;
 			SepiaFW.animate.wakeWord.inactive();
 			setTimeout(function(){
@@ -330,6 +334,27 @@ function sepiaFW_build_wake_triggers() {
 				if (onSuccessCallback) onSuccessCallback();
 			}, 300);
 		});
+	}
+
+	//listen to global events to make sure state is updated correctly
+	document.addEventListener("sepia_web_audio_recorder", wakeTriggersRecoderEventListener);
+	function wakeTriggersRecoderEventListener(e){
+		var data = e.detail;
+		if (!data || !data.event) return;
+		if (data.event == "release" && isListening && !isStopping){
+			//reset state
+			isStopping = false;
+			isListening = false;
+			SepiaFW.animate.wakeWord.inactive();
+			WakeTriggers.engineLoaded = false;
+
+		}else if (data.event == "audioend" && isListening && !isStopping){
+			//reset state
+			setWakeWordModuleGateState("close");		//TODO: can this cause a race condition if followed quickly by release?
+			isStopping = false;
+			isListening = false;
+			SepiaFW.animate.wakeWord.inactive();
+		}
 	}
 	
 	WakeTriggers.getWakeWords = function(){

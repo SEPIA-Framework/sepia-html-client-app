@@ -320,6 +320,9 @@ function sepiaFW_build_wake_word_settings() {
         //Remove wake-word listener for testing
         document.removeEventListener("sepia_wake_word", wakeWordTest);
 
+        //reset some "stateless" stuff
+        debugInfo = false;
+
         WakeWordSettings.isOpen = false;
     }
     

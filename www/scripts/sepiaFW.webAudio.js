@@ -1,7 +1,7 @@
 //SEPIA WEB AUDIO LIB
 function sepiaFW_build_web_audio(){
 	var WebAudio = {};
-	WebAudio.version = "0.9.1";
+	WebAudio.version = "0.9.2";
 	
 	//Preparations
 	var AudioContext = window.AudioContext || window.webkitAudioContext;
@@ -324,17 +324,17 @@ function sepiaFW_build_web_audio(){
 						}else if (event.data.moduleResponse){
 							//RESPONSE to "on-demand" request
 							//TODO: ignore?
-						}else if (moduleSetup.sendToModules){
+						}else if (moduleSetup.sendToModules){		//TODO: when do we best clean-up 'sendToModules' to avoid empty loops (processNodes[n] = null)?
 							//data for processing or custom event?
 							if (event.data.moduleEvent){
 								//EVENT
 								moduleSetup.sendToModules.forEach(function(n){
-									if (!processNodes[n].ignoreSendToModules) processNodes[n].sendToModule({ctrl: {action: "handle", data: event.data}});
+									if (processNodes[n] && !processNodes[n].ignoreSendToModules) processNodes[n].sendToModule({ctrl: {action: "handle", data: event.data}});
 								});
 							}else{
 								//PROCESS (default)
 								moduleSetup.sendToModules.forEach(function(n){
-									if (!processNodes[n].ignoreSendToModules) processNodes[n].sendToModule({ctrl: {action: "process", data: event.data}});
+									if (processNodes[n] && !processNodes[n].ignoreSendToModules) processNodes[n].sendToModule({ctrl: {action: "process", data: event.data}});
 								});
 							}
 						}
@@ -687,6 +687,13 @@ function sepiaFW_build_web_audio(){
 				if (options.onrelease) options.onrelease();
 				if (callback) callback();
 			});
+		}
+
+		thisProcessor.isInitialized = function(){
+			return isInitialized;
+		}
+		thisProcessor.isProcessing = function(){
+			return isProcessing;
 		}
 	}
 	

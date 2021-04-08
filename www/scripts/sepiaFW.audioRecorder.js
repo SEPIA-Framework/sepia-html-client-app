@@ -140,6 +140,12 @@ function sepiaFW_build_audio_recorder(){
 	AudioRecorder.existsWebAudioRecorder = function(){
 		return !!sepiaWebAudioProcessor;
 	}
+	AudioRecorder.isWebAudioRecorderReady = function(){
+		return (!!sepiaWebAudioProcessor && sepiaWebAudioProcessor.isInitialized());
+	}
+	AudioRecorder.isWebAudioRecorderActive = function(){
+		return (!!sepiaWebAudioProcessor && sepiaWebAudioProcessor.isInitialized() && sepiaWebAudioProcessor.isProcessing());
+	}
 	AudioRecorder.startWebAudioRecorder = function(successCallback, errorCallback){
 		if (sepiaWebAudioProcessor){
 			sepiaWebAudioProcessor.start(successCallback);
@@ -162,6 +168,22 @@ function sepiaFW_build_audio_recorder(){
 			});
 		}else{
 			if (callback) callback();	//if it doesn't exist its quasi-released ;-)
+		}
+	}
+	//stop and release if possible or confirm right away
+	AudioRecorder.stopAndReleaseIfActive = function(callback){
+		if (AudioRecorder.isWebAudioRecorderActive()){
+			AudioRecorder.stopWebAudioRecorder(function(){
+				AudioRecorder.releaseWebAudioRecorder(function(){
+					if (callback) callback();
+				});
+			});
+		}else if (AudioRecorder.isWebAudioRecorderReady()){
+			AudioRecorder.releaseWebAudioRecorder(function(){
+				if (callback) callback();
+			});
+		}else{
+			if (callback) callback();
 		}
 	}
 
