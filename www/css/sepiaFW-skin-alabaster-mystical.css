@@ -313,6 +313,19 @@ html.landscape-small #sepiaFW-chat-controls {
     border: 1px solid rgb(220 224 232);
 }
 
+/*----- Frames ----- */
+
+#sepiaFW-frames-view {
+    background: linear-gradient(135deg, #e8edee, #ebe6ee);
+}
+.sepiaFW-frames-page button {
+    background: #000 !important;
+    color: #77b7ff !important;
+}
+.sepiaFW-frames-page.dark .subgroup.menu-button {
+    color: #77b7ff;
+}
+
 /*----- teachUI -----*/
 
 #sepiaFW-teachUI-nav-bar {

@@ -85,6 +85,11 @@
 	color: #fff !important;
 }
 
+.sepiaFW-tutorial-page img {
+	border: 1px solid #000;
+	background: #fff;
+}
+
 .sepiaFW-frames-page iframe {
 	border: 0;
 }
