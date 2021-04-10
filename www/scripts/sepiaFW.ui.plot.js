@@ -73,12 +73,48 @@ function sepiaFW_build_ui_plot(){
 		//var opts = uPlot.lazy.getPlotOptions(cfg);
 		//var plot = new uPlot(opts, cfg.data, cfg.targetElement);
 		var ro = SepiaFW.ui.addResizeObserverWithBuffer(c.parentElement, function(){
-			uPlot.lazy.resizePlot(plot); 
+			if (plot.root && plot.root.parentNode && c && c.parentElement && document.body.contains(c)){
+				uPlot.lazy.resizePlot(plot);
+			}else{
+				ro.disconnect();
+			}
 		});
 		return plot;
 	}
 
-	Plot.lineSeries = function(){}
+	//create a line-plot series that appends data dynamically until max-points is reached and then drops the first values
+	Plot.createLineSeries = function(targetElement, maxPoints, seriesOptions, plotOptions){
+		var sOpt = {
+			rememberMax: true
+		}
+		var pOpt = {
+			showPoints: false,
+			strokeWidth: 1,
+			showAxisX: false,
+			showAxisY: true
+		}
+		if (seriesOptions){
+			sOpt = $.extend(true, {}, sOpt, seriesOptions);
+		}
+		if (plotOptions){
+			pOpt = $.extend(true, {}, pOpt, plotOptions);
+		}
+		var plotSeries = new uPlot.lazy.AutoSeries(targetElement, maxPoints || 150, sOpt, pOpt);
+		if (targetElement.parentElement){
+			var ro = SepiaFW.ui.addResizeObserverWithBuffer(targetElement.parentElement, function(){
+				var plot = plotSeries.getPlot();
+				if (!plot){
+					//not yet initialized - skip
+				}else if (plot.root && plot.root.parentNode && targetElement && targetElement.parentElement && document.body.contains(targetElement)){
+					uPlot.lazy.resizePlot(plot);
+				}else{
+					ro.disconnect();
+				}
+			});
+		}
+		return plotSeries;
+		//INFO: To add data use: 'plotSeries.addValues(data)' or 'plotSeries.addValues(...data)' then finish with 'plotSeries.draw()'
+	}
 
 	return Plot;
 }

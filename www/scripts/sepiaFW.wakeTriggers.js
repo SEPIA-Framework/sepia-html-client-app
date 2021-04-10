@@ -146,7 +146,7 @@ function sepiaFW_build_wake_triggers() {
 				options: {
 					setup: {
 						inputSampleRate: 16000,		//TODO: load from somewhere else
-						inputSampleSize: 512,		// "	 "
+						inputSampleSize: 512,		//TODO: 	"	  "
 						//bufferSize: 512,			//this has no effect yet (samples will be processed in 'inputSampleSize' chunks)
 						version: porcupineVersion,	//e.g. 14 or 19
 						keywords: keywordsArray, 	//e.g. ["Hey SEPIA"] or ["Computer", "Jarvis", "Picovoice"]
@@ -254,6 +254,7 @@ function sepiaFW_build_wake_triggers() {
 			//release the recorder
 			SepiaFW.audioRecorder.releaseWebAudioRecorder(function(){
 				WakeTriggers.engineLoaded = false;
+				WakeTriggers.engineModule = undefined;
 				if (onFinishCallback) onFinishCallback();
 			});
 		}, onErrorCallback);
@@ -281,6 +282,7 @@ function sepiaFW_build_wake_triggers() {
 		}else{
 			//check requirements
 			if (!WakeTriggers.engineLoaded || !WakeTriggers.engineModule){
+				//TODO: what if we killed it on purpose?
 				var msg = "Missing engine module or engine not ready (yet?).";
 				logInfo('ERROR: ' + msg, true);
 				if (onErrorCallback) onErrorCallback({name: "WakeTriggerError", message: msg});
@@ -290,7 +292,7 @@ function sepiaFW_build_wake_triggers() {
 				logInfo('CREATING wake-Word listener...');
 				SepiaFW.audioRecorder.createWebAudioRecorder({}, function(sepiaWebAudioProcessor, info){
 					WakeTriggers.listenToWakeWords(onSuccessCallback, onErrorCallback, doDelayAndCheck);
-				}, onErrorCallback);
+				}, onErrorCallback);	//NOTE: we can add 'onProcessorRuntimeError' (with return false/true to stop recorder on error)
 				return;
 			}
 			if (!SepiaFW.audioRecorder.webAudioHasCapability("wakeWordDetection")){
@@ -347,6 +349,7 @@ function sepiaFW_build_wake_triggers() {
 			isListening = false;
 			SepiaFW.animate.wakeWord.inactive();
 			WakeTriggers.engineLoaded = false;
+			WakeTriggers.engineModule = undefined;
 
 		}else if (data.event == "audioend" && isListening && !isStopping){
 			//reset state

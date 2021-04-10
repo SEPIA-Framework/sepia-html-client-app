@@ -37,7 +37,7 @@ function sepiaFW_build_audio_recorder(){
 	var sepiaWebAudioProcessor;
 
 	var activeAudioModules = [];
-	var activeAudioModuleCapabilities = {};		//e.g.: resample, wakeWordDetection, vad, encode, volume
+	var activeAudioModuleCapabilities = {};		//e.g.: resample, wakeWordDetection, vad, waveEncoding, volume
 	AudioRecorder.webAudioHasCapability = function(testCap){
 		return !!activeAudioModuleCapabilities[testCap];
 	}
@@ -120,14 +120,20 @@ function sepiaFW_build_audio_recorder(){
 	if (useLegacyMicInterface) micAudioRecorderOptions.sourceType = "scriptProcessor";
 	//var legacyScriptProcessorBufferSize = 512;		//use 'micAudioRecorderOptions.processorBufferSize'
 
-	function defaultOnProcessorReady(sepiaWebAudioProcessor, msg){
-		console.log("onProcessorReady", sepiaWebAudioProcessor, msg);
-	}
-	function defaultOnProcessorInitError(err){
-		console.error("onProcessorInitError", err);
+	//event dispatcher
+	function dispatchRecorderEvent(data){
+		//console.error("WebAudio recorder event", data);		//DEBUG
+		document.dispatchEvent(new CustomEvent('sepia_web_audio_recorder', { detail: data}));
 	}
 
-	AudioRecorder.createWebAudioRecorder = function(options, onProcessorReady, onProcessorInitError){
+	function defaultOnProcessorReady(sepiaWebAudioProcessor, msg){
+		SepiaFW.debug.info("AudioRecorder - onProcessorReady", sepiaWebAudioProcessor, msg);	//DEBUG
+	}
+	function defaultOnProcessorInitError(err){
+		SepiaFW.debug.error("AudioRecorder - onProcessorInitError", err);
+	}
+
+	AudioRecorder.createWebAudioRecorder = function(options, onProcessorReady, onProcessorInitError, onProcessorRuntimeError){
 		if (!onProcessorReady) onProcessorReady = defaultOnProcessorReady;
 		if (!onProcessorInitError) onProcessorInitError = defaultOnProcessorInitError;
 		if (sepiaWebAudioProcessor){
@@ -135,7 +141,7 @@ function sepiaFW_build_audio_recorder(){
 			return;
 		}
 		if (!options) options = {};
-		prepareSepiaWebAudioProcessor(options, onProcessorReady, onProcessorInitError);
+		prepareSepiaWebAudioProcessor(options, onProcessorReady, onProcessorInitError, onProcessorRuntimeError);
 	}
 	AudioRecorder.existsWebAudioRecorder = function(){
 		return !!sepiaWebAudioProcessor;
@@ -171,24 +177,29 @@ function sepiaFW_build_audio_recorder(){
 		}
 	}
 	//stop and release if possible or confirm right away
-	AudioRecorder.stopAndReleaseIfActive = function(callback){
+	AudioRecorder.stopIfActive = function(callback){
 		if (AudioRecorder.isWebAudioRecorderActive()){
 			AudioRecorder.stopWebAudioRecorder(function(){
-				AudioRecorder.releaseWebAudioRecorder(function(){
-					if (callback) callback();
-				});
-			});
-		}else if (AudioRecorder.isWebAudioRecorderReady()){
-			AudioRecorder.releaseWebAudioRecorder(function(){
 				if (callback) callback();
 			});
 		}else{
 			if (callback) callback();
 		}
 	}
+	AudioRecorder.stopAndReleaseIfActive = function(callback){
+		AudioRecorder.stopIfActive(function(){
+			if (AudioRecorder.isWebAudioRecorderReady()){
+				AudioRecorder.releaseWebAudioRecorder(function(){
+					if (callback) callback();
+				});
+			}else{
+				if (callback) callback();
+			}	
+		});
+	}
 
 	//Build modules and custom-source (if required)
-	function prepareSepiaWebAudioProcessor(options, onProcessorReady, onProcessorInitError){
+	function prepareSepiaWebAudioProcessor(options, onProcessorReady, onProcessorInitError, onRuntimeError){
 		//Collect active modules:
 		broadcastRecorderRequested();
 		activeAudioModules = [];
@@ -206,8 +217,8 @@ function sepiaFW_build_audio_recorder(){
 		var resamplerBufferSize = micAudioRecorderOptions.processorBufferSize;
 		var resamplerGain = micAudioRecorderOptions.gain;
 		function onResamplerMessage(data){
-			//TODO: implement
 			//console.log("onResamplerMessage", data); 		//DEBUG
+			if (options.onResamplerMessage) options.onResamplerMessage(data);
 		}
 		var useLegacySp = micAudioRecorderOptions.sourceType == "scriptProcessor" || options.forceLegacyMicInterface;
 		if (useLegacySp){
@@ -253,11 +264,22 @@ function sepiaFW_build_audio_recorder(){
 			activeAudioModuleCapabilities.resample = true;
 		}
 
+		//--- VAD module
+		if (options.addVadModule){
+			//TODO: add default VAD module
+		}
+
 		//--- Wake-word detection
 		var wakeWordDetector;
 		var wakeWordDetectorIndex;
-		if (SepiaFW.wakeTriggers.engineModule){
+		if (options.wakeWordModule != undefined){
+			//add custom module
+			wakeWordDetector = options.wakeWordModule;
+		}else if (SepiaFW.wakeTriggers.engineModule){
+			//integrated module
 			wakeWordDetector = SepiaFW.wakeTriggers.engineModule;
+		}
+		if (wakeWordDetector){
 			activeAudioModules.push(wakeWordDetector);
 			wakeWordDetectorIndex = activeAudioModules.length;
 			//add wwd to resampler output
@@ -265,7 +287,25 @@ function sepiaFW_build_audio_recorder(){
 			activeAudioModuleCapabilities.wakeWordDetection = true;
 		}
 
-		//--- TODO: add more modules later like VAD, WaveEncoder, ASR, etc.
+		//--- WaveEncoder
+		var waveEncoder;
+		var waveEncoderIndex;
+		if (options.waveEncoderModule != undefined){
+			//add custom module
+			waveEncoder = options.waveEncoderModule;
+		}else if (options.addWaveEncoderModule){
+			//add default wave-encoder module
+			waveEncoder = AudioRecorder.createDefaultWaveEncoderModule(options.onWaveEncoderMessage);
+		}
+		if (waveEncoder){
+			activeAudioModules.push(waveEncoder);
+			waveEncoderIndex = activeAudioModules.length;
+			//add encoder to resampler output
+			resampler.settings.sendToModules.push(waveEncoderIndex);
+			activeAudioModuleCapabilities.waveEncoding = true;
+		}
+
+		//--- TODO: add more modules like ASR, etc.
 
 		//Source adjustments
 		var customSourcePromise;
@@ -280,28 +320,40 @@ function sepiaFW_build_audio_recorder(){
 			//wait for promise
 			customSourcePromise.then(function(customSource){
 				customSepiaWebAudioSource = customSource;
-				createSepiaWebAudioProcessor(onProcessorReady, onProcessorInitError);
+				createSepiaWebAudioProcessor(onProcessorReady, onProcessorInitError, onRuntimeError);
 			}).catch(function(err){
 				onProcessorInitError(err);
+				//dispatch global event (this can actually happen in prep. already)
+				dispatchRecorderEvent({event: "initError", error: err});
 			});
 		}else{
 			//continue with default
-			createSepiaWebAudioProcessor(onProcessorReady, onProcessorInitError);
+			createSepiaWebAudioProcessor(onProcessorReady, onProcessorInitError, onRuntimeError);
 		}
 	}
 	//Create processor (init. modules etc.)
-	function createSepiaWebAudioProcessor(onProcessorReady, onProcessorInitError){
+	function createSepiaWebAudioProcessor(onProcessorReady, onProcessorInitError, onRuntimeError){
 		//Create processor
 		sepiaWebAudioProcessor = new SepiaFW.webAudio.Processor({
 			onaudiostart: function(msg){ dispatchRecorderEvent({ event: "audiostart", data: msg });},
-			onaudioend: function(msg){ dispatchRecorderEvent({ event: "audioend", data: msg });},	//TODO: should e.g. stop WW and stuff
-			onrelease: function(msg){ dispatchRecorderEvent({ event: "release", data: msg });},		//TODO: should e.g. stop WW and stuff
-			onerror: function(err){ dispatchRecorderEvent({ event: "error", error: msg });},		//TODO: consequences?
+			onaudioend: function(msg){ dispatchRecorderEvent({ event: "audioend", data: msg });},
+			onrelease: function(msg){ dispatchRecorderEvent({ event: "release", data: msg });},
+			onerror: function(err){ 
+				//consequences? stop it not explicitly prevented
+				var stopNow = true;
+				if (onRuntimeError){
+					stopNow = onRuntimeError(err);
+				}
+				if (stopNow == undefined || stopNow){
+					AudioRecorder.stopIfActive();
+				}
+				dispatchRecorderEvent({ event: "error", error: err });
+			},
+			debugLog: console.log,			//TODO: keep? replace with SepiaFW.debug.info?
 			//targetSampleRate: micAudioRecorderOptions.targetSampleRate,
 			modules: activeAudioModules,
 			destinationNode: undefined,		//defaults to: new "blind" destination (mic) or audioContext.destination (stream)
 			startSuspended: true,
-			debugLog: console.log,
 			customSourceTest: false,
 			customSource: customSepiaWebAudioSource
 			
@@ -317,16 +369,12 @@ function sepiaFW_build_audio_recorder(){
 		}, function(err){
 			//Init. error
 			onProcessorInitError(err);
-			//dispatch global event (this can actually happen before)
+			//dispatch global event (this can actually happen in prep. already)
 			dispatchRecorderEvent({
 				event: "initError",
 				error: err
 			});
 		});
-	}
-	function dispatchRecorderEvent(data){
-		//console.error("WebAudio recorder event", data);		//DEBUG
-		document.dispatchEvent(new CustomEvent('sepia_web_audio_recorder', { detail: data}));
 	}
 	function createLegacyScriptProcessorSource(){
 		return SepiaFW.webAudio.createLegacyMicrophoneScriptProcessor({
@@ -338,6 +386,27 @@ function sepiaFW_build_audio_recorder(){
 		return SepiaFW.webAudio.createFileSource(fileUrl, {
 			targetSampleRate: micAudioRecorderOptions.targetSampleRate
 		});	//Note: Promise
+	}
+
+	AudioRecorder.createDefaultWaveEncoderModule = function(onWaveEncoderMessage, options){
+		if (!options) options = {};
+		return {
+			name: 'wave-encoder',
+			type: 'worker',
+			settings: {
+				onmessage: onWaveEncoderMessage || function(msg){},
+				//onerror: function(err){},
+				options: {
+					setup: {
+						inputSampleRate: options.inputSampleRate || micAudioRecorderOptions.targetSampleRate,
+						inputSampleSize: options.inputSampleSize || micAudioRecorderOptions.processorBufferSize,
+						lookbackBufferMs: options.lookbackBufferMs,			//default: off, good value e.g. 2000
+						recordBufferLimitMs: options.recordBufferLimitMs,	//default: use 5MB limit, good value e.g. 6000
+						recordBufferLimitKb: options.recordBufferLimitKb 	//default: 5MB (overwritten by ms limit), good value e.g. 600
+					}
+				}
+			}
+		}
 	}
 
 	//---------------------------------------
