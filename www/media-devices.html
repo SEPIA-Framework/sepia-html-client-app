@@ -5,7 +5,7 @@
 			<h3>Media Devices Settings</h3>
 			<p class="info-text">Here you can configure the media devices like microphone and audio sources (speakers) of your device.</p>
 			<div id="sepiaFW-media-devices-settings" class="group-container">
-				<div class="group" style="justify-content: center;">
+				<div class="group" style="justify-content: center; flex-wrap: wrap;">
 					<button id="SepiaFW-media-devices-refresh" onclick="SepiaFW.frames.currentScope.refreshDevices()">Refresh devices</button>
 					<button id="SepiaFW-media-devices-store" onclick="SepiaFW.frames.currentScope.store()">Store settings</button>
 					<button id="SepiaFW-media-devices-default" onclick="SepiaFW.frames.currentScope.resetToDefault()">Default</button>
@@ -44,9 +44,18 @@
 			</div>
 			<div class="group-container">
 				<div class="group" style="justify-content: center;">
+					<p id="sepiaFW-media-devices-mic-test-state" class="info-text" style="white-space: break-spaces;">Press 'Start Test' to begin recording</p>
+				</div>
+				<div class="group" style="justify-content: center; flex-wrap: wrap;">
+					<button id="SepiaFW-media-devices-mic-test" onclick="SepiaFW.frames.currentScope.startMicrophoneTest()">Start Test</button>
+					<button id="SepiaFW-media-devices-mic-test-stop" onclick="SepiaFW.frames.currentScope.stopMicrophoneTest()">Abort Test</button>
 					<button id="SepiaFW-media-devices-mic-opt-store" onclick="SepiaFW.frames.currentScope.storeMicSettings()">Store settings</button>
 					<button id="SepiaFW-media-devices-mic-opt-default" onclick="SepiaFW.frames.currentScope.resetMicSettingsToDefault()">Default</button>
 				</div>
+			</div>
+			<div class="group-container">
+				<div id="sepiaFW-media-devices-mic-test-plot-1" class="sepiaFW-plot-container" style="margin: 16px 0;"></div>
+				<div id="sepiaFW-media-devices-mic-test-wave" style="margin: 16px 0;"></div>
 			</div>
 		</div>
 	</div>
@@ -242,6 +251,116 @@
 		resetMicSettingsToDefault: function(){
 			SepiaFW.audioRecorder.resetMicrophoneSettings();
 			SepiaFW.ui.showPopup("Reset microphone settings, please reload client.");
+		},
+
+		//Mic Test
+
+		showMicTestInfo: function(msg){
+			$('#sepiaFW-media-devices-mic-test-state').css("color", "").text(msg);
+		},
+		showMicTestError: function(msg){
+			$('#sepiaFW-media-devices-mic-test-state').css("color", "#f00").text(msg);
+		},
+		micTestState: {},
+		startMicrophoneTest: function(){
+			var state = SepiaFW.frames.currentScope.micTestState;
+			state.waveEncoderGateIsOpen = false;
+			state.waveEncModule = undefined;
+			state.startedRecording = undefined;
+			state.recordingDuration = undefined;
+			state.rmsData = { points:[], max: undefined, min: undefined };
+			clearTimeout(state.micStartTime);
+			var chartEle = document.getElementById("sepiaFW-media-devices-mic-test-plot-1");
+			chartEle.innerHTML = "";
+			var outputGraph1 = SepiaFW.ui.plot.createLineSeries(chartEle, 150);
+			//stop and release existing recorders
+			SepiaFW.frames.currentScope.showMicTestInfo("Stopping existing recorders...");
+			SepiaFW.audioRecorder.stopAndReleaseIfActive(function(){
+				SepiaFW.frames.currentScope.showMicTestInfo("Creating new recorder...");
+				var waveEncModule = SepiaFW.audioRecorder.createDefaultWaveEncoderModule(function(msg){
+					//console.log("waveEncoderModule msg", msg);			//DEBUG
+					if (msg){
+						if (msg.gate && msg.gate.isOpen == false){
+							state.waveEncoderGateIsOpen = false;
+							if (state.startedRecording && msg.gate.closedAt){
+								state.recordingDuration = msg.gate.closedAt - state.startedRecording;
+								state.startedRecording = undefined;	
+							}
+							SepiaFW.frames.currentScope.showMicTestInfo("Recorder closed. Duration (ms): " + state.recordingDuration + ". Generating wave file.");
+							SepiaFW.audioRecorder.stopIfActive(function(){
+								//stopped
+								state.waveEncModule.handle.sendToModule({request: {get: "wave"}});
+							});
+						}else if (msg.output && msg.output.wav){
+							//add wav to play
+							SepiaFW.frames.currentScope.addWaveToPage(msg.output.wav);
+							//TODO: evaluate what we can
+							//state.recordingDuration
+							//state.rmsData.points
+							//TODO: mark clipped audio?
+						}
+					}
+				}, {
+					recordBufferLimitMs: 6000
+				});
+				state.waveEncModule = waveEncModule;
+				SepiaFW.audioRecorder.createWebAudioRecorder({
+					wakeWordModule: false,		//block default module
+					waveEncoderModule: waveEncModule,
+					onResamplerMessage: function(msg){
+						//console.log("onResamplerMessage msg", msg.rms);		//DEBUG
+						if (msg && msg.rms != undefined){
+							//plot
+							outputGraph1.addValues(msg.rms);
+							outputGraph1.draw();
+							state.rmsData.points.push(msg.rms);
+						}
+					}
+				}, function(audioProcessor, info){
+					//on init
+					SepiaFW.frames.currentScope.showMicTestInfo("Recorder ready. Recording starts in 3s.");
+					//start
+					state.micStartTime = setTimeout(function(){
+						SepiaFW.audioRecorder.startWebAudioRecorder(function(){
+							state.waveEncModule.handle.sendToModule({gate: "open"});
+							state.waveEncoderGateIsOpen = true;
+							state.startedRecording = new Date().getTime();
+							SepiaFW.frames.currentScope.showMicTestInfo("Recorder started. Speak now for 6s :-)");
+						});
+					}, 3000);
+				}, function(initErr){
+					//on init err.
+					SepiaFW.debug.error("Media-Devices - Microphone test init. error:", initErr);
+					SepiaFW.frames.currentScope.showMicTestError("Recorder init. error");
+				}, function(runtimeErr){
+					//on runtime err.
+					SepiaFW.debug.error("Media-Devices - Microphone test runtime error:", runtimeErr);
+					SepiaFW.frames.currentScope.showMicTestError("Recorder runtime error");
+					return true;
+				});
+			});
+		},
+		stopMicrophoneTest: function(){
+			var state = SepiaFW.frames.currentScope.micTestState;
+			clearTimeout(state.micStartTime);
+			if (SepiaFW.audioRecorder.isWebAudioRecorderActive() && state.waveEncModule && state.waveEncoderGateIsOpen){
+				state.waveEncModule.handle.sendToModule({gate: "close"});
+				state.waveEncoderGateIsOpen = false;
+			}
+			SepiaFW.audioRecorder.stopIfActive(function(){
+				//stopped
+				SepiaFW.frames.currentScope.showMicTestInfo("Recorder test aborted");
+			});
+		},
+		addWaveToPage: function(wavAudio){
+			var audioEle = document.createElement("audio");
+			audioEle.src = window.URL.createObjectURL((wavAudio.constructor.name == "Blob")? wavAudio : (new Blob([wavAudio], { type: "audio/wav" })));
+			audioEle.setAttribute("controls", "controls");
+			var audioBox = document.createElement("div");
+			audioBox.appendChild(audioEle);
+			var targetEle = document.getElementById("sepiaFW-media-devices-mic-test-wave");
+			targetEle.innerHTML = "";
+			targetEle.appendChild(audioBox);
 		}
 	}
 </script>
