@@ -430,7 +430,7 @@ function sepiaFW_build_embedded_services(){
 			var day2 = date2.toLocaleDateString(language, {weekday: 'long'});
 			var timeString2 = date2.toLocaleTimeString(language);
 			data = [{
-				"name": "5min Alarm", "eleType": "alarm", "repeat": "onetime", "activated": false,
+				"name": "Next Alarm", "eleType": "alarm", "repeat": "onetime", "activated": false,
 				"date": dateString1,
 				"eventId": "alarm-1-630",
 				"lastChange": dateAdded,

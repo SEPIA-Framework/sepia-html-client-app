@@ -55,10 +55,13 @@ html.landscape-small #sepiaFW-chat-controls {
 	background: linear-gradient(45deg, #4a9fff, #3c97fd);
 	color: #fff;
 }
-#sepiaFW-login-box button:not(#sepiaFW-login-extend-btn):not(#sepiaFW-login-help-btn):hover,
-.sepiaFW-touch-device #sepiaFW-login-box button {
+#sepiaFW-login-box button:not(#sepiaFW-login-extend-btn):not(#sepiaFW-login-help-btn):hover {
 	background: #3c97fd !important;
     color: #eee !important;
+}
+.sepiaFW-touch-device #sepiaFW-login-box button {
+	background: #3c97fd;
+	color: #eee;
 }
 #sepiaFW-login-box #sepiaFW-login-extend-btn:hover {
 	background-color: transparent !important;

@@ -327,13 +327,13 @@ function buildBuffer(start, end){
 		}
 	}
 	console.error("buffer mismatch", n, dataLength);	//TODO: why does this always match?
+	//TODO: we clear lookback buffer here ... so we should clear everything
+	lookbackBufferNeedsReset = false;
 	
 	return {
 		buffer: collectBuffer,
 		isFloat32: isFloat32
 	}
-	//TODO: we clear lookback buffer here ... so we should clear everything
-	lookbackBufferNeedsReset = false;
 }
 
 function encodeWAV(samples, sampleRate, numChannels, convertFromFloat32){

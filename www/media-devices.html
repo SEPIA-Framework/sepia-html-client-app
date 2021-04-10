@@ -268,8 +268,8 @@
 			state.waveEncModule = undefined;
 			state.startedRecording = undefined;
 			state.recordingDuration = undefined;
-			state.rmsData = { points:[], max: undefined, min: undefined };
-			clearTimeout(state.micStartTime);
+			state.rmsData = { points:[], sum: 0 };
+			clearTimeout(state.micStartTimer);
 			var chartEle = document.getElementById("sepiaFW-media-devices-mic-test-plot-1");
 			chartEle.innerHTML = "";
 			var outputGraph1 = SepiaFW.ui.plot.createLineSeries(chartEle, 150);
@@ -278,9 +278,9 @@
 			SepiaFW.audioRecorder.stopAndReleaseIfActive(function(){
 				SepiaFW.frames.currentScope.showMicTestInfo("Creating new recorder...");
 				var waveEncModule = SepiaFW.audioRecorder.createDefaultWaveEncoderModule(function(msg){
-					//console.log("waveEncoderModule msg", msg);			//DEBUG
+					console.log("waveEncoderModule msg", msg);			//DEBUG
 					if (msg){
-						if (msg.gate && msg.gate.isOpen == false){
+						if (msg.gate && msg.gate.isOpen == false && state.waveEncoderGateIsOpen){
 							state.waveEncoderGateIsOpen = false;
 							if (state.startedRecording && msg.gate.closedAt){
 								state.recordingDuration = msg.gate.closedAt - state.startedRecording;
@@ -294,9 +294,20 @@
 						}else if (msg.output && msg.output.wav){
 							//add wav to play
 							SepiaFW.frames.currentScope.addWaveToPage(msg.output.wav);
-							//TODO: evaluate what we can
-							//state.recordingDuration
-							//state.rmsData.points
+							//evaluate data
+							if (state.rmsData.points.length){
+								var maxRms = Math.max(...state.rmsData.points).toFixed(4);
+								var minRms = Math.min(...state.rmsData.points).toFixed(4);
+								var avgRms = (state.rmsData.sum/state.rmsData.points.length).toFixed(4);
+								var durationGood = state.recordingDuration < 6500 && state.recordingDuration > 5500;
+								SepiaFW.frames.currentScope.showMicTestInfo(
+									"Duration is " + (durationGood? "good" : "bad") + ": " + state.recordingDuration + "ms\n" +
+									"Volume (max) is " + (maxRms > 0.1? "good" : "bad") + ": " + maxRms + " rms\n" +
+									"Volume (min) is " + (minRms/maxRms < 0.2? "good" : "bad") + ": " + minRms + " rms\n" +
+									"Volume avg: " + avgRms + " rms\n" +
+									"Please check audio recording for quality."
+								);
+							}
 							//TODO: mark clipped audio?
 						}
 					}
@@ -314,18 +325,19 @@
 							outputGraph1.addValues(msg.rms);
 							outputGraph1.draw();
 							state.rmsData.points.push(msg.rms);
+							state.rmsData.sum += msg.rms;
 						}
 					}
 				}, function(audioProcessor, info){
 					//on init
 					SepiaFW.frames.currentScope.showMicTestInfo("Recorder ready. Recording starts in 3s.");
 					//start
-					state.micStartTime = setTimeout(function(){
+					state.micStartTimer = setTimeout(function(){
 						SepiaFW.audioRecorder.startWebAudioRecorder(function(){
 							state.waveEncModule.handle.sendToModule({gate: "open"});
 							state.waveEncoderGateIsOpen = true;
 							state.startedRecording = new Date().getTime();
-							SepiaFW.frames.currentScope.showMicTestInfo("Recorder started. Speak now for 6s :-)");
+							SepiaFW.frames.currentScope.showMicTestInfo("Recorder started. Please speak for 6s :-)");
 						});
 					}, 3000);
 				}, function(initErr){
