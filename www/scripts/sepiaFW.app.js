@@ -27,6 +27,7 @@ SepiaFW.buildSepiaFwPlugins = function(){
 	SepiaFW.geocoder = sepiaFW_build_geocoder();
 	SepiaFW.webAudio = ('sepiaFW_build_web_audio' in window)? sepiaFW_build_web_audio() : {};
 	SepiaFW.audio = sepiaFW_build_audio(sepiaSessionId);
+	SepiaFW.audio.effects = sepiaFW_build_audio_effects();
 	SepiaFW.audioRecorder = sepiaFW_build_audio_recorder();
 	SepiaFW.speechWebSocket = sepiaFW_build_speechWebSocket();
 	SepiaFW.speech = sepiaFW_build_speech();

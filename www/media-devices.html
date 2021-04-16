@@ -16,12 +16,15 @@
 					<div id="sepiaFW-media-devices-audio-player-box"></div>
 				</div>
 				<div class="group">
-					<label>TTS output:</label>
+					<label>Voice (TTS) output:</label>
 					<div id="sepiaFW-media-devices-tts-player-box"></div>
 				</div>
 				<div class="group">
 					<label>FX output:</label>
 					<div id="sepiaFW-media-devices-fx-player-box"></div>
+				</div>
+				<div class="group" style="justify-content: center;">
+					<button onclick="SepiaFW.frames.showFramePage(3);">Voice Effects</button>
 				</div>
 				<h3>Microphone</h3>
 				<div class="group">
@@ -29,7 +32,7 @@
 					<div id="sepiaFW-media-devices-mic-box"></div>
 				</div>
 				<div class="group" style="justify-content: center;">
-					<button onclick="SepiaFW.frames.showFramePage(2);">Setup</button>
+					<button onclick="SepiaFW.frames.showFramePage(2);">Microphone Setup</button>
 				</div>
 				<h3>Info</h3>
 				<div id="sepiaFW-media-devices-info-msg" style="white-space: break-spaces;"></div>
@@ -58,6 +61,20 @@
 				<div id="sepiaFW-media-devices-mic-test-wave" style="margin: 16px 0;"></div>
 			</div>
 		</div>
+		<!-- Page 3 -->
+		<div id="sepiaFW-frame-page-3" class='sepiaFW-frames-page sepiaFW-carousel-pane'>
+			<h3>Text-To-Speech Effects</h3>
+			<p class="info-text">Here you can add custom effects to the voice output IF you use the <b>custom engine</b>.</p>
+			<div id="sepiaFW-media-devices-tts-effects-box" class="group-container">
+				<!-- dynamically created -->
+			</div>
+			<div class="group-container"></div>
+				<div class="group" style="justify-content: center; flex-wrap: wrap;">
+					<button id="SepiaFW-media-devices-tts-test" onclick="SepiaFW.frames.currentScope.startVoiceTest()">Test Voice</button>
+					<button id="SepiaFW-media-devices-tts-test-stop" onclick="SepiaFW.frames.currentScope.stopVoiceTest()">Stop Voice</button>
+				</div>
+			</div>
+		</div>
 	</div>
 </div>
 <div id="sepiaFW-frames-nav-bar" class='sepiaFW-layer-header'>
@@ -70,7 +87,7 @@
 	<button id="sepiaFW-frames-show-next-page" class='entry'>
 		<span data-localize="next">next</span><i class="material-icons md-btn2">keyboard_arrow_right</i>
 	</button>
-	<div id="sepiaFW-frames-nav-bar-page-indicator"><div>&nbsp;</div><div>&nbsp;</div></div>
+	<div id="sepiaFW-frames-nav-bar-page-indicator"><div>&nbsp;</div><div>&nbsp;</div><div>&nbsp;</div></div>
 </div>
 <script>
 	$('#sepiaFW-frame-carousel').find('[data-localize]').each(function(){
@@ -91,9 +108,12 @@
 			$('#sepiaFW-media-devices-fx-player').val(SepiaFW.audio.mediaDevicesSelected["fx"].value);
 		},
 
-		onFramePageChange: function(pageNbr){
+		onFramePageChange: function(pageNbr, triggeredByOpenEvent){
+			//NOTE: 'triggeredByOpenEvent' can be used to distinguish real "change" events from "open" events
 			if (pageNbr == 2){
 				SepiaFW.frames.currentScope.showMicOptions();
+			}else if (pageNbr == 3){
+				SepiaFW.frames.currentScope.showAvailableTtsEffects();
 			}
 		},
 		
@@ -153,6 +173,7 @@
 			ttsEle.appendChild(SepiaFW.ui.build.optionSelector(
 				"sepiaFW-media-devices-tts-player", outOptions, SepiaFW.audio.mediaDevicesSelected["tts"].value, function(ele){
 					SepiaFW.frames.currentScope.setMediaSink("tts", ele.selectedOptions[0].textContent, ele.value);
+					if (!SepiaFW.speech.useSepiaServerTTS) SepiaFW.ui.showPopup("Please note that this setting only works for a 'custom' (streaming) voice!");
 				}
 			));
 			fxEle.appendChild(SepiaFW.ui.build.optionSelector(
@@ -200,7 +221,7 @@
 			//constraints
 			var constraints = SepiaFW.webAudio.getSupportedAudioConstraints();
 			var activeConstraints = SepiaFW.audioRecorder.getWebAudioConstraints();
-			function buildConstraintOption(key, name, type, disabled, onInputChange){
+			function buildConstraintOption(key, name, type, disabled){
 				var inputId = 'sepiaFW-media-devices-mic-constraints-' + key;
 				var onInputChange = function(inputVal){
 					SepiaFW.audioRecorder.setMicrophoneOption(key, inputVal, "context");
@@ -373,6 +394,42 @@
 			var targetEle = document.getElementById("sepiaFW-media-devices-mic-test-wave");
 			targetEle.innerHTML = "";
 			targetEle.appendChild(audioBox);
+		},
+
+		//TTS Effects
+
+		showAvailableTtsEffects: function(){
+			var ttsEffectsBox = document.getElementById('sepiaFW-media-devices-tts-effects-box');
+			ttsEffectsBox.innerHTML = "";
+			var disabled = !SepiaFW.speech.useSepiaServerTTS;		//TODO: this should probably be set for each voice individually
+			if (disabled) SepiaFW.ui.showPopup("Please choose a 'custom' (streaming) voice to apply effects.");
+			//effects
+			var effects = SepiaFW.audio.tts.getAvailableVoiceEffects();
+			//Voice effect selector
+			var effectOpt = SepiaFW.frames.build.inputGroup(
+				"Voice Effect", effects, "select", disabled, 
+				"sepiaFW-media-devices-tts-effect-select", function(effectId){
+					//toggle effect
+					SepiaFW.frames.currentScope.setVoiceEffect(effectId);
+				}
+			);
+			effectOpt.input.value = SepiaFW.audio.tts.getActiveVoiceEffect();
+			ttsEffectsBox.appendChild(effectOpt.element);
+		},
+		startVoiceTest: function(){
+			SepiaFW.speech.speak(SepiaFW.local.g("tts_test"));
+		},
+		stopVoiceTest: function(){
+			SepiaFW.speech.stopSpeech();
+		},
+		setVoiceEffect: function(effectId){
+			SepiaFW.audio.tts.setVoiceEffect(effectId, function(){
+				//success
+			}, function(err){
+				//error - reload available effects
+				SepiaFW.ui.showPopup("Failed to set voice effect - Info: " + err.message);
+				SepiaFW.frames.currentScope.showAvailableTtsEffects();
+			});
 		}
 	}
 </script>

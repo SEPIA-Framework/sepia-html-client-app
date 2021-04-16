@@ -147,6 +147,7 @@ function sepiaFW_build_strings(){
 	StringsDE.atClock = 'um';
 	StringsDE.toMe = 'zu mir';
 	//More errors/info
+	StringsDE.tts_test = "Hallo Boss, wenn du diese Nachricht hören kannst, dann funktioniert die Sprachausgabe. Ich hoffe es hat geklappt!";
 	StringsDE.error_after_try = "Habs versucht aber irgendwas ging schief. Versuch es vielleicht später noch mal?!";
 	StringsDE.serverVersionTooLow = 'Beachte: Dein SEPIA Server nutzt nicht die aktuellste Version und manche Features des Clients funktionieren eventuell nicht wie erwartet. Bitte führe ein Server Update durch, wenn möglich!';
 	StringsDE.mesh_node_fail = 'Sorry, die Mesh-Node Funktion zeigte einen Fehler.';
@@ -350,6 +351,7 @@ function sepiaFW_build_strings(){
 	StringsEN.atClock = 'at';
 	StringsEN.toMe = 'to me';
 	//More errors/info
+	StringsEN.tts_test = "Hello Boss, if you can hear this message then the voice output must be ok. I hope it's working!";
 	StringsEN.error_after_try = "I've tried but something went wrong. Try again later maybe?!";
 	StringsEN.serverVersionTooLow = 'Note: Your SEPIA server is not using the latest version and some features of the client might not work as expected. Please update the server when possible!';
 	StringsEN.mesh_node_fail = 'Sorry, the Mesh-Node function showed an error.';

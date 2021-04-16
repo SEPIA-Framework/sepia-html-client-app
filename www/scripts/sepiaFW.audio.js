@@ -391,8 +391,18 @@ function sepiaFW_build_audio(sepiaSessionId){
 		}
 	}
 
+	//TTS voice effects
+	var voiceEffects = {
+		"robo_1": {id: "robo_1", name: "Robotic 1", applyFun: function(doneCallback){
+			//TODO: implement
+			voiceEffectActive = "robo_1";
+			doneCallback();
+		}}
+	}
+	var voiceEffectActive = "";
+
 	//set default parameters for TTS
-	TTS.setup = function (Settings){
+	TTS.setup = function(Settings){
 		TTS.playOn = (Settings.playOn)? Settings.playOn : "client"; 		//play TTS on client (can also be played on "server" if available)
 		TTS.format = (Settings.format)? Settings.format : "default";		//you can force format to default,OGG,MP3,MP3_CBR_32 and WAV (if using online api)
 		//about voices
@@ -405,8 +415,38 @@ function sepiaFW_build_audio(sepiaSessionId){
 		TTS.maxMoodIndex = (Settings.maxMoodIndex)? Settings.maxMoodIndex : 3;
 	}
 
+	TTS.setVoiceEffect = function(effectId, successCallBack, errorCallback){
+		var effect = effectId? voiceEffects[effectId] : undefined;
+		if (!effectId){
+			//TODO: remove active effect
+			voiceEffectActive = "";
+			SepiaFW.debug.log("Removed TTS effect");
+			if (successCallBack) successCallBack();
+		}else if (effect && effect.applyFun){
+			SepiaFW.debug.log("Set TTS effect: " + effectId + " (" + effect.name + ")");
+			effect.applyFun(function(){
+				if (successCallBack) successCallBack();
+			});
+		}else{
+			//TODO: remove active effect?
+			SepiaFW.debug.error("TTS effect for id: " + effectId + " NOT FOUND or NOT AVAILABLE!");
+			if (errorCallback) errorCallback({name: "VoiceEffectError", message: "not found or not available for this voice"});
+		}
+	}
+	TTS.getAvailableVoiceEffects = function(){
+		var effects = [
+			{value: "", name: "No effect"},
+			{value: "robo_1", name: "Robotic 1"}
+		];
+		return effects;
+		//TODO: return different values depending on selected voice?
+	}
+	TTS.getActiveVoiceEffect = function(){
+		return voiceEffectActive;
+	}
+
 	//use TTS endpoint to generate soundfile and speak answer
-	TTS.speak = function (message, onStartCallback, onEndCallback, onErrorCallback){
+	TTS.speak = function(message, onStartCallback, onEndCallback, onErrorCallback){
 		//gets URL and calls play(URL)
 		TTS.getURL(message, function(audioUrl){
 			if (audioUrl.indexOf("/") == 0){
@@ -423,7 +463,7 @@ function sepiaFW_build_audio(sepiaSessionId){
 	}
 
 	//STOP all audio
-	AudioPlayer.stop = function (audioPlayer){
+	AudioPlayer.stop = function(audioPlayer){
 		if (!audioPlayer) audioPlayer = player;
 		if (audioPlayer == player){
 			if (Stream.isPlaying){
@@ -932,7 +972,7 @@ function sepiaFW_build_audio(sepiaSessionId){
 		audioPlayer.preload = 'auto';
 		Alarm.isLoading = true;
 
-		audioPlayer.oncanplay = function() {
+		audioPlayer.oncanplay = function(){
 			SepiaFW.debug.info("AUDIO: can be played now (oncanplay event)");		//debug
 			Alarm.isPlaying = true;
 			Alarm.isLoading = false;
@@ -941,7 +981,7 @@ function sepiaFW_build_audio(sepiaSessionId){
 			if (onStartCallback) onStartCallback;
 			AudioPlayer.broadcastAudioEvent("effects", "start", audioPlayer);
 		};
-		audioPlayer.onpause = function() {
+		audioPlayer.onpause = function(){
 			if (!audioOnEndFired){
 				SepiaFW.debug.info("AUDIO: ended (onpause event)");				//debug
 				audioOnEndFired = true;
@@ -958,13 +998,13 @@ function sepiaFW_build_audio(sepiaSessionId){
 				SepiaFW.animate.assistant.idle();
 			}
 		};
-		audioPlayer.onended = function() {
+		audioPlayer.onended = function(){
 			if (!audioOnEndFired){
 				SepiaFW.debug.info("AUDIO: ended (onend event)");				//debug
 				audioPlayer.pause();
 			}
 		};
-		audioPlayer.onerror = function(error) {
+		audioPlayer.onerror = function(error){
 			SepiaFW.debug.info("AUDIO: error occured! - code: " + (audioPlayer.error? audioPlayer.error.code : error.name));			//debug
 			if (error && error.name && error.name == "NotAllowedError"){
 				SepiaFW.ui.showInfo("Cannot play audio because access was denied! This can happen if the user didn't interact with the client first.");
