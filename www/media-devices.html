@@ -423,7 +423,8 @@
 			SepiaFW.speech.stopSpeech();
 		},
 		setVoiceEffect: function(effectId){
-			SepiaFW.audio.tts.setVoiceEffect(effectId, function(){
+			var options = {};		//TODO: implement
+			SepiaFW.audio.tts.setVoiceEffect(effectId, options, function(){
 				//success
 			}, function(err){
 				//error - reload available effects

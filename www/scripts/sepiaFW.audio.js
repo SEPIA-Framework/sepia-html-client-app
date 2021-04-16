@@ -29,6 +29,8 @@ function sepiaFW_build_audio(sepiaSessionId){
 	var player;				//AudioPlayer for music and stuff
 	var player2;			//AudioPlayer for sound effects
 	var speaker;			//Player for TTS
+	var speakerAudioCtx, speakerSource, speakerGainNode;	//for TTS effects filter
+
 	var doInitAudio = true;			//workaround to activate scripted audio on touch devices
 	var audioOnEndFired = false;	//state: prevent doublefireing of audio onend onpause
 
@@ -393,11 +395,18 @@ function sepiaFW_build_audio(sepiaSessionId){
 
 	//TTS voice effects
 	var voiceEffects = {
-		"robo_1": {id: "robo_1", name: "Robotic 1", applyFun: function(doneCallback){
-			//TODO: implement
-			voiceEffectActive = "robo_1";
-			doneCallback();
-		}}
+		"robo_1": {
+			id: "robo_1", name: "Robotic Modulator 1", 
+			applyFun: function(audioCtx, masterGainNode, options, doneCallback){
+				SepiaFW.audio.effects.applyEffect("robo_1", audioCtx, masterGainNode, options, doneCallback);
+			}
+		}, 
+		"highpass_1": {
+			id: "highpass_1", name: "High-Pass Filter 1", 
+			applyFun: function(audioCtx, masterGainNode, options, doneCallback){
+				SepiaFW.audio.effects.applyEffect("highpass_1", audioCtx, masterGainNode, options, doneCallback);
+			}
+		}
 	}
 	var voiceEffectActive = "";
 
@@ -415,31 +424,58 @@ function sepiaFW_build_audio(sepiaSessionId){
 		TTS.maxMoodIndex = (Settings.maxMoodIndex)? Settings.maxMoodIndex : 3;
 	}
 
-	TTS.setVoiceEffect = function(effectId, successCallBack, errorCallback){
+	TTS.setVoiceEffect = function(effectId, options, successCallback, errorCallback){
 		var effect = effectId? voiceEffects[effectId] : undefined;
 		if (!effectId){
-			//TODO: remove active effect
-			voiceEffectActive = "";
-			SepiaFW.debug.log("Removed TTS effect");
-			if (successCallBack) successCallBack();
-		}else if (effect && effect.applyFun){
-			SepiaFW.debug.log("Set TTS effect: " + effectId + " (" + effect.name + ")");
-			effect.applyFun(function(){
-				if (successCallBack) successCallBack();
-			});
+			removeActiveVoiceEffect(successCallback);
+		}else if (effect){
+			applyVoiceEffect(effect, options, successCallback);
 		}else{
-			//TODO: remove active effect?
-			SepiaFW.debug.error("TTS effect for id: " + effectId + " NOT FOUND or NOT AVAILABLE!");
-			if (errorCallback) errorCallback({name: "VoiceEffectError", message: "not found or not available for this voice"});
+			removeActiveVoiceEffect(function(){
+				SepiaFW.debug.error("TTS effect for id: " + effectId + " NOT FOUND or NOT AVAILABLE!");
+				if (errorCallback) errorCallback({name: "VoiceEffectError", message: "not found or not available for this voice"});
+			});
 		}
+	}
+	function applyVoiceEffect(effect, options, doneCallback){
+		if (speakerGainNode){
+			//clean-up what we can
+			speakerGainNode.disconnect();
+		}
+		speaker.crossOrigin = "anonymous";
+		speakerAudioCtx = speakerAudioCtx || SepiaFW.webAudio.createAudioContext({});
+		speakerSource = speakerSource || speakerAudioCtx.createMediaElementSource(speaker);
+		speakerGainNode = speakerAudioCtx.createGain();
+		speakerSource.connect(speakerGainNode);
+		if (!options) options = {};
+		effect.applyFun(speakerAudioCtx, speakerGainNode, options, function(){
+			voiceEffectActive = effect.id;
+			SepiaFW.debug.log("Set TTS effect: " + effect.id + " (" + effect.name + ")");
+			if (doneCallback) doneCallback();
+		});
+	}
+	function removeActiveVoiceEffect(doneCallback){
+		//NOTE: this is not a "real" clean-up since we cannot get rid of the 'createMediaElementSource' anymore O_o
+		//REF: https://github.com/WebAudio/web-audio-api/issues/1202
+		if (speakerGainNode){
+			speakerGainNode.disconnect();
+			speakerGainNode.connect(speakerAudioCtx.destination);
+		}
+		//speaker.crossOrigin = null;
+		voiceEffectActive = "";
+		SepiaFW.debug.log("Removed TTS effect");
+		if (doneCallback) doneCallback();
 	}
 	TTS.getAvailableVoiceEffects = function(){
 		var effects = [
-			{value: "", name: "No effect"},
-			{value: "robo_1", name: "Robotic 1"}
+			{value: "", name: "No effect"}
 		];
-		return effects;
 		//TODO: return different values depending on selected voice?
+		Object.keys(voiceEffects).forEach(function(v){
+			var eff = voiceEffects[v];
+			effects.push({value: eff.id, name: eff.name});
+		});
+		return effects;
 	}
 	TTS.getActiveVoiceEffect = function(){
 		return voiceEffectActive;

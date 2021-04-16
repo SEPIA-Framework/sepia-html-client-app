@@ -38,6 +38,46 @@ function sepiaFW_build_audio_effects(){
 			return 1 - ((0.5 - mix) * 2);
 		}
 	};
+
+	var voiceEffects = {
+		"robo_1": function(audioCtx, masterGainNode, options, doneCallback){
+			var speakerRingModulator = new AudioEffects.RingModulator(audioCtx, {
+				speed: 200, distortion: 0.0, mix: 0.033
+			});
+			var speakerFlanger = new AudioEffects.Flanger(audioCtx, {
+				time: 0.5, speed: 0.5, depth: 0.5, feedback: 0.5, mix: 1.0
+			});
+			//adjust volume
+			masterGainNode.gain.value = masterGainNode.gain.value * 0.66;
+			//add effects
+			var ringOutNode = AudioEffects.addEffectAndReturnOutputNode(masterGainNode, speakerRingModulator);
+			var flangerOutNode = AudioEffects.addEffectAndReturnOutputNode(ringOutNode, speakerFlanger);
+			flangerOutNode.connect(audioCtx.destination);
+			doneCallback();
+		}, 
+		"highpass_1": function(audioCtx, masterGainNode, options, doneCallback){
+			var highPassFilter = new AudioEffects.HighPassFilter(audioCtx, {
+				frequency: 340,
+				peak: 0.30
+			});
+			//adjust volume (post)
+			var postGainNode = audioCtx.createGain();
+			postGainNode.gain.value = 1.33;
+			//add effects
+			var highOutNode = AudioEffects.addEffectAndReturnOutputNode(masterGainNode, highPassFilter);
+			highOutNode.connect(postGainNode);
+			postGainNode.connect(audioCtx.destination);
+			doneCallback();
+		}
+	};
+	AudioEffects.applyEffect = function(effectId, audioCtx, masterGainNode, options, doneCallback){
+		var effectFun = voiceEffects[effectId];
+		if (!effectFun){
+			if (doneCallback) doneCallback(false);
+		}else{
+			effectFun(audioCtx, masterGainNode, options, doneCallback);
+		}
+	};
 	
 	//RingModulator
 	(function(){
@@ -319,6 +359,78 @@ function sepiaFW_build_audio_effects(){
 				}
 			}
 		});
+	})();
+
+	//LowPassFilter / HighPassFilter
+	(function(){
+		/**
+		 * Original: Pizzicato.js - LowPassFilter/HighPassFilter - License: MIT - https://github.com/alemangui/pizzicato
+		 */
+		AudioEffects.LowPassFilter = function(audioContext, options) {
+			Filter.call(this, audioContext, options, 'lowpass');
+		};
+		AudioEffects.HighPassFilter = function(audioContext, options) {
+			Filter.call(this, audioContext, options, 'highpass');
+		};
+
+		//biquad filters
+		function Filter(audioContext, options, type) {
+			this.options = {};
+			options = options || this.options;
+
+			var defaults = {
+				frequency: 350,
+				peak: 1
+			};
+			this.frequencyMax = Math.floor(audioContext.sampleRate/2);
+			
+			this.filterNode = audioContext.createBiquadFilter();
+			this.filterNode.type = type;
+			this.inputNode = this.filterNode
+			this.outputNode = audioContext.createGain();
+			this.filterNode.connect(this.outputNode);
+			
+			for (var key in defaults) {
+				this[key] = options[key];
+				this[key] = (this[key] === undefined || this[key] === null) ? defaults[key] : this[key];
+			}
+		}
+
+		var filterPrototype = Object.create(null, {
+			/**
+			 * The cutoff frequency of the filter.
+			 * MIN: 10
+			 * MAX: half the sampling rate of the current context
+			 */
+			frequency: {
+				enumerable: true,
+				get: function() {
+					return this.filterNode.frequency.value;
+				},
+				set: function(value){
+					if (AudioEffects.Util.isInRange(value, 10, this.frequencyMax))
+						this.filterNode.frequency.value = value;
+				}
+			},
+			/**
+			 * Indicates how "peaked" the frequency is around the cutoff.
+			 * MIN: 0.0001
+			 * MAX: 1000
+			 */
+			peak: {
+				enumerable: true,
+				get: function() {
+					return this.filterNode.Q.value;
+				},
+				set: function(value) {
+					if (AudioEffects.Util.isInRange(value, 0.0001, 1000))
+						this.filterNode.Q.value = value;
+				}
+			}
+		});
+
+		AudioEffects.LowPassFilter.prototype = filterPrototype;
+		AudioEffects.HighPassFilter.prototype = filterPrototype;
 	})();
 	
 	return AudioEffects;
