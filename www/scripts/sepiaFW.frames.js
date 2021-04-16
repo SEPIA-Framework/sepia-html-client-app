@@ -102,6 +102,15 @@ function sepiaFW_build_frames(){
 		}
 		//on open
 		if(onOpen) onOpen();
+		
+		//trigger page-change to refresh content
+		if (Frames.currentScope && (Frames.currentScope.onFramePageChange || Frames.currentScope.onPaneChange)){
+			var currentPane = SepiaFW.frames.uic.getCurrentPane();
+			var triggeredByOpenEvent = true;	//NOTE: this can be used to distinguish real "change" events from "open" events
+			//NOTE: we count pages: 1, 2, 3, ... (panes are 0, 1, ...)
+			if (Frames.currentScope.onFramePageChange) Frames.currentScope.onFramePageChange(currentPane + 1, triggeredByOpenEvent);
+			else if (Frames.currentScope.onPaneChange) Frames.currentScope.onPaneChange(currentPane, paneHistory, triggeredByOpenEvent);
+		}
 	}
 	Frames.close = function(){
 		//design resets (global changes)
@@ -173,8 +182,10 @@ function sepiaFW_build_frames(){
 					$("#sepiaFW-frames-nav-bar-page-indicator > div:nth-child(" + (currentPane+1) + ")").addClass('active').fadeTo(350, 1.0).fadeTo(350, 0.0);
 					if (Frames.currentScope && (Frames.currentScope.onFramePageChange || Frames.currentScope.onPaneChange)){
 						if (paneHistory.length < 2 || paneHistory[paneHistory.length - 2] != currentPane){
-							if (Frames.currentScope.onFramePageChange) Frames.currentScope.onFramePageChange(currentPane + 1);		//NOTE: we count pages: 1, 2, 3, ...
-							else if (Frames.currentScope.onPaneChange) Frames.currentScope.onPaneChange(currentPane, paneHistory);
+							var triggeredByOpenEvent = false;
+							//NOTE: we count pages: 1, 2, 3, ... (panes are 0, 1, ...)
+							if (Frames.currentScope.onFramePageChange) Frames.currentScope.onFramePageChange(currentPane + 1, triggeredByOpenEvent);
+							else if (Frames.currentScope.onPaneChange) Frames.currentScope.onPaneChange(currentPane, paneHistory, triggeredByOpenEvent);
 						}
 					}
 				});
