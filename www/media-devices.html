@@ -68,10 +68,15 @@
 			<div id="sepiaFW-media-devices-tts-effects-box" class="group-container">
 				<!-- dynamically created -->
 			</div>
+			<div id="sepiaFW-media-devices-tts-effects-options-box" class="group-container">
+				<!-- dynamically created -->
+			</div>
 			<div class="group-container"></div>
 				<div class="group" style="justify-content: center; flex-wrap: wrap;">
-					<button id="SepiaFW-media-devices-tts-test" onclick="SepiaFW.frames.currentScope.startVoiceTest()">Test Voice</button>
-					<button id="SepiaFW-media-devices-tts-test-stop" onclick="SepiaFW.frames.currentScope.stopVoiceTest()">Stop Voice</button>
+					<button id="SepiaFW-media-devices-tts-effects-set" onclick="SepiaFW.frames.currentScope.setVoiceEffect()">Set Effect</button>
+					<button id="SepiaFW-media-devices-tts-effects-test" onclick="SepiaFW.frames.currentScope.startVoiceTest()">Test Voice</button>
+					<button id="SepiaFW-media-devices-tts-effects-test-stop" onclick="SepiaFW.frames.currentScope.stopVoiceTest()">Stop Voice</button>
+					<button id="SepiaFW-media-devices-tts-effects-store" onclick="SepiaFW.frames.currentScope.storeVoiceEffectSettings()">Store Settings</button>
 				</div>
 			</div>
 		</div>
@@ -261,7 +266,7 @@
 					SepiaFW.audioRecorder.setMicrophoneOption("sourceType", val, "source");
 				}
 			);
-			typeOpt.input.value = activeOptions.sourceType;
+			typeOpt.setValue(activeOptions.sourceType);
 			micOptionsBox.appendChild(typeOpt.element);
 		},
 
@@ -402,35 +407,106 @@
 			var ttsEffectsBox = document.getElementById('sepiaFW-media-devices-tts-effects-box');
 			ttsEffectsBox.innerHTML = "";
 			var disabled = !SepiaFW.speech.useSepiaServerTTS;		//TODO: this should probably be set for each voice individually
-			if (disabled) SepiaFW.ui.showPopup("Please choose a 'custom' (streaming) voice to apply effects.");
 			//effects
 			var effects = SepiaFW.audio.tts.getAvailableVoiceEffects();
 			//Voice effect selector
-			var effectOpt = SepiaFW.frames.build.inputGroup(
+			var effectSel = SepiaFW.frames.build.inputGroup(
 				"Voice Effect", effects, "select", disabled, 
 				"sepiaFW-media-devices-tts-effect-select", function(effectId){
-					//toggle effect
-					SepiaFW.frames.currentScope.setVoiceEffect(effectId);
+					//load options
+					SepiaFW.frames.currentScope.showOptionsForSelectedTtsEffect(effectId);
 				}
 			);
-			effectOpt.input.value = SepiaFW.audio.tts.getActiveVoiceEffect();
-			ttsEffectsBox.appendChild(effectOpt.element);
+			effectSel.setValue(SepiaFW.audio.tts.getActiveVoiceEffectId());
+			ttsEffectsBox.appendChild(effectSel.element);
+			if (disabled){
+				SepiaFW.ui.showPopup("Please choose a 'custom' (streaming) voice to apply effects.");
+			}else if (effectSel.input.value){
+				SepiaFW.frames.currentScope.showOptionsForSelectedTtsEffect(effectSel.input.value);
+			}
 		},
-		startVoiceTest: function(){
-			SepiaFW.speech.speak(SepiaFW.local.g("tts_test"));
+		showOptionsForSelectedTtsEffect: function(effectId){
+			//stored effect options
+			var preset = {};
+			var effectsStored = SepiaFW.data.getPermanent(SepiaFW.speech.getLanguage() + "-voice-effects");
+			var voice = SepiaFW.speech.getActiveVoice();
+			if (effectsStored && effectsStored[voice]){
+				if (effectId == effectsStored[voice].effectId){
+					preset = effectsStored[voice].effectOptions;
+				}
+			}
+			var ttsEffectsOptionsBox = document.getElementById('sepiaFW-media-devices-tts-effects-options-box');
+			ttsEffectsOptionsBox.innerHTML = "";
+			var effect = SepiaFW.audio.tts.getVoiceEffectForId(effectId);
+			var options = [];
+			if (effect){
+				options = effect.getOptions();
+			}
+			SepiaFW.frames.currentScope.voiceEffectState.selectedEffectId = effectId;
+			SepiaFW.frames.currentScope.voiceEffectState.options = {};
+			var disabled = false;
+			options.forEach(function(opt){
+				var effectOpt = SepiaFW.frames.build.inputGroup(
+					opt.name, opt, "range", disabled, 
+					"sepiaFW-media-devices-tts-effects-option-" + effectId + "-" + opt.key, 
+					function(newVal){
+						SepiaFW.frames.currentScope.voiceEffectState.options[opt.key] = newVal;
+					}
+				);
+				if (preset[opt.key] != undefined) effectOpt.setValue(preset[opt.key]);
+				ttsEffectsOptionsBox.appendChild(effectOpt.element);
+			});
 		},
-		stopVoiceTest: function(){
-			SepiaFW.speech.stopSpeech();
-		},
-		setVoiceEffect: function(effectId){
-			var options = {};		//TODO: implement
+		voiceEffectState: {},
+		setVoiceEffect: function(doneCallback){
+			var effSelect = document.getElementById("sepiaFW-media-devices-tts-effect-select");
+			var effectId = effSelect.value;
+			var options = SepiaFW.frames.currentScope.voiceEffectState.options || {};
+			//console.error("setVoiceEffect", effectId, options); 	//DEBUG
 			SepiaFW.audio.tts.setVoiceEffect(effectId, options, function(){
 				//success
+				SepiaFW.frames.currentScope.voiceEffectState.activeEffectId = effectId;
+				if (typeof doneCallback == "function") doneCallback();
 			}, function(err){
 				//error - reload available effects
 				SepiaFW.ui.showPopup("Failed to set voice effect - Info: " + err.message);
 				SepiaFW.frames.currentScope.showAvailableTtsEffects();
+				if (typeof doneCallback == "function") doneCallback();
 			});
+		},
+		startVoiceTest: function(){
+			SepiaFW.speech.stopSpeech();
+			SepiaFW.frames.currentScope.setVoiceEffect(function(){
+				SepiaFW.speech.speak(SepiaFW.local.g("tts_test"));
+			});
+		},
+		stopVoiceTest: function(){
+			SepiaFW.speech.stopSpeech();
+		},
+		storeVoiceEffectSettings: function(){
+			var effSelect = document.getElementById("sepiaFW-media-devices-tts-effect-select");
+			var voiceEffectId = SepiaFW.frames.currentScope.voiceEffectState.activeEffectId;
+			var voiceEffectOptions = SepiaFW.frames.currentScope.voiceEffectState.options;
+			//var voiceEngine = SepiaFW.speech.getVoiceEngine();
+			var voice = SepiaFW.speech.getActiveVoice();
+			//TODO: make sure UI shows actual effect
+			//effSelect.value = voiceEffectId;
+			//store
+			var storeData = SepiaFW.data.getPermanent(SepiaFW.speech.getLanguage() + "-voice-effects");
+			if (!storeData) storeData = {};
+			var voiceEffect;
+			if (!voiceEffectId){
+				delete storeData[voice];
+			}else{
+				voiceEffect = {
+					effectId: voiceEffectId,
+					effectOptions: voiceEffectOptions
+				}
+				storeData[voice] = voiceEffect;
+			}
+			//console.log("Voice effect store", JSON.stringify(storeData));		//DEBUG
+			SepiaFW.data.setPermanent(SepiaFW.speech.getLanguage() + "-voice-effects", storeData);
+			SepiaFW.ui.showPopup("Voice effect settings stored.");		//SepiaFW.local.g("...")
 		}
 	}
 </script>

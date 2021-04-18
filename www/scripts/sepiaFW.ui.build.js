@@ -67,27 +67,39 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 			tglBtn.innerHTML = "<div class='off'></div>";
 			tglBtn.setAttribute("data-toggle-state", "off");
 		}
-		
-		$(tglBtn).off();
-		$(tglBtn).on('click', function() {
+		$(tglBtn).off().on('click', function() {
 			if (tglBtn.disabled) return;
-			if (this.getAttribute("data-toggle-state") === "on"){
-				this.setAttribute("data-toggle-state", "off");
-				this.firstChild.className = "off";
+			if (tglBtn.getAttribute("data-toggle-state") === "on"){
+				tglBtn.setAttribute("data-toggle-state", "off");
+				tglBtn.firstChild.className = "off";
 				if (offCallback) offCallback();
 			}else{
-				this.setAttribute("data-toggle-state", "on");
-				this.firstChild.className = "on";
+				tglBtn.setAttribute("data-toggle-state", "on");
+				tglBtn.firstChild.className = "on";
 				if (onCallback) onCallback();
 			}
 		});
-		
+		tglBtn.getValue = function(){
+			return (tglBtn.getAttribute("data-toggle-state") === "on");
+		}
+		tglBtn.setValue = function(val){
+			if (val == true || val == "on"){
+				tglBtn.setAttribute("data-toggle-state", "on");
+				tglBtn.firstChild.className = "on";
+			}else{
+				tglBtn.setAttribute("data-toggle-state", "off");
+				tglBtn.firstChild.className = "off";
+			}
+		}
 		return tglBtn;
 	}
 	//switch toggle button state without triggering callbacks
 	Build.toggleButtonSetState = function(btnId, newStateOnOrOff){
 		var tglBtn = document.getElementById(btnId);
 		if (tglBtn){
+			if (typeof newStateOnOrOff == "boolean"){
+				newStateOnOrOff = newStateOnOrOff? "on" : "off";
+			}
 			var state = tglBtn.getAttribute("data-toggle-state");
 			if (state == newStateOnOrOff.toLowerCase()){
 				return;

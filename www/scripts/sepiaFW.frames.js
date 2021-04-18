@@ -249,6 +249,8 @@ function sepiaFW_build_frames(){
 
 	Frames.build = {};
 
+	//Input components for frames:
+
 	Frames.build.inputGroup = function(name, value, type, disabled, inputId, onInputChange){
 		var c = document.createElement("div");
 		c.className = "group";
@@ -257,18 +259,65 @@ function sepiaFW_build_frames(){
 		}
 		var cName = document.createElement("label");
 		cName.textContent = name;
+		c.appendChild(cName);
 		var cVal;
+
 		if (type == "checkbox"){
 			cVal = SepiaFW.ui.build.toggleButton(inputId, function(){ 
 				onInputChange(true); 
 			},function(){ 
 				onInputChange(false); 
 			}, value, disabled);
+			
+			c.appendChild(cVal);
+			return {element: c, label: cName, input: undefined, setValue: cVal.setValue, getValue: cVal.getValue};
+
 		}else if (type == "select" || Array.isArray(value)){
 			cVal = SepiaFW.ui.build.optionSelector(inputId, value, "", function(ele){
 				onInputChange(ele.value, ele.selectedOptions[0].textContent);
 			});
 			cVal.disabled = disabled;
+		
+		}else if (type == "range" && typeof value == "object"){
+			var groupDiv = document.createElement("div");
+			groupDiv.className = "action-group";
+
+			var cValSpan = document.createElement("span");
+
+			cVal = document.createElement("input");
+			if (inputId) cVal.id = inputId;
+			cVal.type = "range";
+			var minMax = value.range;
+			if (minMax && minMax.length == 2){
+				cVal.min = minMax[0];
+				cVal.max = minMax[1];
+			}else{
+				if (value.min != undefined) cVal.min = value.min;
+				if (value.max != undefined) cVal.max = value.max;
+			}
+			cVal.step = value.step || 0.1;
+			cVal.value = (value.default != undefined)? value.default : value.value;
+			//cVal.setAttribute("data-after", cVal.value);
+			cValSpan.textContent = cVal.value;
+			cVal.disabled = disabled;
+			cVal.onchange = function(){ 
+				onInputChange(cVal.value);
+				//cVal.setAttribute("data-after", cVal.value);
+				cValSpan.textContent = cVal.value;
+			};
+			cVal.oninput = function(){
+				//cVal.setAttribute("data-after", cVal.value);
+				cValSpan.textContent = cVal.value;
+			};
+
+			groupDiv.appendChild(cValSpan);
+			groupDiv.appendChild(cVal);
+			c.appendChild(groupDiv);
+			return {element: c, label: cName, input: cVal, setValue: function(val){ 
+				cVal.value = val;
+				cValSpan.textContent = cVal.value;
+			}, getValue: function(val){ return val; }};
+			
 		}else{
 			cVal = document.createElement("input");
 			if (inputId) cVal.id = inputId;
@@ -277,9 +326,14 @@ function sepiaFW_build_frames(){
 			cVal.disabled = disabled;
 			cVal.onchange = function(){ onInputChange(cVal.value) };
 		}
-		c.appendChild(cName);
 		c.appendChild(cVal);
-		return {element: c, label: cName, input: cVal};
+		return {
+			element: c, 
+			label: cName, 
+			input: cVal, 
+			setValue: function(val){ cVal.value = val; },
+			getValue: function(){ return cVal.value; }
+		};
 	};
 	
 	return Frames;

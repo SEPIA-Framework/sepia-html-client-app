@@ -40,42 +40,87 @@ function sepiaFW_build_audio_effects(){
 	};
 
 	var voiceEffects = {
-		"robo_1": function(audioCtx, masterGainNode, options, doneCallback){
-			var speakerRingModulator = new AudioEffects.RingModulator(audioCtx, {
-				speed: 200, distortion: 0.0, mix: 0.033
-			});
-			var speakerFlanger = new AudioEffects.Flanger(audioCtx, {
-				time: 0.5, speed: 0.5, depth: 0.5, feedback: 0.5, mix: 1.0
-			});
-			//adjust volume
-			masterGainNode.gain.value = masterGainNode.gain.value * 0.66;
-			//add effects
-			var ringOutNode = AudioEffects.addEffectAndReturnOutputNode(masterGainNode, speakerRingModulator);
-			var flangerOutNode = AudioEffects.addEffectAndReturnOutputNode(ringOutNode, speakerFlanger);
-			flangerOutNode.connect(audioCtx.destination);
-			doneCallback();
+		"robo_1": {
+			options: [
+				{key: "modSpeed", name: "Modulation Speed", default: 200, range: [0, 1000], step: 10},
+				{key: "modIntensity", name: "Mod. Intensity", default: 1.0, range: [0, 10], step: 0.1},
+				{key: "preGain", name: "Pre-Gain", default: 0.66, range: [0.1, 1.0], step: 0.1},
+				{key: "gain", name: "Volume", default: 1.0, range: [0.1, 3.0], step: 0.1}
+			],
+			applyEffect: function(audioCtx, masterGainNode, options, doneCallback){
+				if (!options) options = {};
+				var modulationSpeed = options.modSpeed || 200;
+				var modulationIntensity = 0.033;
+				if (options.modIntensity != undefined) modulationIntensity = modulationIntensity * options.modIntensity;
+				var speakerRingModulator = new AudioEffects.RingModulator(audioCtx, {
+					speed: modulationSpeed, 
+					distortion: 0.0, 
+					mix: modulationIntensity
+				});
+				var speakerFlanger = new AudioEffects.Flanger(audioCtx, {
+					time: 0.5, 
+					speed: 0.5, 
+					depth: 0.5, 
+					feedback: 0.5, 
+					mix: 1.0
+				});
+				//adjust volume
+				var preGain = options.preGain || 0.66;
+				masterGainNode.gain.value = preGain;
+				var postGainNode;
+				if (options.gain && options.gain != 1){
+					postGainNode = audioCtx.createGain();
+					postGainNode.gain.value = options.gain;
+				}
+				//add effects
+				var ringOutNode = AudioEffects.addEffectAndReturnOutputNode(masterGainNode, speakerRingModulator);
+				var flangerOutNode = AudioEffects.addEffectAndReturnOutputNode(ringOutNode, speakerFlanger);
+				if (postGainNode){
+					flangerOutNode.connect(postGainNode);
+					postGainNode.connect(audioCtx.destination);
+				}else{
+					flangerOutNode.connect(audioCtx.destination);
+				}
+				doneCallback(true);
+			}
 		}, 
-		"highpass_1": function(audioCtx, masterGainNode, options, doneCallback){
-			var highPassFilter = new AudioEffects.HighPassFilter(audioCtx, {
-				frequency: 340,
-				peak: 0.30
-			});
-			//adjust volume (post)
-			var postGainNode = audioCtx.createGain();
-			postGainNode.gain.value = 1.33;
-			//add effects
-			var highOutNode = AudioEffects.addEffectAndReturnOutputNode(masterGainNode, highPassFilter);
-			highOutNode.connect(postGainNode);
-			postGainNode.connect(audioCtx.destination);
-			doneCallback();
+		"highpass_1": {
+			options: [
+				{key: "frequency", name: "Frequency", default: 340, range: [50, 1000], step: 10},
+				{key: "gain", name: "Volume", default: 1.33, range: [0.1, 3.0], step: 0.1}
+			],
+			applyEffect: function(audioCtx, masterGainNode, options, doneCallback){
+				if (!options) options = {};
+				var highPassFilter = new AudioEffects.HighPassFilter(audioCtx, {
+					frequency: options.frequency || 340,
+					peak: 0.30
+				});
+				//adjust volume (post)
+				masterGainNode.gain.value = 1.0;
+				var postGainNode = audioCtx.createGain();
+				postGainNode.gain.value = options.gain || 1.33;
+				//add effects
+				var highOutNode = AudioEffects.addEffectAndReturnOutputNode(masterGainNode, highPassFilter);
+				highOutNode.connect(postGainNode);
+				postGainNode.connect(audioCtx.destination);
+				doneCallback(true);
+			}
 		}
 	};
-	AudioEffects.applyEffect = function(effectId, audioCtx, masterGainNode, options, doneCallback){
-		var effectFun = voiceEffects[effectId];
-		if (!effectFun){
+	AudioEffects.getVoiceEffectOptions = function(effectId){
+		var effect = voiceEffects[effectId];
+		if (effect){
+			return effect.options || [];
+		}else{
+			return [];
+		}
+	}
+	AudioEffects.applyVoiceEffect = function(effectId, audioCtx, masterGainNode, options, doneCallback){
+		var effect = voiceEffects[effectId];
+		if (!effect){
 			if (doneCallback) doneCallback(false);
 		}else{
-			effectFun(audioCtx, masterGainNode, options, doneCallback);
+			effect.applyEffect(audioCtx, masterGainNode, options, doneCallback);
 		}
 	};
 	

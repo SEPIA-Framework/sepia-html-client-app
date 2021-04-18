@@ -395,16 +395,29 @@ function sepiaFW_build_audio(sepiaSessionId){
 
 	//TTS voice effects
 	var voiceEffects = {
+		"volume": {
+			id: "volume", name: "Volume", 
+			getOptions: function(){ 
+				return [{key: "gain", name: "Volume", default: 1.0, range: [0.1, 3.0], step: 0.1}]; 
+			},
+			applyFun: function(audioCtx, masterGainNode, options, doneCallback){
+				if (masterGainNode) masterGainNode.gain.value = options.gain || 1.0;
+				masterGainNode.connect(audioCtx.destination);
+				if (doneCallback) doneCallback(true);
+			}
+		},
 		"robo_1": {
 			id: "robo_1", name: "Robotic Modulator 1", 
+			getOptions: function(){ return SepiaFW.audio.effects.getVoiceEffectOptions("robo_1"); },
 			applyFun: function(audioCtx, masterGainNode, options, doneCallback){
-				SepiaFW.audio.effects.applyEffect("robo_1", audioCtx, masterGainNode, options, doneCallback);
+				SepiaFW.audio.effects.applyVoiceEffect("robo_1", audioCtx, masterGainNode, options, doneCallback);
 			}
 		}, 
 		"highpass_1": {
 			id: "highpass_1", name: "High-Pass Filter 1", 
+			getOptions: function(){ return SepiaFW.audio.effects.getVoiceEffectOptions("highpass_1"); },
 			applyFun: function(audioCtx, masterGainNode, options, doneCallback){
-				SepiaFW.audio.effects.applyEffect("highpass_1", audioCtx, masterGainNode, options, doneCallback);
+				SepiaFW.audio.effects.applyVoiceEffect("highpass_1", audioCtx, masterGainNode, options, doneCallback);
 			}
 		}
 	}
@@ -447,7 +460,6 @@ function sepiaFW_build_audio(sepiaSessionId){
 		speakerSource = speakerSource || speakerAudioCtx.createMediaElementSource(speaker);
 		speakerGainNode = speakerAudioCtx.createGain();
 		speakerSource.connect(speakerGainNode);
-		if (!options) options = {};
 		effect.applyFun(speakerAudioCtx, speakerGainNode, options, function(){
 			voiceEffectActive = effect.id;
 			SepiaFW.debug.log("Set TTS effect: " + effect.id + " (" + effect.name + ")");
@@ -468,16 +480,19 @@ function sepiaFW_build_audio(sepiaSessionId){
 	}
 	TTS.getAvailableVoiceEffects = function(){
 		var effects = [
-			{value: "", name: "No effect"}
+			{value: "", name: "No effect", effectOptions: []}
 		];
 		//TODO: return different values depending on selected voice?
 		Object.keys(voiceEffects).forEach(function(v){
 			var eff = voiceEffects[v];
-			effects.push({value: eff.id, name: eff.name});
+			effects.push({value: eff.id, name: eff.name, effectOptions: eff.getOptions()});
 		});
 		return effects;
 	}
-	TTS.getActiveVoiceEffect = function(){
+	TTS.getVoiceEffectForId = function(effectId){
+		return voiceEffects[effectId];
+	}
+	TTS.getActiveVoiceEffectId = function(){
 		return voiceEffectActive;
 	}
 

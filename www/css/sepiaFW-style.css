@@ -468,8 +468,8 @@ body.limit-size {
     margin: 5px 0;
 	font-size: 15px;
 }
-#sepiaFW-main-window input:not([type='checkbox']), 
-#sepiaFW-login-box input:not([type='checkbox']) {
+#sepiaFW-main-window input:not([type='checkbox']):not([type='range']), 
+#sepiaFW-login-box input:not([type='checkbox']):not([type='range']) {
 	-moz-appearance: none;
 	-webkit-appearance: none;
 	appearance: none;
