@@ -475,13 +475,15 @@
 			});
 		},
 		startVoiceTest: function(){
-			SepiaFW.speech.stopSpeech();
+			SepiaFW.audio.tts.stop();
 			SepiaFW.frames.currentScope.setVoiceEffect(function(){
-				SepiaFW.speech.speak(SepiaFW.local.g("tts_test"));
+				//SepiaFW.speech.speak(SepiaFW.local.g("tts_test"));
+				SepiaFW.audio.tts.speak(SepiaFW.local.g("tts_test"));
 			});
 		},
 		stopVoiceTest: function(){
-			SepiaFW.speech.stopSpeech();
+			//SepiaFW.speech.stopSpeech();
+			SepiaFW.audio.tts.stop();
 		},
 		storeVoiceEffectSettings: function(){
 			var effSelect = document.getElementById("sepiaFW-media-devices-tts-effect-select");

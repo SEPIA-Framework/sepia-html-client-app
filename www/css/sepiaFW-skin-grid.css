@@ -193,7 +193,8 @@ html.landscape-small #sepiaFW-chat-controls-right {
 	border: 1px solid #15abc3;
 	box-shadow: 0 0 5px #15abc3;
 	color: #fff;
-	background: rgba(16, 32, 48, 0.75);
+	/*background: rgba(16, 32, 48, 0.75);*/
+	background: rgba(7, 43, 61, 0.75);
 }
 
 /*
@@ -385,6 +386,27 @@ html.landscape-small #sepiaFW-chat-controls-right {
     color: #fff !important;
     box-shadow: 0 0 5px #15abc3;
 	border: 1px solid #15abc3;
+}
+
+/*----- Frames ----- */
+
+#sepiaFW-frames-view,
+#sepiaFW-frames-view.dark {
+	background: #102030;
+	color: #eee;
+}
+#sepiaFW-frames-view:not(.sepiaFW-ao-mode) {
+	/*border: 1px solid #15abc3;*/
+    box-shadow: 0 0 5px #15abc3;
+}
+.sepiaFW-frames-page button {
+    background: #15abc3 !important;
+    color: #fff !important;
+	box-shadow: 0 0 5px #fff;
+	border: 1px solid #fff !important;
+}
+#sepiaFW-frames-nav-bar {
+	background: #103041;
 }
 
 /*----- teachUI -----*/

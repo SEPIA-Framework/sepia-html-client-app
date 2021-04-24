@@ -302,8 +302,7 @@
 	display: none !important;
 }
 .sepiaFW-cards-list-body .itemVisible {
-	-webkit-animation: sepiaFW-animation-enter_fade .5s 1 linear;
-            animation: sepiaFW-animation-enter_fade .5s 1 linear;
+    animation: sepiaFW-animation-enter_fade .5s 1 linear;
 }
 .sepiaFW-cards-list-body .itemHidden + .sepiaFW-cards-list-contextMenu {
 	display: none !important;
@@ -416,8 +415,7 @@
 .sepiaFW-cards-list-body .timeEvent .timeEventCenter.inThePast {
 	/*background: rgba(255, 0, 0, 0.50);*/
 	/*color: #fff;*/
-	-webkit-animation: sepiaFW-timeEvent-card-signal 3s linear infinite;
-            animation: sepiaFW-timeEvent-card-signal 3s linear infinite;
+    animation: sepiaFW-timeEvent-card-signal 3s linear infinite;
 }
 @keyframes sepiaFW-timeEvent-card-signal {
     from {background: rgba(255, 255, 255, 0.90); color: #000;}

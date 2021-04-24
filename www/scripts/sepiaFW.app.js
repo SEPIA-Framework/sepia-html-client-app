@@ -525,6 +525,20 @@ function sepiaFW_build_tools(){
 	Tools.doesMatchRegExp = function(str, regEx, flags) {
 		return !!str.match(new RegExp(regEx, flags));
 	}
+
+	//A simple comparison of objects just checking if keys and first level values are same
+	Tools.simpleObjectsAreSame = function(objA, objB){
+		//NOTE: if values are arrays or objects this will most likeyl not give the result you seek
+		if (objA == objB) return true;
+		if (objA == undefined || objB == undefined) return false;
+		var keysA = Object.keys(objA);
+		var keysB = Object.keys(objB);
+		if (keysA.length != keysB.length) return false;
+		for (let i=0; i<keysA.length; i++){
+			if (objA[keysA[i]] != objB[keysA[i]]) return false;
+		}
+		return true;
+	}
 		
 	//prepend a zero to a number if it is lower than 10
 	function addZero(i) {

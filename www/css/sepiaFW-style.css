@@ -1468,8 +1468,7 @@ html.dark-skin #sepiaFW-login-help-btn {
     margin: 0;
 	line-height: 13px;
     color: #2f3035;
-	-webkit-animation: sepiaFW-animation-blink 4.5s infinite;
-            animation: sepiaFW-animation-blink 4.5s infinite;
+    animation: sepiaFW-animation-blink 4.5s infinite;
 	overflow: hidden;
 	cursor: pointer;
 }
@@ -1478,8 +1477,7 @@ html.dark-skin #sepiaFW-login-help-btn {
 	position: relative;
 }
 #sepiaFW-nav-users-btn.marked {
-	-webkit-animation: sepiaFW-animation-blink-inv 4.5s 1;
-            animation: sepiaFW-animation-blink-inv 4.5s 1;
+	animation: sepiaFW-animation-blink-inv 4.5s 1;
 }
 #sepiaFW-nav-users-btn.marked::after {
 	content: " \2022 ";
@@ -1487,8 +1485,7 @@ html.dark-skin #sepiaFW-login-help-btn {
     position: absolute;
     top: 11px;
 	left: 26px;
-	-webkit-animation: sepiaFW-animation-blink 4.5s 3;
-            animation: sepiaFW-animation-blink 4.5s 3;
+	animation: sepiaFW-animation-blink 4.5s 3;
 }
 #sepiaFW-nav-bar-page-indicator {
 	position: absolute;
@@ -1727,10 +1724,8 @@ html.dark-skin #sepiaFW-login-help-btn {
 	height: 6px;
 }
 .sepiaFW-animation-rotate1 {
-	-webkit-animation: sepiaFW-assist-btn-orbiters-rotate 20.0s infinite linear;
-            animation: sepiaFW-assist-btn-orbiters-rotate 20.0s infinite linear;
-	-webkit-animation-fill-mode: both;
-			animation-fill-mode: both;
+	animation: sepiaFW-assist-btn-orbiters-rotate 20.0s infinite linear;
+	animation-fill-mode: both;
 }
 .sepiaFW-animation-pause {
 	animation-play-state: paused;
@@ -2058,8 +2053,7 @@ body.big-screen #sepiaFW-chat-output .chatMsg {
 	border-bottom-color: rgba(255,255,255,0.5); 
 	border-right-color: rgba(255,255,255,0.5);
 	border-left-color: rgba(255,255,255,0.5);
-    -webkit-animation: sepiaFW-chat-output-enter_slide .5s 1 linear;
-            animation: sepiaFW-chat-output-enter_slide .5s 1 linear;
+    animation: sepiaFW-chat-output-enter_slide .5s 1 linear;
 	*/
 	overflow: hidden;
 }
