@@ -29,17 +29,17 @@ onmessage = function(e) {
 				release(e.data.ctrl.options);
 				break;
 			default:
-				console.error("Unknown control message:", e.data);
+				console.error("WaveEncoderWorker - Unknown control message:", e.data);
 				break;
 		}
 	}
 	//custom interface
 	if (e.data.gate != undefined){
-		console.error("Message", e.data);			//DEBUG
+		if (doDebug) console.error("WaveEncoderWorker - DEBUG - Message", e.data);			//DEBUG
 		gateControl(e.data.gate && e.data.gate == "open", e.data.gateOptions);
 	}
 	if (e.data.request){
-		console.error("Message", e.data);			//DEBUG
+		if (doDebug) console.error("WaveEncoderWorker - DEBUG - Message", e.data);			//DEBUG
 		if (e.data.request.get){
 			switch (e.data.request.get){
 				case "buffer":
@@ -49,7 +49,7 @@ onmessage = function(e) {
 					getWave(e.data.request.start, e.data.request.end);
 					break;
 				default:
-					console.log("Unknown request message:", e.data);
+					console.log("WaveEncoderWorker - Unknown request message:", e.data);
 					break;
 			}
 		}else if (e.data.request.clear){
@@ -58,16 +58,20 @@ onmessage = function(e) {
 					//TODO: clear buffer and release lookback lock
 					break;
 				default:
-					console.log("Unknown request message:", e.data);
+					console.log("WaveEncoderWorker - Unknown request message:", e.data);
 					break;
 			}
 		}else{
-			console.log("Unknown request message:", e.data);
+			console.log("WaveEncoderWorker - Unknown request message:", e.data);
 		}
 	}else if (e.data.encode && e.data.encode.data){
 		encodeInterface(e.data.encode);
 	}
 };
+
+let workerId = "wave-encoder-worker-" + Math.round(Math.random() * 1000000) + "-" + Date.now();
+let doDebug = false;
+let wasConstructorCalled = false;
 
 let inputSampleRate;
 let inputSampleSize;
@@ -186,6 +190,13 @@ function gateControl(open, gateOptions){
 //Interface
 
 function constructWorker(options){
+	if (wasConstructorCalled){
+		console.error("WaveEncoderWorker - Constructor was called twice! 2nd call was ignored but this should be fixed!", "-", workerId);	//DEBUG
+		return;
+	}else{
+		wasConstructorCalled = true;
+	}
+	doDebug = options.setup.doDebug || false;
 	inputSampleRate = options.setup.inputSampleRate || options.setup.ctxInfo.targetSampleRate || options.setup.ctxInfo.sampleRate;
 	inputSampleSize = options.setup.inputSampleSize || 512;
 	channelCount = 1;	//options.setup.channelCount || 1;		//TODO: only MONO atm
@@ -210,6 +221,7 @@ function constructWorker(options){
 	postMessage({
 		moduleState: 1,
 		moduleInfo: {
+			moduleId: workerId,
 			inputSampleRate: inputSampleRate,
 			inputSampleSize: inputSampleSize,
 			inputIsFloat32: isFloat32Input,
@@ -303,7 +315,7 @@ function buildBuffer(start, end){
 	var isFloat32;
 	if (recordedBuffers[0]){
 		isFloat32 = (recordedBuffers[0] && recordedBuffers[0].constructor.name.indexOf("Float32") >= 0);
-		console.error("isFloat32", isFloat32, recordedBuffers[0].constructor.name);
+		if (doDebug) console.error("WaveEncoderWorker - DEBUG - isFloat32", isFloat32, recordedBuffers[0].constructor.name);
 	}
 	var lookbackSamples;
 	if (_lookbackRingBuffer && _lookbackRingBuffer.framesAvailable){
@@ -326,7 +338,7 @@ function buildBuffer(start, end){
 			n++;
 		}
 	}
-	console.error("buffer mismatch", n, dataLength);	//TODO: why does this always match?
+	if (doDebug) console.error("WaveEncoderWorker - DEBUG - buffer mismatch", n, dataLength);	//TODO: why does this always match?
 	//TODO: we clear lookback buffer here ... so we should clear everything
 	lookbackBufferNeedsReset = false;
 	
@@ -338,7 +350,7 @@ function buildBuffer(start, end){
 
 function encodeWAV(samples, sampleRate, numChannels, convertFromFloat32){
 	if (!samples || !sampleRate || !numChannels){
-		console.error("Wave Encoder Worker - encodeWAV - Missing parameters");
+		console.error("WaveEncoderWorker - encodeWAV - Missing parameters");
 		return;
 	}
 	//Format description: http://soundfile.sapp.org/doc/WaveFormat/

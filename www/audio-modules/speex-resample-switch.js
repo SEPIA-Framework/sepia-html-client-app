@@ -45,7 +45,11 @@ class SpeexResampleProcessor extends AudioWorkletProcessor {
 		super();
 		
 		let that = this;
+		this.moduleId = "speex-resample-switch-" + Math.round(Math.random() * 1000000) + "-" + Date.now();
+		this.doDebug = options.processorOptions.doDebug || false;
+		this.isReadyForProcessing = false;
 		this.EXPECTED_SAMPLE_SIZE = 128;	//currently 128, but might change in future ... and even become variable! (I hope not)
+
 		this.sourceSamplerate = options.processorOptions.ctxInfo.sampleRate;	//INFO: should be same as global scope 'sampleRate'
 
 		this.targetSampleRate = options.processorOptions.targetSampleRate || options.processorOptions.ctxInfo.targetSampleRate || 16000;
@@ -121,9 +125,11 @@ class SpeexResampleProcessor extends AudioWorkletProcessor {
 					that.channelCount, that.sourceSamplerate, that.targetSampleRate, that.resampleQuality
 				);
 			}
+			that.isReadyForProcessing = true;
 			that.port.postMessage({
 				moduleState: 1,
 				moduleInfo: {
+					moduleId: that.moduleId,
 					sourceSamplerate: that.sourceSamplerate,
 					targetSampleRate: that.targetSampleRate,
 					emitterBufferSize: that.emitterBufferSize,
@@ -209,7 +215,7 @@ class SpeexResampleProcessor extends AudioWorkletProcessor {
 		//Control messages
 		this.port.onmessage = function(e){
 			if (e.data.ctrl){
-				console.error("Controls", e.data.ctrl);			//DEBUG
+				if (that.doDebug) console.error("SpeexResampleSwitch - Controls", e.data.ctrl);			//DEBUG
 				switch (e.data.ctrl.action) {
 					//common interface
 					case "start":
@@ -232,7 +238,7 @@ class SpeexResampleProcessor extends AudioWorkletProcessor {
 						//handleEvent(e.data.ctrl.data);
 						break;
 					default:
-						console.error("Unknown control message:", e.data);
+						console.error("SpeexResampleSwitch - Unknown control message:", e.data);
 						break;
 				}
 			}else if (e.data.resample){
@@ -242,7 +248,7 @@ class SpeexResampleProcessor extends AudioWorkletProcessor {
         }
 		
 		function onSpeexLog(msg){
-			console.error("SpeexModuleLog -", msg);			//DEBUG (use postMessage?)
+			if (that.doDebug) console.error("SpeexResampleSwitch - SpeexModuleLog -", msg, "-", that.moduleId);			//DEBUG (use postMessage?)
 		}
 		//function onSpeexError(msg){}		//TODO: we could wrap the 'resampler.processChunk' function in try-catch and log the error here
 		
@@ -266,6 +272,11 @@ class SpeexResampleProcessor extends AudioWorkletProcessor {
 	}
 
 	process(inputs, outputs, parameters) {
+		if (!this.isReadyForProcessing){
+			console.error("SpeexResampleSwitch - Module wasn't ready for processing! Input was ignored!", "-", this.moduleId);
+			return;
+		}
+
 		//Use 1st input and output only
 		let input = inputs[0];
 		let output = outputs[0];

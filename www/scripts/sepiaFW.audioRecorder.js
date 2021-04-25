@@ -235,7 +235,8 @@ function sepiaFW_build_audio_recorder(){
 							resampleQuality: resamplerQuality,
 							bufferSize: resamplerBufferSize,
 							calculateRmsVolume: true,
-							gain: resamplerGain
+							gain: resamplerGain,
+							doDebug: false
 						}
 					}
 				}
@@ -255,7 +256,8 @@ function sepiaFW_build_audio_recorder(){
 							bufferSize: resamplerBufferSize,
 							passThroughMode: 1,		//0: none, 1: original (float32), 2: 16Bit PCM - NOTE: NOT resampled
 							calculateRmsVolume: true,
-							gain: resamplerGain
+							gain: resamplerGain,
+							doDebug: false
 						}
 					}
 				}
@@ -378,6 +380,7 @@ function sepiaFW_build_audio_recorder(){
 	}
 	function createLegacyScriptProcessorSource(){
 		return SepiaFW.webAudio.createLegacyMicrophoneScriptProcessor({
+			startSuspended: true,
 			targetSampleRate: micAudioRecorderOptions.targetSampleRate,		//NOTE: we use native resampling here if possible
 			bufferSize: micAudioRecorderOptions.processorBufferSize
 		});	//Note: Promise
@@ -402,7 +405,8 @@ function sepiaFW_build_audio_recorder(){
 						inputSampleSize: options.inputSampleSize || micAudioRecorderOptions.processorBufferSize,
 						lookbackBufferMs: options.lookbackBufferMs,			//default: off, good value e.g. 2000
 						recordBufferLimitMs: options.recordBufferLimitMs,	//default: use 5MB limit, good value e.g. 6000
-						recordBufferLimitKb: options.recordBufferLimitKb 	//default: 5MB (overwritten by ms limit), good value e.g. 600
+						recordBufferLimitKb: options.recordBufferLimitKb, 	//default: 5MB (overwritten by ms limit), good value e.g. 600
+						doDebug: true
 					}
 				}
 			}

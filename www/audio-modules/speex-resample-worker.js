@@ -8,7 +8,7 @@ var speexModule;
 
 onmessage = function(e) {
     //Audio worker interface
-	//console.log("SpeexResamplerWorker onmessage", e.data);		//DEBUG
+	//if (doDebug) console.log("SpeexResampleWorker - onmessage", e.data);		//DEBUG
 	if (e.data.ctrl){
 		switch (e.data.ctrl.action){
 			case "construct":
@@ -34,11 +34,16 @@ onmessage = function(e) {
 				release(e.data.ctrl.options);
 				break;
 			default:
-				console.log("Unknown control message:", e.data);
+				console.log("SpeexResampleWorker - Unknown control message:", e.data);
 				break;
 		}
 	}
 };
+
+let workerId = "speex-resample-worker-" + Math.round(Math.random() * 1000000) + "-" + Date.now();
+let doDebug = false;
+let wasConstructorCalled = false;
+let isReadyForProcessing = false;
 
 let sourceSamplerate;
 let inputSampleSize;
@@ -89,9 +94,11 @@ function ready(skipResampler){
 			channelCount, sourceSamplerate, targetSampleRate, resampleQuality
 		);
 	}
+	isReadyForProcessing = true;
 	postMessage({
 		moduleState: 1,
 		moduleInfo: {
+			moduleId: workerId,
 			sourceSamplerate: sourceSamplerate,
 			inputSampleSize: inputSampleSize,
 			targetSampleRate: targetSampleRate,
@@ -105,6 +112,13 @@ function ready(skipResampler){
 }
 
 function constructWorker(options) {
+	if (wasConstructorCalled){
+		console.error("SpeexResampleWorker - Constructor was called twice! 2nd call was ignored but this should be fixed!", "-", workerId);	//DEBUG
+		return;
+	}else{
+		wasConstructorCalled = true;
+	}
+	doDebug = options.setup.doDebug || false;
 	sourceSamplerate = options.setup.ctxInfo.sampleRate;
 	inputSampleSize = options.setup.inputSampleSize || 512;
 	targetSampleRate = options.setup.targetSampleRate || options.setup.ctxInfo.targetSampleRate || 16000;
@@ -120,7 +134,7 @@ function constructWorker(options) {
 	init();
 	
 	function onSpeexLog(msg){
-		console.error("SpeexModuleLog -", msg);			//DEBUG (use postMessage?)
+		if (doDebug) console.error("SpeexResampleWorker - SpeexModuleLog -", msg, "-", workerId);			//DEBUG (use postMessage?)
 	}
 	//function onSpeexError(msg){}		//TODO: we could wrap the 'resampler.processChunk' function in try-catch and log the error here
 	
@@ -155,6 +169,10 @@ function getEmitterRms() {
 }
 
 function process(data) {
+	if (!isReadyForProcessing){
+		console.error("SpeexResampleWorker - Module wasn't ready for processing! Input was ignored!", "-", workerId);	//DEBUG
+		return;
+	}
 	//expected: data.samples, data.sampleRate, data.targetSampleRate, data.channels, data.type
 	if (data && data.samples){
 		//Use 1st input and output only
@@ -166,7 +184,7 @@ function process(data) {
 			//check inputSampleSize - TODO: this requires constant size? adapt to first value?
 			if (thisInputSampleSize != inputSampleSize){
 				let msg = "Sample size is: " + thisInputSampleSize + ", expected: " + inputSampleSize + ". Need code adjustments!";
-				console.error("SpeexResampler sample size exception - Msg.: " + msg);
+				console.error("Audio Worker sample size exception - Msg.: " + msg);
 				throw new SampleSizeException(msg);		//TODO: same as above, this probably needs to be a string to show up in worker.onerror properly :-/
 			}
 		}
@@ -249,6 +267,7 @@ function release(options){
 	_newOutputBuffer = null;
 	resampler = null;
 	speexModule = null;
+	isReadyForProcessing = false;
 }
 
 //--- helpers ---

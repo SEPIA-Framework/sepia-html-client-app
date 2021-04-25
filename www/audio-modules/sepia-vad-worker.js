@@ -37,6 +37,11 @@ onmessage = function(e) {
 	}
 };
 
+let workerId = "speia-vad-worker-" + Math.round(Math.random() * 1000000) + "-" + Date.now();
+//let doDebug = false;
+//let wasConstructorCalled = false;
+//let isReadyForProcessing = false;		//TODO: implement this ?
+
 let inputSampleRate;
 let channelCount;
 let inputSampleSize;
@@ -173,6 +178,7 @@ function ready(){
 	postMessage({
 		moduleState: 1,
 		moduleInfo: {
+			moduleId: workerId,
 			inputSampleRate: inputSampleRate,
 			channelCount: channelCount,
 			inputSampleSize: inputSampleSize,

@@ -49,6 +49,11 @@ onmessage = function(e){
 	}
 };
 
+let workerId = "porcupine-wake-word-worker-" + Math.round(Math.random() * 1000000) + "-" + Date.now();
+//let doDebug = false;
+//let wasConstructorCalled = false;
+//let isReadyForProcessing = false;		//TODO: implement this ?
+
 let porcupine;
 let porcupineVersion;
 let _Porcupine;
@@ -88,6 +93,7 @@ function ready(){
 	postMessage({
 		moduleState: 1,
 		moduleInfo: {
+			moduleId: workerId,
 			inputSampleRate: inputSampleRate,
 			channelCount: channelCount,
 			inputSampleSize: inputSampleSize,

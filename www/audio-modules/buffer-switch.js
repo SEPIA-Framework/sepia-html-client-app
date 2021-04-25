@@ -20,7 +20,10 @@ class BufferProcessor extends AudioWorkletProcessor {
 		super();
 		
 		let that = this;
+		this.moduleId = "buffer-switch-" + Math.round(Math.random() * 1000000) + "-" + Date.now();
+		this.isReadyForProcessing = false;
 		this.EXPECTED_SAMPLE_SIZE = 128;	//currently 128, but might change in future ... and even become variable! (I hope not)
+
 		this.sourceSamplerate = options.processorOptions.ctxInfo.sampleRate;	//INFO: should be same as global scope 'sampleRate'
 		
 		this.emitterBufferSize = options.processorOptions.bufferSize || 512;
@@ -42,9 +45,11 @@ class BufferProcessor extends AudioWorkletProcessor {
 		init();
 		
 		function ready(){
+			that.isReadyForProcessing = true;
 			that.port.postMessage({
 				moduleState: 1,
 				moduleInfo: {
+					moduleId: that.moduleId,
 					sourceSampleRate: that.sourceSamplerate,
 					emitterBufferSize: that.emitterBufferSize,
 					channelCount: that.channelCount,
@@ -132,6 +137,11 @@ class BufferProcessor extends AudioWorkletProcessor {
 	}
 
 	process(inputs, outputs, parameters) {
+		if (!this.isReadyForProcessing){
+			console.error("Buffer module wasn't ready for processing! Input was ignored!", "-", this.moduleId);
+			return;
+		}
+
 		//Use 1st input and output only
 		let input = inputs[0];
 		let output = outputs[0];
