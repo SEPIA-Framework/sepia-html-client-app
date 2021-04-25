@@ -423,6 +423,9 @@
 				SepiaFW.ui.showPopup("Please choose a 'custom' (streaming) voice to apply effects.");
 			}else if (effectSel.input.value){
 				SepiaFW.frames.currentScope.showOptionsForSelectedTtsEffect(effectSel.input.value);
+			}else{
+				var ttsEffectsOptionsBox = document.getElementById('sepiaFW-media-devices-tts-effects-options-box');
+				ttsEffectsOptionsBox.innerHTML = "";
 			}
 		},
 		showOptionsForSelectedTtsEffect: function(effectId){
@@ -443,7 +446,7 @@
 				options = effect.getOptions();
 			}
 			SepiaFW.frames.currentScope.voiceEffectState.selectedEffectId = effectId;
-			SepiaFW.frames.currentScope.voiceEffectState.options = {};
+			SepiaFW.frames.currentScope.voiceEffectState.options = preset || {};
 			var disabled = false;
 			options.forEach(function(opt){
 				var effectOpt = SepiaFW.frames.build.inputGroup(

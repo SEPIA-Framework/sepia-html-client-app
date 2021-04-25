@@ -45,7 +45,7 @@ function sepiaFW_build_audio_effects(){
 				{key: "modSpeed", name: "Modulation Speed", default: 200, range: [0, 1000], step: 10},
 				{key: "modIntensity", name: "Mod. Intensity", default: 1.0, range: [0, 10], step: 0.1},
 				{key: "preGain", name: "Pre-Gain", default: 0.66, range: [0.1, 1.0], step: 0.1},
-				{key: "gain", name: "Volume", default: 1.0, range: [0.1, 3.0], step: 0.1}
+				{key: "gain", name: "Volume", default: 1.0, range: [0.1, 5.0], step: 0.1}
 			],
 			applyEffect: function(audioCtx, masterGainNode, options, doneCallback){
 				if (!options) options = {};
@@ -87,7 +87,7 @@ function sepiaFW_build_audio_effects(){
 		"highpass_1": {
 			options: [
 				{key: "frequency", name: "Frequency", default: 340, range: [50, 1000], step: 10},
-				{key: "gain", name: "Volume", default: 1.33, range: [0.1, 3.0], step: 0.1}
+				{key: "gain", name: "Volume", default: 1.33, range: [0.1, 5.0], step: 0.1}
 			],
 			applyEffect: function(audioCtx, masterGainNode, options, doneCallback){
 				if (!options) options = {};

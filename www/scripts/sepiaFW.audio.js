@@ -398,7 +398,7 @@ function sepiaFW_build_audio(sepiaSessionId){
 		"volume": {
 			id: "volume", name: "Volume", 
 			getOptions: function(){ 
-				return [{key: "gain", name: "Volume", default: 1.0, range: [0.1, 3.0], step: 0.1}]; 
+				return [{key: "gain", name: "Volume", default: 1.0, range: [0.1, 5.0], step: 0.1}]; 
 			},
 			applyFun: function(audioCtx, masterGainNode, options, doneCallback){
 				if (masterGainNode) masterGainNode.gain.value = options.gain || 1.0;
@@ -422,8 +422,10 @@ function sepiaFW_build_audio(sepiaSessionId){
 		}
 	}
 	var voiceEffectActive = "";
+	var voiceEffectOptionsActive = {};
+	var isVoiceEffectSetupPending = false;
 
-	//set default parameters for TTS
+	//set default parameters for TTS (just the instantly set stuff)
 	TTS.setup = function(Settings){
 		TTS.playOn = (Settings.playOn)? Settings.playOn : "client"; 		//play TTS on client (can also be played on "server" if available)
 		TTS.format = (Settings.format)? Settings.format : "default";		//you can force format to default,OGG,MP3,MP3_CBR_32 and WAV (if using online api)
@@ -438,17 +440,45 @@ function sepiaFW_build_audio(sepiaSessionId){
 	}
 
 	TTS.setVoiceEffect = function(effectId, options, successCallback, errorCallback){
+		if (!options) options = {};
+		var optionsAreSame = SepiaFW.tools.simpleObjectsAreSame(options, voiceEffectOptionsActive);		//NOTE: we use a simple compare
+		if (voiceEffectActive == effectId && optionsAreSame){
+			if (successCallback) successCallback();
+			return;
+		}
 		var effect = effectId? voiceEffects[effectId] : undefined;
+		isVoiceEffectSetupPending = true;
 		if (!effectId){
-			removeActiveVoiceEffect(successCallback);
+			removeActiveVoiceEffect(function(){
+				isVoiceEffectSetupPending = false;
+				if (successCallback) successCallback();
+			});
 		}else if (effect){
-			applyVoiceEffect(effect, options, successCallback);
+			applyVoiceEffect(effect, options, function(){
+				isVoiceEffectSetupPending = false;
+				if (successCallback) successCallback();
+			});
 		}else{
 			removeActiveVoiceEffect(function(){
+				isVoiceEffectSetupPending = false;
 				SepiaFW.debug.error("TTS effect for id: " + effectId + " NOT FOUND or NOT AVAILABLE!");
 				if (errorCallback) errorCallback({name: "VoiceEffectError", message: "not found or not available for this voice"});
 			});
 		}
+	}
+	TTS.restoreVoiceEffect = function(selectedVoice, doneCallback){
+		var storedData = SepiaFW.data.getPermanent(SepiaFW.speech.getLanguage() + "-voice-effects") || {};
+		var voiceEffect = storedData[selectedVoice];
+		var effectId;
+		var options;
+		if (!voiceEffect){
+			effectId = "";
+			options = {};
+		}else{
+			effectId = voiceEffect.effectId;
+			options = voiceEffect.effectOptions;
+		}
+		TTS.setVoiceEffect(effectId, options, doneCallback, doneCallback);
 	}
 	function applyVoiceEffect(effect, options, doneCallback){
 		if (speakerGainNode){
@@ -460,8 +490,10 @@ function sepiaFW_build_audio(sepiaSessionId){
 		speakerSource = speakerSource || speakerAudioCtx.createMediaElementSource(speaker);
 		speakerGainNode = speakerAudioCtx.createGain();
 		speakerSource.connect(speakerGainNode);
+		speaker.sepiaVoiceEffectsSourceNode = speakerSource;
 		effect.applyFun(speakerAudioCtx, speakerGainNode, options, function(){
 			voiceEffectActive = effect.id;
+			voiceEffectOptionsActive = JSON.parse(JSON.stringify(options));		//clone options
 			SepiaFW.debug.log("Set TTS effect: " + effect.id + " (" + effect.name + ")");
 			if (doneCallback) doneCallback();
 		});
@@ -475,6 +507,7 @@ function sepiaFW_build_audio(sepiaSessionId){
 		}
 		//speaker.crossOrigin = null;
 		voiceEffectActive = "";
+		voiceEffectOptionsActive = {};
 		SepiaFW.debug.log("Removed TTS effect");
 		if (doneCallback) doneCallback();
 	}
@@ -822,15 +855,17 @@ function sepiaFW_build_audio(sepiaSessionId){
 		}
 		if (audioURL) audioURL = SepiaFW.config.replacePathTagWithActualPath(audioURL);
 		
-		if (audioURL && audioPlayer == player){
-			beforeLastAudioStream = lastAudioStream;
-			lastAudioStream = audioURL;
-			lastAudioStreamTitle = "";		//we reset this and assume "setTitle" is called after "playUrl"
-		}
-		if (!audioURL) audioURL = lastAudioStream;
-		
 		audioOnEndFired = false;
+
 		if (audioPlayer == player){
+			if (audioURL){
+				beforeLastAudioStream = lastAudioStream;
+				lastAudioStream = audioURL;
+				lastAudioStreamTitle = "";		//we reset this and assume "setTitle" is called after "playUrl"
+			}else{
+				audioURL = lastAudioStream;
+			}
+
 			broadcastAudioRequested();
 
 			//stop all other audio sources
@@ -844,9 +879,23 @@ function sepiaFW_build_audio(sepiaSessionId){
 
 		}else if (audioPlayer == player2){
 			//TODO: ?
+		
 		}else if (audioPlayer == speaker){
-			//TODO: more?
+			if (isVoiceEffectSetupPending){
+				//TODO: delay
+				SepiaFW.debug.error("AUDIO: voice-effects setup still pending! Should delay 'AudioPlayer.playURL'");	//debug
+			}
+			if (speakerAudioCtx && (speakerAudioCtx.state == "suspended" || speakerAudioCtx.state == "closed")){
+				SepiaFW.debug.log("AUDIO: context for voice-effects is suspended or closed! Trying to resume now.");	//debug
+				speakerAudioCtx.resume().then(function(){
+					SepiaFW.debug.log("AUDIO: context for voice-effects successfully resumed.");
+				}).catch(function(err){
+					audioPlayer.onerror({name: "AudioContextResumeError", message: "Failed to resume suspended/closed context", info: err});
+				});	
+				//TODO: wait for promise? Or add timeout fallback? - NOTE: "closed" will fail on purpose
+			}
 			TTS.isLoading = true;
+			//TODO: more?
 		}
 
 		audioPlayer.preload = 'auto';

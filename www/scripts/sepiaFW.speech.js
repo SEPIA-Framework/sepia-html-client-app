@@ -207,7 +207,7 @@ function sepiaFW_build_speech(){
 	var voices = [];
 	var selectedVoice = '';
 	var selectedVoiceObject;
-	var isTssInitialized = false;
+	var isTtsInitialized = false;
 	var isSpeaking = false;
 	var speechWaitingForResult = false;
 	var speechWaitingForStop = false;
@@ -1021,9 +1021,10 @@ function sepiaFW_build_speech(){
 		}
 		SepiaFW.debug.info('TTS voices available: ' + voices.length);
 		//add button listener
-		$(voiceSelector).off().on('change', function() {
-			Speech.setVoice($('#sepiaFW-menu-select-voice').val());
-			SepiaFW.debug.info('TTS voice set: ' + selectedVoice);
+		$(voiceSelector).off().on('change', function(){
+			var newVoice = $('#sepiaFW-menu-select-voice').val();
+			SepiaFW.debug.info('TTS voice selected: ' + newVoice);
+			Speech.setVoice(newVoice);
 		});
 
 		if (voices.length > 0){
@@ -1036,14 +1037,18 @@ function sepiaFW_build_speech(){
 	//Chrome loads voices asynchronously so keep an eye on that:
 	if (window.speechSynthesis){
 		window.speechSynthesis.onvoiceschanged = function(){
-			Speech.getVoices();
+			if (!Speech.useSepiaServerTTS){
+				Speech.getVoices();
+			}
 		};
 	}
 	
 	//set a voice
 	Speech.setVoice = function(newVoice){
+		//console.error("TRACE SET VOICE - v: " + newVoice);		//DEBUG
 		if (Speech.isTtsSupported){
 			if (Speech.useSepiaServerTTS){
+				//custom voices
 				selectedVoice = newVoice;
 				selectedVoiceObject = {
 					name: newVoice
@@ -1052,10 +1057,17 @@ function sepiaFW_build_speech(){
 				//store in any case
 				$('#sepiaFW-menu-select-voice').val(newVoice);
 				SepiaFW.data.setPermanent(Speech.getLanguage() + "-voice", newVoice);
+				//prep. engine
+				SepiaFW.audio.tts.setup({		//TODO: update with actual data from server?
+					voice: selectedVoice
+				});
+				//restore voice effects
+				SepiaFW.audio.tts.restoreVoiceEffect(selectedVoice, function(){});
 
 			}else if (SepiaFW.ui.isCordova){
 				//TODO: implement
 			}else{
+				//native voices
 				selectedVoice = newVoice;
 				if (selectedVoice){
 					var selectedVoiceObjectArray = speechSynthesis.getVoices().filter(function(voice){
@@ -1341,15 +1353,15 @@ function sepiaFW_build_speech(){
 	
 	//speech init. on iOS
 	Speech.initTTS = function(){
-		if (!isTssInitialized && Speech.isTtsSupported){
+		if (!isTtsInitialized && Speech.isTtsSupported){
 			if (SepiaFW.ui.isCordova){
 				//TTS.speak('');		//TODO: do we need it? / even with Cordova we can use audio stream ...
-				isTssInitialized = true;
+				isTtsInitialized = true;
 			}else if ('speechSynthesis' in window){
 				window.speechSynthesis.speak(new SpeechSynthesisUtterance(''));	//silent activation
-				isTssInitialized = true;
+				isTtsInitialized = true;
 			}else{
-				isTssInitialized = true;	//we just assume the rest works O_O
+				isTtsInitialized = true;	//we just assume the rest works O_O
 			}
 		}
 	}
