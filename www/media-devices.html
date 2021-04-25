@@ -304,7 +304,7 @@
 			SepiaFW.audioRecorder.stopAndReleaseIfActive(function(){
 				SepiaFW.frames.currentScope.showMicTestInfo("Creating new recorder...");
 				var waveEncModule = SepiaFW.audioRecorder.createDefaultWaveEncoderModule(function(msg){
-					console.log("waveEncoderModule msg", msg);			//DEBUG
+					//console.log("DEBUG --- waveEncoderModule msg", msg);			//DEBUG
 					if (msg){
 						if (msg.gate && msg.gate.isOpen == false && state.waveEncoderGateIsOpen){
 							state.waveEncoderGateIsOpen = false;
@@ -345,7 +345,7 @@
 					wakeWordModule: false,		//block default module
 					waveEncoderModule: waveEncModule,
 					onResamplerMessage: function(msg){
-						//console.log("onResamplerMessage msg", msg.rms);		//DEBUG
+						//if (msg.rms == undefined) console.log("DEBUG --- onResamplerMessage msg", msg);		//DEBUG
 						if (msg && msg.rms != undefined){
 							//plot
 							outputGraph1.addValues(msg.rms);
@@ -381,14 +381,27 @@
 		stopMicrophoneTest: function(){
 			var state = SepiaFW.frames.currentScope.micTestState;
 			clearTimeout(state.micStartTime);
+			var wasRecording = false;
 			if (SepiaFW.audioRecorder.isWebAudioRecorderActive() && state.waveEncModule && state.waveEncoderGateIsOpen){
 				state.waveEncModule.handle.sendToModule({gate: "close"});
 				state.waveEncoderGateIsOpen = false;
+				wasRecording = true;
 			}
-			SepiaFW.audioRecorder.stopIfActive(function(){
-				//stopped
-				SepiaFW.frames.currentScope.showMicTestInfo("Recorder test aborted");
-			});
+			if (wasRecording){
+				//just stop
+				SepiaFW.frames.currentScope.showMicTestInfo("Stopping existing recorders...");
+				SepiaFW.audioRecorder.stopIfActive(function(){
+					//stopped
+					SepiaFW.frames.currentScope.showMicTestInfo("Recorder test aborted");
+				});
+			}else{
+				//stop and release
+				SepiaFW.frames.currentScope.showMicTestInfo("Releasing existing recorders...");
+				SepiaFW.audioRecorder.stopAndReleaseIfActive(function(){
+					//released
+					SepiaFW.frames.currentScope.showMicTestInfo("Recorder released");
+				});
+			}
 		},
 		addWaveToPage: function(wavAudio){
 			var audioEle = document.createElement("audio");
