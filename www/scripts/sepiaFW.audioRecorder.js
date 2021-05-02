@@ -73,7 +73,8 @@ function sepiaFW_build_audio_recorder(){
 			targetSampleRate: micAudioRecorderOptions.targetSampleRate,
 			processorBufferSize: micAudioRecorderOptions.processorBufferSize,
 			gain: micAudioRecorderOptions.gain,
-			resamplerQuality: micAudioRecorderOptions.resamplerQuality
+			resamplerQuality: micAudioRecorderOptions.resamplerQuality,
+			tryNativeResampling: micAudioRecorderOptions.tryNativeResampling
 		});
 		//NOTE: device label is stored via 'SepiaFW.audio.storeMediaDevicesSetting()'
 	}
@@ -106,7 +107,8 @@ function sepiaFW_build_audio_recorder(){
 		targetSampleRate: webAudioOptions.targetSampleRate || 16000,
 		processorBufferSize: webAudioOptions.processorBufferSize || 512,
 		gain: webAudioOptions.gain || 1.0,
-		resamplerQuality: webAudioOptions.resamplerQuality || 3
+		resamplerQuality: webAudioOptions.resamplerQuality || 3,
+		tryNativeResampling: (webAudioOptions.tryNativeResampling != undefined)? webAudioOptions.tryNativeResampling : false
 	}
 	//set/get
 	AudioRecorder.setWebAudioRecorderOption = function(optionName, value){
@@ -215,6 +217,7 @@ function sepiaFW_build_audio_recorder(){
 		});
 		
 		//--- Resampler
+		SepiaFW.webAudio.tryNativeStreamResampling = micAudioRecorderOptions.tryNativeResampling;
 		var resampler;
 		var resamplerQuality = micAudioRecorderOptions.resamplerQuality;
 		var resamplerBufferSize = micAudioRecorderOptions.processorBufferSize;
@@ -356,7 +359,7 @@ function sepiaFW_build_audio_recorder(){
 				dispatchRecorderEvent({ event: "error", error: err });
 			},
 			debugLog: console.log,			//TODO: keep? replace with SepiaFW.debug.info?
-			//targetSampleRate: micAudioRecorderOptions.targetSampleRate,
+			targetSampleRate: micAudioRecorderOptions.targetSampleRate,		//NOTE: we use native resampling here if possible and allowed
 			modules: activeAudioModules,
 			destinationNode: undefined,		//defaults to: new "blind" destination (mic) or audioContext.destination (stream)
 			startSuspended: true,
@@ -385,7 +388,7 @@ function sepiaFW_build_audio_recorder(){
 	function createLegacyScriptProcessorSource(){
 		return SepiaFW.webAudio.createLegacyMicrophoneScriptProcessor({
 			startSuspended: true,
-			targetSampleRate: micAudioRecorderOptions.targetSampleRate,		//NOTE: we use native resampling here if possible
+			targetSampleRate: micAudioRecorderOptions.targetSampleRate,		//NOTE: we use native resampling here if possible and allowed
 			bufferSize: micAudioRecorderOptions.processorBufferSize
 		});	//Note: Promise
 	}
@@ -410,7 +413,7 @@ function sepiaFW_build_audio_recorder(){
 						lookbackBufferMs: options.lookbackBufferMs,			//default: off, good value e.g. 2000
 						recordBufferLimitMs: options.recordBufferLimitMs,	//default: use 5MB limit, good value e.g. 6000
 						recordBufferLimitKb: options.recordBufferLimitKb, 	//default: 5MB (overwritten by ms limit), good value e.g. 600
-						doDebug: true	//TODO: set to false when ready
+						doDebug: false	//TODO: set to false when ready
 					}
 				}
 			}

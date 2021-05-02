@@ -256,6 +256,15 @@
 			);
 			gainOpt.input.step = 0.1;
 			micOptionsBox.appendChild(gainOpt.element);
+			//resampler opt.
+			var nativeResamplerOpt = SepiaFW.frames.build.inputGroup(
+				"Try Native Resampling", false, "checkbox", false, 
+				"sepiaFW-media-devices-mic-options-tryNativeResampling", function(val){
+					SepiaFW.audioRecorder.setMicrophoneOption("tryNativeResampling", val, "processor");
+				}
+			);
+			nativeResamplerOpt.setValue(activeOptions.tryNativeResampling);
+			micOptionsBox.appendChild(nativeResamplerOpt.element);
 			//audio source type
 			var typeOpt = SepiaFW.frames.build.inputGroup(
 				"Source Processor", [

@@ -19,6 +19,7 @@ function sepiaFW_build_web_audio(){
 	
 	WebAudio.isStreamRecorderSupported = testStreamRecorderSupport(); 		//set once at start
 	WebAudio.isNativeStreamResamplingSupported = true; 	//will be tested on first media-stream creation
+	WebAudio.tryNativeStreamResampling = true;			//overwrite to force-ignore native resampling
 	WebAudio.contentFetchTimeout = 8000;	//used e.g. for WASM pre-loads etc.
 	
 	WebAudio.defaultProcessorOptions = {
@@ -88,6 +89,7 @@ function sepiaFW_build_web_audio(){
 			contextOptions.sampleRate = options.targetSampleRate;
 		}
 		var ac = new AudioContext(contextOptions);
+		//TODO: on some freaky circumstances ac.state can be faulty as seen in iOS (shows 'suspended' but await ac.suspend() never resolves)
 		//console.log("AC STATE: " + ac.state);		//TODO: this can be suspended if the website is restrict and the user didn't interact with it yet
 		return ac;
 	};
@@ -178,6 +180,7 @@ function sepiaFW_build_web_audio(){
 				//TODO: clean up old context and sources?
 				mainAudioContext = WebAudio.createAudioContext(options, ignoreOptions);
 				if (options.startSuspended){
+					try { await mainAudioContext.resume(); } catch(error){};		//TODO: prevent quirky stuff on e.g. iOS
 					await mainAudioContext.suspend();
 				}else{
 					await mainAudioContext.resume();
@@ -793,6 +796,7 @@ function sepiaFW_build_web_audio(){
 			asyncCreateOrUpdateAudioContext = async function(forceNew, ignoreOptions){
 				var audioContext = WebAudio.createAudioContext(options, ignoreOptions);
 				if (options.startSuspended){
+					try { await audioContext.resume(); } catch (error){};		//TODO: prevent quirky stuff on e.g. iOS
 					await audioContext.suspend();
 				}else{
 					await audioContext.resume();
@@ -822,7 +826,7 @@ function sepiaFW_build_web_audio(){
 					
 					//Audio context and source node
 					var audioContext;
-					if (WebAudio.isNativeStreamResamplingSupported){
+					if (WebAudio.tryNativeStreamResampling && WebAudio.isNativeStreamResamplingSupported){
 						audioContext = await asyncCreateOrUpdateAudioContext(false, false);		//Try native resampling first
 					}else{
 						audioContext = await asyncCreateOrUpdateAudioContext(false, true);
@@ -1087,6 +1091,7 @@ function sepiaFW_build_web_audio(){
 				try {
 					//Audio context and source node
 					var audioContext = WebAudio.createAudioContext(options);
+					try { await audioContext.resume(); } catch(error){};		//TODO: prevent quirky stuff on e.g. iOS
 					await audioContext.suspend();
 					
 					var modulePath = moduleFolder + "white-noise-generator.js";
@@ -1119,6 +1124,7 @@ function sepiaFW_build_web_audio(){
 				try {
 					//AudioContext and AudioBufferSourceNode - NOTE: maybe useful: new OfflineAudioContext(1, 128, 16000);
 					var audioContext = WebAudio.createAudioContext(options);
+					try { await audioContext.resume(); } catch(error){};		//TODO: prevent quirky stuff on e.g. iOS
 					await audioContext.suspend();
 					var audioBufferSourceNode = audioContext.createBufferSource();
 					
