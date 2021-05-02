@@ -247,18 +247,6 @@ function sepiaFW_build_wake_triggers() {
 			if (onFinishCallback) onFinishCallback();
 		}
 	}
-
-	WakeTriggers.releaseWakeWordEngine = function(onFinishCallback, onErrorCallback){
-		//make sure its stopped
-		WakeTriggers.stopListeningToWakeWords(function(){
-			//release the recorder
-			SepiaFW.audioRecorder.releaseWebAudioRecorder(function(){
-				WakeTriggers.engineLoaded = false;
-				WakeTriggers.engineModule = undefined;
-				if (onFinishCallback) onFinishCallback();
-			});
-		}, onErrorCallback);
-	}
 	
 	WakeTriggers.listenToWakeWords = function(onSuccessCallback, onErrorCallback, doDelayAndCheck){
 		if (isListening){
@@ -292,7 +280,18 @@ function sepiaFW_build_wake_triggers() {
 				logInfo('CREATING wake-Word listener...');
 				SepiaFW.audioRecorder.createWebAudioRecorder({}, function(sepiaWebAudioProcessor, info){
 					WakeTriggers.listenToWakeWords(onSuccessCallback, onErrorCallback, doDelayAndCheck);
-				}, onErrorCallback);	//NOTE: we can add 'onProcessorRuntimeError' (with return false/true to stop recorder on error)
+				}, function(err){
+					//'onProcessorInitError'
+					if (onErrorCallback){
+						onErrorCallback(err);
+					}
+				}, function(err){
+					//'onProcessorRuntimeError' (with return false/true to stop recorder on error)
+					if (onErrorCallback){
+						onErrorCallback(err);
+						return true;
+					}
+				});
 				return;
 			}
 			if (!SepiaFW.audioRecorder.webAudioHasCapability("wakeWordDetection")){
@@ -312,7 +311,7 @@ function sepiaFW_build_wake_triggers() {
 				isListening = true;
 				SepiaFW.animate.wakeWord.active();
 				if (onSuccessCallback) onSuccessCallback();
-			}, onErrorCallback);
+			}, undefined, onErrorCallback);
 		}
 	}
 	
@@ -335,7 +334,19 @@ function sepiaFW_build_wake_triggers() {
 				//give the audio manager some time to react - TODO: do we still need this?
 				if (onSuccessCallback) onSuccessCallback();
 			}, 300);
-		});
+		}, undefined, onErrorCallback); 	//NOTE: we ignore the noopCallback atm but listen to 'sepia_web_audio_recorder' events
+	}
+
+	WakeTriggers.releaseWakeWordEngine = function(onFinishCallback, onErrorCallback){
+		//make sure its stopped
+		WakeTriggers.stopListeningToWakeWords(function(){
+			//release the recorder
+			SepiaFW.audioRecorder.releaseWebAudioRecorder(function(){
+				WakeTriggers.engineLoaded = false;
+				WakeTriggers.engineModule = undefined;
+				if (onFinishCallback) onFinishCallback();
+			}, undefined, onErrorCallback); //NOTE: we ignore the noopCallback atm but listen to 'sepia_web_audio_recorder' events
+		}, onErrorCallback);
 	}
 
 	//listen to global events to make sure state is updated correctly

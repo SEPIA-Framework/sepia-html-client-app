@@ -152,36 +152,40 @@ function sepiaFW_build_audio_recorder(){
 	AudioRecorder.isWebAudioRecorderActive = function(){
 		return (!!sepiaWebAudioProcessor && sepiaWebAudioProcessor.isInitialized() && sepiaWebAudioProcessor.isProcessing());
 	}
-	AudioRecorder.startWebAudioRecorder = function(successCallback, errorCallback){
+	AudioRecorder.startWebAudioRecorder = function(successCallback, noopCallback, errorCallback){
 		if (sepiaWebAudioProcessor){
-			sepiaWebAudioProcessor.start(successCallback);
+			sepiaWebAudioProcessor.start(successCallback, noopCallback, errorCallback);
 		}else{
 			if (errorCallback) errorCallback({name: "ProcessorInitError", message: "SEPIA Web Audio Processor doesn't exist yet."});
 		}
 	}
-	AudioRecorder.stopWebAudioRecorder = function(callback){
+	AudioRecorder.stopWebAudioRecorder = function(stopCallback, noopCallback, errorCallback){
 		if (sepiaWebAudioProcessor){
-			sepiaWebAudioProcessor.stop(callback);
+			sepiaWebAudioProcessor.stop(stopCallback, noopCallback, errorCallback);
 		}else{
-			if (callback) callback();	//if it doesn't exist its quasi-stopped ;-)
+			if (noopCallback) noopCallback();
 		}
 	}
-	AudioRecorder.releaseWebAudioRecorder = function(callback){
+	AudioRecorder.releaseWebAudioRecorder = function(releaseCallback, noopCallback, errorCallback){
 		if (sepiaWebAudioProcessor){
 			sepiaWebAudioProcessor.release(function(){
 				sepiaWebAudioProcessor = undefined;
-				if (callback) callback();
+				if (releaseCallback) releaseCallback();
+			}, function(){
+				sepiaWebAudioProcessor = undefined;
+				if (noopCallback) noopCallback();
+			}, function(err){
+				sepiaWebAudioProcessor = undefined;
+				if (errorCallback) errorCallback(err);
 			});
 		}else{
-			if (callback) callback();	//if it doesn't exist its quasi-released ;-)
+			if (noopCallback) noopCallback();
 		}
 	}
 	//stop and release if possible or confirm right away
 	AudioRecorder.stopIfActive = function(callback){
 		if (AudioRecorder.isWebAudioRecorderActive()){
-			AudioRecorder.stopWebAudioRecorder(function(){
-				if (callback) callback();
-			});
+			AudioRecorder.stopWebAudioRecorder(callback, callback, undefined);
 		}else{
 			if (callback) callback();
 		}
@@ -189,10 +193,9 @@ function sepiaFW_build_audio_recorder(){
 	AudioRecorder.stopAndReleaseIfActive = function(callback){
 		AudioRecorder.stopIfActive(function(){
 			if (AudioRecorder.isWebAudioRecorderReady()){
-				AudioRecorder.releaseWebAudioRecorder(function(){
-					if (callback) callback();
-				});
+				AudioRecorder.releaseWebAudioRecorder(callback, callback, undefined);
 			}else{
+				sepiaWebAudioProcessor = undefined;
 				if (callback) callback();
 			}	
 		});
@@ -310,6 +313,7 @@ function sepiaFW_build_audio_recorder(){
 		//--- TODO: add more modules like ASR, etc.
 
 		//Source adjustments
+		customSepiaWebAudioSource = undefined;
 		var customSourcePromise;
 		if (options.fileSourceUrl){
 			//file
@@ -406,7 +410,7 @@ function sepiaFW_build_audio_recorder(){
 						lookbackBufferMs: options.lookbackBufferMs,			//default: off, good value e.g. 2000
 						recordBufferLimitMs: options.recordBufferLimitMs,	//default: use 5MB limit, good value e.g. 6000
 						recordBufferLimitKb: options.recordBufferLimitKb, 	//default: 5MB (overwritten by ms limit), good value e.g. 600
-						doDebug: true
+						doDebug: true	//TODO: set to false when ready
 					}
 				}
 			}

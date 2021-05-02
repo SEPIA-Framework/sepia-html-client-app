@@ -526,7 +526,7 @@ function sepiaFW_build_web_audio(){
 			if (!controls) controls = {};	//e.g.: onBeforeStart, onAfterStart, onBeforeStop, onAfterStop, onBeforeRelease, onAfterRelease
 			
 			//START
-			startFun = function(callback){
+			startFun = function(startCallback, errorCallback){
 				Promise.resolve((controls.onBeforeStart || noop)())
 				.then(function(){
 					return mainAudioContext.resume();
@@ -551,11 +551,14 @@ function sepiaFW_build_web_audio(){
 						return Promise.resolve(controls.onAfterStart());
 					}
 				})
-				.then(callback)
-				.catch(function(err){onProcessorError({name: "ProcessorStartError", message: (err.name + " - Message: " + (err.message || err))});});
+				.then(startCallback)
+				.catch(function(err){
+					onProcessorError({name: "ProcessorStartError", message: (err.name + " - Message: " + (err.message || err))});
+					errorCallback(err);
+				});
 			}
 			//STOP
-			stopFun = function(callback){
+			stopFun = function(stopCallback, errorCallback){
 				Promise.resolve((controls.onBeforeStop || noop)())
 				.then(function(){
 					//disconnect and signal
@@ -571,11 +574,14 @@ function sepiaFW_build_web_audio(){
 						return Promise.resolve(controls.onAfterStop());
 					}
 				})
-				.then(callback)
-				.catch(function(err){onProcessorError({name: "ProcessorStopError", message: (err.name + " - Message: " + (err.message || err))});});
+				.then(stopCallback)
+				.catch(function(err){
+					onProcessorError({name: "ProcessorStopError", message: (err.name + " - Message: " + (err.message || err))});
+					errorCallback(err);
+				});
 			}
 			//RELEASE
-			releaseFun = function(callback){
+			releaseFun = function(releaseCallback, errorCallback){
 				Promise.resolve((controls.onBeforeRelease || noop)())
 				.then(function(){
 					//signal
@@ -594,8 +600,11 @@ function sepiaFW_build_web_audio(){
 						return Promise.resolve(controls.onAfterRelease());
 					}
 				})
-				.then(callback)
-				.catch(function(err){onProcessorError({name: "ProcessorReleaseError", message: (err.name + " - Message: " + (err.message || err))});});
+				.then(releaseCallback)
+				.catch(function(err){
+					onProcessorError({name: "ProcessorReleaseError", message: (err.name + " - Message: " + (err.message || err))});
+					errorCallback(err);
+				});
 			}
 			
 			completeInitCondition("sourceSetup");
@@ -681,7 +690,9 @@ function sepiaFW_build_web_audio(){
 		
 		//INTERFACE
 		
-		thisProcessor.start = function(startCallback, noopCallback){
+		thisProcessor.start = function(startCallback, noopCallback, errorCallback){		
+			//NOTE: callback management is a bit tricky here - most of the time you should use the common processor callbacks ...
+			//... but in some situations you need a more direct feedback. Error here might not call all async. module errors though.
 			if (isInitialized && !isProcessing){
 				startFun(function(){
 					var startTime = new Date().getTime();	//TODO: is this maybe already too late?
@@ -690,34 +701,36 @@ function sepiaFW_build_web_audio(){
 						startTime: startTime
 					});
 					if (startCallback) startCallback();
-				});
+				}, errorCallback);
 			}else{
 				if (noopCallback) noopCallback();
 			}
 		}
 		
-		thisProcessor.stop = function(stopCallback, noopCallback){
+		thisProcessor.stop = function(stopCallback, noopCallback, errorCallback){
+			//NOTE: see notes above about callbacks
 			if (isProcessing){
-				stopFun(function(){ 
+				stopFun(function(){
 					var endTime = new Date().getTime();		//TODO: is this maybe already too late?
 					setStateProcessingStop();
 					if (options.onaudioend) options.onaudioend({
 						endTime: endTime
 					});
 					if (stopCallback) stopCallback();
-				});
+				}, errorCallback);
 			}else{
 				if (noopCallback) noopCallback();
 			}
 		}
 		
-		thisProcessor.release = function(releaseCallback, noopCallback){
+		thisProcessor.release = function(releaseCallback, noopCallback, errorCallback){
+			//NOTE: see notes above about callbacks
 			if (isInitialized && releaseFun){
 				releaseFun(function(){
 					resetInitializer();
 					if (options.onrelease) options.onrelease();
 					if (releaseCallback) releaseCallback();
-				});
+				}, errorCallback);
 			}else if (isInitPending){
 				initializerError({message: "Release was called before initialization was complete.", name: "ProcessorInitError"});
 			}else{
