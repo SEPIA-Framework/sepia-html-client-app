@@ -134,8 +134,8 @@ function constructWorker(options) {
 	inputSampleSize = options.setup.inputSampleSize || 512;
 	processBufferSize = options.setup.bufferSize || inputSampleSize;
 	
-	porcupineVersion = options.setup.version || options.setup.porcupineVersion || 19;
-	porcupineVersion = porcupineVersion.replace(".", "").trim();	//remove dot
+	porcupineVersion = ((options.setup.version || options.setup.porcupineVersion || 19) + "").replace(".", "").trim();
+	porcupineVersion = +porcupineVersion || 19;		//... because we support "19", "1.9", 1.9 and 19 ...
 	if (porcupineVersion <= 16){
 		importScripts('./picovoice/porcupine-wasm-module-' + "14" + '.js');		//we assume this works for 14-16?
 	}else{

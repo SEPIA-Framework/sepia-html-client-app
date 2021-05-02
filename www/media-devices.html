@@ -35,7 +35,7 @@
 					<button onclick="SepiaFW.frames.showFramePage(2);">Microphone Setup</button>
 				</div>
 				<h3>Info</h3>
-				<div id="sepiaFW-media-devices-info-msg" style="white-space: break-spaces;"></div>
+				<div id="sepiaFW-media-devices-info-msg" style="width: 100%; white-space: break-spaces;"></div>
 			</div>
 		</div>
 		<!-- Page 2 -->
@@ -133,7 +133,7 @@
 				SepiaFW.frames.currentScope.showInfo(logMsg);
 			}, function(err){
 				SepiaFW.debug.error("Media-Devices - failed to load devices:", err);
-				SepiaFW.frames.currentScope.showError(err.message);
+				SepiaFW.frames.currentScope.showError(err.name + " - " + err.message);
 			});
 		},
 		

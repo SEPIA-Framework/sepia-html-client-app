@@ -1,7 +1,10 @@
 //SEPIA WEB AUDIO LIB
 function sepiaFW_build_web_audio(){
 	var WebAudio = {};
-	WebAudio.version = "0.9.3";
+	
+	//--- START: Copy of SEPIA Web-Audio Lib --->
+	
+	WebAudio.version = "0.9.4";
 	
 	//Preparations
 	var AudioContext = window.AudioContext || window.webkitAudioContext;
@@ -10,7 +13,7 @@ function sepiaFW_build_web_audio(){
 
 	function testStreamRecorderSupport(){
 		isMediaDevicesSupported = (!!AudioContext && navigator.mediaDevices && navigator.mediaDevices.getUserMedia);
-		isCordovaAudioinputSupported = (window.cordova && window.audioinput);
+		//isCordovaAudioinputSupported = (window.cordova && window.audioinput);		//TODO: implement
 		return !!isMediaDevicesSupported || isCordovaAudioinputSupported;
 	}
 	
@@ -252,9 +255,7 @@ function sepiaFW_build_web_audio(){
 		function setStateProcessingStop(){
 			isProcessing = false;
 		}
-		function setStateProcessorReleased(){
-			//anythinig?
-		}
+		//function setStateProcessorReleased(){} //already handled in 'resetInitializer'
 			
 		//Supported?
 		if (!WebAudio.isStreamRecorderSupported && !options.customSourceTest && !options.customSource){
@@ -390,7 +391,7 @@ function sepiaFW_build_web_audio(){
 							if (!thisProcessNode.isReady){
 								onProcessorError({
 									name: "AudioModuleProcessorException",
-									message: "'sendToModule' was called before module was actually ready. Consider 'startSuspended' option maybe.",
+									message: "'sendToModule' was called before module was actually ready. Consider 'startSuspended' option maybe.'",
 									module: thisProcessNode.moduleName
 								});
 							}else{
@@ -593,9 +594,6 @@ function sepiaFW_build_web_audio(){
 						return Promise.resolve(controls.onAfterRelease());
 					}
 				})
-				.then(function(){
-					return Promise.resolve(resetInitializer());
-				})
 				.then(callback)
 				.catch(function(err){onProcessorError({name: "ProcessorReleaseError", message: (err.name + " - Message: " + (err.message || err))});});
 			}
@@ -683,7 +681,7 @@ function sepiaFW_build_web_audio(){
 		
 		//INTERFACE
 		
-		thisProcessor.start = function(callback){
+		thisProcessor.start = function(startCallback, noopCallback){
 			if (isInitialized && !isProcessing){
 				startFun(function(){
 					var startTime = new Date().getTime();	//TODO: is this maybe already too late?
@@ -691,12 +689,14 @@ function sepiaFW_build_web_audio(){
 					if (options.onaudiostart) options.onaudiostart({
 						startTime: startTime
 					});
-					if (callback) callback();
+					if (startCallback) startCallback();
 				});
+			}else{
+				if (noopCallback) noopCallback();
 			}
 		}
 		
-		thisProcessor.stop = function(callback){
+		thisProcessor.stop = function(stopCallback, noopCallback){
 			if (isProcessing){
 				stopFun(function(){ 
 					var endTime = new Date().getTime();		//TODO: is this maybe already too late?
@@ -704,21 +704,32 @@ function sepiaFW_build_web_audio(){
 					if (options.onaudioend) options.onaudioend({
 						endTime: endTime
 					});
-					if (callback) callback();
+					if (stopCallback) stopCallback();
 				});
+			}else{
+				if (noopCallback) noopCallback();
 			}
 		}
 		
-		thisProcessor.release = function(callback){
-			releaseFun(function(){ 
-				setStateProcessorReleased();
-				if (options.onrelease) options.onrelease();
-				if (callback) callback();
-			});
+		thisProcessor.release = function(releaseCallback, noopCallback){
+			if (isInitialized && releaseFun){
+				releaseFun(function(){
+					resetInitializer();
+					if (options.onrelease) options.onrelease();
+					if (releaseCallback) releaseCallback();
+				});
+			}else if (isInitPending){
+				initializerError({message: "Release was called before initialization was complete.", name: "ProcessorInitError"});
+			}else{
+				if (noopCallback) noopCallback();
+			}
 		}
 
 		thisProcessor.isInitialized = function(){
 			return isInitialized;
+		}
+		thisProcessor.isInitPending = function(){
+			return isInitPending;
 		}
 		thisProcessor.isProcessing = function(){
 			return isProcessing;
@@ -1266,6 +1277,8 @@ function sepiaFW_build_web_audio(){
 	
 	//used to keep Promise structure, e.g.: Promise.resolve((optionalFun || noop)()).then(...)
 	function noop(){};
+
+	//<--- END: Copy of SEPIA Web-Audio Lib ---
 	
 	return WebAudio;
 }
