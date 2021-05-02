@@ -100,7 +100,7 @@ function init(){
 	if (lookbackBufferMs){
 		_lookbackBufferSize = Math.round((lookbackBufferMs/1000) * inputSampleRate);
 		if (isFloat32Input){
-			_lookbackRingBuffer = new RingBuffer(_lookbackBufferSize, channelCount);	//TODO: test for Float32
+			_lookbackRingBuffer = new RingBuffer(_lookbackBufferSize, channelCount, "Float32");	//TODO: test for Float32
 		}else{
 			_lookbackRingBuffer = new RingBuffer(_lookbackBufferSize, channelCount, "Int16");
 		}
@@ -171,8 +171,10 @@ function gateControl(open, gateOptions){
 	};
 	if (open){
 		//TODO: we should reset some stuff here, for now:
-		if (recordBufferMaxN && recordedBuffers.length >= recordBufferMaxN){
-			recordedBuffers = [];		//TODO: should this happen always? only when full? never? leave to getBuffer?
+		if (!gateOptions.appendAudio){
+			recordedBuffers = [];		//NOTE: by default we reset the buffer
+		}else if (recordBufferMaxN && recordedBuffers.length >= recordBufferMaxN){
+			recordedBuffers = [];
 		}
 		_gateOpenTS = Date.now();
 		gateIsOpen = true;
@@ -346,6 +348,14 @@ function buildBuffer(start, end){
 		buffer: collectBuffer,
 		isFloat32: isFloat32
 	}
+}
+function clearBuffer(){
+	var lookbackSamples;
+	if (_lookbackRingBuffer && _lookbackRingBuffer.framesAvailable){
+		_lookbackRingBuffer = new RingBuffer(_lookbackBufferSize, channelCount, isFloat32Input? "Float32" : "Int16");
+	}
+	lookbackBufferNeedsReset = false;
+	recordedBuffers = [];
 }
 
 function encodeWAV(samples, sampleRate, numChannels, convertFromFloat32){
