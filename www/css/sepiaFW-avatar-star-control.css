@@ -23,7 +23,7 @@
 }
 
 #sepiaFW-alwaysOn-avatar .avatar-activity {
-    top: calc(50% + 2.5px);
+    top: calc(50% + 3px);
     left: calc(50% - 21px);
     width: 42px;
     height: 42px;
