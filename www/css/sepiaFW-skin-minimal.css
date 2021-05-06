@@ -39,6 +39,16 @@ html.landscape-small #sepiaFW-nav-bar {
 	background: linear-gradient(rgba(0,0,0,0), #000);
 }
 
+#sepiaFW-nav-bar {
+	border-radius: 3px;
+}
+#sepiaFW-chat-controls-form {
+	border-radius: 28px 3px 3px 28px;
+}
+#sepiaFW-chat-controls-right {
+	border-radius: 3px 28px 28px 3px;
+}
+
 #sepiaFW-main-window {
 	color: #eeeeee;
 }
@@ -54,8 +64,8 @@ html.landscape-small #sepiaFW-nav-bar {
 	border: 1px solid #eeeeee !important;
 }
 #sepiaFW-main-output-carousel .sepiaFW-carousel-pane {
-    border-left: 1px solid #eeeeee;
-    border-right: 1px solid #eeeeee;
+    border-left: 1px solid #555;
+    border-right: 1px solid #555;
 }
 html.landscape-small #sepiaFW-main-output-carousel .sepiaFW-carousel-pane {
     border-left: 0;
@@ -201,7 +211,7 @@ html.landscape-small #sepiaFW-main-output-carousel .sepiaFW-carousel-pane {
 }
 */
 
-#sepiaFW-nav-label-note{
+#sepiaFW-nav-label-note {
     border: 1px solid #ceff1a;
 	background: #000;
 	color: #eeeeee;
@@ -220,15 +230,15 @@ html.landscape-small #sepiaFW-main-output-carousel .sepiaFW-carousel-pane {
 #sepiaFW-chat-output article:not(.statusUpdate) b {
 	color: #888;
 }
-#sepiaFW-chat-output article.chatMe{
+#sepiaFW-chat-output article.chatMe {
 	background: #000;
 	color: #eeeeee;
 	border-color: #eeeeee;
 }
-#sepiaFW-chat-output article.chatMe b{
+#sepiaFW-chat-output article.chatMe b {
 	color: #888;
 }
-#sepiaFW-chat-output article.chatMe span{
+#sepiaFW-chat-output article.chatMe span {
 	color: #eeeeee;
 }
 #sepiaFW-chat-output article.chatAssistant {
@@ -236,18 +246,18 @@ html.landscape-small #sepiaFW-main-output-carousel .sepiaFW-carousel-pane {
 	color: #eeeeee;
 	border-color: #eeeeee;
 }
-#sepiaFW-chat-output article.chatAssistant b{
+#sepiaFW-chat-output article.chatAssistant b {
 	color: #888;
 }
-#sepiaFW-chat-output article.chatAssistant.chatPm{
+#sepiaFW-chat-output article.chatAssistant.chatPm {
 	border-left-color: #ceff1a;
 	border-left-width: 2px;
 }
-#sepiaFW-chat-output article.chatMe.chatPm{
+#sepiaFW-chat-output article.chatMe.chatPm {
 	border-left-color: rgba(255, 0, 0, 1.0);
 	border-left-width: 2px;
 }
-#sepiaFW-chat-output article.chatOther.chatPm{
+#sepiaFW-chat-output article.chatOther.chatPm {
 	border-left-color: rgba(255, 0, 0, 1.0);
 	border-left-width: 2px;
 }
@@ -271,10 +281,10 @@ html.landscape-small #sepiaFW-main-output-carousel .sepiaFW-carousel-pane {
 #sepiaFW-loader {
 	background:rgba(255, 255, 255, 0.33);
 }
-#sepiaFW-loader:before{
+#sepiaFW-loader:before {
 	background:rgba(255, 255, 255, 0.22);
 }
-#sepiaFW-loader:after{
+#sepiaFW-loader:after {
 	background:rgba(255, 255, 255, 0.11);
 }
 
@@ -308,7 +318,7 @@ html.landscape-small #sepiaFW-main-output-carousel .sepiaFW-carousel-pane {
 .sepiaFW-cards-list-body > div > div {
     background: #000 !important;
 	color: #eeeeee;
-	border-left-color: #19191b !important;
+	/*border-left-color: #19191b !important;*/
 }
 .sepiaFW-cards-list-body .listElement .checked {
     background: #e8e8e8 !important;

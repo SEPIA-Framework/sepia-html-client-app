@@ -630,10 +630,10 @@ function sepiaFW_build_speech(){
 			
 			}else{
 				//Edge is still buggy
-				if (SepiaFW.ui.isEdge){
+				if (SepiaFW.ui.isEdge || SepiaFW.ui.isSafari){
 					if (!showedAsrLimitInfo){
 						SepiaFW.ui.showInfo("Note: Speech recognition on this device is still experimental. Expect random bugs ^^.", false, "", true);
-						SepiaFW.debug.log("ASR: Experimental support for Microsoft Edge.");
+						SepiaFW.debug.log("ASR: Experimental support for Microsoft Edge and Safari.");
 						showedAsrLimitInfo = true;
 					}
 					recognition.continuous = false;

@@ -4,6 +4,7 @@
 		<div id="sepiaFW-frame-page-1" class='sepiaFW-frames-page sepiaFW-carousel-pane'>
 			<h3>Media Devices Settings</h3>
 			<p class="info-text">Here you can configure the media devices like microphone and audio sources (speakers) of your device.</p>
+			<p id="sepiaFW-media-devices-mobile-note" class="info-text"><b>NOTE:</b> Support for this feature on mobile devices is usually very poor!</p>
 			<div id="sepiaFW-media-devices-settings" class="group-container">
 				<div class="group" style="justify-content: center; flex-wrap: wrap;">
 					<button id="SepiaFW-media-devices-refresh" onclick="SepiaFW.frames.currentScope.refreshDevices()">Refresh devices</button>
@@ -103,6 +104,11 @@
 	SepiaFW.frames.currentScope = {
 
 		onFinishSetup: function(){
+			if (SepiaFW.ui.isMobile){
+				$('#sepiaFW-media-devices-mobile-note').show();
+			}else{
+				$('#sepiaFW-media-devices-mobile-note').hide();
+			}
 			SepiaFW.frames.currentScope.refreshDevices();
 		},
 		
