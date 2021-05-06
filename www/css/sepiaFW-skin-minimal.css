@@ -88,11 +88,11 @@ html.landscape-small #sepiaFW-main-output-carousel .sepiaFW-carousel-pane {
 }
 @media (max-width: 480px) {
 	#sepiaFW-main-output-carousel .sepiaFW-carousel-pane {
-		border-color: transparent;
+		border-color: transparent !important;
 	}
 	#sepiaFW-teachUI-view .sepiaFW-carousel-pane,
 	#sepiaFW-frames-view .sepiaFW-carousel-pane {
-		border-color: transparent;
+		border-color: transparent !important;
 	}
 }
 

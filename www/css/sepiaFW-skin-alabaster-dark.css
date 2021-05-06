@@ -1,9 +1,11 @@
 html {
 	background-color: #111;
 }
+#sepiaFW-main-window {
+	color: #eee;
+}
 @media (min-width: 480px) and (min-height: 481px) {
 	#sepiaFW-main-window {
-		color: #eee;
 		box-shadow: 0 0px 2px 1px rgba(155, 155, 155, 0.25);
 	}
 }
