@@ -935,13 +935,16 @@ function sepiaFW_build_webSocket_client(sepiaSessionId){
 		//console.log('Android intent action: ' + JSON.stringify(intent.action));		//DEBUG
 		if (intent.action){
 			//NOTE: the following assumes that the intent was properly executed after onActive
-			if (intent.action == "android.intent.action.ASSIST"){
+			if (intent.action == "android.intent.action.ASSIST" 
+				|| intent.action == "android.intent.action.VOICE_COMMAND"){
 				//DEBUG
 				//var intentExtras = intent.extras;
 				//if (intentExtras)	console.log('Intent extras: ' + JSON.stringify(intentExtras));
 				//Start mic
 				var useConfirmationSound = SepiaFW.speech.shouldPlayConfirmation();
-				SepiaFW.ui.toggleMicButton(useConfirmationSound);
+				var sourceAction = "intent-" 
+					+ (intent.action.replace("android.intent.action.", "").replace(/_/g, "-").trim().toLowerCase());
+				SepiaFW.ui.toggleMicButton(useConfirmationSound, sourceAction);
 			}
 		}		
 	}
@@ -2274,7 +2277,7 @@ function sepiaFW_build_webSocket_client(sepiaSessionId){
 					if (actionUser !== SepiaFW.account.getUserId()){
 						SepiaFW.debug.error("remoteAction - tried to use type 'notify' with wrong user");
 					}else{
-						//TODO: implement
+						// TODO: implement
 						SepiaFW.debug.log("remoteAction - no handler yet for type: " + message.data.type);
 					}
 				
