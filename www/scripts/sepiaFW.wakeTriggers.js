@@ -44,7 +44,7 @@ function sepiaFW_build_wake_triggers() {
 			SepiaFW.animate.assistant.loading();
 			WakeTriggers.stopListeningToWakeWords(function(){
 				var useConfirmationSound = SepiaFW.speech.shouldPlayConfirmation();
-				SepiaFW.ui.toggleMicButton(useConfirmationSound);
+				SepiaFW.ui.toggleMicButton(useConfirmationSound, "wake-word");
 			}, function(e){
 				//no error handling?
 			});

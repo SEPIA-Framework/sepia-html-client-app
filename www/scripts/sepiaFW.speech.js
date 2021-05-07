@@ -175,7 +175,7 @@ function sepiaFW_build_speech(){
 				&& (SepiaFW.assistant && SepiaFW.assistant.isWaitingForDialog)
 			){
 				var useConfirmationSound = SepiaFW.speech.shouldPlayConfirmation();
-        		SepiaFW.ui.toggleMicButton(useConfirmationSound);
+        		SepiaFW.ui.toggleMicButton(useConfirmationSound, "smart-mic");
 			}else{
 				//console.log('Microphone smart-trigger: skipped'); 	//DEBUG
 			}

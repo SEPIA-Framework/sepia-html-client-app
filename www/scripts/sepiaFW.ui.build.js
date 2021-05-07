@@ -487,7 +487,7 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 					if (SepiaFW.audio && SepiaFW.audio.initAudio(SepiaFW.ui.toggleMicButton)){
 						//skip because of callback
 					}else{
-						SepiaFW.ui.toggleMicButton();
+						SepiaFW.ui.toggleMicButton(undefined, "app-button");
 						//custom
 						if (customCallbackShort) customCallbackShort();
 					}
@@ -499,7 +499,13 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 		SepiaFW.ui.buildDefaultMicLogic(assistBtn);
 			
 		//Toggle microphone button
-		SepiaFW.ui.toggleMicButton = function(useConfirmationSound){
+		SepiaFW.ui.toggleMicButton = function(useConfirmationSound, sourceAction){
+			if (sourceAction == undefined) sourceAction = "";
+			//source actions (so far):
+			//app-button, app-hotkey, controller-button, (remote-input), ble-beacon, clexi-remote, sepia-chat-server, 
+			//smart-mic, wake-word, intent-assist, intent-voice-command, 
+			//... more tbd
+			//TODO: at some point we could use the source info to control when voice output should be triggered
 			if (SepiaFW.speech.isSpeaking()){
 				SepiaFW.speech.stopSpeech();
 				return;
