@@ -2113,6 +2113,43 @@ function sepiaFW_build_ui_cards(){
 			}
 		});
 	}
+
+	//------ TODO: Cards to be integrated into interface:
+
+	//-- Plot cards --
+
+	Cards.addLinePlotToView = function(x, data, plotOptions, targetView){
+		if (!targetView) targetView = "chat";
+		SepiaFW.ui.plot.lines(x, data, targetView, plotOptions);
+	}
+
+	//-- Audio file cards --
+
+	//create container directly inside "chat", "myView" or "bigResults"
+	
+	Cards.addWaveCardToView = function(wavAudio, targetView){
+		var c = addAudioContainerToTargetView(targetView);
+		var audioEle = document.createElement("audio");
+		audioEle.src = window.URL.createObjectURL((wavAudio.constructor.name == "Blob")? wavAudio : (new Blob([wavAudio], { type: "audio/wav" })));
+		audioEle.setAttribute("controls", "controls");
+		var audioBox = document.createElement("div");
+		audioBox.appendChild(audioEle);
+		c.appendChild(audioBox);
+	}
+	function addAudioContainerToTargetView(targetView){
+		if (!targetView) targetView = "chat";
+		//inner container
+		var container = document.createElement("div");
+		container.className = "sepiaFW-audio-container";
+		//outer card
+		var cardElement = Cards.buildCardContainer(true, true);
+		cardElement.classList.add("sepia-audio-card");
+		cardElement.appendChild(container);
+		//add
+		var resultView = SepiaFW.ui.getResultViewByName(targetView);
+		SepiaFW.ui.addDataToResultView(resultView, cardElement);
+		return container;
+	}
 	
 	return Cards;
 }

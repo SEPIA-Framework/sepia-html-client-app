@@ -270,7 +270,7 @@ function sepiaFW_build_wake_triggers() {
 		}else{
 			//check requirements
 			if (!WakeTriggers.engineLoaded || !WakeTriggers.engineModule){
-				//TODO: what if we killed it on purpose?
+				//TODO: what if we killed it on purpose? Automatically recreate?
 				var msg = "Missing engine module or engine not ready (yet?).";
 				logInfo('ERROR: ' + msg, true);
 				if (onErrorCallback) onErrorCallback({name: "WakeTriggerError", message: msg});
@@ -278,7 +278,10 @@ function sepiaFW_build_wake_triggers() {
 			}
 			if (!SepiaFW.audioRecorder.existsWebAudioRecorder()){
 				logInfo('CREATING wake-Word listener...');
-				SepiaFW.audioRecorder.createWebAudioRecorder({}, function(sepiaWebAudioProcessor, info){
+				SepiaFW.audioRecorder.createWebAudioRecorder({
+					wakeWordModule: WakeTriggers.engineModule,		//NOTE: we could leave this empty to use default (same atm.)
+					//speechRecognitionModule: ...
+				}, function(sepiaWebAudioProcessor, info){
 					WakeTriggers.listenToWakeWords(onSuccessCallback, onErrorCallback, doDelayAndCheck);
 				}, function(err){
 					//'onProcessorInitError'
@@ -289,8 +292,8 @@ function sepiaFW_build_wake_triggers() {
 					//'onProcessorRuntimeError' (with return false/true to stop recorder on error)
 					if (onErrorCallback){
 						onErrorCallback(err);
-						return true;
 					}
+					return true;
 				});
 				return;
 			}

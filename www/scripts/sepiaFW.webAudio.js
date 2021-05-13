@@ -443,6 +443,21 @@ function sepiaFW_build_web_audio(){
 					}
 					thisProcessNode.moduleType = moduleType;
 					thisProcessNode.ignoreSendToModules = false;	//this is most useful for workers to prevent serialization if message is not processed anyway
+					thisProcessNode.deactivate = function(){
+						thisProcessNode.ignoreSendToModules = true;		//prevent all other modules to send messages to this one
+						if (isProcessing){
+							//stop and reset if processor is running
+							thisProcessNode.sendToModule({ctrl: {action: "stop"}});
+							thisProcessNode.sendToModule({ctrl: {action: "reset"}});
+						}
+					}
+					thisProcessNode.activate = function(){
+						thisProcessNode.ignoreSendToModules = false;
+						if (isProcessing){
+							//start if processor is already running
+							thisProcessNode.sendToModule({ctrl: {action: "start"}});
+						}
+					}
 					module.handle = thisProcessNode;
 					
 					//adapt module to first non-worklet source?

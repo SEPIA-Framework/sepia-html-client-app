@@ -379,6 +379,16 @@
 	padding: 5px;
 }
 
+/* --- Audio File --- */
+
+.sepiaFW-cards-flexSize-container.sepia-audio-card {
+	margin-bottom: 10px;
+}
+.sepiaFW-cards-flexSize-container .sepiaFW-audio-container audio {
+	width: calc(100% - 10px);
+	margin: 5px;
+}
+
 /* --- Time events --- */
 
 .sepiaFW-cards-list-body .timeEvent {
