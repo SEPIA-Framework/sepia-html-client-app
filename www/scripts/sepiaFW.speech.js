@@ -85,7 +85,7 @@ function sepiaFW_build_speech(){
 			if (Speech.isWebKitAsrSupported){
 				asrEngine = 'native';
 			}else if (Speech.isWebSocketAsrSupported){
-				asrEngine = 'socket';
+				asrEngine = 'sepia';	//'socket' (legacy) or 'sepia' ?
 			}
 		}
 		if (asrEngine){
@@ -119,8 +119,10 @@ function sepiaFW_build_speech(){
 			engineNames["native"] = "Native";
 		}
 		if (Speech.isWebSocketAsrSupported){
+			engines.push("sepia");
+			engineNames["sepia"] = "SEPIA (Socket v2)";
 			engines.push("socket");
-			engineNames["socket"] = "Custom (WebSocket)";
+			engineNames["socket"] = "Custom (Socket v1)";
 		}
 		engines.forEach(function(engine){
 			var option = document.createElement('option');
@@ -145,10 +147,20 @@ function sepiaFW_build_speech(){
 		}
 		return sttSelector;
 	}
+
+	function newRecognizer(){
+		//TODO: check engine
+		if (SepiaFW.ui.isCordova){
+			return new SpeechRecognition();
+		}else{
+			return new webkitSpeechRecognition();
+		}
+	}
 	
 	var recognition = null;
 	if (Speech.isWebKitAsrSupported){
-		recognition = (SepiaFW.ui.isCordova)? (new SpeechRecognition()) : (new webkitSpeechRecognition());
+		//keep ready
+		recognition = newRecognizer();
 	}
 	var	isRecognizing = false;					
 	var recognizerWaitingForResult = false;
@@ -239,7 +251,7 @@ function sepiaFW_build_speech(){
 		}
 		if (Speech.isHtmlTtsSupported){
 			voiceEngines.push("sepia");
-			voiceEngineNames["sepia"] = "Custom (Stream)";
+			voiceEngineNames["sepia"] = "SEPIA (Stream)";
 		}
 		voiceEngines.forEach(function(engine){
 			var option = document.createElement('option');
@@ -449,14 +461,9 @@ function sepiaFW_build_speech(){
 		}
 	}
 	//start continous speech recognition - submit callbacks
-	//UNDER DEVELOPMENT - this method is not working properly yet
+	//UNDER CONSTRUCTION - this method is not implemented yet
 	Speech.toggleContinousRecognition = function (callback_final, callback_interim, error_callback, log_callback){
-		if (isRecognizing){
-			Speech.stopRecognition();
-		}else{
-			var quit_on_final_result = false;
-			recognizeSpeech(callback_final, callback_interim, error_callback, log_callback, quit_on_final_result);
-		}
+		//TODO: TBD
 	}
 
 	//start speech recognition or do nothing
@@ -473,7 +480,7 @@ function sepiaFW_build_speech(){
 				var quit_on_final_result = true;
 				recognizeSpeech(callback_final, callback_interim, error_callback, log_callback, quit_on_final_result);
 			
-			}else if (Speech.asrEngine == "socket"){
+			}else if (Speech.asrEngine == "socket" || Speech.asrEngine == "sepia"){
 				//WEBSOCKET ASR
 				SepiaFW.speechWebSocket.startRecording(callback_final, callback_interim, error_callback, log_callback, quit_on_final_result);
 			}
@@ -487,7 +494,7 @@ function sepiaFW_build_speech(){
 			asrAutoStop = false;
 			stopSpeechRecognition();
 		
-		}else if (Speech.asrEngine == "socket"){
+		}else if (Speech.asrEngine == "socket" || Speech.asrEngine == "sepia"){
 			//WEBSOCKET ASR
 			SepiaFW.speechWebSocket.stopRecording();
 		}
@@ -501,7 +508,7 @@ function sepiaFW_build_speech(){
 			asrAutoStop = false;
 			stopSpeechRecognition();
 		
-		}else if (Speech.asrEngine == "socket"){
+		}else if (Speech.asrEngine == "socket" || Speech.asrEngine == "sepia"){
 			//WEBSOCKET ASR
 			SepiaFW.speechWebSocket.abortRecording();
 		}
@@ -515,11 +522,13 @@ function sepiaFW_build_speech(){
 		isSpeaking = false;
 		recognizerWaitingForResult = false;
 		isRecognizing = false;
+		if (recognition && recognition.clearWaitTimeoutAndIgnoreEnd){
+			recognition.clearWaitTimeoutAndIgnoreEnd();
+		}
 		if (Speech.asrEngine == "native"){
-			if (recognition.clearWaitTimeoutAndIgnoreEnd){
-				recognition.clearWaitTimeoutAndIgnoreEnd();
-			}
-			recognition = (SepiaFW.ui.isCordova)? (new SpeechRecognition()) : (new webkitSpeechRecognition());
+			recognition = newRecognizer();
+		}else{
+			//TODO: add socket reset?
 		}
 	}
 
@@ -599,37 +608,40 @@ function sepiaFW_build_speech(){
 			wait_timestamp = 0;
 			clearTimeout(waitTimeout);
 			clearTimeout(onAudioEndSafetyTimer);
-			recognition = (SepiaFW.ui.isCordova)? (new SpeechRecognition()) : (new webkitSpeechRecognition());
-			//TODO: add more?
+			recognition = newRecognizer();
 		}
 
 		if (!Speech.isAsrSupported){
 			//Error: no ASR service
 			broadcastNoAsrSupport();
-			before_error(error_callback, "E00 - Speech recognition not supported by your client :-( (Chrome usually works well).");
+			before_error(error_callback, "E00 - Speech recognition not supported by your client :-(");
 		
 		}else{
-			if (!recognition) recognition = (SepiaFW.ui.isCordova)? (new SpeechRecognition()) : (new webkitSpeechRecognition());
-			if (SepiaFW.ui.isChrome) recognition.continuous = true;
-			//NOTE: causes errors in Edge, but may improve performance in Chrome - try to use this and abort manually, "quit_on_final_result" will handle
+			if (!recognition){
+				recognition = newRecognizer();
+			}
+			if (SepiaFW.ui.isChrome){
+				recognition.continuous = true;
+				//NOTE: causes errors in Edge, but may improve performance in Chrome - try to use this and abort manually, "quit_on_final_result" will handle
+			}
 			
-			//workaround till bugfix comes ...
+			//workaround till bugfix comes ... (TODO: is it fixed now?)
 			if (SepiaFW.ui.isAndroid && !SepiaFW.ui.isCordova){
-				//before_error(error_callback, "E05 - Limited browser support for ASR :-(");
 				if (!showedAsrLimitInfo){
 					SepiaFW.ui.showInfo("Note: This device might have limited support for speech recognition. Interim results will be deactivated.", false, "", true);
 					SepiaFW.debug.log("ASR: Limited support? Deactivated interim results for Android without Cordova.");
 					showedAsrLimitInfo = true;
 				}
-				recognition.continuous = false;		//TODO: use?
+				//"safe" mode:
+				recognition.continuous = false;
 				recognition.interimResults = false;
 			
 			}else if (SepiaFW.ui.isCordova){
-				//we trust that native app can handle it (or will ignore the flag)
+				//we trust that the native app can handle it (or will ignore the flag)
 				recognition.interimResults = true;
 			
 			}else{
-				//Edge is still buggy
+				//TODO: Edge is still buggy and Safari crashes a lot when other audio is used as well :-/
 				if (SepiaFW.ui.isEdge || SepiaFW.ui.isSafari){
 					if (!showedAsrLimitInfo){
 						SepiaFW.ui.showInfo("Note: Speech recognition on this device is still experimental. Expect random bugs ^^.", false, "", true);
@@ -722,7 +734,7 @@ function sepiaFW_build_speech(){
 				//severe errors
 				}else if (event.error == 'audio-capture' || event.error == 3 || event.error == 5){
 					broadcastWrongAsrSettings();
-					before_error(error_callback, 'E02 - no microphone found!');
+					before_error(error_callback, 'E02 - no microphone found or problem with audio-capture interface!');
 				
 				}else if (event.error == 'not-allowed' || event.error == 9){
 					broadcastWrongAsrSettings();
@@ -910,6 +922,7 @@ function sepiaFW_build_speech(){
 	
 	//remove double-reco text (its a mobile-chrome bug)
 	function mobileChromeFix(text){
+		//TODO: still required?
 		if (SepiaFW.ui.isAndroid && (text.length > 0) && (text.length % 2 == 0)){
 			var index = (text.length/2);
 			var firstHalf = text.substr(0, index);
@@ -1170,7 +1183,7 @@ function sepiaFW_build_speech(){
 			onTtsStart(undefined, startedCallback, errorCallback);
 			TTS.speak({
 				text: text,
-				locale: getLongLanguageCode(Speech.getLanguage()),
+				locale: Speech.getLongLanguageCode(Speech.getLanguage()),
 				rate: 1.00
 				
 			}, function () {
@@ -1189,7 +1202,7 @@ function sepiaFW_build_speech(){
 			window.sepia_tts_utterances = []; 		//This is a bug-fix to prevent utterance from getting garbage collected
 			var utterance = new SpeechSynthesisUtterance();
 			utterance.text = text;
-			utterance.lang = getLongLanguageCode(Speech.getLanguage());
+			utterance.lang = Speech.getLongLanguageCode(Speech.getLanguage());
 			//set voice if valid one was selected
 			if (selectedVoiceObject && selectedVoiceObject.name) utterance.voice = selectedVoiceObject;
 			utterance.pitch = 1.0;  	//accepted values: 0-2 inclusive, default value: 1

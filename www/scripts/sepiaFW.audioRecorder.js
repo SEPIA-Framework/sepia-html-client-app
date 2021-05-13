@@ -37,7 +37,7 @@ function sepiaFW_build_audio_recorder(){
 	var sepiaWebAudioProcessor;
 
 	var activeAudioModules = [];
-	var activeAudioModuleCapabilities = {};		//e.g.: resample, wakeWordDetection, vad, waveEncoding, volume
+	var activeAudioModuleCapabilities = {};		//e.g.: resample, wakeWordDetection, vad, waveEncoding, volume, speechRecognition
 	AudioRecorder.webAudioHasCapability = function(testCap){
 		return !!activeAudioModuleCapabilities[testCap];
 	}
@@ -293,6 +293,25 @@ function sepiaFW_build_audio_recorder(){
 			//add wwd to resampler output
 			resampler.settings.sendToModules.push(wakeWordDetectorIndex);
 			activeAudioModuleCapabilities.wakeWordDetection = true;
+		}
+
+		//--- SpeechRecognition
+		var speechRecModule;
+		var speechRecModuleIndex;
+		if (options.speechRecognitionModule != undefined){
+			//add custom module
+			speechRecModule = options.speechRecognitionModule;
+		}else if ((SepiaFW.speech.asrEngine == "socket" || SepiaFW.speech.asrEngine == "sepia") 
+				&& SepiaFW.speechWebSocket.recognitionModule){
+			//integrated module
+			speechRecModule = SepiaFW.speechWebSocket.recognitionModule;
+		}
+		if (speechRecModule){
+			activeAudioModules.push(speechRecModule);
+			speechRecModuleIndex = activeAudioModules.length;
+			//add asr to resampler output
+			resampler.settings.sendToModules.push(speechRecModuleIndex);
+			activeAudioModuleCapabilities.speechRecognition = true;
 		}
 
 		//--- WaveEncoder
