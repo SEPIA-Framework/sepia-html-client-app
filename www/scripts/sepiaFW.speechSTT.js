@@ -27,12 +27,14 @@ function sepiaFW_build_speech_stt(Speech){
 		return Speech.asrEngine;
 	}
 	Speech.setAsrEngine = function(asrEngine, asrEngineInfo){
+		if (recognition) recognition = null;	//make sure this is reloaded later
+
 		if (asrEngine == 'native'){
 			if (!Speech.isWebKitAsrSupported){
 				SepiaFW.debug.err("ASR: Tried to set native ASR engine but it is not supported by this client!");
 				asrEngine = "";
 			}
-		}else if (asrEngine == 'socket'){
+		}else if (asrEngine == 'socket' || asrEngine == 'sepia'){
 			if (!Speech.isWebSocketAsrSupported){
 				SepiaFW.debug.err("ASR: Tried to set (SEPIA compatible) socket ASR engine but it is not supported by this client!");
 				asrEngine = "";
@@ -110,20 +112,27 @@ function sepiaFW_build_speech_stt(Speech){
 		return sttSelector;
 	}
 
-	function newRecognizer(){
-		//TODO: check engine
-		if (SepiaFW.ui.isCordova){
-			return new SpeechRecognition();
-		}else{
-			return new webkitSpeechRecognition();
+	//create recognizer for right engine
+	function newRecognizer(event){
+		//check engine
+		if (Speech.asrEngine == "native"){
+			//TODO: check event: onprepare, onstart, onreset
+			if (SepiaFW.ui.isCordova){
+				//CORDOVA PLUGINS (e.g. Android recognizer)
+				return new SpeechRecognition();
+			}else{
+				//WEB SPEECH API
+				return new webkitSpeechRecognition();
+			}
+		}else if (Speech.asrEngine == "sepia" || Speech.asrEngine == "socket"){
+			//TODO: check event: onprepare, onstart, onreset
+			return SepiaFW.speechWebSocket.getRecognizer();
 		}
 	}
 	
 	var recognition = null;
-	if (Speech.isWebKitAsrSupported){
-		//keep ready
-		recognition = newRecognizer();
-	}
+	//TODO: introduce some "onprepare" event after Speech is fully loaded?
+	
 	var	isRecognizing = false;					
 	var recognizerWaitingForResult = false;
 	var showedAsrLimitInfo = false;
@@ -223,6 +232,21 @@ function sepiaFW_build_speech_stt(Speech){
 		SepiaFW.ui.showInfo(msg);
 		Speech.dispatchSpeechEvent("asr_error", msg);
 	}
+
+	//TODO: use
+	function broadcastMissingServerInfo(){
+		//EXAMPLE: 
+		SepiaFW.animate.assistant.idle('asrMissingServer');
+		SepiaFW.ui.showInfo("ASR - " + SepiaFW.local.g('asrMissingServer'));
+		Speech.dispatchSpeechEvent("asr_error", "missing server info");
+	}
+	function broadcastConnectionError(){
+		//EXAMPLE: 
+		SepiaFW.animate.assistant.idle('noConnectionToServer');
+		SepiaFW.ui.showInfo("ASR - " + SepiaFW.local.g('noConnectionToServer'));
+		Speech.dispatchSpeechEvent("asr_error", "no connection to server");
+	}
+
 	function broadcastUnknownAsrError(err){
 		var msg = SepiaFW.local.g('asrOtherError') + " Error: '" + (err || "unknown") + "'";
 		SepiaFW.ui.showInfo(msg);
@@ -277,43 +301,25 @@ function sepiaFW_build_speech_stt(Speech){
 			error_callback("E00 - Speech recognition not supported by your client :-(");
 		}
 		if (!isRecognizing){
-			if (Speech.asrEngine == "native"){
-				//WEB SPEECH KIT
-				var quit_on_final_result = true;
-				recognizeSpeech(callback_final, callback_interim, error_callback, log_callback, quit_on_final_result);
-			
-			}else if (Speech.asrEngine == "socket" || Speech.asrEngine == "sepia"){
-				//WEBSOCKET ASR
-				SepiaFW.speechWebSocket.startRecording(callback_final, callback_interim, error_callback, log_callback, quit_on_final_result);
-			}
+			//ALL ENGINES
+			var quit_on_final_result = true;
+			recognizeSpeech(callback_final, callback_interim, error_callback, log_callback, quit_on_final_result);
 		}
 	}
 	//stop speech recognition
 	Speech.stopRecognition = function(){
-		if (Speech.asrEngine == "native"){
-			//WEB SPEECH KIT
-			broadcastRequestedAsrStop();
-			asrAutoStop = false;
-			stopSpeechRecognition();
-		
-		}else if (Speech.asrEngine == "socket" || Speech.asrEngine == "sepia"){
-			//WEBSOCKET ASR
-			SepiaFW.speechWebSocket.stopRecording();
-		}
+		//ALL ENGINES
+		broadcastRequestedAsrStop();
+		asrAutoStop = false;
+		stopSpeechRecognition();
 	}
 	//abort speech recognition
 	Speech.abortRecognition = function(){
-		if (Speech.asrEngine == "native"){
-			//WEB SPEECH KIT
-			abortRecognition = true;
-			broadcastRequestedAsrStop();
-			asrAutoStop = false;
-			stopSpeechRecognition();
-		
-		}else if (Speech.asrEngine == "socket" || Speech.asrEngine == "sepia"){
-			//WEBSOCKET ASR
-			SepiaFW.speechWebSocket.abortRecording();
-		}
+		//ALL ENGINES
+		abortRecognition = true;
+		broadcastRequestedAsrStop();
+		asrAutoStop = false;
+		stopSpeechRecognition();
 	}
 	
 	//reset all states of speech STT
@@ -325,11 +331,7 @@ function sepiaFW_build_speech_stt(Speech){
 		if (recognition && recognition.clearWaitTimeoutAndIgnoreEnd){
 			recognition.clearWaitTimeoutAndIgnoreEnd();
 		}
-		if (Speech.asrEngine == "native"){
-			recognition = newRecognizer();
-		}else{
-			//TODO: add socket reset?
-		}
+		recognition = newRecognizer("onreset");
 	}
 
 	//some implementations have there own trigger confirmation sound
@@ -408,7 +410,7 @@ function sepiaFW_build_speech_stt(Speech){
 			wait_timestamp = 0;
 			clearTimeout(waitTimeout);
 			clearTimeout(onAudioEndSafetyTimer);
-			recognition = newRecognizer();
+			recognition = newRecognizer("onreset");
 		}
 
 		if (!Speech.isAsrSupported){
@@ -418,7 +420,7 @@ function sepiaFW_build_speech_stt(Speech){
 		
 		}else{
 			if (!recognition){
-				recognition = newRecognizer();
+				recognition = newRecognizer("onstart");
 			}
 			if (SepiaFW.ui.isChrome){
 				recognition.continuous = true;
@@ -456,7 +458,7 @@ function sepiaFW_build_speech_stt(Speech){
 			}			
 			
 			//ON START
-			recognition.onstart = function(event) {
+			recognition.onstart = function(event){
 				if (!event) event = {};
 				if (!event.timeStamp) event.timeStamp = new Date().getTime();
 				isRecognizing = true;
@@ -476,19 +478,20 @@ function sepiaFW_build_speech_stt(Speech){
 			};
 			//other start events tbd
 			/*
-			recognition.onspeechstart = function() {
+			recognition.onspeechstart = function(){
 				console.error("onspeechstart"); 		//DEBUG
 			}
-			recognition.onaudiostart = function(e) {
+			recognition.onaudiostart = function(e){
 				console.error("onaudiostart", e); 		//DEBUG
 			}
-			recognition.onsoundstart = function() {
+			recognition.onsoundstart = function(){
 				console.error("onsoundstart"); 			//DEBUG
 			}
 			*/
 			
 			//ON MY ABORT
-			recognition.onmyabort = function(event) {
+			recognition.onmyabort = function(event){
+				//NOTE: this is a custom method
 				if (!event) event = {};
 				if (!event.timeStamp) event.timeStamp = new Date().getTime();
 				quit_on_final_result = true;
@@ -500,12 +503,13 @@ function sepiaFW_build_speech_stt(Speech){
 				recognition.stop();			//TODO: currently on Edge this will break successive calls of 'recognition.abort'
 			};
 			recognition.clearWaitTimeoutAndIgnoreEnd = function(){
+				//NOTE: this is a custom method
 				clearTimeout(waitTimeout);
 				ignore_onend = true;
 			}
 			
 			//ON ERROR
-			recognition.onerror = function(event) {
+			recognition.onerror = function(event){
 				//reset recognizer
 				resetsOnUnexpectedEnd();
 				onErrorWasAlreadyCalled = true;
@@ -525,7 +529,7 @@ function sepiaFW_build_speech_stt(Speech){
 				//INFO - Android error codes: https://developer.android.com/reference/android/speech/SpeechRecognizer
 				
 				//light errors
-				if (event.error == 'no-speech' || event.error == 1 || event.error == 2 || event.error == 4 || event.error == 6 || event.error == 7 || event.error == 8){
+				if (event.error == 'no-speech' || event.error == 4 || event.error == 6 || event.error == 7 || event.error == 8){
 					before_error(error_callback, 'E01 - no speech detected!');
 					if (!quit_on_final_result){	
 						restart_anyway = true;
@@ -543,7 +547,16 @@ function sepiaFW_build_speech_stt(Speech){
 					} else {
 						before_error(error_callback, 'E03 - Permission to use microphone was denied!'); //<br>To change that plz go to chrome://settings/contentExceptions#media-stream');
 					}
-				
+
+				//connection or connection settings
+				}else if (event.error == 'network' || event.error == 1 || event.error == 2){
+					if (event.sepiaCode && event.sepiaCode == 1){
+						broadcastMissingServerInfo();
+						before_error(error_callback, event.message || 'E00 - no server for speech recognition defined!');
+					}else{
+						broadcastConnectionError();
+						before_error(error_callback, event.message || 'E04 - network problem or connection issues!');
+					}
 				}else{
 					SepiaFW.debug.err('ASR: '+ (event.error? event.error : 'unknown ERROR!'), event);
 					//TODO: do something here!
@@ -556,17 +569,17 @@ function sepiaFW_build_speech_stt(Speech){
 			
 			//ON END
 			/*
-			recognition.onnomatch = function(e) {
+			recognition.onnomatch = function(e){	//TODO: if this exists we should redirect to error, maybe "no-speech"
 				console.error("onnomatch", e); 		//DEBUG
 			}
-			recognition.onsoundend = function() {
+			recognition.onsoundend = function(){
 				console.error("onsoundend"); 		//DEBUG
 			}
-			recognition.onspeechend = function() {
+			recognition.onspeechend = function(){
 				console.error("onspeechend"); 		//DEBUG
 			}
 			*/
-			recognition.onaudioend = function(e) {
+			recognition.onaudioend = function(e){
 				//console.error("onaudioend", e); 			//DEBUG
 				onAudioEndSafetyTimer = setTimeout(function(){
 					if (recognizerWaitingForResult && recognition.onend){
@@ -577,7 +590,7 @@ function sepiaFW_build_speech_stt(Speech){
 					}
 				}, onAudioEndSafetyTime);
 			}
-			recognition.onend = function(e) {
+			recognition.onend = function(e){
 				//console.error("onend", e); 				//DEBUG - TODO: this will not fire reliably on Edge
 				clearTimeout(onAudioEndSafetyTimer);
 				onEndWasAlreadyCalled = true;
@@ -642,9 +655,10 @@ function sepiaFW_build_speech_stt(Speech){
 			};
 
 			//ON (PARTIAL) RESULT
-			recognition.onpartialresult = function(event) {
+			recognition.onpartialresult = function(event){
+				//NOTE: this is a non-standard method
 				resultWasNeverCalled = false;
-				var iosPlugin = (typeof event.results == "undefined") ? true : false;
+				var iosPlugin = (typeof event.results == "undefined") ? true : false;	//TODO: move or remove
 				if (iosPlugin && event.message){
 					//rebuild as default result
 					var item = { transcript:event.message, final:false };
@@ -656,10 +670,10 @@ function sepiaFW_build_speech_stt(Speech){
 				}
 				recognition.onresult(event);
 			}
-			recognition.onresult = function(event) {
+			recognition.onresult = function(event){
 				if (!event) event = {};
 				resultWasNeverCalled = false;
-				var iosPlugin = (typeof event.results == "undefined")? true : false;
+				var iosPlugin = (typeof event.results == "undefined")? true : false;	//TODO: move or remove
 				if (iosPlugin && event.message){
 					//rebuild as default result
 					var item = { transcript:event.message, final:true };
