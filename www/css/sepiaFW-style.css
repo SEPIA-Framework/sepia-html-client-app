@@ -164,7 +164,9 @@ body.limit-size {
 	padding: 0px;
 	width: 100vw;
 	height: 100vh;
-	user-select: none;
+	-webkit-user-select: none;
+  	-ms-user-select: none;
+  	user-select: none;
 	pointer-events: none;
 	overflow: hidden;
 	z-index: 99;
@@ -222,7 +224,9 @@ body.limit-size {
 	border-radius: 100px;
 	background: rgba(0, 0, 0, 0.25);
 	z-index: 99;
-	user-select: none;
+	-webkit-user-select: none;
+  	-ms-user-select: none;
+  	user-select: none;
 }
 .sepiaFW-long-press-indicator.grow {
 	display: block;
@@ -1046,7 +1050,9 @@ html.dark-skin #sepiaFW-login-help-btn {
 	cursor: not-allowed;
 }
 .sepiaFW-toggle-btn .on {
-	user-select: none;
+	-webkit-user-select: none;
+  	-ms-user-select: none;
+  	user-select: none;
     pointer-events: none;
 	background: rgba(0, 255, 0, 0.55);
 	border-radius: 3px;
@@ -1058,7 +1064,9 @@ html.dark-skin #sepiaFW-login-help-btn {
 	float: right;
 }
 .sepiaFW-toggle-btn .off {
-	user-select: none;
+	-webkit-user-select: none;
+  	-ms-user-select: none;
+  	user-select: none;
     pointer-events: none;
 	background: rgba(72, 72, 72, 0.25);
 	border-radius: 3px;
@@ -1756,7 +1764,9 @@ html.dark-skin #sepiaFW-login-help-btn {
 	border-radius: 3px 0 0 3px;
 	min-width: 45px;
 	padding: 5px;
-	user-select: none;
+	-webkit-user-select: none;
+  	-ms-user-select: none;
+  	user-select: none;
 	cursor: pointer;
 }
 #sepiaFW-chat-controls-speech-box-bubble {
@@ -2062,7 +2072,9 @@ body.big-screen #sepiaFW-chat-output .chatMsg {
 }
 #sepiaFW-my-view.disabled {
 	pointer-events: none;
-	user-select: none;
+	-webkit-user-select: none;
+  	-ms-user-select: none;
+  	user-select: none;
 }
 .sepiaFW-my-view-section {
 	width: calc(100% + 10px);

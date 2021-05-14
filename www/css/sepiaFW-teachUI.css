@@ -164,7 +164,9 @@
 }
 #sepiaFW-teachUI-manager .sepiaFW-command-card span {
 	flex: 0 0 auto;
-	user-select: none;
+	-webkit-user-select: none;
+  	-ms-user-select: none;
+  	user-select: none;
 }
 
 .sepiaFW-teachUI-menu-group ul {

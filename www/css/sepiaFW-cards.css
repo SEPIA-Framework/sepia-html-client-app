@@ -252,7 +252,9 @@
 	width: 44px;
     /*border-right: 3px solid #e5e5e5;*/
 	margin: 0px 3px 0px 5px;
-	user-select: none;
+	-webkit-user-select: none;
+  	-ms-user-select: none;
+  	user-select: none;
 	cursor: pointer;
 }
 .sepiaFW-cards-list-body .listElement .listCenter {
@@ -274,7 +276,9 @@
 	background: #d2d2dd;
 	color: #fff;
 	margin: 0px 5px 0px 3px;
-	user-select: none;
+	-webkit-user-select: none;
+  	-ms-user-select: none;
+  	user-select: none;
 	cursor: pointer;
 }
 .sepiaFW-notouch-device .sepiaFW-cards-list-body .listElement .listRight:hover {	
@@ -353,7 +357,9 @@
     justify-content: center;
 	width: 50px;
 	margin: 5px 0px 0px 5px;
-	user-select: none;
+	-webkit-user-select: none;
+  	-ms-user-select: none;
+  	user-select: none;
 	cursor: pointer;
 	padding: 5px;
 }
@@ -374,7 +380,9 @@
     justify-content: center;
 	width: 50px;
 	margin: 5px 5px 0px 0px;
-	user-select: none;
+	-webkit-user-select: none;
+  	-ms-user-select: none;
+  	user-select: none;
 	cursor: pointer;
 	padding: 5px;
 }
@@ -407,7 +415,9 @@
     justify-content: center;
 	width: 50px;
 	margin: 5px 0px 0px 5px;
-	user-select: none;
+	-webkit-user-select: none;
+  	-ms-user-select: none;
+  	user-select: none;
 	cursor: pointer;
 	padding: 5px;
 }
@@ -449,7 +459,9 @@
     justify-content: center;
 	width: 50px;
 	margin: 5px 5px 0px 0px;
-	user-select: none;
+	-webkit-user-select: none;
+  	-ms-user-select: none;
+  	user-select: none;
 	cursor: pointer;
 	padding: 5px;
 }
@@ -520,7 +532,9 @@
 	max-width: 65px;
 	margin: 5px 0px 0px 5px;
 	padding: 5px;
-	user-select: none;
+	-webkit-user-select: none;
+  	-ms-user-select: none;
+  	user-select: none;
 	cursor: pointer;
 	text-align: center;
 	background: #2f3035;
@@ -646,7 +660,9 @@
 	max-width: 60px;
 	margin: 5px 5px 0px 5px;
 	padding: 0px;
-	user-select: none;
+	-webkit-user-select: none;
+  	-ms-user-select: none;
+  	user-select: none;
 	cursor: pointer;
 	text-align: center;
 	/*background: transparent;*/
@@ -691,7 +707,9 @@
 	max-width: 50px;
 	min-width: 50px;
 	margin: 5px 5px 0px 5px;
-	user-select: none;
+	-webkit-user-select: none;
+  	-ms-user-select: none;
+  	user-select: none;
 	cursor: pointer;
 }
 .sepiaFW-cards-list-body .linkCard .linkCardRight a {
