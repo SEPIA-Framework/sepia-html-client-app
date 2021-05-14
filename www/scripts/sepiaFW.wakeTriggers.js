@@ -121,6 +121,9 @@ function sepiaFW_build_wake_triggers() {
 		}
 	}
 
+	//re-build last module
+	var rebuildPreviousSepiaWebAudioModule = undefined; 	//will be available after first module creation
+
 	//build SEPIA Web Audio module for Porcupine
 	function buildPorcupineSepiaWebAudioModule(porcupineVersion, wasmFile, keywordsArray, keywordsData, sensitivities){
 		var porcupineWorker = {
@@ -159,8 +162,13 @@ function sepiaFW_build_wake_triggers() {
 		logInfo('CREATED SEPIA Web Audio Picovoice module');
 		logInfo('inputSampleRate: ' + porcupineWorker.settings.options.setup.inputSampleRate);
 		logInfo('inputSampleSize: ' + porcupineWorker.settings.options.setup.inputSampleSize);
+		
+		rebuildPreviousSepiaWebAudioModule = function(){
+			return buildPorcupineSepiaWebAudioModule(porcupineVersion, wasmFile, keywordsArray, keywordsData, sensitivities);
+		}
 		return porcupineWorker;
 	}
+
 	//open/close wake-word module gate
 	function setWakeWordModuleGateState(state){
 		if (!WakeTriggers.engineModule) return;
@@ -248,7 +256,8 @@ function sepiaFW_build_wake_triggers() {
 		}
 	}
 	
-	WakeTriggers.listenToWakeWords = function(onSuccessCallback, onErrorCallback, doDelayAndCheck){
+	WakeTriggers.listenToWakeWords = function(onSuccessCallback, onErrorCallback, doDelayAndCheck, triedToRecreate){
+		if (triedToRecreate == undefined) triedToRecreate = 0;
 		if (isListening){
 			if (onSuccessCallback) onSuccessCallback();		//TODO: use success or error or none?
 			return;
@@ -256,7 +265,7 @@ function sepiaFW_build_wake_triggers() {
 		if (doDelayAndCheck){
 			if (switchOnWakeWordTimer) clearTimeout(switchOnWakeWordTimer);
 			//set delay time depending on device type
-			var switchOnWakeWordTimerDelay = (SepiaFW.ui.isMobile)? 3000 : 1500;
+			var switchOnWakeWordTimerDelay = (SepiaFW.ui.isMobile)? 3000 : 1500;	//wait 1.5s-3s before auto-start
 			switchOnWakeWordTimer = setTimeout(function(){
 				var isAudioStreamActive = SepiaFW.audio.isAnyAudioSourceActive();
 				//console.error("Audio playing? " + isAudioStreamActive);		//DEBUG
@@ -264,25 +273,30 @@ function sepiaFW_build_wake_triggers() {
 					return;
 				}else if (WakeTriggers.useWakeWord && WakeTriggers.engineLoaded && !WakeTriggers.isListening() && (SepiaFW.animate.assistant.getState() == "idle")){
 					//call without delay NOW
-					WakeTriggers.listenToWakeWords(onSuccessCallback, onErrorCallback, false);
+					WakeTriggers.listenToWakeWords(onSuccessCallback, onErrorCallback, false, triedToRecreate);
 				}
 			}, switchOnWakeWordTimerDelay);
 		}else{
 			//check requirements
-			if (!WakeTriggers.engineLoaded || !WakeTriggers.engineModule){
-				//TODO: what if we killed it on purpose? Automatically recreate?
-				var msg = "Missing engine module or engine not ready (yet?).";
+			if (!WakeTriggers.engineLoaded || (!WakeTriggers.engineModule && typeof rebuildPreviousSepiaWebAudioModule != "function")){
+				var msg = "Engine not loaded (yet?).";
 				logInfo('ERROR: ' + msg, true);
 				if (onErrorCallback) onErrorCallback({name: "WakeTriggerError", message: msg});
 				return;
 			}
-			if (!SepiaFW.audioRecorder.existsWebAudioRecorder()){
-				logInfo('CREATING wake-Word listener...');
+			if (!WakeTriggers.engineModule){
+				//re-build module
+				logInfo('RE-BUILDING Wake-Word module...');
+				WakeTriggers.engineModule = rebuildPreviousSepiaWebAudioModule();
+			}
+			if (!SepiaFW.audioRecorder.existsWebAudioRecorder() && triedToRecreate <= 3){
+				logInfo('CREATING Wake-Word listener...');
+				triedToRecreate++;
 				SepiaFW.audioRecorder.createWebAudioRecorder({
 					wakeWordModule: WakeTriggers.engineModule,		//NOTE: we could leave this empty to use default (same atm.)
 					//speechRecognitionModule: ...
 				}, function(sepiaWebAudioProcessor, info){
-					WakeTriggers.listenToWakeWords(onSuccessCallback, onErrorCallback, doDelayAndCheck);
+					WakeTriggers.listenToWakeWords(onSuccessCallback, onErrorCallback, doDelayAndCheck, triedToRecreate);
 				}, function(err){
 					//'onProcessorInitError'
 					if (onErrorCallback){
@@ -298,17 +312,25 @@ function sepiaFW_build_wake_triggers() {
 				return;
 			}
 			if (!SepiaFW.audioRecorder.webAudioHasCapability("wakeWordDetection")){
-				//TODO: release old and make new recorder
-				var msg = "Active processor is missing capability 'wakeWordDetection'. Consider release + new create.";
-				logInfo('ERROR: ' + msg, true);
-				if (onErrorCallback) onErrorCallback({name: "WebAudioCapabilityError", message: msg});
-				return;
+				if (triedToRecreate <= 3){
+					SepiaFW.audioRecorder.stopAndReleaseIfActive(function(){
+						triedToRecreate++;
+						WakeTriggers.listenToWakeWords(onSuccessCallback, onErrorCallback, doDelayAndCheck, triedToRecreate);
+					});
+					return;
+				}else{
+					//TODO: release old and make new recorder
+					var msg = "Active processor is missing capability 'wakeWordDetection'. Consider manual release + new create.";
+					logInfo('ERROR: ' + msg, true);
+					if (onErrorCallback) onErrorCallback({name: "WebAudioCapabilityError", message: msg});
+					return;
+				}
 			}
 			//START
 			SepiaFW.debug.info('Starting wake-word listener ...'); 		//DEBUG
-			logInfo('STARTING wake-Word listener...');
+			logInfo('STARTING Wake-Word listener...');
 			SepiaFW.audioRecorder.startWebAudioRecorder(function(){
-				logInfo('STARTED wake-Word listener');
+				logInfo('STARTED Wake-Word listener');
 				setWakeWordModuleGateState("open");
 				isStopping = false;
 				isListening = true;
@@ -328,7 +350,7 @@ function sepiaFW_build_wake_triggers() {
 		isStopping = true;
 		SepiaFW.debug.info('Stopping wake-word listener ...'); 		//DEBUG
 		SepiaFW.audioRecorder.stopWebAudioRecorder(function(){
-			logInfo('STOPPED wake-Word listener');
+			logInfo('STOPPED Wake-Word listener');
 			setWakeWordModuleGateState("close");
 			isStopping = false;
 			isListening = false;
@@ -345,10 +367,21 @@ function sepiaFW_build_wake_triggers() {
 		WakeTriggers.stopListeningToWakeWords(function(){
 			//release the recorder
 			SepiaFW.audioRecorder.releaseWebAudioRecorder(function(){
-				WakeTriggers.engineLoaded = false;
 				WakeTriggers.engineModule = undefined;
 				if (onFinishCallback) onFinishCallback();
 			}, undefined, onErrorCallback); //NOTE: we ignore the noopCallback atm but listen to 'sepia_web_audio_recorder' events
+		}, onErrorCallback);
+	}
+
+	WakeTriggers.unloadEngine = function(onFinishCallback, onErrorCallback){
+		if (!WakeTriggers.engineLoaded){
+			if (onFinishCallback) onFinishCallback();
+			return;
+		}
+		WakeTriggers.releaseWakeWordEngine(function(){
+			WakeTriggers.engineLoaded = false;
+			//TODO: do a better clean up?
+			if (onFinishCallback) onFinishCallback();
 		}, onErrorCallback);
 	}
 
@@ -362,7 +395,6 @@ function sepiaFW_build_wake_triggers() {
 			isStopping = false;
 			isListening = false;
 			SepiaFW.animate.wakeWord.inactive();
-			WakeTriggers.engineLoaded = false;
 			WakeTriggers.engineModule = undefined;
 
 		}else if (data.event == "audioend" && isListening && !isStopping){

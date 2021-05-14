@@ -61,8 +61,8 @@ function sepiaFW_build_wake_word_settings() {
         SepiaFW.wakeTriggers.stopListeningToWakeWords(function(){
             WakeWordSettings.debugLog("Stopped listening to wake-words.");
             isListening = false;
-            SepiaFW.wakeTriggers.releaseWakeWordEngine(function(){
-                //release
+            SepiaFW.wakeTriggers.unloadEngine(function(){
+                //unloaded
                 $('#sepiaFW-wake-word-toggle').html("LOAD");
                 $('#sepiaFW-wake-word-engine-reset').hide(150);
             }, function(err){

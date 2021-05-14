@@ -269,7 +269,7 @@ function sepiaFW_build_speechWebSocket_v2(){
 			SpeechRecognition.recognitionModule = buildWebSocketAsrModule();
 			
 			SepiaFW.audioRecorder.createWebAudioRecorder({
-				wakeWordModule: false,								//TODO: block default ww module ... for now
+				wakeWordModule: false,								//TODO: allow default ww module?
 				speechRecognitionModule: SpeechRecognition.recognitionModule
 				//onResamplerMessage: function(msg){}				//NOTE: can be used to check volume
 			}, function(audioProcessor, info){
