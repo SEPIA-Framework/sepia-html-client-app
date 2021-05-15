@@ -34,6 +34,9 @@ function sepiaFW_build_audio(sepiaSessionId){
 	var doInitAudio = true;			//workaround to activate scripted audio on touch devices
 	var audioOnEndFired = false;	//state: prevent doublefireing of audio onend onpause
 
+	//Media Session Interface (see below for events)
+	var isMediaSessionSupported = 'mediaSession' in navigator;
+
 	//Media Devices Options
 	AudioPlayer.mediaDevicesSelected = {
 		mic: { "value": "", "name": "Default" },
@@ -255,6 +258,51 @@ function sepiaFW_build_audio(sepiaSessionId){
 	var orgVolume = 1.0;
 	var FADE_OUT_VOL = 0.05; 	//note: on some devices audio is actually stopped so this value does not apply
 
+	//MediaSession Interface
+	if (isMediaSessionSupported){
+		navigator.mediaSession.setActionHandler('play', function(){ 
+			//console.log("MediaSession - play");		//DEBUG
+			SepiaFW.client.controls.media({
+				action: "resume"
+			});
+		});
+  		navigator.mediaSession.setActionHandler('pause', function(){ 
+			//console.log("MediaSession - pause");		//DEBUG
+			SepiaFW.client.controls.media({
+				action: "stop"
+			});
+		});
+  		navigator.mediaSession.setActionHandler('stop', function() { 
+			//console.log("MediaSession - stop");		//DEBUG
+			SepiaFW.client.controls.media({
+				action: "stop"
+			});
+		});
+	}
+	function setMediaSessionState(state){
+		if (isMediaSessionSupported && ["none", "paused", "playing"].indexOf(state) >= 0){
+			navigator.mediaSession.playbackState = state;
+		}
+	}
+	function setMediaSessionMetaData(title, artist, album, artwork){
+		if (isMediaSessionSupported){
+			var defaultArtworkBaseUrl = SepiaFW.config.getAppRootUrl() + "img/";
+			var defaultArtwork = [
+				{ src: defaultArtworkBaseUrl + "icon-96.png", sizes: '96x96', type: 'image/png' },
+				{ src: defaultArtworkBaseUrl + "icon.png", sizes: '192x192', type: 'image/png' },
+				{ src: defaultArtworkBaseUrl + "icon-512.png", sizes: '512x512', type: 'image/png' }
+				//{ src: defaultArtworkBaseUrl + "ui/sepia.svg", sizes: '256x256', type: 'image/svg' }
+			];
+			navigator.mediaSession.metadata = new MediaMetadata({
+				title: title || "Unknown",
+				artist: artist || "SEPIA Stream",
+				album: album || undefined,
+				artwork: artwork || defaultArtwork
+			});
+			//example states: title, artist, album, artwork
+		}
+	}
+
 	//---- broadcasting -----
 
 	AudioPlayer.broadcastAudioEvent = function(source, action, playerObject){
@@ -274,24 +322,30 @@ function sepiaFW_build_audio(sepiaSessionId){
 		//console.error("audio event: " + source + " - " + action);
 	}
 	
+	//NOTE: this is for the stream player only
 	function broadcastAudioRequested(){
-		//EXAMPLE: 
 		if (audioTitle) audioTitle.textContent = 'Loading ...';
 	}
 	function broadcastAudioFinished(){
-		//EXAMPLE: 
 		SepiaFW.animate.audio.playerIdle();
 		if (audioTitle.innerHTML === "Loading ...") audioTitle.textContent = "Stopped";
+		//send event for OS:
+		setMediaSessionState("paused");
+		setMediaSessionMetaData(player.title, "SEPIA Stream");
 	}
 	function broadcastAudioStarted(){
-		//EXAMPLE: 
 		if (audioTitle) audioTitle.textContent = player.title;
 		SepiaFW.animate.audio.playerActive();
+		//send event for OS:
+		setMediaSessionState("playing");
+		setMediaSessionMetaData(player.title, "SEPIA Stream");
 	}
 	function broadcastAudioError(){
-		//EXAMPLE: 
 		if (audioTitle) audioTitle.textContent = 'Error';
 		SepiaFW.animate.audio.playerIdle();
+		//send event for OS:
+		setMediaSessionState("none");
+		setMediaSessionMetaData(player.title, "SEPIA Stream");
 	}
 	function broadcastPlayerVolumeSet(){
 	}
@@ -817,7 +871,7 @@ function sepiaFW_build_audio(sepiaSessionId){
 	AudioPlayer.setPlayerTitle = function(newTitle, audioPlayer){
 		if (!audioPlayer) audioPlayer = player;
 		audioPlayer.title = newTitle;
-		if (audioTitle) audioTitle.textContent = newTitle || "SepiaFW audio player";
+		if (audioTitle) audioTitle.textContent = newTitle || "SEPIA Audio Player";
 		if (audioPlayer == player){
 			lastAudioStreamTitle = newTitle;
 		}
