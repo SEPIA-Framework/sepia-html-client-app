@@ -1,0 +1,52 @@
+#sepiaFW-alwaysOn-avatar .avatar-eye.left {
+    left: 12%;
+}
+#sepiaFW-alwaysOn-avatar .avatar-eye.right {
+    right: 12%;
+}
+
+#sepiaFW-alwaysOn-avatar .avatar-activity {
+    border-radius: 0;
+    left: calc(50% - 13px);
+    width: 26px;
+    height: 24px;
+}
+
+#sepiaFW-alwaysOn-avatar::after {
+    content: "";
+    pointer-events: none;
+    position: absolute;
+    background: url(../img/avatars/pixel_glasses_white.svg);
+    background-size: 100%;
+    background-repeat: no-repeat;
+    width: 100%;
+    height: 50%;
+    top: 18%;
+    transition: top 0.3s;
+    left: 0;
+    z-index: 1000;
+    animation: avatar-check-glasses 30s infinite linear;
+    /*animation-fill-mode: forwards;*/
+}
+#sepiaFW-alwaysOn-avatar.sleep::after {
+    animation: avatar-glasses-sleep 40s infinite linear;
+}
+#sepiaFW-alwaysOn-avatar.listening::after,
+#sepiaFW-alwaysOn-avatar.speaking::after {
+    top: 18% !important;
+}
+
+@keyframes avatar-check-glasses {
+	0% {	top: 18%;	}
+	65% {	top: 18%;	}
+    70% {	top: 27%;	}
+    78% {	top: 27%;	}
+	83% {   top: 18%;	}
+}
+@keyframes avatar-glasses-sleep {
+    0% {   top: 18%;	}
+	10% {   top: 18%;	}
+    18% {   top: 27%;	}
+    52% {   top: 26%;	}
+    55% {   top: 18%;	}
+}
