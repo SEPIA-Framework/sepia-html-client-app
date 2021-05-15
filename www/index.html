@@ -716,8 +716,12 @@
 		//NOTE: calls 'appSetup()' via index.js
 
 	}else{
+		//skip service worker? Some clients don't really like it ^^
+		if (!!window.location.href.match(/(&|\?)(noSW|noPWA)=true(&|$)/)){
+			SepiaFW.debug.log("Service Worker: Skipped via 'noSW' or 'noPWA' URL param.");
+
 		//register service worker in non-Cordova app ONLY ... for now
-		if('serviceWorker' in navigator){
+		}else if('serviceWorker' in navigator){
 			var scope = location.pathname.replace(/(.*\/).*?\.html$/, "$1");
 			navigator.serviceWorker
 				.register(scope + 'sw.js', {scope: scope}) 		//we may revert this back to simply "./sw.js"

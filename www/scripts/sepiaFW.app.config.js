@@ -41,6 +41,10 @@ function sepiaFW_build_config(){
 	Config.getDeviceId = function(){
 		return deviceId;
 	}
+	//get app root
+	Config.getAppRootUrl = function(){
+		return (location.origin + location.pathname.replace(/\/index.html.*/, "/")).trim();
+	}
 	//set hostname
 	Config.setHostName = function(hostName, skipReload){
 		if (hostName != undefined){

@@ -1,3 +1,8 @@
+
+#sepiaFW-asC 	{ background-color: #ff7b00; }    /* accent color */
+/* #sepiaFW-navC 	{ background-color: #000; } */ 	/* navigation bar color */
+/* #sepiaFW-statC 	{ background-color: #000; } */ 	/* status bar color */
+
 #sepiaFW-login-box {
     border-image: linear-gradient( to bottom, #ffc107, #f45636 );
     border-image-slice: 1;
