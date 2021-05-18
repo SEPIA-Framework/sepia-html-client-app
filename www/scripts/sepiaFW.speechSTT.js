@@ -444,10 +444,10 @@ function sepiaFW_build_speech_stt(Speech){
 			
 			}else{
 				//TODO: Edge is still buggy and Safari crashes a lot when other audio is used as well :-/
-				if (SepiaFW.ui.isEdge || SepiaFW.ui.isSafari){
+				if (Speech.asrEngine == "native" && (SepiaFW.ui.isEdge || SepiaFW.ui.isSafari)){
 					if (!showedAsrLimitInfo){
-						SepiaFW.ui.showInfo("Note: Speech recognition on this device is still experimental. Expect random bugs ^^.", false, "", true);
-						SepiaFW.debug.log("ASR: Experimental support for Microsoft Edge and Safari.");
+						SepiaFW.ui.showInfo("Note: Native speech recognition on this device is still experimental.", false, "", true);
+						SepiaFW.debug.log("ASR: Experimental Web Speech API support for Microsoft Edge and Safari.");
 						showedAsrLimitInfo = true;
 					}
 					recognition.continuous = false;

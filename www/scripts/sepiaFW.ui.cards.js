@@ -2140,7 +2140,7 @@ function sepiaFW_build_ui_cards(){
 		if (!targetView) targetView = "chat";
 		//inner container
 		var container = document.createElement("div");
-		container.className = "sepiaFW-audio-container";
+		container.className = "sepiaFW-cards-list-body sepiaFW-audio-container";
 		//outer card
 		var cardElement = Cards.buildCardContainer(true, true);
 		cardElement.classList.add("sepia-audio-card");

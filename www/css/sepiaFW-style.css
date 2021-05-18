@@ -905,11 +905,6 @@ html.dark-skin #sepiaFW-login-help-btn {
 	margin: 8px;
 	border-bottom: 0;
 }
-#sepiaFW-menu-ui-refresh-box {
-    display: inline-block;
-	max-width: 300px;
-	font-size: 14px;
-}
 #sepiaFW-chat-menu-head {
 	-webkit-flex: 0 1 auto;
 		-ms-flex: 0 1 auto;
@@ -962,9 +957,13 @@ html.dark-skin #sepiaFW-login-help-btn {
     background: linear-gradient(to right, rgba(0,0,0,0) 0%,rgba(155,155,155,0.5) 40%,rgba(155,155,155,0.5) 60%,rgba(0,0,0,0) 100%);
 }
 #sepiaFW-chat-menu-info {
-	opacity: 0.5;
-	margin: 16px;
-	font-size: 14px;
+	opacity: 0.66;
+    margin: 10px 8px;
+    font-size: 14px;
+    border: 1px solid currentColor;
+    padding: 2px;
+    border-radius: 3px;
+    cursor: pointer;
 }
 #sepiaFW-by-Florian-Quirin {
 	display: block;
@@ -996,6 +995,35 @@ html.dark-skin #sepiaFW-login-help-btn {
 	min-height: 38px;
     margin: 2px 0;
 }
+#sepiaFW-chat-menu li.spacer {
+	background: transparent !important;
+    height: 8px !important;
+    padding: 0 !important;
+    min-height: unset !important;
+}
+#sepiaFW-chat-menu li.info-box {
+	font-size: 14px;
+	background: transparent !important;
+}
+#sepiaFW-chat-menu li.flex {
+	display: flex;
+    justify-content: space-around;
+    align-items: center;
+    flex-wrap: wrap;
+}
+#sepiaFW-chat-menu li.flex > span {
+	flex: 3 1 auto;
+    padding: 4px 4px 4px 0 !important;
+    text-align: left;
+}
+#sepiaFW-chat-menu li.flex > div {
+	display: inline-flex;
+    justify-content: center;
+    flex: 1 1 auto;
+}
+#sepiaFW-chat-menu li.flex > div > button {
+    flex: 1 1 auto;
+}
 .sepiaFW-menu-settings-list li {
 	font-size: 17px;
 	padding: 5px 8px !important;
@@ -1024,8 +1052,8 @@ html.dark-skin #sepiaFW-login-help-btn {
 	float: right;
 	margin: 0;
 	margin-left: 4px;
-	height: 28px;
-	padding: 0px 10px;
+	min-height: 28px;
+	padding: 2px 10px;
 	display: flex;
     justify-content: center;
     align-items: center;

@@ -392,9 +392,12 @@
 .sepiaFW-cards-flexSize-container.sepia-audio-card {
 	margin-bottom: 10px;
 }
+.sepiaFW-cards-flexSize-container .sepiaFW-audio-container > div {
+	display: flex;
+}
 .sepiaFW-cards-flexSize-container .sepiaFW-audio-container audio {
 	width: calc(100% - 10px);
-	margin: 5px;
+	margin: 5px 5px 0 5px;
 }
 
 /* --- Time events --- */

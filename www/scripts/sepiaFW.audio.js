@@ -64,7 +64,7 @@ function sepiaFW_build_audio(sepiaSessionId){
 			if (didTimeout){
 				return;
 			}
-			navigator.mediaDevices.enumerateDevices()
+			navigator.mediaDevices.enumerateDevices()	//TODO: as soon as browser support is ok use: navigator.permissions.query(...)
 			.then(function(devices){
 				devices.forEach(function(device){
 					//console.log(device.kind + ": " + device.label + " id = " + device.deviceId);
