@@ -708,35 +708,58 @@
 	}
 	
 	//SETUP via browser or cordova
-	if (isCordova){
-		document.write(unescape(
-			'%3Cscript src="cordova.js"%3E%3C/script%3E'+
-			'%3Cscript src="js/index.js"%3E%3C/script%3E'
-		));
-		//NOTE: calls 'appSetup()' via index.js
+	function appStart(){
+		if (isCordova){
+			document.write(unescape(
+				'%3Cscript src="cordova.js"%3E%3C/script%3E'+
+				'%3Cscript src="js/index.js"%3E%3C/script%3E'
+			));
+			//NOTE: calls 'appSetup()' via index.js
 
-	}else{
-		//skip service worker? Some clients don't really like it ^^
-		if (!!window.location.href.match(/(&|\?)(noSW|noPWA)=true(&|$)/)){
-			SepiaFW.debug.log("Service Worker: Skipped via 'noSW' or 'noPWA' URL param.");
-
-		//register service worker in non-Cordova app ONLY ... for now
-		}else if('serviceWorker' in navigator){
-			var scope = location.pathname.replace(/(.*\/).*?\.html$/, "$1");
-			navigator.serviceWorker
-				.register(scope + 'sw.js', {scope: scope}) 		//we may revert this back to simply "./sw.js"
-				.then(function(){ 
-					SepiaFW.debug.log('Service Worker: Registered for scope: ' + scope);
-				}, function(err){
-					SepiaFW.debug.error('Service Worker: Failed to register for scope: ' + scope, err);
-				});
 		}else{
-			SepiaFW.debug.log('Service Worker: Not available');
-		}
+			//register service worker in non-Cordova app ONLY if pwa=true ... for now
+			var noSW = !!window.location.href.match(/(&|\?)(noSW)=true(&|$)/);
+			var pwa = !!window.location.href.match(/(&|\?)(pwa)=true(&|$)/);
+			if('serviceWorker' in navigator){
+				//skip service worker? Some clients don't really like it
+				if (pwa && noSW){
+					SepiaFW.debug.log("Service Worker: Skipped via 'noSW=true' URL param.");
+				}else if (pwa){
+					var scope = location.pathname.replace(/(.*\/).*?\.html$/, "$1");
+					navigator.serviceWorker
+						.register(scope + 'sw.js', {scope: scope}) 		//we may revert this back to simply "./sw.js"
+						.then(function(registration){ 
+							SepiaFW.debug.log('Service Worker: Registered for scope: ' + scope);
+							window.sepiaClientSwRegistration = registration;
+						}, function(err){
+							SepiaFW.debug.error('Service Worker: Failed to register for scope: ' + scope, err);
+						});
+				}else{
+					SepiaFW.debug.log("Service Worker: Not enabled (you can use 'pwa=true' URL param.)");
+				}
+				//we still check if a worker exists
+				navigator.serviceWorker.ready.then(function(registration){
+					if (!window.sepiaClientSwRegistration && !pwa){
+						SepiaFW.debug.log('Service Worker: Registered after initial skip (or was never closed).');
+						window.sepiaClientSwRegistration = registration;
+					}
+					if (noSW){
+						SepiaFW.debug.error("Service Worker: Trying to unregister existing SW to comply with 'noSW' param.");
+						registration.unregister().then(function(boolean){
+							SepiaFW.debug.log('Service Worker: Unregistered!');
+						});
+					}
+				});
+			}else{
+				SepiaFW.debug.log('Service Worker: Not available');
+			}
 
-		//call setup
-		appSetup();		//NOTE: supports additional 'readyCallback'
+			//call setup
+			appSetup();		//NOTE: supports additional 'readyCallback'
+		}
 	}
+	appStart();
+
 </script>
 <!-- Resources for later -->
 <script src="css/googleMaterialIcons.js"></script> <!-- glyph table for icons -->

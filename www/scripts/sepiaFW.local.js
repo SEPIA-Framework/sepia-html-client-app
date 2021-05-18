@@ -20,8 +20,8 @@ function sepiaFW_build_strings(){
 	StringsDE.general = 'Allgemein';
 	StringsDE.sendLogin = 'Login';
 	StringsDE.sign_out = 'Abmelden';
-	StringsDE.sign_out_all = 'Alle Apps abmelden';
-	StringsDE.apps_admin = 'Apps verwalten';
+	StringsDE.sign_out_all = 'Alle abmelden';
+	StringsDE.apps_admin = 'Verwalten';
 	StringsDE.account = 'Account';
 	StringsDE.addresses = 'Adressen';
 	StringsDE.contacts = 'Kontakte';
@@ -33,7 +33,7 @@ function sepiaFW_build_strings(){
 	StringsDE.info_and_help = 'Infos und Support';
 	StringsDE.control_hub = 'Control HUB';
 	StringsDE.tutorial = 'Tutorial';
-	StringsDE.change_account_password = "Account Passwort ändern";
+	StringsDE.change_account_password = "Passwort ändern";
 	StringsDE.channels = "Kanäle";
 	StringsDE.active_users = "Aktive User";
 	StringsDE.edit_chat_channels = "Kanäle bearbeiten";
@@ -119,9 +119,10 @@ function sepiaFW_build_strings(){
 	StringsDE.history = 'Verlauf';
 	StringsDE.newMessages = 'Neue Nachrichten';
 	StringsDE.reload = 'Neu laden';
-	StringsDE.refreshUI = 'Interface neu laden';
-	StringsDE.refreshUI_info = 'Um Änderungen, die hier gemacht wurden zu <u>sehen</u> muss das Interface neu geladen werden';
-	StringsDE.newSepiaWindow = 'Neues SEPIA Fenster';
+	StringsDE.newWindow = 'Neues Fenster';
+	StringsDE.mySepiaClients = 'My Clients';
+	StringsDE.reloadApp = 'Neustart';
+	StringsDE.reloadAppInfo = 'Änderungen, die hier gemacht wurden sollten durch einen Neustart bestätigt werden';
 	StringsDE.lastUpdate = 'Zuletzt aktualisiert';
 	StringsDE.recommendationsFor = 'Empfehlungen für';
 	StringsDE.forNewcomers = 'Für Neuankömmlinge';
@@ -224,8 +225,8 @@ function sepiaFW_build_strings(){
 	StringsEN.general = 'General';
 	StringsEN.sendLogin = 'Login';
 	StringsEN.sign_out = 'Sign out';
-	StringsEN.sign_out_all = 'Sign out all apps';
-	StringsEN.apps_admin = 'Manage apps';
+	StringsEN.sign_out_all = 'Sign out all';
+	StringsEN.apps_admin = 'Manage';
 	StringsEN.account = 'Account';
 	StringsEN.addresses = 'Addresses';
 	StringsEN.contacts = 'Contacts';
@@ -237,7 +238,7 @@ function sepiaFW_build_strings(){
 	StringsEN.info_and_help = 'Info and support';
 	StringsEN.control_hub = 'Control HUB';
 	StringsEN.tutorial = 'Tutorial';
-	StringsEN.change_account_password = "Change account password";
+	StringsEN.change_account_password = "Change password";
 	StringsEN.channels = "Channels";
 	StringsEN.active_users = "Active Users";
 	StringsEN.edit_chat_channels = "Edit Channels";
@@ -323,9 +324,10 @@ function sepiaFW_build_strings(){
 	StringsEN.history = 'History';
 	StringsEN.newMessages = "New messages";
 	StringsEN.reload = 'Reload';
-	StringsEN.refreshUI = 'Refresh interface';
-	StringsEN.refreshUI_info = 'To <u>see</u> changes you made here you need to refresh the interface';
-	StringsEN.newSepiaWindow = 'New SEPIA window';
+	StringsEN.newWindow = 'New window';
+	StringsEN.mySepiaClients = 'Meine Clients';
+	StringsEN.reloadApp = 'Reload app';
+	StringsEN.reloadAppInfo = 'Changes you made here should be confirmed via a reload of the app';
 	StringsEN.lastUpdate = 'Last update';
 	StringsEN.recommendationsFor = 'Recommendations for';
 	StringsEN.forNewcomers = 'For newcomers';

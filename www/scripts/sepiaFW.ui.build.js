@@ -651,19 +651,21 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 					+ "<li id='sepiaFW-menu-select-search-engine-li' title='Select preferred search engine for search intents.'>"
 						+ "<span>Default search engine: </span></li>"
 					+ "<li id='sepiaFW-menu-clear-app-cache-li'><span>Clear app data: </span></li>"
+					+ "<li class='spacer'></li>"
 					+ "<li id='sepiaFW-menu-experimental-settings-li'><span>Experimental settings </span></li>"
 						+ "<li class='sepiaFW-menu-experimental'><span><u>Note: Changes will not be permanent</u></span></li>"
 						+ "<li id='sepiaFW-menu-select-stt-language-li' class='sepiaFW-menu-experimental'><span>ASR country </span></li>"
 						+ "<li id='sepiaFW-menu-toggle-youtube-wp-li' class='sepiaFW-menu-experimental'><span>YouTube embedded </span></li>"
 						+ "<li id='sepiaFW-menu-toggle-spotify-wp-li' class='sepiaFW-menu-experimental'><span>Spotify embedded </span></li>"
 						+ "<li id='sepiaFW-menu-toggle-apple-music-wp-li' class='sepiaFW-menu-experimental'><span>Apple Music embedded </span></li>"
-					+ "<li id='sepiaFW-menu-administration-li'>"
+					+ "<li id='sepiaFW-menu-administration-li' class='info-box'>"
 						+ "<button id='sepiaFW-menu-ui-dataprivacy-btn'>" + SepiaFW.local.g('data_privacy') + "</button>"
 						+ "<button id='sepiaFW-menu-ui-license-btn'>" + SepiaFW.local.g('license') + "</button>"
 						+ "<button id='sepiaFW-menu-ui-credits-btn'>" + SepiaFW.local.g('credits') + "</button>"
 					+ "</li>"
 					+ "<p id='sepiaFW-chat-menu-info'>"
-						+ "client: " + SepiaFW.config.clientInfo.replace(/_/g, " ") + " - " + SepiaFW.config.appLanguage + " - " + (SepiaFW.ui.isMobile? "m" : "d") + (SepiaFW.ui.isCordova? "-c" : "")
+						+ '<i class="material-icons md-txt" style="float: left;">info</i>'
+						+ SepiaFW.tools.sanitizeHtml(SepiaFW.config.clientInfo.replace(/_/g, " ") + " - " + SepiaFW.config.appLanguage + " - " + (SepiaFW.ui.isMobile? "m" : "d") + (SepiaFW.ui.isCordova? "-c" : ""))
 					+ "</p>"
 					//+ "<p>" + navigator.userAgent + "</p>"
 				+ "</ul>";
@@ -676,26 +678,36 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 					+ "<li id='sepiaFW-menu-account-language-li'><span>" + SepiaFW.local.g('language') + ": </span></li>"
 					+ "<li id='sepiaFW-menu-account-nickname-li'><span>" + SepiaFW.local.g('nickname') + ": </span><input id='sepiaFW-menu-account-nickname' type='text' maxlength='24'></li>"
 					+ "<li id='sepiaFW-menu-account-preftempunit-li'><span>" + SepiaFW.local.g('preferred_temp_unit') + ": </span></li>"
-					+ "<li id='sepiaFW-menu-store-load-app-settings-li'>"
+					+ "<li class='spacer'></li>"
+					+ "<li id='sepiaFW-menu-store-load-app-settings-li' class='flex'>"
 						+ "<span>App settings: </span>"
-						+ "<button id='sepiaFW-menu-load-app-settings-btn' class='sepiaFW-button-inline'>" + SepiaFW.local.g('load') + "</button>"
-						+ "<button id='sepiaFW-menu-store-app-settings-btn' class='sepiaFW-button-inline'>" + SepiaFW.local.g('save') + "</button>"
-						//TODO: add delete button
-					+ "</li>"
-					+ "<li id='sepiaFW-menu-account-signoutall-li'>"
-						+ "<button id='sepiaFW-menu-ui-signoutall-btn'>" + SepiaFW.local.g('sign_out_all') + "</button>"
-						+ "<button id='sepiaFW-menu-ui-admin-tools-btn'>" + SepiaFW.local.g('apps_admin') + "</button>"
-					+ "</li>"
-					+ "<li id='sepiaFW-menu-account-pwd-reset-li'>"
-						+ "<button id='sepiaFW-menu-account-pwd-reset-btn'>" + SepiaFW.local.g('change_account_password') + "</button>"
-					+ "</li>"
-					+ "<div id='sepiaFW-menu-ui-refresh-box'>"
-						+ "<p id='sepiaFW-menu-ui-refresh-info'>" + SepiaFW.local.g('refreshUI_info') + ":</p>"
-						+ "<div style='display:flex; justify-content:center;'>"
-							+ "<button id='sepiaFW-menu-ui-refresh-btn'>" + SepiaFW.local.g('refreshUI') + "</button>"
-							+ "<button id='sepiaFW-menu-ui-new-sepia-popup-btn'>" + SepiaFW.local.g('newSepiaWindow') + "</button>"
+						+ "<div>"
+							+ "<button id='sepiaFW-menu-load-app-settings-btn' class='sepiaFW-button-inline'>" + SepiaFW.local.g('load') + "</button>"
+							+ "<button id='sepiaFW-menu-store-app-settings-btn' class='sepiaFW-button-inline'>" + SepiaFW.local.g('save') + "</button>"
+							//TODO: add delete button
 						+ "</div>"
-					+ "</div>"
+					+ "</li>"
+					+ "<li class='spacer'></li>"
+					+ "<li id='sepiaFW-menu-account-signoutall-li' class='flex'>"
+						+ "<span>" + SepiaFW.local.g('mySepiaClients') + ":</span>"
+						+ "<div>"
+							+ "<button id='sepiaFW-menu-ui-signoutall-btn' class='sepiaFW-button-inline'>" + SepiaFW.local.g('sign_out_all') + "</button>"
+							+ "<button id='sepiaFW-menu-ui-admin-tools-btn' class='sepiaFW-button-inline'>" + SepiaFW.local.g('apps_admin') + "</button>"
+						+ "</div>"
+					+ "</li>"
+					+ "<li id='sepiaFW-menu-account-pwd-reset-li' class='flex'>"
+						+ "<span>Account:</span>"
+						+ "<div>"
+							+ "<button id='sepiaFW-menu-account-pwd-reset-btn' class='sepiaFW-button-inline'>" + SepiaFW.local.g('change_account_password') + "</button>"
+						+ "</div>"
+					+ "</li>"
+					+ "<li id='sepiaFW-menu-ui-refresh-box' class='info-box'>"
+						+ "<p id='sepiaFW-menu-ui-refresh-info'>" + SepiaFW.local.g('reloadAppInfo') + ":</p>"
+						+ "<div style='display:flex; justify-content:center;'>"
+							+ "<button id='sepiaFW-menu-ui-refresh-btn'>" + SepiaFW.local.g('reloadApp') + "</button>"
+							+ "<button id='sepiaFW-menu-ui-new-sepia-popup-btn'>" + SepiaFW.local.g('newWindow') + "</button>"
+						+ "</div>"
+					+ "</li>"
 				+ "</ul>";
 			centerCarouselPane.appendChild(centerPage3);
 			var centerPage4 = document.createElement('DIV');
@@ -1085,70 +1097,6 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 					SepiaFW.debug.info("Proactive notes are deactivated");
 				}, SepiaFW.assistant.isProActive)
 			);
-			//show/hide experimental settings
-			document.getElementById('sepiaFW-menu-experimental-settings-li').appendChild(Build.inlineActionButton('sepiaFW-menu-experimental-settings', "Toggle",
-				function(btn){
-					$('.sepiaFW-menu-experimental').toggle(300);
-				}
-			));
-			//ASR (STT) voice input language
-			document.getElementById('sepiaFW-menu-select-stt-language-li').appendChild(Build.optionSelector('sepiaFW-menu-select-stt-language', 
-				SepiaFW.local.getExperimentalAsrLanguages(), 
-				"", 
-				function(ele){
-					SepiaFW.speech.setCountryCode(ele.value);
-				}
-			));
-			//Toggle embedded web-players
-			document.getElementById('sepiaFW-menu-toggle-youtube-wp-li').appendChild(Build.toggleButton('sepiaFW-menu-toggle-youtube-wp', 
-				function(){
-					SepiaFW.ui.cards.canEmbedYouTube = true;
-				},function(){
-					SepiaFW.ui.cards.canEmbedYouTube = false;
-				}, SepiaFW.ui.cards.canEmbedYouTube)
-			);
-			document.getElementById('sepiaFW-menu-toggle-spotify-wp-li').appendChild(Build.toggleButton('sepiaFW-menu-toggle-spotify-wp', 
-				function(){
-					SepiaFW.ui.cards.canEmbedSpotify = true;
-				},function(){
-					SepiaFW.ui.cards.canEmbedSpotify = false;
-				}, SepiaFW.ui.cards.canEmbedSpotify)
-			);
-			document.getElementById('sepiaFW-menu-toggle-apple-music-wp-li').appendChild(Build.toggleButton('sepiaFW-menu-toggle-apple-music-wp', 
-				function(){
-					SepiaFW.ui.cards.canEmbedAppleMusic = true;
-				},function(){
-					SepiaFW.ui.cards.canEmbedAppleMusic = false;
-				}, SepiaFW.ui.cards.canEmbedAppleMusic)
-			);
-			//delete app cache
-			document.getElementById('sepiaFW-menu-clear-app-cache-li').appendChild(Build.inlineActionButton('sepiaFW-menu-clear-app-cache', "Clear",
-				function(btn){
-					var config = {
-						buttonOneName : SepiaFW.local.g('reload'),
-						buttonOneAction : function(){ setTimeout(function(){ window.location.reload(); }, 1000); }
-					};
-					var keepPermanent = true;
-					var localDataStatus = "---";
-					SepiaFW.data.clearAppCache(function(status){
-						//Success
-						//clear all other data except permanent (e.g. host-name and device ID)
-						var keepPermanent = true;
-						localDataStatus = SepiaFW.data.clearAll(keepPermanent, function(){
-							//delayed call
-							SepiaFW.ui.showPopup((localDataStatus + " " + status), config);
-						});
-					}, function(status) {
-						//Error
-						//clear all other data except permanent (e.g. host-name and device ID)
-						var keepPermanent = true;
-						localDataStatus = SepiaFW.data.clearAll(keepPermanent, function(){
-							//delayed call
-							SepiaFW.ui.showPopup((localDataStatus + " " + status), config);
-						});
-					});
-				}
-			));
 			//toggle channel messages
 			document.getElementById('sepiaFW-menu-toggle-channelMessages-li').appendChild(Build.toggleButton('sepiaFW-menu-toggle-channelMessages', 
 				function(){
@@ -1270,6 +1218,133 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 					})
 				);
 			}
+			//delete app cache
+			document.getElementById('sepiaFW-menu-clear-app-cache-li').appendChild(Build.inlineActionButton('sepiaFW-menu-clear-app-cache', "Clear",
+				function(btn){
+					var config = {
+						buttonOneName : SepiaFW.local.g('reload'),
+						buttonOneAction : function(){ setTimeout(function(){ window.location.reload(); }, 1000); }
+					};
+					var keepPermanent = true;
+					var localDataStatus = "---";
+					SepiaFW.data.clearAppCache(function(status){
+						//Success
+						//clear all other data except permanent (e.g. host-name and device ID)
+						var keepPermanent = true;
+						localDataStatus = SepiaFW.data.clearAll(keepPermanent, function(){
+							//delayed call
+							SepiaFW.ui.showPopup((localDataStatus + " " + status), config);
+						});
+					}, function(status) {
+						//Error
+						//clear all other data except permanent (e.g. host-name and device ID)
+						var keepPermanent = true;
+						localDataStatus = SepiaFW.data.clearAll(keepPermanent, function(){
+							//delayed call
+							SepiaFW.ui.showPopup((localDataStatus + " " + status), config);
+						});
+					});
+				}
+			));
+			//extended client info
+			$('#sepiaFW-chat-menu-info').on("click", function(){
+				var isStandalone = SepiaFW.ui.isStandaloneWebApp;
+				var swRegistration, swState;
+				if ('sepiaClientSwRegistration' in window){
+					swRegistration = window.sepiaClientSwRegistration;
+					swState = (swRegistration.active != undefined)? swRegistration.active.state : undefined;
+				}
+				var clientName = SepiaFW.config.clientInfo.replace(/_/g, " ").replace(SepiaFW.ui.version, "").trim();
+				var container = document.createElement("div");
+				container.className = "sepiaFW-client-info-popup";
+				var infoBox = document.createElement("div");
+				infoBox.innerHTML = ""
+					+ "<p><b>Clien Info</b></p>"
+					+ "<ul style='text-align: left;'>" 
+						+ "<li><b>Device Type:</b> " + (SepiaFW.ui.isMobile? "Mobile" : "Desktop") + "</li>"
+						+ "<li><b>Device Name:</b> " + (clientName) + "</li>"
+						+ "<li><b>Version:</b> " + (SepiaFW.ui.version) + "</li>"
+						+ "<li><b>App Type:</b> " + (isStandalone? "Standalone" : "Website") + "</li>"
+						+ "<li><b>Type Info:</b> " + (SepiaFW.ui.isCordova? "Cordova App" : (isStandalone? "Homescreen/Custom" : "-")) + "</li>"
+						+ "<li><b>Service Worker:</b> " + (swState) + "</li>"
+					+ "</ul>";
+				var debugBox = document.createElement("div");
+				debugBox.innerHTML = "<p><b>Debug Options:</b></p>";
+				debugBox.style.display = "flex";
+				debugBox.style.flexDirection = "column";
+				//reset SW
+				function resetSw(callBack){
+					if ('sepiaClientSwRegistration' in window){
+						window.sepiaClientSwRegistration.unregister().then(function(boolean){
+							if (callBack) callBack(boolean);
+						});
+					}else{
+						if (callBack) callBack(false);
+					}
+				}
+				var swDeactivateBtn = document.createElement("button");
+				swDeactivateBtn.innerHTML = "Disable service-worker and restart";
+				swDeactivateBtn.onclick = function(){
+					resetSw(function(boolean){
+						location.href = SepiaFW.tools.setParameterInURL(location.href, "noSW", true);
+					});
+				};
+				var swDefaultBtn = document.createElement("button");
+				swDefaultBtn.innerHTML = "Restore service-worker defaults";
+				swDefaultBtn.onclick = function(){
+					resetSw(function(boolean){
+						location.href = SepiaFW.tools.removeParameterFromURL(location.href, "noSW");
+					});
+				};
+				var pwaEnableBtn = document.createElement("button");
+				pwaEnableBtn.innerHTML = "Enable PWA mode and restart";
+				pwaEnableBtn.onclick = function(){
+					var nuUrl = SepiaFW.tools.removeParameterFromURL(location.href, "noSW");
+					location.href = SepiaFW.tools.setParameterInURL(nuUrl, "pwa", true);
+				};
+				container.appendChild(infoBox);
+				container.appendChild(debugBox);
+				debugBox.appendChild(swDeactivateBtn);
+				debugBox.appendChild(swDefaultBtn);
+				debugBox.appendChild(pwaEnableBtn);
+				SepiaFW.ui.showPopup(container);
+			});
+			//show/hide experimental settings
+			document.getElementById('sepiaFW-menu-experimental-settings-li').appendChild(Build.inlineActionButton('sepiaFW-menu-experimental-settings', "Toggle",
+				function(btn){
+					$('.sepiaFW-menu-experimental').toggle(300);
+				}
+			));
+			//ASR (STT) voice input language
+			document.getElementById('sepiaFW-menu-select-stt-language-li').appendChild(Build.optionSelector('sepiaFW-menu-select-stt-language', 
+				SepiaFW.local.getExperimentalAsrLanguages(), 
+				"", 
+				function(ele){
+					SepiaFW.speech.setCountryCode(ele.value);
+				}
+			));
+			//Embedded web-players
+			document.getElementById('sepiaFW-menu-toggle-youtube-wp-li').appendChild(Build.toggleButton('sepiaFW-menu-toggle-youtube-wp', 
+				function(){
+					SepiaFW.ui.cards.canEmbedYouTube = true;
+				},function(){
+					SepiaFW.ui.cards.canEmbedYouTube = false;
+				}, SepiaFW.ui.cards.canEmbedYouTube)
+			);
+			document.getElementById('sepiaFW-menu-toggle-spotify-wp-li').appendChild(Build.toggleButton('sepiaFW-menu-toggle-spotify-wp', 
+				function(){
+					SepiaFW.ui.cards.canEmbedSpotify = true;
+				},function(){
+					SepiaFW.ui.cards.canEmbedSpotify = false;
+				}, SepiaFW.ui.cards.canEmbedSpotify)
+			);
+			document.getElementById('sepiaFW-menu-toggle-apple-music-wp-li').appendChild(Build.toggleButton('sepiaFW-menu-toggle-apple-music-wp', 
+				function(){
+					SepiaFW.ui.cards.canEmbedAppleMusic = true;
+				},function(){
+					SepiaFW.ui.cards.canEmbedAppleMusic = false;
+				}, SepiaFW.ui.cards.canEmbedAppleMusic)
+			);
 			//Account-Language
 			document.getElementById("sepiaFW-menu-account-language-li").appendChild(SepiaFW.ui.build.languageSelector("sepiaFW-menu-account-language-dropdown", function(selectedLanguage){
 				//save
