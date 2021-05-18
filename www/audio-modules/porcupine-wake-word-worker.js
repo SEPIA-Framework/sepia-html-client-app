@@ -149,7 +149,7 @@ function constructWorker(options) {
 	//TODO: use 'options.setup.keywordsData'
 	sensitivities = options.setup.sensitivities || [0.5];
 	
-	var wasmFileArrayBuffer = options.preLoadResults.wasmFile;
+	var wasmFileArrayBuffer = options.preLoadResults.wasmFile || options.preLoadResults.wasmBase64;
 	var defaultWasmBinaryFile = "";		//don't change	
 	PorcupineBuilder(wasmFileArrayBuffer, defaultWasmBinaryFile, function(buildResult){
 		_Porcupine = buildResult;
@@ -214,6 +214,7 @@ function release(options){
 	//TODO: clean up worker and close
 	keywords = null;
 	sensitivities = null;
+	if (porcupine) porcupine.release();
 	porcupine = null;
 	_Porcupine = null;
 }
