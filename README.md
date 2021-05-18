@@ -42,7 +42,8 @@ You can modify the client configuration via several URL parameters:
 * `host` - SEPIA server host, e.g. IP address or domain + path
 * `lang` - Default language code for client (ISO code)
 * `isApp` - 'true' will change client to behave as if it was an app (not a website), e.g. login tokens will be valid for much longer etc.
-* `noSW` and `noPWA` - 'true' will disable the service-worker of the page. This might be useful to find issues related to blocked cookies etc.
+* `pwa` - 'true' will put the app in a PWA (progressive web app) compatible state by enabling the service-worker.
+* `noSW` - 'true' will force disable the service-worker of the page. This might be useful to find issues related to blocked cookies etc.
 * `isTiny` - 'true' will optimize the UI and controls to support small displays (e.g. Apple Watch or 240x240px screens)
 * `isHeadless` or `autoSetup` - Load client settings from file (settings.js) and trigger setup mode if no user is logged in. 'isHeadless' will set some supported client features as well (e.g. don't open browser tabs etc.).
 * `env` - 'environment' setting for client
