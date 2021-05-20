@@ -67,7 +67,9 @@ function sepiaFW_build_config(){
 		path = path
 			.replace("<assist_server>/", Config.assistAPI)
 			.replace("<teach_server>/", Config.teachAPI)
-			.replace("<chat_server>/", Config.webSocketAPI);
+			.replace("<chat_server>/", Config.webSocketAPI)
+			.replace("<sepia_website>/", Config.sepiaWebsite)
+		;
 		//local app paths - e.g. <custom_data>, <local_data>, <app_data>
 		path = SepiaFW.files.replaceSystemFilePath(path);
 		return path;
@@ -82,6 +84,9 @@ function sepiaFW_build_config(){
 	}
 	Config.appLanguage = lang; 
 	SepiaFW.debug.log('Config: language=' + Config.appLanguage);
+
+	//Hard-coded URLs
+	Config.sepiaWebsite = "https://sepia-framework.github.io/";
 	
 	//set API URLs
 	Config.host = "localhost:20726/sepia"; 	//location.hostname + ":" + location.port

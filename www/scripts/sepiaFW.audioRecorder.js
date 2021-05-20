@@ -33,7 +33,9 @@ function sepiaFW_build_audio_recorder(){
 	
 	//------ SEPIA Web Audio Processor ------
 
-	SepiaFW.webAudio.defaultProcessorOptions.moduleFolder = "audio-modules";
+	if (SepiaFW.webAudio.defaultProcessorOptions){
+		SepiaFW.webAudio.defaultProcessorOptions.moduleFolder = "audio-modules";
+	}
 	var sepiaWebAudioProcessor;
 
 	var activeAudioModules = [];

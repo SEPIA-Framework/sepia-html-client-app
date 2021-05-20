@@ -386,6 +386,7 @@ function sepiaFW_build_tools(){
 	//get URL parameters
 	Tools.getURLParameter = function(name){
 		return decodeURIComponent((new RegExp('[?|&]' + name + '=' + '([^&;]+?)(&|#|;|$)').exec(location.search)||[,""])[1].replace(/\+/g, '%20'))||null
+		//TODO: if we drop IE11 "support" we can use 'new URL(..).searchParams'
 	}
 	Tools.getURLParameterFromUrl = function(url, name){
 		if (url.indexOf("?") < 0){
@@ -397,6 +398,11 @@ function sepiaFW_build_tools(){
 	}
 	//set or add a parameter of a given URL with encoding and return modified url
 	Tools.setParameterInURL = function(url, parameter, value){
+		//prevent insert after '#'
+		var hashMatch = url.match("#.*");
+		var hash = hashMatch? hashMatch[0] : "";
+		if (hash) url = url.replace(/#.*/, "").trim();
+
 		if ((url.indexOf('?' + parameter + '=') > -1) || (url.indexOf('&' + parameter + '=') > -1)){
 			url = url.replace(new RegExp("(\\?|&)(" + parameter + "=.*?)(&|$)"), "$1" + parameter + "=" + encodeURIComponent(value) + "$3");
 		}else{
@@ -406,6 +412,7 @@ function sepiaFW_build_tools(){
 				url += '?' + parameter + "=" + encodeURIComponent(value);
 			}
 		}
+		url = url + hash;
 		return url;
 	}
 	//remove a parameter of a given URL (parameter has to contain a '=' e.g. x=1)

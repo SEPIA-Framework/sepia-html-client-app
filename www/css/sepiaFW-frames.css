@@ -240,14 +240,17 @@
 	position: relative;
 	margin: 0px 0px 0px 0px;
     padding: 0px 5px 3px 5px;
-    cursor: pointer;
 	background: transparent;
 	border: 1px solid transparent;
     border-bottom: 1px solid #000;
     color: inherit;
     text-align: center;
 }
+#sepiaFW-frames-view .sepiaFW-frames-page .group-container input[type='checkbox'] {
+	cursor: pointer;
+}
 #sepiaFW-frames-view .sepiaFW-frames-page .group-container input[type='range'] {
+	cursor: pointer;
 	border-bottom: 0;
 	padding: 0;
 }
