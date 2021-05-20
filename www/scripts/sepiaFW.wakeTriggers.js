@@ -126,12 +126,16 @@ function sepiaFW_build_wake_triggers() {
 
 	//build SEPIA Web Audio module for Porcupine
 	function buildPorcupineSepiaWebAudioModule(porcupineVersion, wasmFile, keywordsArray, keywordsData, sensitivities){
+		var preLoad = {};
+		if (wasmFile.match(/.*\.b64$/)){
+			preLoad.wasmBase64 = wasmFile;		//e.g. 'xtensions/picovoice/porcupine-19.b64'
+		}else{
+			preLoad.wasmFile = wasmFile;		//e.g. '<assist_server>/files/wake-words/porcupine/porcupine-14.wasm'
+		}
 		var porcupineWorker = {
 			name: 'porcupine-wake-word-worker',
 			type: 'worker',
-			preLoad: {
-				wasmFile: wasmFile //e.g. 'audio-modules/picovoice/porcupine-14.wasm'
-			},
+			preLoad: preLoad,
 			settings: {
 				onmessage: function(msg){
 					if (msg && msg.keyword){
@@ -180,7 +184,7 @@ function sepiaFW_build_wake_triggers() {
 	WakeTriggers.setupWakeWords = function(onFinishCallback, skipAutostart, customAutostartDelay){
 		//load Porcupine engine to JS
 		if (!WakeTriggers.engineLoaded && WakeTriggers.engine == "Porcupine"){
-			SepiaFW.tools.loadJS("xtensions/picovoice/wakeWords.js", function(){
+			SepiaFW.tools.loadJS(PORCUPINE_FOLDER + "wakeWords.js", function(){
 				//restore from client storage (higher priority)
 				var porcupineVersion = SepiaFW.data.getPermanent('wakeWordVersion');
 				if (porcupineVersion) WakeTriggers.porcupineVersion = porcupineVersion;
@@ -200,12 +204,19 @@ function sepiaFW_build_wake_triggers() {
 						wasmFile = PORCUPINE_FOLDER + "pv_porcupine.wasm";												//DEFAULT (INCLUDED)
 					}else if (WakeTriggers.porcupineVersionsDownloaded){
 						wasmFile = PORCUPINE_FOLDER + "pv_porcupine_" + WakeTriggers.porcupineVersion + ".wasm";		//DOWNLOADED
-					}else if (WakeTriggers.porcupineWasmRemoteUrl && WakeTriggers.porcupineWasmRemoteUrl.toLowerCase() != "git"){
-						wasmFile = SepiaFW.config.replacePathTagWithActualPath(WakeTriggers.porcupineWasmRemoteUrl)
-								+ WakeTriggers.porcupineVersion + "/pv_porcupine.wasm";									//ONLINE - CUSTOM
+					}else if (!WakeTriggers.porcupineWasmRemoteUrl || WakeTriggers.porcupineWasmRemoteUrl == "<sepia_website>"){
+						wasmFile = SepiaFW.config.replacePathTagWithActualPath("<sepia_website>"
+								+ "/files/porcupine/" + WakeTriggers.porcupineVersion + "/pv_porcupine.wasm");				//ONLINE - SEPIA Website
 					}else{
-						wasmFile = "https://sepia-framework.github.io/files/porcupine/" 
-								+ WakeTriggers.porcupineVersion + "/pv_porcupine.wasm";									//ONLINE - DEFAULT
+						//e.g.: "<assist_server>/files/wake-words/porcupine/" or maybe even "<custom_data>/porcupine-19.b64" ?
+						if (!!WakeTriggers.porcupineWasmRemoteUrl.match(/.*\.(wasm|b64)$/)){
+							//file URL
+							wasmFile = SepiaFW.config.replacePathTagWithActualPath(WakeTriggers.porcupineWasmRemoteUrl);	//ONLINE - CUSTOM (FILE)
+						}else{
+							//folder URL
+							wasmFile = SepiaFW.config.replacePathTagWithActualPath(WakeTriggers.porcupineWasmRemoteUrl)		//ONLINE - CUSTOM (FOLDER)
+								+ WakeTriggers.porcupineVersion + "/pv_porcupine.wasm";
+						}
 					}
 					logInfo('ENGINE URL: ' + wasmFile, false);
 					//sanitize
