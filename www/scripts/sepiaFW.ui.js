@@ -145,6 +145,28 @@ function sepiaFW_build_ui(){
 	}
 	UI.useTouchBarControls = SepiaFW.data.getPermanent('touch-bar-controls') || false;
 	UI.hideSideSwipeForTouchBarControls = true;
+	UI.preferredScreenOrientation = SepiaFW.data.getPermanent('screen-orientation') || "";
+	UI.isScreenOrientationSupported = function(){
+		return (window.screen && window.screen.orientation && (typeof window.screen.orientation.lock == "function"));
+	}
+	UI.setScreenOrientation = function(or, successCallback){
+		if (UI.isScreenOrientationSupported()){
+			var valOrPromOrNull;
+			if (or){
+				valOrPromOrNull = window.screen.orientation.lock(or);
+			}else{
+				valOrPromOrNull = window.screen.orientation.unlock();
+			}
+			Promise.resolve(valOrPromOrNull).then(function(val){
+				UI.preferredScreenOrientation = window.screen.orientation.type || "";
+				if (successCallback) successCallback(UI.preferredScreenOrientation);
+			}).catch(function(err){
+				UI.preferredScreenOrientation = "";
+				if (successCallback) successCallback(UI.preferredScreenOrientation);
+			});
+		}
+	}
+	UI.setScreenOrientation(UI.preferredScreenOrientation);
 	
 	UI.isMenuOpen = false;
 	UI.lastInput = "";

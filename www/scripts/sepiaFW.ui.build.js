@@ -620,6 +620,7 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 					+ "<li id='sepiaFW-menu-toggle-proactiveNotes-li' title='The assistant will remind you in a funny way to make a coffee break etc. :-)'><span>Well-being reminders: </span></li>"
 					+ "<li id='sepiaFW-menu-toggle-channelMessages-li' title='Show status messages in chat like someone joined the channel?'><span>Channel status messages: </span></li>"
 					+ "<li id='sepiaFW-menu-toggle-bigScreenMode-li' title='Switch big-screen mode on/off'><span>Big-screen mode: </span></li>"
+					+ "<li id='sepiaFW-menu-select-orientationMode-li' title='Enable/disable screen orientation'><span>Screen orientation: </span></li>"
 					+ "<li id='sepiaFW-menu-toggle-touchBarControls-li' title='Switch new touch-bar controls mode on/off'><span>Touch-bar controls: </span></li>"
 					//NOTE: we show this only if battery status API supported:
 					+ "<li id='sepiaFW-menu-toggle-trackPowerStatus-li' title='Observe power plug and battery status?'><span>Track power status: </span></li>"
@@ -1149,6 +1150,25 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 					$(window).trigger('resize');
 				}, SepiaFW.ui.useBigScreenMode)
 			);
+			//set screen orientation mode
+			if (SepiaFW.ui.isScreenOrientationSupported()){
+				document.getElementById('sepiaFW-menu-select-orientationMode-li').appendChild(Build.optionSelector('sepiaFW-menu-select-orientationMode', 
+					[
+						{value: "", name: "Default"}, 
+						{value: "portrait", name: "Portrait"},
+						{value: "landscape", name: "Landscape"}
+					], 
+					SepiaFW.ui.preferredScreenOrientation, 
+					function(ele){
+						if (ele.value == SepiaFW.ui.preferredScreenOrientation) return;
+						SepiaFW.ui.setScreenOrientation(ele.value, function(or){
+							SepiaFW.data.setPermanent('screen-orientation', ele.value);
+						});
+					}
+				));
+			}else{
+				$('#sepiaFW-menu-select-orientationMode-li').remove();
+			}
 			//toggle touch-bar controls
 			document.getElementById('sepiaFW-menu-toggle-touchBarControls-li').appendChild(Build.toggleButton('sepiaFW-menu-toggle-touchBarControls', 
 				function(){
