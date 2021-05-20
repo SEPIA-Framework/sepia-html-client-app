@@ -268,6 +268,10 @@ function release(options){
 	resampler = null;
 	speexModule = null;
 	isReadyForProcessing = false;
+	//notify processor that we can terminate now
+	postMessage({
+		moduleState: 9
+	});
 }
 
 //--- helpers ---

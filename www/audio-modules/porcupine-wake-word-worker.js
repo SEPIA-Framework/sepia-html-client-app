@@ -224,4 +224,8 @@ function release(options){
 	if (porcupine) porcupine.release();
 	porcupine = null;
 	_Porcupine = null;
+	//notify processor that we can terminate now
+	postMessage({
+		moduleState: 9
+	});
 }

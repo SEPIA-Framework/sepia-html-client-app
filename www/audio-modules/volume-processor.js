@@ -22,7 +22,7 @@ class VolumeProcessor extends AudioWorkletProcessor {
 		//ready
 		function ready(){
 			that.port.postMessage({
-				moduleState: 1,		//1=ready, 2=changed
+				moduleState: 1,		//1=ready, 2=changed, 9=read for termination
 				moduleInfo: {
 					sourceSamplerate: that.sourceSamplerate,
 					fps: that.fps,
@@ -50,6 +50,10 @@ class VolumeProcessor extends AudioWorkletProcessor {
 			that._simpleSum = 0;
 			that._framesRecorded = 0;
 			that._isClipped = false;
+			//notify processor that we can terminate now
+			that.port.postMessage({
+				moduleState: 9
+			});
 		}
 		//release (alias: close)
 		function release(options){

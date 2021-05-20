@@ -380,7 +380,11 @@ function release(options){
 	_processRingBuffer = null;
 	_vadBuffer = null;
 	_int16InputBuffer = null;
-	vadModule = null;
+	vadModule = null;		//TODO: is there any other 'destroy'' function?
+	//notify processor that we can terminate now
+	postMessage({
+		moduleState: 9
+	});
 }
 
 //--- helpers ---

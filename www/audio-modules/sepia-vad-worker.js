@@ -545,6 +545,10 @@ function release(options){
 	feature1SequenceStartBuffer = null;
 	feature2SequenceStartBuffer = null;
 	feature3SequenceStartBuffer = null;
+	//notify processor that we can terminate now
+	postMessage({
+		moduleState: 9
+	});
 }
 
 //--- helpers ---

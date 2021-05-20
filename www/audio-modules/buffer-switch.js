@@ -98,6 +98,10 @@ class BufferProcessor extends AudioWorkletProcessor {
 		function release(options){
 			that._outputRingBuffer = null;
 			that._newOutputBuffer = null;
+			//notify processor that we can terminate now
+			that.port.postMessage({
+				moduleState: 9
+			});
 		}
 		
 		//Control messages

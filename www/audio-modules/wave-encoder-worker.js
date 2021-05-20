@@ -299,6 +299,10 @@ function release(options){
 	gateIsOpen = false;
 	_gateOpenTS = 0;
 	_gateCloseTS = 0;
+	//notify processor that we can terminate now
+	postMessage({
+		moduleState: 9
+	});
 }
 
 //--- helpers ---
