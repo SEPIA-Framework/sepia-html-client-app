@@ -188,6 +188,19 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 	}
 	
 	//MAIN UI FUNCTIONALITY
+
+	//MENU EVENTs - TODO: we should replace some older menu updates with those events
+	function addOnMainMenuOpenAction(actionId, actionFun){
+		mainMenuOpenActions[actionId] = actionFun;
+	}
+	function addOnMainMenuCloseAction(actionId, actionFun){
+		mainMenuCloseActions[actionId] = actionFun;
+	}
+	//NOTE: order of actions is not guaranteed (and should not matter) 
+	var mainMenuOpenActions = {};
+	var mainMenuCloseActions = {};
+
+	//BUTTONS and LOGIC
 	Build.uiButtonsAndLogic = function(){
 		//TOP BUTTONS
 		
@@ -218,19 +231,33 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 				SepiaFW.ui.toggleSettings();
 			});
 		}
-		//kind'a tricky way to catch the main menue close/open event
+		//main menue close/open event
 		$('#sepiaFW-main-window').on("sepiaFwOpen-sepiaFW-chat-menu", function(){
 			//open
+			onMainMenuOpen();
+		}).on("sepiaFwClose-sepiaFW-chat-menu", function(){
+			//close
+			onMainMenuClose();
+		});
+		function onMainMenuOpen(){
 			SepiaFW.ui.switchSwipeBars('menu');
 			$('#sepiaFW-chat-controls').addClass('chat-menu');
 			SepiaFW.ui.isMenuOpen = true;
 			if (SepiaFW.ui.soc) SepiaFW.ui.soc.refresh();
-		}).on("sepiaFwClose-sepiaFW-chat-menu", function(){
-			//close
+			//open actions (unsorted)
+			Object.keys(mainMenuOpenActions).forEach(function(key){
+				mainMenuOpenActions[key]();
+			});
+		}
+		function onMainMenuClose(){
 			SepiaFW.ui.switchSwipeBars("chat");		//we force "chat" here because its the only way to reset properly 
 			$('#sepiaFW-chat-controls').removeClass('chat-menu');
 			SepiaFW.ui.isMenuOpen = false;
-		});
+			//close actions (unsorted)
+			Object.keys(mainMenuCloseActions).forEach(function(key){
+				mainMenuCloseActions[key]();
+			});
+		}
 		
 		//go left
 		var goLeftBtn = document.getElementById("sepiaFW-nav-menu-go-left");
@@ -609,6 +636,10 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 				+ "<ul class='sepiaFW-menu-settings-list'>"
 					+ "<li id='sepiaFW-menu-select-skin-li'><span>Skin: </span><select id='sepiaFW-menu-select-skin'><option disabled selected value>- select -</option></select></li>"
 					+ "<li id='sepiaFW-menu-select-avatar-li'><span>Avatar: </span><select id='sepiaFW-menu-select-avatar'><option disabled selected value>- select -</option></select></li>"
+					+ "<li id='sepiaFW-menu-toggle-bigScreenMode-li' title='Switch big-screen mode on/off'><span>Big-screen mode: </span></li>"
+					+ "<li id='sepiaFW-menu-select-orientationMode-li' title='Set pref. screen orientation'><span>Screen orientation: </span></li>"
+					+ "<li id='sepiaFW-menu-toggle-touchBarControls-li' title='Switch new touch-bar controls mode on/off'><span>Touch-bar controls: </span></li>"
+					+ "<li class='spacer'></li>"
 					+ "<li id='sepiaFW-menu-server-access-li' title='Settings for core server connections'><span>" + SepiaFW.local.g('serverConnections') + ": </span></li>"
 					+ "<li id='sepiaFW-menu-deviceId-li'><span>" + SepiaFW.local.g('deviceId') + ": </span><input id='sepiaFW-menu-deviceId' type='text' maxlength='24'></li>"
 					+ "<li id='sepiaFW-menu-device-site-li' title='Settings for device local site'><span>" + SepiaFW.local.g('deviceSite') + ": </span></li>"
@@ -617,25 +648,23 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 					+ "<li id='sepiaFW-menu-toggle-voice-li'><span>Voice output: </span></li>"
 					+ "<li id='sepiaFW-menu-select-voice-engine-li' title='Speech synthesis engine.'><span>Voice engine: </span></li>"
 					+ "<li id='sepiaFW-menu-select-voice-li'><span>Voice: </span></li>" 	//option: <i class='material-icons md-mnu'>&#xE5C6;</i>
-					+ "<li id='sepiaFW-menu-toggle-proactiveNotes-li' title='The assistant will remind you in a funny way to make a coffee break etc. :-)'><span>Well-being reminders: </span></li>"
-					+ "<li id='sepiaFW-menu-toggle-channelMessages-li' title='Show status messages in chat like someone joined the channel?'><span>Channel status messages: </span></li>"
-					+ "<li id='sepiaFW-menu-toggle-bigScreenMode-li' title='Switch big-screen mode on/off'><span>Big-screen mode: </span></li>"
-					+ "<li id='sepiaFW-menu-select-orientationMode-li' title='Enable/disable screen orientation'><span>Screen orientation: </span></li>"
-					+ "<li id='sepiaFW-menu-toggle-touchBarControls-li' title='Switch new touch-bar controls mode on/off'><span>Touch-bar controls: </span></li>"
-					//NOTE: we show this only if battery status API supported:
-					+ "<li id='sepiaFW-menu-toggle-trackPowerStatus-li' title='Observe power plug and battery status?'><span>Track power status: </span></li>"
-					//---
-					+ "<li id='sepiaFW-menu-input-controls-li' title='Settings for remote input devices, e.g. gamepads'><span>Remote controls: </span></li>"
-					//Android-only background connect:
-					+ "<li class='sepiaFW-android-settings' id='sepiaFW-menu-toggle-runBackgroundConnection-li' title='Try to keep connected in background?'><span>Allow background activity: </span></li>"
-					//---
-					+ "<li id='sepiaFW-menu-toggle-smartMic-li' title='Automatically activate mic input after voice based question?'><span>Smart microphone: </span></li>"
-					+ "<li id='sepiaFW-menu-toggle-wake-word-li' title='Use client wake-word detection?'><span>Hey SEPIA: </span></li>"
 					+ "<li id='sepiaFW-menu-select-stt-li' title='Speech recognition engine.'><span>ASR engine: </span></li>"
 					+ "<li id='sepiaFW-menu-stt-socket-url-li' title='Server for custom (socket) speech recognition engine.'>"
 						+ "<span id='sepiaFW-menu-stt-label'>" + "ASR server" + ": </span>"
 						+ "<input id='sepiaFW-menu-stt-socket-url' type='url' spellcheck='false'>"
 					+ "</li>"
+					+ "<li id='sepiaFW-menu-toggle-wake-word-li' title='Use client wake-word detection?'><span>Hey SEPIA: </span></li>"
+					+ "<li id='sepiaFW-menu-input-controls-li' title='Settings for remote input devices, e.g. gamepads'><span>Remote controls: </span></li>"
+					+ "<li class='spacer'></li>"
+					+ "<li id='sepiaFW-menu-toggle-smartMic-li' title='Automatically activate mic input after voice based question?'><span>Smart microphone: </span></li>"
+					+ "<li id='sepiaFW-menu-toggle-proactiveNotes-li' title='The assistant will remind you in a funny way to make a coffee break etc. :-)'><span>Well-being reminders: </span></li>"
+					+ "<li id='sepiaFW-menu-toggle-channelMessages-li' title='Show status messages in chat like someone joined the channel?'><span>Channel status messages: </span></li>"
+					//NOTE: we show this only if battery status API supported:
+					+ "<li id='sepiaFW-menu-toggle-trackPowerStatus-li' title='Observe power plug and battery status?'><span>Track power status: </span></li>"
+					//---
+					//Android-only background connect:
+					+ "<li class='sepiaFW-android-settings' id='sepiaFW-menu-toggle-runBackgroundConnection-li' title='Try to keep connected in background?'><span>Allow background activity: </span></li>"
+					//---
 					+ "<li id='sepiaFW-menu-toggle-clexi-li' title='Connect to CLEXI server on start.'><span>Connect to CLEXI: </span></li>"
 					+ "<li id='sepiaFW-menu-clexi-socket-url-li' title='Server for Node.js CLEXI by Bytemind.de'>"
 						+ "<span>" + "CLEXI server" + ": </span>"
@@ -1160,12 +1189,14 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 					], 
 					SepiaFW.ui.preferredScreenOrientation, 
 					function(ele){
-						if (ele.value == SepiaFW.ui.preferredScreenOrientation) return;
 						SepiaFW.ui.setScreenOrientation(ele.value, function(or){
 							SepiaFW.data.setPermanent('screen-orientation', ele.value);
 						});
 					}
 				));
+				addOnMainMenuOpenAction("screen-orientation", function(){
+					$('#sepiaFW-menu-select-orientationMode').val(SepiaFW.ui.preferredScreenOrientation);
+				});
 			}else{
 				$('#sepiaFW-menu-select-orientationMode-li').remove();
 			}

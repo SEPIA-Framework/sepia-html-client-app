@@ -20,6 +20,7 @@ cd $APP_NAME
 sleep 2
 echo "#Adding plugins ..."
 cordova plugin add cordova-plugin-device
+cordova plugin add cordova-plugin-screen-orientation
 cordova plugin add cordova-plugin-geolocation
 cordova plugin add cordova-plugin-inappbrowser
 cordova plugin add cordova-plugin-tts
@@ -76,4 +77,6 @@ mkdir -p "platforms/android/app/src/main/res/values-v21"
 cp -r "resources/themes/android/values-v21/" "platforms/android/app/src/main/res/values-v21/"
 cp -r "resources/config/android/xml/" "platforms/android/app/src/main/res/xml/"
 echo "#DONE"
-echo "If everything worked out fine the next step would be to build the app from the %APP_NAME% folder: cordova build android"
+echo "If everything worked out fine the next step would be to build the app from the %APP_NAME% folder: cordova build android."
+echo "Alternatively just open the project in Android Studio and let Gradle build it."
+echo "If you get Gradle errors try setting 'distributionUrl' version in gradle-wrapper.properties to '4.10.1-all'."

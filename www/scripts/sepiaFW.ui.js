@@ -35,11 +35,35 @@ function sepiaFW_build_ui(){
 		return "";
 	}
 	UI.preferredColorScheme = UI.getPreferredColorScheme();
+
+	//Screen orientation and resize
+	UI.preferredScreenOrientation = SepiaFW.data.getPermanent('screen-orientation') || "";
+	UI.isScreenOrientationSupported = function(){
+		return (window.screen && window.screen.orientation && (typeof window.screen.orientation.lock == "function"));
+	}
+	UI.setScreenOrientation = function(or, doneCallback){
+		if (UI.isScreenOrientationSupported()){
+			var valOrPromOrNull;
+			if (or){
+				valOrPromOrNull = window.screen.orientation.lock(or);
+			}else{
+				valOrPromOrNull = window.screen.orientation.unlock();
+			}
+			Promise.resolve(valOrPromOrNull).then(function(){
+				UI.preferredScreenOrientation = or;
+				if (doneCallback) doneCallback(UI.preferredScreenOrientation, window.screen.orientation.type);
+				setTimeout(function(){ $(window).trigger('resize'); }, 1000);
+			}).catch(function(err){
+				UI.preferredScreenOrientation = "";
+				if (doneCallback) doneCallback(UI.preferredScreenOrientation);
+				setTimeout(function(){ $(window).trigger('resize'); }, 1000);
+			});
+		}
+	}
+	UI.setScreenOrientation(UI.preferredScreenOrientation);
 	
 	UI.windowExpectedSize = window.innerHeight;
-	var windowSizeDifference = 0;
 	window.addEventListener('orientationchange', function(){
-		//TODO: replace? https://developer.mozilla.org/en-US/docs/Web/API/ScreenOrientation/onchange
 		//document.getElementById('sepiaFW-chat-output').innerHTML += ('<br>orientationchange, new size: ' + window.innerHeight);
 		$('input').blur();
 		setTimeout(function(){
@@ -47,14 +71,14 @@ function sepiaFW_build_ui(){
 		},100);
 	});
 	window.addEventListener('resize', function(){
-		UI.resizeEvent();
+		orientationAndBasicWindowSizeCheck();
 	});
-	UI.resizeEvent = function(){
+	function orientationAndBasicWindowSizeCheck(){
 		//format
 		sepiaFW_landscape_check();
 
 		//document.getElementById('sepiaFW-chat-output').innerHTML += ('<br>resize, new size: ' + window.innerHeight);
-		windowSizeDifference = (window.innerHeight - UI.windowExpectedSize);
+		var windowSizeDifference = (window.innerHeight - UI.windowExpectedSize);
 		UI.windowExpectedSize = window.innerHeight;
 		
 		//fix scroll position on window resize to better place content on soft-keyboard appearance
@@ -145,29 +169,7 @@ function sepiaFW_build_ui(){
 	}
 	UI.useTouchBarControls = SepiaFW.data.getPermanent('touch-bar-controls') || false;
 	UI.hideSideSwipeForTouchBarControls = true;
-	UI.preferredScreenOrientation = SepiaFW.data.getPermanent('screen-orientation') || "";
-	UI.isScreenOrientationSupported = function(){
-		return (window.screen && window.screen.orientation && (typeof window.screen.orientation.lock == "function"));
-	}
-	UI.setScreenOrientation = function(or, successCallback){
-		if (UI.isScreenOrientationSupported()){
-			var valOrPromOrNull;
-			if (or){
-				valOrPromOrNull = window.screen.orientation.lock(or);
-			}else{
-				valOrPromOrNull = window.screen.orientation.unlock();
-			}
-			Promise.resolve(valOrPromOrNull).then(function(val){
-				UI.preferredScreenOrientation = window.screen.orientation.type || "";
-				if (successCallback) successCallback(UI.preferredScreenOrientation);
-			}).catch(function(err){
-				UI.preferredScreenOrientation = "";
-				if (successCallback) successCallback(UI.preferredScreenOrientation);
-			});
-		}
-	}
-	UI.setScreenOrientation(UI.preferredScreenOrientation);
-	
+		
 	UI.isMenuOpen = false;
 	UI.lastInput = "";
 	var activeSkin = 0;

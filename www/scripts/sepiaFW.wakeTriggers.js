@@ -305,7 +305,7 @@ function sepiaFW_build_wake_triggers() {
 				triedToRecreate++;
 				SepiaFW.audioRecorder.createWebAudioRecorder({
 					wakeWordModule: WakeTriggers.engineModule,		//NOTE: we could leave this empty to use default (same atm.)
-					//speechRecognitionModule: ...
+					speechRecognitionModule: false
 				}, function(sepiaWebAudioProcessor, info){
 					WakeTriggers.listenToWakeWords(onSuccessCallback, onErrorCallback, doDelayAndCheck, triedToRecreate);
 				}, function(err){
