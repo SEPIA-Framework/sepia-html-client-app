@@ -59,11 +59,13 @@
 		handleChatOutput: function(data){
 			$('#sepiaFW-frame-page-2').find('#sepiaFW-frame-c-chat-data').val(JSON.stringify(data, "", 2));
 		},
+		
 		//Animation state "listener" (listening, speaking, loading, idle, etc.)
 		onAnimationStateChange: function(animState){
 			$('#sepiaFW-frames-mic').attr('class', 'entry state-' + animState);
 		},
-		//Custom actions
+		
+		//Custom actions (only)
 		actionHandler: function(action){
 			console.error(action);
 		}
@@ -71,6 +73,7 @@
 		//Use this action in your service to trigger the demo frame:
 		//Action name: "open_frames_view";
 		//Action data: "info": {"pageUrl": "<custom_data>/demo-view.html", "onOpen": "sayHelloOnOpen", "onSpeechToTextInputHandler": "handleSttData", "onChatOutputHandler": "handleChatOutput"}
+		//- alternatively use: {"pageUrl":..., "autoFillFrameEvents": true} to load all handlers via default name from frame scope
 	}
 	SepiaFW.frames.currentScope.load();
 </script>

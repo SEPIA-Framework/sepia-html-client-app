@@ -50,13 +50,14 @@ function sepiaFW_build_frames(){
 		//callbacks?
 		onFinishSetup = info.onFinishSetup;
 		if (isThisFrameActive){
-			onOpen = getFunctionOrScopeEntry(info.onOpen);
-			onClose = getFunctionOrScopeEntry(info.onClose);
-			onFinishSetup = getFunctionOrScopeEntry(info.onFinishSetup);
-			onMessageHandler = getFunctionOrScopeEntry(info.onMessageHandler);
-			onMissedMessageHandler = getFunctionOrScopeEntry(info.onMissedMessageHandler);
-			onSpeechToTextInputHandler = getFunctionOrScopeEntry(info.onSpeechToTextInputHandler);
-			onChatOutputHandler = getFunctionOrScopeEntry(info.onChatOutputHandler);		//NOTE: difference to 'messageHandler' is that this will not block the normal queue, it just delivers the text
+			onOpen = getFunctionOrScopeEntry(info.onOpen, "onOpen", info.autoFillFrameEvents);
+			onClose = getFunctionOrScopeEntry(info.onClose, "onClose", info.autoFillFrameEvents);
+			onFinishSetup = getFunctionOrScopeEntry(info.onFinishSetup, "onFinishSetup", info.autoFillFrameEvents);
+			onMessageHandler = getFunctionOrScopeEntry(info.onMessageHandler, "onMessageHandler", info.autoFillFrameEvents);
+			onMissedMessageHandler = getFunctionOrScopeEntry(info.onMissedMessageHandler, "onMissedMessageHandler", info.autoFillFrameEvents);
+			onSpeechToTextInputHandler = getFunctionOrScopeEntry(info.onSpeechToTextInputHandler, "onSpeechToTextInputHandler", info.autoFillFrameEvents);
+			onChatOutputHandler = getFunctionOrScopeEntry(info.onChatOutputHandler, "onChatOutputHandler", info.autoFillFrameEvents);		
+			//NOTE: difference between 'onChatOutputHandler' and 'messageHandler' is that it will not block the normal queue, it just delivers the text
 		}else{
 			Frames.currentScope = {};
 		}
@@ -241,7 +242,8 @@ function sepiaFW_build_frames(){
 		}
 	}
 
-	function getFunctionOrScopeEntry(funOrName){
+	function getFunctionOrScopeEntry(funOrName, handlerName, fillViaScope){
+		if (funOrName == undefined && fillViaScope) funOrName = handlerName;
 		return (funOrName && typeof funOrName == "string")? Frames.currentScope[funOrName] : funOrName;
 	}
 

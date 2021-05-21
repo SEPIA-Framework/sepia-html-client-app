@@ -144,8 +144,12 @@ function sepiaFW_build_ui(){
 		//Frame
 		}else{
 			var openUrl = (openView.replace(/\.html$/, "").trim() + ".html");
-			if (SepiaFW.frames) SepiaFW.frames.open({pageUrl: openUrl});
-			//TODO: this will currently ignore all frame options, events and theme settings etc.
+			if (SepiaFW.frames) SepiaFW.frames.open({
+				pageUrl: openUrl,
+				autoFillFrameEvents: true,		//try to take scope function of same name if the event function is not defined
+				loadFrameTheme: true			//try to load theme from frame scope
+			});
+			//Note: to make this work properly the frame page has to use default handler names!
 		}
 	}
 	
