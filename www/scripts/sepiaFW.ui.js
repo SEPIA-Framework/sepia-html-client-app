@@ -143,8 +143,9 @@ function sepiaFW_build_ui(){
 		
 		//Frame
 		}else{
-			if (SepiaFW.frames) SepiaFW.frames.open({pageUrl: (openView + ".html")});
-			//TODO: this will currently ignore all open-options for frames like onOpen callbacks and theme etc.
+			var openUrl = (openView.replace(/\.html$/, "").trim() + ".html");
+			if (SepiaFW.frames) SepiaFW.frames.open({pageUrl: openUrl});
+			//TODO: this will currently ignore all frame options, events and theme settings etc.
 		}
 	}
 	

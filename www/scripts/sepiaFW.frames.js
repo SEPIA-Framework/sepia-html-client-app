@@ -148,9 +148,9 @@ function sepiaFW_build_frames(){
 		//$.get(framePage, function(frameHtml){
         SepiaFW.files.fetch(framePage, function(frameHtml){
 			if (isRemote){
-				SepiaFW.debug.error("WARNING: Frame page has remote location and can contain harmful code. It has been BLOCKED! - URL: " + framePage);
+				SepiaFW.debug.error("WARNING: Frame page has remote location and was BLOCKED due to security restrictions! - URL: " + framePage);
 				SepiaFW.ui.showPopup("<h3 style='color:#f00; width:100%; text-align: center;'>Warning</h3>" 
-					+ "<p>SEPIA was asked to open a remote URL in a custom view (frame). The request has been blocked due to security concerns.</p>" 
+					+ "<p>SEPIA was asked to open a remote URL in a custom view (frame). The request has been blocked due to security restrictions.</p>" 
 					+ "<p>URL: " + framePage + "</p>"
 					+ "<p>If you want to use this view please ask an admin to move it to a secure location (e.g. the SEPIA file server).</p>"
 				);
