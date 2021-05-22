@@ -63,6 +63,10 @@ function sepiaFW_build_frames(){
 		}
 		
 		//theme:
+		//-get theme from scope?
+		if (!info.theme && info.loadFrameTheme){
+			if (Frames.currentScope.theme) info.theme = Frames.currentScope.theme;
+		}
 		//-clean up old theme first
 		$('#sepiaFW-frames-view').removeClass('dark');
 		$('.sepiaFW-frames-page').removeClass('dark');
@@ -70,6 +74,9 @@ function sepiaFW_build_frames(){
 		$('html').removeClass('dark-frame');
 		//-then add new
 		if (info.theme){
+			//basic frame theme: light, dark,
+			//add: flat (removes frame page inner padding)
+			//screen: dark_full (will mod. frame as well if not set to light)
 			if (info.theme.indexOf("dark") >= 0){
 				$('#sepiaFW-frames-view').addClass('dark');
 				$('.sepiaFW-frames-page').addClass('dark');

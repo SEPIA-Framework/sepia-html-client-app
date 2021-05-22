@@ -30,12 +30,11 @@
 #sepiaFW-frames-nav-bar .entry i {
 	margin: 0 8px;
 }
-#sepiaFW-frames-close {
+#sepiaFW-frames-nav-bar .icon-button {
 	max-width: 80px;
-	/*max-height: 42x;*/
 }
-#sepiaFW-frames-close i {
-	margin: 0 !important;
+#sepiaFW-frames-nav-bar .icon-button i {
+	margin: 0;
 }
 #sepiaFW-frames-nav-bar-page-indicator {
 	position: absolute;

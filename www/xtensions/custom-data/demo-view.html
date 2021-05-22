@@ -14,16 +14,16 @@
 	</div>
 </div>
 <div id="sepiaFW-frames-nav-bar" class='sepiaFW-layer-header'>
-	<button id="sepiaFW-frames-close" class='entry'>
+	<button id="sepiaFW-frames-close" class="entry icon-button">
 		<i class="material-icons md-btn2">close</i>
 	</button>
-	<button id="sepiaFW-frames-mic" class='entry'>
+	<button id="sepiaFW-frames-mic" class="entry icon-button">
 		<i class="material-icons md-btn2">mic</i>
 	</button>
-	<button id="sepiaFW-frames-show-prev-page" class='entry'>
+	<button id="sepiaFW-frames-show-prev-page" class="entry">
 		<i class="material-icons md-btn2">keyboard_arrow_left</i><span data-localize="back">back</span>
 	</button>
-	<button id="sepiaFW-frames-show-next-page" class='entry'>
+	<button id="sepiaFW-frames-show-next-page" class="entry">
 		<span data-localize="next">next</span><i class="material-icons md-btn2">keyboard_arrow_right</i>
 	</button>
 	<div id="sepiaFW-frames-nav-bar-page-indicator"><div>&nbsp;</div><div>&nbsp;</div></div>
@@ -36,9 +36,12 @@
 	});
 	//Define scope
 	SepiaFW.frames.currentScope = {
+		//Theme (frame: light, dark, mod.: flat, screen: dark_full)
+		theme: "light",		//e.g.: "dark_full flat"
+		
 		//Load scope (default method, kind of like a 'onDocumentReady')
 		load: function(){
-			$('#sepiaFW-frames-mic').attr('class', 'entry');
+			$('#sepiaFW-frames-mic').attr('class', 'entry icon-button');
 		},
 		sayHelloOnOpen: function(){
 			//we use '$('#sepiaFW-frame-page-...')' to avoid conflicts with global ID:
@@ -60,9 +63,12 @@
 			$('#sepiaFW-frame-page-2').find('#sepiaFW-frame-c-chat-data').val(JSON.stringify(data, "", 2));
 		},
 		
+		//Page change event
+		onFramePageChange: function(currentPage, triggeredByOpenEvent){},
+		
 		//Animation state "listener" (listening, speaking, loading, idle, etc.)
 		onAnimationStateChange: function(animState){
-			$('#sepiaFW-frames-mic').attr('class', 'entry state-' + animState);
+			$('#sepiaFW-frames-mic').attr('class', 'entry icon-button state-' + animState);
 		},
 		
 		//Custom actions (only)
