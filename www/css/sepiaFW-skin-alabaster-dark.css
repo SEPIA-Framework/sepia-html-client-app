@@ -75,7 +75,7 @@ html {
 }
 #sepiaFW-chat-output article span,
 #sepiaFW-chat-output article.chatMe span,
-#sepiaFW-chat-output article.chatAssistant bspan {
+#sepiaFW-chat-output article.chatAssistant span {
 	color: #eee;
 }
 
