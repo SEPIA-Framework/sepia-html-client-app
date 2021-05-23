@@ -55,8 +55,8 @@ function sepiaFW_build_speech(){
 	}
 
 	//Import TTS and STT sub-libs
-	sepiaFW_build_speech_stt(Speech);
-	sepiaFW_build_speech_tts(Speech);
+	sepiaFW_build_speech_recognition(Speech);
+	sepiaFW_build_speech_synthesis(Speech);
 
 	//--------- COMMON INTERFACE -----------
 

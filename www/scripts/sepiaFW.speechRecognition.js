@@ -1,5 +1,5 @@
 //TTS - Part 1 of SepiaFW.speech
-function sepiaFW_build_speech_stt(Speech){
+function sepiaFW_build_speech_recognition(Speech){
 	
 	//SETUP
 	Speech.testAsrSupport = function(){

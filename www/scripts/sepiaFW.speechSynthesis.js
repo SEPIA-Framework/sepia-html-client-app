@@ -1,5 +1,5 @@
 //TTS - Part 2 of SepiaFW.speech
-function sepiaFW_build_speech_tts(Speech){
+function sepiaFW_build_speech_synthesis(Speech){
 		
 	//SETUP
 	var synthID = 0;

@@ -1,5 +1,5 @@
 //WEBSOCKET SPEECH RECOGNITION V2
-function sepiaFW_build_speechWebSocket_v2(){
+function sepiaFW_build_speech_audio_proc(){
 	var SpeechRecognition = {};
 	var isSocketAsrAllowed = true; 		//read only (change by hand to disable)
 	
@@ -20,7 +20,7 @@ function sepiaFW_build_speechWebSocket_v2(){
 	} 		
 
 	function testWebSocketAsrSupport(){
-		return (SepiaFW.audioRecorder && SepiaFW.audioRecorder.isStreamRecorderSupported)  
+		return (SepiaFW.webAudio && SepiaFW.webAudio.isStreamRecorderSupported)  
 			&& isSocketAsrAllowed;
 	}
 	
