@@ -325,7 +325,11 @@ function buildBuffer(start, end){
 	}
 	var lookbackSamples;
 	if (_lookbackRingBuffer && _lookbackRingBuffer.framesAvailable){
-		lookbackSamples = [new Int16Array(_lookbackRingBuffer.framesAvailable)];
+		if (isFloat32Input){
+			lookbackSamples = [new Float32Array(_lookbackRingBuffer.framesAvailable)];
+		}else{
+			lookbackSamples = [new Int16Array(_lookbackRingBuffer.framesAvailable)];
+		}
 		_lookbackRingBuffer.pull(lookbackSamples);
 	}
 	var dataLength = recordedBuffers.length * inputSampleSize + (lookbackSamples? lookbackSamples[0].length : 0);
@@ -368,10 +372,10 @@ function encodeWAV(samples, sampleRate, numChannels, convertFromFloat32){
 		return;
 	}
 	//Format description: http://soundfile.sapp.org/doc/WaveFormat/
-	var buffer = new ArrayBuffer(44 + samples.length * 2);
-	var view = new DataView(buffer);
 	var bitDepth = encoderBitDepth;
 	var bytesPerSample = _bytesPerSample;
+	var buffer = new ArrayBuffer(44 + samples.length * bytesPerSample);		//TODO: was (samples.length * 2)
+	var view = new DataView(buffer);
 	var sampleSize = samples.length;
 	//RIFF identifier
 	wavWriteString(view, 0, 'RIFF');

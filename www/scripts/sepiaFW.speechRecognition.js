@@ -12,7 +12,7 @@ function sepiaFW_build_speech_recognition(Speech){
 			console.error("NOTE: SepiaFW.speech has unexpectedly found 'SpeechRecognition' in this browser. Support might be experimental!");
 		}
 		Speech.isWebKitAsrSupported = (hasCordovaSpeechApiSupport || hasGeneralWebSpeechKitSupport);			//TODO: this should be renamed to 'webSpeechAsr'
-		Speech.isWebSocketAsrSupported = (SepiaFW.speechWebSocket && SepiaFW.speechWebSocket.isAsrSupported);
+		Speech.isWebSocketAsrSupported = (SepiaFW.speechAudioProcessor && SepiaFW.speechAudioProcessor.isAsrSupported && SepiaFW.speechAudioProcessor.isWebSocketAsr);
 		Speech.isAsrSupported = (Speech.isWebKitAsrSupported || Speech.isWebSocketAsrSupported);
 		SepiaFW.debug.log("ASR: Supported interfaces: webSpeechAPI=" + Speech.isWebKitAsrSupported 
 			+ " (cordova=" + hasCordovaSpeechApiSupport + "), webSocketAsr=" + Speech.isWebSocketAsrSupported + ".");
@@ -40,7 +40,7 @@ function sepiaFW_build_speech_recognition(Speech){
 				asrEngine = "";
 			}else{
 				if (asrEngineInfo && asrEngineInfo.url){
-					SepiaFW.speechWebSocket.setSocketURI(asrEngineInfo.url);
+					SepiaFW.speechAudioProcessor.setSocketURI(asrEngineInfo.url);
 				}
 			}
 		}
@@ -86,7 +86,7 @@ function sepiaFW_build_speech_recognition(Speech){
 			engines.push("sepia");
 			engineNames["sepia"] = "SEPIA (Socket v2)";
 			engines.push("socket");
-			engineNames["socket"] = "Custom (Socket v1)";
+			engineNames["socket"] = "Legacy (Socket v1)";
 		}
 		engines.forEach(function(engine){
 			var option = document.createElement('option');
@@ -126,7 +126,7 @@ function sepiaFW_build_speech_recognition(Speech){
 			}
 		}else if (Speech.asrEngine == "sepia" || Speech.asrEngine == "socket"){
 			//TODO: check event: onprepare, onstart, onreset
-			return SepiaFW.speechWebSocket.getRecognizer();
+			return SepiaFW.speechAudioProcessor.getRecognizer();
 		}
 	}
 	
@@ -300,7 +300,7 @@ function sepiaFW_build_speech_recognition(Speech){
 			broadcastAsrNoResult();
 			error_callback("E00 - Speech recognition not supported by your client :-(");
 		}
-		if (!isRecognizing){
+		if (!isRecognizing && !recognizerWaitingForResult){
 			//ALL ENGINES
 			var quit_on_final_result = true;
 			recognizeSpeech(callback_final, callback_interim, error_callback, log_callback, quit_on_final_result);

@@ -309,9 +309,9 @@ function sepiaFW_build_audio_recorder(){
 			//add custom module
 			speechRecModule = options.speechRecognitionModule;
 		}else if ((SepiaFW.speech.asrEngine == "socket" || SepiaFW.speech.asrEngine == "sepia") 
-				&& SepiaFW.speechWebSocket.recognitionModule){
+				&& SepiaFW.speechAudioProcessor.recognitionModule){
 			//integrated module
-			speechRecModule = SepiaFW.speechWebSocket.recognitionModule;
+			speechRecModule = SepiaFW.speechAudioProcessor.recognitionModule;
 		}
 		if (speechRecModule){
 			activeAudioModules.push(speechRecModule);
@@ -424,6 +424,30 @@ function sepiaFW_build_audio_recorder(){
 		});	//Note: Promise
 	}
 
+	AudioRecorder.createSepiaSttSocketModule = function(onMessage, options){
+		if (!options) options = {};
+		return {
+			name: 'stt-socket',
+			type: 'worker',
+			settings: {
+				onmessage: onMessage || function(msg){},
+				//onerror: function(err){},
+				options: {
+					setup: {
+						inputSampleRate: options.inputSampleRate || micAudioRecorderOptions.targetSampleRate,
+						inputSampleSize: options.inputSampleSize || micAudioRecorderOptions.processorBufferSize,
+						lookbackBufferMs: options.lookbackBufferMs,			//default: off, good value e.g. 2000
+						recordBufferLimitMs: options.recordBufferLimitMs,	//default: use 5MB limit, good value e.g. 6000
+						recordBufferLimitKb: options.recordBufferLimitKb, 	//default: 5MB (overwritten by ms limit), good value e.g. 600
+						socketUrl: SepiaFW.speechAudioProcessor.getSocketURI(),		//NOTE: if set to 'debug' it will trigger "dry run" (wav file + pseudo res.)
+						returnAudioFile: false,		//NOTE: can be enabled via "dry run" mode
+						doDebug: true,				//TODO: set to false when ready
+					}
+				}
+			}
+		}
+	}
+
 	AudioRecorder.createDefaultWaveEncoderModule = function(onWaveEncoderMessage, options){
 		if (!options) options = {};
 		return {
@@ -444,6 +468,7 @@ function sepiaFW_build_audio_recorder(){
 				}
 			}
 		}
+		//Note: you can request a WAV via 'module.handle.sendToModule({request: {get: "wave"}});'
 	}
 
 	return AudioRecorder;

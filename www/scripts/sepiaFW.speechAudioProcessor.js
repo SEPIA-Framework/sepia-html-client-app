@@ -5,6 +5,7 @@ function sepiaFW_build_speech_audio_proc(){
 	
 	//Parameters and states
 	
+	SpeechRecognition.isWebSocketAsr = true;	//just a type lable for main speech class
 	SpeechRecognition.socketURI = SepiaFW.data.get('speech-websocket-uri') || '';		//add your ASR WebSocket server here
 	SpeechRecognition.getSocketURI = function(){
 		return SpeechRecognition.socketURI;
@@ -31,7 +32,9 @@ function sepiaFW_build_speech_audio_proc(){
 	var Recognizer = {};
 	var _asrLogCallback;
 
+	//equivalent to: new webkitSpeechRecognition()
 	SpeechRecognition.getRecognizer = function(logCallback){
+		//Events: 
 		//audiostart (mic on) -> soundstart (first non-null audio data) -> speechstart (client VAD)
 		//-> start (transcriber active) -> result (partial)
 		//-> speechend (client or server VAD) -> soundend -> audioend -> result (final) -> end
@@ -87,7 +90,7 @@ function sepiaFW_build_speech_audio_proc(){
 
 	//build SEPIA Web Audio module for custom socket ASR
 	function buildWebSocketAsrModule(){
-		var socketAsrModule = SepiaFW.audioRecorder.createDefaultWaveEncoderModule(function(msg){
+		var socketAsrModule = SepiaFW.audioRecorder.createSepiaSttSocketModule(function(msg){
 			if (!msg) return;
 			if (msg.gate){
 				if (msg.gate.isOpen == false && asrModuleGateIsOpen){
@@ -104,24 +107,12 @@ function sepiaFW_build_speech_audio_proc(){
 					asrModuleGateIsOpen = true;
 				}
 			}
-			if (msg.recognitionEvent){				//TODO: implement
+			if (msg.recognitionEvent){
 				onAsrResult(msg.recognitionEvent);
 			}
-
-			//TODO: only for testing
+			//In debug or test-mode the module might send the recording:
 			if (msg.output && msg.output.wav){
 				SepiaFW.ui.cards.addWaveCardToView(msg.output.wav);
-				onAsrResult({
-					name: "result",
-					resultIndex: 0,
-					results: [{
-						isFinal: true,
-						"0": {
-							transcript: "End of test message."
-						}
-					}],
-					timeStamp: new Date().getTime()
-				});
 			}
 		}, {
 			recordBufferLimitMs: 5000
@@ -174,30 +165,12 @@ function sepiaFW_build_speech_audio_proc(){
 		if (Recognizer.onstart) Recognizer.onstart({
 			//TODO: define event
 		});
-
-		//TODO: only for testing
-		setTimeout(function(){
-			onAsrResult({
-				name: "result",
-				resultIndex: 0,
-				results: [{
-					isFinal: false,
-					"0": {
-						transcript: "End of ..."
-					}
-				}],
-				timeStamp: new Date().getTime()
-			});
-		}, 2500);
 	}
 	function onStreamEnd(ev){
 		_asrLogCallback('-LOG- ASR STREAM-END');
 		if (Recognizer.onend) Recognizer.onend({
 			//TODO: define event
 		});
-		
-		//TODO: only for testing:
-		SpeechRecognition.recognitionModule.handle.sendToModule({request: {get: "wave"}});
 	}
 
 	function onAudioStart(ev){

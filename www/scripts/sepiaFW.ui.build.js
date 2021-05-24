@@ -954,13 +954,13 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 				//Socket STT server URL
 				var speechRecoServerInput = document.getElementById("sepiaFW-menu-stt-socket-url");
 				speechRecoServerInput.placeholder = "wss://my-sepia-asr/socket";
-				speechRecoServerInput.value = SepiaFW.speechWebSocket.socketURI || "";
+				speechRecoServerInput.value = SepiaFW.speechAudioProcessor.socketURI || "";
 				speechRecoServerInput.addEventListener("change", function(){
 					var newHost = this.value;
 					this.blur();
-					SepiaFW.speechWebSocket.setSocketURI(newHost);
+					SepiaFW.speechAudioProcessor.setSocketURI(newHost);
 				});
-				if (!SepiaFW.speechWebSocket || !SepiaFW.speechWebSocket.isAsrSupported){
+				if (!SepiaFW.speechAudioProcessor || !SepiaFW.speechAudioProcessor.isAsrSupported){
 					$("#sepiaFW-menu-stt-socket-url-li").hide();
 				}else{
 					SepiaFW.ui.longPressShortPressDoubleTap($("#sepiaFW-menu-stt-label")[0], function(){
