@@ -74,6 +74,7 @@ html {
 	background-size: 818px;
     background-repeat: no-repeat;
 	background-position: calc(50% + 1px) center;
+	transition: background .3s, background-color .3s;
 }
 html.dark {
 	background-color: #000;

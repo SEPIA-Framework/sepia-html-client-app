@@ -62,7 +62,7 @@ function sepiaFW_build_frames(){
 			Frames.currentScope = {};
 		}
 		
-		//theme:
+		//theme (part 1 - frame):
 		//-get theme from scope?
 		if (!info.theme && info.loadFrameTheme){
 			if (Frames.currentScope.theme) info.theme = Frames.currentScope.theme;
@@ -81,9 +81,11 @@ function sepiaFW_build_frames(){
 				$('#sepiaFW-frames-view').addClass('dark');
 				$('.sepiaFW-frames-page').addClass('dark');
 			}
+			/*
 			if (info.theme.indexOf("dark_full") >= 0){
 				$('html').addClass('dark-frame');
 			}
+			*/
 			if (info.theme.indexOf("flat") >= 0){
 				$('.sepiaFW-frames-page').addClass('flat');
 			}
@@ -93,7 +95,7 @@ function sepiaFW_build_frames(){
 			.removeClass('sepiaFW-skin-mod');
 
 		if (!isThisFrameActive){
-			//load frame and make active
+			//SETUP: load frame and make active
 			Frames.setup(info, function(){
 				Frames.open(info);
 			});
@@ -101,13 +103,20 @@ function sepiaFW_build_frames(){
 			return;
 		
 		}else{
-			//open frame
+			//OPEN frame
 			$('#sepiaFW-frames-view').slideDown(300, function(){
 				Frames.uic.refresh();
 			});
 			Frames.isOpen = true;
 			SepiaFW.ui.switchSwipeBars('frames');
 		}
+		//theme (part 2 - window)
+		if (info.theme){
+			if (info.theme.indexOf("dark_full") >= 0){
+				$('html').addClass('dark-frame');
+			}
+		}
+
 		//on open
 		if(onOpen) onOpen();
 		
