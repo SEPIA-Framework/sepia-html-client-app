@@ -79,6 +79,9 @@ function sepiaFW_build_speech_audio_proc(){
 	//--------------------------------
 
 	SpeechRecognition.recognitionModule;
+
+	var maxRecordingMs = 6000;
+	var maxVadTime = 6000;
 	
 	var isWaitingToRecord = false;
 	var isRecording = false;
@@ -115,7 +118,7 @@ function sepiaFW_build_speech_audio_proc(){
 				SepiaFW.ui.cards.addWaveCardToView(msg.output.wav);
 			}
 		}, {
-			recordBufferLimitMs: 5000
+			recordBufferLimitMs: maxRecordingMs
 		});
 		return socketAsrModule;
 	}
@@ -242,6 +245,11 @@ function sepiaFW_build_speech_audio_proc(){
 			SpeechRecognition.recognitionModule = buildWebSocketAsrModule();
 			
 			SepiaFW.audioRecorder.createWebAudioRecorder({
+				/*vadModule: SepiaFW.audioRecorder.createDefaultVadModule(voiceActivityCallback, voiceEnergyCallback, 
+					onVoiceStart, onSequenceStart, onVoiceFinish, onMaxVoice, onSequenceComplete, {
+						maxSequenceTime: maxVadTime,
+						minSequenceTime: 600
+				}),*/
 				wakeWordModule: false,								//TODO: allow default ww module?
 				speechRecognitionModule: SpeechRecognition.recognitionModule
 				//onResamplerMessage: function(msg){}				//NOTE: can be used to check volume
@@ -297,7 +305,9 @@ function sepiaFW_build_speech_audio_proc(){
 	function recoderEventListener(e){
 		var data = e.detail;
 		if (!data || !data.event) return;
-		//TODO: add correct state resets
+		
+		//TODO: add correct state resets !!
+
 		/*
 		if (data.event == "release" && isListening && !isStopping){
 			//reset state

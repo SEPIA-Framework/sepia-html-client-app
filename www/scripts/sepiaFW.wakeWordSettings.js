@@ -67,7 +67,12 @@ function sepiaFW_build_wake_word_settings() {
                 $('#sepiaFW-wake-word-engine-reset').hide(150);
             }, function(err){
                 WakeWordSettings.debugLog("ERROR: " + (err? err.message : "unknown"));
+                $('#sepiaFW-wake-word-toggle').html("LOAD");
             });
+        }, function(err){
+            isListening = false;
+            WakeWordSettings.debugLog("ERROR: " + (err? err.message : "unknown"));
+            $('#sepiaFW-wake-word-toggle').html("LOAD");
         });
     }
 
