@@ -24,9 +24,9 @@
 .sepiaFW-alwaysOn-page {
 	padding: 0px !important;
 }
-.sepiaFW-alwaysOn-navbar {
-	border-color: #000 !important;
-	background: #000 !important;
+#sepiaFW-frames-nav-bar.sepiaFW-alwaysOn-navbar {
+	border-color: #000;
+	background: #000;
 }
 
 #sepiaFW-alwaysOn-avatar {
@@ -45,6 +45,9 @@
 	height: 175px;
 	z-index: 99;
 	cursor: pointer;
+	-webkit-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
 }
 #sepiaFW-alwaysOn-info-box {
 	position: absolute;
@@ -73,7 +76,7 @@
 	color: #ff2550;
 }
 
-.sepiaFW-alwaysOn-alarm-anim {
+#sepiaFW-frames-nav-bar.sepiaFW-alwaysOn-navbar.sepiaFW-alwaysOn-alarm-anim {
 	animation: avatar-alarm 1s infinite ease-in;
 }
 @keyframes avatar-alarm {

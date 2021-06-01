@@ -151,6 +151,9 @@ html {
 #sepiaFW-chat-menu li {
 	background: rgba(75, 75, 75, 0.14);
 }
+.sepiaFW-notouch-device.dark-skin .sepiaFW-menu li:not(.sepiaFW-cards-button):hover{
+	background: rgba(128, 128, 128, 0.33) !important;
+}
 #sepiaFW-chat-menu button {
 	border: 1px solid #ECEBE7;
 	background-color: #beff1a;

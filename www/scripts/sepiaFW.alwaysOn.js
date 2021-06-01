@@ -339,6 +339,7 @@ function sepiaFW_build_always_on(){
         avatarIsAlarmed = true;
         //show animation
         if (alarmTriggerTimer) clearTimeout(alarmTriggerTimer);
+        $avatar.addClass('alarm');
         $alarmArea.addClass('sepiaFW-alwaysOn-alarm-anim');
         alarmTriggerTimer = setTimeout(function(){
             //auto-remove after delay - only animation
@@ -362,6 +363,7 @@ function sepiaFW_build_always_on(){
     }
     function removeAlarmAnimation(){
         //optics
+        $avatar.removeClass('alarm');
         $alarmArea.removeClass('sepiaFW-alwaysOn-alarm-anim');
         //state
         avatarIsAlarmed = false;

@@ -844,6 +844,11 @@ html.dark-skin #sepiaFW-login-help-btn {
 .sepiaFW-notouch-device .sepiaFW-menu li:not(.sepiaFW-cards-button):hover{
 	background: rgba(255, 255, 255, 0.33) !important;
 }
+/*
+.sepiaFW-notouch-device.dark-skin .sepiaFW-menu li:not(.sepiaFW-cards-button):hover{
+	background: rgba(128, 128, 128, 0.33) !important;
+}
+*/
 
 #sepiaFW-chat-menu {
 	background: rgba(33, 33, 33, 1.00);
@@ -1660,6 +1665,7 @@ html.dark-skin #sepiaFW-login-help-btn {
 	user-select: none;
 	pointer-events: none;
 	text-align: center;
+	/*font-size: 12px;*/
 }
 #sepiaFW-chat-controls-form input {
 	-webkit-flex: 1 0 80px;
