@@ -58,6 +58,7 @@
 				</div>
 			</div>
 			<div class="group-container">
+				<p>Volume and Voice Activity:</p>
 				<div id="sepiaFW-media-devices-mic-test-wave" style="margin: 16px 0;"></div>
 				<div id="sepiaFW-media-devices-mic-test-plot-1" class="sepiaFW-plot-container" style="margin: 8px 0;"></div>
 				<div id="sepiaFW-media-devices-mic-test-plot-2" class="sepiaFW-plot-container" style="margin: 8px 0;"></div>
@@ -305,13 +306,14 @@
 		},
 		micTestState: {},
 		startMicrophoneTest: function(){
+			var recLimit = 8000;
 			var state = SepiaFW.frames.currentScope.micTestState;
 			state.waveEncoderGateIsOpen = false;
 			state.waveEncModule = undefined;
 			state.startedRecording = undefined;
 			state.recordingDuration = undefined;
 			state.rmsData = { points:[], sum: 0 };
-			state.vadData = { points:[], sum: 0 };
+			state.vadData = { points:[], sum: 0, speechStart: 0, speechEnd: 0 };
 			clearTimeout(state.micStartTimer);
 			var chartEle1 = document.getElementById("sepiaFW-media-devices-mic-test-plot-1");
 			chartEle1.innerHTML = "";
@@ -330,7 +332,6 @@
 							state.waveEncoderGateIsOpen = false;
 							if (state.startedRecording && msg.gate.closedAt){
 								state.recordingDuration = msg.gate.closedAt - state.startedRecording;
-								state.startedRecording = undefined;	
 							}
 							SepiaFW.frames.currentScope.showMicTestInfo("Recorder closed. Duration (ms): " + state.recordingDuration + ". Generating wave file.");
 							SepiaFW.audioRecorder.stopIfActive(function(){
@@ -345,12 +346,13 @@
 								var maxRms = Math.max(...state.rmsData.points).toFixed(4);
 								var minRms = Math.min(...state.rmsData.points).toFixed(4);
 								var avgRms = (state.rmsData.sum/state.rmsData.points.length).toFixed(4);
-								var durationGood = state.recordingDuration < 6500 && state.recordingDuration > 5500;
+								var durationGood = state.recordingDuration < (recLimit*1.1) && state.recordingDuration > (recLimit * 0.9);
 								SepiaFW.frames.currentScope.showMicTestInfo(
-									"Duration is " + (durationGood? "good" : "bad") + ": " + state.recordingDuration + "ms\n" +
-									"Volume (max) is " + (maxRms > 0.1? "good" : "bad") + ": " + maxRms + " rms\n" +
-									"Volume (min) is " + (minRms/maxRms < 0.2? "good" : "bad") + ": " + minRms + " rms\n" +
+									"Duration is " + (durationGood? "good" : "BAD") + ": " + state.recordingDuration + "ms\n" +
+									"Volume (max) is " + (maxRms > 0.1? "good" : "BAD") + ": " + maxRms + " rms\n" +
+									"Volume (min) is " + (minRms/maxRms < 0.2? "good" : "BAD") + ": " + minRms + " rms\n" +
 									"Volume avg: " + avgRms + " rms\n" +
+									"VAD - start: " + (state.vadData.speechStart) + "ms, end: " + (state.vadData.speechEnd) + "ms\n" +
 									"Please check audio recording for quality."
 								);
 							}
@@ -358,7 +360,7 @@
 						}
 					}
 				}, {
-					recordBufferLimitMs: 6000
+					recordBufferLimitMs: recLimit
 				});
 				state.waveEncModule = waveEncModule;
 				SepiaFW.audioRecorder.createWebAudioRecorder({
@@ -372,10 +374,13 @@
 						}
 					}, undefined, function(){
 						SepiaFW.frames.currentScope.showMicTestInfo("VAD - Speech input block detected.");
-					}, undefined, undefined, function(){
+						state.vadData.speechStart = new Date().getTime() - state.startedRecording;
+					}, undefined, undefined, function(started, ended){
 						SepiaFW.frames.currentScope.showMicTestInfo("VAD - Speech input block ended.");
+						state.vadData.speechStart = started - state.startedRecording;	//overwrite
+						state.vadData.speechEnd = ended - state.startedRecording;
 					}, {
-							maxSequenceTime: 10000,
+							maxSequenceTime: recLimit,
 							minSequenceTime: 600
 					}),
 					wakeWordModule: false,		//block default module
@@ -399,7 +404,7 @@
 							state.waveEncModule.handle.sendToModule({gate: "open"});
 							state.waveEncoderGateIsOpen = true;
 							state.startedRecording = new Date().getTime();
-							SepiaFW.frames.currentScope.showMicTestInfo("Recorder started. Please speak for 6s :-)");
+							SepiaFW.frames.currentScope.showMicTestInfo("Recorder started. Please speak for " + Math.round(recLimit/1000) + "s :-)");
 						});
 					}, 3000);
 				}, function(initErr){

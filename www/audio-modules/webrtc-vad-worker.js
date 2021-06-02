@@ -143,7 +143,7 @@ function constructWorker(options) {
 	inputSampleRate = options.setup.inputSampleRate || options.setup.ctxInfo.targetSampleRate || options.setup.ctxInfo.sampleRate;
 	channelCount = 1;	//options.setup.channelCount || 1;		//TODO: only MONO atm
 	inputSampleSize = options.setup.inputSampleSize || 512;
-	processBufferSize = options.setup.bufferSize || inputSampleSize;
+	processBufferSize = options.setup.bufferSize || (inputSampleRate/1000 * 30 * 2);	//2 windows of 30ms by default
 	vadMode = (options.setup.vadMode != undefined)? options.setup.vadMode : 3;
 	isFloat32Input = (options.setup.isFloat32 != undefined)? options.setup.isFloat32 : false;
 	

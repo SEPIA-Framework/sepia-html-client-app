@@ -48,14 +48,14 @@ function sepiaFW_build_speech_audio_proc(){
 		Recognizer.maxAlternatives = 1;
 
 		/*
-		Recognizer.onspeechstart = function(){}
-		Recognizer.onspeechend = function(){}
 		Recognizer.onsoundstart = function(){}
 		Recognizer.onsoundend = function(){}
 		*/
 
 		Recognizer.onaudiostart = undefined;
+		Recognizer.onspeechstart = undefined;	//NOTE: this will be a few ms behind actual speech
 		Recognizer.onstart = undefined;
+		Recognizer.onspeechend = undefined;
 		Recognizer.onaudioend = undefined;
 		Recognizer.onend = undefined;
 
@@ -80,8 +80,8 @@ function sepiaFW_build_speech_audio_proc(){
 
 	SpeechRecognition.recognitionModule;
 
-	var maxRecordingMs = 6000;
-	var maxVadTime = 6000;
+	var maxRecordingMs = 10000;
+	var maxVadTime = 10000;
 	
 	var isWaitingToRecord = false;
 	var isRecording = false;
@@ -176,6 +176,24 @@ function sepiaFW_build_speech_audio_proc(){
 		});
 	}
 
+	function onSpeechStart(ev){
+		_asrLogCallback('-LOG- REC SPEECH-START');
+		if (Recognizer.onspeechstart) Recognizer.onspeechstart({
+			//TODO: define event
+		});
+	}
+	function onSpeechEnd(ev){
+		if (ev.hitLimit){
+			_asrLogCallback('-LOG- REC SPEECH-END - LIMIT');
+		}else{
+			_asrLogCallback('-LOG- REC SPEECH-END');
+		}
+		if (Recognizer.onspeechend) Recognizer.onspeechend({
+			//TODO: define event
+		});
+		stopRecording();
+	}
+
 	function onAudioStart(ev){
 		_asrLogCallback('-LOG- REC AUDIO-START - OPENING ASR');
 		if (Recognizer.onaudiostart) Recognizer.onaudiostart({
@@ -245,11 +263,19 @@ function sepiaFW_build_speech_audio_proc(){
 			SpeechRecognition.recognitionModule = buildWebSocketAsrModule();
 			
 			SepiaFW.audioRecorder.createWebAudioRecorder({
-				/*vadModule: SepiaFW.audioRecorder.createDefaultVadModule(voiceActivityCallback, voiceEnergyCallback, 
-					onVoiceStart, onSequenceStart, onVoiceFinish, onMaxVoice, onSequenceComplete, {
+				vadModule: SepiaFW.audioRecorder.createDefaultVadModule(undefined, function(energy){
+					if (energy != undefined){}		//use?
+				}, undefined, function(){
+					onSpeechStart();
+				}, undefined, function(){
+					//max speech
+					onSpeechEnd({start: vadSequenceStarted, end: vadSequenceEnded, hitLimit: true});
+				}, function(vadSequenceStarted, vadSequenceEnded){
+					onSpeechEnd({start: vadSequenceStarted, end: vadSequenceEnded, hitLimit: false});
+				}, {
 						maxSequenceTime: maxVadTime,
 						minSequenceTime: 600
-				}),*/
+				}),
 				wakeWordModule: false,								//TODO: allow default ww module?
 				speechRecognitionModule: SpeechRecognition.recognitionModule
 				//onResamplerMessage: function(msg){}				//NOTE: can be used to check volume
