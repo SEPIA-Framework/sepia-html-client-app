@@ -32,6 +32,7 @@ SepiaFW.settings = {
 			"clexiConnect": true,
 			"useRemoteCmdl": true,
 			"speech-voice-engine": "sepia",
+			"speech-voice-custom-server": "",
 			"speech-asr-engine": "native",
 			"speech-websocket-uri": "ws://localhost:20741/stt/socket",
 			"useGamepads": true,

@@ -14,14 +14,15 @@ function sepiaFW_build_speech_synthesis(Speech){
 	var speechWaitingForStop = false;
 	var stopSpeechTimeout;
 	Speech.isNativeTtsSupported = (SepiaFW.ui.isCordova)? ('TTS' in window) : ('speechSynthesis' in window);
-	Speech.isHtmlTtsSupported = ($('#sepiaFW-audio-speaker').length && $('#sepiaFW-audio-speaker')[0].canPlayType && $('#sepiaFW-audio-speaker')[0].canPlayType("audio/mp3"));
+	Speech.isHtmlTtsSupported = ($('#sepiaFW-audio-speaker').length && $('#sepiaFW-audio-speaker')[0].canPlayType && $('#sepiaFW-audio-speaker')[0].canPlayType("audio/mp3"));	//set WAV?
 	Speech.isTtsSupported = Speech.isNativeTtsSupported || Speech.isHtmlTtsSupported;
 	SepiaFW.debug.log("TTS: Supported interfaces: native=" + Speech.isNativeTtsSupported + ", sepia=" + Speech.isHtmlTtsSupported + ".");
 	Speech.voiceEngine = SepiaFW.data.get('speech-voice-engine') || '';
+	Speech.voiceCustomServer = SepiaFW.data.get('speech-voice-custom-server') || '';
 	Speech.skipTTS = false;		//skip TTS but trigger 'success' callback
 
 	//get TTS engines - load them and return a select element to show them somewhere
-	Speech.getTtsEngines = function(){
+	Speech.getTtsEnginesSelector = function(onChange){
 		var ttsSelector = document.getElementById('sepiaFW-menu-select-voice-engine') || document.createElement('select');
 		ttsSelector.id = 'sepiaFW-menu-select-voice-engine';
 		$(ttsSelector).find('option').remove();
@@ -41,6 +42,9 @@ function sepiaFW_build_speech_synthesis(Speech){
 		if (Speech.isHtmlTtsSupported){
 			voiceEngines.push("sepia");
 			voiceEngineNames["sepia"] = "SEPIA (Stream)";
+
+			//voiceEngines.push("custom-mary-api");
+			//voiceEngineNames["custom-mary-api"] = "Mary-TTS API";
 		}
 		voiceEngines.forEach(function(engine){
 			var option = document.createElement('option');
@@ -56,7 +60,9 @@ function sepiaFW_build_speech_synthesis(Speech){
 		//add button listener
 		$(ttsSelector).off().on('change', function() {
 			var reloadVoices = true;
-			Speech.setVoiceEngine($('#sepiaFW-menu-select-voice-engine').val(), reloadVoices);
+			var selectedEngine = $('#sepiaFW-menu-select-voice-engine').val();
+			Speech.setVoiceEngine(selectedEngine, reloadVoices);
+			if (onChange) onChange(selectedEngine);
 		});
 		if (voiceEngines.length === 0){
 			var option = document.createElement('option');
@@ -66,11 +72,22 @@ function sepiaFW_build_speech_synthesis(Speech){
 		}
 		return ttsSelector;
 	}
+	Speech.setVoiceCustomServer = function(newUrl){
+		Speech.voiceCustomServer = newUrl;
+		if (!newUrl){
+			SepiaFW.data.delPermanent('speech-voice-custom-server');
+		}else{
+			SepiaFW.data.set('speech-voice-custom-server', newUrl);
+			SepiaFW.debug.log("TTS: Set custom voice synth. server: " + newUrl);
+		}
+	}
+	Speech.getVoiceCustomServer = function(){
+		return Speech.voiceCustomServer;
+	}
 	Speech.getVoiceEngine = function(){
 		return Speech.voiceEngine;
 	}
 	Speech.setVoiceEngine = function(voiceEngine, reloadVoices){
-		Speech.useSepiaServerTTS = false;
 		if (voiceEngine == 'native'){
 			if (!Speech.isNativeTtsSupported){
 				SepiaFW.debug.err("TTS: Tried to set 'native' voice engine but it is not supported by this client!");
@@ -79,6 +96,11 @@ function sepiaFW_build_speech_synthesis(Speech){
 		}else if (voiceEngine == 'sepia'){
 			if (!Speech.isHtmlTtsSupported){
 				SepiaFW.debug.err("TTS: Tried to set 'SEPIA server' TTS engine but it is not supported by this client!");
+				voiceEngine = "";
+			}
+		}else if (voiceEngine == "custom-mary-api"){
+			if (!Speech.isHtmlTtsSupported){		//TODO: do we have to check WAV here?
+				SepiaFW.debug.err("TTS: Tried to set 'Mary-TTS API' engine but it is not supported by this client!");
 				voiceEngine = "";
 			}
 		}
@@ -94,9 +116,6 @@ function sepiaFW_build_speech_synthesis(Speech){
 			SepiaFW.data.set('speech-voice-engine', voiceEngine);
 			Speech.voiceEngine = voiceEngine;
 			SepiaFW.debug.log("TTS: Using '" + voiceEngine + "' engine.");
-			if (voiceEngine == 'sepia'){
-				Speech.useSepiaServerTTS = true;
-			}
 		}
 		if (reloadVoices){
 			//clean settings - TODO: keep settings for each engine
@@ -175,7 +194,7 @@ function sepiaFW_build_speech_synthesis(Speech){
 		headerOption.textContent = "- select -";
 		voiceSelector.appendChild(headerOption);
 
-		if (Speech.useSepiaServerTTS){
+		if (Speech.voiceEngine == 'sepia'){
 			//SEPIA server
 			SepiaFW.audio.tts.getVoices(function(res){
 				//success
@@ -210,6 +229,10 @@ function sepiaFW_build_speech_synthesis(Speech){
 				addVoicesToSelector(voices, voiceSelector);
 				if (successCallback) successCallback(voices, voiceSelector);
 			});
+
+		}else if (Speech.voiceEngine == 'custom-mary-api'){
+			SepiaFW.debug.error("Failed to get voices via Mary-TTS compatible API. Please check connection and support.");
+			if (successCallback) successCallback(voices, voiceSelector);
 
 		}else if (Speech.isTtsSupported && !SepiaFW.ui.isCordova){
 			//Web Speech API
@@ -264,7 +287,7 @@ function sepiaFW_build_speech_synthesis(Speech){
 	//Chrome loads voices asynchronously so keep an eye on that:
 	if (window.speechSynthesis){
 		window.speechSynthesis.onvoiceschanged = function(){
-			if (!Speech.useSepiaServerTTS){
+			if (Speech.voiceEngine == 'native'){
 				Speech.getVoices();
 			}
 		};
@@ -274,7 +297,7 @@ function sepiaFW_build_speech_synthesis(Speech){
 	Speech.setVoice = function(newVoice){
 		//console.error("TRACE SET VOICE - v: " + newVoice);		//DEBUG
 		if (Speech.isTtsSupported){
-			if (Speech.useSepiaServerTTS){
+			if (Speech.voiceEngine == 'sepia'){
 				//custom voices
 				selectedVoice = newVoice;
 				selectedVoiceObject = {
@@ -291,8 +314,12 @@ function sepiaFW_build_speech_synthesis(Speech){
 				//restore voice effects
 				SepiaFW.audio.tts.restoreVoiceEffect(selectedVoice, function(){});
 
+			}else if (Speech.voiceEngine == 'custom-mary-api'){
+				//TODO: implement
+
 			}else if (SepiaFW.ui.isCordova){
 				//TODO: implement
+
 			}else{
 				//native voices
 				selectedVoice = newVoice;
@@ -342,7 +369,7 @@ function sepiaFW_build_speech_synthesis(Speech){
 		clearTimeout(stopSpeechTimeout);
 		
 		//some engine settings
-		if (Speech.useSepiaServerTTS){
+		if (Speech.voiceEngine == 'sepia'){
 			//load settings by voice
 			SepiaFW.audio.tts.setup({		//TODO: update with actual data from server
 				voice: selectedVoice
@@ -351,6 +378,10 @@ function sepiaFW_build_speech_synthesis(Speech){
 			if (SepiaFW.audio.tts.maxChunkLength){
 				text = chunkUtterance(text, SepiaFW.audio.tts.maxChunkLength);
 			}
+
+		}else if (Speech.voiceEngine == 'custom-mary-api'){
+			//TODO: fix this to be able to use custom API
+
 		}else{
 			//chunk text if there is a limit - TODO: 'isChromiumDesktop' is not the entire truth, it depends on the selected voice!
 			if (SepiaFW.ui.isChromiumDesktop && text && !Speech.skipTTS && Speech.isTtsSupported){
@@ -368,7 +399,7 @@ function sepiaFW_build_speech_synthesis(Speech){
 		}
 
 		//SEPIA server
-		if (Speech.useSepiaServerTTS){
+		if (Speech.voiceEngine == 'sepia'){
 			broadcastTtsRequested();
 			speechWaitingForResult = true;
 			synthID++;
@@ -388,6 +419,14 @@ function sepiaFW_build_speech_synthesis(Speech){
 				event.msg = reason;
 				onTtsError(event, errorCallback);
 			});
+
+		//CUSTOM MARY-TTS API
+		}else if (Speech.voiceEngine == 'custom-mary-api'){
+			//TODO: implement
+			//onError
+			var event = {};
+			event.msg = "NotSupported";
+			onTtsError(event, errorCallback);
 		
 		//NATIVE-TTS
 		}else if (SepiaFW.ui.isCordova){
@@ -507,11 +546,18 @@ function sepiaFW_build_speech_synthesis(Speech){
 			speechWaitingForStop = true;
 
 			//SEPIA server
-			if (Speech.useSepiaServerTTS){
+			if (Speech.voiceEngine == 'sepia'){
 				SepiaFW.audio.tts.stop();
 				waitForTtsStop(function(){
 					return SepiaFW.audio.tts.isSpeaking;
 				});
+
+			//CUSTOM MARY-TTS API
+			}else if (Speech.voiceEngine == 'custom-mary-api'){
+				//TODO: implement
+				var event = {};
+				event.msg = "NotSupported";
+				onTtsError(event);
 			
 			//NATIVE-TTS
 			}else if (SepiaFW.ui.isCordova){
@@ -607,7 +653,7 @@ function sepiaFW_build_speech_synthesis(Speech){
 			Speech.setVoice(storedVoice);
 
 		//some defaults
-		}else if (!selectedVoice && !Speech.useSepiaServerTTS){
+		}else if (!selectedVoice && Speech.voiceEngine == 'native'){
 			//TODO: just a guess
 			if (SepiaFW.ui.isChromiumDesktop && SepiaFW.ui.isEdge){
 				if (SepiaFW.config.appLanguage === "de"){

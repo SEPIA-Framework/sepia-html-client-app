@@ -646,10 +646,14 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 					+ "<li id='sepiaFW-menu-toggle-GPS-li'><span>GPS: </span></li>"
 					+ "<li id='sepiaFW-menu-media-devices-li' title='Settings for microphone, audio sources, etc.'><span>" + SepiaFW.local.g('mediaDevices') + ": </span></li>"
 					+ "<li id='sepiaFW-menu-toggle-voice-li'><span>Voice output: </span></li>"
-					+ "<li id='sepiaFW-menu-select-voice-engine-li' title='Speech synthesis engine.'><span>Voice engine: </span></li>"
+					+ "<li id='sepiaFW-menu-select-voice-engine-li' title='Speech synthesis engine.'><span>Voice engine (TTS): </span></li>"
 					+ "<li id='sepiaFW-menu-select-voice-li'><span>Voice: </span></li>" 	//option: <i class='material-icons md-mnu'>&#xE5C6;</i>
-					+ "<li id='sepiaFW-menu-select-stt-li' title='Speech recognition engine.'><span>ASR engine: </span></li>"
-					+ "<li id='sepiaFW-menu-stt-socket-url-li' title='Server for custom (socket) speech recognition engine.'>"
+					+ "<li id='sepiaFW-menu-external-tts-url-li' title='Server URL for external custom speech synth. engine.'>"
+						+ "<span id='sepiaFW-menu-external-tts-label'>" + "Voice server" + ": </span>"
+						+ "<input id='sepiaFW-menu-external-tts-url' type='url' spellcheck='false'>"
+					+ "</li>"
+					+ "<li id='sepiaFW-menu-select-stt-li' title='Speech recognition engine.'><span>ASR engine (STT): </span></li>"
+					+ "<li id='sepiaFW-menu-stt-socket-url-li' title='Server URL for custom speech recognition engine.'>"
 						+ "<span id='sepiaFW-menu-stt-label'>" + "ASR server" + ": </span>"
 						+ "<input id='sepiaFW-menu-stt-socket-url' type='url' spellcheck='false'>"
 					+ "</li>"
@@ -939,7 +943,15 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 				);
 
 				//add speech synthesis engine select
-				document.getElementById('sepiaFW-menu-select-voice-engine-li').appendChild(SepiaFW.speech.getTtsEngines());
+				document.getElementById('sepiaFW-menu-select-voice-engine-li').appendChild(SepiaFW.speech.getTtsEnginesSelector(
+					function(selectedEngine){
+						if (selectedEngine == "custom-mary-api"){
+							$('#sepiaFW-menu-external-tts-url-li').show(300);
+						}else{
+							$('#sepiaFW-menu-external-tts-url-li').hide(300);
+						}
+					}
+				));
 
 				//add voice select options - delayed due to loading process
 				setTimeout(function(){
@@ -947,13 +959,32 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 						document.getElementById('sepiaFW-menu-select-voice-li').appendChild(voiceSelector);
 					});
 				}, 1000);
+
+				//TTS custom external server
+				var speechSynthServerInput = document.getElementById("sepiaFW-menu-external-tts-url");
+				speechSynthServerInput.placeholder = "http://my-tts.local:59125";
+				speechSynthServerInput.value = SepiaFW.speech.voiceCustomServer || "";
+				speechSynthServerInput.addEventListener("change", function(){
+					var newHost = this.value;
+					this.blur();
+					SepiaFW.speech.setVoiceCustomServer(newHost);
+				});
 				
 				//add speech recognition engine select
-				document.getElementById('sepiaFW-menu-select-stt-li').appendChild(SepiaFW.speech.getSttEngines());
+				document.getElementById('sepiaFW-menu-select-stt-li').appendChild(SepiaFW.speech.getSttEnginesSelector(
+					function(selectedEngine){
+						//do something here?
+						if (selectedEngine != "native"){
+							$('#sepiaFW-menu-stt-socket-url-li').show(300);
+						}else{
+							$('#sepiaFW-menu-stt-socket-url-li').hide(300);
+						}
+					}
+				));
 				
 				//Socket STT server URL
 				var speechRecoServerInput = document.getElementById("sepiaFW-menu-stt-socket-url");
-				speechRecoServerInput.placeholder = "wss://my-sepia-asr/socket";
+				speechRecoServerInput.placeholder = "wss://my-sepia-asr.example/socket";
 				speechRecoServerInput.value = SepiaFW.speechAudioProcessor.socketURI || "";
 				speechRecoServerInput.addEventListener("change", function(){
 					var newHost = this.value;
@@ -990,6 +1021,19 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 						});
 					},'', undefined, '', true);
 				}
+
+				addOnMainMenuOpenAction("tts-and-stt", function(){
+					if (SepiaFW.speech.voiceEngine == "native" || SepiaFW.speech.voiceEngine == "sepia"){
+						$('#sepiaFW-menu-external-tts-url-li').hide();
+					}else{
+						$('#sepiaFW-menu-external-tts-url-li').show();
+					}
+					if (SepiaFW.speechAudioProcessor.socketURI == "native"){
+						$('#sepiaFW-menu-stt-socket-url-li').hide();
+					}else{
+						$('#sepiaFW-menu-stt-socket-url-li').show();
+					}
+				});
 			}
 			//Smart microphone auto-toggle
 			if (!SepiaFW.speech || !SepiaFW.speech.isAsrSupported){
