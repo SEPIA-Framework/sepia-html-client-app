@@ -1,5 +1,5 @@
 //AUDIO PLAYER
-function sepiaFW_build_audio(sepiaSessionId){
+function sepiaFW_build_audio(){
 	var AudioPlayer = {};
 	var Stream = {};
 	var TTS = {};			//TTS parameters for SepiaFW external TTS like Acapela. I've tried to seperate TTS and AudioPlayer as good as possible, but there might be some bugs using both
@@ -482,21 +482,6 @@ function sepiaFW_build_audio(sepiaSessionId){
 	var voiceEffectOptionsActive = {};
 	var isVoiceEffectSetupPending = false;
 
-	//set default parameters for TTS (just the instantly set stuff)
-	TTS.setup = function(Settings){
-		//TODO: move SEPIA specific stuff to SepiaFW.speech.tts...
-		TTS.playOn = (Settings.playOn)? Settings.playOn : "client"; 		//play TTS on client (can also be played on "server" if available)
-		TTS.format = (Settings.format)? Settings.format : "default";		//you can force format to default,OGG,MP3,MP3_CBR_32 and WAV (if using online api)
-		//about voices
-		TTS.voice = (Settings.voice)? Settings.voice : "default";			//name of the voice used
-		TTS.gender = (Settings.gender)? Settings.gender : "default";		//name of gender ("male", "female", "child", "old, "creature")
-		TTS.mood = (Settings.mood)? Settings.mood : 5;						//mood state
-		TTS.speed = (Settings.speed)? Settings.speed : "1.0";
-		TTS.tone = (Settings.tone)? Settings.tone : "1.0";
-		TTS.maxChunkLength = (Settings.maxChunkLength)? Settings.maxChunkLength : 600;
-		TTS.maxMoodIndex = (Settings.maxMoodIndex)? Settings.maxMoodIndex : 3;
-	}
-
 	TTS.setVoiceEffect = function(effectId, options, successCallback, errorCallback){
 		if (!options) options = {};
 		var optionsAreSame = SepiaFW.tools.simpleObjectsAreSame(options, voiceEffectOptionsActive);		//NOTE: we use a simple compare
@@ -589,16 +574,12 @@ function sepiaFW_build_audio(sepiaSessionId){
 
 	//use TTS endpoint to generate soundfile and speak answer
 	TTS.speak = function(message, onStartCallback, onEndCallback, onErrorCallback){
+		//NOTE: For the state-ful version of 'speak' (with settings and events) use: 'SepiaFW.speech.speak'
 		//gets URL and calls play(URL)
-		TTS.getURL(message, function(audioUrl){
-			if (audioUrl.indexOf("/") == 0){
-				audioUrl = SepiaFW.config.assistAPI + audioUrl.substring(1);
-			}else if (audioUrl.indexOf("tts") == 0){
-				audioUrl = SepiaFW.config.assistAPI + audioUrl;
-			}
+		SepiaFW.speech.getTtsStreamURL(message, function(audioUrl){
 			SepiaFW.debug.info("TTS audio url: " + audioUrl);
 			AudioPlayer.playURL(audioUrl, speaker, onStartCallback, onEndCallback, onErrorCallback);
-		}, onErrorCallback);		
+		}, onErrorCallback);
 	}
 	TTS.stop = function(){
 		AudioPlayer.stop(speaker);
@@ -788,82 +769,6 @@ function sepiaFW_build_audio(sepiaSessionId){
 	}
 
 	//--------helpers----------
-
-	//get audio URL
-	TTS.getURL = function(message, successCallback, errorCallback){
-		//TODO: move SEPIA specific code to SepiaFW.speech...
-		var apiUrl = SepiaFW.config.assistAPI + "tts";
-		var submitData = {
-			text: message,
-			lang: ((SepiaFW.speech)? SepiaFW.speech.getLanguage() : SepiaFW.config.appLanguage),
-			mood: ((SepiaFW.assistant)? SepiaFW.assistant.getMood() : TTS.mood),
-			voice: TTS.voice,
-			gender: TTS.gender,
-			speed: TTS.speed,
-			tone: TTS.tone,
-			playOn: TTS.playOn,		//check play on server 
-			format: TTS.format		//sound format (e.g. wav file)
-		};
-		submitData.KEY = SepiaFW.account.getKey(sepiaSessionId);
-		submitData.client = SepiaFW.config.getClientDeviceInfo();
-		submitData.env = SepiaFW.config.environment;
-
-		//get url
-		$.ajax({
-			url: apiUrl,
-			timeout: 10000,
-			type: "POST",
-			data: submitData,
-			headers: {
-				"content-type": "application/x-www-form-urlencoded"
-			},
-			success: function(response){
-				if (response.result === "success"){
-					SepiaFW.debug.info("GET_AUDIO SUCCESS: " + JSON.stringify(response));
-					if (successCallback) successCallback(response.url);
-				}else{
-					SepiaFW.debug.error("GET_AUDIO ERROR: " + JSON.stringify(response));
-					if (errorCallback) errorCallback(response.error);
-				}
-			},
-			error: function(e){
-				if (!e) e = {};
-				SepiaFW.debug.error("GET_AUDIO ERROR: " + JSON.stringify(e));
-				if (errorCallback) errorCallback(e.name || e.message || e.error);
-			}
-		});
-	}
-	TTS.getVoices = function(successCallback, errorCallback){
-		//TODO: move SEPIA specific code to SepiaFW.speech...
-		var apiUrl = SepiaFW.config.assistAPI + "tts-info";
-		var submitData = {};
-		submitData.KEY = SepiaFW.account.getKey(sepiaSessionId);
-		submitData.client = SepiaFW.config.getClientDeviceInfo();
-		submitData.env = SepiaFW.config.environment;
-
-		//get url
-		$.ajax({
-			url: apiUrl,
-			timeout: 10000,
-			type: "POST",
-			data: submitData,
-			headers: {
-				"content-type": "application/x-www-form-urlencoded"
-			},
-			success: function(response){
-				SepiaFW.debug.info("GET_VOICES SUCCESS: " + JSON.stringify(response));
-				if (response.result === "success"){
-					if (successCallback) successCallback(response);
-				}else{
-					if (errorCallback) errorCallback(response);
-				}
-			},
-			error: function(e){
-				SepiaFW.debug.info("GET_VOICES ERROR: " + JSON.stringify(e));
-				if (errorCallback) errorCallback(e);
-			}
-		});
-	}
 	
 	//test same origin - TODO: EXPERIMENTAL
 	function testSameOrigin(url) {

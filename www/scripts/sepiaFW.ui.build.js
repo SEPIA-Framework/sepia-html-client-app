@@ -954,9 +954,10 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 				));
 
 				//add voice select options - delayed due to loading process
+				var voiceSelectorBox = document.getElementById('sepiaFW-menu-select-voice-li');
 				setTimeout(function(){
 					SepiaFW.speech.getVoices(function(voices, voiceSelector){
-						document.getElementById('sepiaFW-menu-select-voice-li').appendChild(voiceSelector);
+						voiceSelectorBox.appendChild(voiceSelector);
 					});
 				}, 1000);
 
@@ -968,6 +969,10 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 					var newHost = this.value;
 					this.blur();
 					SepiaFW.speech.setVoiceCustomServer(newHost);
+					//refresh voices
+					SepiaFW.speech.getVoices(function(voices, voiceSelector){
+						voiceSelectorBox.appendChild(voiceSelector);
+					});
 				});
 				
 				//add speech recognition engine select

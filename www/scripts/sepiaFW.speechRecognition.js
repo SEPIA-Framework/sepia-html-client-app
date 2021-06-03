@@ -138,7 +138,6 @@ function sepiaFW_build_speech_recognition(Speech){
 	var	isRecognizing = false;					
 	var recognizerWaitingForResult = false;
 	var showedAsrLimitInfo = false;
-	Speech.Interface.isRecognizing = function(is){	isRecognizing = is; } 		//poor workaround to set isRecognizing from e.g. webSocket ASR
 	
 	Speech.isRecognizing = function(){
 		return isRecognizing;

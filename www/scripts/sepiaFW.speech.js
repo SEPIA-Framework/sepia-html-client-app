@@ -1,7 +1,6 @@
 //TTS - Base lib (part 0) of SepiaFW.speech that imports STT and TTS
-function sepiaFW_build_speech(){
+function sepiaFW_build_speech(sepiaSessionId){
 	var Speech = {};
-	Speech.Interface = {};
 	
 	//Parameters and states
 	
@@ -56,7 +55,7 @@ function sepiaFW_build_speech(){
 
 	//Import TTS and STT sub-libs
 	sepiaFW_build_speech_recognition(Speech);
-	sepiaFW_build_speech_synthesis(Speech);
+	sepiaFW_build_speech_synthesis(Speech, sepiaSessionId);
 
 	//--------- COMMON INTERFACE -----------
 
