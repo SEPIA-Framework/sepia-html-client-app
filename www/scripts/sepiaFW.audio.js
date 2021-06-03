@@ -6,7 +6,7 @@ function sepiaFW_build_audio(sepiaSessionId){
 	var Alarm = {};
 
 	//Sounds
-	AudioPlayer.micConfirmSound = 'sounds/coin.mp3';
+	AudioPlayer.micConfirmSound = 'sounds/coin.mp3';	//might change for mobile (see below)
 	AudioPlayer.alarmSound = 'sounds/alarm.mp3'; 		//please NOTE: UI.events is using 'file://sounds/alarm.mp3' for 'cordova.plugins.notification' (is it wokring? Idk)
 	AudioPlayer.setCustomSound = function(name, path){
 		//system: 'micConfirm', 'alarm'
@@ -16,6 +16,9 @@ function sepiaFW_build_audio(sepiaSessionId){
 		AudioPlayer.loadCustomSounds(customSounds);
 	}
 	AudioPlayer.loadCustomSounds = function(sounds){
+		if (SepiaFW.ui.isMobile){
+			AudioPlayer.micConfirmSound = 'sounds/blob.mp3';	//for mobile this works better
+		}
 		var customSounds = sounds || SepiaFW.data.getPermanent("deviceSounds");
 		if (customSounds){
 			if (customSounds.micConfirm) AudioPlayer.micConfirmSound = customSounds.micConfirm;
@@ -481,6 +484,7 @@ function sepiaFW_build_audio(sepiaSessionId){
 
 	//set default parameters for TTS (just the instantly set stuff)
 	TTS.setup = function(Settings){
+		//TODO: move SEPIA specific stuff to SepiaFW.speech.tts...
 		TTS.playOn = (Settings.playOn)? Settings.playOn : "client"; 		//play TTS on client (can also be played on "server" if available)
 		TTS.format = (Settings.format)? Settings.format : "default";		//you can force format to default,OGG,MP3,MP3_CBR_32 and WAV (if using online api)
 		//about voices
@@ -787,6 +791,7 @@ function sepiaFW_build_audio(sepiaSessionId){
 
 	//get audio URL
 	TTS.getURL = function(message, successCallback, errorCallback){
+		//TODO: move SEPIA specific code to SepiaFW.speech...
 		var apiUrl = SepiaFW.config.assistAPI + "tts";
 		var submitData = {
 			text: message,
@@ -813,20 +818,23 @@ function sepiaFW_build_audio(sepiaSessionId){
 				"content-type": "application/x-www-form-urlencoded"
 			},
 			success: function(response){
-				SepiaFW.debug.info("GET_AUDIO SUCCESS: " + JSON.stringify(response));
 				if (response.result === "success"){
+					SepiaFW.debug.info("GET_AUDIO SUCCESS: " + JSON.stringify(response));
 					if (successCallback) successCallback(response.url);
 				}else{
-					if (errorCallback) errorCallback();
+					SepiaFW.debug.error("GET_AUDIO ERROR: " + JSON.stringify(response));
+					if (errorCallback) errorCallback(response.error);
 				}
 			},
 			error: function(e){
-				SepiaFW.debug.info("GET_AUDIO ERROR: " + JSON.stringify(e));
-				if (errorCallback) errorCallback();
+				if (!e) e = {};
+				SepiaFW.debug.error("GET_AUDIO ERROR: " + JSON.stringify(e));
+				if (errorCallback) errorCallback(e.name || e.message || e.error);
 			}
 		});
 	}
 	TTS.getVoices = function(successCallback, errorCallback){
+		//TODO: move SEPIA specific code to SepiaFW.speech...
 		var apiUrl = SepiaFW.config.assistAPI + "tts-info";
 		var submitData = {};
 		submitData.KEY = SepiaFW.account.getKey(sepiaSessionId);
