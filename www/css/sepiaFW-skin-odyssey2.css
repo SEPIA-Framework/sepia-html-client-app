@@ -246,7 +246,8 @@ html {
 
 .sepiaFW-cards-list-title {
 	color: #fff;
-    background: #24cfe6;
+	background: #24cfe6;
+	border-radius: 0;
 }
 .sepiaFW-cards-list-body {
     color: #222;

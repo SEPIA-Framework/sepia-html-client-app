@@ -3,7 +3,7 @@
 		<!-- Page 1 -->
 		<div id="sepiaFW-frame-page-1" class='sepiaFW-frames-page sepiaFW-carousel-pane'>
 			<h3>Media Devices Settings</h3>
-			<p class="info-text">Here you can configure the media devices like microphone and audio sources (speakers) of your device.</p>
+			<p class="info-text">Here you can configure the media devices like microphone and audio sources (speakers) of your device. Don't forget to press <u>store</u> to make changes permanent!</p>
 			<p id="sepiaFW-media-devices-mobile-note" class="info-text"><b>NOTE:</b> Support for this feature on mobile devices is usually very poor!</p>
 			<div id="sepiaFW-media-devices-settings" class="group-container">
 				<div class="group" style="justify-content: center; flex-wrap: wrap;">
@@ -42,7 +42,7 @@
 		<!-- Page 2 -->
 		<div id="sepiaFW-frame-page-2" class='sepiaFW-frames-page sepiaFW-carousel-pane'>
 			<h3>Microphone Setup</h3>
-			<p class="info-text">Test your microphone and tweak the device specific parameters to optimize quality.</p>
+			<p class="info-text">Test your microphone and tweak the device specific parameters to optimize quality. Don't forget to press <u>store</u> to make changes permanent!</p>
 			<div id="sepiaFW-media-devices-mic-options-box" class="group-container">
 				<!-- dynamically created -->
 			</div>
@@ -186,7 +186,7 @@
 			ttsEle.appendChild(SepiaFW.ui.build.optionSelector(
 				"sepiaFW-media-devices-tts-player", outOptions, SepiaFW.audio.mediaDevicesSelected["tts"].value, function(ele){
 					SepiaFW.frames.currentScope.setMediaSink("tts", ele.selectedOptions[0].textContent, ele.value);
-					if (!SepiaFW.speech.useSepiaServerTTS) SepiaFW.ui.showPopup("Please note that this setting only works for a 'custom' (streaming) voice!");
+					if (SepiaFW.speech.voiceEngine == 'native') SepiaFW.ui.showPopup("Please note that this setting only works for a 'custom' (streaming) voice!");
 				}
 			));
 			fxEle.appendChild(SepiaFW.ui.build.optionSelector(
@@ -264,6 +264,19 @@
 			);
 			gainOpt.input.step = 0.1;
 			micOptionsBox.appendChild(gainOpt.element);
+			//VAD
+			var vadOpt = SepiaFW.frames.build.inputGroup(
+				"Voice Activity Det. (VAD)", [
+					{value: "webrtc-vad-worker", name: "WebRTC VAD"},
+					{value: "sepia-vad-worker", name: "SEPIA VAD (Beta)"},
+					{value: "", name: "Disabled (5s Limit)"}
+				], "select", false, 
+				"sepiaFW-media-devices-mic-options-vadModule", function(val){
+					SepiaFW.audioRecorder.setMicrophoneOption("vadModule", val, "processor");
+				}
+			);
+			vadOpt.setValue(activeOptions.vadModule);
+			micOptionsBox.appendChild(vadOpt.element);
 			//resampler opt.
 			var nativeResamplerOpt = SepiaFW.frames.build.inputGroup(
 				"Try Native Resampling", false, "checkbox", false, 
@@ -347,12 +360,16 @@
 								var minRms = Math.min(...state.rmsData.points).toFixed(4);
 								var avgRms = (state.rmsData.sum/state.rmsData.points.length).toFixed(4);
 								var durationGood = state.recordingDuration < (recLimit*1.1) && state.recordingDuration > (recLimit * 0.9);
+								var maxVolGood = maxRms > 0.1;
 								SepiaFW.frames.currentScope.showMicTestInfo(
 									"Duration is " + (durationGood? "good" : "BAD") + ": " + state.recordingDuration + "ms\n" +
-									"Volume (max) is " + (maxRms > 0.1? "good" : "BAD") + ": " + maxRms + " rms\n" +
+									"Volume (max) is " + (maxVolGood? "good" : "BAD") + ": " + maxRms + " rms\n" +
 									"Volume (min) is " + (minRms/maxRms < 0.2? "good" : "BAD") + ": " + minRms + " rms\n" +
 									"Volume avg: " + avgRms + " rms\n" +
-									"VAD - start: " + (state.vadData.speechStart) + "ms, end: " + (state.vadData.speechEnd) + "ms\n" +
+									"VAD start: " + (state.vadData.speechStart) + "ms, end: " + (state.vadData.speechEnd) + "ms\n" + 
+									"Notes:\n" +
+									(durationGood? "" : "Try source processor setting.\n") +
+									(maxVolGood? "" : "Try to increase gain.\n") +
 									"Please check audio recording for quality."
 								);
 							}
@@ -380,8 +397,8 @@
 						state.vadData.speechStart = started - state.startedRecording;	//overwrite
 						state.vadData.speechEnd = ended - state.startedRecording;
 					}, {
-							maxSequenceTime: recLimit,
-							minSequenceTime: 600
+						maxSequenceTime: recLimit,
+						minSequenceTime: 600
 					}),
 					wakeWordModule: false,		//block default module
 					waveEncoderModule: waveEncModule,
@@ -464,7 +481,7 @@
 		showAvailableTtsEffects: function(){
 			var ttsEffectsBox = document.getElementById('sepiaFW-media-devices-tts-effects-box');
 			ttsEffectsBox.innerHTML = "";
-			var disabled = !SepiaFW.speech.useSepiaServerTTS;		//TODO: this should probably be set for each voice individually
+			var disabled = (SepiaFW.speech.voiceEngine == 'native');		//TODO: this should probably be set for each voice individually
 			//effects
 			var effects = SepiaFW.audio.tts.getAvailableVoiceEffects();
 			//Voice effect selector

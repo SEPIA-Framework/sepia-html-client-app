@@ -81,6 +81,7 @@ function sepiaFW_build_speech_audio_proc(){
 	SpeechRecognition.recognitionModule;
 
 	var maxRecordingMs = 10000;
+	var maxRecordingMsNoVad = 5000;
 	var maxVadTime = 10000;
 	
 	var isWaitingToRecord = false;
@@ -93,6 +94,7 @@ function sepiaFW_build_speech_audio_proc(){
 
 	//build SEPIA Web Audio module for custom socket ASR
 	function buildWebSocketAsrModule(){
+		var hasVad = !!SepiaFW.audioRecorder.getWebAudioRecorderOptions().vadModule;
 		var socketAsrModule = SepiaFW.audioRecorder.createSepiaSttSocketModule(function(msg){
 			if (!msg) return;
 			if (msg.gate){
@@ -118,7 +120,7 @@ function sepiaFW_build_speech_audio_proc(){
 				SepiaFW.ui.cards.addWaveCardToView(msg.output.wav);
 			}
 		}, {
-			recordBufferLimitMs: maxRecordingMs
+			recordBufferLimitMs: hasVad? maxRecordingMs : maxRecordingMsNoVad
 		});
 		return socketAsrModule;
 	}

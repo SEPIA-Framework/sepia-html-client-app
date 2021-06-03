@@ -76,7 +76,9 @@ function sepiaFW_build_audio_recorder(){
 			processorBufferSize: micAudioRecorderOptions.processorBufferSize,
 			gain: micAudioRecorderOptions.gain,
 			resamplerQuality: micAudioRecorderOptions.resamplerQuality,
-			tryNativeResampling: micAudioRecorderOptions.tryNativeResampling
+			tryNativeResampling: micAudioRecorderOptions.tryNativeResampling,
+			//selected modules
+			vadModule: micAudioRecorderOptions.vadModule
 		});
 		//NOTE: device label is stored via 'SepiaFW.audio.storeMediaDevicesSetting()'
 	}
@@ -110,7 +112,9 @@ function sepiaFW_build_audio_recorder(){
 		processorBufferSize: webAudioOptions.processorBufferSize || 512,
 		gain: webAudioOptions.gain || 1.0,
 		resamplerQuality: webAudioOptions.resamplerQuality || 3,
-		tryNativeResampling: (webAudioOptions.tryNativeResampling != undefined)? webAudioOptions.tryNativeResampling : false
+		tryNativeResampling: (webAudioOptions.tryNativeResampling != undefined)? webAudioOptions.tryNativeResampling : false,
+		//selected modules
+		vadModule: (webAudioOptions.vadModule != undefined)? webAudioOptions.vadModule : "webrtc-vad-worker"
 	}
 	//set/get
 	AudioRecorder.setWebAudioRecorderOption = function(optionName, value){
@@ -494,12 +498,17 @@ function sepiaFW_build_audio_recorder(){
 	AudioRecorder.createDefaultVadModule = function(voiceActivityCallback, voiceEnergyCallback, 
 			onVoiceStart, onSequenceStart, onVoiceFinish, onMaxVoice, onSequenceComplete, options){
 		if (!options) options = {};
+		var moduleName = options.moduleName || micAudioRecorderOptions.vadModule;
+		if (!moduleName){
+			return false;	//disabled
+		}
+		var defaultVadBuffer = (moduleName == 'webrtc-vad-worker')? (480*2) : (512*1);	//480 is the 30ms window for WebRTC VAD 16k, SEPIA VAD needs power of 2 value
+		var defaultVadMode = (moduleName == 'webrtc-vad-worker')? 3 : 2;
 		return {
-			name: 'webrtc-vad-worker',
+			name: moduleName,
 			type: 'worker',
 			settings: {
 				onmessage: function(data){
-					//console.log("vad", data);
 					if (data.voiceActivity != undefined){
 						if (voiceActivityCallback) voiceActivityCallback(data.voiceActivity);
 					}
@@ -507,8 +516,8 @@ function sepiaFW_build_audio_recorder(){
 						if (voiceEnergyCallback) voiceEnergyCallback(data.voiceEnergy);
 					}
 					if (data.vadSequenceCode != undefined){
-						console.log("VAD sequence event: " + data.vadSequenceMsg);		//DEBUG
 						//1: voice start, 2: sequence started, 3: voice finished, 4: voice finished max. time, 5: full sequence complete
+						//console.log("VAD sequence event: " + data.vadSequenceMsg);		//DEBUG
 						if (data.vadSequenceCode == 1){
 							if (onVoiceStart) onVoiceStart();			//NOTE: this will trigger often
 						}else if (data.vadSequenceCode == 2){
@@ -527,14 +536,14 @@ function sepiaFW_build_audio_recorder(){
 					setup: {
 						inputSampleRate: options.inputSampleRate || micAudioRecorderOptions.targetSampleRate,
 						inputSampleSize: options.inputSampleSize || micAudioRecorderOptions.processorBufferSize,
-						bufferSize: options.vadBufferSize || (480*2),		//TODO: 480 is the 30ms window for WebRTC VAD 16k, SEPIA VAD needs 512 I think!?
-						vadMode: options.vadMode || 3,
+						bufferSize: options.vadBufferSize || defaultVadBuffer,
+						vadMode: options.vadMode || defaultVadMode,
 						//voiceEnergyCap: 50,
 						//voiceEnergyDropRate: 2,
 						sequence: {
 							//voiceActivationTime: 250,
 							//voiceResetTime: 1500,
-							silenceActivationTime: 500, //250,
+							silenceActivationTime: 450, //250,
 							maxSequenceTime: options.maxSequenceTime || 6000,
 							minSequenceTime: options.minSequenceTime || 600,
 							//doDebug: false

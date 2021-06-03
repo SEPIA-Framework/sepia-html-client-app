@@ -115,6 +115,13 @@ function gateControl(open, gateOptions){
 				sendWaveFileArrayBuffer(getWave());
 			}, 100);
 		}
+		//DRY-RUN TEST: fake final result
+		if (enableDryRun && recordedBuffers.length && recordedBuffers.length > recordBufferMaxN/3){
+			setTimeout(function(){
+				//final result
+				sendWebSpeechCompatibleRecognitionResult(true, "End of test message");
+			}, 2000);
+		}
 	}
 	msg.gate.isOpen = gateIsOpen;
 	postMessage(msg);
@@ -249,8 +256,8 @@ function buildPcmChunks(data){
 	}
 	//---------- DRY-RUN TEST: fake partial result ----------
 	if (enableDryRun){
-		if (recordedBuffers.length == Math.ceil(recordBufferMaxN/2)){
-			if (doDebug) console.error("SttSocketWorker - DEBUG - Half way of max. time", recordedBuffers.length);
+		if (recordedBuffers.length == Math.ceil(recordBufferMaxN/4)){
+			if (doDebug) console.error("SttSocketWorker - DEBUG - Reached a quarter of max. time", recordedBuffers.length);
 			sendWebSpeechCompatibleRecognitionResult(false, "End of ...");
 		}
 	}
@@ -274,14 +281,6 @@ function clearBuffer(){
 function maxLengthReached(){
 	//TODO: implement properly, do more ...
 	gateControl(false);
-
-	//DRY-RUN TEST: fake final result
-	if (enableDryRun){
-		setTimeout(function(){
-			//final result
-			sendWebSpeechCompatibleRecognitionResult(true, "End of test message");
-		}, 2000);
-	}
 }
 
 //send result message (partial or final)

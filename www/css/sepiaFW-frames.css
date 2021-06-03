@@ -122,7 +122,7 @@
 	flex-wrap: wrap;
 }
 .sepiaFW-frames-page .group {
-	width: 100%; 
+	width: calc(100% - 16px);
 	display: flex; 
 	justify-content: space-between; 
 	align-items: center;

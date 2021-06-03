@@ -65,7 +65,7 @@ function sepiaFW_build_speech_recognition(Speech){
 	Speech.setAsrEngine(Speech.asrEngine);
 
 	//get ASR engines - load them and return a select element to show them somewhere
-	Speech.getSttEngines = function(){
+	Speech.getSttEnginesSelector = function(onChange){
 		var sttSelector = document.getElementById('sepiaFW-menu-select-stt') || document.createElement('select');
 		sttSelector.id = 'sepiaFW-menu-select-stt';
 		$(sttSelector).find('option').remove();
@@ -100,8 +100,10 @@ function sepiaFW_build_speech_recognition(Speech){
 		});
 		SepiaFW.debug.info('STT engines available: ' + engines.length);
 		//add button listener
-		$(sttSelector).off().on('change', function() {
-			Speech.setAsrEngine($('#sepiaFW-menu-select-stt').val());
+		$(sttSelector).off().on('change', function(){
+			var selectedEngine = $('#sepiaFW-menu-select-stt').val(); 
+			Speech.setAsrEngine(selectedEngine);
+			if (onChange) onChange(selectedEngine);
 		});
 		if (engines.length === 0){
 			var option = document.createElement('option');
