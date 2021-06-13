@@ -2094,13 +2094,8 @@ body.big-screen #sepiaFW-chat-output .chatMsg {
 .sepiaFW-results-container .statusUpdate:last-of-type ,*/
 #sepiaFW-chat-output .chatMsg, 
 #sepiaFW-chat-output .statusUpdate {
-	/*border-top-color: rgba(255,255,255,0.5);
-	border-bottom-color: rgba(255,255,255,0.5); 
-	border-right-color: rgba(255,255,255,0.5);
-	border-left-color: rgba(255,255,255,0.5);
-    animation: sepiaFW-chat-output-enter_slide .5s 1 linear;
-	*/
-	overflow: hidden;
+	/* animation: sepiaFW-chat-output-enter_slide .5s 1 linear; */
+	overflow: unset;		/* Note: hidden will cut shadows etc. */
 }
 
 #sepiaFW-my-view {

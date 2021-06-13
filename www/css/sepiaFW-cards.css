@@ -338,7 +338,7 @@
 
 /* --- Radio --- */
 
-.sepiaFW-cards-list-radioStations {
+.sepiaFW-cards-list-body.sepiaFW-cards-list-radioStations {
 	padding-bottom: 0px;
 }
 .sepiaFW-cards-list-body .radioStation {

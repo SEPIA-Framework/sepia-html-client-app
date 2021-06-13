@@ -5,10 +5,11 @@
 	box-shadow: 0 0 0 0 #000 !important;
 	margin: 0;
     width: 100%;
-    height: 100%;
+	height: 100%;
 }
 .sepiaFW-top-layer-view.sepiaFW-ao-mode {
 	border-radius: 0 !important;		/* we should find a better solution to remove all changes */
+	outline: 5px solid #000000;
 }
 
 /* Always-On elements */

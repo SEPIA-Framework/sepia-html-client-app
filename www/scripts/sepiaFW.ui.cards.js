@@ -471,22 +471,22 @@ function sepiaFW_build_ui_cards(){
 		if (cardElementInfo.indexType === INDEX_TYPE_TODO){
 			//TO-DO LIST
 			if (elementData.checked){
-				listEle.innerHTML = "<div class='listLeft checked' oncontextmenu='return false;'></div>";
+				listEle.innerHTML = "<div class='itemLeft listLeft checked' oncontextmenu='return false;'></div>";
 			}else if (elementData.state && elementData.state == "inProgress"){
-				listEle.innerHTML = "<div class='listLeft inProgress' oncontextmenu='return false;'></div>";
+				listEle.innerHTML = "<div class='itemLeft listLeft inProgress' oncontextmenu='return false;'></div>";
 			}else{
-				listEle.innerHTML = "<div class='listLeft unchecked' oncontextmenu='return false;'></div>";
+				listEle.innerHTML = "<div class='itemLeft listLeft unchecked' oncontextmenu='return false;'></div>";
 			}
 		}else if (cardElementInfo.indexType === INDEX_TYPE_SHOPPING){
 			//SHOPPING LIST
 			if (elementData.checked){
-				listEle.innerHTML = "<div class='listLeft checked' oncontextmenu='return false;'></div>";
+				listEle.innerHTML = "<div class='itemLeft listLeft checked' oncontextmenu='return false;'></div>";
 			}else{
-				listEle.innerHTML = "<div class='listLeft unchecked' oncontextmenu='return false;'></div>";
+				listEle.innerHTML = "<div class='itemLeft listLeft unchecked' oncontextmenu='return false;'></div>";
 			}
 		}
-		listEle.innerHTML += "<div class='listCenter' contentEditable='true'>" + SepiaFW.tools.escapeHtml(elementData.name) + "</div>"
-		listEle.innerHTML += "<div class='listRight'><i class='material-icons md-24'>&#xE15B;</i></div>";
+		listEle.innerHTML += "<div class='itemCenter listCenter' contentEditable='true'>" + SepiaFW.tools.escapeHtml(elementData.name) + "</div>"
+		listEle.innerHTML += "<div class='itemRight listRight'><i class='material-icons md-24'>&#xE15B;</i></div>";
 		listEle.setAttribute('data-element', JSON.stringify(elementData));
 		
 		//note: add button actions with extra method (below)
@@ -618,8 +618,8 @@ function sepiaFW_build_ui_cards(){
 		
 		var radioStation = document.createElement('DIV');
 		radioStation.className = 'radioStation cardBodyItem';
-		radioStation.innerHTML = "<div class='radioLeft'><i class='material-icons md-24'>&#xE03E;</i></div><div class='radioCenter'>" 
-								+ SepiaFW.tools.sanitizeHtml(cardElementInfo.name) + "</div><div class='radioRight'><i class='material-icons md-24'>&#xE037;</i></div>";
+		radioStation.innerHTML = "<div class='itemLeft radioLeft'><i class='material-icons md-24'>&#xE03E;</i></div><div class='itemCenter radioCenter'>" 
+								+ SepiaFW.tools.sanitizeHtml(cardElementInfo.name) + "</div><div class='itemRight radioRight'><i class='material-icons md-24'>&#xE037;</i></div>";
 		radioStation.setAttribute('data-element', JSON.stringify(cardElementInfo));
 		cardBody.appendChild(radioStation);
 		
@@ -740,12 +740,12 @@ function sepiaFW_build_ui_cards(){
 	function makeTimerElement(actionInfoI, flexCardId, cardBody, skipAdd){ 	//actionInfoI can also be the data of an list element, should be compatible (in the most important fields)!
 		var timeEvent = document.createElement('DIV');
 		timeEvent.className = 'timeEvent cardBodyItem';
-		timeEvent.innerHTML = "<div class='timeEventLeft'><i class='material-icons md-24'>&#xE425;</i></div>"
-							+ "<div class='timeEventCenter'>"
+		timeEvent.innerHTML = "<div class='itemLeft timeEventLeft'><i class='material-icons md-24'>&#xE425;</i></div>"
+							+ "<div class='itemCenter timeEventCenter'>"
 								+ "<div class='sepiaFW-timer-name' contentEditable='true'>" + SepiaFW.tools.escapeHtml(actionInfoI.name) + "</div>"
 								+ "<div class='sepiaFW-timer-indicator'>" + SepiaFW.local.g('loading') + " ..." + "</div>"
 							+ "</div>"
-							+ "<div class='timeEventRight'><i class='material-icons md-24'>&#xE15B;</i></div>";
+							+ "<div class='itemRight timeEventRight'><i class='material-icons md-24'>&#xE15B;</i></div>";
 		timeEvent.setAttribute('data-element', JSON.stringify(actionInfoI));
 		timeEvent.setAttribute('data-id', actionInfoI.eventId);
 		//buttons
@@ -760,12 +760,12 @@ function sepiaFW_build_ui_cards(){
 	function makeAlarmElement(actionInfoI, flexCardId, cardBody, skipAdd){		//actionInfoI can also be the data of an list element, should be compatible (in the most important fields)!
 		var timeEvent = document.createElement('DIV');
 		timeEvent.className = 'timeEvent cardBodyItem';
-		timeEvent.innerHTML = "<div class='timeEventLeft'><i class='material-icons md-24'>&#xE855;</i></div>"
-							+ "<div class='timeEventCenter'>"
+		timeEvent.innerHTML = "<div class='itemLeft timeEventLeft'><i class='material-icons md-24'>&#xE855;</i></div>"
+							+ "<div class='itemCenter timeEventCenter'>"
 								+ "<div class='sepiaFW-timer-name' contentEditable='true'>" + SepiaFW.tools.escapeHtml(actionInfoI.name) + "</div>"
 								+ "<div class='sepiaFW-timer-indicator'>" + SepiaFW.tools.escapeHtml(actionInfoI.date + " " + actionInfoI.time.replace(/:\d\d$/, " " + SepiaFW.local.g('oclock'))) + "</div>"
 							+ "</div>"
-							+ "<div class='timeEventRight'><i class='material-icons md-24'>&#xE15B;</i></div>";
+							+ "<div class='itemRight timeEventRight'><i class='material-icons md-24'>&#xE15B;</i></div>";
 		timeEvent.setAttribute('data-element', JSON.stringify(actionInfoI));
 		timeEvent.setAttribute('data-id', actionInfoI.eventId);
 		//buttons
@@ -1062,9 +1062,9 @@ function sepiaFW_build_ui_cards(){
 		var weatherNowTmoSmall = document.createElement('DIV');
 		weatherNowTmoSmall.className = 'weatherNowSmall';
 		//console.log(JSON.stringify(data));
-		weatherNowTmoSmall.innerHTML = SepiaFW.tools.sanitizeHtml("<div class='weatherNowSmallImage'><img src='img/weather/" + data.icon + ".png' alt='icon'></div>"
-									+ "<div class='weatherNowSmallIntro'><b>" + ((data.dateTag)? data.dateTag : data.date) + ":</b><p>" + data.desc + "</p></div>"
-									+ "<div class='weatherNowSmallData'>" + makeWeatherNowTmoSmallData(data) + "</div>"); 		//NOTE: this is inside one big SANITIZER
+		weatherNowTmoSmall.innerHTML = SepiaFW.tools.sanitizeHtml("<div class='itemLeft weatherNowSmallImage'><img src='img/weather/" + data.icon + ".png' alt='icon'></div>"
+									+ "<div class='itemCenter weatherNowSmallIntro'><b>" + ((data.dateTag)? data.dateTag : data.date) + ":</b><p>" + data.desc + "</p></div>"
+									+ "<div class='itemRight weatherNowSmallData'>" + makeWeatherNowTmoSmallData(data) + "</div>"); 		//NOTE: this is inside one big SANITIZER
 		//weatherNowTmoSmall.setAttribute('data-element', JSON.stringify(cardElementInfo));
 		cardBody.appendChild(weatherNowTmoSmall);
 
@@ -1211,24 +1211,24 @@ function sepiaFW_build_ui_cards(){
 			linkCardEle.className += (" " + data.type);
 			if (data.type == "websearch"){
 				//websearch icon
-				leftElement = "<div class='linkCardLogo'>" + "<i class='material-icons md-mnu'>search</i>" + "</div>";
+				leftElement = "<div class='itemLeft linkCardLogo'>" + "<i class='material-icons md-mnu'>search</i>" + "</div>";
 			}else if (data.type == "locationDefault"){
 				//default map icon
-				leftElement = "<div class='linkCardLogo'>" + "<i class='material-icons md-mnu'>room</i>" + "</div>";
+				leftElement = "<div class='itemLeft linkCardLogo'>" + "<i class='material-icons md-mnu'>room</i>" + "</div>";
 			}else if (data.type == "default"){
 				//default link icon
-				leftElement = "<div class='linkCardLogo'>" + "<i class='material-icons md-mnu'>link</i>" + "</div>";	//language
+				leftElement = "<div class='itemLeft linkCardLogo'>" + "<i class='material-icons md-mnu'>link</i>" + "</div>";	//language
 			}else if (data.type == "musicSearch" || data.type == "videoSearch"){
 				//we could check the brand here: data.brand, e.g. Spotify, YouTube, ...
 				linkCardEle.className += (" " + data.brand);
 			}
 		}else if (!linkLogo){
 			//default link icon
-			leftElement = "<div class='linkCardLogo'>" + "<i class='material-icons md-mnu'>link</i>" + "</div>";	//language
+			leftElement = "<div class='itemLeft linkCardLogo'>" + "<i class='material-icons md-mnu'>link</i>" + "</div>";	//language
 		}
 		if (!leftElement){
 			//default if nothing was set before
-			leftElement = SepiaFW.tools.sanitizeHtml("<div class='linkCardLogo' " 
+			leftElement = SepiaFW.tools.sanitizeHtml("<div class='itemLeft linkCardLogo' " 
 				+ ((linkLogoBack)? ("style='background:" + linkLogoBack + ";'") : ("")) + "><img src='" + linkLogo + "' alt='logo'></div>");
 		}
 		var description = data.desc;
@@ -1245,8 +1245,8 @@ function sepiaFW_build_ui_cards(){
 		
 		//build actual card element
 		linkCardEle.innerHTML = leftElement
-				+ SepiaFW.tools.sanitizeHtml("<div class='linkCardCenter'>" + (data.title? ("<h3>" + data.title + "</h3>") : ("")) + "<p>" + description + "</p></div>")
-				+ "<div class='linkCardRight'><a href='' target='_blank' rel='noopener'><i class='material-icons md-mnu'>&#xE895;</i></a></div>";
+				+ SepiaFW.tools.sanitizeHtml("<div class='itemCenter linkCardCenter'>" + (data.title? ("<h3>" + data.title + "</h3>") : ("")) + "<p>" + description + "</p></div>")
+				+ "<div class='itemRight linkCardRight'><a href='' target='_blank' rel='noopener'><i class='material-icons md-mnu'>&#xE895;</i></a></div>";
 		linkCardEle.title = linkUrl;
 		//linkCardEle.setAttribute('data-element', JSON.stringify(cardElementInfo));
 		$(linkCardEle).find(".linkCardRight").find("a").attr("href", linkUrl);
