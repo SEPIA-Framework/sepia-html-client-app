@@ -62,8 +62,7 @@ html.landscape-small #sepiaFW-chat-controls {
 	border-radius: 18px;
 }
 
-#sepiaFW-main-window button,
-.sepiaFW-touch-device #sepiaFW-main-window button:hover {
+#sepiaFW-main-window button {
 	background: #d74f34;
 	color: #fcd9b5;
 	border-radius: 6px;
@@ -260,6 +259,9 @@ html.landscape-small #sepiaFW-chat-controls {
 .sepiaFW-cards-flexSize-container.oneElement .sepiaFW-cards-list-body .cardBodyItem .newsCenter {
 	margin-top: 5px;
 }
+.sepiaFW-cards-list-footer.newsFooter {
+	margin-top: 3px;
+}
 .sepiaFW-cards-list-body .weatherNowSmall .itemRight,
 .sepiaFW-cards-list-body .weatherNowSmall .itemCenter {
 	margin-left: 3px;
@@ -301,6 +303,10 @@ html.landscape-small #sepiaFW-chat-controls {
 }
 .sepiaFW-cards-list-body .weatherNowSmall .weatherNowSmallImage {
 	background: #3c5573;
+}
+.sepiaFW-cards-list-body .weatherNowDetails li:first-of-type,
+.sepiaFW-cards-list-body .weatherNowDetails li:last-of-type {
+	border-radius: 0;
 }
 
 /*----- teachUI -----*/

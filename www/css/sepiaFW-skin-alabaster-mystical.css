@@ -269,6 +269,7 @@ html.landscape-small #sepiaFW-chat-controls {
 	border: 0;
 }
 
+/* NOTE: we can try to reduce this with new classes .itemLeft, .itemCenter, .itemRight */
 .sepiaFW-cards-list-body .timeEvent > div,
 .sepiaFW-cards-list-body .radioStation > div,
 .sepiaFW-cards-list-body .weatherNowSmall > div,
