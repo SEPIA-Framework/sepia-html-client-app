@@ -1,6 +1,9 @@
 //AUDIO RECORDER (requires SEPIA WebAudio Lib)
 function sepiaFW_build_audio_recorder(){
 	var AudioRecorder = {};
+
+	//Debug modules and interfaces?
+	AudioRecorder.debugInterfaces = false;
 	
 	//Parameters and states
 	AudioRecorder.isRecording = false;
@@ -408,7 +411,7 @@ function sepiaFW_build_audio_recorder(){
 				}
 				dispatchRecorderEvent({ event: "error", error: err });
 			},
-			debugLog: console.log,			//TODO: keep? replace with SepiaFW.debug.info?
+			debugLog: processorDebugLog,
 			targetSampleRate: micAudioRecorderOptions.targetSampleRate,		//NOTE: we use native resampling here if possible and allowed
 			modules: activeAudioModules,
 			destinationNode: undefined,		//defaults to: new "blind" destination (mic) or audioContext.destination (stream)
@@ -447,6 +450,12 @@ function sepiaFW_build_audio_recorder(){
 			targetSampleRate: micAudioRecorderOptions.targetSampleRate
 		});	//Note: Promise
 	}
+	function processorDebugLog(){
+		if (AudioRecorder.debugInterfaces){
+			console.log("WebAudioProcessor - LOG:");
+			console.log.apply(console, arguments);
+		}
+	}
 
 	AudioRecorder.createSepiaSttSocketModule = function(onMessage, options){
 		if (!options) options = {};
@@ -473,7 +482,7 @@ function sepiaFW_build_audio_recorder(){
 						engineOptions: options.engineOptions || {},		//any specific engine options (e.g. ASR model)
 						//other
 						returnAudioFile: false,		//NOTE: can be enabled via "dry run" mode
-						doDebug: true,				//TODO: set to false when ready
+						doDebug: AudioRecorder.debugInterfaces,		//for debugging
 					}
 				}
 			}
@@ -495,7 +504,7 @@ function sepiaFW_build_audio_recorder(){
 						lookbackBufferMs: options.lookbackBufferMs,			//default: off, good value e.g. 2000
 						recordBufferLimitMs: options.recordBufferLimitMs,	//default: use 5MB limit, good value e.g. 6000
 						recordBufferLimitKb: options.recordBufferLimitKb, 	//default: 5MB (overwritten by ms limit), good value e.g. 600
-						doDebug: false	//TODO: set to false when ready
+						doDebug: AudioRecorder.debugInterfaces		//for debugging
 					}
 				}
 			}
@@ -553,9 +562,9 @@ function sepiaFW_build_audio_recorder(){
 							//voiceResetTime: 1500,
 							silenceActivationTime: 450, //250,
 							maxSequenceTime: options.maxSequenceTime || 6000,
-							minSequenceTime: options.minSequenceTime || 600,
-							//doDebug: false
-						}
+							minSequenceTime: options.minSequenceTime || 600
+						},
+						doDebug: AudioRecorder.debugInterfaces	//for debugging
 					}
 				}
 			}

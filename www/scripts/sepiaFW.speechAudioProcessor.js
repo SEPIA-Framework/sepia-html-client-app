@@ -39,7 +39,9 @@ function sepiaFW_build_speech_audio_proc(){
 		//-> start (transcriber active) -> result (partial)
 		//-> speechend (client or server VAD) -> soundend -> audioend -> result (final) -> end
 
-		_asrLogCallback = logCallback || console.error;		//DEBUG
+		_asrLogCallback = logCallback || function(msg){
+			if (SepiaFW.audioRecorder.debugInterfaces) console.error("STT - LOG -", msg);
+		}
 		
 		//TODO: use
 		Recognizer.continuous = false;			//NOTE: compared to WebSpeechAPI this usually makes finalResult more agressive/frequent
@@ -146,12 +148,12 @@ function sepiaFW_build_speech_audio_proc(){
 		//STATES: result, nomatch, error
 
 		if (event.name == "result"){
-			_asrLogCallback('-LOG- ASR RESULT');
+			_asrLogCallback('ASR RESULT');
 			//TODO: build
 			if (Recognizer.onresult) Recognizer.onresult(event);
 
 		}else if (event.name == "nomatch"){
-			_asrLogCallback('-LOG- ASR RESULT NOMATCH');
+			_asrLogCallback('ASR RESULT NOMATCH');
 			if (Recognizer.onnomatch){
 				Recognizer.onnomatch({
 					//TODO: no event?
@@ -165,7 +167,7 @@ function sepiaFW_build_speech_audio_proc(){
 
 		}else if (event.name == "error"){
 			//TODO: implement
-			_asrLogCallback('-LOG- ASR RESULT ERROR');
+			_asrLogCallback('ASR RESULT ERROR');
 			if (Recognizer.onerror) Recognizer.onerror({
 				//TODO: build
 				error: "",
@@ -178,29 +180,29 @@ function sepiaFW_build_speech_audio_proc(){
 	}
 
 	function onStreamStart(){
-		_asrLogCallback('-LOG- ASR STREAM-START');
+		_asrLogCallback('ASR STREAM-START');
 		if (Recognizer.onstart) Recognizer.onstart({
 			//TODO: define event
 		});
 	}
 	function onStreamEnd(ev){
-		_asrLogCallback('-LOG- ASR STREAM-END');
+		_asrLogCallback('ASR STREAM-END');
 		if (Recognizer.onend) Recognizer.onend({
 			//TODO: define event
 		});
 	}
 
 	function onSpeechStart(ev){
-		_asrLogCallback('-LOG- REC SPEECH-START');
+		_asrLogCallback('REC SPEECH-START');
 		if (Recognizer.onspeechstart) Recognizer.onspeechstart({
 			//TODO: define event
 		});
 	}
 	function onSpeechEnd(ev){
 		if (ev.hitLimit){
-			_asrLogCallback('-LOG- REC SPEECH-END - LIMIT');
+			_asrLogCallback('REC SPEECH-END - LIMIT');
 		}else{
-			_asrLogCallback('-LOG- REC SPEECH-END');
+			_asrLogCallback('REC SPEECH-END');
 		}
 		if (Recognizer.onspeechend) Recognizer.onspeechend({
 			//TODO: define event
@@ -209,13 +211,13 @@ function sepiaFW_build_speech_audio_proc(){
 	}
 
 	function onAudioStart(ev){
-		_asrLogCallback('-LOG- REC AUDIO-START - OPENING ASR');
+		_asrLogCallback('REC AUDIO-START - OPENING ASR');
 		if (Recognizer.onaudiostart) Recognizer.onaudiostart({
 			//TODO: define event
 		});
 	}
 	function onAudioEnd(ev){
-		_asrLogCallback('-LOG- REC AUDIO-END');
+		_asrLogCallback('REC AUDIO-END');
 		if (Recognizer.onaudioend) Recognizer.onaudioend({
 			//TODO: define event
 		});
@@ -223,7 +225,7 @@ function sepiaFW_build_speech_audio_proc(){
 
 	//handle error
 	function onAsrErrorAbort(eventName, msg, sepiaCode){
-		_asrLogCallback('-LOG- ASR ERROR - ABORT');
+		_asrLogCallback('ASR ERROR - ABORT');
 		if (Recognizer.onerror) Recognizer.onerror({
 			error: eventName,
 			message: msg,
@@ -269,11 +271,11 @@ function sepiaFW_build_speech_audio_proc(){
 		*/
 
 		//for now: always stop and release existing recorders
-		_asrLogCallback('-LOG- REC CLEAN-UP');
+		_asrLogCallback('REC CLEAN-UP');
 		SepiaFW.audioRecorder.stopAndReleaseIfActive(function(){
 			//TODO: generate new session ID!
 
-			_asrLogCallback('-LOG- REC CREATE');
+			_asrLogCallback('REC CREATE');
 			SpeechRecognition.recognitionModule = buildWebSocketAsrModule();
 			
 			SepiaFW.audioRecorder.createWebAudioRecorder({
@@ -295,7 +297,7 @@ function sepiaFW_build_speech_audio_proc(){
 				//onResamplerMessage: function(msg){}				//NOTE: can be used to check volume
 			}, function(audioProcessor, info){
 				//on init
-				_asrLogCallback('-LOG- REC READY - STARTING');
+				_asrLogCallback('REC READY - STARTING');
 				//start
 				SepiaFW.audioRecorder.startWebAudioRecorder(function(){
 					//STATE: audiostart
@@ -320,7 +322,7 @@ function sepiaFW_build_speech_audio_proc(){
 
 	function stopRecording(){
 		//TODO: fix according to spec
-		_asrLogCallback('-LOG- REC STOPPING');
+		_asrLogCallback('REC STOPPING');
 		if (asrModuleGateIsOpen){
 			setAsrModuleGateState("close");
 			//NOTE: this should trigger stop if gate events still arrive
