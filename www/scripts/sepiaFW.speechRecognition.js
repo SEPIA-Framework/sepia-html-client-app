@@ -423,7 +423,11 @@ function sepiaFW_build_speech_recognition(Speech){
 			if (!recognition){
 				recognition = newRecognizer("onstart");
 			}
-			if (SepiaFW.ui.isChrome){
+			if (Speech.asrEngine == "sepia"){
+				recognition.continuous = false;
+				//NOTE: 'continuous = true' can be too agressive for some ASR engines throwing final results more frequently. Anyway it was always just a WebSpeech hack here ^^.
+
+			}else if (SepiaFW.ui.isChrome){
 				recognition.continuous = true;
 				//NOTE: causes errors in Edge, but may improve performance in Chrome - try to use this and abort manually, "quit_on_final_result" will handle
 			}

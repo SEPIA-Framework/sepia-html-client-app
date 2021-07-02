@@ -1378,11 +1378,11 @@ function sepiaFW_build_webSocket_client(sepiaSessionId){
 
 		webSocket = new WebSocket(uri);
 		
-		webSocket.onmessage = function (msg) {
+		webSocket.onmessage = function(msg){
 			Client.handleMessage(msg); 
 		};
 
-		webSocket.onclose = function () {
+		webSocket.onclose = function(){
 			SepiaFW.debug.log("WebSocket: connection closed or lost");
 			connectionIsOpen = false;
 			isConnecting = false;
@@ -1393,7 +1393,7 @@ function sepiaFW_build_webSocket_client(sepiaSessionId){
 			Client.handleCloseEvent();
 		};
 
-		webSocket.onopen = function () { 
+		webSocket.onopen = function(){
 			SepiaFW.debug.log("WebSocket: connection open");
 			clearTimeout(reconTimer);
 			clearTimeout(instaReconTimer);
@@ -1411,7 +1411,7 @@ function sepiaFW_build_webSocket_client(sepiaSessionId){
 			}
 		};
 
-		webSocket.onerror = function (error) { 
+		webSocket.onerror = function(error){
 			SepiaFW.debug.err("WebSocket:", error);
 			SepiaFW.client.broadcastConnectionStatus(SepiaFW.client.STATUS_ERROR);
 			//TODO: does error mean connection lost?
@@ -2277,7 +2277,7 @@ function sepiaFW_build_webSocket_client(sepiaSessionId){
 					if (actionUser !== SepiaFW.account.getUserId()){
 						SepiaFW.debug.error("remoteAction - tried to use type 'notify' with wrong user");
 					}else{
-						// TODO: implement
+						//TODO: implement
 						SepiaFW.debug.log("remoteAction - no handler yet for type: " + message.data.type);
 					}
 				

@@ -458,12 +458,20 @@ function sepiaFW_build_audio_recorder(){
 				//onerror: function(err){},
 				options: {
 					setup: {
+						//rec. options
 						inputSampleRate: options.inputSampleRate || micAudioRecorderOptions.targetSampleRate,
 						inputSampleSize: options.inputSampleSize || micAudioRecorderOptions.processorBufferSize,
 						lookbackBufferMs: options.lookbackBufferMs,			//default: off, good value e.g. 2000
 						recordBufferLimitMs: options.recordBufferLimitMs,	//default: use 5MB limit, good value e.g. 6000
 						recordBufferLimitKb: options.recordBufferLimitKb, 	//default: 5MB (overwritten by ms limit), good value e.g. 600
-						socketUrl: SepiaFW.speechAudioProcessor.getSocketURI(),		//NOTE: if set to 'debug' it will trigger "dry run" (wav file + pseudo res.)
+						//ASR server options
+						socketUrl: options.socketUrl || "http://localhost:20741",	//NOTE: if set to 'debug' it will trigger "dry run" (wav file + pseudo res.)
+						clientId: options.clientId || "any",
+						accessToken: options.accessToken || "test1234",
+						language: options.language || SepiaFW.speech.getLanguageForASR() || "",		//ASR model language
+						continuous: (options.continuous != undefined? options.continuous : false),	//one final result only or allow multiple?
+						engineOptions: options.engineOptions || {},		//any specific engine options (e.g. ASR model)
+						//other
 						returnAudioFile: false,		//NOTE: can be enabled via "dry run" mode
 						doDebug: true,				//TODO: set to false when ready
 					}

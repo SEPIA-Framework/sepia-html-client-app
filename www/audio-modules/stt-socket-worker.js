@@ -1,5 +1,6 @@
 //imports
 importScripts('./shared/ring-buffer.min.js');
+importScripts('./shared/sepia-stt-socket-client.js');
 
 onmessage = function(e) {
     //Audio worker interface
@@ -46,7 +47,10 @@ let enableDryRun = false;		//skip server and generate pseudo result events to de
 let returnAudioFile = false;
 let wasConstructorCalled = false;
 
-let socketUrl = "";
+let socketUrl;
+let clientId ;
+let accessToken;
+let sttServer;
 
 let inputSampleRate;
 let inputSampleSize;
@@ -60,6 +64,7 @@ let lookbackBufferIsBlocked;
 let _lookbackBufferSize;
 let _lookbackRingBuffer;
 let recordedBuffers;
+let _sentBuffers;
 let recordBufferMaxN;
 
 let gateIsOpen = false;
@@ -83,6 +88,7 @@ function init(){
 		_lookbackBufferSize = 0;
 	}
 	recordedBuffers = [];
+	_sentBuffers = 0;
 	_isFirstValidProcess = true;
 	gateIsOpen = false;
 	_gateOpenTS = 0;
@@ -100,27 +106,40 @@ function gateControl(open, gateOptions){
 	if (open){
 		//we always reset the buffer
 		recordedBuffers = [];
+		_sentBuffers = 0;
 		_gateOpenTS = Date.now();
 		gateIsOpen = true;
 		msg.gate.openedAt = _gateOpenTS;
+		//open connection
+		if (sttServer){
+			sttServer.openConnection();
+		}
 	}else{
 		_gateCloseTS = Date.now();
 		gateIsOpen = false;
 		msg.gate.openedAt = _gateOpenTS;
 		msg.gate.closedAt = _gateCloseTS;
 
-		//send WAV?
-		if (returnAudioFile && recordedBuffers.length){
-			setTimeout(function(){
-				sendWaveFileArrayBuffer(getWave());
-			}, 100);
-		}
-		//DRY-RUN TEST: fake final result
+		//---------- DRY-RUN TEST: fake final result ----------
 		if (enableDryRun && recordedBuffers.length && recordedBuffers.length > recordBufferMaxN/3){
 			setTimeout(function(){
 				//final result
 				sendWebSpeechCompatibleRecognitionResult(true, "End of test message");
 			}, 2000);
+		//-------------------------------------------------------
+		}else if (sttServer && sttServer.connectionIsOpen && sttServer.isReadyForStream){
+			var byteLength = 0;
+			recordedBuffers.forEach(function(ta){
+				byteLength += ta.byteLength;
+			});
+			sttServer.sendAudioEnd(byteLength);
+		}
+
+		//send WAV?
+		if (returnAudioFile && recordedBuffers.length){
+			setTimeout(function(){
+				sendWaveFileArrayBuffer(getWave());
+			}, 100);
 		}
 	}
 	msg.gate.isOpen = gateIsOpen;
@@ -149,6 +168,7 @@ function getWave(){
 //Interface
 
 function constructWorker(options){
+	//TODO: add to constructor: doDebug(?)
 	if (wasConstructorCalled){
 		console.error("SttSocketWorker - Constructor was called twice! 2nd call was ignored but this should be fixed!", "-", workerId);	//DEBUG
 		return;
@@ -158,12 +178,7 @@ function constructWorker(options){
 	doDebug = options.setup.doDebug || false;
 	returnAudioFile = options.setup.returnAudioFile || false;
 
-	socketUrl = options.setup.socketUrl;
-	if (socketUrl == "debug"){
-		enableDryRun = true;
-		returnAudioFile = true;
-	}
-
+	//recorder
 	inputSampleRate = options.setup.inputSampleRate || options.setup.ctxInfo.targetSampleRate || options.setup.ctxInfo.sampleRate;
 	inputSampleSize = options.setup.inputSampleSize || 512;
 	channelCount = 1;	//options.setup.channelCount || 1;		//TODO: only MONO atm
@@ -179,6 +194,55 @@ function constructWorker(options){
 	}
 	recordBufferMaxN = Math.ceil(recordBufferMaxN);
 	if (recordBufferMaxN < 0) recordBufferMaxN = 0;
+
+	//server
+	socketUrl = options.setup.socketUrl || "http://localhost:20741";
+	clientId = options.setup.clientId || "any";
+	accessToken = options.setup.accessToken || "test1234";
+	if (socketUrl == "debug"){
+		enableDryRun = true;
+		returnAudioFile = true;
+	}else{
+		var asrEngineOptions = options.setup.engineOptions || {};	//interimResults (unused?), alternatives, etc.
+		//end on first final result? - NOTE: this works a bit different than WebSpeech "continuous"
+		var continuous = (options.setup.continuous != undefined? options.setup.continuous : false);
+		var engineOptions = {
+			//common options
+			samplerate: inputSampleRate,
+			continuous: continuous,
+			language: (options.setup.language || ""),
+			//specials (e.g. for Vosk):
+			model: (asrEngineOptions.model || ""),		//e.g.: "vosk-model-small-de"
+			/*
+			alternatives: (asrEngineOptions.alternatives || 1),
+			phrases: [],
+			speaker: false,
+			words: false
+			*/
+			doDebug: doDebug
+		};
+		console.error("engineOptions", engineOptions);		//DEBUG
+		var serverOptions = {
+			onOpen: function(){
+				console.error("STT CONNECTION OPEN");		//DEBUG
+			},
+			onReady: function(activeOptions){
+				console.error("STT CONNECTION READY", activeOptions);		//DEBUG
+				startOrContinueStream();
+			},
+			onClose: function(){
+				console.error("STT CONNECTION CLOSED");		//DEBUG
+			},
+			onResult: function(res){
+				console.error("STT CONNECTION RESULT", res);		//DEBUG
+				sendWebSpeechCompatibleRecognitionResult(res.isFinal, res.transcript);
+			},
+			onError: function(err){ 
+				console.error("STT CONNECTION ERROR", err);			//DEBUG
+			}
+		};
+		sttServer = new SepiaSttSocketClient(socketUrl, clientId, accessToken, engineOptions, serverOptions);
+	}
 	
 	init();
     	
@@ -193,6 +257,7 @@ function constructWorker(options){
 			lookbackBufferSizeKb: Math.ceil((_lookbackBufferSize * 2)/1024),	//1 sample = 2 bytes
 			lookbackLimitMs: lookbackBufferMs,
 			recordLimitMs: Math.ceil((recordBufferMaxN * inputSampleSize * 1000)/inputSampleRate)
+			//TODO: add rest
 		}
 	});
 }
@@ -260,13 +325,50 @@ function buildPcmChunks(data){
 			if (doDebug) console.error("SttSocketWorker - DEBUG - Reached a quarter of max. time", recordedBuffers.length);
 			sendWebSpeechCompatibleRecognitionResult(false, "End of ...");
 		}
-	}
 	//-------------------------------------------------------
+	}else if (sttServer && sttServer.connectionIsOpen && sttServer.isReadyForStream){
+		//send buffer
+		startOrContinueStream();
+	}
 	//max length
 	if (recordBufferMaxN && recordedBuffers.length >= recordBufferMaxN){
 		maxLengthReached();
 	}
 	if (!lookbackBufferIsBlocked) lookbackBufferIsBlocked = true;
+}
+
+function startOrContinueStream(){
+	//buffer has data and nothing has been sent yet
+	if (!_sentBuffers && recordedBuffers.length){
+		//send all at once
+		var data = new Blob(recordedBuffers);
+		_sentBuffers = recordedBuffers.length;
+		sendBytes(data);
+	
+	//buffer has data and some has been sent already
+	}else if (_sentBuffers && recordedBuffers.length){
+		if (_sentBuffers == (recordedBuffers.length - 1)){
+			//send last
+			var data = recordedBuffers[_sentBuffers];
+			_sentBuffers++;
+			sendBytes(data);
+
+		}else if (_sentBuffers < recordedBuffers.length){
+			//send rest at once
+			var data = new Blob(recordedBuffers.slice(_sentBuffers));
+			_sentBuffers = recordedBuffers.length;
+			sendBytes(data);
+		
+		}else{
+			//ignore
+		}
+	//no data yet
+	}else{
+		//ignore
+	}
+}
+function sendBytes(data){
+	sttServer.sendBytes(data);
 }
 
 function clearBuffer(){
@@ -275,6 +377,7 @@ function clearBuffer(){
 	}
 	lookbackBufferIsBlocked = false;
 	recordedBuffers = [];
+	_sentBuffers = 0;
 }
 
 //reached max recording length
@@ -334,6 +437,7 @@ function release(options){
 	//clean up worker and close
 	_lookbackRingBuffer = null;
 	recordedBuffers = null;
+	_sentBuffers = undefined;
 	gateIsOpen = false;
 	_gateOpenTS = 0;
 	_gateCloseTS = 0;

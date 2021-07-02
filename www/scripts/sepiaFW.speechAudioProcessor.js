@@ -42,7 +42,7 @@ function sepiaFW_build_speech_audio_proc(){
 		_asrLogCallback = logCallback || console.error;		//DEBUG
 		
 		//TODO: use
-		Recognizer.continuous = true;
+		Recognizer.continuous = false;			//NOTE: compared to WebSpeechAPI this usually makes finalResult more agressive/frequent
 		Recognizer.interimResults = true;
 		Recognizer.lang = SepiaFW.speech.getLanguageForASR();
 		Recognizer.maxAlternatives = 1;
@@ -120,7 +120,19 @@ function sepiaFW_build_speech_audio_proc(){
 				SepiaFW.ui.cards.addWaveCardToView(msg.output.wav);
 			}
 		}, {
-			recordBufferLimitMs: hasVad? maxRecordingMs : maxRecordingMsNoVad
+			//recorder
+			recordBufferLimitMs: hasVad? maxRecordingMs : maxRecordingMsNoVad,
+			//server
+			socketUrl: SpeechRecognition.getSocketURI(), 	//NOTE: if set to 'debug' it will trigger "dry run" (wav file + pseudo res.)
+			clientId: "any",			//TODO: load from settings view
+			accessToken: "test1234",	// "	"	 "
+			//ASR model
+			language: Recognizer.lang,
+			continuous: Recognizer.continuous,
+			engineOptions: {
+				interimResults: Recognizer.interimResults,
+				alternatives: Recognizer.maxAlternatives
+			}
 		});
 		return socketAsrModule;
 	}
