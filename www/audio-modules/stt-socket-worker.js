@@ -168,7 +168,6 @@ function getWave(){
 //Interface
 
 function constructWorker(options){
-	//TODO: add to constructor: doDebug(?)
 	if (wasConstructorCalled){
 		console.error("SttSocketWorker - Constructor was called twice! 2nd call was ignored but this should be fixed!", "-", workerId);	//DEBUG
 		return;
@@ -221,24 +220,24 @@ function constructWorker(options){
 			*/
 			doDebug: doDebug
 		};
-		console.error("engineOptions", engineOptions);		//DEBUG
+		//console.error("engineOptions", engineOptions);		//DEBUG
 		var serverOptions = {
 			onOpen: function(){
-				console.error("STT CONNECTION OPEN");		//DEBUG
+				if (doDebug) console.error("SttSocketWorker - DEBUG - CONNECTION OPEN");
 			},
 			onReady: function(activeOptions){
-				console.error("STT CONNECTION READY", activeOptions);		//DEBUG
+				if (doDebug) console.error("SttSocketWorker - DEBUG - CONNECTION READY", activeOptions);
 				startOrContinueStream();
 			},
 			onClose: function(){
-				console.error("STT CONNECTION CLOSED");		//DEBUG
+				if (doDebug) console.error("SttSocketWorker - DEBUG - CONNECTION CLOSED");
 			},
 			onResult: function(res){
-				console.error("STT CONNECTION RESULT", res);		//DEBUG
+				if (doDebug) console.error("SttSocketWorker - DEBUG - CONNECTION RESULT", res);
 				sendWebSpeechCompatibleRecognitionResult(res.isFinal, res.transcript);
 			},
 			onError: function(err){ 
-				console.error("STT CONNECTION ERROR", err);			//DEBUG
+				console.error("SttSocketWorker - CONNECTION ERROR", err);
 			}
 		};
 		sttServer = new SepiaSttSocketClient(socketUrl, clientId, accessToken, engineOptions, serverOptions);
@@ -256,8 +255,9 @@ function constructWorker(options){
 			channelCount: channelCount,
 			lookbackBufferSizeKb: Math.ceil((_lookbackBufferSize * 2)/1024),	//1 sample = 2 bytes
 			lookbackLimitMs: lookbackBufferMs,
-			recordLimitMs: Math.ceil((recordBufferMaxN * inputSampleSize * 1000)/inputSampleRate)
-			//TODO: add rest
+			recordLimitMs: Math.ceil((recordBufferMaxN * inputSampleSize * 1000)/inputSampleRate),
+			sttServerUrl: socketUrl,
+			sttServerOptions: (sttServer? sttServer.activeOptions : {})
 		}
 	});
 }

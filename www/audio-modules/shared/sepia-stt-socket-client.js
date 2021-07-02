@@ -17,14 +17,22 @@ class SepiaSttSocketClient {
 		this.availableLanguages = [];
 		this.availableModels = [];
 		this.availableFeatures = [];
-		this.activeOptions = engineOptions || {};
-		this.phrases = [];
+		this.activeOptions = Object.assign({
+			samplerate: 16000,
+			continuous: false,
+			language: "",
+			model: ""
+		}, engineOptions);
 
-		this.websocket = undefined;
-		this.activeLanguageCode = engineOptions.language || "";
-		this.activeAsrModel = engineOptions.model || "";
+		this.activeLanguageCode = this.activeOptions.language || "";
+		this.activeAsrModel = this.activeOptions.model || "";
+		this.phrases = this.activeOptions.phrases || [];
 
 		this._msgId = 0;
+
+		this.websocket = undefined;
+
+		this.autoCloseOnLastFinal = true;	//applies to non-continuous setup only
 
 		this.connectionIsOpen = false;
 		this.isReadyForStream = false;
@@ -38,7 +46,7 @@ class SepiaSttSocketClient {
 		};
 
 		this._skipAutoWelcome = serverOptions.skipAutoWelcome;
-		this._doDebug = true; //serverOptions.doDebug;		//DEBUG
+		this._doDebug = serverOptions.doDebug;
 	}
 
 	log(msg){
@@ -179,7 +187,10 @@ class SepiaSttSocketClient {
 			
 			}else if (msgJson.type == "result"){
 				this._onResult(msgJson);
-
+				if (msgJson.isFinal && !this.activeAsrModel.continuous && this.autoCloseOnLastFinal){
+					//after final result, close connection
+					this.closeConnection();
+				}
 			}else if (msgJson.type == "response"){
 				//anything?
 			}
