@@ -75,8 +75,7 @@ function sepiaFW_build_input_controls() {
             pageUrl: "input-controls.html",
             onFinishSetup: onSetupFinish,
             onOpen: onSettingsOpen,
-            onClose: onSettingsClose,
-            theme: SepiaFW.ui.getSkinStyle()
+            onClose: onSettingsClose
         });
     }
     function onSetupFinish(){

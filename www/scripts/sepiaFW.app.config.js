@@ -154,19 +154,11 @@ function sepiaFW_build_config(){
 	Config.openEndPointsSettings = function(){
 		SepiaFW.frames.open({ 
 			pageUrl: "server-access.html",
-			onFinishSetup: function(){
-				SepiaFW.frames.currentScope.onFinishSetup();
-			},
-			onOpen: function(){
-				SepiaFW.frames.currentScope.onOpen();
-			},
 			onClose: function(){
 				if (!SepiaFW.account.getUserId() && !SepiaFW.client.isDemoMode()){
 					SepiaFW.account.toggleLoginBox();
 				}
-			},
-			/*onClose: onSettingsClose,*/
-			theme: SepiaFW.ui.getSkinStyle()
+			}
 		});
 	}
 	

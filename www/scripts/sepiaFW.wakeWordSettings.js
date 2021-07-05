@@ -9,7 +9,7 @@ function sepiaFW_build_wake_word_settings() {
     WakeWordSettings.open = function(){
         SepiaFW.frames.open({ 
             pageUrl: "wake-word-settings.html",
-            //theme: "dark",
+            //theme: "light",
             onFinishSetup: onSetupFinish,
             onOpen: onFrameOpen,
             onClose: onFrameClose

@@ -39,7 +39,7 @@ function sepiaFW_build_always_on(){
 
     //Load always-on screen
     AlwaysOn.start = function(){
-        SepiaFW.frames.open({ 
+        SepiaFW.frames.open({
             pageUrl: "always-on.html",
             onFinishSetup: AlwaysOn.onFinishSetup,
             onOpen: AlwaysOn.onOpen,
@@ -48,7 +48,8 @@ function sepiaFW_build_always_on(){
             onMissedMessageHandler: AlwaysOn.onMissedMessageHandler,
             onSpeechToTextInputHandler: AlwaysOn.onSpeechToTextInputHandler,
             onChatOutputHandler: AlwaysOn.onChatOutputHandler,
-            theme: "dark_full"
+            theme: "dark_full",
+            autoFillFrameEvents: false
         });
     }
     AlwaysOn.stop = function(){

@@ -46,9 +46,9 @@ function sepiaFW_build_frames(){
 	
 	Frames.open = function(info){
 		var isThisFrameActive = (isActive == info.pageUrl);
-
+		
 		//callbacks?
-		onFinishSetup = info.onFinishSetup;
+		if (info.autoFillFrameEvents == undefined) info.autoFillFrameEvents = true;		//make this default true
 		if (isThisFrameActive){
 			onOpen = getFunctionOrScopeEntry(info.onOpen, "onOpen", info.autoFillFrameEvents);
 			onClose = getFunctionOrScopeEntry(info.onClose, "onClose", info.autoFillFrameEvents);
@@ -64,8 +64,10 @@ function sepiaFW_build_frames(){
 		
 		//theme (part 1 - frame):
 		//-get theme from scope?
+		if (info.loadFrameTheme == undefined) info.loadFrameTheme = true;				//make this default true
 		if (!info.theme && info.loadFrameTheme){
 			if (Frames.currentScope.theme) info.theme = Frames.currentScope.theme;
+			else info.theme = SepiaFW.ui.getSkinStyle();
 		}
 		//-clean up old theme first
 		$('#sepiaFW-frames-view').removeClass('dark');
@@ -216,6 +218,7 @@ function sepiaFW_build_frames(){
 			}
 
 			//on finish setup
+			onFinishSetup = getFunctionOrScopeEntry(info.onFinishSetup, "onFinishSetup", info.autoFillFrameEvents);
 			if(onFinishSetup) onFinishSetup();
 
 			if (finishCallback) finishCallback();
