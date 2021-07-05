@@ -185,6 +185,7 @@ function sepiaFW_build_speech_synthesis(Speech, sepiaSessionId){
 	Speech.getVoices = function(successCallback){
 		var voiceSelector = document.getElementById('sepiaFW-menu-select-voice') || document.createElement('select');
 		voiceSelector.id = 'sepiaFW-menu-select-voice';
+		voiceSelector.style.maxWidth = "166px";		//hack to fit menue better
 		$(voiceSelector).find('option').remove();
 		voices = [];
 		//first option is select

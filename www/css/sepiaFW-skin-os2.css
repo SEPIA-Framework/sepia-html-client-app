@@ -1,6 +1,7 @@
 html {
 	background-image: unset;
 	background: linear-gradient(#eabf9c, #f5e3cd, #eabf9c);
+	background-color: #f5e3cd;	/* mainly for automatic skin style cal. */
 }
 #sepiaFW-main-window {
 	color: #fcd9b5;
@@ -307,6 +308,40 @@ html.landscape-small #sepiaFW-chat-controls {
 .sepiaFW-cards-list-body .weatherNowDetails li:first-of-type,
 .sepiaFW-cards-list-body .weatherNowDetails li:last-of-type {
 	border-radius: 0;
+}
+
+/*----- Frames ----- */
+
+#sepiaFW-frames-view {
+	background: #ffefdc;
+}
+#sepiaFW-frames-view.dark {
+	background: #603a25;
+    color: #eee;
+}
+#sepiaFW-frames-nav-bar {
+	background: #603a25;
+    color: #eee;
+}
+.sepiaFW-frames-page.dark .info-text {
+    color: #f5e3cd;
+}
+.sepiaFW-frames-page.dark .subgroup.menu-button {
+    color: #f5e3cd;
+}
+.sepiaFW-frames-page .group .inside-button {
+	border: 0 !important;
+}
+.sepiaFW-frames-page button,
+.sepiaFW-frames-page.dark button {
+    background: #d74f34 !important;
+    color: #fff !important;
+}
+.sepiaFW-frames-page button {
+	border: 1px solid #603a25 !important;
+}
+.sepiaFW-frames-page.dark button {
+	border: 1px solid #f5e3cd !important;
 }
 
 /*----- teachUI -----*/

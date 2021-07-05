@@ -150,6 +150,14 @@
 .sepiaFW-frames-page .group input {
 	width: auto !important;
 }
+.sepiaFW-frames-page .group .string-value {
+	width: 204px;
+	padding: 4px;
+    min-height: 33px;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
 .sepiaFW-frames-page .group.fill {
 	flex-wrap: wrap;
 	margin: 8px 0;

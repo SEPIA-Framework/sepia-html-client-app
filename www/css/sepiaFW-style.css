@@ -1049,9 +1049,13 @@ html.dark-skin #sepiaFW-login-help-btn {
 	padding-top: 2px;
 }
 .sepiaFW-menu-settings-list li span {
-	padding-top: 5px !important;
+	padding: 4px 8px 4px 0 !important;
+    min-height: 28px;
+    display: flex;
+    align-items: center;
 }
-#sepiaFW-chat-menu li i {
+#sepiaFW-chat-menu li i,
+.sepiaFW-menu-settings-list li span + div {
 	float: right;
 }
 #sepiaFW-chat-menu li .sepiaFW-button-inline {
@@ -1063,6 +1067,9 @@ html.dark-skin #sepiaFW-login-help-btn {
 	display: flex;
     justify-content: center;
     align-items: center;
+}
+#sepiaFW-chat-menu li select + .sepiaFW-button-inline {
+	margin-right: 4px;
 }
 #sepiaFW-chat-menu li .sepiaFW-button-inline i {
 	float: none;
