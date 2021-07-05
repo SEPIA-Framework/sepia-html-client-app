@@ -902,15 +902,7 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 			deviceSite.appendChild(Build.inlineActionButton('sepiaFW-menu-device-site-settings', "<i class='material-icons md-inherit'>settings</i>",
 				function(btn){
 					SepiaFW.frames.open({ 
-						pageUrl: "device-site.html",
-						onFinishSetup: function(){
-							SepiaFW.frames.currentScope.onFinishSetup();
-						},
-						onOpen: function(){
-							SepiaFW.frames.currentScope.onOpen();
-						},
-						/*onClose: onSettingsClose,*/
-						theme: SepiaFW.ui.getSkinStyle()
+						pageUrl: "device-site.html"
 					});
 				})
 			);
@@ -919,15 +911,7 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 			mediaDevicesSettings.appendChild(Build.inlineActionButton('sepiaFW-menu-media-devices', "<i class='material-icons md-inherit'>settings</i>",
 				function(btn){
 					SepiaFW.frames.open({ 
-						pageUrl: "media-devices.html",
-						onFinishSetup: function(){
-							SepiaFW.frames.currentScope.onFinishSetup();
-						},
-						onOpen: function(){
-							SepiaFW.frames.currentScope.onOpen();
-						},
-						/*onClose: onSettingsClose,*/
-						theme: SepiaFW.ui.getSkinStyle()
+						pageUrl: "media-devices.html"
 					});
 				})
 			);
@@ -976,7 +960,16 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 				});
 				
 				//add speech recognition engine select
-				document.getElementById('sepiaFW-menu-select-stt-li').appendChild(SepiaFW.speech.getSttEnginesSelector(
+				var asrSelectAndSettingsBox = document.createElement("div");
+				document.getElementById('sepiaFW-menu-select-stt-li').appendChild(asrSelectAndSettingsBox);
+				asrSelectAndSettingsBox.appendChild(Build.inlineActionButton('sepiaFW-menu-stt-settings', "<i class='material-icons md-inherit'>settings</i>",
+					function(btn){
+						SepiaFW.frames.open({
+							pageUrl: "stt-settings.html"
+						});
+					})
+				);
+				asrSelectAndSettingsBox.appendChild(SepiaFW.speech.getSttEnginesSelector(
 					function(selectedEngine){
 						//do something here?
 						if (selectedEngine != "native"){
@@ -1500,7 +1493,6 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 			document.getElementById("sepiaFW-menu-account-pwd-reset-btn").addEventListener("click", function(){
 				SepiaFW.frames.open({
 					pageUrl: "password-reset.html",
-					theme: SepiaFW.ui.getSkinStyle(),
 					onOpen: function(){ 
 						$('#sepiaFW-pwd-reset-view').find('input').val(''); 
 						$('#sepiaFW-pwd-reset-uid').val(SepiaFW.account.getUserId());

@@ -1,0 +1,98 @@
+<div id='sepiaFW-frame-carousel' class="sepiaFW-inner-container sepiaFW-carousel">
+	<div class='sepiaFW-carousel-pane-container'>
+		<!-- Page 1 -->
+		<div id="sepiaFW-frame-page-1" class='sepiaFW-frames-page sepiaFW-carousel-pane'>
+			<h3>STT Settings</h3>
+			<p class="info-text">Here you can configure the connection to your STT server and some.</p>
+			<div class="group-container">
+				<h3>Active Engine</h3>
+				<div class="group">
+					<label>ASR Engine:</label>
+					<span id="sepiaFW-stt-settings-server-engine" class="string-value">---</span>
+				</div>
+				<h3>SEPIA STT Server</h3>
+				<div class="group">
+					<label>ASR Server:</label>
+					<input id="sepiaFW-stt-settings-server-url" type="url" placeholder="http://localhost:20741">
+				</div>
+				<div class="group">
+					<label>User:</label>
+					<input id="sepiaFW-stt-settings-server-user" placeholder="any">
+				</div>
+				<div class="group">
+					<label>Auth. Token:</label>
+					<input id="sepiaFW-stt-settings-server-token" type="password" placeholder="test1234">
+				</div>
+				<div class="group" style="justify-content: center;">
+					<button id="sepiaFW-stt-settings-server-info-btn" 
+						onclick="SepiaFW.frames.currentScope.loadServerInfo();">Load Server Info</button>
+				</div>
+				<h3>Info</h3>
+				<div id="sepiaFW-stt-settings-info-msg" style="width: 100%; white-space: break-spaces; word-wrap: break-word;"></div>
+			</div>
+		</div>
+	</div>
+</div>
+<div id="sepiaFW-frames-nav-bar" class='sepiaFW-layer-header'>
+	<button id="sepiaFW-frames-close" class='entry'>
+		<i class="material-icons md-btn2">&#xE5CD;</i>
+	</button>
+	<button id="sepiaFW-frames-show-prev-page" class='entry'>
+		<i class="material-icons md-btn2">keyboard_arrow_left</i><span data-localize="back">back</span>
+	</button>
+	<button id="sepiaFW-frames-show-next-page" class='entry'>
+		<span data-localize="next">next</span><i class="material-icons md-btn2">keyboard_arrow_right</i>
+	</button>
+	<div id="sepiaFW-frames-nav-bar-page-indicator"><div>&nbsp;</div></div>
+</div>
+<script>
+	$('#sepiaFW-frame-carousel').find('[data-localize]').each(function(){
+		$(this).html(SepiaFW.local.g(this.dataset.localize));
+	});
+	
+	//Define scope
+	SepiaFW.frames.currentScope = {
+
+		onFinishSetup: function(){},
+		
+		onOpen: function(){
+			$('#sepiaFW-stt-settings-server-engine').text(SepiaFW.speech.getAsrEngine());
+			if (SepiaFW.speech.getAsrEngine() != "sepia"){
+				$('#sepiaFW-stt-settings-server-info-btn').hide();
+			}
+			$('#sepiaFW-stt-settings-server-url').val(SepiaFW.speechAudioProcessor.socketURI);
+			$('#sepiaFW-stt-settings-server-user').val();
+			$('#sepiaFW-stt-settings-server-token').val();
+		},
+
+		loadServerInfo: function(){
+			if (SepiaFW.speech.getAsrEngine() == "sepia"){
+				var httpUrl = SepiaFW.speechAudioProcessor.socketURI.replace(/^ws(s|):/, "http$1:").replace(/\/$/, "");
+				fetch(httpUrl + "/settings", {
+					method: "GET"
+				}).then(function(res){
+					if (res.ok) return res.json();
+				}).then(function(json){
+					var msg = "Server info:\n\n";
+					if (json && json.settings){
+						Object.keys(json.settings).forEach(function(k){
+							msg += k + " = " + json.settings[k] + "\n";
+						});						
+					}
+					SepiaFW.frames.currentScope.showInfo(msg);
+				}).catch(function(err){
+					SepiaFW.frames.currentScope.showError("Failed to load server info.");
+				});
+			}else{
+				SepiaFW.ui.showPopup("Sorry, but currently this feature is only supported for engine 'sepia'.");
+			}
+		},
+
+		showInfo: function(msg){
+			$('#sepiaFW-stt-settings-info-msg').css("color", "").text(msg);
+		},
+		showError: function(msg){
+			$('#sepiaFW-stt-settings-info-msg').css("color", "#f00").text(msg);
+		}
+	}
+</script>
