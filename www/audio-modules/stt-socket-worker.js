@@ -52,6 +52,8 @@ let clientId ;
 let accessToken;
 let sttServer;
 
+let messageFormat;			//e.g.: "webSpeechApi" or "default"
+
 let inputSampleRate;
 let inputSampleSize;
 let channelCount;
@@ -124,7 +126,11 @@ function gateControl(open, gateOptions){
 		if (enableDryRun && recordedBuffers.length && recordedBuffers.length > recordBufferMaxN/3){
 			setTimeout(function(){
 				//final result
-				sendWebSpeechCompatibleRecognitionResult(true, "End of test message");
+				if (messageFormat == "webSpeechApi"){
+					sendWebSpeechCompatibleRecognitionResult(true, "End of test message");
+				}else{
+					sendDefaultRecognitionResult({"type":"result","msg_id":Date.now(),"code":200,"transcript":"End of test message","isFinal":true});
+				}
 			}, 2000);
 		//-------------------------------------------------------
 		}else if (sttServer && sttServer.connectionIsOpen && sttServer.isReadyForStream){
@@ -198,18 +204,21 @@ function constructWorker(options){
 	socketUrl = options.setup.socketUrl || "http://localhost:20741";
 	clientId = options.setup.clientId || "any";
 	accessToken = options.setup.accessToken || "test1234";
+	messageFormat = options.setup.messageFormat || "default";
 	if (socketUrl == "debug"){
 		enableDryRun = true;
 		returnAudioFile = true;
 	}else{
 		var asrEngineOptions = options.setup.engineOptions || {};	//interimResults (unused?), alternatives, etc.
 		//end on first final result? - NOTE: this works a bit different than WebSpeech "continuous"
-		var continuous = (options.setup.continuous != undefined? options.setup.continuous : false);
+		var continuous = (options.setup.continuous != undefined)? options.setup.continuous : false;
+		var optimizeFinalResult = (options.setup.optimizeFinalResult != undefined)? options.setup.optimizeFinalResult : true;
 		var engineOptions = {
 			//common options
 			samplerate: inputSampleRate,
 			continuous: continuous,
 			language: (options.setup.language || ""),
+			optimizeFinalResult: optimizeFinalResult,
 			//specials (e.g. for Vosk):
 			model: (asrEngineOptions.model || ""),		//e.g.: "vosk-model-small-de"
 			/*
@@ -234,10 +243,27 @@ function constructWorker(options){
 			},
 			onResult: function(res){
 				if (doDebug) console.error("SttSocketWorker - DEBUG - CONNECTION RESULT", res);
-				sendWebSpeechCompatibleRecognitionResult(res.isFinal, res.transcript);
+				if (messageFormat == "webSpeechApi"){
+					sendWebSpeechCompatibleRecognitionResult(res.isFinal, res.transcript);
+				}else{
+					sendDefaultRecognitionResult(res);
+				}
 			},
 			onError: function(err){ 
+				if (!err) err = {name: "UnknownError", message: "Unknown error"};
 				console.error("SttSocketWorker - CONNECTION ERROR", err);
+				if (messageFormat == "webSpeechApi"){
+					var reason = "unknown";
+					if (err.name == "SocketConnectionError"){
+						reason = "network";
+					}else if (err.name == "Unauthorized"){
+						//reason = "not-allowed";	//NOTE: currently mistaken for microphone permission error
+						reason = "service-not-allowed";
+					}
+					sendWebSpeechCompatibleError(reason, err.message || err.name || "");
+				}else{
+					sendDefaultErrorEvent(err);
+				}
 			}
 		};
 		sttServer = new SepiaSttSocketClient(socketUrl, clientId, accessToken, engineOptions, serverOptions);
@@ -323,7 +349,11 @@ function buildPcmChunks(data){
 	if (enableDryRun){
 		if (recordedBuffers.length == Math.ceil(recordBufferMaxN/4)){
 			if (doDebug) console.error("SttSocketWorker - DEBUG - Reached a quarter of max. time", recordedBuffers.length);
-			sendWebSpeechCompatibleRecognitionResult(false, "End of ...");
+			if (messageFormat == "webSpeechApi"){
+				sendWebSpeechCompatibleRecognitionResult(false, "End of ...");
+			}else{
+				sendDefaultRecognitionResult({"type":"result","msg_id":Date.now(),"code":200,"transcript":"End of ...","isFinal":false});
+			}
 		}
 	//-------------------------------------------------------
 	}else if (sttServer && sttServer.connectionIsOpen && sttServer.isReadyForStream){
@@ -401,6 +431,42 @@ function sendWebSpeechCompatibleRecognitionResult(isFinal, transcript){
 			timeStamp: Date.now()
 		},
 		eventFormat: "webSpeechApi"
+	});
+}
+function sendDefaultRecognitionResult(event){
+	postMessage({
+		recognitionEvent: event,
+		eventFormat: "default"
+	});
+}
+//send error message
+function sendWebSpeechCompatibleError(errorName, errorMessage){
+	var eventName = "error";	//possible as well: "nomatch"
+	/*supported errors:
+		"network" (1, 2: timeout, 8: busy, 10: rate-limit)
+		"audio-capture" (3, happens before worker)
+		"unknown" (4, 5)
+		"no-speech" (6)
+		"nomatch" (7, use eventName)
+		"aborted" (?)
+		"not-allowed" (9) / "service-not-allowed"
+		"bad-grammar" (?)
+		"language-not-supported" (12, 13)
+	*/
+	postMessage({
+		recognitionEvent: {
+			name: eventName,
+			error: errorName,
+			message: errorMessage,
+			timeStamp: Date.now()
+		},
+		eventFormat: "webSpeechApi"
+	});
+}
+function sendDefaultErrorEvent(error){
+	postMessage({
+		recognitionEvent: error,
+		eventFormat: "default"
 	});
 }
 

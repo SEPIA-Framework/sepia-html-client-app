@@ -31,6 +31,7 @@ class SepiaSttSocketClient {
 		this._msgId = 0;
 
 		this.websocket = undefined;
+		this._connectionId = 0;
 
 		this.autoCloseOnLastFinal = true;	//applies to non-continuous setup only
 
@@ -39,7 +40,7 @@ class SepiaSttSocketClient {
 
 		this._onOpen = serverOptions.onOpen || function(){};
 		this._onReady = serverOptions.onReady || function(activeOptions){};
-		this._onClose = serverOptions.onClose || function(){};
+		this._onClose = serverOptions.onClose || function(ev){};
 		this._onResult = serverOptions.onResult || function(res){};
 		this._onError = serverOptions.onError || function(err){
 			console.error("SepiaSttSocketClient ERROR", err);
@@ -115,6 +116,7 @@ class SepiaSttSocketClient {
 			return false;
 		}
 		var self = this;
+		var thisConnecitonId;
 	
 		//CREATE
 		this.websocket = new WebSocket(this.socketHost);
@@ -123,6 +125,8 @@ class SepiaSttSocketClient {
 		this.websocket.onopen = function(){
 			self.log("Connection OPEN");
 			self.connectionIsOpen = true;
+			self._connectionId++;
+			thisConnecitonId = self._connectionId;
 			self._onOpen();
 			//send welcome
 			if (!self._skipAutoWelcome){
@@ -130,11 +134,12 @@ class SepiaSttSocketClient {
 			}
 		}
 		//ONCLOSE
-		this.websocket.onclose = function(){
+		this.websocket.onclose = function(ev){
 			self.log("Connection CLOSED");
 			self.connectionIsOpen = false;
 			self.isReadyForStream = false;
-			self._onClose();
+			//understand error: ev.code or ev.reason might give more insights
+			self._onClose(ev);
 		}
 		//ONMESSAGE
 		this.websocket.onmessage = function(event){
@@ -150,7 +155,12 @@ class SepiaSttSocketClient {
 		}
 		//ONERROR
 		this.websocket.onerror = function(error){
-			self.handleSocketError(error);
+			if (!thisConnecitonId){
+				//never opened
+				self._onError({name: "SocketConnectionError", message: "Failed to connect"});
+			}else{
+				self.handleSocketError(error);
+			}
 		}
 
 		return true;
@@ -201,10 +211,11 @@ class SepiaSttSocketClient {
 		var error = {};
 		if (!err) error = {name: "SocketMessageError", message: "unknown"};
 		else if (typeof err == "string") error = {name: "SocketMessageError", message: err};
-		else error = {name: (err.name || "SocketMessageError"), message: (err.message || "unknown")};
+		else error = {name: (err.name || "SocketMessageError"), message: (err.message || "unknown"), details: err};
+		//send
 		this._onError(error);
 		//Errors are not acceptable :-p - close in any case
-		this.closeConnection();
+		this.closeConnection();		//this has probably no effect at all
 	}
 
 	sendJson(json){
