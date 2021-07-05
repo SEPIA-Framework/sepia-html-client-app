@@ -210,9 +210,9 @@ function sepiaFW_build_speech_recognition(Speech){
 		//EXAMPLE: 
 		SepiaFW.animate.assistant.idle('asrNoResult');
 	}
-	function broadcastWrongAsrSettings(){
+	function broadcastWrongAsrSettings(isMicPermission){
 		//EXAMPLE:
-		var msg = SepiaFW.local.g('asrSettingsProblem');
+		var msg = SepiaFW.local.g(isMicPermission? 'asrMicProblem' : 'asrSettingsProblem');
 		if (!SepiaFW.ui.isSecureContext){
 			msg += " " + SepiaFW.local.g('possible_reason_origin_unsecure') 
 				+ " - <a href='https://github.com/SEPIA-Framework/sepia-docs/wiki/SSL-for-your-Server' target=_blank style='color: inherit;'>" 
@@ -424,12 +424,14 @@ function sepiaFW_build_speech_recognition(Speech){
 				recognition = newRecognizer("onstart");
 			}
 			if (Speech.asrEngine == "sepia"){
+				recognition.interimResults = true;
 				recognition.continuous = false;
 				//NOTE: 'continuous = true' can be too agressive for some ASR engines throwing final results more frequently. Anyway it was always just a WebSpeech hack here ^^.
 
 			}else if (SepiaFW.ui.isChrome){
+				recognition.interimResults = true;
 				recognition.continuous = true;
-				//NOTE: causes errors in Edge, but may improve performance in Chrome - try to use this and abort manually, "quit_on_final_result" will handle
+				//NOTE: causes errors in Edge, but may improve performance in Chrome - try to use this and abort manually, "quit_on_final_result" will handle it
 			}
 			
 			//workaround till bugfix comes ... (TODO: is it fixed now?)
@@ -522,7 +524,7 @@ function sepiaFW_build_speech_recognition(Speech){
 				if (event == undefined){
 					//No event likely just means no result due to abort
 					SepiaFW.debug.err('ASR: unknown ERROR, no error event data!');
-					var err_msg = 'E0? - unknown ERROR, no error event data!';
+					var err_msg = 'E0? - Unknown ERROR, no error event data!';
 					broadcastUnknownAsrError(err_msg);
 					before_error(error_callback, err_msg);
 					return;
@@ -535,7 +537,7 @@ function sepiaFW_build_speech_recognition(Speech){
 				
 				//light errors
 				if (event.error == 'no-speech' || event.error == 4 || event.error == 6 || event.error == 7 || event.error == 8){
-					before_error(error_callback, 'E01 - no speech detected!');
+					before_error(error_callback, 'E01 - No speech detected!');
 					if (!quit_on_final_result){	
 						restart_anyway = true;
 					}
@@ -543,10 +545,11 @@ function sepiaFW_build_speech_recognition(Speech){
 				//severe errors
 				}else if (event.error == 'audio-capture' || event.error == 3 || event.error == 5){
 					broadcastWrongAsrSettings();
-					before_error(error_callback, 'E02 - no microphone found or problem with audio-capture interface!');
+					before_error(error_callback, 'E02 - There was a problem with the microphone or audio processing pipeline!');
 				
 				}else if (event.error == 'not-allowed' || event.error == 9){
-					broadcastWrongAsrSettings();
+					//TODO: this can be an authentication problem as well ... not only microphone permission
+					broadcastWrongAsrSettings(true);
 					if (event.timeStamp - start_timestamp < 100) {
 						before_error(error_callback, 'E03 - Permission to use microphone was blocked!'); //<br>To change that plz go to chrome://settings/contentExceptions#media-stream');
 					} else {
@@ -557,15 +560,15 @@ function sepiaFW_build_speech_recognition(Speech){
 				}else if (event.error == 'network' || event.error == 1 || event.error == 2){
 					if (event.sepiaCode && event.sepiaCode == 1){
 						broadcastMissingServerInfo();
-						before_error(error_callback, event.message || 'E00 - no server for speech recognition defined!');
+						before_error(error_callback, event.message || 'E00 - No server for speech recognition defined!');
 					}else{
 						broadcastConnectionError();
-						before_error(error_callback, event.message || 'E04 - network problem or connection issues!');
+						before_error(error_callback, event.message || 'E04 - Network problem or connection issues!');
 					}
 				}else{
-					SepiaFW.debug.err('ASR: '+ (event.error? event.error : 'unknown ERROR!'), event);
+					SepiaFW.debug.err('ASR: '+ (event.error? event.error : 'Unknown ERROR!'), event);
 					//TODO: do something here!
-					var err_msg = 'E0? - ' + (event.error? event.error : 'unknown ERROR!');
+					var err_msg = 'E0? - ' + (event.error? event.error : 'Unknown ERROR!');
 					broadcastUnknownAsrError(err_msg);
 					before_error(error_callback, err_msg);
 					return;

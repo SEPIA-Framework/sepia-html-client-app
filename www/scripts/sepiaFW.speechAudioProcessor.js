@@ -126,14 +126,16 @@ function sepiaFW_build_speech_audio_proc(){
 			recordBufferLimitMs: hasVad? maxRecordingMs : maxRecordingMsNoVad,
 			//server
 			socketUrl: SpeechRecognition.getSocketURI(), 	//NOTE: if set to 'debug' it will trigger "dry run" (wav file + pseudo res.)
-			clientId: "any",			//TODO: load from settings view
-			accessToken: "test1234",	// "	"	 "
+			clientId: "any",						//TODO: load from settings view
+			accessToken: "test1234",				// "	"	 "
 			//ASR model
 			language: Recognizer.lang,
 			continuous: Recognizer.continuous,
 			engineOptions: {
 				interimResults: Recognizer.interimResults,
-				alternatives: Recognizer.maxAlternatives
+				alternatives: Recognizer.maxAlternatives,
+				optimizeFinalResult: undefined,		//TODO: load from settings view
+				model: undefined					//TODO: load from settings view
 			}
 		});
 		return socketAsrModule;
@@ -145,14 +147,15 @@ function sepiaFW_build_speech_audio_proc(){
 	}
 
 	function onAsrResult(event){
-		//STATES: result, nomatch, error
+		//EVENTS: result, nomatch, error
+		var eventName = event.name || event.type;
 
-		if (event.name == "result"){
+		if (eventName == "result"){
 			_asrLogCallback('ASR RESULT');
 			//TODO: build
 			if (Recognizer.onresult) Recognizer.onresult(event);
 
-		}else if (event.name == "nomatch"){
+		}else if (eventName == "nomatch"){
 			_asrLogCallback('ASR RESULT NOMATCH');
 			if (Recognizer.onnomatch){
 				Recognizer.onnomatch({
@@ -165,13 +168,13 @@ function sepiaFW_build_speech_audio_proc(){
 				});
 			}
 
-		}else if (event.name == "error"){
+		}else if (eventName == "error"){
 			//TODO: implement
 			_asrLogCallback('ASR RESULT ERROR');
 			if (Recognizer.onerror) Recognizer.onerror({
-				//TODO: build
-				error: "",
-				timeStamp: new Date().getTime()
+				error: event.error || "",
+				message: event.message || "",
+				timeStamp: event.timeStamp || new Date().getTime()
 			});
 			
 		}else{
@@ -314,7 +317,7 @@ function sepiaFW_build_speech_audio_proc(){
 				//on runtime err.
 				SepiaFW.debug.error("STT (Socket) - Runtime error:", runtimeErr);
 				onAsrErrorAbort("audio-capture",
-					"E03 - A problem occurred during the audio-capture process!");
+					"E02 - There was a problem with the microphone or audio processing pipeline!");
 				return true;
 			});
 		});
