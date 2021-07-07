@@ -23,18 +23,22 @@ SepiaFW.settings = {
 				"micConfirm": "sounds/coin.mp3",
 				"alarm": "sounds/alarm.mp3"
 			},
+			"voiceEngine": "sepia",
+			"voiceCustomServerURI": "",
 			"en-voice": "",
 			"de-voice": "",
-			"speech-voice-custom-server": ""
+			"asrEngine": "native",
+			"asrServerURI": "ws://localhost:20741/stt/socket",
+			"asrServerUser": "any",
+			"asrServerToken": "test1234",
+			"en-asrModel": "",
+			"de-asrModel": ""
 		},
 		user: {
 			"clexiSocketURI": "ws://localhost:8080",
 			"clexiServerId": "clexi-123",
 			"clexiConnect": true,
 			"useRemoteCmdl": true,
-			"speech-voice-engine": "sepia",
-			"speech-asr-engine": "native",
-			"speech-websocket-uri": "ws://localhost:20741/stt/socket",
 			"useGamepads": true,
 			"useBluetoothBeacons": true,
 			"useBluetoothBeaconsInAoModeOnly": false,
