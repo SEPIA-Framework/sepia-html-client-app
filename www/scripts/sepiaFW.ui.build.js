@@ -992,16 +992,18 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 				if (!SepiaFW.speechAudioProcessor || !SepiaFW.speechAudioProcessor.isAsrSupported){
 					$("#sepiaFW-menu-stt-socket-url-li").hide();
 				}else{
+					//TODO: buffer hidden option (legacy setting - not tested! - keep?)
 					SepiaFW.ui.longPressShortPressDoubleTap($("#sepiaFW-menu-stt-label")[0], function(){
+						var defaultBufferLength = SepiaFW.audioRecorder.getWebAudioRecorderOptions()["processorBufferSize"];
 						SepiaFW.ui.showPopup("Set new ASR streaming audio default buffer length", {
-							inputLabelOne: "New buffer length (currently: " + RecorderJS.defaultBufferLength + ")",
+							inputLabelOne: "New buffer length (currently: " + defaultBufferLength + ")",
 							buttonOneName: SepiaFW.local.g("ok"),
 							buttonOneAction: function(btn, input1){
 								input1 = Number.parseInt(input1);
 								console.log(input1);
 								if (input1){
-									RecorderJS.defaultBufferLength = input1;
-									SepiaFW.data.setPermanent("sepia-asr-buffer-length", input1);
+									SepiaFW.audioRecorder.setWebAudioRecorderOption("processorBufferSize", input1);
+									//SepiaFW.data.setPermanent("sepia-asr-buffer-length", input1);
 									setTimeout(function(){
 										SepiaFW.ui.showPopup("New buffer length for custom ASR: " + input1);
 									}, 303);

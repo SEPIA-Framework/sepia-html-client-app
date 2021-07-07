@@ -6,19 +6,23 @@ function sepiaFW_build_speech_audio_proc(){
 	//Parameters and states
 	
 	SpeechRecognition.isWebSocketAsr = true;	//just a type lable for main speech class
-	SpeechRecognition.socketURI = SepiaFW.data.get('speech-websocket-uri') || '';		//add your ASR WebSocket server here
+	SpeechRecognition.socketURI = SepiaFW.data.getPermanent('asrServerURI') ||
+			SepiaFW.data.get('speech-websocket-uri') || '';		//ASR WebSocket server (2nd value is legacy support)
+	SpeechRecognition.serverUser = SepiaFW.data.getPermanent('asrServerUser') || "";
+	SpeechRecognition.serverToken = SepiaFW.data.getPermanent('asrServerToken') || "";		//TODO: should this be hidden somehow?
+	
 	SpeechRecognition.getSocketURI = function(){
 		return SpeechRecognition.socketURI;
 	}
 	SpeechRecognition.setSocketURI = function(socketURI){
-		SepiaFW.data.set('speech-websocket-uri', socketURI);
+		SepiaFW.data.setPermanent('asrServerURI', socketURI);
 		SpeechRecognition.socketURI = socketURI;
 		SpeechRecognition.isAsrSupported = testWebSocketAsrSupport();
 		//refresh speech info
 		SepiaFW.speech.testAsrSupport();
 		//refresh UI
 		$('#sepiaFW-menu-stt-socket-url').val(SpeechRecognition.socketURI);
-	} 		
+	}
 
 	function testWebSocketAsrSupport(){
 		return (SepiaFW.webAudio && SepiaFW.webAudio.isStreamRecorderSupported)  
@@ -26,6 +30,84 @@ function sepiaFW_build_speech_audio_proc(){
 	}
 	
 	SpeechRecognition.isAsrSupported = testWebSocketAsrSupport();
+
+	SpeechRecognition.setServerUser = function(user){
+		SepiaFW.data.setPermanent('asrServerUser', user);
+		SpeechRecognition.serverUser = user;
+	}
+	SpeechRecognition.setServerToken = function(token){
+		SepiaFW.data.setPermanent('asrServerToken', token);
+		SpeechRecognition.serverToken = token;
+	}
+
+	//Server settings
+
+	var asrModels = [];
+	var selectedAsrModelName;
+	var optimizeFinalResult = true;		//TODO: store/restore this setting
+
+	SpeechRecognition.refreshEngineSettings = function(asrEngine, langCode){
+		//if (asrEngine == "sepia"){}
+		selectedAsrModelName = SepiaFW.data.getPermanent(langCode + "-asr-model") || "";
+		SepiaFW.debug.log("ASR (Socket) - Set model: " + ((selectedAsrModelName)? selectedAsrModelName : "undefined"));
+	}
+
+	SpeechRecognition.getServerSettings = function(successCallback, errorCallback){
+		if (SepiaFW.speech.getAsrEngine() == "sepia"){
+			var httpUrl = SpeechRecognition.socketURI.replace(/^ws(s|):/, "http$1:").replace(/\/$/, "");
+			fetch(httpUrl + "/settings", {
+				method: "GET"
+			}).then(function(res){
+				if (res.ok) return res.json();
+			}).then(function(json){
+				if (json && json.settings){
+					asrModels = json.settings.models;
+					if (successCallback) successCallback(json.settings);
+				}else{
+					SepiaFW.debug.error("ASR (Socket) - Server info was empty");
+					if (successCallback) successCallback({});
+				}
+			}).catch(function(err){
+				SepiaFW.debug.error("ASR (Socket) - Failed to load server info.", err);
+				if (errorCallback) errorCallback(
+					{name: "SttConnectionError", message: "Failed to load server info."}
+				);
+			});
+		}else{
+			if (errorCallback) errorCallback(
+				{name: "NotSupported", message: "'getServerSettings' not yet supported for selected engine."}
+			);
+		}
+	}
+
+	SpeechRecognition.setAsrModel = function(newModel){
+		if (!asrModels || !asrModels.length || asrModels.indexOf(newModel) < 0){
+			//console.error("MODEL NOT FOUND, setting empty");		//DEBUG
+			newModel = "";
+		}
+		if (SpeechRecognition.isAsrSupported){
+			if (SepiaFW.speech.getAsrEngine() == "sepia"){
+				//custom model
+				selectedAsrModelName = newModel;
+				SepiaFW.debug.log("ASR (Socket) - Set model: " + ((newModel)? newModel : "undefined"));
+				//store in any case
+				SepiaFW.data.setPermanent(SepiaFW.speech.getLanguage() + "-asr-model", newModel);
+			}else{
+				selectedAsrModelName = "";
+				SepiaFW.debug.error("ASR (Socket) - 'setAsrModel' not supported by engine: " + SepiaFW.speech.getAsrEngine());
+			}
+		}
+	}
+	SpeechRecognition.getActiveAsrModel = function(){
+		return selectedAsrModelName;
+	}
+
+	SpeechRecognition.setOptimizeFinalResult = function(val){
+		optimizeFinalResult = val;
+	}
+	SpeechRecognition.getOptimizeFinalResult = function(){
+		return optimizeFinalResult;
+	}
 	
 	//--------------------------------
 
@@ -126,16 +208,16 @@ function sepiaFW_build_speech_audio_proc(){
 			recordBufferLimitMs: hasVad? maxRecordingMs : maxRecordingMsNoVad,
 			//server
 			socketUrl: SpeechRecognition.getSocketURI(), 	//NOTE: if set to 'debug' it will trigger "dry run" (wav file + pseudo res.)
-			clientId: "any",						//TODO: load from settings view
-			accessToken: "test1234",				// "	"	 "
+			clientId: SpeechRecognition.serverUser,
+			accessToken: SpeechRecognition.serverToken,
 			//ASR model
 			language: Recognizer.lang,
 			continuous: Recognizer.continuous,
 			engineOptions: {
 				interimResults: Recognizer.interimResults,
 				alternatives: Recognizer.maxAlternatives,
-				optimizeFinalResult: undefined,		//TODO: load from settings view
-				model: undefined					//TODO: load from settings view
+				optimizeFinalResult: optimizeFinalResult,
+				model: selectedAsrModelName
 			}
 		});
 		return socketAsrModule;
@@ -243,8 +325,15 @@ function sepiaFW_build_speech_audio_proc(){
 		
 		//check requirements
 		if (!SpeechRecognition.isAsrSupported){
-			onAsrErrorAbort("audio-capture", 
+			onAsrErrorAbort("not-supported", 
 				"E00 - Speech recognition not supported by your client :-(");
+			return;
+		}
+		if (SepiaFW.speech.getAsrEngine() == "socket"){
+			onAsrErrorAbort("not-supported", 
+				"E00 - Sorry, but the legacy 'socket' STT server is not supported anymore by your client. " 
+					+ "Please visit the <a href='https://github.com/SEPIA-Framework/sepia-stt-server' target=_blank style='color: inherit;'>SEPIA STT Server</a> " 
+					+ "page to learn how to easily convert old models for the new server.");
 			return;
 		}
 		if (!SpeechRecognition.socketURI){
@@ -255,7 +344,7 @@ function sepiaFW_build_speech_audio_proc(){
 		/* -- TODO: we skip these for the test phase atm:
 		if (!SpeechRecognition.recognitionModule){
 			//TODO: what if we killed it on purpose? Automatically recreate?
-			SepiaFW.debug.error("STT (Socket) - Missing recognition module.");
+			SepiaFW.debug.error("ASR (Socket) - Missing recognition module.");
 			onAsrErrorAbort("audio-capture", 
 				"E02 - There was a problem with the audio-capture interface (missing module)!");
 			return;
@@ -266,7 +355,7 @@ function sepiaFW_build_speech_audio_proc(){
 		}
 		if (!SepiaFW.audioRecorder.webAudioHasCapability("speechRecognition")){
 			//TODO: release old and make new recorder
-			SepiaFW.debug.error("STT (Socket) - Active processor is missing capability 'speechRecognition'.");
+			SepiaFW.debug.error("ASR (Socket) - Active processor is missing capability 'speechRecognition'.");
 			onAsrErrorAbort("audio-capture", 
 				"E02 - There was a problem with the audio-capture interface (missing capability)!");
 			return;
@@ -309,13 +398,13 @@ function sepiaFW_build_speech_audio_proc(){
 				});
 			}, function(initErr){
 				//on init err.
-				SepiaFW.debug.error("STT (Socket) - Init. error:", initErr);
+				SepiaFW.debug.error("ASR (Socket) - Init. error:", initErr);
 				onAsrErrorAbort("audio-capture",
 					"E03 - Permission to use microphone was denied or there was a problem with the audio interface!");
 			
 			}, function(runtimeErr){
 				//on runtime err.
-				SepiaFW.debug.error("STT (Socket) - Runtime error:", runtimeErr);
+				SepiaFW.debug.error("ASR (Socket) - Runtime error:", runtimeErr);
 				onAsrErrorAbort("audio-capture",
 					"E02 - There was a problem with the microphone or audio processing pipeline!");
 				return true;

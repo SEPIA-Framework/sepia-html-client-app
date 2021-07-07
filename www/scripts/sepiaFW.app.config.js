@@ -200,10 +200,7 @@ function sepiaFW_build_config(){
 		//app
 		Config.appLanguage = language; 		//TODO: interface reload to set texts?
 		//speech
-		if (SepiaFW.speech){ 	
-			SepiaFW.speech.setLanguage(language);
-			SepiaFW.speech.refreshVoice();
-		}
+		if (SepiaFW.speech)		SepiaFW.speech.setLanguage(language);
 		//geocoder
 		if (SepiaFW.geocoder) 	SepiaFW.geocoder.setLanguage(language);
 		//menue

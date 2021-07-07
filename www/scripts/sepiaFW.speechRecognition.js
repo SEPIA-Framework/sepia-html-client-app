@@ -22,7 +22,7 @@ function sepiaFW_build_speech_recognition(Speech){
 	//ASR - engine - currently: native (webSpeechKit or Cordova), socket (SEPIA legacy server or e.g. Microsoft), sepia (SEPIA v2)
 	var engines = [];
 	var engineNames = {};
-	Speech.asrEngine = SepiaFW.data.get('speech-asr-engine') || '';
+	Speech.asrEngine = SepiaFW.data.getPermanent('asrEngine') || SepiaFW.data.get('speech-asr-engine') || '';	//2nd is legacy support
 	Speech.getAsrEngine = function(){
 		return Speech.asrEngine;
 	}
@@ -38,10 +38,6 @@ function sepiaFW_build_speech_recognition(Speech){
 			if (!Speech.isWebSocketAsrSupported){
 				SepiaFW.debug.err("ASR: Tried to set (SEPIA compatible) socket ASR engine but it is not supported by this client!");
 				asrEngine = "";
-			}else{
-				if (asrEngineInfo && asrEngineInfo.url){
-					SepiaFW.speechAudioProcessor.setSocketURI(asrEngineInfo.url);
-				}
 			}
 		}
 		if (!asrEngine){
@@ -53,9 +49,18 @@ function sepiaFW_build_speech_recognition(Speech){
 			}
 		}
 		if (asrEngine){
-			SepiaFW.data.set('speech-asr-engine', asrEngine);
+			SepiaFW.data.setPermanent('asrEngine', asrEngine);
 			Speech.asrEngine = asrEngine;
 			SepiaFW.debug.log("ASR: Using '" + asrEngine + "' engine.");
+			//refresh settings
+			if (asrEngine != 'native'){
+				SepiaFW.speechAudioProcessor.refreshEngineSettings(asrEngine, Speech.getLanguage());
+			}
+			//overwrite some?
+			if (asrEngineInfo){
+				if (asrEngineInfo.url) SepiaFW.speechAudioProcessor.setSocketURI(asrEngineInfo.url);
+				//TODO: support more parameters (e.g. asr model)
+			}
 		}
 		//refresh UI
 		$('#sepiaFW-menu-select-stt').val(asrEngine);
@@ -221,14 +226,16 @@ function sepiaFW_build_speech_recognition(Speech){
 		SepiaFW.ui.showInfo(msg);
 		Speech.dispatchSpeechEvent("asr_error", msg);
 	}
-	function broadcastNoAsrSupport(){
+	function broadcastNoAsrSupport(msg){
 		//EXAMPLE: 
 		SepiaFW.animate.assistant.idle('asrNoSupport');
-		var msg = SepiaFW.local.g('noAsrSupport');
-		if (!SepiaFW.ui.isSecureContext){
-			msg += " " + SepiaFW.local.g('possible_reason_origin_unsecure')
-				+ " - <a href='https://github.com/SEPIA-Framework/sepia-docs/wiki/SSL-for-your-Server' target=_blank style='color: inherit;'>" 
-				+ SepiaFW.local.g('help') + "!</a>";
+		if (!msg){
+			msg = SepiaFW.local.g('noAsrSupport');
+			if (!SepiaFW.ui.isSecureContext){
+				msg += " " + SepiaFW.local.g('possible_reason_origin_unsecure')
+					+ " - <a href='https://github.com/SEPIA-Framework/sepia-docs/wiki/SSL-for-your-Server' target=_blank style='color: inherit;'>" 
+					+ SepiaFW.local.g('help') + "!</a>";
+			}
 		}
 		SepiaFW.ui.showInfo(msg);
 		Speech.dispatchSpeechEvent("asr_error", msg);
@@ -565,6 +572,13 @@ function sepiaFW_build_speech_recognition(Speech){
 						broadcastConnectionError();
 						before_error(error_callback, event.message || 'E04 - Network problem or connection issues!');
 					}
+				//something is not supported (e.g. ASR engine or ASR in general)
+				}else if (event.error == 'not-supported'){
+					broadcastNoAsrSupport(event.message);
+					before_error(error_callback, event.message || "E00 - Speech recognition not supported by your client or with the current settings.");
+				
+				//}else if (event.error == 'not-allowed' || event.error == 'service-not-allowed'){}
+				//}else if (event.error == 'language-not-supported'){}
 				}else{
 					SepiaFW.debug.err('ASR: '+ (event.error? event.error : 'Unknown ERROR!'), event);
 					//TODO: do something here!

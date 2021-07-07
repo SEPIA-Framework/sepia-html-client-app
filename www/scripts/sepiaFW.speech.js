@@ -12,6 +12,10 @@ function sepiaFW_build_speech(sepiaSessionId){
 	}
 	Speech.setLanguage = function(newLang){
 		speechLanguage = newLang;
+		Speech.refreshVoice();
+		if (SepiaFW.speechAudioProcessor){
+			SepiaFW.speechAudioProcessor.refreshEngineSettings(Speech.getAsrEngine(), newLang);
+		}
 	}
 	Speech.setCountryCode = function(countryCode){
 		speechCountryCode = countryCode;

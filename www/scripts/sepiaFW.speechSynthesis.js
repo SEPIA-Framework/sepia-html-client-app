@@ -17,8 +17,8 @@ function sepiaFW_build_speech_synthesis(Speech, sepiaSessionId){
 	Speech.isHtmlTtsSupported = ($('#sepiaFW-audio-speaker').length && $('#sepiaFW-audio-speaker')[0].canPlayType && $('#sepiaFW-audio-speaker')[0].canPlayType("audio/mp3"));	//set WAV?
 	Speech.isTtsSupported = Speech.isNativeTtsSupported || Speech.isHtmlTtsSupported;
 	SepiaFW.debug.log("TTS: Supported interfaces: native=" + Speech.isNativeTtsSupported + ", sepia=" + Speech.isHtmlTtsSupported + ".");
-	Speech.voiceEngine = SepiaFW.data.get('speech-voice-engine') || '';					//TODO: should this be a permanent setting? (like voice etc. O_o)
-	Speech.voiceCustomServer = SepiaFW.data.getPermanent('speech-voice-custom-server') || '';
+	Speech.voiceEngine = SepiaFW.data.getPermanent('voiceEngine') || SepiaFW.data.get('speech-voice-engine') || '';		//2nd value is legacy support
+	Speech.voiceCustomServer = SepiaFW.data.getPermanent('voiceCustomServerURI') || '';
 	Speech.skipTTS = false;		//skip TTS but trigger 'success' callback
 
 	//get TTS engines - load them and return a select element to show them somewhere
@@ -75,9 +75,9 @@ function sepiaFW_build_speech_synthesis(Speech, sepiaSessionId){
 	Speech.setVoiceCustomServer = function(newUrl){
 		Speech.voiceCustomServer = newUrl;
 		if (!newUrl){
-			SepiaFW.data.delPermanent('speech-voice-custom-server');
+			SepiaFW.data.delPermanent('voiceCustomServerURI');
 		}else{
-			SepiaFW.data.setPermanent('speech-voice-custom-server', newUrl);
+			SepiaFW.data.setPermanent('voiceCustomServerURI', newUrl);
 			SepiaFW.debug.log("TTS: Set custom voice synth. server: " + newUrl);
 		}
 	}
@@ -113,7 +113,7 @@ function sepiaFW_build_speech_synthesis(Speech, sepiaSessionId){
 			}
 		}
 		if (voiceEngine){
-			SepiaFW.data.set('speech-voice-engine', voiceEngine);
+			SepiaFW.data.setPermanent('voiceEngine', voiceEngine);
 			Speech.voiceEngine = voiceEngine;
 			SepiaFW.debug.log("TTS: Using '" + voiceEngine + "' engine.");
 		}
