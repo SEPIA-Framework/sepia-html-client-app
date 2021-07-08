@@ -548,6 +548,8 @@ function sepiaFW_build_speech_recognition(Speech){
 					if (!quit_on_final_result){	
 						restart_anyway = true;
 					}
+				}else if (event.error == 'aborted'){
+					before_error(error_callback, 'E01 - Speech input aborted.');
 				
 				//severe errors
 				}else if (event.error == 'audio-capture' || event.error == 3 || event.error == 5){
@@ -625,7 +627,7 @@ function sepiaFW_build_speech_recognition(Speech){
 					return;
 				}
 				if (!final_transcript && quit_on_final_result){			//this will trigger aswell if final result is empty
-					//we might need to go in a loop here since onend can fire before final result (e.g. on Android)
+					//we might need to go in a loop here since onend can fire before final result (e.g. on Android, although it shouldn't for WebSpeechAPI)
 					if (interim_transcript || partialWasTriggered || (resultWasNeverCalled && !onErrorWasAlreadyCalled)){
 						recognizerWaitingForResult = true;
 						if (!wait_timestamp || wait_timestamp == 0){

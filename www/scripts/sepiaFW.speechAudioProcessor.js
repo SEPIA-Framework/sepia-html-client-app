@@ -125,7 +125,7 @@ function sepiaFW_build_speech_audio_proc(){
 			if (SepiaFW.audioRecorder.debugInterfaces) console.error("STT - LOG -", msg);
 		}
 		
-		//TODO: use
+		//Common WebSpeechAPI settings
 		Recognizer.continuous = false;			//NOTE: compared to WebSpeechAPI this usually makes finalResult more agressive/frequent
 		Recognizer.interimResults = true;
 		Recognizer.lang = SepiaFW.speech.getLanguageForASR();
@@ -168,12 +168,11 @@ function sepiaFW_build_speech_audio_proc(){
 	var maxRecordingMsNoVad = 5000;
 	var maxVadTime = 10000;
 	
-	var isWaitingToRecord = false;
-	var isRecording = false;
-	//var recognizerWaitingForResult = false;	//TODO: use
-	var abortRecognition = false;
+	var isWaitingToRecord = false;		//use for..?
+	//var recognizerWaitingForResult = false;	//TODO: implement?
 
-	var asrModuleGateIsOpen = false;
+	var asrModuleGateIsOpen = false;	//equivalent to: 'isRecording'
+	var abortRecognition = false;
 	var startedRecordingAt = 0;
 
 	//build SEPIA Web Audio module for custom socket ASR
@@ -182,6 +181,7 @@ function sepiaFW_build_speech_audio_proc(){
 		var socketAsrModule = SepiaFW.audioRecorder.createSepiaSttSocketModule(function(msg){
 			if (!msg) return;
 			if (msg.gate){
+				//gate closed
 				if (msg.gate.isOpen == false && asrModuleGateIsOpen){
 					asrModuleGateIsOpen = false;
 					//STATE: streamend
@@ -190,13 +190,14 @@ function sepiaFW_build_speech_audio_proc(){
 						//STATE: audioend
 						onAudioEnd();
 					});
+				//gate opened
 				}else if (msg.gate.isOpen == true && !asrModuleGateIsOpen){
 					//STATE: streamstart
 					onStreamStart();
 					asrModuleGateIsOpen = true;
 				}
 			}
-			if (msg.recognitionEvent){
+			if (msg.recognitionEvent && !abortRecognition){
 				onAsrResult(msg.recognitionEvent);
 			}
 			//In debug or test-mode the module might send the recording:
@@ -234,8 +235,9 @@ function sepiaFW_build_speech_audio_proc(){
 
 		if (eventName == "result"){
 			_asrLogCallback('ASR RESULT');
-			//TODO: build
-			if (Recognizer.onresult) Recognizer.onresult(event);
+			if (Recognizer.onresult){
+				Recognizer.onresult(event);
+			}
 
 		}else if (eventName == "nomatch"){
 			_asrLogCallback('ASR RESULT NOMATCH');
@@ -251,7 +253,6 @@ function sepiaFW_build_speech_audio_proc(){
 			}
 
 		}else if (eventName == "error"){
-			//TODO: implement
 			_asrLogCallback('ASR RESULT ERROR');
 			if (Recognizer.onerror) Recognizer.onerror({
 				error: event.error || "",
@@ -260,28 +261,34 @@ function sepiaFW_build_speech_audio_proc(){
 			});
 			
 		}else{
-			//TODO: implement
+			//TODO: implement or ignore?
 		}
 	}
 
 	function onStreamStart(){
 		_asrLogCallback('ASR STREAM-START');
-		if (Recognizer.onstart) Recognizer.onstart({
-			//TODO: define event
-		});
+		if (Recognizer.onstart){
+			Recognizer.onstart({
+				//TODO: define event
+			});
+		}
 	}
 	function onStreamEnd(ev){
 		_asrLogCallback('ASR STREAM-END');
-		if (Recognizer.onend) Recognizer.onend({
-			//TODO: define event
-		});
+		if (Recognizer.onend){
+			Recognizer.onend({
+				//TODO: define event
+			});
+		}
 	}
 
 	function onSpeechStart(ev){
 		_asrLogCallback('REC SPEECH-START');
-		if (Recognizer.onspeechstart) Recognizer.onspeechstart({
-			//TODO: define event
-		});
+		if (Recognizer.onspeechstart){
+			Recognizer.onspeechstart({
+				//TODO: define event
+			});
+		}
 	}
 	function onSpeechEnd(ev){
 		if (ev.hitLimit){
@@ -289,40 +296,63 @@ function sepiaFW_build_speech_audio_proc(){
 		}else{
 			_asrLogCallback('REC SPEECH-END');
 		}
-		if (Recognizer.onspeechend) Recognizer.onspeechend({
-			//TODO: define event
-		});
+		if (Recognizer.onspeechend){
+			Recognizer.onspeechend({
+				//TODO: define event
+			});
+		}
 		stopRecording();
 	}
 
 	function onAudioStart(ev){
 		_asrLogCallback('REC AUDIO-START - OPENING ASR');
-		if (Recognizer.onaudiostart) Recognizer.onaudiostart({
-			//TODO: define event
-		});
+		//new states
+		isWaitingToRecord = false;
+		startedRecordingAt = new Date().getTime();
+
+		if (Recognizer.onaudiostart){
+			Recognizer.onaudiostart({
+				timeStamp: startedRecordingAt
+			});
+		}
 	}
 	function onAudioEnd(ev){
 		_asrLogCallback('REC AUDIO-END');
-		if (Recognizer.onaudioend) Recognizer.onaudioend({
-			//TODO: define event
-		});
+		if (Recognizer.onaudioend){
+			Recognizer.onaudioend({
+				//TODO: define event
+			});
+		}
+		if (abortRecognition){
+			onAsrErrorAbort("aborted", 
+				"E01 - Speech recognition was aborted by client");
+			return;
+		}
 	}
 
 	//handle error
 	function onAsrErrorAbort(eventName, msg, sepiaCode){
 		_asrLogCallback('ASR ERROR - ABORT');
-		if (Recognizer.onerror) Recognizer.onerror({
-			error: eventName,
-			message: msg,
-			sepiaCode: sepiaCode,
-			timeStamp: new Date().getTime()
-		});
+		//reset states
+		isWaitingToRecord = false;
+		asrModuleGateIsOpen = false;	//TODO: can we trust this?
+
+		if (Recognizer.onerror){
+			Recognizer.onerror({
+				error: eventName,
+				message: msg,
+				sepiaCode: sepiaCode,
+				timeStamp: new Date().getTime()
+			});
+		}
 	}
 	
 	//START	
 	function startRecording(){
-		//TODO: add session ID and on release ignore all messages of previous ID!
-		
+		//states set 1 - prepare
+		isWaitingToRecord = true;
+		startedRecordingAt = 0;
+
 		//check requirements
 		if (!SpeechRecognition.isAsrSupported){
 			onAsrErrorAbort("not-supported", 
@@ -365,10 +395,13 @@ function sepiaFW_build_speech_audio_proc(){
 		//for now: always stop and release existing recorders
 		_asrLogCallback('REC CLEAN-UP');
 		SepiaFW.audioRecorder.stopAndReleaseIfActive(function(){
-			//TODO: generate new session ID!
-
+			
 			_asrLogCallback('REC CREATE');
 			SpeechRecognition.recognitionModule = buildWebSocketAsrModule();
+
+			//states set 2 - start
+			abortRecognition = false;
+			asrModuleGateIsOpen = false;
 			
 			SepiaFW.audioRecorder.createWebAudioRecorder({
 				vadModule: SepiaFW.audioRecorder.createDefaultVadModule(undefined, function(energy){
@@ -381,8 +414,8 @@ function sepiaFW_build_speech_audio_proc(){
 				}, function(vadSequenceStarted, vadSequenceEnded){
 					onSpeechEnd({start: vadSequenceStarted, end: vadSequenceEnded, hitLimit: false});
 				}, {
-						maxSequenceTime: maxVadTime,
-						minSequenceTime: 600
+					maxSequenceTime: maxVadTime,
+					minSequenceTime: 600
 				}),
 				wakeWordModule: false,								//TODO: allow default ww module?
 				speechRecognitionModule: SpeechRecognition.recognitionModule
@@ -421,8 +454,7 @@ function sepiaFW_build_speech_audio_proc(){
 		}else{
 			//AudioRecorder stop
 			SepiaFW.audioRecorder.stopIfActive(function(){
-				//TODO: what if errorCallback triggers?
-				//TODO: and now? just wait for result?
+				//TODO: and now? just wait for result? what if errorCallback triggers?
 				//STATE: audioend
 				onAudioEnd();	//trigger or not?
 			});
@@ -431,7 +463,9 @@ function sepiaFW_build_speech_audio_proc(){
 
 	function abortRecording(){
 		//TODO: end all connections, reset states, don't allow old events
+		abortRecognition = true;
 		stopRecording();
+		//NOTE: expected to send END event - should be triggered by stop
 	}
 
 	//listen to global events to make sure state is updated correctly
@@ -440,22 +474,19 @@ function sepiaFW_build_speech_audio_proc(){
 		var data = e.detail;
 		if (!data || !data.event) return;
 		
-		//TODO: add correct state resets !!
-
-		/*
-		if (data.event == "release" && isListening && !isStopping){
+		//TODO: is this correct?
+		if (data.event == "release" && (asrModuleGateIsOpen || isWaitingToRecord)){
 			//reset state
-			isStopping = false;
-			isListening = false;
+			asrModuleGateIsOpen = false;
+			isWaitingToRecord = false;
 			SpeechRecognition.recognitionModule = undefined;
 
-		}else if (data.event == "audioend" && isListening && !isStopping){
+		}else if (data.event == "audioend" && (asrModuleGateIsOpen || isWaitingToRecord)){
 			//reset state
-			setAsrModuleGateState("close");		//TODO: can this cause a race condition if followed quickly by release?
-			isStopping = false;
-			isListening = false;
+			setAsrModuleGateState("close");
+			asrModuleGateIsOpen = false;
+			isWaitingToRecord = false;
 		}
-		*/
 	}
 		
 	return SpeechRecognition;

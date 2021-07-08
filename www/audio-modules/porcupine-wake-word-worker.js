@@ -44,7 +44,7 @@ onmessage = function(e){
 	}
 	//Custom interface
 	if (e.data.gate != undefined){
-		console.error("Message", e.data);			//DEBUG
+		//console.error("Message", e.data);			//DEBUG
 		gateControl(e.data.gate && e.data.gate == "open", e.data.gateOptions);
 	}
 };

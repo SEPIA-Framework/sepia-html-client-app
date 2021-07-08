@@ -138,7 +138,7 @@ function gateControl(open, gateOptions){
 			recordedBuffers.forEach(function(ta){
 				byteLength += ta.byteLength;
 			});
-			sttServer.sendAudioEnd(byteLength);
+			sttServer.sendAudioEnd(byteLength);		//close input and request final result
 		}
 
 		//send WAV?
@@ -412,7 +412,7 @@ function clearBuffer(){
 
 //reached max recording length
 function maxLengthReached(){
-	//TODO: implement properly, do more ...
+	//TODO: implement properly, do more ... ?
 	gateControl(false);
 }
 
@@ -488,18 +488,32 @@ function handleEvent(data){
 }
 
 function start(options){
-    //TODO: anything to do?
+    //we do nothing but wait for data or gate-open signal
 	//NOTE: timing of this signal is not very well defined
 }
 function stop(options){
-    //TODO: anything to do?
-	//NOTE: timing of this signal is not very well defined
+	//make sure that gate is closed ... TODO: anything else?
+	if (gateIsOpen){
+		gateControl(false);
+	}
+	//NOTE 1: In this case a stopped worker can still send partial or final results.
+	//NOTE 2: timing of this signal is not very well defined
 }
 function reset(options){
-    //TODO: clean up worker
+	//clean up connection
+	if (sttServer && sttServer.connectionIsOpen){
+		sttServer.closeConnection();
+		//NOTE: we try to reuse this instance
+	}
+    //clean up worker
 	init();
+	//TODO: anything else?
 }
 function release(options){
+	//this is expected to happen after final result (or abort) so: clean up connection
+	if (sttServer && sttServer.connectionIsOpen){
+		sttServer.closeConnection();
+	}
 	//clean up worker and close
 	_lookbackRingBuffer = null;
 	recordedBuffers = null;
