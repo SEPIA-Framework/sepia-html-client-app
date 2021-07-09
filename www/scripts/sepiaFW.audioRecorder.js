@@ -478,7 +478,7 @@ function sepiaFW_build_audio_recorder(){
 						socketUrl: options.socketUrl,	//NOTE: if set to 'debug' it will trigger "dry run" (wav file + pseudo res.)
 						clientId: options.clientId,
 						accessToken: options.accessToken,
-						language: options.language || SepiaFW.speech.getLanguageForASR() || "",		//ASR model language
+						language: options.language || SepiaFW.speech.getLongLanguageCode() || "",	//ASR model language
 						continuous: (options.continuous != undefined? options.continuous : false),	//one final result only or allow multiple?
 						engineOptions: options.engineOptions || {},		//any specific engine options (e.g. ASR model, optimizeFinalResult)
 						//other

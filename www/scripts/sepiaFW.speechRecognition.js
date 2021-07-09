@@ -750,7 +750,7 @@ function sepiaFW_build_speech_recognition(Speech){
 				callback_interim(interim_transcript);
 			};
 			
-			recognition.lang = Speech.getLanguageForASR();
+			recognition.lang = Speech.getLongLanguageCode();
 			recognition.maxAlternatives = 1;
 			recognition.start();
 		}

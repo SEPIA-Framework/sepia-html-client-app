@@ -649,6 +649,17 @@
 		
 		//what happens after login?
 		SepiaFW.account.afterLogin = function(){
+			//check language support
+			if (!SepiaFW.local.getSupportedAppLanguages().find(function(lc){ 
+				return (!lc.experimental && lc.value == SepiaFW.config.appLanguage);
+			})){
+				var langInfoMsg = "Selected language code '" + SepiaFW.config.appLanguage  + "' is not fully supported yet.";
+				SepiaFW.debug.error(langInfoMsg);
+				SepiaFW.ui.showInfo(langInfoMsg + " Please use for development only! " 
+					+ "If you want to help implementing this language please " 
+					+ "<a href='https://github.com/SEPIA-Framework/sepia-docs/discussions' target=_blank>start or join the discussion</a>.");
+			}
+
 			if (SepiaFW.client.isDemoMode()){
 				//SepiaFW.ui.showInfo(SepiaFW.local.g('demoMode'), true);
 				var demoMsg = SepiaFW.account.isSetupMode()? SepiaFW.local.g('setupMode') : SepiaFW.local.g('demoMode');

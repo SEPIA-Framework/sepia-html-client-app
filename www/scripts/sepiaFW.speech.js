@@ -22,25 +22,11 @@ function sepiaFW_build_speech(sepiaSessionId){
 	}
 	//it might be necessary to use the long codes
 	function getLongLanguageCode(langCodeShort){
-		if (langCodeShort.length === 2){
-			if (langCodeShort.toLowerCase() === "de"){
-				return "de-DE";
-			}else{
-				return "en-US";
-			}
-		}
-	}
-	function getLanguageForASR(){
-		if (speechCountryCode){
-			return speechCountryCode;
-		}else if (speechLanguage === "de"){
-			return "de-DE";
-		}else{
-			return "en-US";
-		}
+		if (!langCodeShort && speechCountryCode) return speechCountryCode;
+		else if (!langCodeShort) langCodeShort = speechLanguage;
+		return SepiaFW.local.getDefaultBcp47LanguageCode(langCodeShort) || "en-US";
 	}
 	Speech.getLongLanguageCode = getLongLanguageCode;
-	Speech.getLanguageForASR = getLanguageForASR;
 
 	//Check if busy
 	Speech.isSpeakingOrListening = function(){

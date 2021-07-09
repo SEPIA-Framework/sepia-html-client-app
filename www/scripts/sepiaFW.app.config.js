@@ -76,12 +76,8 @@ function sepiaFW_build_config(){
 	}
 	
 	//language
-	var lang = SepiaFW.tools.getURLParameter("lang") || SepiaFW.data.get('app-language') || navigator.language || navigator.userLanguage;
-	if (lang && lang.toLowerCase().indexOf('de') === 0){
-		lang = 'de';
-	}else{
-		lang = 'en';
-	}
+	var lang = SepiaFW.tools.getURLParameter("lang") || SepiaFW.data.get('app-language') || navigator.language || navigator.userLanguage || "en";
+	lang = lang.toLowerCase().replace(/-.*/, "");
 	Config.appLanguage = lang; 
 	SepiaFW.debug.log('Config: language=' + Config.appLanguage);
 

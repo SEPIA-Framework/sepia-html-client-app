@@ -456,11 +456,13 @@ function sepiaFW_build_strings(){
 	//-------------- Languages --------------
 
 	//ISO639-1 language codes
+	var supportedAppLanguages = [
+		{value:"de", name:"DE"},
+		{value:"en", name:"EN"},
+		//see below for experimental add
+	];
 	StringsLocale.getSupportedAppLanguages = function(){
-		return [
-			{value:"de", name:"DE"},
-			{value:"en", name:"EN"},
-		];
+		return supportedAppLanguages;
 	}
 	//BCP47 language-REGION codes
 	StringsLocale.getExperimentalAsrLanguages = function(){
@@ -469,10 +471,13 @@ function sepiaFW_build_strings(){
 			{value:"en-AU", name:"Australia (en-AU)"},
 			{value:"ar-XA", name:"Arabia (ar-XA)"},
 			{value:"es-AR", name:"Argentina (es-AR)"},
+			{value:"nl-BE", name:"Belgium (nl-BE)"},
 			{value:"pt-BR", name:"Brasil (pt-BR)"},
 			{value:"en-CA", name:"Canada (en-CA)"},
+			{value:"fr-CA", name:"Canada (fr-CA)"},
 			{value:"zh-CN", name:"China (zh-CN)"},
 			{value:"es-CO", name:"Colombia (es-CO)"},
+			{value:"da-DK", name:"Denmark (da-DK)"},
 			{value:"fr-FR", name:"France (fr-FR)"},
 			{value:"de-DE", name:"Germany (de-DE)"},
 			{value:"el-GR", name:"Greece (el-GR)"},
@@ -483,6 +488,7 @@ function sepiaFW_build_strings(){
 			{value:"es-MX", name:"Mexico (es-MX)"},
 			{value:"nl-NL", name:"Netherlands (nl-NL)"},
 			{value:"en-NZ", name:"New Zealand (en-NZ)"},
+			{value:"no-NO", name:"Norway (no-NO)"},
 			{value:"pl-PL", name:"Poland (pl-PL)"},
 			{value:"pt-PT", name:"Portugal (pt-PT)"},
 			{value:"ru-RU", name:"Russia (ru-RU)"},
@@ -494,6 +500,39 @@ function sepiaFW_build_strings(){
 			{value:"en-GB", name:"United Kingdom (en-GB)"},
 			{value:"en-US", name:"USA (en-US)"}
 		];
+	}
+	//Add experimental app languages
+	function addExperimentalAppLanguages(){
+		supportedAppLanguages.push({value: "---", name: "--Dev. Only--", disabled: true});
+		StringsLocale.getExperimentalAsrLanguages().forEach(function(langObj){
+			if (langObj.value && !langObj.disabled){
+				var shortCode = langObj.value.split("-")[0];
+				if (!supportedAppLanguages.find(function(lo){ return lo.value == shortCode; })){
+					supportedAppLanguages.push({value: shortCode, name: (shortCode.toUpperCase() + " (exp.)"), experimental: true});
+				}
+			}
+		});
+	}
+	addExperimentalAppLanguages();
+	//Map short to default long
+	StringsLocale.getDefaultBcp47LanguageCode = function(langCodeShort){
+		if (langCodeShort && langCodeShort.length === 2){
+			langCodeShort = langCodeShort.toLowerCase();
+			var mappedCode = defaultShortLangCodeToLongMap[langCodeShort];
+			if (!mappedCode){
+				var firstExpCode = StringsLocale.getExperimentalAsrLanguages().find(function(lc){ return lc.value.indexOf(langCodeShort) == 0; });
+				mappedCode = firstExpCode? firstExpCode.value : "";
+			}
+			return mappedCode;
+		}
+	}
+	var defaultShortLangCodeToLongMap = {
+		"de": "de-DE",
+		"en": "en-US",
+		"es": "es-ES",
+		"fr": "fr-FR",
+		"nl": "nl-BE",
+		"pt": "pt-PT"
 	}
 	
 	return StringsLocale;
