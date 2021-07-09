@@ -12,7 +12,19 @@ function sepiaFW_build_speech_audio_proc(){
 	SpeechRecognition.serverToken = SepiaFW.data.getPermanent('asrServerToken') || "";		//TODO: should this be hidden somehow?
 	
 	SpeechRecognition.getSocketURI = function(){
-		return SpeechRecognition.socketURI;
+		var url = SpeechRecognition.socketURI;
+		if (!url){
+			var assistAPI = SepiaFW.config.assistAPI;
+			if (SepiaFW.tools.endsWith(assistAPI, "/assist/")){
+				url = assistAPI.replace(/\/assist\/$/, "/stt");
+			}else if (SepiaFW.tools.endsWith(assistAPI, ":20721/")){
+				url = assistAPI.replace(/20721\/$/, "20741");
+			}else{
+				url = "http://localhost:20741";
+			}
+			SpeechRecognition.socketURI = url;
+		}
+		return url;
 	}
 	SpeechRecognition.setSocketURI = function(socketURI){
 		SepiaFW.data.setPermanent('asrServerURI', socketURI);
@@ -54,12 +66,8 @@ function sepiaFW_build_speech_audio_proc(){
 
 	SpeechRecognition.getServerSettings = function(successCallback, errorCallback){
 		if (SepiaFW.speech.getAsrEngine() == "sepia"){
-			var httpUrl = SpeechRecognition.socketURI.replace(/^ws(s|):/, "http$1:").replace(/\/$/, "");
-			fetch(httpUrl + "/settings", {
-				method: "GET"
-			}).then(function(res){
-				if (res.ok) return res.json();
-			}).then(function(json){
+			var httpUrl = SpeechRecognition.getSocketURI().replace(/^ws(s|):/, "http$1:").replace(/\/$/, "") + "/settings";
+			function success(json){
 				if (json && json.settings){
 					asrModels = json.settings.models;
 					if (successCallback) successCallback(json.settings);
@@ -67,11 +75,20 @@ function sepiaFW_build_speech_audio_proc(){
 					SepiaFW.debug.error("ASR (Socket) - Server info was empty");
 					if (successCallback) successCallback({});
 				}
-			}).catch(function(err){
+			}
+			function error(err){
 				SepiaFW.debug.error("ASR (Socket) - Failed to load server info.", err);
 				if (errorCallback) errorCallback(
-					{name: "SttConnectionError", message: "Failed to load server info."}
+					{name: "SttConnectionError", message: ("Failed to load server info. URL: " + httpUrl)}
 				);
+			}
+			$.ajax({
+				method: "GET",
+				url: httpUrl,
+				dataType: "json",
+				timeout: 8000,
+				success: success,
+				error: error
 			});
 		}else{
 			if (errorCallback) errorCallback(
@@ -128,7 +145,7 @@ function sepiaFW_build_speech_audio_proc(){
 		//Common WebSpeechAPI settings
 		Recognizer.continuous = false;			//NOTE: compared to WebSpeechAPI this usually makes finalResult more agressive/frequent
 		Recognizer.interimResults = true;
-		Recognizer.lang = SepiaFW.speech.getLanguageForASR();
+		Recognizer.lang = SepiaFW.speech.getLongLanguageCode();
 		Recognizer.maxAlternatives = 1;
 
 		/*
@@ -214,7 +231,7 @@ function sepiaFW_build_speech_audio_proc(){
 			//ASR model
 			language: Recognizer.lang,
 			continuous: Recognizer.continuous,
-			engineOptions: {
+			engineOptions: {	//TODO: add supported for scoped options (e.g. in frames)
 				interimResults: Recognizer.interimResults,
 				alternatives: Recognizer.maxAlternatives,
 				optimizeFinalResult: optimizeFinalResult,
@@ -366,7 +383,7 @@ function sepiaFW_build_speech_audio_proc(){
 					+ "page to learn how to easily convert old models for the new server.");
 			return;
 		}
-		if (!SpeechRecognition.socketURI){
+		if (!SpeechRecognition.getSocketURI()){
 			onAsrErrorAbort("network", 
 				"E00 - Speech recognition not activated, please set the STT server for the custom engine first (settings).", 1);
 			return;

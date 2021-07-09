@@ -4,7 +4,7 @@ class SepiaSttSocketClient {
 
 	constructor(serverUrl, clientId, accessToken, engineOptions, serverOptions){
 		this.serverUrl = (serverUrl || "http://localhost:20741").replace("\/$", "");
-		this.socketHost = this.serverUrl.replace(/^(http)/, "ws");
+		this.socketHost = this.serverUrl.replace(/^(http)/, "ws") + "/socket";	//note: '/socket' is a path alias for proxies
 		this.clientId = clientId || "any";
 		this.accessToken = accessToken || "test1234";
 
@@ -59,8 +59,11 @@ class SepiaSttSocketClient {
 	//--- HTTP Interface ---
 
 	pingServer(successCallback, errorCallback){
-		fetch(this.serverUrl + "/ping")
-		.then(function(res){ return res.json(); })
+		const controller = new AbortController();
+		setTimeout(() => controller.abort(), 8000);
+		fetch(this.serverUrl + "/ping", {
+			signal: controller.signal
+		}).then(function(res){ return res.json(); })
 		.then(function(json){
 			if (successCallback) successCallback(json);
 		})
@@ -70,8 +73,11 @@ class SepiaSttSocketClient {
 	}
 
 	loadServerInfo(successCallback, errorCallback){
+		const controller = new AbortController();
+		setTimeout(() => controller.abort(), 8000);
 		fetch(this.serverUrl + "/settings", {
-			method: "GET"
+			method: "GET",
+			signal: controller.signal
 		}).then(function(res){
 			if (res.ok){
 				return res.json();

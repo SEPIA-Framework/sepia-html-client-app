@@ -28,7 +28,7 @@ SepiaFW.settings = {
 			"en-voice": "",
 			"de-voice": "",
 			"asrEngine": "native",
-			"asrServerURI": "ws://localhost:20741/stt/socket",
+			"asrServerURI": "http://localhost:20726/sepia/stt",
 			"asrServerUser": "any",
 			"asrServerToken": "test1234",
 			"en-asrModel": "",
