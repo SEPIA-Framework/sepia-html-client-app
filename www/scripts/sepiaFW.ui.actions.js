@@ -458,7 +458,7 @@ function sepiaFW_build_ui_actions(){
 				var suppLangs = SepiaFW.local.getSupportedAppLanguages();
 				var foundLang = false;
 				suppLangs.forEach(function(sl){
-					if (sl.value == lang){
+					if (!sl.disabled && sl.value == lang){
 						foundLang = true;
 						SepiaFW.debug.log("language-switch action - app lang.: " + lang);
 						SepiaFW.config.broadcastLanguage(lang);

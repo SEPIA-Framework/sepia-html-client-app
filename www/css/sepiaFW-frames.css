@@ -122,11 +122,11 @@
 	flex-wrap: wrap;
 }
 .sepiaFW-frames-page .group {
-	width: calc(100% - 16px);
-	display: flex; 
+	display: flex;
 	justify-content: space-between; 
 	align-items: center;
 	margin: 8px;
+	flex: 1 0 100%;
 }
 .sepiaFW-frames-page .group.column {
 	flex-direction: column;
@@ -149,6 +149,7 @@
 }
 .sepiaFW-frames-page .group input {
 	width: auto !important;
+	min-width: 50px;
 }
 .sepiaFW-frames-page .group .string-value {
 	width: 204px;
@@ -172,7 +173,7 @@
 	max-width: 100%;
 }
 .sepiaFW-frames-page .group.fit {
-	max-width: calc(100% - 16px);
+	/*max-width: calc(100% - 16px);*/
 	overflow: hidden;
 }
 .sepiaFW-frames-page .group .sepiaFW-toggle-btn,

@@ -925,19 +925,21 @@ function sepiaFW_build_ui_cards(){
 			//or: var contextMenuSelector = "#" + $flexCard[0].id + "-contextMenu-id-" + eventId;
 			if (timeEventEle.nextSibling && timeEventEle.nextSibling.id && timeEventEle.nextSibling.id.indexOf(eventId)){
 				//$flexCardBody.find(contextMenuSelector).remove();
-				$(timeEventEle.nextSibling).remove();
+				$(timeEventEle.nextSibling).hide(150, function(){ this.remove(); });
 			}
 		}
-		$(timeEventEle).remove();
-		if ($flexCardBody.children().length == 0 && $flexCard.children().length == 1){
-			//only empty body left (no title / header)
-			$flexCard.remove();
-		}else{
-			//assume list update so activate save button
-			var saveBtn = $flexCard.find('.sepiaFW-cards-list-saveBtn');
-			saveBtn.addClass('active');	
-			//note: deleted time events are resynchronized automatically after 5s (which should make the button inactive again)
-		}
+		$(timeEventEle).hide(150, function(){
+			this.remove();
+			if ($flexCardBody.children().length == 0 && $flexCard.children().length == 1){
+				//only empty body left (no title / header)
+				$flexCard.remove();
+			}else{
+				//assume list update so activate save button
+				var saveBtn = $flexCard.find('.sepiaFW-cards-list-saveBtn');
+				saveBtn.addClass('active');	
+				//note: deleted time events are resynchronized automatically after 5s (which should make the button inactive again)
+			}
+		});
 	}
 	
 	//NEWS

@@ -22,6 +22,7 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 			var opt = document.createElement("OPTION");
 			opt.value = option.value;
 			opt.textContent = option.name;
+			if (option.disabled != undefined) opt.disabled = option.disabled;
 			ele.appendChild(opt);
 		});
 		
@@ -90,6 +91,11 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 				tglBtn.setAttribute("data-toggle-state", "off");
 				tglBtn.firstChild.className = "off";
 			}
+		}
+		tglBtn.setDisabled = function(isDisabled){
+			tglBtn.disabled = isDisabled;
+			if (isDisabled) tglBtn.classList.add("disabled");
+			else tglBtn.classList.remove("disabled");
 		}
 		return tglBtn;
 	}
@@ -983,7 +989,7 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 				//Socket STT server URL
 				var speechRecoServerInput = document.getElementById("sepiaFW-menu-stt-socket-url");
 				speechRecoServerInput.placeholder = "wss://my-sepia-asr.example/socket";
-				speechRecoServerInput.value = SepiaFW.speechAudioProcessor.socketURI || "";
+				speechRecoServerInput.value = SepiaFW.speechAudioProcessor.getSocketURI() || "";
 				speechRecoServerInput.addEventListener("change", function(){
 					var newHost = this.value;
 					this.blur();
@@ -995,7 +1001,7 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 					//TODO: buffer hidden option (legacy setting - not tested! - keep?)
 					SepiaFW.ui.longPressShortPressDoubleTap($("#sepiaFW-menu-stt-label")[0], function(){
 						var defaultBufferLength = SepiaFW.audioRecorder.getWebAudioRecorderOptions()["processorBufferSize"];
-						SepiaFW.ui.showPopup("Set new ASR streaming audio default buffer length", {
+						SepiaFW.ui.showPopup("Set new ASR streaming audio default buffer length (note: untested ^^).", {
 							inputLabelOne: "New buffer length (currently: " + defaultBufferLength + ")",
 							buttonOneName: SepiaFW.local.g("ok"),
 							buttonOneAction: function(btn, input1){
@@ -1028,7 +1034,7 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 					}else{
 						$('#sepiaFW-menu-external-tts-url-li').show();
 					}
-					if (SepiaFW.speechAudioProcessor.socketURI == "native"){
+					if (SepiaFW.speech.asrEngine == "native"){
 						$('#sepiaFW-menu-stt-socket-url-li').hide();
 					}else{
 						$('#sepiaFW-menu-stt-socket-url-li').show();

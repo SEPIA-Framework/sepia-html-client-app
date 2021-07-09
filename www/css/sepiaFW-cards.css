@@ -213,7 +213,7 @@
 .sepiaFW-cards-list-body {
 	margin: 0px;
 	padding: 0px;
-	min-height: 25px;
+	min-height: 5px;
 	padding-bottom: 5px;
 }
 .sepiaFW-cards-list-body .listElement {
