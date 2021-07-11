@@ -217,6 +217,9 @@ function sepiaFW_build_speech_audio_proc(){
 			if (msg.recognitionEvent && !abortRecognition){
 				onAsrResult(msg.recognitionEvent);
 			}
+			if (msg.connectionEvent){
+				//TODO: use? - type: open, ready, close
+			}
 			//In debug or test-mode the module might send the recording:
 			if (msg.output && msg.output.wav){
 				SepiaFW.ui.cards.addWaveCardToView(msg.output.wav);

@@ -203,7 +203,7 @@ class SepiaSttSocketClient {
 			
 			}else if (msgJson.type == "result"){
 				this._onResult(msgJson);
-				if (msgJson.isFinal && !this.activeAsrModel.continuous && this.autoCloseOnLastFinal){
+				if (msgJson.isFinal && !this.activeOptions.continuous && this.autoCloseOnLastFinal){
 					//after final result, close connection
 					this.closeConnection();
 				}
@@ -259,10 +259,13 @@ class SepiaSttSocketClient {
 			"msg_id": this.newMessageId()
 		});
 	}
-	sendAudioEnd(byteLength){
+	sendAudioEnd(byteLength, bufferOrTimeLimit){
 		return this.sendJson({
 			"type": "audioend",
-			"data": {"byteLength": byteLength},
+			"data": {
+				"byteLength": byteLength,
+				"bufferOrTimeLimit": bufferOrTimeLimit
+			},
 			"msg_id": this.newMessageId()
 		});
 	}

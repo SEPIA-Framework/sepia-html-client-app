@@ -67,7 +67,9 @@ let _lookbackBufferSize;
 let _lookbackRingBuffer;
 let recordedBuffers;
 let _sentBuffers;
+let _shiftedBuffers;
 let recordBufferMaxN;
+let continuous;		//NOTE: this is an engine option but influences full buffer as well
 
 let gateIsOpen = false;
 let _gateOpenTS = 0;
@@ -91,6 +93,7 @@ function init(){
 	}
 	recordedBuffers = [];
 	_sentBuffers = 0;
+	_shiftedBuffers = 0;
 	_isFirstValidProcess = true;
 	gateIsOpen = false;
 	_gateOpenTS = 0;
@@ -109,8 +112,10 @@ function gateControl(open, gateOptions){
 		//we always reset the buffer
 		recordedBuffers = [];
 		_sentBuffers = 0;
+		_shiftedBuffers = 0;
 		_gateOpenTS = Date.now();
 		gateIsOpen = true;
+		msg.gate.isOpen = true;
 		msg.gate.openedAt = _gateOpenTS;
 		//open connection
 		if (sttServer){
@@ -119,9 +124,14 @@ function gateControl(open, gateOptions){
 	}else{
 		_gateCloseTS = Date.now();
 		gateIsOpen = false;
+		msg.gate.isOpen = false;
 		msg.gate.openedAt = _gateOpenTS;
 		msg.gate.closedAt = _gateCloseTS;
-
+		var closedDueToBufferLimit = (!continuous && recordedBuffers && recordBufferMaxN 
+			&& recordedBuffers.length && recordedBuffers.length >= recordBufferMaxN);
+		if (closedDueToBufferLimit){
+			msg.gate.bufferOrTimeLimit = true;
+		}
 		//---------- DRY-RUN TEST: fake final result ----------
 		if (enableDryRun && recordedBuffers.length && recordedBuffers.length > recordBufferMaxN/3){
 			setTimeout(function(){
@@ -138,7 +148,7 @@ function gateControl(open, gateOptions){
 			recordedBuffers.forEach(function(ta){
 				byteLength += ta.byteLength;
 			});
-			sttServer.sendAudioEnd(byteLength);		//close input and request final result
+			sttServer.sendAudioEnd(byteLength, closedDueToBufferLimit);		//close input and request final result
 		}
 
 		//send WAV?
@@ -148,7 +158,6 @@ function gateControl(open, gateOptions){
 			}, 100);
 		}
 	}
-	msg.gate.isOpen = gateIsOpen;
 	postMessage(msg);
 }
 
@@ -200,8 +209,11 @@ function constructWorker(options){
 	recordBufferMaxN = Math.ceil(recordBufferMaxN);
 	if (recordBufferMaxN < 0) recordBufferMaxN = 0;
 
+	//end on first final result? - NOTE: this works a bit different than WebSpeech "continuous"
+	continuous = (options.setup.continuous != undefined)? options.setup.continuous : false;
+
 	//server
-	socketUrl = options.setup.socketUrl || "http://localhost:20741";
+	socketUrl = options.setup.socketUrl || options.setup.serverUrl || "http://localhost:20741";
 	clientId = options.setup.clientId || "any";
 	accessToken = options.setup.accessToken || "test1234";
 	messageFormat = options.setup.messageFormat || "default";
@@ -210,17 +222,15 @@ function constructWorker(options){
 		returnAudioFile = true;
 	}else{
 		var asrEngineOptions = options.setup.engineOptions || {};	//interimResults (unused?), alternatives, etc.
-		//end on first final result? - NOTE: this works a bit different than WebSpeech "continuous"
-		var continuous = (options.setup.continuous != undefined)? options.setup.continuous : false;
 		var optimizeFinalResult = (options.setup.optimizeFinalResult != undefined)? options.setup.optimizeFinalResult : true;
-		var engineOptions = {
+		var engineOptions = Object.assign({}, asrEngineOptions, {
 			//common options
 			samplerate: inputSampleRate,
 			continuous: continuous,
 			language: (options.setup.language || ""),
+			model: (asrEngineOptions.model || ""),		//e.g.: "vosk-model-small-de"
 			optimizeFinalResult: optimizeFinalResult,
 			//specials (e.g. for Vosk):
-			model: (asrEngineOptions.model || ""),		//e.g.: "vosk-model-small-de"
 			/*
 			alternatives: (asrEngineOptions.alternatives || 1),
 			phrases: [],
@@ -228,18 +238,21 @@ function constructWorker(options){
 			words: false
 			*/
 			doDebug: doDebug
-		};
+		});
 		//console.error("engineOptions", engineOptions);		//DEBUG
 		var serverOptions = {
 			onOpen: function(){
 				if (doDebug) console.error("SttSocketWorker - DEBUG - CONNECTION OPEN");
+				sendConnectionEvent("open");
 			},
 			onReady: function(activeOptions){
 				if (doDebug) console.error("SttSocketWorker - DEBUG - CONNECTION READY", activeOptions);
+				sendConnectionEvent("ready");
 				startOrContinueStream();
 			},
 			onClose: function(){
 				if (doDebug) console.error("SttSocketWorker - DEBUG - CONNECTION CLOSED");
+				sendConnectionEvent("closed");
 			},
 			onResult: function(res){
 				if (doDebug) console.error("SttSocketWorker - DEBUG - CONNECTION RESULT", res);
@@ -247,6 +260,10 @@ function constructWorker(options){
 					sendWebSpeechCompatibleRecognitionResult(res.isFinal, res.transcript);
 				}else{
 					sendDefaultRecognitionResult(res);
+				}
+				//if result is final and gate is closed -> close connection
+				if (res.isFinal && !gateIsOpen && sttServer && sttServer.connectionIsOpen){
+					sttServer.closeConnection();
 				}
 			},
 			onError: function(err){ 
@@ -377,16 +394,18 @@ function startOrContinueStream(){
 	
 	//buffer has data and some has been sent already
 	}else if (_sentBuffers && recordedBuffers.length){
-		if (_sentBuffers == (recordedBuffers.length - 1)){
+		var normalizedLength = recordedBuffers.length + _shiftedBuffers; //take shifted data into account
+		if (_sentBuffers == (normalizedLength - 1)){
 			//send last
-			var data = recordedBuffers[_sentBuffers];
+			var data = recordedBuffers[recordedBuffers.length - 1];
 			_sentBuffers++;
 			sendBytes(data);
 
-		}else if (_sentBuffers < recordedBuffers.length){
+		}else if (_sentBuffers < normalizedLength){
 			//send rest at once
-			var data = new Blob(recordedBuffers.slice(_sentBuffers));
-			_sentBuffers = recordedBuffers.length;
+			var restN = normalizedLength - _sentBuffers;
+			var data = new Blob(recordedBuffers.slice(-1 * restN));
+			_sentBuffers += restN;
 			sendBytes(data);
 		
 		}else{
@@ -408,19 +427,28 @@ function clearBuffer(){
 	lookbackBufferIsBlocked = false;
 	recordedBuffers = [];
 	_sentBuffers = 0;
+	_shiftedBuffers = 0;
 }
 
 //reached max recording length
 function maxLengthReached(){
-	//TODO: implement properly, do more ... ?
-	gateControl(false);
+	if (continuous){
+		//drop old buffer
+		var shift = (recordedBuffers.length - recordBufferMaxN);
+		_shiftedBuffers += shift;
+		recordedBuffers.splice(0, shift);
+	}else{
+		//close
+		gateControl(false);
+	}
+	//TODO: do more ... ?
 }
 
 //send result message (partial or final)
 function sendWebSpeechCompatibleRecognitionResult(isFinal, transcript){
 	postMessage({
 		recognitionEvent: {
-			name: "result",
+			type: "result",
 			resultIndex: 0,
 			results: [{
 				isFinal: isFinal,
@@ -434,9 +462,18 @@ function sendWebSpeechCompatibleRecognitionResult(isFinal, transcript){
 	});
 }
 function sendDefaultRecognitionResult(event){
+	if (event && !event.type) event.type = "result";
 	postMessage({
 		recognitionEvent: event,
 		eventFormat: "default"
+	});
+}
+function sendConnectionEvent(type, data){
+	postMessage({
+		connectionEvent: {
+			type: type,
+			data: data
+		}
 	});
 }
 //send error message
@@ -455,7 +492,7 @@ function sendWebSpeechCompatibleError(errorName, errorMessage){
 	*/
 	postMessage({
 		recognitionEvent: {
-			name: eventName,
+			type: eventName,
 			error: errorName,
 			message: errorMessage,
 			timeStamp: Date.now()
@@ -464,6 +501,7 @@ function sendWebSpeechCompatibleError(errorName, errorMessage){
 	});
 }
 function sendDefaultErrorEvent(error){
+	if (error && !error.type) error.type = "error";
 	postMessage({
 		recognitionEvent: error,
 		eventFormat: "default"
@@ -518,6 +556,7 @@ function release(options){
 	_lookbackRingBuffer = null;
 	recordedBuffers = null;
 	_sentBuffers = undefined;
+	_shiftedBuffers = undefined;
 	gateIsOpen = false;
 	_gateOpenTS = 0;
 	_gateCloseTS = 0;
