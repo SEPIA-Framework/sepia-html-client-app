@@ -398,6 +398,7 @@ function sepiaFW_build_speech_recognition(Speech){
 		abortRecognition = false;
 		var final_transcript = '';
 		var interim_transcript = '';
+		var lastResultType = '';
 		var partialWasTriggered = false;	//sometimes partial result is triggered with empty result (that leads to an error)
 		var resultWasNeverCalled = true;	//on some engines there is no partial result AND onend is called BEFORE onresult
 		var onEndWasAlreadyCalled = false;	//	"	"	"
@@ -418,7 +419,7 @@ function sepiaFW_build_speech_recognition(Speech){
 			wait_timestamp = 0;
 			clearTimeout(waitTimeout);
 			clearTimeout(onAudioEndSafetyTimer);
-			recognition = newRecognizer("onreset");
+			recognition = newRecognizer("onreset");		//NOTE: after this we cannot get any other events anymore!
 		}
 
 		if (!Speech.isAsrSupported){
@@ -430,46 +431,41 @@ function sepiaFW_build_speech_recognition(Speech){
 			if (!recognition){
 				recognition = newRecognizer("onstart");
 			}
-			if (Speech.asrEngine == "sepia"){
-				recognition.interimResults = true;
-				recognition.continuous = false;
+			//Default recognition setting:
+			recognition.interimResults = true;
+			recognition.continuous = false;
+
+			//Client specific optimizations:
+			
+			//- SEPIA STT server (any client)
+			if (Speech.asrEngine == "sepia" || Speech.asrEngine == "socket"){
+				//use defaults
 				//NOTE: 'continuous = true' can be too agressive for some ASR engines throwing final results more frequently. Anyway it was always just a WebSpeech hack here ^^.
 
-			}else if (SepiaFW.ui.isChrome){
-				recognition.interimResults = true;
+			//- Native STT on Cordova
+			}else if (SepiaFW.ui.isCordova){
+				//use defaults
+				//we trust that the native app can handle it (or will ignore the flags)
+
+			//- Native STT on Chromium desktop (not mobile)
+			}else if (SepiaFW.ui.isChromiumDesktop && SepiaFW.ui.isChrome){
 				recognition.continuous = true;
-				//NOTE: causes errors in Edge, but may improve performance in Chrome - try to use this and abort manually, "quit_on_final_result" will handle it
-			}
+				//NOTE: Improves performance in "real" Chrome (untested in others) - try to use this and abort manually, "quit_on_final_result" will handle it
 			
-			//workaround till bugfix comes ... (TODO: is it fixed now?)
-			if (SepiaFW.ui.isAndroid && !SepiaFW.ui.isCordova){
+			//- Native STT on any Android browser
+			}else if (SepiaFW.ui.isAndroid){
+				//use default - Note: in the old days 'interimResults' were problematic ... I think its fine now (if it works at all)
+				//recognition.interimResults = false;
+			}
+
+			//A warning - TODO: Edge is still buggy and Safari crashes a lot when other audio is used as well :-/
+			if ((SepiaFW.ui.isEdge || SepiaFW.ui.isSafari) && Speech.asrEngine == "native"){	//add later? !SepiaFW.ui.isCordova
 				if (!showedAsrLimitInfo){
-					SepiaFW.ui.showInfo("Note: This device might have limited support for speech recognition. Interim results will be deactivated.", false, "", true);
-					SepiaFW.debug.log("ASR: Limited support? Deactivated interim results for Android without Cordova.");
+					SepiaFW.ui.showInfo("Note: Native speech recognition on this device is still fresh and not thoroughly tested yet.", false, "", true);
+					SepiaFW.debug.log("ASR: Experimental Web Speech API support (fresh).");
 					showedAsrLimitInfo = true;
 				}
-				//"safe" mode:
-				recognition.continuous = false;
-				recognition.interimResults = false;
-			
-			}else if (SepiaFW.ui.isCordova){
-				//we trust that the native app can handle it (or will ignore the flag)
-				recognition.interimResults = true;
-			
-			}else{
-				//TODO: Edge is still buggy and Safari crashes a lot when other audio is used as well :-/
-				if (Speech.asrEngine == "native" && (SepiaFW.ui.isEdge || SepiaFW.ui.isSafari)){
-					if (!showedAsrLimitInfo){
-						SepiaFW.ui.showInfo("Note: Native speech recognition on this device is still experimental.", false, "", true);
-						SepiaFW.debug.log("ASR: Experimental Web Speech API support for Microsoft Edge and Safari.");
-						showedAsrLimitInfo = true;
-					}
-					recognition.continuous = false;
-					recognition.interimResults = true;
-				}else{
-					recognition.interimResults = true;
-				}
-			}			
+			}
 			
 			//ON START
 			recognition.onstart = function(event){
@@ -485,6 +481,7 @@ function sepiaFW_build_speech_recognition(Speech){
 				restart_anyway = false;
 				final_transcript = '';
 				interim_transcript = '';
+				lastResultType = '';
 				partialWasTriggered = false;
 				resultWasNeverCalled = true;
 				onEndWasAlreadyCalled = false;
@@ -525,8 +522,11 @@ function sepiaFW_build_speech_recognition(Speech){
 			//ON ERROR
 			recognition.onerror = function(event){
 				//reset recognizer
-				resetsOnUnexpectedEnd();
-				onErrorWasAlreadyCalled = true;
+				resetsOnUnexpectedEnd();	//NOTE: after this we cannot get 'onend' event anymore!
+				isRecognizing = false;		//  ... so implementations need to MAKE SURE audio ends
+				recognizerWaitingForResult = false;
+
+				onErrorWasAlreadyCalled = true;		//TODO: has this become redundant now?
 
 				if (event == undefined){
 					//No event likely just means no result due to abort
@@ -626,14 +626,16 @@ function sepiaFW_build_speech_recognition(Speech){
 					log_callback('-LOG- REC END. input ignored');		//only an ERROR can lead here that has been broadcasted before so we just LOG and go
 					return;
 				}
-				if (!final_transcript && quit_on_final_result){			//this will trigger aswell if final result is empty
+				if (!final_transcript && lastResultType != "final" && quit_on_final_result){	//NOTE: 'lastResultType' prevents trigger for empty final result
 					//we might need to go in a loop here since onend can fire before final result (e.g. on Android, although it shouldn't for WebSpeechAPI)
 					if (interim_transcript || partialWasTriggered || (resultWasNeverCalled && !onErrorWasAlreadyCalled)){
-						recognizerWaitingForResult = true;
 						if (!wait_timestamp || wait_timestamp == 0){
 							wait_timestamp = new Date().getTime();
 						}
-						broadcastAsrWaitingForResult();
+						if (!recognizerWaitingForResult){
+							recognizerWaitingForResult = true;
+							broadcastAsrWaitingForResult();
+						}
 						if ((new Date().getTime() - wait_timestamp) < maxAsrResultWait){
 							clearTimeout(waitTimeout);
 							waitTimeout = setTimeout(function(){
@@ -648,7 +650,6 @@ function sepiaFW_build_speech_recognition(Speech){
 						//else: continue below
 					}else{
 						resetsOnUnexpectedEnd();
-						
 						isRecognizing = false;
 						recognizerWaitingForResult = false;
 						before_error(error_callback, 'E04 - no final result');
@@ -667,13 +668,13 @@ function sepiaFW_build_speech_recognition(Speech){
 					log_callback('-LOG- REC END. sending final result');
 					if (!abortRecognition){
 						broadcastAsrFinished();
-						var final_fixed = mobileChromeFix(final_transcript);
+						var final_fixed = postProcessTranscription(final_transcript);
 						callback_final(final_fixed);
 						Speech.dispatchSpeechEvent("asr_result", final_fixed);
 					}else{
 						//broadcastAsrFinished();
 						broadcastRequestedAsrStop();
-						callback_interim(mobileChromeFix(final_transcript));
+						callback_interim(postProcessTranscription(final_transcript));
 					}
 				}
 			};
@@ -700,7 +701,7 @@ function sepiaFW_build_speech_recognition(Speech){
 				var iosPlugin = (typeof event.results == "undefined")? true : false;	//TODO: move or remove
 				if (iosPlugin && event.message){
 					//rebuild as default result
-					var item = { transcript:event.message, final:true };
+					var item = {transcript: event.message, final: true};
 					var resN = [item];
 					event = {};
 					event.timeStamp = new Date().getTime();
@@ -716,6 +717,7 @@ function sepiaFW_build_speech_recognition(Speech){
 					partialWasTriggered = true;
 					//console.log('ASR RES:', event.results[i]);			//DEBUG
 					if (event.results[i].isFinal || event.results[i][0]['final']){
+						lastResultType = 'final';
 						asrAutoStop = false;
 						//interim_transcript = '';
 						mod_str = event.results[i][0].transcript;
@@ -732,13 +734,14 @@ function sepiaFW_build_speech_recognition(Speech){
 							}
 							return;
 						}else{
-							final_transcript = mobileChromeFix(mod_str);
+							final_transcript = postProcessTranscription(mod_str);
 							broadcastAsrFinished();
 							callback_final(final_transcript);
 							Speech.dispatchSpeechEvent("asr_result", final_transcript);
 							final_transcript = '';
 						}
 					}else{
+						lastResultType = 'partial';
 						interim_transcript += event.results[i][0].transcript;
 					}
 				}
@@ -756,11 +759,12 @@ function sepiaFW_build_speech_recognition(Speech){
 		}
 	}
 	
-	//workarounds ASR:
+	//Post-processing:
 	
-	//remove double-reco text (its a mobile-chrome bug)
-	function mobileChromeFix(text){
-		//TODO: still required?
+	function postProcessTranscription(text){
+		//TODO: anything right now?
+		return text;
+		/* remove double-reco text (it was a mobile-chrome bug)
 		if (SepiaFW.ui.isAndroid && (text.length > 0) && (text.length % 2 == 0)){
 			var index = (text.length/2);
 			var firstHalf = text.substr(0, index);
@@ -768,7 +772,6 @@ function sepiaFW_build_speech_recognition(Speech){
 			if (firstHalf === secondHalf){
 				return firstHalf;
 			}
-		}
-		return text;
+		}*/
 	}
 }

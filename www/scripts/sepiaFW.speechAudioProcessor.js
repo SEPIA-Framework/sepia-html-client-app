@@ -209,7 +209,7 @@ function sepiaFW_build_speech_audio_proc(){
 					});
 				//gate opened
 				}else if (msg.gate.isOpen == true && !asrModuleGateIsOpen){
-					//STATE: streamstart
+					//STATE: streamstart (used as onstart - because we start buffering bytes)
 					onStreamStart();
 					asrModuleGateIsOpen = true;
 				}
@@ -218,7 +218,12 @@ function sepiaFW_build_speech_audio_proc(){
 				onAsrResult(msg.recognitionEvent);
 			}
 			if (msg.connectionEvent){
-				//TODO: use? - type: open, ready, close
+				//event: - type: open, ready, closed - data: tbd
+				if (msg.connectionEvent.type == "ready"){
+					onConnected(msg.connectionEvent.data);		//NOTE: we use ready because open can still fail (e.g. auth.)
+				}else if (msg.connectionEvent.type == "closed"){
+					onDisconnected(msg.connectionEvent.data);
+				}
 			}
 			//In debug or test-mode the module might send the recording:
 			if (msg.output && msg.output.wav){
@@ -226,7 +231,7 @@ function sepiaFW_build_speech_audio_proc(){
 			}
 		}, {
 			//recorder
-			recordBufferLimitMs: hasVad? maxRecordingMs : maxRecordingMsNoVad,
+			recordBufferLimitMs: (hasVad? maxRecordingMs : maxRecordingMsNoVad),
 			//server
 			socketUrl: SpeechRecognition.getSocketURI(), 	//NOTE: if set to 'debug' it will trigger "dry run" (wav file + pseudo res.)
 			clientId: SpeechRecognition.serverUser,
@@ -279,6 +284,8 @@ function sepiaFW_build_speech_audio_proc(){
 				message: event.message || "",
 				timeStamp: event.timeStamp || new Date().getTime()
 			});
+			//make sure audio stops
+			SepiaFW.audioRecorder.stopIfActive(function(){});	//skip event 'audioend'
 			
 		}else{
 			//TODO: implement or ignore?
@@ -288,26 +295,27 @@ function sepiaFW_build_speech_audio_proc(){
 	function onStreamStart(){
 		_asrLogCallback('ASR STREAM-START');
 		if (Recognizer.onstart){
-			Recognizer.onstart({
-				//TODO: define event
-			});
+			Recognizer.onstart({});
 		}
 	}
 	function onStreamEnd(ev){
 		_asrLogCallback('ASR STREAM-END');
 		if (Recognizer.onend){
-			Recognizer.onend({
-				//TODO: define event
-			});
+			Recognizer.onend({});
 		}
+	}
+	//currently only used for debugging:
+	function onConnected(data){
+		_asrLogCallback('ASR SERVICE CONNECTED');
+	}
+	function onDisconnected(data){
+		_asrLogCallback('ASR SERVICE DISCONNECTED');
 	}
 
 	function onSpeechStart(ev){
 		_asrLogCallback('REC SPEECH-START');
 		if (Recognizer.onspeechstart){
-			Recognizer.onspeechstart({
-				//TODO: define event
-			});
+			Recognizer.onspeechstart({});
 		}
 	}
 	function onSpeechEnd(ev){
@@ -317,9 +325,7 @@ function sepiaFW_build_speech_audio_proc(){
 			_asrLogCallback('REC SPEECH-END');
 		}
 		if (Recognizer.onspeechend){
-			Recognizer.onspeechend({
-				//TODO: define event
-			});
+			Recognizer.onspeechend({});
 		}
 		stopRecording();
 	}
@@ -339,9 +345,7 @@ function sepiaFW_build_speech_audio_proc(){
 	function onAudioEnd(ev){
 		_asrLogCallback('REC AUDIO-END');
 		if (Recognizer.onaudioend){
-			Recognizer.onaudioend({
-				//TODO: define event
-			});
+			Recognizer.onaudioend({});
 		}
 		if (abortRecognition){
 			onAsrErrorAbort("aborted", 
@@ -466,7 +470,7 @@ function sepiaFW_build_speech_audio_proc(){
 	}
 
 	function stopRecording(){
-		//TODO: fix according to spec
+		//TODO: fix according to spec?
 		_asrLogCallback('REC STOPPING');
 		if (asrModuleGateIsOpen){
 			setAsrModuleGateState("close");

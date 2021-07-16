@@ -17,6 +17,7 @@ function sepiaFW_build_ui(){
 	UI.isIOS = false;
 	UI.isMobile = false;
 	UI.isStandaloneWebApp = false;
+	UI.isAnyChromium = false;
 	UI.isChromiumDesktop = false;
 	UI.isChrome = false;
 	UI.isSafari = false;
@@ -47,7 +48,7 @@ function sepiaFW_build_ui(){
 			if (or){
 				valOrPromOrNull = window.screen.orientation.lock(or);
 			}else{
-				valOrPromOrNull = window.screen.orientation.unlock();
+				valOrPromOrNull = window.screen.orientation.unlock();	//TODO: this can raise FireFox DomException but its still skipped
 			}
 			Promise.resolve(valOrPromOrNull).then(function(){
 				UI.preferredScreenOrientation = or;
@@ -641,6 +642,14 @@ function sepiaFW_build_ui(){
 	
 	//-------- SETUP --------
 
+	function matchUserAgentBrandOrFallback(brandSearch, fallbackFun){
+		if (navigator.userAgentData && navigator.userAgentData.brands){
+			return !!navigator.userAgentData.brands.find(function(e){ return e.brand.indexOf(brandSearch) >= 0; });
+		}else{
+			return fallbackFun();
+		}
+	}
+
 	//setup device properties and stuff
 	UI.beforeSetup = function(){
 		//is touch device?
@@ -653,15 +662,16 @@ function sepiaFW_build_ui(){
 		}
 		
 		//is Edge (Chromium based)?
-		UI.isEdge = (/Edg/gi.test(navigator.userAgent));
-		//is Android or Chrome? - TODO: what about Chromium?
+		UI.isEdge = matchUserAgentBrandOrFallback("Microsoft Edge", function(){ return /Edg/gi.test(navigator.userAgent); });
+		//is Android or Chrome?
 		UI.isAndroid = (UI.isCordova)? (device.platform === "Android") : (navigator.userAgent.match(/(Android)/ig)? true : false);
-		UI.isChrome = (/Chrome/gi.test(navigator.userAgent)) && !UI.isEdge;
+		UI.isChrome = matchUserAgentBrandOrFallback("Google Chrome", function(){ return (/Chrome/gi.test(navigator.userAgent)) && !UI.isEdge; });
 		//is iOS or Safari?
 		UI.isIOS = (UI.isCordova)? (device.platform === "iOS") : (/iPad|iPhone|iPod/g.test(navigator.userAgent) && !window.MSStream);
 		UI.isSafari = /Safari/g.test(navigator.userAgent) && !UI.isAndroid && !UI.isChrome && !UI.isEdge; //exclude iOS chrome (not recommended since its still appleWebKit): && !navigator.userAgent.match('CriOS');
 		//is Chromium Desktop?
-		if ((UI.isChrome || UI.isEdge) && !(UI.isAndroid || UI.isIOS)){
+		UI.isAnyChromium = !!window.chrome;
+		if (UI.isAnyChromium && !(UI.isAndroid || UI.isIOS)){
 			UI.isChromiumDesktop = true;
 		}
 		//is mobile?
@@ -755,12 +765,12 @@ function sepiaFW_build_ui(){
 
 		//client
 		SepiaFW.config.setClientInfo(
-			((UI.isIOS)? 'iOS_' : '') 
-			+ ((UI.isAndroid)? 'android_' : '') 
-			+ ((UI.isChrome)? 'chrome_' : '')
-			+ ((UI.isEdge)? 'edge_' : '')
-			+ ((UI.isSafari)? 'safari_' : '')
-			+ ((UI.isStandaloneWebApp)? "app_" : "browser_") + UI.version
+			(UI.isIOS? 'iOS_' : '') 
+			+ (UI.isAndroid? 'android_' : '') 
+			+ (UI.isAnyChromium? 'chrome_' : '')	//NOTE: we use this for all chromiums (legacy name)
+			//TODO: add firefox
+			+ (UI.isSafari? 'safari_' : '')
+			+ (UI.isStandaloneWebApp? "app_" : "browser_") + UI.version
 		);
 		
 		//---------------------- LOAD other SETTINGS before building the UI:
