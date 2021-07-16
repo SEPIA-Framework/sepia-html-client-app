@@ -63,6 +63,8 @@ function sepiaFW_build_wake_triggers() {
 	
 	//Interface 
 
+	var hasAudioPlayerEventListeners = false;
+
 	WakeTriggers.initialize = function(){
 		//allowed?
 		WakeTriggers.useWakeWord = SepiaFW.data.get('useWakeWord');
@@ -81,26 +83,31 @@ function sepiaFW_build_wake_triggers() {
 		SepiaFW.client.addOnActiveOneTimeAction(wakeTriggersOnActiveAction);		//Note: we reset this to 'addOnActive' after setup (below)
 		
 		//Event listeners
-		document.addEventListener('sepia_audio_player_event', function(e){
-			if (e.detail){
-				//console.error(e.detail);
-				if (WakeTriggers.useWakeWord && WakeTriggers.engineLoaded){
-					//Audio player start
-					if (e.detail.action == "start" || e.detail.action == "resume"){
-						if (WakeTriggers.isListening() && !WakeTriggers.allowWakeWordDuringStream){
-							SepiaFW.debug.info("WakeTriggers - Stopping wake-word listener due to audio player '" + e.detail.action + "' event");
-							WakeTriggers.stopListeningToWakeWords();
-						}
-					//Audio player stop
-					}else if (e.detail.action == "stop" || e.detail.action == "pause"){
-						if ((SepiaFW.animate.assistant.getState() == "idle") && !WakeTriggers.isListening()){
-							SepiaFW.debug.info("WakeTriggers - Scheduling wake-word listener restart due to audio player '" + e.detail.action + "' event");
-							WakeTriggers.listenToWakeWords(undefined, undefined, true);
+		if (hasAudioPlayerEventListeners){
+			SepiaFW.debug.error("WakeTriggers - Tried to initialize audio-player event listeners twice! This should never happen!");
+		}else{
+			hasAudioPlayerEventListeners = true;
+			document.addEventListener('sepia_audio_player_event', function(e){
+				if (e.detail){
+					//console.error(e.detail);
+					if (WakeTriggers.useWakeWord && WakeTriggers.engineLoaded){
+						//Audio player start
+						if (e.detail.action == "start" || e.detail.action == "resume"){
+							if (WakeTriggers.isListening() && !WakeTriggers.allowWakeWordDuringStream){
+								SepiaFW.debug.info("WakeTriggers - Stopping wake-word listener due to audio player '" + e.detail.action + "' event");
+								WakeTriggers.stopListeningToWakeWords();
+							}
+						//Audio player stop
+						}else if (e.detail.action == "stop" || e.detail.action == "pause"){
+							if ((SepiaFW.animate.assistant.getState() == "idle") && !WakeTriggers.isListening()){
+								SepiaFW.debug.info("WakeTriggers - Scheduling wake-word listener restart due to audio player '" + e.detail.action + "' event");
+								WakeTriggers.listenToWakeWords(undefined, undefined, true);
+							}
 						}
 					}
 				}
-			}
-		}, true);
+			}, true);
+		}
 	}
 	function wakeTriggersOnActiveAction(){
 		//start setup?
@@ -373,14 +380,16 @@ function sepiaFW_build_wake_triggers() {
 		}, undefined, onErrorCallback); 	//NOTE: we ignore the noopCallback atm but listen to 'sepia_web_audio_recorder' events
 	}
 
-	WakeTriggers.releaseWakeWordEngine = function(onFinishCallback, onErrorCallback){
+	WakeTriggers.releaseWakeWordEngine = function(onFinishCallback, noopCallback, onErrorCallback){
 		//make sure its stopped
 		WakeTriggers.stopListeningToWakeWords(function(){
 			//release the recorder
 			SepiaFW.audioRecorder.releaseWebAudioRecorder(function(){
 				WakeTriggers.engineModule = undefined;
 				if (onFinishCallback) onFinishCallback();
-			}, undefined, onErrorCallback); //NOTE: we ignore the noopCallback atm but listen to 'sepia_web_audio_recorder' events
+			}, function(){
+				if (noopCallback) noopCallback();
+			}, onErrorCallback);
 		}, onErrorCallback);
 	}
 
@@ -390,10 +399,18 @@ function sepiaFW_build_wake_triggers() {
 			return;
 		}
 		WakeTriggers.releaseWakeWordEngine(function(){
-			WakeTriggers.engineLoaded = false;
-			//TODO: do a better clean up?
+			finalizeWwRelease();
 			if (onFinishCallback) onFinishCallback();
+		}, function(){
+			//NOOP - TODO: use 'finalizeWwRelease' and 'onFinishCallback' or not?
+			finalizeWwRelease();
+			if (onFinishCallback) onFinishCallback();
+			//NOTE: we use noopCallback atm because 'sepia_web_audio_recorder' events might not be enough!?
 		}, onErrorCallback);
+	}
+	function finalizeWwRelease(){
+		WakeTriggers.engineLoaded = false;		//NOTE: only "setup" can restore this via "onActive" event
+		//TODO: do a better clean up?
 	}
 
 	//listen to global events to make sure state is updated correctly
@@ -415,6 +432,8 @@ function sepiaFW_build_wake_triggers() {
 			isListening = false;
 			SepiaFW.animate.wakeWord.inactive();
 		}
+		//TODO: 'initError' event might be relevant here
+		if (SepiaFW.wakeWordSettings.isOpen) SepiaFW.wakeWordSettings.onBackgroundEvent(data.event);
 	}
 	
 	WakeTriggers.getWakeWords = function(){

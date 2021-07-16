@@ -46,10 +46,11 @@
 				</div>
 				<div class="group fit hidden-expert-setting" style="display: none;">
 					<div class="entry-content">
-						<label>URL:</label>
+						<label style="width: 100%;">URL:</label>
 						<input id="sepiaFW-wake-word-remote-url" placeholder="<sepia_website>/files/porcupine/" value="" spellcheck="false" 
 							title="Paths you can use: empty or '<assist_server>/files/...' (self-hosted), '<custom_data>/...' (device), '<sepia_website>/files/porcupine/' (remote) as shortcuts.">
 					</div>
+					<button class="trigger-button" onclick="SepiaFW.wakeWordSettings.engineFileUrlPopup()"><i class="material-icons md-txt">search</i></button>
 					<button class="set-button" onclick="SepiaFW.wakeWordSettings.storeWakeWordRemoteDownloadUrl()">SET</button>
 				</div>
 				<div class="group fit expert-setting" id="sepiaFW-wake-word-switcher" style="display: none;">

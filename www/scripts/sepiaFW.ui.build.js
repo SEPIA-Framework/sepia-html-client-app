@@ -1364,6 +1364,7 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 					+ "<ul style='text-align: left;'>" 
 						+ "<li><b>Device Type:</b> " + (SepiaFW.ui.isMobile? "Mobile" : "Desktop") + "</li>"
 						+ "<li><b>Device Name:</b> " + (clientName) + "</li>"
+						+ (SepiaFW.ui.isAnyChromium? ("<li><b>Chromium Brand:</b> " + (SepiaFW.ui.isEdge? "Microsoft Edge" : (SepiaFW.ui.isChrome? "Probably Google" : "Other")) + "</li>") : "")
 						+ "<li><b>Version:</b> " + (SepiaFW.ui.version) + "</li>"
 						+ "<li><b>App Type:</b> " + (isStandalone? "Standalone" : "Website") + "</li>"
 						+ "<li><b>Type Info:</b> " + (SepiaFW.ui.isCordova? "Cordova App" : (isStandalone? "Homescreen/Custom" : "-")) + "</li>"

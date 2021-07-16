@@ -63,8 +63,7 @@ function sepiaFW_build_wake_word_settings() {
             isListening = false;
             SepiaFW.wakeTriggers.unloadEngine(function(){
                 //unloaded
-                $('#sepiaFW-wake-word-toggle').html("LOAD");
-                $('#sepiaFW-wake-word-engine-reset').hide(150);
+                onEngineUnloaded();
             }, function(err){
                 WakeWordSettings.debugLog("ERROR: " + (err? err.message : "unknown"));
                 $('#sepiaFW-wake-word-toggle').html("LOAD");
@@ -74,6 +73,22 @@ function sepiaFW_build_wake_word_settings() {
             WakeWordSettings.debugLog("ERROR: " + (err? err.message : "unknown"));
             $('#sepiaFW-wake-word-toggle').html("LOAD");
         });
+    }
+    function onEngineUnloaded(){
+        $('#sepiaFW-wake-word-toggle').html("LOAD");
+        $('#sepiaFW-wake-word-engine-reset').hide(150);
+    }
+
+    //this can be triggered by "sepia_web_audio_recorder" events (via wakeTriggers listener)
+    WakeWordSettings.onBackgroundEvent = function(eventName){
+        if (eventName == "initError"){
+            //TODO: implement
+            $('#sepiaFW-wake-word-toggle').html("ERROR");
+        }else if (eventName == "release"){
+            onEngineUnloaded();
+		}else if (eventName == "audioend"){
+            //anything?
+        }
     }
 
     WakeWordSettings.debugLog = function(info, isError){
@@ -85,6 +100,37 @@ function sepiaFW_build_wake_word_settings() {
             }
             console.log(info);
         }
+    }
+
+    //Select engine file URL
+    WakeWordSettings.engineFileUrlPopup = function(){
+        var text = document.createElement("p");
+        text.textContent = "Suggestions for engine file URLs. Adapt as required. Note: <...> parts are special tags that the client will convert automatically.";
+        var selector = document.createElement("select");
+        selector.style.maxWidth = "100%";
+        var suggestedEngineFolder = (SepiaFW.wakeTriggers.engine || "porcupine").toLowerCase();
+        [{info: "SEPIA Server (self-hosted)", url: "<assist_server>/files/wake-words/" + suggestedEngineFolder + "/"},
+         {info: "Device (local app folder or filesystem)", url: "<custom_data>/" + suggestedEngineFolder + "/"},
+         {info: "SEPIA Website (public URL)", url: "<sepia_website>/files/" + suggestedEngineFolder + "/"},
+         {info: "Any Website with SSL (public URL)", url: "https://..."}
+        ].forEach(function(sugg, i){
+            var opt = document.createElement("option");
+            opt.value = sugg.url;
+            opt.textContent = sugg.info;
+            selector.appendChild(opt);
+        });
+        var config = {
+            buttonOneName : SepiaFW.local.g('select'),
+            buttonOneAction : function(){
+                $("#sepiaFW-wake-word-remote-url").val(selector.value);
+            },
+            buttonTwoName : SepiaFW.local.g('abort'),
+            buttonTwoAction : function(){}
+        };
+        var content = document.createElement("div");
+        content.appendChild(text);
+        content.appendChild(selector);
+        SepiaFW.ui.showPopup(content, config);
     }
 
     //Select keyword pop-up
