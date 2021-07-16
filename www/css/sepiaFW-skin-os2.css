@@ -155,30 +155,38 @@ html.landscape-small #sepiaFW-chat-controls {
     color: #ffe7a4;
 }
 #sepiaFW-chat-output article {
-    background: #f8ead9;
+	background: linear-gradient(130deg, #f8ead9 0%, #fffaf1 80%, #f8ead9 100%);
+	border-left-color: #f8ead9;
 	box-shadow: 0 0px 10px 0 rgba(0, 0, 0, 0.20);
 	border-radius: 0;
 }
+#sepiaFW-chat-output article.chatOther.chatPm {
+	border-left-color: rgba(243, 214, 104, 0.75);
+}
+#sepiaFW-chat-output article.chatAssistant {
+	background: linear-gradient(130deg, #f1ccae 0%, #f8ead9 80%, #f1ccae 100%);
+    border-left-color: #f1ceb1;
+}
+#sepiaFW-chat-output article.chatAssistant.chatPm {
+	/*border-left-color: rgba(243, 214, 104, 0.82);*/
+	border-left-color: #f4dbc4;
+}
 #sepiaFW-chat-output article.chatMe {
-	background: #d6d6d6;
-	/* background: #c3c0c0; */
+	background: linear-gradient(130deg, #d1d1d1 0%, #e2e2e2 80%, #d1d1d1 100%);
+    border-left-color: #d1d1d1;
+}
+#sepiaFW-chat-output article.chatMe.chatPm {
+	/*border-left-color: rgba(243, 214, 104, 0.82);*/
+	border-left-color: #dadada;
+}
+#sepiaFW-chat-output .chatMsg article {
+	outline: 1px solid #cf8b7e;
+    outline-offset: -2px;
 }
 #sepiaFW-chat-output .chatMsg article,
 #sepiaFW-chat-output .chatMsg article b,
 #sepiaFW-chat-output .chatMsg article span {
 	color: #000 !important;
-}
-#sepiaFW-chat-output article.chatAssistant {
-	background: #fcd9b5;
-}
-#sepiaFW-chat-output article.chatAssistant.chatPm {
-	border-left-color: rgba(243, 214, 104, 0.92);
-}
-#sepiaFW-chat-output article.chatMe.chatPm {
-	border-left-color: rgba(243, 214, 104, 0.92);
-}
-#sepiaFW-chat-output article.chatOther.chatPm {
-	border-left-color: rgba(243, 214, 104, 0.92);
 }
 
 #sepiaFW-chat-controls-swipe-area .sepiaFW-swipeBar-switchable {
@@ -214,7 +222,7 @@ html.landscape-small #sepiaFW-chat-controls {
 .sepiaFW-cards-list-body .cardBodyItem .newsCenter,
 .sepiaFW-cards-list-body .weatherNowSmall > div,
 .sepiaFW-cards-list-body .weatherNowDetails li {
-	background: #f8ead9;
+	background: linear-gradient(130deg, #fde6cb 0%, #f8ead9 100%);
 	color: #000;
 	border-radius: 0;
 }
