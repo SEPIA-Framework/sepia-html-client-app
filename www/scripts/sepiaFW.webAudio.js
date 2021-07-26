@@ -4,7 +4,7 @@ function sepiaFW_build_web_audio(){
 	
 	//--- START: Copy of SEPIA Web-Audio Lib --->
 	
-	WebAudio.version = "0.9.5";
+	WebAudio.version = "0.9.7";
 	
 	//Preparations
 	var AudioContext = window.AudioContext || window.webkitAudioContext;
@@ -13,7 +13,7 @@ function sepiaFW_build_web_audio(){
 
 	function testStreamRecorderSupport(){
 		isMediaDevicesSupported = (!!AudioContext && navigator.mediaDevices && navigator.mediaDevices.getUserMedia);
-		//isCordovaAudioinputSupported = (window.cordova && window.audioinput);		//TODO: implement
+		//isCordovaAudioinputSupported = (window.cordova && window.audioinput);		//TODO: implement (import ... "./plugins/cordova-audio-input.js")
 		return !!isMediaDevicesSupported || isCordovaAudioinputSupported;
 	}
 	
@@ -179,7 +179,7 @@ function sepiaFW_build_web_audio(){
 			if (!mainAudioContext || mainAudioContext.state == "closed"){
 				//TODO: clean up old context and sources?
 				mainAudioContext = WebAudio.createAudioContext(options, ignoreOptions);
-				if (options.startSuspended){
+				if (options.startSuspended == undefined || options.startSuspended){
 					try { await mainAudioContext.resume(); } catch(error){};		//TODO: prevent quirky stuff on e.g. iOS
 					await mainAudioContext.suspend();
 				}else{
@@ -711,7 +711,7 @@ function sepiaFW_build_web_audio(){
 				
 			}).then(function(){
 				//continue with source handler
-				sourceHandler(micRes.source, {}, micRes.info);
+				sourceHandler(micRes.source, micRes.controls || {}, micRes.info);
 				
 			}).catch(function(err){
 				if (typeof err == "string"){
@@ -827,7 +827,7 @@ function sepiaFW_build_web_audio(){
 		if (!asyncCreateOrUpdateAudioContext){
 			asyncCreateOrUpdateAudioContext = async function(forceNew, ignoreOptions){
 				var audioContext = WebAudio.createAudioContext(options, ignoreOptions);
-				if (options.startSuspended){
+				if (options.startSuspended == undefined || options.startSuspended){
 					try { await audioContext.resume(); } catch (error){};		//TODO: prevent quirky stuff on e.g. iOS
 					await audioContext.suspend();
 				}else{
@@ -881,17 +881,34 @@ function sepiaFW_build_web_audio(){
 					}
 					
 					var info = { type: "mic" };
+					var track0;
 					if (source.mediaStream && source.mediaStream.getAudioTracks){
 						try {
-							var track0 = source.mediaStream.getAudioTracks()[0];
+							track0 = source.mediaStream.getAudioTracks()[0];
 							info.label = track0.label;
 							if (track0.getSettings) info.settings = track0.getSettings();
 							else info.settings = {};
 							info.settings.sampleRate = audioContext.sampleRate;
 						}catch(e){};
 					}
+
+					var controlEvents = {
+						//onBeforeStart, onAfterStart, onBeforeStop, onAfterStop, onBeforeRelease, onAfterRelease
+						onBeforeStart: function(){},
+						onAfterStop: function(){},
+						onAfterRelease: function(){
+							//release mic resources
+							if (track0 && typeof track0.stop == "function" && track0.readyState == "live"){
+								track0.stop();
+							}
+						}
+					}
 					
-					return resolve({source: source, info: info});
+					return resolve({
+						source: source,
+						controls: controlEvents,
+						info: info
+					});
 					
 				}).catch(function(err){
 					return reject(err);
@@ -908,7 +925,7 @@ function sepiaFW_build_web_audio(){
 	
 	//MediaRecorder
 	WebAudio.createAudioRecorder = function(stream, sourceInfo, recorderOptions){
-		if (!recorderOptions) recorderOptions = {};
+		if (!recorderOptions) recorderOptions = {};		//TODO: option 'decodeToAudioBuffer' is still experimental
 		if (!recorderOptions.codec) recorderOptions.codec = "webm_ogg_opus";
 		return new Promise(function(resolve, reject){
 			(async function(){
@@ -949,7 +966,7 @@ function sepiaFW_build_web_audio(){
 						mediaRecorder.onstop = function(e){
 							//var blob = new Blob(chunks, {'type' : mimeType});
 							//chunks = [];
-							console.log("onstop", "state", mediaRecorder.state);		//DEBUG TODO: remove
+							//console.log("onstop", "state", mediaRecorder.state);		//DEBUG
 							if (onStop && !recorderOptions.decodeToAudioBuffer){
 								onStop();		//TODO: we delay stop if we need to decode the blob first to keep original order
 							}
@@ -959,7 +976,7 @@ function sepiaFW_build_web_audio(){
 							//decode chunks
 							if (onDataAvailable) mediaRecorder.ondataavailable = function(e){
 								//catch last 'ondataavailable' and delay stop
-								console.log("ondataavailable", "state", mediaRecorder.state);		//DEBUG TODO: remove
+								//console.log("ondataavailable", "state", mediaRecorder.state);		//DEBUG
 								if (mediaRecorder.state == "inactive") triggeredLastData = true;
 								if (e && e.data){
 									let startDecode = Date.now();
@@ -988,7 +1005,7 @@ function sepiaFW_build_web_audio(){
 						var stop = function(){
 							if (stopTimer) clearTimeout(stopTimer);
 							stoppedTS = Date.now();
-							console.log("AudioRecorder state:", mediaRecorder.state);		//DEBUG
+							//console.log("AudioRecorder state:", mediaRecorder.state);		//DEBUG
 							if (mediaRecorder.state != "inactive") mediaRecorder.stop();
 						};
 						var start = function(){
@@ -1033,7 +1050,6 @@ function sepiaFW_build_web_audio(){
 		});
 	}
 	function blobToArray(blobData, callback){
-		console.log("blobData", blobData);		//DEBUG
 		if (!blobData || !blobData.size){
 			callback();
 		}else if (typeof blobData.arrayBuffer == "function"){
@@ -1080,10 +1096,28 @@ function sepiaFW_build_web_audio(){
 				type: "scriptProcessor",
 				typeData: res.info,
 				hasWorkletSupport: false, 	//does not fit into audio processing thread (normal worklets)
-				//TODO: ?!?
-				start: function(){},
-				stop: function(){},
-				release: function(){}
+				start: function(){
+					//overwrites afterStart
+					if (res.controls.onAfterStart) res.controls.onAfterStart();
+				},
+				stop: function(){
+					//overwrites beforeStop
+					if (res.controls.onBeforeStop) res.controls.onBeforeStop();
+				},
+				release: function(){
+					//overwrites afterRelease
+					if (res.controls.onAfterRelease) res.controls.onAfterRelease();
+				}
+				//TODO: implement more?!?
+			}
+			//remaining controlEvents - beforeStart, afterStart, beforeStop, afterStop, beforeRelease, afterRelease
+			if (res.controls){
+				if (res.controls.onBeforeStart) customSource.beforeStart = res.controls.onBeforeStart;
+				//if (res.controls.onAfterStart) customSource.afterStart = res.controls.onAfterStart;
+				//if (res.controls.onBeforeStop) customSource.beforeStop = res.controls.onBeforeStop;
+				if (res.controls.onAfterStop) customSource.afterStop = res.controls.onAfterStop;
+				if (res.controls.onBeforeRelease) customSource.beforeRelease = res.controls.onBeforeRelease;
+				//if (res.controls.onAfterRelease) customSource.afterRelease = res.controls.onAfterRelease;
 			}
 
 			if (options.onaudioprocess){
@@ -1228,6 +1262,34 @@ function sepiaFW_build_web_audio(){
 		}
 		encoderWorker.postMessage({ctrl: {action: "construct", options: options}});
 	}
+	//Decode audio file to audio buffer
+	WebAudio.decodeAudioFile = function(fileUrl, sampleRate, channels, successCallback, errorCallback){
+		WebAudio.readFileAsBuffer(fileUrl, function(encodedArray){
+			var offlineAudioContext = new OfflineAudioContext(channels, encodedArray.byteLength, sampleRate);
+			offlineAudioContext.decodeAudioData(encodedArray, function(audioBuffer){
+				successCallback(audioBuffer);
+			}, function(err){
+				errorCallback(err);
+			});
+		}, function(err){
+			errorCallback(err);
+		});
+	}
+	//Decode audio file to audio buffer
+	WebAudio.decodeAudioFileToInt16Mono = function(fileUrl, sampleRate, successCallback, errorCallback){
+		var channels = 1;
+		WebAudio.decodeAudioFile(fileUrl, sampleRate, channels, function(audioBuffer){
+			var isFloat32 = true;
+			WebAudio.encodeWaveBuffer(audioBuffer.getChannelData(0), sampleRate, channels, isFloat32, function(res){
+				try {
+					var samplesInt16Mono = new Int16Array(res.wav.buffer);
+					successCallback(samplesInt16Mono);
+				}catch(err){
+					errorCallback(err);
+				}
+			}, errorCallback);
+		}, errorCallback);
+	}
 	
 	//WASM resampler
 	WebAudio.resampleBufferViaSpeex = function(buffer, inputSampleRate, targetSampleRate, channels, quality, successCallback, errorCallback){
@@ -1338,6 +1400,19 @@ function sepiaFW_build_web_audio(){
 		}catch (error){
 			throw new Error("Converting base64 string to bytes failed.");
 		}
+	}
+	
+	//Add audio data as audio element to element on page (or body)
+	WebAudio.addAudioElementToPage = function(targetEle, audioData, audioType){
+		var audioEle = document.createElement("audio");
+		audioEle.src = window.URL.createObjectURL((audioData.constructor.name == "Blob")?
+			audioData : (new Blob([audioData], { type: (audioType || "audio/wav") })));
+		audioEle.setAttribute("controls", "controls");
+		var audioBox = document.createElement("div");
+		audioBox.appendChild(audioEle);
+		if (!targetEle) targetEle = document.body;
+		targetEle.appendChild(audioBox);
+		return audioEle;
 	}
 	
 	//used to keep Promise structure, e.g.: Promise.resolve((optionalFun || noop)()).then(...)

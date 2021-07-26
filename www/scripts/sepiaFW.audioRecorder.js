@@ -157,6 +157,9 @@ function sepiaFW_build_audio_recorder(){
 	AudioRecorder.existsWebAudioRecorder = function(){
 		return !!sepiaWebAudioProcessor;
 	}
+	AudioRecorder.getActiveWebAudioRecorder = function(){
+		return sepiaWebAudioProcessor;
+	}
 	AudioRecorder.isWebAudioRecorderReady = function(){
 		return (!!sepiaWebAudioProcessor && sepiaWebAudioProcessor.isInitialized());
 	}

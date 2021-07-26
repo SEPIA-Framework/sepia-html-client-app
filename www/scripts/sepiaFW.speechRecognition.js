@@ -339,7 +339,11 @@ function sepiaFW_build_speech_recognition(Speech){
 		if (recognition && recognition.clearWaitTimeoutAndIgnoreEnd){
 			recognition.clearWaitTimeoutAndIgnoreEnd();
 		}
-		recognition = newRecognizer("onreset");
+		SepiaFW.audioRecorder.stopAndReleaseIfActive(function(){
+			recognition = newRecognizer("onreset");
+			SepiaFW.wakeTriggers.checkPossibilityToSwitchOnWakeWord("resetRecognition");
+		});
+		//recognition = newRecognizer("onreset");
 	}
 
 	//some implementations have there own trigger confirmation sound

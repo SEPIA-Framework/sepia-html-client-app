@@ -94,7 +94,14 @@ function sepiaFW_build_audio(){
 				name: "TimeoutError"
 			});
 		}, 8000);
-		navigator.mediaDevices.getUserMedia({audio: true, video: false})
+		//audio constraints
+		var constraints = JSON.parse(JSON.stringify(SepiaFW.webAudio.getSupportedAudioConstraints()));
+		//if (constraints.sampleRate) ...;
+		var audioVideoConstraints = { 
+			video : false, audio: (Object.keys(constraints).length? constraints : true)
+		};
+		//get permission
+		navigator.mediaDevices.getUserMedia(audioVideoConstraints)
 		.then(function(stream){
 			/* use the stream ? */
 			clearTimeout(timeoutTimer);

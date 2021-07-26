@@ -300,8 +300,8 @@ function sepiaFW_build_wake_word_settings() {
                 toggleButton.innerHTML = "Loading...";
                 var skipAutostart = true;       //we start manually
                 SepiaFW.wakeTriggers.setupWakeWords(function(){
-                    $('#sepiaFW-wake-word-engine-reset').show(300);
                     startStopToggle();
+                    $('#sepiaFW-wake-word-engine-reset').show(300);
                 }, skipAutostart);
             }else{
                 startStopToggle();
@@ -341,6 +341,7 @@ function sepiaFW_build_wake_word_settings() {
                 }else{
                     document.getElementById('sepiaFW-wake-word-toggle').innerHTML = "START";
                 }
+                $('#sepiaFW-wake-word-engine-reset').show();
             }else{
                 isListening = false;
                 document.getElementById('sepiaFW-wake-word-toggle').innerHTML = "LOAD";

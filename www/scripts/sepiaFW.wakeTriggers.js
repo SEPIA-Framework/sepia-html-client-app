@@ -357,6 +357,16 @@ function sepiaFW_build_wake_triggers() {
 			}, undefined, onErrorCallback);
 		}
 	}
+
+	WakeTriggers.checkPossibilityToSwitchOnWakeWord = function(source){
+		//check and schedule
+		if ((SepiaFW.client.isActive() || SepiaFW.client.isDemoMode())
+				&& WakeTriggers.useWakeWord && WakeTriggers.engineLoaded 
+				&& !WakeTriggers.isListening()){
+			//console.log('Wake-word window - source: ' + source); 	//TODO: use?
+			WakeTriggers.listenToWakeWords(undefined, undefined, true);
+		}
+	}
 	
 	WakeTriggers.stopListeningToWakeWords = function(onSuccessCallback, onErrorCallback){
 		if (switchOnWakeWordTimer) clearTimeout(switchOnWakeWordTimer);
