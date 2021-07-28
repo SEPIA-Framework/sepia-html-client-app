@@ -147,7 +147,8 @@ function sepiaFW_build_assistant(sepiaSessionId){
 	//evaluate result and store states
 	Assistant.setState = function(result, returnToIdle){
 		//set state only when the message was intended for this user - TODO: rethink this
-		if (SepiaFW.account && (SepiaFW.account.getUserId() !== result.more.user)){
+		if (SepiaFW.account.getUserId() !== result.more.user 
+				&& !(SepiaFW.client.isDemoMode() && result.more.user == "username")){
 			return;
 		}
 
