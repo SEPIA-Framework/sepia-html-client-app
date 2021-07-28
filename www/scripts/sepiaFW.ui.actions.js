@@ -6,13 +6,13 @@ function sepiaFW_build_ui_actions(){
 	//Executes all functions in next idle state so MAKE SURE! they don't interfere with each other!
 	var delayQueue = {};
 	var delayId = 0;
-	Actions.delayFunctionUntilIdle = function(_fun, _idleState){
+	Actions.delayFunctionUntilIdle = function(fun, idleState){
 		delayId++;
 		if (delayId > 64000) delayId = 0;
-		if (!_idleState) _idleState = "any"; 		//could be: unknown, ttsFinished, dialogFinished, asrFinished, anyButAsr
+		if (!idleState) idleState = "any"; 		//could be: unknown, ttsFinished, dialogFinished, asrFinished, anyButAsr
 		delayQueue[delayId] = {
-			fun: _fun,
-			idleState: _idleState,
+			fun: fun,
+			idleState: idleState,
 			id: delayId
 		};
 	}
@@ -333,20 +333,16 @@ function sepiaFW_build_ui_actions(){
 	
 	//PLAY AUDIO STREAM
 	Actions.playAudioURL = function(action, triggeredViaButton){
-		if (SepiaFW.audio){
-			if (SepiaFW.speech && (SepiaFW.speech.isSpeaking() || SepiaFW.speech.isWaitingForSpeech())){	//its starting to get messy here with all the exceptions, we need a proper event queue ...
-				//do something to delay start?
-			}
-			if (!triggeredViaButton){
-				var idleState = "anyButAsr";
-				Actions.delayFunctionUntilIdle(function(){
-					playAction(action);
-				}, idleState);
-			}else{
+		if (SepiaFW.speech.isSpeaking() || SepiaFW.speech.isWaitingForSpeech()){	//its starting to get messy here with all the exceptions, we need a proper event queue ...
+			//do something to delay start?
+		}
+		if (!triggeredViaButton){
+			var idleState = "anyButAsr";
+			Actions.delayFunctionUntilIdle(function(){
 				playAction(action);
-			}
+			}, idleState);
 		}else{
-			SepiaFW.debug.info("Action: type 'play_audio_stream' is not supported yet.");
+			playAction(action);
 		}
 	}
 	function playAction(action){

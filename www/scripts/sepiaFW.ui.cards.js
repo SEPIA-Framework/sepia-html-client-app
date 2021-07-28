@@ -898,9 +898,8 @@ function sepiaFW_build_ui_cards(){
 					}
 				}
 				//stop alarm and remove 
-				if (SepiaFW.audio){
-					SepiaFW.audio.stopAlarmSound("cardRemove");
-				}				
+				SepiaFW.audio.stopAlarmSound("cardRemove");
+				
 				//remove DOM element and parent if emtpy
 				if (Timer){
 					$(SepiaFW.ui.JQ_RES_VIEW_IDS).find('[data-id="' + Timer.data.eventId + '"]').each(function(){

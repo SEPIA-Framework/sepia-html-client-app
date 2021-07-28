@@ -478,9 +478,9 @@ function sepiaFW_build_speech_audio_proc(){
 		}else{
 			//AudioRecorder stop
 			SepiaFW.audioRecorder.stopIfActive(function(){
-				//TODO: and now? just wait for result? what if errorCallback triggers?
 				//STATE: audioend
 				onAudioEnd();	//trigger or not?
+				//TODO: just wait for result? release after certain time? what if errorCallback triggers?
 			});
 		}
 	}

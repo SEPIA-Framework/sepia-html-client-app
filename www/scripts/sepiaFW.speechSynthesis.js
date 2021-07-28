@@ -147,9 +147,7 @@ function sepiaFW_build_speech_synthesis(Speech, sepiaSessionId){
 	function broadcastTtsRequested(){
 		//EXAMPLE: 
 		SepiaFW.animate.assistant.loading();
-		if (SepiaFW.audio){
-			SepiaFW.audio.fadeOut();
-		}
+		SepiaFW.audio.fadeOut();
 	}
 	function broadcastTtsFinished(){
 		//EXAMPLE: 
@@ -158,6 +156,7 @@ function sepiaFW_build_speech_synthesis(Speech, sepiaSessionId){
 	function broadcastTtsSkipped(){
 		//EXAMPLE: 
 		//SepiaFW.animate.assistant.idle('ttsSkipped');
+		//NOTE: we don't use 'idle' but rely on 'Assistant.setState'
 	}
 	function broadcastTtsStarted(){
 		//EXAMPLE: 

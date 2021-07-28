@@ -806,11 +806,7 @@ function sepiaFW_build_events(){
 		}
 		//play sound
 		if (playSound){
-			if (SepiaFW.audio){
-				SepiaFW.audio.playAlarmSound(startCallback, endCallback, errorCallback);
-			}else{
-				SepiaFW.debug.err("Alarm: Audio CANNOT be played, SepiaFW.audio is missing!");
-			}
+			SepiaFW.audio.playAlarmSound(startCallback, endCallback, errorCallback);
 		}
 		//add missed message?
 		if (showMissedNote){

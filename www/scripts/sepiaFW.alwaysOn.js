@@ -353,9 +353,7 @@ function sepiaFW_build_always_on(){
         if (avatarIsAlarmed){
             if (alarmTriggerTimer) clearTimeout(alarmTriggerTimer);
             //stop alarm sound
-            if (SepiaFW.audio){
-                SepiaFW.audio.stopAlarmSound("alwaysOn");
-            }
+            SepiaFW.audio.stopAlarmSound("alwaysOn");
             //remove animation
             removeAlarmAnimation();
             //remove missed event (since the user actively stopped it)

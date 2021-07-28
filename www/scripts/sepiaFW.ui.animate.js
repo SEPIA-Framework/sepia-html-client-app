@@ -51,7 +51,7 @@ function sepiaFW_build_animate(){
 		SepiaFW.ui.actions.openCMD(action);
 	}
 	function possibilityToExecuteDelayedFunction(source){
-		if (SepiaFW.ui.actions && SepiaFW.ui.actions.getDelayQueueSize() > 0){
+		if (SepiaFW.ui.actions.getDelayQueueSize() > 0){
 			if (source == "asrFinished"){
 				SepiaFW.ui.actions.executeDelayedFunctionsAndRemove(source); //only after-asr (or any) state 
 			}else{
@@ -60,9 +60,7 @@ function sepiaFW_build_animate(){
 		}
 	}
 	function possibilityToFadeInBackgroundAudio(){
-		if (SepiaFW.audio){
-			SepiaFW.audio.fadeInIfOnHold();
-		}
+		SepiaFW.audio.fadeInIfOnHold();
 	}
 
 	//---------------------
@@ -86,9 +84,9 @@ function sepiaFW_build_animate(){
 		if (!source) source = "unknown";
 		SepiaFW.debug.info('Animate.idle, source: ' + source); 		//DEBUG
 		clearTimeout(loadingStuckTimer);
-		if (SepiaFW.assistant && SepiaFW.assistant.isWaitingForDialog){
+		if (SepiaFW.assistant.isWaitingForDialog){
 			Animate.assistant.awaitDialog(source);
-		}else if (SepiaFW.ui.actions && SepiaFW.client.getCommandQueueSize() > 0){
+		}else if (SepiaFW.client.getCommandQueueSize() > 0){
 			Animate.assistant.loading();
 			//get next command form commandQueue
 			possibilityToCleanCommandQueue();

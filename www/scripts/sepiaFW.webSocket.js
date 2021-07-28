@@ -2277,7 +2277,7 @@ function sepiaFW_build_webSocket_client(sepiaSessionId){
 					if (actionUser !== SepiaFW.account.getUserId()){
 						SepiaFW.debug.error("remoteAction - tried to use type 'notify' with wrong user");
 					}else{
-						//TODO: implement
+						//TODO: implement 
 						SepiaFW.debug.log("remoteAction - no handler yet for type: " + message.data.type);
 					}
 				
@@ -2544,10 +2544,10 @@ function sepiaFW_build_webSocket_client(sepiaSessionId){
 			}
 		}
 		
-		//Assistant states - TODO: this needs some rework to make it compatible with background commands 
+		//Assistant states - TODO: this needs some rework to make it compatible with background commands
 		if ((isAssistAnswer || isAssistFollowUp) && !(options.loadOnlyData || options.skipInsert || options.skipText)){
 			var returnToIdle;
-			if (options.skipTTS || !SepiaFW.speech || SepiaFW.speech.skipTTS || !SepiaFW.speech.isTtsSupported){
+			if (options.skipTTS || SepiaFW.speech.skipTTS || !SepiaFW.speech.isTtsSupported){
 				returnToIdle = true;
 			}else{
 				returnToIdle = false;
@@ -2556,7 +2556,7 @@ function sepiaFW_build_webSocket_client(sepiaSessionId){
 		
 		}else if ((isAssistAnswer || isAssistFollowUp) && options.skipTTS){
 			//there will be no trigger for queued commands now, so we have to check it manually
-			if (SepiaFW.ui.actions && SepiaFW.client.getCommandQueueSize() > 0){
+			if (SepiaFW.client.getCommandQueueSize() > 0){
 				SepiaFW.animate.assistant.loading();
 				var action = SepiaFW.client.getAndRemoveNextCommandInQueue();
 				SepiaFW.ui.actions.openCMD(action);
