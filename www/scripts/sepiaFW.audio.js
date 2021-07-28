@@ -35,7 +35,6 @@ function sepiaFW_build_audio(){
 	var speakerAudioCtx, speakerSource, speakerGainNode;	//for TTS effects filter
 
 	var doInitAudio = true;			//workaround to activate scripted audio on touch devices
-	var audioOnEndFired = false;	//state: prevent doublefireing of audio onend onpause
 
 	//Media Session Interface (see below for events)
 	var isMediaSessionSupported = 'mediaSession' in navigator;
@@ -835,7 +834,7 @@ function sepiaFW_build_audio(){
 		}
 		if (audioURL) audioURL = SepiaFW.config.replacePathTagWithActualPath(audioURL);
 		
-		audioOnEndFired = false;
+		var audioOnEndFired = false;			//prevent doublefireing of audio onend onpause
 
 		if (audioPlayer == player){
 			if (audioURL){
@@ -909,7 +908,7 @@ function sepiaFW_build_audio(){
 				AudioPlayer.broadcastAudioEvent("unknown", "start", audioPlayer);
 			}
 		};
-		audioPlayer.onpause = function() {
+		audioPlayer.onpause = function(){
 			if (!audioOnEndFired){
 				SepiaFW.debug.info("AUDIO: ended (onpause event)");				//debug
 				audioOnEndFired = true;
@@ -1046,7 +1045,7 @@ function sepiaFW_build_audio(){
 			}
 		}
 						
-		audioOnEndFired = false;
+		var audioOnEndFired = false;
 
 		audioPlayer.src = alarmSound;
 		audioPlayer.preload = 'auto';
