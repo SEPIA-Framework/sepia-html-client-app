@@ -308,10 +308,24 @@ function sepiaFW_build_speech_recognition(Speech){
 			broadcastAsrNoResult();
 			error_callback("E00 - Speech recognition not supported by your client :-(");
 		}
+		var quit_on_final_result = true;
 		if (!isRecognizing && !recognizerWaitingForResult){
-			//ALL ENGINES
-			var quit_on_final_result = true;
-			recognizeSpeech(callback_final, callback_interim, error_callback, log_callback, quit_on_final_result);
+			//Native should make sure audioRecorder is off (to prevent channel confusion)
+			if (Speech.asrEngine == "native" && SepiaFW.audioRecorder.isWebAudioRecorderReady()){
+				SepiaFW.audioRecorder.releaseWebAudioRecorder(function(){
+					//ALL ENGINES
+					recognizeSpeech(callback_final, callback_interim, error_callback, log_callback, quit_on_final_result);
+				}, function(){
+					//ALL ENGINES
+					recognizeSpeech(callback_final, callback_interim, error_callback, log_callback, quit_on_final_result);
+				}, function(err){
+					error_callback('E0? - Unknown recorder ERROR.');
+					SepiaFW.debug.error("AudioRecorder failed to release!", err);
+				});
+			}else{
+				//ALL ENGINES
+				recognizeSpeech(callback_final, callback_interim, error_callback, log_callback, quit_on_final_result);
+			}
 		}
 	}
 	//stop speech recognition
@@ -385,8 +399,7 @@ function sepiaFW_build_speech_recognition(Speech){
 		}
 	}
 	//start speech recognition with callbacks
-	function recognizeSpeech(callback_final, callback_interim, error_callback, log_callback, quit_on_final_result)
-	{
+	function recognizeSpeech(callback_final, callback_interim, error_callback, log_callback, quit_on_final_result){
 		if (!log_callback) log_callback = function(){};
 		
 		broadcastRequestedAsrStart();

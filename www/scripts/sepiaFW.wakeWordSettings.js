@@ -82,8 +82,11 @@ function sepiaFW_build_wake_word_settings() {
     //this can be triggered by "sepia_web_audio_recorder" events (via wakeTriggers listener)
     WakeWordSettings.onBackgroundEvent = function(eventName){
         if (eventName == "initError"){
-            //TODO: implement
             $('#sepiaFW-wake-word-toggle').html("ERROR");
+            $('#sepiaFW-wake-word-engine-reset').show(300);
+            //more?
+        }else if (eventName == "ready"){
+            $('#sepiaFW-wake-word-engine-reset').show(300);
         }else if (eventName == "release"){
             onEngineUnloaded();
 		}else if (eventName == "audioend"){

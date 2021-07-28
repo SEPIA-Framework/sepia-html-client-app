@@ -283,7 +283,7 @@ function sepiaFW_build_wake_triggers() {
 		if (doDelayAndCheck){
 			if (switchOnWakeWordTimer) clearTimeout(switchOnWakeWordTimer);
 			//set delay time depending on device type
-			var switchOnWakeWordTimerDelay = (SepiaFW.ui.isMobile)? 3000 : 1500;	//wait 1.5s-3s before auto-start
+			var switchOnWakeWordTimerDelay = 2250;		//wait ~2s before auto-start (previously we checked 'isMobile' to set delay)
 			switchOnWakeWordTimer = setTimeout(function(){
 				var isAudioStreamActive = SepiaFW.audio.isAnyAudioSourceActive();
 				//console.error("Audio playing? " + isAudioStreamActive);		//DEBUG
@@ -368,7 +368,7 @@ function sepiaFW_build_wake_triggers() {
 		}
 	}
 	
-	WakeTriggers.stopListeningToWakeWords = function(onSuccessCallback, onErrorCallback){
+	WakeTriggers.stopListeningToWakeWords = function(onSuccessCallback, onErrorCallback, keepInstanceAlive){
 		if (switchOnWakeWordTimer) clearTimeout(switchOnWakeWordTimer);
 		if (!isListening){
 			if (onSuccessCallback) onSuccessCallback();		//TODO: use success or error or none?
@@ -383,10 +383,21 @@ function sepiaFW_build_wake_triggers() {
 			isStopping = false;
 			isListening = false;
 			SepiaFW.animate.wakeWord.inactive();
-			setTimeout(function(){
-				//give the audio manager some time to react - TODO: do we still need this?
-				if (onSuccessCallback) onSuccessCallback();
-			}, 300);
+			if (!keepInstanceAlive){
+				//release the recorder (usually we recreate anyway)
+				SepiaFW.audioRecorder.releaseWebAudioRecorder(function(){
+					logInfo('RELEASED Wake-Word listener');
+					WakeTriggers.engineModule = undefined;
+					if (onSuccessCallback) onSuccessCallback();
+				}, undefined, 				//this 'noop' should in theory never happen
+				onErrorCallback);
+			}else{
+				//keep the module instance alive
+				setTimeout(function(){
+					//give the audio manager some time to react - TODO: do we still need this?
+					if (onSuccessCallback) onSuccessCallback();
+				}, 150);	//300 ?
+			}
 		}, undefined, onErrorCallback); 	//NOTE: we ignore the noopCallback atm but listen to 'sepia_web_audio_recorder' events
 	}
 
@@ -398,6 +409,7 @@ function sepiaFW_build_wake_triggers() {
 				WakeTriggers.engineModule = undefined;
 				if (onFinishCallback) onFinishCallback();
 			}, function(){
+				WakeTriggers.engineModule = undefined;
 				if (noopCallback) noopCallback();
 			}, onErrorCallback);
 		}, onErrorCallback);

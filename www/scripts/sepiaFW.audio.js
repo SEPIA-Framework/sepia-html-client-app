@@ -103,7 +103,13 @@ function sepiaFW_build_audio(){
 		//get permission
 		navigator.mediaDevices.getUserMedia(audioVideoConstraints)
 		.then(function(stream){
-			/* use the stream ? */
+			//close stream right away
+			try {
+				track0 = stream.getAudioTracks()[0];
+				if (track0 && typeof track0.stop == "function" && track0.readyState == "live"){
+					track0.stop();
+				}
+			}catch(e){};
 			clearTimeout(timeoutTimer);
 			enumDevices(successCallback, errorCallback);
 		})
