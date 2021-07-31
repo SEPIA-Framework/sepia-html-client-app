@@ -89,13 +89,13 @@ function sepiaFW_build_wake_triggers() {
 			hasAudioPlayerEventListeners = true;
 			document.addEventListener('sepia_audio_player_event', function(e){
 				if (e.detail){
-					//console.error(e.detail);
+					//console.error("WakeTriggers - sepia_audio_player_event", e.detail);		//DEBUG
 					if (WakeTriggers.useWakeWord && WakeTriggers.engineLoaded){
 						//Audio player start
-						if (e.detail.action == "start" || e.detail.action == "resume"){
-							if (WakeTriggers.isListening() && !WakeTriggers.allowWakeWordDuringStream){
+						if (e.detail.action == "prepare" || e.detail.action == "start" || e.detail.action == "resume"){
+							if (!isStopping && WakeTriggers.isListening() && !WakeTriggers.allowWakeWordDuringStream){
 								SepiaFW.debug.info("WakeTriggers - Stopping wake-word listener due to audio player '" + e.detail.action + "' event");
-								WakeTriggers.stopListeningToWakeWords();
+								WakeTriggers.stopListeningToWakeWords();	//note without 'keepalive' this is RELEASE
 							}
 						//Audio player stop
 						}else if (e.detail.action == "stop" || e.detail.action == "pause"){

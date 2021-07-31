@@ -186,6 +186,7 @@ function sepiaFW_build_speech_audio_proc(){
 	var maxVadTime = 10000;
 	
 	var isWaitingToRecord = false;		//use for..?
+	var isReleasing = false;
 	//var recognizerWaitingForResult = false;	//TODO: implement?
 
 	var asrModuleGateIsOpen = false;	//equivalent to: 'isRecording'
@@ -359,6 +360,7 @@ function sepiaFW_build_speech_audio_proc(){
 		_asrLogCallback('ASR ERROR - ABORT');
 		//reset states
 		isWaitingToRecord = false;
+		isReleasing = false;
 		asrModuleGateIsOpen = false;	//TODO: can we trust this?
 
 		if (Recognizer.onerror){
@@ -424,6 +426,7 @@ function sepiaFW_build_speech_audio_proc(){
 			SpeechRecognition.recognitionModule = buildWebSocketAsrModule();
 
 			//states set 2 - start
+			isReleasing = false;
 			abortRecognition = false;
 			asrModuleGateIsOpen = false;
 			
@@ -481,6 +484,7 @@ function sepiaFW_build_speech_audio_proc(){
 				//STATE: audioend
 				onAudioEnd();	//trigger or not?
 				//TODO: just wait for result? release after certain time? what if errorCallback triggers?
+				//NOTE: releasing the recorder will kill all pending results (use idle event?)
 			});
 		}
 	}
@@ -492,6 +496,17 @@ function sepiaFW_build_speech_audio_proc(){
 		//NOTE: expected to send END event - should be triggered by stop
 	}
 
+	//a release function - currently just used to prevent multiple calls to release
+	function releaseThisRecorder(callback){
+		if (!isReleasing && SpeechRecognition.recognitionModule){
+			isReleasing = true;
+			SepiaFW.audioRecorder.stopAndReleaseIfActive(function(){
+				if (callback) callback();
+				//... the rest is below in event handler
+			});
+		}
+	}
+
 	//listen to global events to make sure state is updated correctly
 	document.addEventListener("sepia_web_audio_recorder", recoderEventListener);
 	function recoderEventListener(e){
@@ -499,10 +514,11 @@ function sepiaFW_build_speech_audio_proc(){
 		if (!data || !data.event) return;
 		
 		//TODO: is this correct?
-		if (data.event == "release" && (asrModuleGateIsOpen || isWaitingToRecord)){
+		if (data.event == "release" && SpeechRecognition.recognitionModule){
 			//reset state
 			asrModuleGateIsOpen = false;
 			isWaitingToRecord = false;
+			isReleasing = false;
 			SpeechRecognition.recognitionModule = undefined;
 
 		}else if (data.event == "audioend" && (asrModuleGateIsOpen || isWaitingToRecord)){
@@ -510,6 +526,23 @@ function sepiaFW_build_speech_audio_proc(){
 			setAsrModuleGateState("close");
 			asrModuleGateIsOpen = false;
 			isWaitingToRecord = false;
+		}
+	}
+	document.addEventListener('sepia_audio_player_event', audioPlayerEventListener, true);
+	function audioPlayerEventListener(e){
+		var data = e.detail;
+		if (!data || !data.action) return;
+		//console.error("SpeechRecognition Processor - sepia_audio_player_event", data, "exists?", !!SpeechRecognition.recognitionModule);		//DEBUG
+		if (SpeechRecognition.recognitionModule){
+			//Audio player start
+			if (data.action == "prepare" || data.action == "start" || data.action == "resume"){
+				//make sure the recorder is released when audio out is running
+				if (!SepiaFW.audioRecorder.mayMicRunParallelToAudioOut()){
+					releaseThisRecorder(function(){
+						SepiaFW.debug.info("SpeechRecognition Processor - Released due to audio player '" + data.action + "' event");
+					});
+				}
+			}
 		}
 	}
 		

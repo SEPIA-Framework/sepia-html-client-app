@@ -4,9 +4,6 @@ function sepiaFW_build_audio_recorder(){
 
 	//Debug modules and interfaces?
 	AudioRecorder.debugInterfaces = false;
-	
-	//Parameters and states
-	AudioRecorder.isRecording = false;
 
 	//set default parameters for audio recorder
 	AudioRecorder.setup = function(successCallback, errorCallback){
@@ -15,21 +12,12 @@ function sepiaFW_build_audio_recorder(){
 	
 	//---- broadcasting -----
 	
-	function broadcastRecorderRequested(){
-		//console.log('broadcastRecorderRequested');
-	}
-	function broadcastRecorderStopRequested(){
-		//console.log('broadcastRecorderStopRequested');
-	}
-	function broadcastRecorderClosed(){
-		//console.log('broadcastRecorderClosed');
-	}
-	function broadcastRecorderStarted(){
-		//console.log('broadcastRecorderStarted');
-	}
-	function broadcastRecorderStopped(){
-		//console.log('broadcastRecorderStopped');
-	}
+	//TODO: do we still need these events? (check below: 'dispatchRecorderEvent')
+	function broadcastRecorderRequested(){}
+	function broadcastRecorderStopRequested(){}
+	function broadcastRecorderClosed(){}
+	function broadcastRecorderStarted(){}
+	function broadcastRecorderStopped(){}
 	function broadcastRecorderError(e){
 		//console.log('broadcastRecorderError');
 	}
@@ -39,7 +27,21 @@ function sepiaFW_build_audio_recorder(){
 	if (SepiaFW.webAudio.defaultProcessorOptions){
 		SepiaFW.webAudio.defaultProcessorOptions.moduleFolder = "audio-modules";
 	}
+
+	//event dispatcher
+	function dispatchRecorderEvent(data){
+		//console.error("WebAudio recorder event", data);		//DEBUG
+		document.dispatchEvent(new CustomEvent('sepia_web_audio_recorder', { detail: data}));
+	}
+
+	//The one and ONLY recorder instance:
 	var sepiaWebAudioProcessor;
+
+	//should run parallel to AudioPlayer output?
+	AudioRecorder.mayMicRunParallelToAudioOut = function(){
+		return !SepiaFW.ui.isMobile;	//mobile is ATM usually not good with Input + Output at same time
+		//NOTE: for wake-word we check 'WakeTriggers.allowWakeWordDuringStream' and user can force this
+	}
 
 	var activeAudioModules = [];
 	var activeAudioModuleCapabilities = {};		//e.g.: resample, wakeWordDetection, vad, waveEncoding, volume, speechRecognition
@@ -131,12 +133,6 @@ function sepiaFW_build_audio_recorder(){
 	if (useLegacyMicInterface) micAudioRecorderOptions.sourceType = "scriptProcessor";
 	//var legacyScriptProcessorBufferSize = 512;		//use 'micAudioRecorderOptions.processorBufferSize'
 
-	//event dispatcher
-	function dispatchRecorderEvent(data){
-		//console.error("WebAudio recorder event", data);		//DEBUG
-		document.dispatchEvent(new CustomEvent('sepia_web_audio_recorder', { detail: data}));
-	}
-
 	function defaultOnProcessorReady(sepiaWebAudioProcessor, msg){
 		SepiaFW.debug.info("AudioRecorder - onProcessorReady", sepiaWebAudioProcessor, msg);	//DEBUG
 	}
@@ -167,11 +163,6 @@ function sepiaFW_build_audio_recorder(){
 		return (!!sepiaWebAudioProcessor && sepiaWebAudioProcessor.isInitialized() && sepiaWebAudioProcessor.isProcessing());
 	}
 	AudioRecorder.startWebAudioRecorder = function(successCallback, noopCallback, errorCallback){
-		/*if (AudioRecorder.isRecording){
-			SepiaFW.debug.err("AudioRecorder error: Tried to capture audio but was already running!");
-			errorCallback({name: "AudioRecorder: not started!", message: "Audio capture was already running."});
-			return;
-		}*/
 		if (sepiaWebAudioProcessor){
 			sepiaWebAudioProcessor.start(successCallback, noopCallback, errorCallback);
 		}else{
