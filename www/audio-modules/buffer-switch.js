@@ -53,7 +53,7 @@ class BufferProcessor extends AudioWorkletProcessor {
 					sourceSampleRate: that.sourceSamplerate,
 					emitterBufferSize: that.emitterBufferSize,
 					channelCount: that.channelCount,
-					inputPassThrough: that.inputPassThrough
+					passThroughMode: that.passThroughMode
 				}
 			});
 		}
@@ -107,7 +107,7 @@ class BufferProcessor extends AudioWorkletProcessor {
 		//Control messages
 		this.port.onmessage = function(e){
 			if (e.data.ctrl){
-				console.error("Controls", e.data.ctrl);			//DEBUG
+				//console.error("Controls", e.data.ctrl);			//DEBUG
 				switch (e.data.ctrl.action) {
 					//common interface
 					case "start":
