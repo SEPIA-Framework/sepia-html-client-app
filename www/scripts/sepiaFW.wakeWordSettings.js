@@ -92,6 +92,7 @@ function sepiaFW_build_wake_word_settings() {
 		}else if (eventName == "audioend"){
             //anything?
         }
+        setTimeout(function(){ checkButtonState(); }, 1000);
     }
 
     WakeWordSettings.debugLog = function(info, isError){
@@ -259,9 +260,11 @@ function sepiaFW_build_wake_word_settings() {
             function(){
                 debugInfo = true;
                 $('.sepiaFW-wake-word-settings-page .debug-setting').show(300);    //ww debug settings
+                checkButtonState();
             },function(){
                 debugInfo = false;
                 $('.sepiaFW-wake-word-settings-page .debug-setting').hide(150);
+                checkButtonState();
             }, debugInfo)
         );
 
@@ -323,6 +326,12 @@ function sepiaFW_build_wake_word_settings() {
     //ON-OPEN
     function onFrameOpen(){
         WakeWordSettings.isOpen = true;
+        debugInfo = document.getElementById("sepiaFW-menu-toggle-wake-word-debug").getValue();
+
+        //stop running audio?
+        if (SepiaFW.audio.isAnyAudioSourceActive() && !SepiaFW.wakeTriggers.allowWakeWordDuringStream){
+            SepiaFW.audio.stop();
+        }
         
         //Wake-word listener for testing
         document.addEventListener("sepia_wake_word", wakeWordTest);
@@ -337,18 +346,7 @@ function sepiaFW_build_wake_word_settings() {
             sensitivityEle.title = SepiaFW.wakeTriggers.getWakeWordSensitivities();
 
             //check button states
-            if (SepiaFW.wakeTriggers.engineLoaded){
-                isListening = SepiaFW.wakeTriggers.isListening();
-                if (isListening){
-                    document.getElementById('sepiaFW-wake-word-toggle').innerHTML = "STOP";
-                }else{
-                    document.getElementById('sepiaFW-wake-word-toggle').innerHTML = "START";
-                }
-                $('#sepiaFW-wake-word-engine-reset').show();
-            }else{
-                isListening = false;
-                document.getElementById('sepiaFW-wake-word-toggle').innerHTML = "LOAD";
-            }
+            checkButtonState();
 
             //Show active wake-word
             $("#sepiaFW-wake-word-version").val(SepiaFW.wakeTriggers.getWakeWordVersion());
@@ -367,6 +365,20 @@ function sepiaFW_build_wake_word_settings() {
             }
 
             WakeWordSettings.debugLog("UPDATED " + info);
+        }
+    }
+    function checkButtonState(){
+        if (SepiaFW.wakeTriggers.engineLoaded){
+            isListening = SepiaFW.wakeTriggers.isListening();
+            if (isListening){
+                document.getElementById('sepiaFW-wake-word-toggle').innerHTML = "STOP";
+            }else{
+                document.getElementById('sepiaFW-wake-word-toggle').innerHTML = "START";
+            }
+            $('#sepiaFW-wake-word-engine-reset').show();
+        }else{
+            isListening = false;
+            document.getElementById('sepiaFW-wake-word-toggle').innerHTML = "LOAD";
         }
     }
 

@@ -320,10 +320,10 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 				$('#sepiaFW-chat-input').val('');
 			},'',function(){
 				//short press - send action
-				if (SepiaFW.speech && SepiaFW.speech.isRecognizing()){
+				if (SepiaFW.speech.isRecognizing()){
 					SepiaFW.speech.stopRecognition();
 				}else{
-					if (SepiaFW.audio && SepiaFW.audio.initAudio(SepiaFW.client.sendInputText)){
+					if (SepiaFW.audio.initAudio(SepiaFW.client.sendInputText)){
 						//skip because of callback
 					}else{
 						SepiaFW.client.sendInputText();
@@ -421,7 +421,7 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 				//long-press
 			},'',function(){
 				//short press - send action
-				if (SepiaFW.speech && SepiaFW.speech.isRecognizing()){
+				if (SepiaFW.speech.isRecognizing()){
 					SepiaFW.speech.stopRecognition();
 				}else{
 					var bubble = document.getElementById("sepiaFW-chat-controls-speech-box-bubble");
