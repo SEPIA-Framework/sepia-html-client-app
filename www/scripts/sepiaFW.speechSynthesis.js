@@ -863,6 +863,10 @@ function sepiaFW_build_speech_synthesis(Speech, sepiaSessionId){
 			SepiaFW.debug.error("Speech.maryTTS - getURL ERROR: " + JSON.stringify(err));
 			if (errorCallback) errorCallback(err.message);
 			return;
+		}else if (Speech.voiceCustomServer == "debug"){
+			//static file for debugging
+			if (successCallback) successCallback("sounds/setup.mp3");
+			return;
 		}
 		if (!Speech.maryTTS.settings.voice && (!voices || !voices.length)){
 			var err = {name: "NoVoiceSelected", message: "Custom Mary-TTS API requires to select a voice."};
@@ -902,6 +906,11 @@ function sepiaFW_build_speech_synthesis(Speech, sepiaSessionId){
 			var err = {name: "MissingServerInfo", message: "Custom Mary-TTS API is missing server URL."};
 			SepiaFW.debug.error("Speech.maryTTS - getURL ERROR: " + JSON.stringify(err));
 			if (errorCallback) errorCallback(err.message);
+			return;
+		}else if (Speech.voiceCustomServer == "debug"){
+			//static voice for debugging
+			var voicesArray = [{default: true, lang: "en_GB", localService: true, name: "Debug", voiceURI: ""}];
+			if (successCallback) successCallback(voicesArray);
 			return;
 		}
 		var apiUrl = Speech.voiceCustomServer.replace(/\/$/, "") + "/voices";

@@ -426,6 +426,7 @@ function sepiaFW_build_speech_audio_proc(){
 			SpeechRecognition.recognitionModule = buildWebSocketAsrModule();
 
 			//states set 2 - start
+			isWaitingToRecord = true;	// make sure this wasn't reset during 'stopAndReleaseIfActive'
 			isReleasing = false;
 			abortRecognition = false;
 			asrModuleGateIsOpen = false;
