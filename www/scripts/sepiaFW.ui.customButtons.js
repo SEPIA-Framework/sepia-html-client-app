@@ -99,7 +99,10 @@ function sepiaFW_build_ui_custom_buttons(sepiaSessionId){
             SepiaFW.debug.err(msg);
             if (errorCallback) errorCallback();
             
-        }, '', withButtonOnly);
+        }, '', {
+            //options
+            withButtonOnly: withButtonOnly
+        });
     }
 
     //Load some offline demo buttons
