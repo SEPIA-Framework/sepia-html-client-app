@@ -20,7 +20,7 @@ function sepiaFW_build_ui_my_view(){
 	}
 
 	function findOrCreateMyViewSection(sectionName){
-		var sectionClass = "sepiaFW-section-" + sectionName.replace(/_/g, "-");
+		var sectionClass = "sepiaFW-section-mv-" + sectionName.replace(/^section_/, "").replace(/_/g, "-");
 		var $res = $('#sepiaFW-my-view').find(".sepiaFW-my-view-section." + sectionClass);
 		if ($res.length > 0){
 			return $res[0];
@@ -77,8 +77,12 @@ function sepiaFW_build_ui_my_view(){
 	}
 	//check if section is empty and handle
 	MyView.handleEmptySection = function(sectionElement){
-		if ($(sectionElement).children().not("p").length == 0){
-			$(sectionElement).remove();
+		var $sectionElement = $(sectionElement);
+		if ($sectionElement.children().not("p").length == 0){
+			//animated remove
+			$sectionElement.hide(150, function(){ 
+				$sectionElement.remove(); 
+			});
 		}
 	}
 
