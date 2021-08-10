@@ -1046,14 +1046,14 @@ function sepiaFW_build_webSocket_client(sepiaSessionId){
 			var backBtn = document.getElementById("sepiaFW-back-btn");
 			if (backBtn){
 				$(backBtn).off();
-				$(backBtn).on("click", function () {
+				$(backBtn).on("click", function(){
 					SepiaFW.ui.backButtonAction();
 				});
 			}
 			//-always on mode
 			var alwaysOnBtn = document.getElementById("sepiaFW-alwaysOn-btn");
 			if (alwaysOnBtn){
-				$(alwaysOnBtn).off().on("click", function () {
+				$(alwaysOnBtn).off().on("click", function(){
 					if (SepiaFW.alwaysOn){
 						SepiaFW.ui.closeAllMenus();
 						SepiaFW.alwaysOn.start();
@@ -1064,7 +1064,7 @@ function sepiaFW_build_webSocket_client(sepiaSessionId){
 			var teachUiBtn = document.getElementById("sepiaFW-teachUI-open");
 			if (teachUiBtn){
 				$(teachUiBtn).off();
-				$(teachUiBtn).on("click", function () {
+				$(teachUiBtn).on("click", function(){
 					if (SepiaFW.teach){
 						SepiaFW.ui.closeAllMenus();
 						SepiaFW.teach.openUI();
@@ -1075,11 +1075,35 @@ function sepiaFW_build_webSocket_client(sepiaSessionId){
 			var saythisBtn = document.getElementById("sepiaFW-saythis-btn");
 			if (saythisBtn){
 				$(saythisBtn).off();
-				$(saythisBtn).on("click", function () {
+				$(saythisBtn).on("click", function(){
 					closeControlsMenueWithDelay();
-					var inp = document.getElementById("sepiaFW-chat-input");
-					inp.value = SepiaFW.assistant.name + ' ' + CMD_SAYTHIS + ' ';
-					inp.focus();
+					//chat or remote?
+					SepiaFW.ui.showPopup(SepiaFW.local.g('broadcast_to_device_or_chat'), {
+						inputLabelOne: "Text",
+						buttonOneName: "Remote Device",
+						buttonOneAction: function(btn, inputVal1){
+							//Remote
+							if (!inputVal1) return;
+							setTimeout(function(){
+								SepiaFW.client.showConnectedUserClientsAsMenu(SepiaFW.local.g('choose_device_for_action'), 
+									function(deviceInfo){
+										SepiaFW.client.sendRemoteActionToOwnDevice("notify", {
+											type: "assistant_message",
+											text: inputVal1,
+											language: SepiaFW.speech.getLanguage() 		//speech or app lang.?
+										}, deviceInfo.deviceId);
+									}, true
+								);
+							}, 0);
+						},
+						buttonTwoName: "Send via Chat",
+						buttonTwoAction: function(btn, inputVal1){
+							//Chat
+							var inp = document.getElementById("sepiaFW-chat-input");
+							inp.value = SepiaFW.assistant.name + ' ' + CMD_SAYTHIS + ' ' + inputVal1;
+							inp.focus();
+						}
+					});
 				});
 			}
 			//-clear history
@@ -2229,6 +2253,7 @@ function sepiaFW_build_webSocket_client(sepiaSessionId){
 				//Music
 				}else if (message.data.type === "media"){
 					if (typeof action == "string"){
+						//default is stream
 						action = {
 							type: "audio_stream",
 							streamURL: action
@@ -2273,12 +2298,32 @@ function sepiaFW_build_webSocket_client(sepiaSessionId){
 
 				//Notification
 				}else if (message.data.type === "notify"){
+					if (typeof action == "string"){
+						//default is assistant text
+						action = {
+							type: "assistant_message",
+							text: action
+						}
+					}
+					SepiaFW.debug.info("remoteAction - notify: " + JSON.stringify(action));
+
 					//user has to be same! (security)
 					if (actionUser !== SepiaFW.account.getUserId()){
 						SepiaFW.debug.error("remoteAction - tried to use type 'notify' with wrong user");
 					}else{
-						//TODO: implement 
-						SepiaFW.debug.log("remoteAction - no handler yet for type: " + message.data.type);
+						//handle
+						if (action.type == "assistant_message"){
+							if (action.text){
+								SepiaFW.assistant.waitForOpportunitySayLocalTextAndRunAction(
+									//localizedText, actionFun, fallbackAction, maxWait, speakOptions:
+									action.text, function(){}, undefined, 10000, {oneTimeLanguage: action.language}
+								);
+								//use instead? SepiaFW.events.setProActiveBackgroundNotification(action)
+								//TODO: add intro text? add notification? add something in the chat!
+							}
+						}else{
+							SepiaFW.debug.error("remoteAction - type: notify - no support yet for action type: " + action.type);
+						}
 					}
 				
 				//Unknown
@@ -2568,9 +2613,12 @@ function sepiaFW_build_webSocket_client(sepiaSessionId){
 			if (message.senderType === "assistant"){
 				SepiaFW.speech.speak(messageTextSpeak, function(){
 					//finished - same callback as below
-				},function(){
+				}, function(){
 					//error			
-				});
+				}, function(){
+					//started
+				}, {});	
+				//TODO: support 'options'
 			}
 		}else{
 			if (message.senderType === "assistant"){
