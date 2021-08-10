@@ -331,14 +331,10 @@ function sepiaFW_build_speech_synthesis(Speech, sepiaSessionId){
 				//native voices
 				selectedVoice = newVoice;
 				if (selectedVoice){
-					var selectedVoiceObjectArray = speechSynthesis.getVoices().filter(function(voice){
+					selectedVoiceObject = window.speechSynthesis.getVoices().find(function(voice){
 						return (voice && voice.name && (voice.name === selectedVoice));
 					});
-					if (selectedVoiceObjectArray.length == 0){
-						selectedVoiceObject = {};
-					}else{
-						selectedVoiceObject = selectedVoiceObjectArray[0];
-					}
+					if (!selectedVoiceObject) selectedVoiceObject = {};
 				}else{
 					selectedVoiceObject = {};
 				}
@@ -360,18 +356,31 @@ function sepiaFW_build_speech_synthesis(Speech, sepiaSessionId){
 			setVoiceOnce();
 		}
 	}
+	Speech.findVoiceObjForLanguage = function(lang){
+		if (voices && voices.length > 0){
+			lang = lang.replace(/(-|_).*/, "").trim().toLowerCase();
+			var knownSelection = SepiaFW.data.getPermanent(lang + "-voice");
+			var bestFitV;
+			if (knownSelection) bestFitV = voices.find(function(v){ return (v.name && v.name == knownSelection); });
+			if (!bestFitV) bestFitV = voices.find(function(v){ return (v.lang && v.lang.indexOf(lang) == 0); });
+			return bestFitV;
+		}else{
+			return;		//we only search in pre-loaded voices for now
+		}
+	}
 	
 	//speak an utterance
-	Speech.speak = function(text, finishedCallback, errorCallback, startedCallback){
+	Speech.speak = function(text, finishedCallback, errorCallback, startedCallback, options){
 		//NOTE: this is the high level function with all events etc...
-		//		If you the direct interface with default settings use 'SepiaFW.audio.tts.speak'
+		//		If you need the direct interface with default settings use 'SepiaFW.audio.tts.speak'
+		if (!options) options = {};
 		
 		//stop running stuff
 		if (isSpeaking){
 			Speech.stopSpeech();
 			clearTimeout(stopSpeechTimeout);
 			stopSpeechTimeout = setTimeout(function(){
-				Speech.speak(text, finishedCallback, errorCallback, startedCallback);
+				Speech.speak(text, finishedCallback, errorCallback, startedCallback, options);
 			}, 500);
 			return;
 		}
@@ -399,7 +408,8 @@ function sepiaFW_build_speech_synthesis(Speech, sepiaSessionId){
 			}
 
 		}else{
-			//chunk text if there is a limit - TODO: 'isChromiumDesktop' is not the entire truth, it depends on the selected voice!
+			//chunk text if there is a limit
+			//TODO: 'isChromiumDesktop' is not the entire truth, it depends on the selected voice!
 			if (SepiaFW.ui.isChromiumDesktop && text && !Speech.skipTTS && Speech.isTtsSupported){
 				text = chunkUtterance(text);
 			}
@@ -413,6 +423,14 @@ function sepiaFW_build_speech_synthesis(Speech, sepiaSessionId){
 			}
 			return;
 		}
+
+		//one-time voice change? - TODO: not all engines support this yet
+		var oneTimeVoice;
+		if (options.oneTimeLanguage && Speech.getLanguage() != options.oneTimeLanguage){
+			oneTimeVoice = Speech.findVoiceObjForLanguage(options.oneTimeLanguage);	
+		}
+		if (oneTimeVoice) options.oneTimeVoice = oneTimeVoice;
+		else options.oneTimeVoice = undefined;		//make sure this is only set after 'findVoiceForLanguage' 
 
 		//Streaming audio server (e.g. SEPIA, MARY-TTS API)
 		if (Speech.voiceEngine == 'sepia' || Speech.voiceEngine == 'custom-mary-api'){
@@ -434,7 +452,7 @@ function sepiaFW_build_speech_synthesis(Speech, sepiaSessionId){
 				var event = {};
 				event.msg = reason;
 				onTtsError(event, errorCallback);
-			});
+			}, options);
 		
 		//NATIVE-TTS
 		}else if (SepiaFW.ui.isCordova){
@@ -449,7 +467,7 @@ function sepiaFW_build_speech_synthesis(Speech, sepiaSessionId){
 			onTtsStart(undefined, startedCallback, errorCallback);
 			TTS.speak({			//Cordova plugin!
 				text: text,
-				locale: Speech.getLongLanguageCode(Speech.getLanguage()),
+				locale: Speech.getLongLanguageCode(Speech.getLanguage()),	//TODO: support one-time lang.? Check support!
 				rate: 1.00
 				
 			}, function () {
@@ -468,9 +486,15 @@ function sepiaFW_build_speech_synthesis(Speech, sepiaSessionId){
 			window.sepia_tts_utterances = []; 		//This is a bug-fix to prevent utterance from getting garbage collected
 			var utterance = new SpeechSynthesisUtterance();
 			utterance.text = text;
-			utterance.lang = Speech.getLongLanguageCode(Speech.getLanguage());
-			//set voice if valid one was selected
-			if (selectedVoiceObject && selectedVoiceObject.name) utterance.voice = selectedVoiceObject;
+			if (options.oneTimeVoice){
+				//support for one-time language switch
+				utterance.lang = Speech.getLongLanguageCode(options.oneTimeLanguage);
+				utterance.voice = options.oneTimeVoice;
+			}else{
+				utterance.lang = Speech.getLongLanguageCode(Speech.getLanguage());
+				//set voice if valid one was selected
+				if (selectedVoiceObject && selectedVoiceObject.name) utterance.voice = selectedVoiceObject;
+			}
 			utterance.pitch = 1.0;  	//accepted values: 0-2 inclusive, default value: 1
 			utterance.rate = 1.0; 		//accepted values: 0.1-10 inclusive, default value: 1
 			utterance.volume = 1.0; 	//accepted values: 0-1, default value: 1
@@ -702,13 +726,13 @@ function sepiaFW_build_speech_synthesis(Speech, sepiaSessionId){
 
 	//--- Common Stream TTS Interface ---
 
-	Speech.getTtsStreamURL = function(message, successCallback, errorCallback){
+	Speech.getTtsStreamURL = function(message, successCallback, errorCallback, options){
 		//SEPIA server
 		if (Speech.voiceEngine == 'sepia'){
-			Speech.sepiaTTS.getURL(message, successCallback, errorCallback);
+			Speech.sepiaTTS.getURL(message, successCallback, errorCallback, options);
 		//CUSTOM MARY-TTS API
 		}else if (Speech.voiceEngine == 'custom-mary-api'){
-			Speech.maryTTS.getURL(message, successCallback, errorCallback);
+			Speech.maryTTS.getURL(message, successCallback, errorCallback, options);
 		//NONE
 		}else{
 			if (errorCallback) errorCallback({name: "NotSupported", message: "The selected voice engine is missing a required function."});
@@ -749,7 +773,8 @@ function sepiaFW_build_speech_synthesis(Speech, sepiaSessionId){
 	}
 
 	//get audio URL
-	Speech.sepiaTTS.getURL = function(message, successCallback, errorCallback){
+	Speech.sepiaTTS.getURL = function(message, successCallback, errorCallback, options){
+		//TODO: implement 'options.oneTimeVoice' and 'options.oneTimeLanguage'
 		var apiUrl = SepiaFW.config.assistAPI + "tts";
 		var submitData = {
 			text: message,
@@ -857,7 +882,8 @@ function sepiaFW_build_speech_synthesis(Speech, sepiaSessionId){
 		Speech.maryTTS.settings.maxChunkLength = (Settings.maxChunkLength)? Settings.maxChunkLength : 600;
 	}
 
-	Speech.maryTTS.getURL = function(message, successCallback, errorCallback){
+	Speech.maryTTS.getURL = function(message, successCallback, errorCallback, options){
+		//TODO: implement 'options.oneTimeVoice' and 'options.oneTimeLanguage'
 		if (!Speech.voiceCustomServer){
 			var err = {name: "MissingServerInfo", message: "Custom Mary-TTS API is missing server URL."};
 			SepiaFW.debug.error("Speech.maryTTS - getURL ERROR: " + JSON.stringify(err));
@@ -876,9 +902,9 @@ function sepiaFW_build_speech_synthesis(Speech, sepiaSessionId){
 		}else if (!Speech.maryTTS.settings.voice || Speech.maryTTS.settings.voice == "default"){
 			//console.log("voices", voices);		//DEBUG
 			var lang = Speech.getLanguage();
-			var bestFitV = voices.find(function(v){ return (v.lang && v.lang.indexOf(lang) == 0); })
+			var bestFitV = Speech.findVoiceObjForLanguage(lang)
 				|| voices.find(function(v){ return (v.name && (v.name.indexOf(lang + "-") == 0 || v.name.indexOf(lang + "_") == 0)); })
-				|| voices[0].name
+				|| voices[0];
 			if (bestFitV){
 				Speech.maryTTS.settings.voice = bestFitV.name;
 			}else{

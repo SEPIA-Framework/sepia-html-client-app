@@ -1346,27 +1346,19 @@ function sepiaFW_build_ui(){
 			btn1.html(config.buttonOneName);	
 			btn1.off().on('click', function(){	
 				config.buttonOneAction(
-					this, 
-					$input1.val(), 
-					$input2.val(),
-					$input1[0],
-					$input2[0]
+					this, $input1.val(), $input2.val(),	$input1[0],	$input2[0]
 				); 	
 				UI.hidePopup();		
 			});
 		}else{
 			btn1.html('OK');			
-			btn1.off().on('click', function(){	UI.hidePopup();		});
+			btn1.off().on('click', function(){ UI.hidePopup(); });
 		}
 		if (config.buttonTwoName && config.buttonTwoAction){
 			btn2.html(config.buttonTwoName).show();	
 			btn2.off().on('click', function(){	
 				config.buttonTwoAction(
-					this, 
-					$input1.val(), 
-					$input2.val(),
-					$input1[0],
-					$input2[0]
+					this, $input1.val(), $input2.val(),	$input1[0],	$input2[0]
 				); 	
 				UI.hidePopup();		
 			});
@@ -1375,13 +1367,13 @@ function sepiaFW_build_ui(){
 		}
 		if (config.buttonThreeName && config.buttonThreeAction){
 			btn3.html(config.buttonThreeName).show();	
-			btn3.off().on('click', function(){	config.buttonThreeAction(this); 	UI.hidePopup();		});
+			btn3.off().on('click', function(){ config.buttonThreeAction(this); UI.hidePopup(); });
 		}else{
 			btn3.off().hide();
 		}
 		if (config.buttonFourName && config.buttonFourAction){
 			btn4.html(config.buttonFourName).show();	
-			btn4.off().on('click', function(){	config.buttonFourAction(this); 	UI.hidePopup();		});
+			btn4.off().on('click', function(){ config.buttonFourAction(this); UI.hidePopup(); });
 		}else{
 			btn4.off().hide();
 		}
@@ -1431,7 +1423,7 @@ function sepiaFW_build_ui(){
 			}, 1000);
 		}
 		//open
-		$('#sepiaFW-cover-layer').fadeIn(200);
+		$('#sepiaFW-cover-layer').stop().fadeIn(200);
 		//$('#sepiaFW-popup-message').fadeIn(300);
 	}
 	UI.hidePopup = function(){
@@ -1449,13 +1441,13 @@ function sepiaFW_build_ui(){
 	UI.askForPermissionToExecute = function(question, allowedCallback, refusedCallback){
 		var request = SepiaFW.local.g('allowedToExecuteThisCommand') + "<br>" + question;
 		UI.showPopup(request, {
-			buttonOneName : SepiaFW.local.g('looksGood'),
-			buttonOneAction : function(){
+			buttonOneName: SepiaFW.local.g('looksGood'),
+			buttonOneAction: function(){
 				//yes
 				if (allowedCallback) allowedCallback();
 			},
-			buttonTwoName : SepiaFW.local.g('betterNot'),
-			buttonTwoAction : function(){
+			buttonTwoName: SepiaFW.local.g('betterNot'),
+			buttonTwoAction: function(){
 				//no
 				if (refusedCallback) refusedCallback();
 			}
@@ -1463,13 +1455,13 @@ function sepiaFW_build_ui(){
 	}
 	UI.askForConfirmation = function(question, allowedCallback, refusedCallback, alternativeCallback, alternativeLabel){
 		var config = {
-			buttonOneName : SepiaFW.local.g('ok'),
+			buttonOneName: SepiaFW.local.g('ok'),
 			buttonOneAction : function(){
 				//yes
 				if (allowedCallback) allowedCallback();
 			},
-			buttonTwoName : SepiaFW.local.g('abort'),
-			buttonTwoAction : function(){
+			buttonTwoName: SepiaFW.local.g('abort'),
+			buttonTwoAction: function(){
 				//no
 				if (refusedCallback) refusedCallback();
 			}

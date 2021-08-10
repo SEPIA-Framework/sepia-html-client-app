@@ -585,7 +585,7 @@ function sepiaFW_build_audio(){
 	}
 
 	//use TTS endpoint to generate soundfile and speak answer
-	TTS.speak = function(message, onStartCallback, onEndCallback, onErrorCallback){
+	TTS.speak = function(message, onStartCallback, onEndCallback, onErrorCallback, options){
 		//NOTE: For the state-ful version of 'speak' (with settings and events) use: 'SepiaFW.speech.speak'
 		//gets URL and calls play(URL)
 		SepiaFW.speech.getTtsStreamURL(message, function(audioUrl){
