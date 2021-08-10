@@ -1,6 +1,9 @@
-//ACTIONS
+//CARDS
 function sepiaFW_build_ui_cards(){
 	var Cards = {};
+
+	//load child libs
+	Cards.embed = sepiaFW_build_ui_cards_embed();
 	
 	//card collection types
 	var UNI_LIST = "uni_list";
