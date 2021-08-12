@@ -75,7 +75,7 @@ function sepiaFW_build_config(){
 		return path;
 	}
 	
-	//language
+	//language (Note: account settings will overwrite URL param)
 	var lang = SepiaFW.tools.getURLParameter("lang") || SepiaFW.data.get('app-language') || navigator.language || navigator.userLanguage || "en";
 	lang = lang.toLowerCase().replace(/-.*/, "");
 	Config.appLanguage = lang; 
@@ -201,6 +201,11 @@ function sepiaFW_build_config(){
 		if (SepiaFW.geocoder) 	SepiaFW.geocoder.setLanguage(language);
 		//menue
 		$('#sepiaFW-menu-account-language-li').find('select').val(language);
+		//URL
+		if (window.history && window.history.replaceState && SepiaFW.tools.getURLParameter("lang")){
+			var url = SepiaFW.tools.setParameterInURL(window.location.href, "lang", language);
+			window.history.replaceState(history.state, document.title, url);
+		}
 		//log and save
 		SepiaFW.data.updateAccount('language', language);
 		SepiaFW.data.set('app-language', language);

@@ -68,6 +68,8 @@
 	<!-- FOR MORE STYLESHEETS SEE END-OF-BODY -->
 	<script src="scripts/sepiaFW.app.config.js"></script>
 	<script src="scripts/sepiaFW.app.js"></script>
+	<!-- IE11 Polyfills -->
+	<script>if (SepiaFW.config.uiIsIE11){ document.write('<script src="scripts/ie11.polyfills.js"><\/script>'); }</script>
 	<script src="scripts/sepiaFW.local.js"></script>
 	<script src="settings.js"></script>
 	<!-- FOR MORE JS SEE END-OF-BODY -->
@@ -408,10 +410,6 @@
 		SepiaFW.debug.info("Config - Loaded skin: " + askin + " - Loaded avatar: " + aav);
 	})();
 </script>
-<!-- IE11 Polyfills -->
-<script>if (SepiaFW.config.uiIsIE11){
-	document.write('<script src="scripts/ie11.polyfills.js"><\/script>');
-}</script>
 <!-- START JS -->
 <script src="scripts/jquery-3.4.1.min.js"></script>
 <!--<script src="https://code.jquery.com/jquery-3.1.1.min.js" integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8=" crossorigin="anonymous"></script>-->

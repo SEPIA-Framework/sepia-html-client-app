@@ -130,6 +130,7 @@ function sepiaFW_build_assistant(sepiaSessionId){
 			prefSearchEngine: (SepiaFW.config.getPreferredSearchEngine() || "google"),
 			deviceLocalSite: SepiaFW.config.getDeviceLocalSiteData()
 			//TODO: add 'SepiaFW.config.isUiHeadless' info ? Or rely on 'env' parameter?
+			//TODO: add region parameter for language
 		};
 		State.custom_data = JSON.stringify(cd);
 

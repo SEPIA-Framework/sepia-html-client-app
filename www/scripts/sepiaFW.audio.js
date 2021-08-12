@@ -591,7 +591,7 @@ function sepiaFW_build_audio(){
 		SepiaFW.speech.getTtsStreamURL(message, function(audioUrl){
 			SepiaFW.debug.info("TTS audio url: " + audioUrl);
 			AudioPlayer.playURL(audioUrl, speaker, onStartCallback, onEndCallback, onErrorCallback);
-		}, onErrorCallback);
+		}, onErrorCallback, options);
 	}
 	TTS.stop = function(){
 		AudioPlayer.stop(speaker);
