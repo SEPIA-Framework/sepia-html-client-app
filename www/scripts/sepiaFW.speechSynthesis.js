@@ -285,7 +285,7 @@ function sepiaFW_build_speech_synthesis(Speech, sepiaSessionId){
 	//set a voice
 	Speech.setVoice = function(newVoice){
 		//console.error("TRACE SET VOICE - v: " + newVoice);		//DEBUG
-		if (!voices || !voices.length || !voices.filter(function(v){ return v.name = newVoice; })){
+		if (!voices || !voices.length || !voices.filter(function(v){ return v.name == newVoice; })){
 			//console.error("VOICE NOT FOUND, setting empty");		//DEBUG
 			newVoice = "";
 		}
@@ -774,13 +774,20 @@ function sepiaFW_build_speech_synthesis(Speech, sepiaSessionId){
 
 	//get audio URL
 	Speech.sepiaTTS.getURL = function(message, successCallback, errorCallback, options){
-		//TODO: implement 'options.oneTimeVoice' and 'options.oneTimeLanguage'
+		if (!options) options = {};
+		var lang = Speech.getLanguage();
+		var voice = Speech.sepiaTTS.settings.voice;
+		//use 'options.oneTimeVoice' and 'options.oneTimeLanguage'?
+		if (options.oneTimeVoice && options.oneTimeVoice.name){
+			voice = options.oneTimeVoice.name;
+			lang = options.oneTimeLanguage;
+		}
 		var apiUrl = SepiaFW.config.assistAPI + "tts";
 		var submitData = {
 			text: message,
-			lang: Speech.getLanguage(),
+			lang: lang,
 			mood: ((SepiaFW.assistant)? SepiaFW.assistant.getMood() : Speech.sepiaTTS.settings.mood),
-			voice: Speech.sepiaTTS.settings.voice,
+			voice: voice,
 			gender: Speech.sepiaTTS.settings.gender,
 			speed: Speech.sepiaTTS.settings.speed,
 			tone: Speech.sepiaTTS.settings.tone,
@@ -883,7 +890,7 @@ function sepiaFW_build_speech_synthesis(Speech, sepiaSessionId){
 	}
 
 	Speech.maryTTS.getURL = function(message, successCallback, errorCallback, options){
-		//TODO: implement 'options.oneTimeVoice' and 'options.oneTimeLanguage'
+		if (!options) options = {};
 		if (!Speech.voiceCustomServer){
 			var err = {name: "MissingServerInfo", message: "Custom Mary-TTS API is missing server URL."};
 			SepiaFW.debug.error("Speech.maryTTS - getURL ERROR: " + JSON.stringify(err));
@@ -915,11 +922,18 @@ function sepiaFW_build_speech_synthesis(Speech, sepiaSessionId){
 			}
 		}
 		//console.error("Speech.maryTTS.settings.voice", Speech.maryTTS.settings.voice);		//DEBUG
-		var voiceInfo = Speech.maryTTS.settings.voice.split(/\s+/g);		//example: "dfki-spike-hsmm en_GB male hmm"
+		var voiceName;
+		//use 'options.oneTimeVoice' and 'options.oneTimeLanguage'?
+		if (options.oneTimeVoice && options.oneTimeVoice.name){
+			voiceName = options.oneTimeVoice.name;
+		}else{
+			voiceName = Speech.maryTTS.settings.voice;
+		}
+		var voiceInfo = voiceName.split(/\s+/g);  				//example: "dfki-spike-hsmm en_GB male hmm"
 		var apiUrl = Speech.voiceCustomServer.replace(/\/$/, "") + "/process" 
 			+ "?INPUT_TYPE=TEXT" + "&OUTPUT_TYPE=AUDIO" + "&AUDIO=WAVE_FILE"
 			+ "&LOCALE=" + encodeURIComponent(voiceInfo[1])
-			+ "&VOICE=" + encodeURIComponent(voiceInfo[0])		//Larynx special: + ";hifi_gan:vctk_small"
+			+ "&VOICE=" + encodeURIComponent(voiceInfo[0])		//TODO: Larynx special: + ";hifi_gan:vctk_small"
 			+ "&INPUT_TEXT=" + encodeURIComponent(message)
 		;
 		SepiaFW.debug.info("Speech.maryTTS - getURL SUCCESS: " + apiUrl);
@@ -958,7 +972,7 @@ function sepiaFW_build_speech_synthesis(Speech, sepiaSessionId){
 							voicesArray.push({
 								//default webSpeech voice format:
 								default: true,
-								lang: vInfo[1],
+								lang: vInfo[1].replace(/[_]/g, "-"),	//make sure this has correct format xx-XX
 								localService: false,
 								name: vString,
 								voiceURI: vString

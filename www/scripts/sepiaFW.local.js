@@ -119,6 +119,8 @@ function sepiaFW_build_strings(){
 	StringsDE.clearHistory = 'Verlauf löschen';
 	StringsDE.history = 'Verlauf';
 	StringsDE.newMessages = 'Neue Nachrichten';
+	StringsDE.message = 'Nachricht';
+	StringsDE.notification = 'Benachrichtigung';
 	StringsDE.reload = 'Neu laden';
 	StringsDE.newWindow = 'Neues Fenster';
 	StringsDE.mySepiaClients = 'My Clients';
@@ -168,7 +170,8 @@ function sepiaFW_build_strings(){
 	StringsDE.opening_link = "Link wird geöffnet.";
 	StringsDE.no_music_playing = "Kannst du was hören? Wahrscheinlich wurde keine Musik gefunden.";
 	StringsDE.remote_action = "Remote-Zugriff";
-	StringsDE.remote_action_audio_stream = "Habe einen Audio Stream via Remote-Zugriff empfangen. Stream wird gestartet.";
+	StringsDE.remote_action_audio_stream = "ich habe einen Audio Stream via Remote-Zugriff empfangen. Stream wird gestartet.";
+	StringsDE.remote_action_notify = "ich habe eine Benachrichtigung für dich.";
 	StringsDE.read_article = "Artikel lesen";
 	StringsDE.choose_device_for_music = "Wähle ein Gerät auf dem du die Musik abspielen willst";
 	StringsDE.choose_device_for_action = "Auf welchem Gerät soll die Aktion ausgeführt werden?";
@@ -327,6 +330,8 @@ function sepiaFW_build_strings(){
 	StringsEN.clearHistory = 'Clear history';
 	StringsEN.history = 'History';
 	StringsEN.newMessages = "New messages";
+	StringsEN.message = 'Message';
+	StringsEN.notification = 'Notification';
 	StringsEN.reload = 'Reload';
 	StringsEN.newWindow = 'New window';
 	StringsEN.mySepiaClients = 'Meine Clients';
@@ -377,6 +382,7 @@ function sepiaFW_build_strings(){
 	StringsEN.no_music_playing = "Can you hear something? Probably no music found.";
 	StringsEN.remote_action = "Remote access";
 	StringsEN.remote_action_audio_stream = "I've received an audio stream via remote access. Starting now.";
+	StringsEN.remote_action_notify = "I have a message for you.";
 	StringsEN.read_article = "Read article";
 	StringsEN.choose_device_for_music = "Choose a device to play your music on";
 	StringsEN.choose_device_for_action = "On which device should the action be executed?";
@@ -427,8 +433,9 @@ function sepiaFW_build_strings(){
 	var StringsLocale = {};
 	
 	//get string
-	StringsLocale.g = function(name){
-		if (SepiaFW.config.appLanguage.toLowerCase() === "de"){
+	StringsLocale.g = function(name, lang){
+		var langCode = (lang || SepiaFW.config.appLanguage).toLowerCase();
+		if (langCode == "de"){
 			return StringsDE[name];
 		}else{
 			return StringsEN[name];
@@ -436,8 +443,9 @@ function sepiaFW_build_strings(){
 	}
 	
 	//write string
-	StringsLocale.w = function(name){
-		if (SepiaFW.config.appLanguage.toLowerCase() === "de"){
+	StringsLocale.w = function(name, lang){
+		var langCode = (lang || SepiaFW.config.appLanguage).toLowerCase();
+		if (langCode == "de"){
 			document.write(StringsDE[name]);
 		}else{
 			document.write(StringsEN[name]);

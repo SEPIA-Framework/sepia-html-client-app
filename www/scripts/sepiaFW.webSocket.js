@@ -2314,9 +2314,29 @@ function sepiaFW_build_webSocket_client(sepiaSessionId){
 						//handle
 						if (action.type == "assistant_message"){
 							if (action.text){
+								if (!action.language) action.language = SepiaFW.speech.getLanguage();
+								action.text = action.text.replace(/\.$/, "") + ".";		//make sure we end with "." (important for some TTS)
+								var orgMsg = action.text;
+								if (!action.skipIntro){
+									action.text = SepiaFW.account.getUserName() + ", " 
+										+ SepiaFW.local.g('remote_action_notify', action.language).trim() + " " 
+										+ action.text;
+								}
+								var actionFun = function(){
+									SepiaFW.ui.showCustomChatMessage(orgMsg, {
+										sender: SepiaFW.local.g("notification"), //SepiaFW.assistant.name,
+										//senderType: 'assistant',
+										channelId: 'info'
+									});
+								}
 								SepiaFW.assistant.waitForOpportunitySayLocalTextAndRunAction(
 									//localizedText, actionFun, fallbackAction, maxWait, speakOptions:
-									action.text, function(){}, undefined, 10000, {oneTimeLanguage: action.language}
+									action.text, function(){
+										actionFun();
+									}, function(){
+										SepiaFW.ui.showInfo(SepiaFW.local.g("notification"), false);
+										actionFun();
+									}, 15000, {oneTimeLanguage: action.language}
 								);
 								//use instead? SepiaFW.events.setProActiveBackgroundNotification(action)
 								//TODO: add intro text? add notification? add something in the chat!
