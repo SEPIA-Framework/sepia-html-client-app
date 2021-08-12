@@ -400,6 +400,14 @@
 	margin: 5px 5px 0 5px;
 }
 
+/* --- Embedded Media Player --- */
+
+/* .sepiaFW-cards-flexSize-container.sepia-embedded-player-card {} */
+
+.sepiaFW-cards-flexSize-container .sepiaFW-embedded-player-container iframe {
+	border: 1px solid #000;
+}
+
 /* --- Time events --- */
 
 .sepiaFW-cards-list-body .timeEvent {

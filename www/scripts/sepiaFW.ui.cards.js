@@ -31,7 +31,9 @@ function sepiaFW_build_ui_cards(){
 	Cards.canEmbedWebPlayer = function(service){
 		if (!service) return false;
 		service = service.toLowerCase().replace(/\s+/,"_"); 		//support brands too
-		if (service.indexOf("spotify") == 0){
+		if (service.indexOf("custom_embedded") == 0){
+			return true;
+		}else if (service.indexOf("spotify") == 0){
 			return Cards.canEmbedSpotify;
 		}else if (service.indexOf("apple_music") == 0){
 			return Cards.canEmbedAppleMusic;
@@ -43,6 +45,7 @@ function sepiaFW_build_ui_cards(){
 	}
 	Cards.getSupportedWebPlayers = function(){
 		var players = [];
+		players.push("custom_embedded");
 		if (Cards.canEmbedYouTube) players.push("youtube");
 		if (Cards.canEmbedSpotify) players.push("spotify");
 		if (Cards.canEmbedAppleMusic) players.push("apple_music");
@@ -2120,6 +2123,39 @@ function sepiaFW_build_ui_cards(){
 
 	//------ TODO: Cards to be integrated into interface:
 
+	//-- Embedded Media Player --
+
+	Cards.addEmbeddedPlayer = function(targetView, widgetUrl){
+		var cardBody = addContainerToTargetView(targetView, "sepiaFW-embedded-player-container", "sepia-embedded-player-card");
+		var player = new SepiaFW.ui.cards.embed.MediaPlayer({
+			parentElement: cardBody,
+			widgetUrl: widgetUrl
+		});
+		var cardEle = document.createElement('DIV');
+		cardEle.className = 'cardBodyItem radioStation';	//lazy styling: use radioStation
+		var buttons = [{
+			icon: "skip_previous",
+			fun: player.previous
+		},{
+			icon: "play_arrow",
+			fun: player.start
+		},{
+			icon: "pause",
+			fun: player.pause
+		},{
+			icon: "skip_next",
+			fun: player.next
+		}];
+		buttons.forEach(function(b){
+			var btn = document.createElement('DIV');
+			btn.className = "itemLeft radioLeft";
+			btn.innerHTML = "<i class='material-icons md-mnu'>" + b.icon + "</i>";
+			$(btn).on("click", b.fun);
+			cardEle.appendChild(btn);
+		});
+		cardBody.appendChild(cardEle);
+	}
+
 	//-- Plot cards --
 
 	Cards.addLinePlotToView = function(x, data, plotOptions, targetView){
@@ -2128,26 +2164,27 @@ function sepiaFW_build_ui_cards(){
 	}
 
 	//-- Audio file cards --
-
-	//create container directly inside "chat", "myView" or "bigResults"
 	
 	Cards.addWaveCardToView = function(wavAudio, targetView){
-		var c = addAudioContainerToTargetView(targetView);
+		var cardBody = addContainerToTargetView(targetView, "sepiaFW-audio-container", "sepia-audio-card");
 		var audioEle = document.createElement("audio");
 		audioEle.src = window.URL.createObjectURL((wavAudio.constructor.name == "Blob")? wavAudio : (new Blob([wavAudio], { type: "audio/wav" })));
 		audioEle.setAttribute("controls", "controls");
 		var audioBox = document.createElement("div");
 		audioBox.appendChild(audioEle);
-		c.appendChild(audioBox);
+		cardBody.appendChild(audioBox);
 	}
-	function addAudioContainerToTargetView(targetView){
+	
+	//create container directly inside "chat", "myView" or "bigResults":
+
+	function addContainerToTargetView(targetView, containerClass, cardClass){
 		if (!targetView) targetView = "chat";
 		//inner container
 		var container = document.createElement("div");
-		container.className = "sepiaFW-cards-list-body sepiaFW-audio-container";
+		container.className = "sepiaFW-cards-list-body " + containerClass;
 		//outer card
 		var cardElement = Cards.buildCardContainer(true, true);
-		cardElement.classList.add("sepia-audio-card");
+		cardElement.classList.add(cardClass);
 		cardElement.appendChild(container);
 		//add
 		var resultView = SepiaFW.ui.getResultViewByName(targetView);
