@@ -402,10 +402,28 @@
 
 /* --- Embedded Media Player --- */
 
-/* .sepiaFW-cards-flexSize-container.sepia-embedded-player-card {} */
-
+.sepiaFW-cards-flexSize-container.sepia-embedded-player-card {
+	margin-bottom: 10px;
+}
 .sepiaFW-cards-flexSize-container .sepiaFW-embedded-player-container iframe {
-	border: 1px solid #000;
+	border: 0;
+	border-radius: 3px;
+	transition: height .3s;
+}
+.sepiaFW-cards-flexSize-container .sepiaFW-embedded-player-container .cardItemOverlay {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	background: #eee;
+	color: #000;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+.sepiaFW-cards-flexSize-container .sepiaFW-embedded-player-container .cardItemOverlay p {
+	animation: sepiaFW-animation-blink 3s infinite;
 }
 
 /* --- Time events --- */

@@ -303,11 +303,16 @@ function sepiaFW_build_config(){
 
 	//Collection of universally supported apps and their names
     Config.musicApps = {
-		"youtube": {name: "YouTube"},
-		"spotify_link": {name: "Spotify"},
-		"apple_music_link": {name: "Apple Music"}
+		//NOTE: _link services will skip 'Controls.searchForMusic' action (server will not send it)
+		"embedded": {name: "Embedded Player"},
+		"youtube_link": {name: "YouTube Web"},
+		"youtube_embedded": {name: "YouTube Widget"},
+		"spotify_link": {name: "Spotify Web"},
+		"spotify_embedded": {name: "Spotify Widget"},
+		"apple_music_link": {name: "Apple Music Web"},
+		"apple_music_embedded": {name: "Apple Music Widget"}
     }
-	var defaultMusicApp = "youtube";
+	var defaultMusicApp = "embedded";
 
 	Config.getMusicAppCollection = function(){
 		if (SepiaFW.ui.isAndroid){

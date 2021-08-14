@@ -886,7 +886,7 @@ function sepiaFW_build_audio(){
 
 		//console.log("Audio-URL: " + audioURL); 		//DEBUG
 		audioPlayer.src = audioURL;
-		audioPlayer.oncanplay = function() {
+		audioPlayer.oncanplay = function(){
 			SepiaFW.debug.info("AUDIO: can be played now (oncanplay event)");		//debug
 			if (audioPlayer == player){
 				Stream.isPlaying = true;

@@ -299,7 +299,7 @@ function sepiaFW_build_client_controls(sepiaSessionId){
             console.log('URI: ' + controlData.uri);
             */
 
-            //Stop other players
+            //Stop other players - TODO: move down?
             Controls.media({
                 action: "stop",
                 skipFollowUp: true

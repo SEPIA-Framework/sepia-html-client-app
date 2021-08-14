@@ -10,6 +10,11 @@ function sepiaFW_build_ui_cards_embed(){
 	- Make sure only one is active
 	- Implement async. callback with msgId and timeout
 	*/
+	var playerWidgets = {
+		spotify: "<assist_server>/widgets/mp-spotify.html",
+		apple_music: "<assist_server>/widgets/mp-apple-music.html",
+		youtube: "<assist_server>/widgets/mp-youtube.html"
+	}
 
 	var activeMediaPlayers = {};
 
@@ -46,7 +51,7 @@ function sepiaFW_build_ui_cards_embed(){
 	//Create media player DOM element
 	function createMediaPlayerDomElement(id, contentUrl, onLoadHandler){
 		//card
-		var mediaPlayerDiv = document.createElement('DIV');
+		var mediaPlayerDiv = document.createElement('div');
 		mediaPlayerDiv.id = id;
 		mediaPlayerDiv.className = "embeddedWebPlayer cardBodyItem fullWidthItem";
 		//iframe
@@ -59,8 +64,13 @@ function sepiaFW_build_ui_cards_embed(){
 		//iframe.allow = ...;
 		//iframe.sandbox = ...;
 		mediaPlayerDiv.appendChild(iframe);
+		//loading overlay
+		var loadOverlay = document.createElement('div');
+		loadOverlay.className = "cardItemOverlay";
+		loadOverlay.innerHTML = "<p>Loading</p>";
+		mediaPlayerDiv.appendChild(loadOverlay);
 		return {
-			card: mediaPlayerDiv, iframe: iframe
+			card: mediaPlayerDiv, iframe: iframe, overlay: loadOverlay
 		}
 	}
 
@@ -100,21 +110,41 @@ function sepiaFW_build_ui_cards_embed(){
 			}, "*");
 		}
 		thisPlayer.eventHandler = function(ev){
-			//TODO: use
 			console.error("ev", playerId, ev);		//DEBUG
+			if (ev.state){
+				stateHandler(ev);
+			}
 		}
 
 		//States
+		var state = 0;	//0: created, 1: ready, 2: playing, 3: paused, 10: error
+
+		function stateHandler(ev){
+			if (ev.state == 1){
+				//on-ready
+				state = ev.state;
+				if (ev.size && ev.size.height){
+					thisPlayer.iframe.style.height = ev.size.height;
+				}
+				setTimeout(function(){ $(mpObj.overlay).remove(); }, 500);
+			}else if (ev.state == 2){
+				//on-play
+				state = ev.state;
+			}else if (ev.state == 3){
+				//on-pause
+				state = ev.state;
+			}else if (ev.state == 10){
+				//on-error
+				state = ev.state;
+			}
+		}
 
 		//Controls - TODO: implement
-		thisPlayer.start = function(doneCallback, errorCallback){
-			sendEvent({controls: "start"});
+		thisPlayer.play = function(doneCallback, errorCallback){
+			sendEvent({controls: "play"});
 		}
 		thisPlayer.pause = function(doneCallback, errorCallback){
 			sendEvent({controls: "pause"});
-		}
-		thisPlayer.resume = function(doneCallback, errorCallback){
-			sendEvent({controls: "resume"});
 		}
 		thisPlayer.fadeOut = function(doneCallback, errorCallback){
 			sendEvent({controls: "fadeOut"});
@@ -128,6 +158,13 @@ function sepiaFW_build_ui_cards_embed(){
 		thisPlayer.previous = function(doneCallback, errorCallback){
 			sendEvent({controls: "previous"});
 		}
+		thisPlayer.volumeUp = function(doneCallback, errorCallback){
+			sendEvent({controls: "volumeUp"});
+		}
+		thisPlayer.volumeDown = function(doneCallback, errorCallback){
+			sendEvent({controls: "volumeDown"});
+		}
+
 		//stop, release resources and remove handle
 		thisPlayer.release = function(doneCallback, errorCallback){
 			

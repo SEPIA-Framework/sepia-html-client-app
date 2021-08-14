@@ -25,14 +25,15 @@ function sepiaFW_build_ui_cards(){
 	var topIndexZ = 1;			//to get an active element to the top (deprecated?)
 
 	//some specials
+	Cards.canEmbedCustomPlayer = true;
 	Cards.canEmbedYouTube = true;
 	Cards.canEmbedSpotify = false;		//deactivated by default because it only works in desktop and gives no control over start/stop/volume
-	Cards.canEmbedAppleMusic = false;	//"" ""
+	Cards.canEmbedAppleMusic = false;	// "" ""
 	Cards.canEmbedWebPlayer = function(service){
 		if (!service) return false;
-		service = service.toLowerCase().replace(/\s+/,"_"); 		//support brands too
-		if (service.indexOf("custom_embedded") == 0){
-			return true;
+		service = service.toLowerCase().replace(/\s+/, "_"); 		//support brands too
+		if (service.indexOf("embedded") == 0){
+			return Cards.canEmbedCustomPlayer;
 		}else if (service.indexOf("spotify") == 0){
 			return Cards.canEmbedSpotify;
 		}else if (service.indexOf("apple_music") == 0){
@@ -45,7 +46,7 @@ function sepiaFW_build_ui_cards(){
 	}
 	Cards.getSupportedWebPlayers = function(){
 		var players = [];
-		players.push("custom_embedded");
+		if (Cards.canEmbedCustomPlayer) players.push("embedded");
 		if (Cards.canEmbedYouTube) players.push("youtube");
 		if (Cards.canEmbedSpotify) players.push("spotify");
 		if (Cards.canEmbedAppleMusic) players.push("apple_music");
@@ -2131,14 +2132,14 @@ function sepiaFW_build_ui_cards(){
 			parentElement: cardBody,
 			widgetUrl: widgetUrl
 		});
-		var cardEle = document.createElement('DIV');
+		var cardEle = document.createElement('div');
 		cardEle.className = 'cardBodyItem radioStation';	//lazy styling: use radioStation
 		var buttons = [{
 			icon: "skip_previous",
 			fun: player.previous
 		},{
 			icon: "play_arrow",
-			fun: player.start
+			fun: player.play
 		},{
 			icon: "pause",
 			fun: player.pause
@@ -2147,7 +2148,7 @@ function sepiaFW_build_ui_cards(){
 			fun: player.next
 		}];
 		buttons.forEach(function(b){
-			var btn = document.createElement('DIV');
+			var btn = document.createElement('div');
 			btn.className = "itemLeft radioLeft";
 			btn.innerHTML = "<i class='material-icons md-mnu'>" + b.icon + "</i>";
 			$(btn).on("click", b.fun);
