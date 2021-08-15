@@ -11,6 +11,7 @@ function sepiaFW_build_ui_cards_embed(){
 	- Implement async. callback with msgId and timeout
 	*/
 	var playerWidgets = {
+		default: "<assist_server>/widgets/mp-default.html",
 		spotify: "<assist_server>/widgets/mp-spotify.html",
 		apple_music: "<assist_server>/widgets/mp-apple-music.html",
 		youtube: "<assist_server>/widgets/mp-youtube.html"
@@ -76,7 +77,7 @@ function sepiaFW_build_ui_cards_embed(){
 
 	//MediaPlayer interface
 	Embed.MediaPlayer = function(options){
-		if (!options || !options.parentElement || !options.widgetUrl){
+		if (!options || !options.parentElement || !(options.widgetUrl || options.widget)){
 			SepiaFW.debug.error("Embedded MediaPlayer - Invalid options!");
 			return;
 		}
@@ -89,12 +90,12 @@ function sepiaFW_build_ui_cards_embed(){
 		}
 
 		//Widget URL
-		options.widgetUrl = SepiaFW.config.replacePathTagWithActualPath(options.widgetUrl);
-		console.error("URL", options.widgetUrl);	//DEBUG
-		//<custom_data>/embedded-player.html
+		var widgetUrl = options.widgetUrl || playerWidgets[options.widget];
+		widgetUrl = SepiaFW.config.replacePathTagWithActualPath(widgetUrl);
+		console.error("URL", widgetUrl);	//DEBUG
 
 		//Create card (DOM element)
-		var mpObj = createMediaPlayerDomElement(playerId, options.widgetUrl, function(){
+		var mpObj = createMediaPlayerDomElement(playerId, widgetUrl, function(){
 			//on-load
 			console.error("on-load", playerId);		//DEBUG
 			sendEvent({text: "World Hello"});

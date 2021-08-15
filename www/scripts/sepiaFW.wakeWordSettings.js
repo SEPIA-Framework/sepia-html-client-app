@@ -108,33 +108,23 @@ function sepiaFW_build_wake_word_settings() {
 
     //Select engine file URL
     WakeWordSettings.engineFileUrlPopup = function(){
-        var text = document.createElement("p");
-        text.textContent = "Suggestions for engine file URLs. Adapt as required. Note: <...> parts are special tags that the client will convert automatically.";
-        var selector = document.createElement("select");
-        selector.style.maxWidth = "100%";
         var suggestedEngineFolder = (SepiaFW.wakeTriggers.engine || "porcupine").toLowerCase();
-        [{info: "SEPIA Server (self-hosted)", url: "<assist_server>/files/wake-words/" + suggestedEngineFolder + "/"},
-         {info: "Device (local app folder or filesystem)", url: "<custom_data>/" + suggestedEngineFolder + "/"},
-         {info: "SEPIA Website (public URL)", url: "<sepia_website>/files/" + suggestedEngineFolder + "/"},
-         {info: "Any Website with SSL (public URL)", url: "https://..."}
-        ].forEach(function(sugg, i){
-            var opt = document.createElement("option");
-            opt.value = sugg.url;
-            opt.textContent = sugg.info;
-            selector.appendChild(opt);
-        });
-        var config = {
-            buttonOneName : SepiaFW.local.g('select'),
-            buttonOneAction : function(){
-                $("#sepiaFW-wake-word-remote-url").val(selector.value);
-            },
-            buttonTwoName : SepiaFW.local.g('abort'),
-            buttonTwoAction : function(){}
-        };
-        var content = document.createElement("div");
-        content.appendChild(text);
-        content.appendChild(selector);
-        SepiaFW.ui.showPopup(content, config);
+        var currentVal = $("#sepiaFW-wake-word-remote-url").val();
+        var selectOptions = [
+            {text: "SEPIA Server (self-hosted)", value: "<assist_server>/files/wake-words/" + suggestedEngineFolder + "/"},
+            {text: "Device (local app folder or filesystem)", value: "<custom_data>/" + suggestedEngineFolder + "/"},
+            {text: "SEPIA Website (public URL)", value: "<sepia_website>/files/" + suggestedEngineFolder + "/"},
+            {text: "Any Website with SSL (public URL)", value: "https://..."}
+        ];
+        selectOptions.forEach(function(o){ if (o.value == currentVal){ o.selected = true; }});
+        SepiaFW.ui.showSelectPopup(
+            "Suggestions for engine file URLs. Adapt as required. Note: <...> parts are special tags that the client will convert automatically.", 
+            selectOptions, 
+            function(val, tex){
+                $("#sepiaFW-wake-word-remote-url").val(val);
+            }, 
+            function(){}
+        );
     }
 
     //Select keyword pop-up
@@ -143,32 +133,28 @@ function sepiaFW_build_wake_word_settings() {
             SepiaFW.ui.showPopup("Please load engine first to get a list of available wake-words.");
             return;
         }
+        var currentVal = $("#sepiaFW-wake-word-name").val();
+        var selectOptions = [
+            {text: "Default", value: ""}
+        ];
         var akw = SepiaFW.wakeTriggers.getAvailableWakeWords() || {};
-        var text = document.createElement("p");
-        text.textContent = "Choose your wake-word:";
-        var selector = document.createElement("select");
-        selector.innerHTML = '<option value=\'{"v": "", "kw": ""}\'>Default</option>';
-        Object.keys(akw).forEach(function(kw, i){
-            var opt = document.createElement("option");
-            opt.value = JSON.stringify({v: akw[kw], kw: kw});
-            opt.textContent = kw + " (v" + akw[kw] + ")";
-            selector.appendChild(opt);
+        Object.keys(akw).forEach(function(kw){
+            selectOptions.push({
+                text: (kw + " (v" + akw[kw] + ")"), 
+                value: JSON.stringify({v: akw[kw], kw: kw}),
+                selected: (currentVal == kw)
+            });
         });
-        var config = {
-            buttonOneName : SepiaFW.local.g('select'),
-            buttonOneAction : function(){
-                //select
-                var vkw = JSON.parse(selector.value);
+        SepiaFW.ui.showSelectPopup(
+            "Choose your wake-word:", 
+            selectOptions, 
+            function(val, tex){
+                var vkw = val? JSON.parse(val) : {v: "", kw: ""};
                 $("#sepiaFW-wake-word-version").val(vkw.v);
                 $("#sepiaFW-wake-word-name").val(vkw.kw);
-            },
-            buttonTwoName : SepiaFW.local.g('abort'),
-            buttonTwoAction : function(){}
-        };
-        var content = document.createElement("div");
-        content.appendChild(text);
-        content.appendChild(selector);
-        SepiaFW.ui.showPopup(content, config);
+            }, 
+            function(){}
+        );
     }
 
     //Test-function for wake-word

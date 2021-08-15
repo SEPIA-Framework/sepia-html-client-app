@@ -195,7 +195,7 @@
 }
 .sepiaFW-frames-page .group .set-button {
 	margin: 0 8px !important; 
-	min-width: 56px;
+	min-width: 36px;
 	flex: 0 0 auto;
 }
 .sepiaFW-frames-page .group .trigger-button {

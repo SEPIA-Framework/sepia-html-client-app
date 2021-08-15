@@ -1227,8 +1227,13 @@ function sepiaFW_build_ui_cards(){
 				//default link icon
 				leftElement = "<div class='itemLeft linkCardLogo'>" + "<i class='material-icons md-mnu'>link</i>" + "</div>";	//language
 			}else if (data.type == "musicSearch" || data.type == "videoSearch"){
-				//we could check the brand here: data.brand, e.g. Spotify, YouTube, ...
-				linkCardEle.className += (" " + data.brand);
+				//default music icon
+				if (!linkLogo){
+					leftElement = "<div class='itemLeft linkCardLogo'>" + "<i class='material-icons md-mnu'>music_video</i>" + "</div>";
+				}else if (data.brand && data.brand != "default"){
+					//we could check the brand here: data.brand, e.g. Spotify, YouTube, ...
+					linkCardEle.className += (" " + data.brand);
+				}
 			}
 		}else if (!linkLogo){
 			//default link icon
@@ -1261,7 +1266,9 @@ function sepiaFW_build_ui_cards(){
 		cardBody.appendChild(linkCardEle);
 
 		//Experimenting with web players - note: use data.embedded ?
-		var embedWebPlayer = Cards.canEmbedWebPlayer(data.brand) && linkUrl && data.type && (data.type == "musicSearch" || data.type == "videoSearch");
+		console.error("TEST", "embedWebPlayer", data);      //DEBUG
+		var embedWebPlayer = data.type && (data.type == "musicSearch" || data.type == "videoSearch") 
+			&& data.typeData && Cards.canEmbedWebPlayer(data.typeData.service);
 		if (embedWebPlayer){
 			var allowIframe;
 			if (isSafeSource){
@@ -1269,8 +1276,12 @@ function sepiaFW_build_ui_cards(){
 			}else{
 				allowIframe = 'encrypted-media *;';
 			}
+			//Embedded player
+			if (data.brand == "default"){
+				addEmbeddedPlayerToCard(cardBody, data.type, data.typeData);
+			
 			//Spotify
-			if (data.brand == "Spotify"){
+			}else if (data.brand == "Spotify"){
 				var webPlayerDiv = document.createElement('DIV');
 				webPlayerDiv.className = "spotifyWebPlayer embeddedWebPlayer cardBodyItem fullWidthItem";
 				var contentUrl = "https://" + linkUrl.replace("spotify:", "open.spotify.com/embed/").replace(":play", "").replace(/:/g, "/").trim();
@@ -2155,6 +2166,13 @@ function sepiaFW_build_ui_cards(){
 			cardEle.appendChild(btn);
 		});
 		cardBody.appendChild(cardEle);
+	}
+	function addEmbeddedPlayerToCard(cardBody, type, data){
+		//cardBody class should be -> 'sepiaFW-embedded-player-container'
+		var player = new SepiaFW.ui.cards.embed.MediaPlayer({
+			parentElement: cardBody,
+			widget: "default"
+		});
 	}
 
 	//-- Plot cards --

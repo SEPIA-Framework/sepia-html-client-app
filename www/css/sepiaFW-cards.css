@@ -405,12 +405,15 @@
 .sepiaFW-cards-flexSize-container.sepia-embedded-player-card {
 	margin-bottom: 10px;
 }
-.sepiaFW-cards-flexSize-container .sepiaFW-embedded-player-container iframe {
+.sepiaFW-cards-flexSize-container .cardBodyItem.embeddedWebPlayer {
+	position: relative;
+}
+.sepiaFW-cards-flexSize-container .cardBodyItem.embeddedWebPlayer iframe {
 	border: 0;
 	border-radius: 3px;
 	transition: height .3s;
 }
-.sepiaFW-cards-flexSize-container .sepiaFW-embedded-player-container .cardItemOverlay {
+.sepiaFW-cards-flexSize-container .cardBodyItem.embeddedWebPlayer .cardItemOverlay {
 	position: absolute;
 	top: 0;
 	left: 0;
@@ -422,7 +425,7 @@
 	justify-content: center;
 	align-items: center;
 }
-.sepiaFW-cards-flexSize-container .sepiaFW-embedded-player-container .cardItemOverlay p {
+.sepiaFW-cards-flexSize-container .cardBodyItem.embeddedWebPlayer .cardItemOverlay p {
 	animation: sepiaFW-animation-blink 3s infinite;
 }
 

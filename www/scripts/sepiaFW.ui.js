@@ -1437,6 +1437,52 @@ function sepiaFW_build_ui(){
 		messagePopupAutoActionTry = 0;
 	}
 
+	//Create basic input popup
+	UI.showInputPopup = function(infoContent, inputLabel, 
+			inputCallback, abortCallback, buttonLabel1, buttonLabel2){
+		return SepiaFW.ui.showPopup(infoContent, {
+			inputLabelOne: inputLabel || "Input",
+			buttonOneName: buttonLabel1 || SepiaFW.local.g('ok'),
+			buttonOneAction: function(btn, inputVal1){
+				if (inputCallback) inputCallback(inputVal1);
+			},
+			buttonTwoName: buttonLabel2 || SepiaFW.local.g('abort'),
+			buttonTwoAction: function(btn, inputVal1){
+				if (abortCallback) abortCallback(inputVal1);
+			}
+		});
+	}
+
+	//Create a special select popup
+    UI.showSelectPopup = function(textInfo, selectOptions, selectCallback, abortCallback){
+        var text = document.createElement("p");
+        text.textContent = textInfo || "";
+        var selector = document.createElement("select");
+        selector.style.maxWidth = "100%";
+        selectOptions.forEach(function(sel, i){
+            var opt = document.createElement("option");
+            opt.value = sel.value;
+			opt.textContent = sel.text;
+			if (sel.selected) opt.selected = true;
+            selector.appendChild(opt);
+        });
+        var config = {
+            buttonOneName: SepiaFW.local.g('select'),
+            buttonOneAction: function(){
+				var selectedOpt = selector.options[selector.selectedIndex];
+				if (selectCallback) selectCallback(selectedOpt.value, selectedOpt.textContent);
+			},
+            buttonTwoName: SepiaFW.local.g('abort'),
+            buttonTwoAction: function(){
+				if (abortCallback) abortCallback();
+			}
+        };
+        var content = document.createElement("div");
+        content.appendChild(text);
+        content.appendChild(selector);
+        return SepiaFW.ui.showPopup(content, config);
+    }
+
 	//Use pop-up to ask for permission
 	UI.askForPermissionToExecute = function(question, allowedCallback, refusedCallback){
 		var request = SepiaFW.local.g('allowedToExecuteThisCommand') + "<br>" + question;
@@ -1456,7 +1502,7 @@ function sepiaFW_build_ui(){
 	UI.askForConfirmation = function(question, allowedCallback, refusedCallback, alternativeCallback, alternativeLabel){
 		var config = {
 			buttonOneName: SepiaFW.local.g('ok'),
-			buttonOneAction : function(){
+			buttonOneAction: function(){
 				//yes
 				if (allowedCallback) allowedCallback();
 			},
