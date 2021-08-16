@@ -12,6 +12,7 @@ function sepiaFW_build_ui_cards_embed(){
 	*/
 	var playerWidgets = {
 		default: "<assist_server>/widgets/mp-default.html",
+		embedded: "<assist_server>/widgets/mp-default.html",
 		spotify: "<assist_server>/widgets/mp-spotify.html",
 		apple_music: "<assist_server>/widgets/mp-apple-music.html",
 		youtube: "<assist_server>/widgets/mp-youtube.html"
@@ -50,19 +51,26 @@ function sepiaFW_build_ui_cards_embed(){
 	});
 
 	//Create media player DOM element
-	function createMediaPlayerDomElement(id, contentUrl, onLoadHandler){
+	function createMediaPlayerDomElement(id, contentUrl, isTrusted, onLoadHandler){
 		//card
 		var mediaPlayerDiv = document.createElement('div');
 		mediaPlayerDiv.id = id;
 		mediaPlayerDiv.className = "embeddedWebPlayer cardBodyItem fullWidthItem";
 		//iframe
+		var allowIframe;
+		//Info: https://developer.mozilla.org/en-US/docs/Web/HTTP/Feature_Policy/Using_Feature_Policy#the_iframe_allow_attribute
+		if (isTrusted){
+			allowIframe = 'autoplay *; encrypted-media *;';
+		}else{
+			allowIframe = 'encrypted-media *;';
+		}
 		var iframe = document.createElement("iframe");
 		iframe.src = contentUrl;
 		iframe.width = "100%";
 		iframe.height = 50; 	//can be set via postMessage interface
 		iframe.allowtransparency = true;
 		iframe.onload = onLoadHandler;
-		//iframe.allow = ...;
+		iframe.allow = allowIframe;
 		//iframe.sandbox = ...;
 		mediaPlayerDiv.appendChild(iframe);
 		//loading overlay
@@ -82,6 +90,7 @@ function sepiaFW_build_ui_cards_embed(){
 			return;
 		}
 		var thisPlayer = this;
+		console.error("TEST", "embedWebPlayer", options);      //DEBUG
 
 		//ID
 		var playerId = getNewMediaPlayerId();
@@ -90,12 +99,20 @@ function sepiaFW_build_ui_cards_embed(){
 		}
 
 		//Widget URL
-		var widgetUrl = options.widgetUrl || playerWidgets[options.widget];
+		var widgetUrl = (options.widgetUrl || playerWidgets[options.widget]).trim();
 		widgetUrl = SepiaFW.config.replacePathTagWithActualPath(widgetUrl);
-		console.error("URL", widgetUrl);	//DEBUG
+		var widgetIsSameOrigin = SepiaFW.tools.isSameOrigin(widgetUrl);
+		var widgetIsSepiaFileHost = SepiaFW.config.urlIsSepiaFileHost(widgetUrl);
+		var widgetIsRemote = (widgetUrl.indexOf("http:") == 0) || (widgetUrl.indexOf("https:") == 0) || (widgetUrl.indexOf("ftp:") == 0);
+		var widgetIsTrusted = widgetIsSameOrigin || widgetIsSepiaFileHost || !widgetIsRemote;
+
+		widgetUrl = SepiaFW.tools.setParameterInURL(widgetUrl, "skinStyle", SepiaFW.ui.getSkinStyle());
+		widgetUrl = SepiaFW.tools.setParameterInURL(widgetUrl, "skinId", SepiaFW.ui.getSkin());
+		
+		console.error("URL", widgetUrl, "isTrusted", widgetIsTrusted);	//DEBUG
 
 		//Create card (DOM element)
-		var mpObj = createMediaPlayerDomElement(playerId, widgetUrl, function(){
+		var mpObj = createMediaPlayerDomElement(playerId, widgetUrl, widgetIsTrusted, function(){
 			//on-load
 			console.error("on-load", playerId);		//DEBUG
 			sendEvent({text: "World Hello"});
@@ -127,7 +144,7 @@ function sepiaFW_build_ui_cards_embed(){
 				if (ev.size && ev.size.height){
 					thisPlayer.iframe.style.height = ev.size.height;
 				}
-				setTimeout(function(){ $(mpObj.overlay).remove(); }, 500);
+				setTimeout(function(){ $(mpObj.overlay).hide(); }, 500);
 			}else if (ev.state == 2){
 				//on-play
 				state = ev.state;

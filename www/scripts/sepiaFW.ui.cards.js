@@ -1266,102 +1266,14 @@ function sepiaFW_build_ui_cards(){
 		cardBody.appendChild(linkCardEle);
 
 		//Experimenting with web players - note: use data.embedded ?
-		console.error("TEST", "embedWebPlayer", data);      //DEBUG
 		var embedWebPlayer = data.type && (data.type == "musicSearch" || data.type == "videoSearch") 
 			&& data.typeData && Cards.canEmbedWebPlayer(data.typeData.service);
 		if (embedWebPlayer){
-			var allowIframe;
-			if (isSafeSource){
-				allowIframe = 'autoplay *; encrypted-media *;';
-			}else{
-				allowIframe = 'encrypted-media *;';
-			}
 			//Embedded player
-			if (data.brand == "default"){
-				addEmbeddedPlayerToCard(cardBody, data.type, data.typeData);
-			
-			//Spotify
-			}else if (data.brand == "Spotify"){
-				var webPlayerDiv = document.createElement('DIV');
-				webPlayerDiv.className = "spotifyWebPlayer embeddedWebPlayer cardBodyItem fullWidthItem";
-				var contentUrl = "https://" + linkUrl.replace("spotify:", "open.spotify.com/embed/").replace(":play", "").replace(/:/g, "/").trim();
-				webPlayerDiv.innerHTML = '<iframe '
-					+ 'src="" width="100%" height="80" frameborder="0" allowtransparency="true" '
-					+ 'allow="' + allowIframe + '" '
-					+ 'sandbox="allow-forms allow-popups allow-same-origin allow-scripts" ' + '>'
-				+ '</iframe>';
-				$(webPlayerDiv).find("iframe").attr("src", contentUrl);
-				cardBody.appendChild(webPlayerDiv);
-			//Apple Music
-			}else if (data.brand == "Apple Music"){
-				var webPlayerDiv = document.createElement('DIV');
-				webPlayerDiv.className = "appleMusicWebPlayer embeddedWebPlayer cardBodyItem fullWidthItem";
-				var contentUrl;
-				if (linkUrl.indexOf("/artist/") > 0){
-					contentUrl = linkUrl.replace(/^https:\/\/.*?\//, "https://geo.itunes.apple.com/");
-				}else{
-					contentUrl = linkUrl.replace(/^https:\/\/.*?\//, "https://embed.music.apple.com/");
-				}
-				webPlayerDiv.innerHTML = '<iframe '
-					+ 'allow="' + allowIframe + '" '
-					+ 'frameborder="0" height="150" '
-					+ 'style="width:100%;max-width:660px;overflow:hidden;background:transparent;" '
-					+ 'sandbox="allow-forms allow-popups allow-same-origin allow-scripts ' 
-						+ ((SepiaFW.ui.isSafari)? 'allow-storage-access-by-user-activation' : '')
-						+ ' allow-top-navigation-by-user-activation" '
-					+ 'src="">'
-				+ '</iframe>';
-				$(webPlayerDiv).find("iframe").attr("src", contentUrl);
-				cardBody.appendChild(webPlayerDiv);
-			//YouTube
-			}else if (data.brand == "YouTube"){
-				//console.log('YouTube');				//DEBUG
-				var webPlayerDiv = document.createElement('DIV');
-				var playerId = currentLinkItemId++;
-				webPlayerDiv.className = "youTubeWebPlayer embeddedWebPlayer cardBodyItem fullWidthItem"
-				var f = document.createElement('iframe');
-				f.id = 'youTubeWebPlayer-' + playerId;
-				f.allow = allowIframe;
-				f.sandbox = "allow-same-origin allow-scripts allow-presentation allow-popups"; 
-				f.frameBorder = 0;
-				f.style.width = "100%";		f.style.height = "280px";		f.style.overflow = "hidden";
-				f.style.border = "4px solid";	f.style.borderColor = "#212121";
-				if (data.autoplay){
-					//console.log('add controls');		//DEBUG
-					if (isSafeSource){
-						//stop all previous audio first
-						if (SepiaFW.client.controls){
-							SepiaFW.client.controls.media({
-								action: "stop",
-								skipFollowUp: true
-							});
-						}else{
-							SepiaFW.audio.stop();
-						}
-						//add controls and start
-						addYouTubeControls(f, true);
-					}else{
-						//add controls only
-						addYouTubeControls(f, false);
-					}
-				}else{
-					//add controls only
-					addYouTubeControls(f, false);
-				}
-				if (linkUrl.indexOf("/embed") < 0){
-					//convert e.g.: https://www.youtube.com/results?search_query=purple+haze%2C+jimi+hendrix
-					f.src = "https://www.youtube.com/embed?autoplay=1&enablejsapi=1&playsinline=1&iv_load_policy=3&fs=1&listType=search&list=" 
-						+ linkUrl.replace(/.*?search_query=/, "").trim();
-				}else{
-					f.src = linkUrl; 				 		//TODO: fix URL security
-				}
-				if (!isSafeSource){
-					//remove autoplay flag
-					f.src = f.src.replace("autoplay=1", "autoplay=0");
-				}
-				cardBody.appendChild(webPlayerDiv);
-				webPlayerDiv.appendChild(f);
-			}
+			addEmbeddedPlayerToCard(cardBody, data.type, data.typeData, isSafeSource, {
+				brand: data.brand,
+				autoplay: data.autoplay
+			});
 		}
 		
 		//link button(s)
@@ -2167,12 +2079,18 @@ function sepiaFW_build_ui_cards(){
 		});
 		cardBody.appendChild(cardEle);
 	}
-	function addEmbeddedPlayerToCard(cardBody, type, data){
-		//cardBody class should be -> 'sepiaFW-embedded-player-container'
+	function addEmbeddedPlayerToCard(cardBody, type, data, isSafeSource, options){
+		if (!options) options = {};
+		//type: musicSearch, videoSearch (currently same)
+		var widget = data.service? data.service.split("_")[0] : "default";
 		var player = new SepiaFW.ui.cards.embed.MediaPlayer({
 			parentElement: cardBody,
-			widget: "default"
+			widget: widget,
+			autoplay: options.autoplay,
+			safeRequest: isSafeSource, 	//came from assistant or private channel?
+			brand: options.brand
 		});
+		return player;
 	}
 
 	//-- Plot cards --
