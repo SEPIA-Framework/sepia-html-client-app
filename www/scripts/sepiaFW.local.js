@@ -169,6 +169,7 @@ function sepiaFW_build_strings(){
 	//Service and action texts
 	StringsDE.opening_link = "Link wird geöffnet.";
 	StringsDE.no_music_playing = "Kannst du was hören? Wahrscheinlich wurde keine Musik gefunden.";
+	StringsDE.no_media_found = "Es wurde nichts zum Abspielen gefunden.";
 	StringsDE.remote_action = "Remote-Zugriff";
 	StringsDE.remote_action_audio_stream = "ich habe einen Audio Stream via Remote-Zugriff empfangen. Stream wird gestartet.";
 	StringsDE.remote_action_notify = "ich habe eine Benachrichtigung für dich.";
@@ -380,6 +381,7 @@ function sepiaFW_build_strings(){
 	//Service and action texts
 	StringsEN.opening_link = "Opening link.";
 	StringsEN.no_music_playing = "Can you hear something? Probably no music found.";
+	StringsEN.no_media_found = "Found no media to play.";
 	StringsEN.remote_action = "Remote access";
 	StringsEN.remote_action_audio_stream = "I've received an audio stream via remote access. Starting now.";
 	StringsEN.remote_action_notify = "I have a message for you.";

@@ -231,13 +231,6 @@ function sepiaFW_build_audio(){
 			&& !player.ended
 			&& player.readyState > 2;
 	}
-	AudioPlayer.startNextMusicStreamOfQueue = function(successCallback, errorCallback){
-		//TODO: Currently the only thing 'player' can do is stream radio or URL, so this will always return ERROR for now.
-		if (errorCallback) errorCallback({
-			error: "No next stream available",
-			status: 1
-		});
-	}
 	AudioPlayer.getEffectsPlayer = function(){
 		return player2;
 	}
@@ -249,10 +242,11 @@ function sepiaFW_build_audio(){
 	AudioPlayer.isAnyAudioSourceActive = function(){
 		//Stop internal player
 		var isInternalPlayerStreaming = Stream.isLoading || AudioPlayer.isMusicPlayerStreaming() || AudioPlayer.isMainOnHold() || TTS.isPlaying;
-		var isYouTubePlayerStreaming = SepiaFW.ui.cards.youTubePlayerGetState() == 1 || SepiaFW.ui.cards.youTubePlayerIsOnHold();
+		var emp = SepiaFW.ui.cards.embed.getActiveMediaPlayer();
+		var isEmbeddedMediaPlayerStreaming = emp && emp.isActive();
 		var isAndroidPlayerStreaming = SepiaFW.ui.isAndroid && SepiaFW.android.lastReceivedMediaData && SepiaFW.android.lastReceivedMediaData.playing 
 										&& ((new Date().getTime() - SepiaFW.android.lastReceivedMediaAppTS) < (1000*60*15));		//This is pure guessing ...
-		return isInternalPlayerStreaming || isYouTubePlayerStreaming || isAndroidPlayerStreaming;			
+		return isInternalPlayerStreaming || isEmbeddedMediaPlayerStreaming || isAndroidPlayerStreaming;			
 	}
 	AudioPlayer.getLastActiveAudioStreamPlayer = function(){
 		return lastAudioPlayerEventSource;
@@ -323,10 +317,10 @@ function sepiaFW_build_audio(){
 	AudioPlayer.broadcastAudioEvent = function(source, action, playerObject){
 		//stream, effects, tts-player, unknown - prepare, start, stop, error, fadeOut, fadeIn
 		//android-intent - stop, start
-		//youtube-embedded - start, resume, pause, hold
+		//embedded-media-player - start, resume, pause, hold
 		source = source.toLowerCase();
 		action = action.toLowerCase();
-		if (source == "stream" || source.indexOf("youtube") >= 0 || source.indexOf("android") >= 0){
+		if (source == "stream" || source == "embedded-media-player" || source.indexOf("android") >= 0){
 			lastAudioPlayerEventSource = source;
 		}
 		var event = new CustomEvent('sepia_audio_player_event', { detail: {
@@ -705,7 +699,7 @@ function sepiaFW_build_audio(){
 			SepiaFW.debug.error("AudioPlayer.registerNewFadeListener - not a valid object to register!");
 			//valid obejct example:
 			/* {
-				id: "youtube",
+				id: "embedded-media-player",
 				isOnHold: myFunA,			(return true/false)
 				onFadeOutRequest: myFunB,	(return true/false, param: force)
 				onFadeInRequest: myFunC		(return true/false)

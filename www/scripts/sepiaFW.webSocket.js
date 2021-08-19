@@ -2268,6 +2268,7 @@ function sepiaFW_build_webSocket_client(sepiaSessionId){
 					}else{
 						//handle
 						if (action.type == "audio_stream"){
+							//TODO: this works for internal player stream URLs ... what about embedded media player? Check supported URLs? Add flag?
 							if (action.streamURL){
 								//wait for opportunity and execute
 								SepiaFW.assistant.waitForOpportunitySayLocalTextAndRunAction(

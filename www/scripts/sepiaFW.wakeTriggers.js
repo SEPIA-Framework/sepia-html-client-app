@@ -90,6 +90,7 @@ function sepiaFW_build_wake_triggers() {
 			document.addEventListener('sepia_audio_player_event', function(e){
 				if (e.detail){
 					//console.error("WakeTriggers - sepia_audio_player_event", e.detail);		//DEBUG
+					//NOTE: this can be the embedded player as well (and it could be remote actually)
 					if (WakeTriggers.useWakeWord && WakeTriggers.engineLoaded){
 						//Audio player start
 						if (e.detail.action == "prepare" || e.detail.action == "start" || e.detail.action == "resume"){

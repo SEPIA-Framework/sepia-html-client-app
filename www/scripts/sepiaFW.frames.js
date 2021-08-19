@@ -156,7 +156,7 @@ function sepiaFW_build_frames(){
 		
 	Frames.setup = function(info, finishCallback){
 		//get HTML - is there a language dependent version?
-		var framePage = Frames.getLocalOrDefaultPage(info.pageUrl, SepiaFW.config.appLanguage);
+		var framePage = Frames.getLocalOrDefaultPage(info.pageUrl, SepiaFW.config.appLanguage).trim();
 		var isRemote = (framePage.indexOf("http:") == 0) || (framePage.indexOf("https:") == 0) || (framePage.indexOf("ftp:") == 0);
 		if (isRemote){
 			var isSameOrigin = SepiaFW.tools.isSameOrigin(framePage);
