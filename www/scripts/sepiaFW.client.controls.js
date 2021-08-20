@@ -194,11 +194,10 @@ function sepiaFW_build_client_controls(sepiaSessionId){
                 }
                 //Player and platform specific additional STOP methods
                 var sentAdditionalEvent = false;
-                if (emp && (emp.isPlaying() || emp.isOnHold())){
+                if (emp){       //&& (emp.isPlaying() || emp.isOnHold())
                     //Embedded media player
-                    emp.pause();
-                    sentAdditionalEvent = true;
-                    SepiaFW.debug.info("Client controls - Media: stopping embedded media player");
+                    sentAdditionalEvent = SepiaFW.ui.cards.embed.stopAllMediaPlayers();
+                    SepiaFW.debug.info("Client controls - Media: stopping embedded media player(s)");
                 }else if (SepiaFW.ui.isAndroid){
                     //we do this only if we have a recent Android media event - otherwhise it will activate all music apps
                     var requireMediaAppPackage = true;

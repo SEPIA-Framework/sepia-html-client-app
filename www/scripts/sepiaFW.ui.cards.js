@@ -143,6 +143,15 @@ function sepiaFW_build_ui_cards(){
 			duration = 0;
 			isAlreadyHidden = true;
 		}
+		//synchronous before-move events:
+		var $cardBodyItems = ele.find(".cardBodyItem");
+		if ($cardBodyItems.length) $cardBodyItems.each(function(i, cbi){
+			//inform card body items of move event
+			if (typeof cbi.sepiaCardOnBeforeMove == "function"){
+				cbi.sepiaCardOnBeforeMove();
+			}
+		});
+		//move:
 		ele.fadeOut(duration, function(){
 			//remove
 			if (!isAlreadyHidden){
@@ -1212,6 +1221,7 @@ function sepiaFW_build_ui_cards(){
 		var linkLogo = cardElementInfo.image;
 		var linkLogoBack = cardElementInfo.imageBackground || '';
 		var linkCardEle = document.createElement('DIV');
+		var typeInfo = {};
 		linkCardEle.className = 'linkCard cardBodyItem';
 		linkCardEle.id = 'link-' + currentLinkItemId++;		//links have no database event ID (compare: time-events) so we just create one here to connect item and context-menu
 		var leftElement;
@@ -1251,18 +1261,25 @@ function sepiaFW_build_ui_cards(){
 		var testUrlProtocol = linkUrl.match(/^[a-zA-Z1-9-_]+:/);
 		var testLocalPage = linkUrl.match(/^[a-zA-Z1-9-_\/]+\.html(\?|$)/);
 		if (linkUrl && ((!testUrlProtocol && !testLocalPage) || !!linkUrl.match(/^(javascript|data):/i))){
+			//TODO: is this enough?
 			SepiaFW.ui.showInfo("URL has been removed from link card because it looked suspicious", true);
 			SepiaFW.debug.error("Link-Card - Tried to create card with suspicious URL: " + linkUrl);
 			linkUrl = "";
 		}
-		
+				
 		//build actual card element
+		var rightElement = "<div class='itemRight linkCardRight'><a href='' target='_blank' rel='noopener'><i class='material-icons md-mnu'>&#xE895;</i></a></div>";
 		linkCardEle.innerHTML = leftElement
-				+ SepiaFW.tools.sanitizeHtml("<div class='itemCenter linkCardCenter'>" + (data.title? ("<h3>" + data.title + "</h3>") : ("")) + "<p>" + description + "</p></div>")
-				+ "<div class='itemRight linkCardRight'><a href='' target='_blank' rel='noopener'><i class='material-icons md-mnu'>&#xE895;</i></a></div>";
-		linkCardEle.title = linkUrl;
+				+ SepiaFW.tools.sanitizeHtml("<div class='itemCenter linkCardCenter'>" 
+					+ (data.title? ("<h3>" + data.title + "</h3>") : ("")) + "<p>" + description + "</p></div>")
+				+ rightElement;
+		linkCardEle.title = linkUrl || data.title;
 		//linkCardEle.setAttribute('data-element', JSON.stringify(cardElementInfo));
-		$(linkCardEle).find(".linkCardRight").find("a").attr("href", linkUrl);
+		if (linkUrl){
+			$(linkCardEle).find(".linkCardRight").find("a").attr("href", linkUrl);
+		}else{
+			//TODO: replace linkUrl with something useful
+		}
 		cardBody.appendChild(linkCardEle);
 
 		//Experimenting with web players - note: use data.embedded ?
@@ -1271,7 +1288,7 @@ function sepiaFW_build_ui_cards(){
 		if (embedWebPlayer){
 			//Embedded player
 			var mediaType = (data.type == "videoSearch")? "video" : "music";		//add more later?
-			addEmbeddedPlayerToCard(cardBody, mediaType, data.typeData, isSafeSource, {
+			typeInfo.mediaPlayer = addEmbeddedPlayerToCard(cardBody, mediaType, data.typeData, isSafeSource, {
 				brand: data.brand,
 				autoplay: data.autoplay
 			});
@@ -1280,23 +1297,28 @@ function sepiaFW_build_ui_cards(){
 		//link button(s)
 		(function(linkUrl){
 			SepiaFW.ui.onclick($(linkCardEle).find('.linkCardCenter')[0], function(){
-			//$(linkCardEle).find('.linkCardCenter').on('click', function(){
-				SepiaFW.ui.actions.openUrlAutoTarget(linkUrl);
+				if (linkUrl){
+					SepiaFW.ui.actions.openUrlAutoTarget(linkUrl);
+				}
 			});
 			SepiaFW.ui.onclick($(linkCardEle).find('.linkCardRight')[0], function(event){
-			//$(linkCardEle).find('.linkCardRight').on('click', function(){
 				event.preventDefault();
-				SepiaFW.ui.actions.openUrlAutoTarget(linkUrl, true);
+				if (linkUrl){
+					SepiaFW.ui.actions.openUrlAutoTarget(linkUrl, true);
+				}else{
+					SepiaFW.ui.showPopup(SepiaFW.local.g("cant_execute") + " (coming soon)");	
+					//TODO: do something useful ... maybe "play-on" function? or share link?
+				}
 			});
 		})(linkUrl);
 		
-		//extra buttons
-		makeLinkCardContextMenu(cardElement.id, cardBody, linkCardEle, cardElementInfo, data.type);
+		//context menu with extra buttons
+		makeLinkCardContextMenu(cardElement.id, cardBody, linkCardEle, cardElementInfo, data.type, typeInfo);
 		
 		cardElement.appendChild(cardBody);
 		return cardElement;
 	}
-	function makeLinkCardContextMenu(flexCardId, cardBody, cardBodyItem, linkElementInfo, linkElementType){
+	function makeLinkCardContextMenu(flexCardId, cardBody, cardBodyItem, linkElementInfo, linkElementType, typeInfo){
 		//some additional data
 		var newBodyClass = "sepiaFW-cards-list-body sepiaFW-cards-list-link";			//class in case we need to create new body
 		var shareButton = {
@@ -1305,17 +1327,37 @@ function sepiaFW_build_ui_cards(){
 			buttonName: SepiaFW.local.g('exportToUrl'),
 			buttonTitle: "Copy SEPIA share link to clipboard."	//TODO: add local translation
 		}
-		var copyUrlButton = {
-			buttonName: SepiaFW.local.g('copyUrl'),
-			url: linkElementInfo.url
+		var copyUrlButton;
+		if (linkElementInfo.url){
+			copyUrlButton = {
+				buttonName: SepiaFW.local.g('copyUrl'),
+				url: linkElementInfo.url
+			}
+		}
+		//custom button sections
+		var customButtonSections;
+		if (linkElementType == "musicSearch" || linkElementType == "videoSearch"){
+			if (typeInfo.mediaPlayer){
+				customButtonSections = [{className: "", buttons: []}];
+				customButtonSections[0].buttons.push({
+					buttonName: '<i class="material-icons md-inherit">play_arrow</i>',
+					fun: function(){ typeInfo.mediaPlayer.play(); }
+				});
+				customButtonSections[0].buttons.push({
+					buttonName: '<i class="material-icons md-inherit">pause</i>',
+					fun: function(){ typeInfo.mediaPlayer.pause(); }
+				});
+			}
 		}
 		//context menu
-		var contextMenu = makeBodyElementContextMenu(flexCardId, cardBody, cardBodyItem, cardBodyItem.id, {
+		var ctxConfig = {
 			toggleButtonSelector: ".linkCardLogo",
 			newBodyClass: newBodyClass,
-			shareButton: shareButton,
-			copyUrlButton: copyUrlButton
-		});
+			shareButton: shareButton
+		}
+		if (copyUrlButton) ctxConfig.copyUrlButton = copyUrlButton;
+		if (customButtonSections) ctxConfig.customButtonSections = customButtonSections;
+		var contextMenu = makeBodyElementContextMenu(flexCardId, cardBody, cardBodyItem, cardBodyItem.id, ctxConfig);
 	}
 	
 	//----------------------------- common elements ---------------------------------
@@ -1664,6 +1706,18 @@ function sepiaFW_build_ui_cards(){
 			cmList.appendChild(moveToMyViewBtn);
 		}
 
+		//custom button sections (rows) - NOTE: CAREFUL! this should not be generated dynamically by user content because it can call any JS code
+		if (menuConfig.customButtonSections){
+			//create custom section
+			menuConfig.customButtonSections.forEach(function(customSectionData){
+				var customSection = document.createElement('div');
+				customSection.className = "sepiaFW-cards-contextMenu-section";
+				if (customSectionData.className) customSection.className += " " + customSectionData.className;
+				if (customSectionData.buttons) makeContextMenuCustomButtons(customSectionData.buttons, customSection);
+				cmList.appendChild(customSection);
+			});
+		}
+
 		//Android intents
 		if (SepiaFW.ui.isAndroid && menuConfig.androidIntentButtons && menuConfig.androidIntentButtons.length > 0){
 			menuConfig.androidIntentButtons.forEach(function(intent){
@@ -1748,16 +1802,9 @@ function sepiaFW_build_ui_cards(){
 			cmList.appendChild(copyUrlBtn);
 		}
 
-		//Custom buttons (array) - NOTE: CAREFUL! this should not be generated dynamically by user content because it can call any JS code
+		//Single custom buttons (array) - NOTE: CAREFUL! this should not be generated dynamically by user content because it can call any JS code
 		if (menuConfig.customButtons){
-			menuConfig.customButtons.forEach(function(customButtonData){
-				//create custom button
-				var btn = document.createElement('LI');
-				btn.className = "sepiaFW-cards-button sepiaFW-cards-list-contextMenu-customBtn";
-				btn.innerHTML = SepiaFW.tools.sanitizeHtml(customButtonData.buttonName);
-				SepiaFW.ui.onclick(btn, customButtonData.fun, true);	//TODO: make sure this never falls into user hands!
-				cmList.appendChild(btn);
-			});
+			makeContextMenuCustomButtons(menuConfig.customButtons, cmList);
 		}
 
 		//hide
@@ -1798,6 +1845,16 @@ function sepiaFW_build_ui_cards(){
 		}
 
 		return contextMenu;
+	}
+	//custom buttons
+	function makeContextMenuCustomButtons(customButtons, parentEle){
+		customButtons.forEach(function(customButtonData){
+			var btn = document.createElement('LI');
+			btn.className = "sepiaFW-cards-button sepiaFW-cards-list-contextMenu-customBtn";
+			btn.innerHTML = SepiaFW.tools.sanitizeHtml(customButtonData.buttonName || customButtonData.name);
+			SepiaFW.ui.onclick(btn, customButtonData.fun, true);	//TODO: make sure this never falls into user hands!
+			parentEle.appendChild(btn);
+		});
 	}
 	
 	//Card footer
@@ -1903,11 +1960,22 @@ function sepiaFW_build_ui_cards(){
 			widget: widget,
 			brand: options.brand,
 			onready: function(){
-				var mediaRequest = data;
-				var mediaType = type;
-				var autoplay = (options.autoplay && isSafeSource);
-				var safeRequest = isSafeSource; 	//came from assistant or private channel?)
-				player.mediaRequest(mediaType, mediaRequest, autoplay, safeRequest);
+				function request(){
+					if (data && typeof data == "object" && Object.keys(data).length){
+						var mediaRequest = data;
+						var mediaType = type;
+						var autoplay = (options.autoplay && isSafeSource);
+						var safeRequest = isSafeSource; 	//came from assistant or private channel?)
+						player.mediaRequest(mediaType, mediaRequest, autoplay, safeRequest);
+					}
+				};
+				if (SepiaFW.animate.assistant.getState() != "idle"){
+					SepiaFW.ui.actions.delayFunctionUntilIdle(function(){
+						request();
+					}, "any");	//idleState req.
+				}else{
+					request();
+				}
 			}
 		});
 		return player;

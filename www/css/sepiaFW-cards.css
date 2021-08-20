@@ -173,6 +173,15 @@
 .sepiaFW-cards-contextMenu-single li {
 	margin: 8px 4px 0px 4px !important;
 }
+.sepiaFW-cards-contextMenu-section {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: space-evenly;
+	align-items: center;
+}
+.sepiaFW-cards-contextMenu-section.full-width {
+	width: 100%;
+}
 #sepiaFW-my-view .sepiaFW-cards-list-contextMenu .sepiaFW-cards-list-moveBtn {
 	display: none;
 }

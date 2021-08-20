@@ -35,7 +35,7 @@ function sepiaFW_build_ui_my_view(){
 			}
 			$('#sepiaFW-my-view').prepend(sectionBox);
 			//observe
-			var observer = new MutationObserver(function(mutationList, observer){
+			var observer = new MutationObserver(function(mutationList, obsrvr){
 				mutationList.forEach(function(mutation){
 					if (mutation.type == 'childList'){
 						MyView.handleEmptySection(mutation.target);

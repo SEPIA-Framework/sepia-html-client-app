@@ -179,9 +179,10 @@ function sepiaFW_build_strings(){
 	StringsDE.broadcast_to_device_or_chat = "Broadcast an eines deiner Geräte schicken oder per Chat senden?";
 	StringsDE.relative_precipitation = "relativer Niederschlag";
 	//Link sharing
-	StringsDE.link_join_channel = "Einem Chat-Kanal beitreten."
-	StringsDE.link_open_url = "Einen Link öffnen."
-	StringsDE.link_create_reminder = "Eine Erinnerung einrichten."
+	StringsDE.link_join_channel = "Einem Chat-Kanal beitreten.";
+	StringsDE.link_open_url = "Einen Link öffnen.";
+	StringsDE.link_media_search = "Mediensuche";
+	StringsDE.link_create_reminder = "Eine Erinnerung einrichten.";
 	//Offline demo texts
 	StringsDE.demoMode = 'Du befindest dich im Demo-Modus! In diesem Modus kannst du die Einstellungen ändern (z.B. hostname), das Tutorial anschauen und mit manchen(!) Teilen des Interfaces spielen. Um auf deinen Assistenten zuzugreifen melde dich bitte zuerst an.';
 	StringsDE.setupMode = 'Du befindest dich im Setup-Modus! Dieser Modus kann genutzt werden um den Client lokal oder via Fernzugriff zu konfigurieren. Bitte beachte, dass die meisten Grundfunktionen nicht verfügbar sind in diesem Modus!';
@@ -391,9 +392,10 @@ function sepiaFW_build_strings(){
 	StringsEN.broadcast_to_device_or_chat = "Broadcast to one of your devices or via chat?";
 	StringsEN.relative_precipitation = "relative precipitation";
 	//Link sharing
-	StringsEN.link_join_channel = "Join a chat-channel."
-	StringsEN.link_open_url = "Open a link."
-	StringsEN.link_create_reminder = "Create a reminder."
+	StringsEN.link_join_channel = "Join a chat-channel.";
+	StringsEN.link_open_url = "Open a link.";
+	StringsEN.link_media_search = "Media Search";
+	StringsEN.link_create_reminder = "Create a reminder.";
 	//Offline demo texts
 	StringsEN.demoMode = 'You are in demo-mode! This mode only allows you to change settings (e.g. hostname), check out the tutorial and play with some(!) parts of the UI. To get access to your assistant please log-in first.';
 	StringsEN.setupMode = 'You are in setup-mode! This mode is used to configure the client locally or via remote access. Note that most client featires will not work in this mode!';

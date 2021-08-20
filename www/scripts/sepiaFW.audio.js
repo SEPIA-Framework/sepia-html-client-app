@@ -395,8 +395,7 @@ function sepiaFW_build_audio(){
 		audioTitle = document.getElementById('sepiaFW-audio-ctrls-title');
 		audioStartBtn = document.getElementById('sepiaFW-audio-ctrls-start');
 		$(audioStartBtn).off().on('click', function(){
-			//test: player.src = "sounds/coin.mp3";
-			//player.play();
+			//NOTE: for now this is "internal" player only (as volume control)
 			if (!AudioPlayer.initAudio(function(){ AudioPlayer.playURL('', player); })){
 				AudioPlayer.playURL('', player);
 			}

@@ -5,10 +5,8 @@ function sepiaFW_build_ui_cards_embed(){
 	//TODO: add MediaPlayer
 	/*
 	- Controls: start, pause/stop, resume, next, previous
-	- State functions: getState, isOnHold
-	- Broadcast state change (start, pause, hold, resume, ?)
-	- Make sure only one is active
 	- Implement async. callback with msgId and timeout
+	- Get media info and use SepiaFW.audio.setPlayerTitle('', '') + setMediaSessionState (SepiaFW.audio)
 	*/
 	var playerWidgets = {
 		default: "<assist_server>/widgets/mp-default.html",
@@ -24,14 +22,19 @@ function sepiaFW_build_ui_cards_embed(){
 	function getNewMediaPlayerId(){
 		mediaPlayerLastId++;
 		var overflow = false;
-		if (mediaPlayerLastId >= 20){
+		if (mediaPlayerLastId > 5){
 			mediaPlayerLastId = 1;
 			overflow = true;
 		}
 		var newId = ("sepia-embedded-player-" + mediaPlayerLastId);
 		if (overflow){
-			//TODO: remove old players
-			//activeMediaPlayers ...
+			//remove old players
+			var oldMp = activeMediaPlayers[newId];
+			if (oldMp && oldMp.exists()){
+				oldMp.release();
+				$(oldMp.cardItem).remove();
+			}
+			//console.error("RELEASED and REMOVED", newId, activeMediaPlayers[newId]);		//DEBUG
 		}
 		return newId;
 	}
@@ -84,25 +87,32 @@ function sepiaFW_build_ui_cards_embed(){
 		}
 	}
 	//Register new audio fade (stop/start) handler
-	function registerMediaPlayerFadeInOutListener(mediaPlayer){
+	function registerMediaPlayerFadeInOutListener(){
 		//NOTE: will always overwrite old ones if existing (same ID for every player, we control only last one)
 		SepiaFW.audio.registerNewFadeListener({
 			id: "embedded-media-player",
 			isOnHold: function(){
-				return mediaPlayer.isOnHold();
+				var mp = Embed.getActiveMediaPlayer();
+				if (mp && mp.isOnHold()){
+					return true;
+				}else{
+					return false;
+				}
 			},
 			onFadeOutRequest: function(force){
 				//check if player is playing
-				if (mediaPlayer.isPlaying() && !mediaPlayer.isWaitingForPause()){
-					mediaPlayer.fadeOut();
+				var mp = Embed.getActiveMediaPlayer();
+				if (mp && mp.isPlaying() && !mp.isWaitingForPause()){
+					mp.fadeOut();
 					return true;
 				}else{
 					return false;
 				}
 			},
 			onFadeInRequest: function(){
-				if (mediaPlayer.isOnHold() && mediaPlayer.isPaused()){
-					mediaPlayer.fadeIn();
+				var mp = Embed.getActiveMediaPlayer();
+				if (mp && mp.isOnHold() && mp.isPaused()){
+					mp.fadeIn();
 					return true;
 				}else{
 					return false;
@@ -113,7 +123,24 @@ function sepiaFW_build_ui_cards_embed(){
 
 	//Get active media player
 	Embed.getActiveMediaPlayer = function(){
-		return lastActiveMediaPlayer;
+		if (lastActiveMediaPlayer && lastActiveMediaPlayer.exists()){
+			return lastActiveMediaPlayer;
+		}else{
+			return;
+		}
+	}
+	//Stop all media players
+	Embed.stopAllMediaPlayers = function(except){
+		var triedToStopAtLeastOne = false;
+		Object.values(activeMediaPlayers).forEach(function(mp){
+			if (!except || mp != except){
+				if (mp.isPlaying() || mp.isWaitingForPlay()){
+					mp.pause();
+					triedToStopAtLeastOne = true;
+				}
+			}
+		});
+		return triedToStopAtLeastOne;
 	}
 
 	//MediaPlayer interface
@@ -128,12 +155,18 @@ function sepiaFW_build_ui_cards_embed(){
 		//events: 	onready
 
 		var thisPlayer = this;
-		console.error("TEST", "embedWebPlayer", options);      //DEBUG
+		//console.error("Embedded MediaPlayer", options);      //DEBUG
 
 		//ID
 		var playerId = getNewMediaPlayerId();
+		var lastMessageId = 0;
 		thisPlayer.getId = function(){
 			return playerId;
+		}
+		function getMessageId(){
+			lastMessageId++;
+			if (lastMessageId > 10000) lastMessageId = 1;
+			return (playerId + "-" + lastMessageId);
 		}
 
 		//Widget URL
@@ -147,26 +180,61 @@ function sepiaFW_build_ui_cards_embed(){
 		//URL parameters (so we have the data during loading)
 		widgetUrl = SepiaFW.tools.setParameterInURL(widgetUrl, "skinStyle", SepiaFW.ui.getSkinStyle());
 		widgetUrl = SepiaFW.tools.setParameterInURL(widgetUrl, "skinId", SepiaFW.ui.getSkin());
+		//add more: language, isMobile, env, ...?
 		
-		console.error("URL", widgetUrl, "isTrusted", widgetIsTrusted);	//DEBUG
+		console.error("Media Player URL", widgetUrl, "isTrusted", widgetIsTrusted);	//DEBUG
 
 		//Create card (DOM element)
 		var mpObj = createMediaPlayerDomElement(playerId, widgetUrl, widgetIsTrusted, function(){
 			//on-load
-			console.error("on-load", playerId);		//DEBUG
+			//console.error("on-load", playerId);		//DEBUG
 		});
 		thisPlayer.iframe = mpObj.iframe;
+		thisPlayer.cardItem = mpObj.card;
+		thisPlayer.exists = function(){
+			var ex = thisPlayer.cardItem && document.body.contains(thisPlayer.cardItem);
+			if (!ex && state != 11){
+				thisPlayer.release();
+			}
+			return ex;
+		}
 		options.parentElement.appendChild(mpObj.card);
+		
+		//Card move and delete actions
+		mpObj.card.sepiaCardOnBeforeMove = function(){
+			console.error("MOVE EVENT", playerId);		//DEBUG
+			//TODO: rescue state - anything else? (note: onready is a one-time event now)
+		}
+		mpObj.card.sepiaCardOnBeforeRemove = function(){
+			//TODO: currently called nowhere
+			console.error("REMOVE EVENT", playerId);	//DEBUG
+			thisPlayer.release();
+		}
 
 		//SEPIA postMessage interface
 		function sendEvent(ev){
+			if (state && state == 11){
+				//player is already released
+				SepiaFW.debug.info("Embedded MediaPlayer - Blocked 'sendEvent' because player was already released.");
+				return;
+			}
 			thisPlayer.iframe.contentWindow.postMessage({
 				type: "sepia-embedded-player-event",
+				msgId: getMessageId(),
 				ev: ev
 			}, "*");
 		}
 		thisPlayer.eventHandler = function(ev){
-			console.error("ev", playerId, ev);		//DEBUG
+			//player still exists? (is this even possible?)
+			if (!thisPlayer.exists()){
+				SepiaFW.debug.error("Embedded MediaPlayer - Player received event but was removed or released!");
+				return;
+			}
+			if (state && state == 11){
+				//player is already released
+				SepiaFW.debug.info("Embedded MediaPlayer - Blocked 'sendEvent' because player was already released.");
+				return;
+			}
 			if (ev.state != undefined){
 				stateHandler(ev);
 			}
@@ -187,28 +255,40 @@ function sepiaFW_build_ui_cards_embed(){
 					thisPlayer.iframe.style.height = data.size.height;
 				}
 				setTimeout(function(){ $(mpObj.overlay).hide(); }, 500);
-				//callback
-				if (options.onready) options.onready();
+				//callback (only once)
+				if (options.onready){
+					options.onready();
+					options.onready = undefined;
+				}
 
 			}else if (ev.state == 2){
 				//on-play
 				state = ev.state;
 				SepiaFW.audio.broadcastAudioEvent("embedded-media-player", "start");
+				lastActiveMediaPlayer = thisPlayer;		//TODO: use?
+				SepiaFW.debug.info("Embedded MediaPlayer - Last active player switched to: " + playerId);
+				//Embed.stopAllMediaPlayers(thisPlayer)	//this should be handled globally for ALL media
+
 			}else if (ev.state == 3){
 				//on-pause
 				state = ev.state;
 				SepiaFW.audio.broadcastAudioEvent("embedded-media-player", "pause");
+			
 			}else if (ev.state == 10){
 				//on-error
+				var lastWasError = (state == 10);
 				state = ev.state;
-				//TODO: check "code" and "name" - broadcast error? - reset states? - make sure all is off?
 				//ev.code-ev.name: 1-UnknownEvent, 2-NoMediaMatch, 3-PlayerErrorNotAllowed, 4-PlayerError (any), ... tbd
-				if (ev.name == "NoMediaMatch"){
-					SepiaFW.client.controls.sendMediaPlayerErrorFollowUpMessage("notFound", undefined, undefined);
-				}else if (ev.name == "PlayerErrorNotAllowed"){
-					SepiaFW.client.controls.sendMediaPlayerErrorFollowUpMessage("notPossible", undefined, undefined);
+				if (lastWasError){
+					SepiaFW.ui.showInfo("Media-Player error: " + (ev.name || ev.message || "?"));
 				}else{
-					SepiaFW.client.controls.sendMediaPlayerErrorFollowUpMessage("error", undefined, undefined);
+					if (ev.name == "NoMediaMatch"){
+						SepiaFW.client.controls.sendMediaPlayerErrorFollowUpMessage("notFound", undefined, undefined);
+					}else if (ev.name == "PlayerErrorNotAllowed"){
+						SepiaFW.client.controls.sendMediaPlayerErrorFollowUpMessage("notPossible", undefined, undefined);
+					}else{
+						SepiaFW.client.controls.sendMediaPlayerErrorFollowUpMessage("error", undefined, undefined);
+					}
 				}
 				SepiaFW.debug.error("Embedded MediaPlayer - Error:", ev.name, ev.message, ev.code);
 				SepiaFW.audio.broadcastAudioEvent("embedded-media-player", "error");
@@ -223,34 +303,30 @@ function sepiaFW_build_ui_cards_embed(){
 
 		//state getters
 		thisPlayer.isReady = function(){
-			return (state >= 1 && state < 10);
+			return (thisPlayer.exists() && state >= 1 && state < 10);
 		}
 		thisPlayer.isPlaying = function(){
-			//lastActiveMediaPlayer = thisPlayer;	//TODO: use?
-			return state == 2;
+			return (thisPlayer.exists() && state == 2);
 		}
 		thisPlayer.isPaused = function(){
-			return state == 3;
+			return (thisPlayer.exists() && state == 3);
 		}
 		thisPlayer.isWaitingForPlay = function(){
-			return isWaitingForPlay;
+			return (thisPlayer.exists() && isWaitingForPlay);
 		}
 		thisPlayer.isWaitingForPause = function(){
-			return isWaitingForPause;
+			return (thisPlayer.exists() && isWaitingForPause);
 		}
 		thisPlayer.isOnHold = function(){
-			//TODO: implement
-			return isOnHold;
+			//TODO: implemented correct?
+			return (thisPlayer.exists() && isOnHold);
 		}
 		thisPlayer.isActive = function(){
-			return (state == 2 || isOnHold);	//include 'isOnHold'? (atm we don't check this for internal player)
+			return (thisPlayer.exists() && (state == 2 || isOnHold));	
+			//include 'isOnHold'? (atm we don't check this for internal player)
 		}
 
-		//TODO: SepiaFW.audio.setPlayerTitle('', '') + setMediaSessionState (SepiaFW.audio)
-		//TODO: move to my-view handler (avoid additional onready event due to iframe reload etc.)
-		//TODO: prevent multiple error messages
-
-		//Controls - TODO: implement
+		//Controls - TODO: implement callbacks?! more?
 		thisPlayer.play = function(doneCallback, errorCallback){
 			sendEvent({controls: "play"});
 			isWaitingForPlay = true;
@@ -258,6 +334,7 @@ function sepiaFW_build_ui_cards_embed(){
 		thisPlayer.pause = function(doneCallback, errorCallback){
 			sendEvent({controls: "pause"});
 			isWaitingForPause = true;
+			isOnHold = false;
 		}
 		thisPlayer.fadeOut = function(doneCallback, errorCallback){
 			sendEvent({controls: "fadeOut"});
@@ -307,13 +384,20 @@ function sepiaFW_build_ui_cards_embed(){
 
 		//stop, release resources and remove handle
 		thisPlayer.release = function(doneCallback, errorCallback){
-			//TODO: implement
-			// - stop, remove from active players, remove from DOM?
+			// - remove from active players, block incoming events
 			state = 11;
+			if (lastActiveMediaPlayer == thisPlayer) lastActiveMediaPlayer = undefined;
+			delete activeMediaPlayers[playerId];
+			SepiaFW.debug.info("Embedded MediaPlayer - Released player with id: " + playerId);
 		}
 
-		//add audio-interface events
+		//add audio-interface events (make sure its set)
 		registerMediaPlayerFadeInOutListener(thisPlayer);
+
+		//make sure last active player is stopped
+		if (lastActiveMediaPlayer && (lastActiveMediaPlayer.isPlaying() || lastActiveMediaPlayer.isWaitingForPlay())){
+			lastActiveMediaPlayer.pause();
+		}
 
 		//store in list
 		activeMediaPlayers[playerId] = thisPlayer;
