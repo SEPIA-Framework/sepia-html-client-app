@@ -851,38 +851,46 @@ function sepiaFW_build_webSocket_client(sepiaSessionId){
 		}
 		//console.log(shareData);
 		if (shareData.type && shareData.data){
+			var sdd = shareData.data;
 			var ask;
 			//give more info
 			if (shareData.type == SepiaFW.client.SHARE_TYPE_LINK){
 				//Link
-				ask = "<p><b>" + SepiaFW.local.g('link_open_url') + "</b></p>";
-				ask += "<b>URL:</b> ";
-				if (shareData.data.url){
-					ask += (shareData.data.url.length > 30)? (shareData.data.url.substring(0,29) + "...") : shareData.data.url;
+				if (sdd.url){
+					ask = "<p><b>" + SepiaFW.local.g('link_open_url') + "</b></p>";
+					ask += "<b>URL:</b> ";
+					ask += (sdd.url.length > 30)? (sdd.url.substring(0,29) + "...") : sdd.url;
+				}else if (sdd.data && sdd.data.type && (sdd.data.type == "musicSearch" || sdd.data.type == "videoSearch")){
+					ask = "<p><b>" + SepiaFW.local.g('link_media_search') + "</b></p>";
+					if (sdd.data.brand) ask += "<p>Link Card Type: " + sdd.data.brand + "</p>";
+					ask += sdd.data.title;
+				}else{
+					ask = "<p><b>" + "Link Card" + "</b></p>";
+					ask += "<b>Unknown</b>";
 				}
 			}else if (shareData.type == SepiaFW.client.SHARE_TYPE_CHANNEL_INVITE){
 				//Channel Invite
 				ask = "<p><b>" + SepiaFW.local.g('link_join_channel') + "</b></p>";
-				ask += "<b>Channel Name:</b> " + shareData.data.name + "<br>";
-				ask += "<b>Channel Owner:</b> " + shareData.data.owner;
+				ask += "<b>Channel Name:</b> " + sdd.name + "<br>";
+				ask += "<b>Channel Owner:</b> " + sdd.owner;
 			}else if (shareData.type == SepiaFW.client.SHARE_TYPE_ALARM){
 				//Alarm
 				ask = "<p><b>" + SepiaFW.local.g('link_create_reminder') + "</b></p>";
-				ask += "<b>Title:</b> " + shareData.data.title;
+				ask += "<b>Title:</b> " + sdd.title;
 			}else{
 				//Other
 				ask = "<p>Shared data of type: <b>" + shareData.type.toUpperCase() + "</b></p>";
 			}
 			SepiaFW.ui.askForPermissionToExecute(ask, function(){
 				//ALARM
-				if (shareData.type == SepiaFW.client.SHARE_TYPE_ALARM && shareData.data.beginTime){
+				if (shareData.type == SepiaFW.client.SHARE_TYPE_ALARM && sdd.beginTime){
 					var options = {};   //things like skipTTS etc. (see sendCommand function)
 					var dataset = {
 						info: "direct_cmd",
-						cmd: "timer;;alarm_name=" + (shareData.data.title || "Shared Alarm") 
+						cmd: "timer;;alarm_name=" + (sdd.title || "Shared Alarm") 
 							+ ";;alarm_type=" + "<alarmClock>" 
-							+ ";;time=" + "<unix>" + shareData.data.beginTime 
-							+ ";;clock=" + "<unix>" + shareData.data.beginTime
+							+ ";;time=" + "<unix>" + sdd.beginTime 
+							+ ";;clock=" + "<unix>" + sdd.beginTime
 							+ ";;action=<set>",
 						newReceiver: SepiaFW.assistant.id
 					};
@@ -900,7 +908,7 @@ function sepiaFW_build_webSocket_client(sepiaSessionId){
 					var nluResult = {
 						command: "open_link"
 					}
-					var serviceResult = SepiaFW.embedded.services.link(nluInput, nluResult, shareData.data);
+					var serviceResult = SepiaFW.embedded.services.link(nluInput, nluResult, sdd);
 					//serviceResult.answer = "";
 					//serviceResult.answer_clean = "";
 					var assistantIdOrName = ""; 	//SepiaFW.assistant.id
@@ -911,7 +919,7 @@ function sepiaFW_build_webSocket_client(sepiaSessionId){
 				//CHANNEL INVITE
 				}else if (shareData.type == SepiaFW.client.SHARE_TYPE_CHANNEL_INVITE){
 					//send request
-					SepiaFW.client.joinNewChannel(shareData.data, function(res){
+					SepiaFW.client.joinNewChannel(sdd, function(res){
 						//additional onSuccess
 						SepiaFW.ui.showPopup(SepiaFW.local.g('joinedChannel') + ":"
 							+ "<br><br><b>Name:</b> " + res.channelName
