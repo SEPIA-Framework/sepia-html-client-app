@@ -15,6 +15,9 @@ function sepiaFW_build_ui_actions(){
 			idleState: idleState,
 			id: delayId
 		};
+		//NOTE: At the time of this function call the state can actually BE IDLE (short transient)
+		//Should we add a timeout fallback?
+		//console.error("delayFunction", "state", SepiaFW.animate.assistant.getState());		//DEBUG
 	}
 	Actions.executeDelayedFunctionsAndRemove = function(stateFilter){
 		var cleanUpIds = [];
@@ -172,7 +175,8 @@ function sepiaFW_build_ui_actions(){
 				actionFun = function(){
 					Actions.clientControlFun({
 						"fun": fun,
-						"controlData": act
+						"controlData": act,
+						"delayUntilIdle": false
 					}, sender);
 				};	
 			}
@@ -185,8 +189,22 @@ function sepiaFW_build_ui_actions(){
 		parentBlock.appendChild(funBtn);
 	}
 	//CLIENT Control function
+	/*
 	Actions.clientControlFun = function(action, sender){
 		if (action && action.fun){
+			SepiaFW.client.controls.handle(action.fun, action.controlData);
+		}
+	}
+	*/
+	Actions.clientControlFun = function(action, sender, delayUntilIdle){
+		if (!action || !action.fun){
+			return;
+		}
+		if (delayUntilIdle || action.delayUntilIdle){
+			Actions.delayFunctionUntilIdle(function(){
+				SepiaFW.client.controls.handle(action.fun, action.controlData);
+			}, "any");	//idleState req.
+		}else{
 			SepiaFW.client.controls.handle(action.fun, action.controlData);
 		}
 	}
