@@ -27,6 +27,7 @@ function sepiaFW_build_ui_cards(){
 	//some specials
 	Cards.canEmbedCustomPlayer = true;
 	Cards.canEmbedYouTube = true;
+	Cards.canEmbedSoundCloud = false;	//TODO: for testing
 	Cards.canEmbedSpotify = false;		//deactivated by default because it only works in desktop and gives no control over start/stop/volume
 	Cards.canEmbedAppleMusic = false;	// "" ""
 	Cards.canEmbedWebPlayer = function(service){
@@ -40,6 +41,8 @@ function sepiaFW_build_ui_cards(){
 			return Cards.canEmbedAppleMusic;
 		}else if (service.indexOf("youtube") == 0){
 			return Cards.canEmbedYouTube;
+		}else if (service.indexOf("soundcloud") == 0){
+			return Cards.canEmbedSoundCloud;
 		}else{
 			return false;
 		}
@@ -50,6 +53,7 @@ function sepiaFW_build_ui_cards(){
 		if (Cards.canEmbedYouTube) players.push("youtube");
 		if (Cards.canEmbedSpotify) players.push("spotify");
 		if (Cards.canEmbedAppleMusic) players.push("apple_music");
+		if (Cards.canEmbedSoundCloud) players.push("soundcloud");
 		return players;
 	}
 	
@@ -146,7 +150,7 @@ function sepiaFW_build_ui_cards(){
 		//synchronous before-move events:
 		var $cardBodyItems = ele.find(".cardBodyItem");
 		if ($cardBodyItems.length) $cardBodyItems.each(function(i, cbi){
-			//inform card body items of move event
+			//inform card body items of move event - NOTE: this is not reliable, DOM might be edited before etc.
 			if (typeof cbi.sepiaCardOnBeforeMove == "function"){
 				cbi.sepiaCardOnBeforeMove();
 			}
@@ -1258,13 +1262,16 @@ function sepiaFW_build_ui_cards(){
 		if (description && description.length > 120) description = description.substring(0, 119) + "...";
 
 		//check link
-		var testUrlProtocol = linkUrl.match(/^[a-zA-Z1-9-_]+:/);
-		var testLocalPage = linkUrl.match(/^[a-zA-Z1-9-_\/]+\.html(\?|$)/);
-		if (linkUrl && ((!testUrlProtocol && !testLocalPage) || !!linkUrl.match(/^(javascript|data):/i))){
-			//TODO: is this enough?
-			SepiaFW.ui.showInfo("URL has been removed from link card because it looked suspicious", true);
-			SepiaFW.debug.error("Link-Card - Tried to create card with suspicious URL: " + linkUrl);
-			linkUrl = "";
+		if (linkUrl){
+			var hasValidUrlProtocol = SepiaFW.tools.urlHasValidProtocol(linkUrl);
+			var isValidLocalHtmlPage = SepiaFW.tools.isRelativeFileUrl(linkUrl, "html");
+			var isUrlOk = hasValidUrlProtocol || isValidLocalHtmlPage;
+			if (!isUrlOk){
+				//TODO: is this enough?
+				SepiaFW.ui.showInfo("URL has been removed from link card because it looked suspicious", true);
+				SepiaFW.debug.error("Link-Card - Tried to create card with suspicious URL: " + linkUrl);
+				linkUrl = "";
+			}
 		}
 				
 		//build actual card element
@@ -1303,10 +1310,12 @@ function sepiaFW_build_ui_cards(){
 			});
 			SepiaFW.ui.onclick($(linkCardEle).find('.linkCardRight')[0], function(event){
 				event.preventDefault();
-				if (linkUrl){
+				if (embedWebPlayer && typeInfo.mediaPlayer){
+					typeInfo.mediaPlayer.openInExternalPage();
+				}else if (linkUrl){
 					SepiaFW.ui.actions.openUrlAutoTarget(linkUrl, true);
 				}else{
-					SepiaFW.ui.showPopup(SepiaFW.local.g("cant_execute") + " (coming soon)");	
+					SepiaFW.ui.showPopup(SepiaFW.local.g("cant_execute") + " (Missing URL)");
 					//TODO: do something useful ... maybe "play-on" function? or share link?
 				}
 			});
@@ -1432,6 +1441,7 @@ function sepiaFW_build_ui_cards(){
 			$(contextMenu).hide();
 			$('#sepiaFW-main-window').trigger(('sepiaFwClose-' + contextMenu.id));
 			$(moveToMyViewBtn).remove();
+			//TODO: add before-move events for cardBodyItems?
 		}, true);
 		cmList.appendChild(moveToMyViewBtn);
 
@@ -1480,7 +1490,10 @@ function sepiaFW_build_ui_cards(){
 		cmHideBtn.innerHTML = SepiaFW.local.g('hideItemWithIcon');
 		cmHideBtn.title = SepiaFW.local.g('hideItem');
 		SepiaFW.ui.onclick(cmHideBtn, function(){
-			$(cmHideBtn).closest('.sepiaFW-cards-flexSize-container').fadeOut(300, function(){
+			var $cardsContainer = $(cmHideBtn).closest('.sepiaFW-cards-flexSize-container');
+			//TODO: add before-remove events for cardBodyItems?
+			//fade and remove
+			$cardsContainer.fadeOut(300, function(){
 				$(this).remove();
 			});
 		}, true);
@@ -1694,7 +1707,7 @@ function sepiaFW_build_ui_cards(){
 						cardBody.appendChild(contextMenu);
 						//update id
 						//contextMenu.id = (flexCardId + "-contextMenu-id-" + cardBodyItemId);
-						Cards.moveToMyViewOrDelete(cardBody);
+						Cards.moveToMyViewOrDelete(cardBody);	//NOTE: before-move event might need to be called before this!
 					});
 				}else{
 					Cards.moveToMyViewOrDelete(flexCard[0]);
@@ -1816,6 +1829,7 @@ function sepiaFW_build_ui_cards(){
 			SepiaFW.ui.onclick(cmHideBtn, function(){
 				var flexCard = $(cmHideBtn).closest(".sepiaFW-cards-flexSize-container");
 				var title = flexCard.find('.sepiaFW-cards-list-title');
+				//remove:
 				if (title.length > 0){
 					//hide save button (just to be sure the user does not save an incomplete list)
 					title.find(".sepiaFW-cards-list-saveBtn").animate({ opacity: 0.0 }, 500, function(){
@@ -1928,7 +1942,7 @@ function sepiaFW_build_ui_cards(){
 			widgetUrl: widgetUrl
 		});
 		var cardEle = document.createElement('div');
-		cardEle.className = 'cardBodyItem radioStation';	//lazy styling: use radioStation
+		cardEle.className = 'cardBodyItem fullWidthItem';
 		var buttons = [{
 			icon: "skip_previous",
 			fun: player.previous
@@ -1944,7 +1958,7 @@ function sepiaFW_build_ui_cards(){
 		}];
 		buttons.forEach(function(b){
 			var btn = document.createElement('div');
-			btn.className = "itemLeft radioLeft";
+			btn.className = "cardItemBlock";
 			btn.innerHTML = "<i class='material-icons md-mnu'>" + b.icon + "</i>";
 			$(btn).on("click", b.fun);
 			cardEle.appendChild(btn);

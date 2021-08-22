@@ -333,6 +333,7 @@ function sepiaFW_build_client_controls(sepiaSessionId){
             console.log('Service: ' + controlData.service);
             console.log('URI: ' + controlData.uri);
             */
+           SepiaFW.debug.info("Client controls - SearchForMusic service: " + controlData.service);
 
             //Stop other players - TODO: move down?
             Controls.media({

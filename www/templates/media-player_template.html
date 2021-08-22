@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+	<!-- web app settings -->
+	<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=0">
+	<title>Embedded Player</title>
+	<style>
+		* {
+			box-sizing: border-box;
+		}
+		html, body {
+			font-family: sans-serif;
+			width: 100%;
+			height: 100%;
+			margin: 0;
+			padding: 0;
+			background-color: transparent;
+			color: #000;
+		}
+		#card-body {
+			width: 100%;
+			display: flex;
+		}
+		#audio-player {
+			width: 100%;
+		}
+	</style>
+</head>
+<body >
+	<!-- Card Body -->
+	<div id="card-body">
+		<audio id="audio-player" class="media-player-demo" controls></audio>
+	</div>
+	<!-- JS -->
+	<script type="text/javascript">
+		//postMessage listener
+		window.addEventListener('message', function(message){
+			if (message.data && message.data.type){
+				if (message.data.type == "sepia-embedded-player-event" && message.data.ev){
+					eventHandler(message.data.ev);
+				}
+			}
+		});
+		//postMessage to parent window
+		function postMsg(ev){
+			//post only if really a child
+			if (window !== parent){
+				parent.postMessage({
+					type: "sepia-embedded-player-event",
+					ev: ev
+				}, "*");
+			}
+		}
+		function postState(stateId, data){
+			postMsg({
+				state: stateId,	//1: ready, 2: play, 3: pause, ... tbd
+				data: data
+			});
+		}
+		function postSettings(data){
+			postMsg({
+				settings: data	//any app-specific settings that should be restored e.g. when widget reloads/moves
+			});
+		}
+		function postError(name, message, errorCode){
+			postMsg({
+				state: 10,		//10: error
+				name: name,		//1: UnknownEvent, 2: NoMediaMatch, 3: PlayerErrorNotAllowed, 4: PlayerError (any)
+				message: message,
+				code: errorCode
+			});
+		}
+		//get URL parameters
+		function getURLParameter(name){
+			return decodeURIComponent((new RegExp('[?|&]' + name + '=' + '([^&;]+?)(&|#|;|$)').exec(location.search)||[,""])[1].replace(/\+/g, '%20'))||null;
+		}
+		//e.g.: skinStyle, skinId, lang (e.g.: de, en), mobile (true/false)
+
+		//handle events
+		function eventHandler(ev){
+			if (ev.controls){
+				//controls
+				handleControls(ev);
+			}else if (ev.mediaRequest){
+				//mediaRequest
+				handleMediaRequest(ev);
+			}else if (ev.settings){
+				//settings previously sent by the widget (widget/app specific etc. - NOTE: avoid autoplay!)
+				handleSettingsRestore(ev);
+			}else{
+				console.error("event", ev);
+			}
+		}
+
+		//--------- DEMO START ---------
+
+		var cardBody = document.getElementById("card-body");
+		var player = document.getElementById("audio-player");
+		
+		var autoplay = false;
+		var restoreSettings = {};
+		
+		function handleSettingsRestore(ev){
+			//any widget specific data submitted by widget itself (either via 'postSettings' or during 'ready')
+			console.error("Settings", ev.settings);
+			var settings = ev.settings;
+			//restore
+			autoplay = settings.autoplay || false;
+			player.preload = settings.preload || "none";
+			if (settings.src) player.src = settings.src;
+			player.title = settings.title || "";
+		}
+		
+		function handleControls(ev){
+			//play, pause, fadeOut, fadeIn, next, previous, volumeUp, volumeDown, ... tbd
+			console.error("Controls", ev.controls);
+			var ctrl = ev.controls;
+			if (player){
+				switch (ev.controls){
+					case "play":
+					case "fadeIn":		//for now just stop (alt.: reduce volume)
+						player.play();
+						break;
+					case "pause":
+					case "stop":
+					case "fadeOut":		//for now just resume (alt.: restore volume)
+						player.pause();
+						break;
+					case "volumeUp":
+					case "volumeDown":
+						//ignore for now
+						break;
+					default:
+						//Error: UnknownEvent
+						postError("UnknownEvent", "Unknown control event: " + ev.controls, 1);
+						break;
+				}
+			}
+		}
+		
+		function handleMediaRequest(ev){
+			console.error("Media request", ev.mediaRequest);
+			var mr = ev.mediaRequest;
+			/* type: music:
+			{
+				"song": "",
+				"search": "",
+				"playlist": "",
+				"artist": "",
+				"album": "",
+				"service": "",
+				"genre": "",
+				"uri": ""
+			}*/
+			var safeRequest = ev.safeRequest;	//request came from assistant or private channel?
+			autoplay = ev.autoplay;
+			
+			//"search" music:
+			var url = "";
+			var title = "";
+			
+			if (mr.song && mr.song.trim().toLowerCase().indexOf("twister") >= 0){
+				url = "http://www.openmusicarchive.org/audio/Eddies_Twister.mp3";
+				title = "Eddies Twister";
+			}else if (mr.artist && mr.artist.toLowerCase() == "ed"){
+				url = "http://www.openmusicarchive.org/audio/Eddies_Twister.mp3";
+				title = "Eddies Twister";
+			
+			}else if (mr.song && mr.song.trim().toLowerCase().indexOf("titanic") >= 0){
+				url = "http://www.openmusicarchive.org/audio/Titanic_Blues.mp3";
+				title = "Titanic Blues";
+			}else if (mr.artist && mr.artist.toLowerCase() == "virginia"){
+				url = "http://www.openmusicarchive.org/audio/Titanic_Blues.mp3";
+				title = "Titanic Blues";
+			}
+						
+			if (url){
+				//Load music
+				if (safeRequest){
+					player.preload = "auto";
+				}else{
+					player.preload = "none";
+				}
+				player.src = url;
+				
+				//Set title
+				player.title = title || "";
+				
+				//Backup settings
+				restoreSettings.src = player.src
+				restoreSettings.autoplay = false;	//this should only be true at actualy requests
+				restoreSettings.title = player.title;
+				restoreSettings.preload = player.preload;	//add?
+				postSettings(restoreSettings);
+			}else{
+				//Error: NoMediaMatch
+				postError("NoMediaMatch", "Found no music to play", 2);
+			}
+		}
+
+		player.oncanplay = function(){
+			console.error("oncanplay", arguments);		//DEBUG
+			if (autoplay){
+				player.play();
+			}
+		};
+		player.onplay = function(){
+			console.error("onplay", arguments);			//DEBUG
+			postState(2, {
+				meta: {
+					title: player.title,
+					url: player.src
+				}
+			});
+		};
+		player.onpause = function(){
+			console.error("onpause", arguments);		//DEBUG
+			postState(3);
+		};
+		player.onended = function(){
+			console.error("onended", arguments);		//DEBUG
+		};
+		player.onvolumechange = function(){
+			console.error("onvolumechange", player.volume);		//DEBUG
+		};
+		player.onerror = function(err){
+			console.error("onerror", err, player.error);		//DEBUG
+			if (player.error && player.error.code === 4){
+				postError("PlayerError", "Cannot play the selected media data.", 4);
+			}else if (err && err.name && err.name == "NotAllowedError"){
+				//This can happen if the user didn't interact with the client first
+				postError("PlayerErrorNotAllowed", "Cannot play audio because client denied access!", 3);
+			}else if (err && err.name){
+				postError("PlayerError", err.name, 4);
+			}else{
+				postError("PlayerError", "Unknown", 4);
+			}
+		};
+		//player.preload = "auto";
+		//player.src = "...";
+
+		//--------- DEMO END ---------
+
+		//ready
+		setTimeout(function(){
+			postState(1, {
+				size: {
+					height: (cardBody.getBoundingClientRect().height + "px")
+				}
+			});
+		}, 300);
+	</script>
+</body>
+</html>

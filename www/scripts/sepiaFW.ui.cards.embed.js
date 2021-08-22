@@ -2,10 +2,10 @@
 function sepiaFW_build_ui_cards_embed(){
 	var Embed = {};
 	
-	//TODO: add MediaPlayer
-	/*
-	- Controls: start, pause/stop, resume, next, previous
-	- Implement async. callback with msgId and timeout
+	//MediaPlayer
+	/* TODO:
+	- Test and finish controls: start, pause/stop, resume, next, previous, vol...
+	- Implement async. callback with msgId and timeout?
 	- Get media info and use SepiaFW.audio.setPlayerTitle('', '') + setMediaSessionState (SepiaFW.audio)
 	*/
 	var playerWidgets = {
@@ -13,16 +13,18 @@ function sepiaFW_build_ui_cards_embed(){
 		embedded: "<assist_server>/widgets/mp-default.html",
 		spotify: "<assist_server>/widgets/mp-spotify.html",
 		apple_music: "<assist_server>/widgets/mp-apple-music.html",
-		youtube: "<assist_server>/widgets/mp-youtube.html"
+		youtube: "<assist_server>/widgets/mp-youtube.html",
+		soundcloud: "<assist_server>/widgets/mp-soundcloud.html"
 	}
 
 	var activeMediaPlayers = {};
 	var lastActiveMediaPlayer = undefined;
+	var maxActiveMediaPlayers = 5; 		//NOTE: "active" does not mean "playing" but "exists" with event listeners
 
 	function getNewMediaPlayerId(){
 		mediaPlayerLastId++;
 		var overflow = false;
-		if (mediaPlayerLastId > 5){
+		if (mediaPlayerLastId > maxActiveMediaPlayers){
 			mediaPlayerLastId = 1;
 			overflow = true;
 		}
@@ -31,7 +33,7 @@ function sepiaFW_build_ui_cards_embed(){
 			//remove old players
 			var oldMp = activeMediaPlayers[newId];
 			if (oldMp && oldMp.exists()){
-				oldMp.release();
+				oldMp.cardItem.sepiaCardOnBeforeRemove();
 				$(oldMp.cardItem).remove();
 			}
 			//console.error("RELEASED and REMOVED", newId, activeMediaPlayers[newId]);		//DEBUG
@@ -69,6 +71,7 @@ function sepiaFW_build_ui_cards_embed(){
 			allowIframe = 'encrypted-media *;';
 		}
 		var iframe = document.createElement("iframe");
+		iframe.className = "cardItemBlock onlyBlock";
 		iframe.src = contentUrl;
 		iframe.width = "100%";
 		iframe.height = 50; 	//can be set via postMessage interface
@@ -79,7 +82,7 @@ function sepiaFW_build_ui_cards_embed(){
 		mediaPlayerDiv.appendChild(iframe);
 		//loading overlay
 		var loadOverlay = document.createElement('div');
-		loadOverlay.className = "cardItemOverlay";
+		loadOverlay.className = "cardItemOverlay cardItemBlock";
 		loadOverlay.innerHTML = "<p>Loading</p>";
 		mediaPlayerDiv.appendChild(loadOverlay);
 		return {
@@ -152,7 +155,7 @@ function sepiaFW_build_ui_cards_embed(){
 		//options
 		//required:	parentElement, widget or widgetUrl
 		//optional:	brand
-		//events: 	onready
+		//events: 	onready (NOTE: will trigger only once)
 
 		var thisPlayer = this;
 		//console.error("Embedded MediaPlayer", options);      //DEBUG
@@ -172,17 +175,27 @@ function sepiaFW_build_ui_cards_embed(){
 		//Widget URL
 		var widgetUrl = (options.widgetUrl || playerWidgets[options.widget]).trim();
 		widgetUrl = SepiaFW.config.replacePathTagWithActualPath(widgetUrl);
-		var widgetIsSameOrigin = SepiaFW.tools.isSameOrigin(widgetUrl);
-		var widgetIsSepiaFileHost = SepiaFW.config.urlIsSepiaFileHost(widgetUrl);
-		var widgetIsRemote = (widgetUrl.indexOf("http:") == 0) || (widgetUrl.indexOf("https:") == 0) || (widgetUrl.indexOf("ftp:") == 0);
-		var widgetIsTrusted = widgetIsSameOrigin || widgetIsSepiaFileHost || !widgetIsRemote;
+		//check URL - NOTE: currently we do not allow unknown URLs
+		var isValidLocalURL = SepiaFW.tools.isRelativeFileUrl(widgetUrl, "html");
+		var isTrustedRemoteUrl = SepiaFW.tools.isRemoteFileUrl(widgetUrl, "html") 
+			&& (SepiaFW.tools.isSameOrigin(widgetUrl) || SepiaFW.config.urlIsSepiaFileHost(widgetUrl));
+		var widgetIsTrusted = isValidLocalURL || isTrustedRemoteUrl;
+		if (!widgetIsTrusted){
+			SepiaFW.debug.error("WARNING: Widget URL has remote location and was BLOCKED due to security restrictions! - URL: " + widgetUrl);
+			SepiaFW.ui.showSafeWarningPopup("Warning", [
+				"SEPIA was asked to open a widget with an untrusted remote URL. The request has been blocked due to security restrictions.",
+				"If you want to use this widget please ask an admin to move it to a secure location (e.g. the SEPIA file server).",
+				"URL:"
+			], widgetUrl);
+			return;
+		}
 
 		//URL parameters (so we have the data during loading)
 		widgetUrl = SepiaFW.tools.setParameterInURL(widgetUrl, "skinStyle", SepiaFW.ui.getSkinStyle());
 		widgetUrl = SepiaFW.tools.setParameterInURL(widgetUrl, "skinId", SepiaFW.ui.getSkin());
-		//add more: language, isMobile, env, ...?
-		
-		console.error("Media Player URL", widgetUrl, "isTrusted", widgetIsTrusted);	//DEBUG
+		widgetUrl = SepiaFW.tools.setParameterInURL(widgetUrl, "lang", SepiaFW.config.appLanguage);
+		widgetUrl = SepiaFW.tools.setParameterInURL(widgetUrl, "mobile", SepiaFW.ui.isMobile);
+		SepiaFW.debug.info("Embedded MediaPlayer - Loading widget URL: " + widgetUrl);
 
 		//Create card (DOM element)
 		var mpObj = createMediaPlayerDomElement(playerId, widgetUrl, widgetIsTrusted, function(){
@@ -191,23 +204,25 @@ function sepiaFW_build_ui_cards_embed(){
 		});
 		thisPlayer.iframe = mpObj.iframe;
 		thisPlayer.cardItem = mpObj.card;
+		thisPlayer.overlay = mpObj.overlay;
 		thisPlayer.exists = function(){
 			var ex = thisPlayer.cardItem && document.body.contains(thisPlayer.cardItem);
-			if (!ex && state != 11){
-				thisPlayer.release();
-			}
+			/*if (!ex && state != 11){
+				thisPlayer.release();		//this should be used but it can lead to null pointer in sync. follow-up checks :-/
+			}*/
 			return ex;
 		}
 		options.parentElement.appendChild(mpObj.card);
 		
 		//Card move and delete actions
-		mpObj.card.sepiaCardOnBeforeMove = function(){
-			console.error("MOVE EVENT", playerId);		//DEBUG
-			//TODO: rescue state - anything else? (note: onready is a one-time event now)
+		thisPlayer.cardItem.sepiaCardOnBeforeMove = function(){
+			//TODO: no reliable way to call it atm (can we use MutationObserver? But on what parent?)
+			//console.error("BEFORE MOVE EVENT", playerId);		//DEBUG
+			//anything? (note: onready is a one-time event now, settings will restore automatically)
 		}
-		mpObj.card.sepiaCardOnBeforeRemove = function(){
-			//TODO: currently called nowhere
-			console.error("REMOVE EVENT", playerId);	//DEBUG
+		thisPlayer.cardItem.sepiaCardOnBeforeRemove = function(){
+			//TODO: no reliable way to call it atm (too many events: history clear, parent list remove, etc...)
+			//console.error("BEFORE REMOVE EVENT", playerId);	//DEBUG
 			thisPlayer.release();
 		}
 
@@ -238,7 +253,13 @@ function sepiaFW_build_ui_cards_embed(){
 			if (ev.state != undefined){
 				stateHandler(ev);
 			}
+			if (ev.settings){
+				widgetSettings = ev.settings;
+			}
 		}
+
+		//Settings backup
+		var widgetSettings;		//settings specific to widget that will be submitted e.g. after move or reload
 
 		//States
 		var state = 0;	//0: created, 1: ready, 2: playing, 3: paused, 10: error, 11: closed
@@ -248,34 +269,42 @@ function sepiaFW_build_ui_cards_embed(){
 
 		function stateHandler(ev){
 			var data = ev.data || {};
+			
+			//on-ready
 			if (ev.state == 1){
-				//on-ready
 				state = ev.state;
 				if (data.size && data.size.height){
 					thisPlayer.iframe.style.height = data.size.height;
 				}
-				setTimeout(function(){ $(mpObj.overlay).hide(); }, 500);
+				setTimeout(function(){ $(thisPlayer.overlay).hide(); }, 500);
+				//settings stored?
+				if (widgetSettings){
+					thisPlayer.restoreSettings(widgetSettings);
+				}
 				//callback (only once)
 				if (options.onready){
 					options.onready();
 					options.onready = undefined;
 				}
 
+			//on-play
 			}else if (ev.state == 2){
-				//on-play
 				state = ev.state;
 				SepiaFW.audio.broadcastAudioEvent("embedded-media-player", "start");
-				lastActiveMediaPlayer = thisPlayer;		//TODO: use?
+				lastActiveMediaPlayer = thisPlayer;
 				SepiaFW.debug.info("Embedded MediaPlayer - Last active player switched to: " + playerId);
 				//Embed.stopAllMediaPlayers(thisPlayer)	//this should be handled globally for ALL media
+				if (ev.data && ev.data.meta){
+					console.error("META", ev.data.meta);		//DEBUG
+				}
 
+			//on-pause
 			}else if (ev.state == 3){
-				//on-pause
 				state = ev.state;
 				SepiaFW.audio.broadcastAudioEvent("embedded-media-player", "pause");
 			
+			//on-error
 			}else if (ev.state == 10){
-				//on-error
 				var lastWasError = (state == 10);
 				state = ev.state;
 				//ev.code-ev.name: 1-UnknownEvent, 2-NoMediaMatch, 3-PlayerErrorNotAllowed, 4-PlayerError (any), ... tbd
@@ -292,6 +321,8 @@ function sepiaFW_build_ui_cards_embed(){
 				}
 				SepiaFW.debug.error("Embedded MediaPlayer - Error:", ev.name, ev.message, ev.code);
 				SepiaFW.audio.broadcastAudioEvent("embedded-media-player", "error");
+			
+			//other
 			}else{
 				SepiaFW.debug.error("Embedded MediaPlayer - Unknown state: " + ev.state);
 				return;
@@ -326,7 +357,7 @@ function sepiaFW_build_ui_cards_embed(){
 			//include 'isOnHold'? (atm we don't check this for internal player)
 		}
 
-		//Controls - TODO: implement callbacks?! more?
+		//Controls
 		thisPlayer.play = function(doneCallback, errorCallback){
 			sendEvent({controls: "play"});
 			isWaitingForPlay = true;
@@ -334,6 +365,7 @@ function sepiaFW_build_ui_cards_embed(){
 		thisPlayer.pause = function(doneCallback, errorCallback){
 			sendEvent({controls: "pause"});
 			isWaitingForPause = true;
+			isWaitingForPlay = false;
 			isOnHold = false;
 		}
 		thisPlayer.fadeOut = function(doneCallback, errorCallback){
@@ -351,6 +383,7 @@ function sepiaFW_build_ui_cards_embed(){
 		thisPlayer.next = function(doneCallback, errorCallback){
 			sendEvent({controls: "next"});
 		}
+		//TODO: implement callbacks?! more?
 		thisPlayer.previous = function(doneCallback, errorCallback){
 			sendEvent({controls: "previous"});
 		}
@@ -360,6 +393,7 @@ function sepiaFW_build_ui_cards_embed(){
 		thisPlayer.volumeDown = function(doneCallback, errorCallback){
 			sendEvent({controls: "volumeDown"});
 		}
+
 		//Content
 		thisPlayer.mediaRequest = function(type, request, autoplay, safeRequest, doneCallback, errorCallback){
 			SepiaFW.audio.broadcastAudioEvent("embedded-media-player", "prepare");
@@ -381,10 +415,22 @@ function sepiaFW_build_ui_cards_embed(){
 				safeRequest: safeRequest 	//came from assistant or private channel?
 			});
 		}
+		//Settings
+		thisPlayer.restoreSettings = function(data){
+			sendEvent({
+				settings: data
+			});
+		}
 
-		//stop, release resources and remove handle
+		//Specials
+		thisPlayer.openInExternalPage = function(){
+			//TODO: implement
+			SepiaFW.ui.showPopup(SepiaFW.local.g("cant_execute") + " (Coming Soon)");
+		}
+
+		//Release resources and remove handler
 		thisPlayer.release = function(doneCallback, errorCallback){
-			// - remove from active players, block incoming events
+			//remove from active players, block incoming events
 			state = 11;
 			if (lastActiveMediaPlayer == thisPlayer) lastActiveMediaPlayer = undefined;
 			delete activeMediaPlayers[playerId];
