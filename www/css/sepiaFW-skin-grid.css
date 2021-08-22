@@ -283,7 +283,7 @@ html.landscape-small #sepiaFW-chat-controls-right {
 	border-left-width: 2px;
 }
 #sepiaFW-chat-output article.chatMe.chatPm{
-	border-left-color: rgba(255, 0, 0, 1.0);
+	border-left-color: #ceff1a;
 	border-left-width: 2px;
 }
 #sepiaFW-chat-output article.chatOther.chatPm{
@@ -381,11 +381,15 @@ html.landscape-small #sepiaFW-chat-controls-right {
 .sepiaFW-cards-list-body .timeEvent > div,
 .sepiaFW-cards-list-body .radioStation > div,
 .sepiaFW-cards-list-body .weatherNowSmall > div,
-.sepiaFW-cards-list-body .linkCard > div {
+.sepiaFW-cards-list-body .linkCard > div,
+.dark-skin .sepiaFW-cards-list-body .fullWidthItem .cardItemBlock {
     background: rgba(20, 163, 187, 0.66);
     color: #fff !important;
     box-shadow: 0 0 5px #15abc3;
 	border: 1px solid #15abc3;
+}
+.dark-skin .sepiaFW-cards-flexSize-container .cardBodyItem.fullWidthItem .cardItemOverlay {
+	background: rgba(20, 163, 187, 1.0);
 }
 
 /*----- Frames ----- */

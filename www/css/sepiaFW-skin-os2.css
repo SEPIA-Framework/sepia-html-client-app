@@ -221,9 +221,13 @@ html.landscape-small #sepiaFW-chat-controls {
 .sepiaFW-cards-list-body .cardBodyItem .itemRight,
 .sepiaFW-cards-list-body .cardBodyItem .newsCenter,
 .sepiaFW-cards-list-body .weatherNowSmall > div,
-.sepiaFW-cards-list-body .weatherNowDetails li {
+.sepiaFW-cards-list-body .weatherNowDetails li,
+.sepiaFW-cards-list-body .fullWidthItem .cardItemBlock {
 	background: linear-gradient(130deg, #fde6cb 0%, #f8ead9 100%);
 	color: #000;
+	border-radius: 0;
+}
+.sepiaFW-cards-flexSize-container .cardBodyItem.fullWidthItem .cardItemOverlay {
 	border-radius: 0;
 }
 
@@ -258,6 +262,17 @@ html.landscape-small #sepiaFW-chat-controls {
 .sepiaFW-cards-list-body .cardBodyItem:not(.listElement) .itemCenter {
 	margin: 5px 3px 0 3px;
 	flex: 1;
+}
+.sepiaFW-cards-list-body .cardBodyItem.fullWidthItem {
+    padding: 3px 5px 0 5px;
+}
+.sepiaFW-cards-list-body .cardBodyItem.fullWidthItem .cardItemOverlay {
+    top: 3px;
+    height: calc(100% - 3px);
+}
+.sepiaFW-cards-list-body.sepiaFW-embedded-player-container {
+    padding-bottom: 0;
+    padding-top: 2px;
 }
 .sepiaFW-cards-list-body .cardBodyItem.linkCard .itemCenter {
 	margin: 5px -2px 0 -2px;

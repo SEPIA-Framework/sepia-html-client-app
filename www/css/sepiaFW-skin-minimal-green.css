@@ -63,8 +63,15 @@
     border-radius: 0 !important;
 }
 .sepiaFW-cards-list-body > div > div {
-    background: #191b19 !important;
+    background: #161816 !important;
     color: #eeeeee;
+    border: 1px solid #172117;
+}
+.dark-skin .sepiaFW-cards-list-body .fullWidthItem .cardItemBlock {
+    background: #161816;
+    color: #eeeeee;
+    border: 1px solid #172117;
+    border-radius: 0;
 }
 
 .sepiaFW-cards-list-title {

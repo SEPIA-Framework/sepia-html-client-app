@@ -231,7 +231,7 @@ html.landscape-small #sepiaFW-chat-controls-right {
 	background-color: rgba(205, 52, 214, 0.55);
 }
 
-#sepiaFW-nav-label-note{
+#sepiaFW-nav-label-note {
     border: 1px solid #ff1af6;
 }
 
@@ -251,21 +251,21 @@ html.landscape-small #sepiaFW-chat-controls-right {
 	color: #ffffff;
 	text-shadow: 0px 0px 2px #ffffff;
 }
-#sepiaFW-chat-output article:not(.statusUpdate) span{
+#sepiaFW-chat-output article:not(.statusUpdate) span {
 	color: #FFEB3B;
 }
-#sepiaFW-chat-output article.chatMe{
+#sepiaFW-chat-output article.chatMe {
 	margin: 2px 6px 2px 30px;
 	background: rgba(148, 41, 129, 0.75);
 	color: #fff;
 	box-shadow: 0 0 5px #ff1af6;
 	border-color: #ff1af6;
 }
-#sepiaFW-chat-output article.chatMe b{
+#sepiaFW-chat-output article.chatMe b {
 	color: #eee;
 	text-shadow: 0px 0px 2px #ff1af6;
 }
-#sepiaFW-chat-output article.chatMe span{
+#sepiaFW-chat-output article.chatMe span {
 	color: #ff1af6;
 }
 #sepiaFW-chat-output article.chatAssistant {
@@ -274,22 +274,23 @@ html.landscape-small #sepiaFW-chat-controls-right {
 	box-shadow: 0 0 5px #03b0f4;
 	border-color: #03b0f4;
 }
-#sepiaFW-chat-output article.chatAssistant b{
+#sepiaFW-chat-output article.chatAssistant b {
 	color: #eee;
 	text-shadow: 0px 0px 2px #9fd4ff;
 }
-#sepiaFW-chat-output article.chatAssistant span{
+#sepiaFW-chat-output article.chatAssistant span {
 	color: #03b0f4;
 }
-#sepiaFW-chat-output article.chatAssistant.chatPm{
+#sepiaFW-chat-output article.chatAssistant.chatPm {
 	border-left-color: #ff1af6;
+	/*border-left-color: #23b6f9;*/
 	border-left-width: 2px;
 }
-#sepiaFW-chat-output article.chatMe.chatPm{
-	border-left-color: rgba(255, 0, 0, 1.0);
+#sepiaFW-chat-output article.chatMe.chatPm {
+	border-left-color: #e136f4;
 	border-left-width: 2px;
 }
-#sepiaFW-chat-output article.chatOther.chatPm{
+#sepiaFW-chat-output article.chatOther.chatPm {
 	border-left-color: rgba(255, 0, 0, 1.0);
 	border-left-width: 2px;
 }
@@ -382,11 +383,15 @@ html.landscape-small #sepiaFW-chat-controls-right {
 .sepiaFW-cards-list-body .timeEvent > div,
 .sepiaFW-cards-list-body .radioStation > div,
 .sepiaFW-cards-list-body .weatherNowSmall > div,
-.sepiaFW-cards-list-body .linkCard > div {
+.sepiaFW-cards-list-body .linkCard > div,
+.dark-skin .sepiaFW-cards-list-body .fullWidthItem .cardItemBlock {
     background: rgba(217, 188, 27, 0.66);
     color: #fff !important;
     box-shadow: 0 0 5px #FFEB3B;
     border: 1px solid #FFEB3B;
+}
+.dark-skin .sepiaFW-cards-flexSize-container .cardBodyItem.fullWidthItem .cardItemOverlay {
+	background: rgba(217, 188, 27, 1.0);
 }
 .sepiaFW-cards-list-body .weatherNowSmall .weatherNowSmallImage {
 	background: rgba(217, 188, 27, 0.66);

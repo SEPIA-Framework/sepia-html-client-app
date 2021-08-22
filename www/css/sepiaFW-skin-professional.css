@@ -256,7 +256,8 @@ html {
 	border-radius: 0 !important;
 	box-shadow: 0px 2px 4px 0px rgba(0,0,0,0.4);
 }
-.sepiaFW-cards-flexSize-container div {
+.sepiaFW-cards-flexSize-container div,
+.sepiaFW-cards-list-body .cardItemBlock {
 	border-radius: 0 !important;
 }
 
@@ -295,6 +296,11 @@ html {
 }
 .sepiaFW-cards-list-body .weatherNowSmall .weatherNowSmallImage {
 	background: #217346;
+}
+
+.dark-skin .sepiaFW-cards-list-body .fullWidthItem .cardItemBlock {
+    background: #ececed;
+    color: #222;
 }
 
 /*----- teachUI -----*/

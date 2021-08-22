@@ -320,6 +320,10 @@ html.landscape-small #sepiaFW-main-output-carousel .sepiaFW-carousel-pane {
 	color: #eeeeee;
 	/*border-left-color: #19191b !important;*/
 }
+.dark-skin .sepiaFW-cards-list-body .fullWidthItem .cardItemBlock {
+	background: #000;
+	color: #eeeeee;
+}
 .sepiaFW-cards-list-body .listElement .checked {
     background: #e8e8e8 !important;
 }

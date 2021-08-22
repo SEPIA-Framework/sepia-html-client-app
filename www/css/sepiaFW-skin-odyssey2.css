@@ -229,7 +229,8 @@ html {
 	border-radius: 0;
 }
 
-.sepiaFW-cards-list-body div {
+.sepiaFW-cards-list-body div,
+.sepiaFW-cards-list-body .cardItemBlock {
     border-radius: 0 !important;
 }
 

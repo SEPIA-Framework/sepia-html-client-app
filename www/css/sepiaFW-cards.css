@@ -337,12 +337,41 @@
 /* --- Common --- */
 
 .sepiaFW-cards-list-body .fullWidthItem {
-	width: 100%;
+	position: relative;
+	margin: 0 -2.5px;
+    width: calc(100% + 5px);
     padding: 5px 5px 0 5px;
     display: flex;
     justify-content: center;
     align-items: center;
     align-content: center;
+}
+.sepiaFW-cards-list-body .fullWidthItem .cardItemBlock {
+	border-radius: 3px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	flex: 1 1 auto;
+	margin: 0 2.5px;
+	padding: 0;
+	background: #fcfcfc;
+    color: #000;
+}
+.dark-skin .sepiaFW-cards-list-body .fullWidthItem .cardItemBlock {
+	background: #212327;
+    color: #eee;
+}
+.sepiaFW-cards-flexSize-container .cardBodyItem.fullWidthItem .cardItemOverlay {
+	position: absolute;
+	border-radius: 2px;
+	top: 5px;
+	left: 7.5px;
+	margin: 0;
+    width: calc(100% - 15px);
+	height: calc(100% - 5px);
+}
+.sepiaFW-cards-flexSize-container .cardBodyItem.fullWidthItem .cardItemOverlay p {
+	animation: sepiaFW-animation-blink 3s infinite;
 }
 
 /* --- Radio --- */
@@ -414,35 +443,11 @@
 .sepiaFW-cards-flexSize-container.sepia-embedded-player-card {
 	margin-bottom: 10px;
 }
-.sepiaFW-cards-flexSize-container .cardBodyItem.embeddedWebPlayer {
-	position: relative;
-}
 .sepiaFW-cards-flexSize-container .cardBodyItem.embeddedWebPlayer iframe {
 	border: 0;
-	border-radius: 3px;
 	transition: height .3s;
-}
-.sepiaFW-cards-flexSize-container .cardBodyItem.embeddedWebPlayer .cardItemOverlay {
-	position: absolute;
-	top: 0;
-	left: 0;
-	width: 100%;
-	height: 100%;
-	margin: 5px 5px 0 5px;
-    width: calc(100% - 10px);
-    height: calc(100% - 5px);
-	background: #dfdfdf;
-	color: #000;
-	display: flex;
-	justify-content: center;
-	align-items: center;
-}
-.dark-skin .sepiaFW-cards-flexSize-container .cardBodyItem.embeddedWebPlayer .cardItemOverlay {
-	background: #212327;
-    color: #eee;
-}
-.sepiaFW-cards-flexSize-container .cardBodyItem.embeddedWebPlayer .cardItemOverlay p {
-	animation: sepiaFW-animation-blink 3s infinite;
+	box-sizing: content-box;
+	padding: 0;
 }
 
 /* --- Time events --- */
@@ -725,15 +730,14 @@
 }
 .sepiaFW-cards-list-body .linkCard .linkCardCenter {
 	display: flex;
+	align-items: center;
+    justify-content: center;
     flex-direction: column;
 	/*width: calc(100% - 80px);*/
 	flex: 1 1 auto;
 	/*max-width: 120px;*/
 	margin: 5px 0px 0px 0px;
 	padding: 2px 8px 2px 8px;
-	display: flex;
-    align-items: center;
-    justify-content: center;
 	font-size: 14px;
 	text-align: center;
 	cursor: pointer;

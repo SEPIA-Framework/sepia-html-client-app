@@ -539,6 +539,15 @@ html.landscape-small #sepiaFW-assist-btn-area {
     color: #111111;
 }
 
+.dark-skin .sepiaFW-cards-list-body .fullWidthItem .cardItemBlock {
+    background: #212121;
+    color: #f4f4f4;
+    border-radius: 14px;
+}
+.dark-skin .sepiaFW-cards-list-body .fullWidthItem .cardItemBlock.cardItemOverlay {
+	border-radius: 13px;
+}
+
 /*----- Tiny style -----*/
 
 .sepiaFW-tiny-app #sepiaFW-login-box {

@@ -95,6 +95,11 @@ html {
 #sepiaFW-chat-output article.chatAssistant span {
 	color: #eee;
 }
+#sepiaFW-chat-output article.chatPm,
+#sepiaFW-chat-output article.chatMe.chatPm,
+#sepiaFW-chat-output article.chatAssistant.chatPm {
+	border-left-color: rgb(42, 43, 44);
+}
 
 #sepiaFW-main-window .chat-buttons-area button,
 #sepiaFW-main-window .chat-buttons-area .my-view-custom-button,
@@ -122,12 +127,16 @@ html {
 .sepiaFW-cards-list-body .newsArticle > div,
 .sepiaFW-cards-list-body .listElement div,
 .sepiaFW-cards-list-body .listElement .listRight,
+.dark-skin .sepiaFW-cards-list-body .fullWidthItem .cardItemBlock,
 .sepiaFW-cards-list-title,
 .sepiaFW-cards-list-footer {
 	border: 1px solid rgb(42, 43, 44);
 	background: rgba(36, 41, 43, 0.42);
     box-shadow: 1px 1px 8px 0 rgba(0, 0, 0, 0.30), 1px 1px 2px 0 rgba(0, 0, 0, 0.60);
 	color: #eee;
+}
+.dark-skin .sepiaFW-cards-flexSize-container .cardBodyItem.fullWidthItem .cardItemOverlay {
+	background: rgb(24, 25, 28);
 }
 .sepiaFW-cards-list-title.newsHeader {
 	border: 0 !important;

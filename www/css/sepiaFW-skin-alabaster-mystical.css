@@ -177,11 +177,13 @@ html.landscape-small #sepiaFW-chat-controls {
 
 #sepiaFW-chat-output article {
 	border: 1px solid rgb(245, 245, 245);
-	border-left-color: unset !important;
     background: rgba(250, 250, 250, 0.60);
 	color: #000;
 	padding-left: 9px;
 	box-shadow: 1px 1px 12px 0 rgba(0, 0, 0, 0.08), 1px 1px 2px 0 rgba(0, 0, 0, 0.12);
+}
+#sepiaFW-chat-output article.chatPm {
+	border-left-color: rgb(245, 245, 245);
 }
 #sepiaFW-chat-output article b,
 #sepiaFW-chat-output article.chatMe b,
@@ -199,11 +201,17 @@ html.landscape-small #sepiaFW-chat-controls {
     background: rgba(255, 240, 255, 0.4);
 	color: #000;
 }
+#sepiaFW-chat-output article.chatMe.chatPm {
+	border-left-color: rgb(244, 236, 245);
+}
 
 #sepiaFW-chat-output article.chatAssistant {
 	border: 1px solid rgb(238, 238, 245);
     background: rgba(243, 248, 255, 0.40);
     color: #000;
+}
+#sepiaFW-chat-output article.chatAssistant.chatPm {
+	border-left-color: rgb(238, 238, 245);
 }
 
 #sepiaFW-chat-output article.statusUpdate {
@@ -278,6 +286,7 @@ html.landscape-small #sepiaFW-chat-controls {
 .sepiaFW-cards-list-body .newsArticle > div,
 .sepiaFW-cards-list-body .listElement div,
 .sepiaFW-cards-list-body .listElement .listRight,
+.sepiaFW-cards-list-body .fullWidthItem .cardItemBlock,
 .sepiaFW-cards-list-title,
 .sepiaFW-cards-list-title.newsHeader,
 .sepiaFW-cards-list-footer {
@@ -285,6 +294,9 @@ html.landscape-small #sepiaFW-chat-controls {
     background: rgba(250, 250, 250, 0.60);
 	box-shadow: 1px 1px 12px 0 rgba(0, 0, 0, 0.08), 1px 1px 2px 0 rgba(0, 0, 0, 0.12);
 	color: #000;
+}
+.sepiaFW-cards-flexSize-container .cardBodyItem.fullWidthItem .cardItemOverlay {
+	background: #eaecf5;
 }
 .sepiaFW-cards-list-body .newsArticle .newsCenter {
     background: rgba(250, 250, 250, 0.60);

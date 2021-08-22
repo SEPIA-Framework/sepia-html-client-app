@@ -322,9 +322,13 @@ html {
 .sepiaFW-cards-list-body .radioStation > div,
 .sepiaFW-cards-list-body .weatherNowSmall > div,
 .sepiaFW-cards-list-body .linkCard > div,
-.sepiaFW-cards-list-body .newsArticle > div {
+.sepiaFW-cards-list-body .newsArticle > div,
+.sepiaFW-cards-list-body .fullWidthItem .cardItemBlock {
 	border: 1px solid #e5e5e5;
 	/*backdrop-filter: blur(5px);*/
+}
+.sepiaFW-cards-flexSize-container .cardBodyItem.embeddedWebPlayer iframe {
+	border: 1px solid #e5e5e5;
 }
 
 .sepiaFW-cards-list-body .weatherNowSmall .weatherNowSmallImage {
