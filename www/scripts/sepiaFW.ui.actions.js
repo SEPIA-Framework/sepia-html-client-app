@@ -230,15 +230,41 @@ function sepiaFW_build_ui_actions(){
 	var inAppBrowserOptions = 'location=yes,toolbar=yes,mediaPlaybackRequiresUserAction=yes,allowInlineMediaPlayback=yes,hardwareback=yes,disableswipenavigation=no,clearsessioncache=no,clearcache=no';
 	Actions.openUrlAutoTarget = function(url, forceExternal){
 		if (!url) return;
-		var urlLower = url.toLowerCase();
+
+		//tiny and headless do not support URL action
 		if (SepiaFW.ui.isTinyApp || SepiaFW.ui.isHeadless){
 			//Tiny and headless apps usually have no ability to open in-app browser
 			SepiaFW.assistant.waitForOpportunityAndSay("<error_client_support_0a>", function(){
 				//Fallback after max-wait:
 				SepiaFW.ui.showInfo(SepiaFW.local.g('no_client_support'));
 			}, 2000, 30000);    //min-wait, max-wait
-			
-		}else if (SepiaFW.ui.isCordova){
+			return;
+		}
+
+		//check URL vor sanity (at least a bit)
+		var hasValidUrlProtocol = SepiaFW.tools.urlHasValidProtocol(url);
+		if (!hasValidUrlProtocol){
+			var question = document.createElement("div");
+			var p = document.createElement("p");
+			p.textContent = "Open URL:";
+			question.appendChild(p);
+			var unsafeContent = document.createElement("textarea");
+			unsafeContent.textContent = url;
+			question.appendChild(unsafeContent);
+			SepiaFW.ui.askForPermissionToExecute(question, function(){
+				//open
+				openUrlAutoTargetFun(url, forceExternal);
+			}, function(){
+				SepiaFW.debug.error("Action - 'openUrlAutoTarget' blocked due to suspicious URL: " + url);
+			});
+		}else{
+			//open
+			openUrlAutoTargetFun(url, forceExternal);
+		}
+	}
+	function openUrlAutoTargetFun(url, forceExternal){
+		var urlLower = url.toLowerCase();
+		if (SepiaFW.ui.isCordova){
 			if (forceExternal 
 				|| (urlLower.indexOf('http') !== 0 && !!urlLower.match(/^\w+:/)) 		//TODO: keep an eye on this! Does it prevent some cool URL scheme features?
 				|| urlLower.indexOf('https://maps.') === 0 || urlLower.indexOf('http://maps.') === 0

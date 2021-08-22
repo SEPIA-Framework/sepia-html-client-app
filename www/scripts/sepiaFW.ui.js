@@ -1437,6 +1437,35 @@ function sepiaFW_build_ui(){
 		messagePopupAutoActionTry = 0;
 	}
 
+	//Show warning
+	UI.showSafeWarningPopup = function(headerText, infoTextParagraphs, unsafeString){
+		var content = document.createElement("div");
+		var header = document.createElement("h3");
+		header.className = "warn-text";
+		header.textContent = headerText || "Warning";
+		content.appendChild(header);
+		var info = [];
+		if (typeof infoTextParagraphs == "string"){
+			info.push(infoTextParagraphs);
+		}else if (typeof infoTextParagraphs == "object" && infoTextParagraphs instanceof Node){
+			content.appendChild(infoTextParagraphs);
+			info = undefined;
+		}else{
+			info = infoTextParagraphs;
+		}
+		if (info && info.length) info.forEach(function(it){
+			var p = document.createElement("p");
+			p.textContent = it || "";
+			content.appendChild(p);
+		});
+		if (unsafeString){
+			var unsafeContent = document.createElement("textarea");
+			unsafeContent.textContent = unsafeString;
+			content.appendChild(unsafeContent);
+		}
+		SepiaFW.ui.showPopup(content);
+	}
+
 	//Create basic input popup
 	UI.showInputPopup = function(infoContent, inputLabel, 
 			inputCallback, abortCallback, buttonLabel1, buttonLabel2){
@@ -1485,8 +1514,17 @@ function sepiaFW_build_ui(){
 
 	//Use pop-up to ask for permission
 	UI.askForPermissionToExecute = function(question, allowedCallback, refusedCallback){
-		var request = SepiaFW.local.g('allowedToExecuteThisCommand') + "<br>" + question;
-		UI.showPopup(request, {
+		var content;
+		if (typeof question == "object" && question instanceof Node){
+			var content = document.createElement("div");
+			var p = document.createElement("p");
+			p.textContent = SepiaFW.local.g('allowedToExecuteThisCommand');
+			content.appendChild(p);
+			content.appendChild(question);
+		}else{
+			content = SepiaFW.local.g('allowedToExecuteThisCommand') + "<br>" + question;
+		}
+		UI.showPopup(content, {
 			buttonOneName: SepiaFW.local.g('looksGood'),
 			buttonOneAction: function(){
 				//yes

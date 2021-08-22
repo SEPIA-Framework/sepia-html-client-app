@@ -177,6 +177,7 @@ html.landscape-small #sepiaFW-chat-controls {
 
 #sepiaFW-chat-output article {
 	border: 1px solid rgb(245, 245, 245);
+	border-left-color: unset !important;
     background: rgba(250, 250, 250, 0.60);
 	color: #000;
 	padding-left: 9px;

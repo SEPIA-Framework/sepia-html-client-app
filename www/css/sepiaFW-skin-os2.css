@@ -169,7 +169,7 @@ html.landscape-small #sepiaFW-chat-controls {
 }
 #sepiaFW-chat-output article.chatAssistant.chatPm {
 	/*border-left-color: rgba(243, 214, 104, 0.82);*/
-	border-left-color: #f4dbc4;
+	border-left-color: #f3d4b9;
 }
 #sepiaFW-chat-output article.chatMe {
 	background: linear-gradient(130deg, #d1d1d1 0%, #e2e2e2 80%, #d1d1d1 100%);

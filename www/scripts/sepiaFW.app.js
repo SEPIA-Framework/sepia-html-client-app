@@ -375,12 +375,37 @@ function sepiaFW_build_tools(){
 
 	//URL is same origin?
 	Tools.isSameOrigin = function(uri1, uri2){
-		uri1 = new URL(uri1);
-		uri2 = new URL(uri2 || window.location.href);
-		if(uri1.host !== uri2.host) return false;
-		if(uri1.port !== uri2.port) return false;
-		if(uri1.protocol !== uri2.protocol) return false;
-		return true;
+		try {
+			uri1 = new URL(uri1);
+			uri2 = new URL(uri2 || window.location.href);
+			if(uri1.host !== uri2.host) return false;
+			if(uri1.port !== uri2.port) return false;
+			if(uri1.protocol !== uri2.protocol) return false;
+			return true;
+		}catch(error){
+			return false;	
+		}
+	}
+	//URL is remote file
+	Tools.isRemoteFileUrl = function(url, fileEnding){
+		if (!url) return false;
+		else url = url.trim().toLowerCase().replace(/\?.*/, "");
+		if (!url.match(/\.[a-z0-9]+$/)) return false;
+		if (fileEnding && url.split(".").pop() != fileEnding.toLowerCase()) return false;
+		return (url.indexOf("http:") == 0) || (url.indexOf("https:") == 0) || (url.indexOf("ftp:") == 0);
+	}
+	//URL is local file
+	Tools.isRelativeFileUrl = function(url, fileEnding){
+		if (!url) return false;
+		else url = url.trim().replace(/\?.*/, "");
+		if (fileEnding && url.toLowerCase().split(".").pop() != fileEnding.toLowerCase()) return false;
+		return (!!url.match(/^[-+%a-zA-Z0-9_\/]*\.[a-zA-Z0-9]+$/));
+	}
+	//URL has valid protocol
+	Tools.urlHasValidProtocol = function(url){
+		if (!url) return false;
+		else url = url.toLowerCase().trim();
+		return (!!url.match(/^[a-z][-a-z0-9_]*:/) && !url.match(/^(javascript|data):/));
 	}
 	
 	//get URL parameters

@@ -335,6 +335,13 @@ body.limit-size {
 	display: flex;
     flex-direction: column;
 }
+.sepiaFW-input-popup .warn-text {
+	color: #f00;
+}
+.sepiaFW-input-popup h3.warn-text {
+	width: 100%;
+	text-align: center;
+}
 .sepiaFW-input-popup div {
 	margin-bottom: 12px;
 }

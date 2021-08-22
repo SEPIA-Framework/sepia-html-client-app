@@ -157,22 +157,20 @@ function sepiaFW_build_frames(){
 	Frames.setup = function(info, finishCallback){
 		//get HTML - is there a language dependent version?
 		var framePage = Frames.getLocalOrDefaultPage(info.pageUrl, SepiaFW.config.appLanguage).trim();
-		var isRemote = (framePage.indexOf("http:") == 0) || (framePage.indexOf("https:") == 0) || (framePage.indexOf("ftp:") == 0);
-		if (isRemote){
-			var isSameOrigin = SepiaFW.tools.isSameOrigin(framePage);
-			var isSepiaFileHost = SepiaFW.config.urlIsSepiaFileHost(framePage);
-			if (isSameOrigin || isSepiaFileHost) isRemote = false;
-		}
+		var isValidLocalURL = SepiaFW.tools.isRelativeFileUrl(framePage, "html");
+		var isTrustedRemoteUrl = SepiaFW.tools.isRemoteFileUrl(framePage, "html") 
+			&& (SepiaFW.tools.isSameOrigin(framePage) || SepiaFW.config.urlIsSepiaFileHost(framePage));
+		var isTrusted = isValidLocalURL || isTrustedRemoteUrl;
 
 		//$.get(framePage, function(frameHtml){
         SepiaFW.files.fetch(framePage, function(frameHtml){
-			if (isRemote){
+			if (!isTrusted){
 				SepiaFW.debug.error("WARNING: Frame page has remote location and was BLOCKED due to security restrictions! - URL: " + framePage);
-				SepiaFW.ui.showPopup("<h3 style='color:#f00; width:100%; text-align: center;'>Warning</h3>" 
-					+ "<p>SEPIA was asked to open a remote URL in a custom view (frame). The request has been blocked due to security restrictions.</p>" 
-					+ "<p>URL: " + framePage + "</p>"
-					+ "<p>If you want to use this view please ask an admin to move it to a secure location (e.g. the SEPIA file server).</p>"
-				);
+				SepiaFW.ui.showSafeWarningPopup("Warning", [
+					"SEPIA was asked to open a remote URL in a custom view (frame). The request has been blocked due to security restrictions.",
+					"If you want to use this view please ask an admin to move it to a secure location (e.g. the SEPIA file server).",
+					"URL:"
+				], framePage);
 				Frames.close();
 				return;
 			}else{
