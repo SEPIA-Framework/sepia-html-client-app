@@ -1278,7 +1278,7 @@ function sepiaFW_build_ui_cards(){
 		var rightElement = "<div class='itemRight linkCardRight'><a href='' target='_blank' rel='noopener'><i class='material-icons md-mnu'>&#xE895;</i></a></div>";
 		linkCardEle.innerHTML = leftElement
 				+ SepiaFW.tools.sanitizeHtml("<div class='itemCenter linkCardCenter'>" 
-					+ (data.title? ("<h3>" + data.title + "</h3>") : ("")) + "<p>" + description + "</p></div>")
+					+ (data.title? ("<h3>" + data.title + "</h3>") : ("")) + (description? ("<p>" + description + "</p></div>") : ""))
 				+ rightElement;
 		linkCardEle.title = linkUrl || data.title;
 		//linkCardEle.setAttribute('data-element', JSON.stringify(cardElementInfo));
@@ -1311,7 +1311,7 @@ function sepiaFW_build_ui_cards(){
 			SepiaFW.ui.onclick($(linkCardEle).find('.linkCardRight')[0], function(event){
 				event.preventDefault();
 				if (embedWebPlayer && typeInfo.mediaPlayer){
-					typeInfo.mediaPlayer.openInExternalPage();
+					typeInfo.mediaPlayer.openInExternalPage(linkUrl);
 				}else if (linkUrl){
 					SepiaFW.ui.actions.openUrlAutoTarget(linkUrl, true);
 				}else{

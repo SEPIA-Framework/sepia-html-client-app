@@ -748,6 +748,9 @@
 	font-size: 15px;
 	max-width: 100%;
 }
+.sepiaFW-cards-list-body .linkCard .linkCardCenter h3:only-child {
+	margin: 5px;
+}
 .sepiaFW-cards-list-body .linkCard .linkCardCenter p {
 	word-wrap: break-word;
 	max-width: 100%;

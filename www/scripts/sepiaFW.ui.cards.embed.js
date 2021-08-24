@@ -423,9 +423,13 @@ function sepiaFW_build_ui_cards_embed(){
 		}
 
 		//Specials
-		thisPlayer.openInExternalPage = function(){
+		thisPlayer.openInExternalPage = function(givenUrl){
 			//TODO: implement
-			SepiaFW.ui.showPopup(SepiaFW.local.g("cant_execute") + " (Coming Soon)");
+			if (givenUrl){
+				SepiaFW.ui.actions.openUrlAutoTarget(givenUrl, true);
+			}else{
+				SepiaFW.ui.showPopup(SepiaFW.local.g("cant_execute") + " (Coming Soon)");
+			}
 		}
 
 		//Release resources and remove handler
