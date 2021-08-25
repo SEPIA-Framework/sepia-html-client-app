@@ -295,6 +295,7 @@ function sepiaFW_build_ui_cards_embed(){
 				SepiaFW.debug.info("Embedded MediaPlayer - Last active player switched to: " + playerId);
 				//Embed.stopAllMediaPlayers(thisPlayer)	//this should be handled globally for ALL media
 				if (ev.data && ev.data.meta){
+					//TODO: store (e.g.: for URL open action), use (e.g.: for audio player title)
 					console.error("META", ev.data.meta);		//DEBUG
 				}
 
@@ -423,10 +424,10 @@ function sepiaFW_build_ui_cards_embed(){
 		}
 
 		//Specials
-		thisPlayer.openInExternalPage = function(givenUrl){
-			//TODO: implement
-			if (givenUrl){
-				SepiaFW.ui.actions.openUrlAutoTarget(givenUrl, true);
+		thisPlayer.openInExternalPage = function(initialUrl){
+			//TODO: implement - use META to update URL
+			if (initialUrl){
+				SepiaFW.ui.actions.openUrlAutoTarget(initialUrl, true);
 			}else{
 				SepiaFW.ui.showPopup(SepiaFW.local.g("cant_execute") + " (Coming Soon)");
 			}

@@ -27,9 +27,18 @@ function sepiaFW_build_ui_cards(){
 	//some specials
 	Cards.canEmbedCustomPlayer = true;
 	Cards.canEmbedYouTube = true;
-	Cards.canEmbedSoundCloud = false;	//TODO: for testing
+	Cards.canEmbedSoundCloud = false;	//TODO: not selectable yet
 	Cards.canEmbedSpotify = false;		//deactivated by default because it only works in desktop and gives no control over start/stop/volume
 	Cards.canEmbedAppleMusic = false;	// "" ""
+	Cards.getSupportedWebPlayers = function(){
+		var players = [];
+		if (Cards.canEmbedCustomPlayer) players.push("embedded");
+		if (Cards.canEmbedYouTube) players.push("youtube");
+		if (Cards.canEmbedSpotify) players.push("spotify");
+		if (Cards.canEmbedAppleMusic) players.push("apple_music");
+		if (Cards.canEmbedSoundCloud) players.push("soundcloud");
+		return players;
+	}
 	Cards.canEmbedWebPlayer = function(service){
 		if (!service) return false;
 		service = service.toLowerCase().replace(/\s+/, "_"); 		//support brands too
@@ -47,14 +56,18 @@ function sepiaFW_build_ui_cards(){
 			return false;
 		}
 	}
-	Cards.getSupportedWebPlayers = function(){
-		var players = [];
-		if (Cards.canEmbedCustomPlayer) players.push("embedded");
-		if (Cards.canEmbedYouTube) players.push("youtube");
-		if (Cards.canEmbedSpotify) players.push("spotify");
-		if (Cards.canEmbedAppleMusic) players.push("apple_music");
-		if (Cards.canEmbedSoundCloud) players.push("soundcloud");
-		return players;
+	Cards.canEmbedUrl = function(url){
+		if (!url) return false;
+		var testUrl = url.toLowerCase().trim();
+		//YouTube
+		if (Cards.canEmbedYouTube && testUrl.indexOf("https://www.youtube.com/embed/") == 0){
+			//TODO: add more variations
+			return {
+				type: "videoSearch",
+				typeData: {service: "youtube", uri: url}
+			}
+		}
+		return false;
 	}
 	
 	//get a full card result as DOM element
@@ -1228,6 +1241,29 @@ function sepiaFW_build_ui_cards(){
 		var typeInfo = {};
 		linkCardEle.className = 'linkCard cardBodyItem';
 		linkCardEle.id = 'link-' + currentLinkItemId++;		//links have no database event ID (compare: time-events) so we just create one here to connect item and context-menu
+
+		//check link sanity
+		if (linkUrl){
+			var hasValidUrlProtocol = SepiaFW.tools.urlHasValidProtocol(linkUrl);
+			var isValidLocalHtmlPage = SepiaFW.tools.isRelativeFileUrl(linkUrl, "html");
+			var isUrlOk = hasValidUrlProtocol || isValidLocalHtmlPage;
+			if (!isUrlOk){
+				//is this enough? - For now its ok ^^
+				SepiaFW.ui.showInfo("URL has been removed from link card because it looked suspicious", true);
+				SepiaFW.debug.error("Link-Card - Tried to create card with suspicious URL: " + linkUrl);
+				linkUrl = "";
+			}
+		}
+		//check for popular links, e.g. YouTube ...
+		if (linkUrl && (!data.type || !data.typeData)){
+			var embedData = Cards.canEmbedUrl(linkUrl);
+			if (!!embedData){
+				//set or overwrite data:
+				data.type = embedData.type;
+				data.typeData = embedData.typeData;
+			}
+		}
+
 		var leftElement;
 		if (data.type){
 			linkCardEle.className += (" " + data.type);
@@ -1260,19 +1296,6 @@ function sepiaFW_build_ui_cards(){
 		}
 		var description = data.desc;
 		if (description && description.length > 120) description = description.substring(0, 119) + "...";
-
-		//check link
-		if (linkUrl){
-			var hasValidUrlProtocol = SepiaFW.tools.urlHasValidProtocol(linkUrl);
-			var isValidLocalHtmlPage = SepiaFW.tools.isRelativeFileUrl(linkUrl, "html");
-			var isUrlOk = hasValidUrlProtocol || isValidLocalHtmlPage;
-			if (!isUrlOk){
-				//TODO: is this enough?
-				SepiaFW.ui.showInfo("URL has been removed from link card because it looked suspicious", true);
-				SepiaFW.debug.error("Link-Card - Tried to create card with suspicious URL: " + linkUrl);
-				linkUrl = "";
-			}
-		}
 				
 		//build actual card element
 		var rightElement = "<div class='itemRight linkCardRight'><a href='' target='_blank' rel='noopener'><i class='material-icons md-mnu'>&#xE895;</i></a></div>";

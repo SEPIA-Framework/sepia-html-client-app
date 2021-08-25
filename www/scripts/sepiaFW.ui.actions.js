@@ -225,6 +225,12 @@ function sepiaFW_build_ui_actions(){
 	//OPEN URLs
 	Actions.openURL = function(action, forceExternal){
 		if (!action.url) return;
+		if (action.skipIfEmbeddable){
+			if (SepiaFW.ui.cards.canEmbedUrl(action.url)){
+				//Cards will show it (or at least try)
+				return;
+			}
+		}
 		Actions.openUrlAutoTarget(action.url, forceExternal);
 	}
 	var inAppBrowserOptions = 'location=yes,toolbar=yes,mediaPlaybackRequiresUserAction=yes,allowInlineMediaPlayback=yes,hardwareback=yes,disableswipenavigation=no,clearsessioncache=no,clearcache=no';
