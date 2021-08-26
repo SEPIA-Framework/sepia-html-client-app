@@ -335,6 +335,10 @@ body.limit-size {
 	display: flex;
     flex-direction: column;
 }
+.big-screen .sepiaFW-input-popup {
+	width: 640px;
+    max-width: 86%;
+}
 .sepiaFW-input-popup .warn-text {
 	color: #f00;
 }
@@ -771,6 +775,12 @@ html.dark-skin #sepiaFW-login-help-btn {
 #sepiaFW-main-window .chat-buttons-area .my-view-custom-button i,
 #sepiaFW-main-window .chat-buttons-area .my-view-custom-button span {
 	padding: 4px;
+}
+#sepiaFW-main-window .chat-buttons-area .my-view-custom-button .mv-button-label {
+	padding: 4px 8px;
+	max-width: 100%;
+	overflow: hidden;
+	font-size: 14px;
 }
 #sepiaFW-main-window .chat-buttons-area button.chat-button-url {
 }
