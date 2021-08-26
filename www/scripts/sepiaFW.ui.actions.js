@@ -404,7 +404,7 @@ function sepiaFW_build_ui_actions(){
 		SepiaFW.audio.playURL(action.audio_url, '', function(){
 			SepiaFW.audio.playerFadeToOriginalVolume();
 		});//, onEndCallback, onErrorCallback)
-		SepiaFW.audio.setPlayerTitle(action.audio_title, '');
+		SepiaFW.audio.setPlayerTitle(action.audio_title, 'stream');
 	}
 	//STOP AUDIO STREAM
 	Actions.stopAudio = function(action){

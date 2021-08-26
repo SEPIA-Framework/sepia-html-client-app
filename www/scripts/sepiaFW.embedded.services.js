@@ -254,7 +254,7 @@ function sepiaFW_build_embedded_services(){
 		var serviceResult;
 		if (SepiaFW.offline){
 			var cardInfo = [SepiaFW.offline.getLinkCard(url, title, description, imageUrl, imageBackground, data)];
-			var actionInfo = [SepiaFW.offline.getUrlOpenAction(url)];
+			var actionInfo = [SepiaFW.offline.getUrlOpenAction(url, true)]; 	//skipIfEmbeddable = true
 			var htmlInfo = "";
 			serviceResult = Services.buildServiceResult(
 				nluInput.user, nluInput.language, 

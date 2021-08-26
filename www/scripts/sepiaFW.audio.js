@@ -248,12 +248,13 @@ function sepiaFW_build_audio(){
 										&& ((new Date().getTime() - SepiaFW.android.lastReceivedMediaAppTS) < (1000*60*15));		//This is pure guessing ...
 		return isInternalPlayerStreaming || isEmbeddedMediaPlayerStreaming || isAndroidPlayerStreaming;			
 	}
-	AudioPlayer.getLastActiveAudioStreamPlayer = function(){
+	AudioPlayer.getLastActiveAudioSource = function(){
 		return lastAudioPlayerEventSource;
 	}
 	
 	//controls
 	var audioTitle;
+	var currentAudioTitleBelongsToStreamPlayer = true;	//default: true
 	var audioStartBtn;
 	var audioStopBtn;
 	var audioVolUp;
@@ -395,24 +396,38 @@ function sepiaFW_build_audio(){
 		audioTitle = document.getElementById('sepiaFW-audio-ctrls-title');
 		audioStartBtn = document.getElementById('sepiaFW-audio-ctrls-start');
 		$(audioStartBtn).off().on('click', function(){
-			//NOTE: for now this is "internal" player only (as volume control)
-			if (!AudioPlayer.initAudio(function(){ AudioPlayer.playURL('', player); })){
-				AudioPlayer.playURL('', player);
-			}
+			AudioPlayer.initAudio(undefined, function(){
+				if (currentAudioTitleBelongsToStreamPlayer){
+					//we keep this for now...
+					AudioPlayer.playURL('', "stream");
+				}else{
+					SepiaFW.client.controls.media({
+						action: "resume",
+						skipFollowUp: true
+					});
+				}
+			});
 		});
 		audioStopBtn = document.getElementById('sepiaFW-audio-ctrls-stop');
 		$(audioStopBtn).off().on('click', function(){
 			SepiaFW.client.controls.media({
-				action: "stop"
+				action: "stop",
+				skipFollowUp: true
 			});
 		});
 		audioVolUp = document.getElementById('sepiaFW-audio-ctrls-volup');
 		$(audioVolUp).off().on('click', function(){
-			playerSetVolume(playerGetVolume() + 1.0);
+			//playerSetVolume(playerGetVolume() + 1.0);
+			SepiaFW.client.controls.volume({
+				action: "up"
+			});
 		});
 		audioVolDown = document.getElementById('sepiaFW-audio-ctrls-voldown');
 		$(audioVolDown).off().on('click', function(){
-			playerSetVolume(playerGetVolume() - 1.0);
+			//playerSetVolume(playerGetVolume() - 1.0);
+			SepiaFW.client.controls.volume({
+				action: "down"
+			});
 		});
 		audioVol = document.getElementById('sepiaFW-audio-ctrls-vol');
 		if (audioVol) audioVol.textContent = Math.round(player.volume*10.0);
@@ -425,7 +440,8 @@ function sepiaFW_build_audio(){
 		//TODO: is this still up-to-date?
 		return (!SepiaFW.ui.isStandaloneWebApp && (SepiaFW.ui.isMobile || SepiaFW.ui.isSafari) && doInitAudio);
 	}
-	AudioPlayer.initAudio = function(continueCallback){
+	AudioPlayer.initAudio = function(continueCallback, noopOrContinueCallback){
+		if (noopOrContinueCallback && !continueCallback) continueCallback = noopOrContinueCallback;
 		//workaround for mobile devices to activate audio by scripts
 		if (AudioPlayer.requiresInit()){
 			SepiaFW.debug.info('Audio - trying to initialize players');
@@ -451,6 +467,7 @@ function sepiaFW_build_audio(){
 			return true;
 			
 		}else{
+			if (noopOrContinueCallback) noopOrContinueCallback();
 			return false;
 		}
 	}
@@ -726,7 +743,7 @@ function sepiaFW_build_audio(){
 		var setVol = getValidVolume(newVol)/10.0;
 		player.volume = setVol;
 		orgVolume = setVol;
-		$('#sepiaFW-audio-ctrls-vol').html(Math.floor(setVol*10.0));
+		$('#sepiaFW-audio-ctrls-vol').text(Math.floor(setVol*10.0));
 		SepiaFW.debug.info('AUDIO: volume set (and stored) to ' + setVol);
 		broadcastPlayerVolumeSet();
 	}
@@ -750,7 +767,7 @@ function sepiaFW_build_audio(){
 		if (mainAudioIsOnHold || (SepiaFW.speech.isSpeakingOrListening())){
 			var setVol = getValidVolume(newVol)/10.0;
 			orgVolume = setVol;
-			$('#sepiaFW-audio-ctrls-vol').html(Math.floor(setVol*10.0));
+			$('#sepiaFW-audio-ctrls-vol').text(Math.floor(setVol*10.0));
 			SepiaFW.debug.info('AUDIO: unfaded volume set to ' + setVol);
 			broadcastPlayerVolumeSet();
 		}else{
@@ -765,7 +782,7 @@ function sepiaFW_build_audio(){
 			var lastStream = SepiaFW.audio.getLastAudioStream();
 			var lastStreamTitle = (lastStream)? SepiaFW.audio.getLastAudioStreamTitle() : "";
 			SepiaFW.audio.playURL(lastStream, ''); 	//<-- potentially looses callBack info here, but since this is stopped
-			SepiaFW.audio.setPlayerTitle(lastStreamTitle, '');
+			SepiaFW.audio.setPlayerTitle(lastStreamTitle, "stream");
 		}
 		SepiaFW.debug.info('AUDIO: fadeToOriginal - restore vol=' + orgVolume);
 		$(player).stop(); 	//note: this is an animation stop
@@ -785,14 +802,19 @@ function sepiaFW_build_audio(){
 			   a.protocol == loc.protocol;
 	}
 	
-	//set title of player
-	AudioPlayer.setPlayerTitle = function(newTitle, audioPlayer){
-		if (!audioPlayer) audioPlayer = player;
-		audioPlayer.title = newTitle;
-		if (audioTitle) audioTitle.textContent = newTitle || "SEPIA Audio Player";
-		if (audioPlayer == player){
+	//set title of player - NOTE: compared to most functions below this is not limited to "stream" player
+	AudioPlayer.setPlayerTitle = function(newTitle, playerTag){
+		//playerTag: stream, embedded-media-player, android-intent
+		if (playerTag == undefined) playerTag = "stream";
+		if (playerTag == "stream" || playerTag == player){
+			//Stream player
 			lastAudioStreamTitle = newTitle;
+			player.title = newTitle;
+			currentAudioTitleBelongsToStreamPlayer = true;
+		}else{
+			currentAudioTitleBelongsToStreamPlayer = false;
 		}
+		if (audioTitle) audioTitle.textContent = newTitle || "SEPIA Audio Player";
 	}
 
 	//get the stream last played
@@ -809,7 +831,7 @@ function sepiaFW_build_audio(){
 		var lastStreamTitle = (lastStream)? AudioPlayer.getLastAudioStreamTitle() : "";
 		if (lastStream){
 			AudioPlayer.playURL(lastStream, player);
-			AudioPlayer.setPlayerTitle(lastStreamTitle);
+			AudioPlayer.setPlayerTitle(lastStreamTitle, "stream");
 			return true;
 		}else{
 			return false;

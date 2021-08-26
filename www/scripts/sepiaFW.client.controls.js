@@ -161,15 +161,58 @@ function sepiaFW_build_client_controls(sepiaSessionId){
         return false;
     }
     function volumeUp(){
-        //$("#sepiaFW-audio-ctrls-volup").trigger('click', {bm_force : true});
-        SepiaFW.audio.playerSetCurrentOrTargetVolume(SepiaFW.audio.getOriginalVolume() + 1.0);
+        volumeAction(function(){
+            SepiaFW.audio.playerSetCurrentOrTargetVolume(SepiaFW.audio.getOriginalVolume() + 1.0);
+        }, function(emp){
+            emp.volumeUp();
+            $('#sepiaFW-audio-ctrls-vol').text("?");
+        }, function(){
+            //TODO: not supported yet
+            $('#sepiaFW-audio-ctrls-vol').text("?");
+        });
     }
     function volumeDown(){
-        //$("#sepiaFW-audio-ctrls-voldown").trigger('click', {bm_force : true});
-        SepiaFW.audio.playerSetCurrentOrTargetVolume(SepiaFW.audio.getOriginalVolume() - 1.0);
+        volumeAction(function(){
+            SepiaFW.audio.playerSetCurrentOrTargetVolume(SepiaFW.audio.getOriginalVolume() - 1.0);
+        }, function(emp){
+            emp.volumeDown();
+            $('#sepiaFW-audio-ctrls-vol').text("?");
+        }, function(){
+            //TODO: not supported yet
+            $('#sepiaFW-audio-ctrls-vol').text("?");
+        });
     }
     function volumeSet(newVol){
-        SepiaFW.audio.playerSetCurrentOrTargetVolume(newVol);       //value between 0.0-10.0
+        //value between 0.0-10.0
+        volumeAction(function(){
+            SepiaFW.audio.playerSetCurrentOrTargetVolume(newVol);
+        }, function(emp){
+            emp.volumeSet(newVol);
+            $('#sepiaFW-audio-ctrls-vol').text("?");
+        }, function(){
+            //TODO: not supported yet
+            $('#sepiaFW-audio-ctrls-vol').text("?");
+        });
+    }
+    function volumeAction(streamPlayerFun, embeddedPlayerFun, androidFun){
+        var lastActivePlayer = SepiaFW.audio.getLastActiveAudioSource();
+        var emp = SepiaFW.ui.cards.embed.getActiveMediaPlayer();
+        //find right player
+        if (!lastActivePlayer || lastActivePlayer == "stream"){
+            //default
+            streamPlayerFun();
+            return true;
+        }else if (lastActivePlayer == "embedded-media-player"){
+            //Embedded media player
+            if (emp && emp.isReady()){
+                embeddedPlayerFun(emp);
+                return true;
+            }
+        }else if (lastActivePlayer == "android-intent" && SepiaFW.ui.isAndroid){
+            //Android intent controls
+            androidFun();
+            return true;
+        }
     }
 
     //Media player controls
@@ -220,7 +263,7 @@ function sepiaFW_build_client_controls(sepiaSessionId){
             //RESUME
             }else if (controlData.action == "resume"){
                 //try to find last active player
-                var lastActivePlayer = SepiaFW.audio.getLastActiveAudioStreamPlayer();
+                var lastActivePlayer = SepiaFW.audio.getLastActiveAudioSource();
                 var isAnyPlayerStreaming = SepiaFW.audio.isAnyAudioSourceActive();
                 var sentEvent = false;
                 
@@ -240,6 +283,10 @@ function sepiaFW_build_client_controls(sepiaSessionId){
                             SepiaFW.debug.info("Client controls - Media: resuming embedded media player");
                             sentEvent = true;
                             emp.play();
+                        }else{
+                            //add note that media-player was killed?
+                            SepiaFW.ui.showInfo("Active Media-Player widget was removed");
+                            //TODO: send custom follow up?
                         }
                     
                     }else if (lastActivePlayer == "android-intent" && SepiaFW.ui.isAndroid){
@@ -265,7 +312,7 @@ function sepiaFW_build_client_controls(sepiaSessionId){
             //NEXT
             }else if (controlData.action == "next"){
                 //try to find last active player
-                var lastActivePlayer = SepiaFW.audio.getLastActiveAudioStreamPlayer();
+                var lastActivePlayer = SepiaFW.audio.getLastActiveAudioSource();
                 var sentEvent = false;
 
                 //find right player

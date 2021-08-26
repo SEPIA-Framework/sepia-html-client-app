@@ -129,9 +129,9 @@ function sepiaFW_build_android(){
             }
             if (intent.extras.playing){
                 if (intent.extras.artist && intent.extras.track){
-                    SepiaFW.audio.setPlayerTitle(intent.extras.artist + " - " + intent.extras.track, '');
+                    SepiaFW.audio.setPlayerTitle(intent.extras.artist + " - " + intent.extras.track, 'android-intent');
                 }else if (intent.extras.track){
-                    SepiaFW.audio.setPlayerTitle(intent.extras.track, '');
+                    SepiaFW.audio.setPlayerTitle(intent.extras.track, 'android-intent');
                 }
             }else{
                 SepiaFW.audio.setPlayerTitle('', '');

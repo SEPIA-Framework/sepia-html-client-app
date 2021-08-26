@@ -4,17 +4,27 @@ function sepiaFW_build_ui_cards_embed(){
 	
 	//MediaPlayer
 	/* TODO:
-	- Test and finish controls: start, pause/stop, resume, next, previous, vol...
-	- Implement async. callback with msgId and timeout?
-	- Get media info and use SepiaFW.audio.setPlayerTitle('', '') + setMediaSessionState (SepiaFW.audio)
+	- Fix link share feature
+	- Add play-on feature
+	- Test controls: start, pause/stop, resume, next, previous, vol...
+	- Implement async. callback with msgId and timeout (doneCallback, errorCallback)?
+	- Improve use of SepiaFW.audio.setPlayerTitle('', '') + setMediaSessionState (SepiaFW.audio)?
 	*/
 	var playerWidgets = {
 		default: "<assist_server>/widgets/mp-default.html",
 		embedded: "<assist_server>/widgets/mp-default.html",
+		template: "templates/media-player_template.html",
 		spotify: "<assist_server>/widgets/mp-spotify.html",
 		apple_music: "<assist_server>/widgets/mp-apple-music.html",
 		youtube: "<assist_server>/widgets/mp-youtube.html",
 		soundcloud: "<assist_server>/widgets/mp-soundcloud.html"
+	}
+	function getPlayerWidget(widget){
+		if (SepiaFW.client.isDemoMode()){
+			return playerWidgets.template;
+		}else{
+			return playerWidgets[widget];
+		}
 	}
 
 	var activeMediaPlayers = {};
@@ -145,20 +155,30 @@ function sepiaFW_build_ui_cards_embed(){
 		});
 		return triedToStopAtLeastOne;
 	}
+	//Is embedded player active global source?
+	Embed.mediaPlayerIsActiveGlobalSource = function(){
+		return (SepiaFW.audio.getLastActiveAudioSource() == "embedded-media-player");
+	}
 
 	//MediaPlayer interface
 	Embed.MediaPlayer = function(options){
 		if (!options || !options.parentElement || !(options.widgetUrl || options.widget)){
 			SepiaFW.debug.error("Embedded MediaPlayer - Invalid options!");
 			return;
+		}else{
+			if (options.onReady) options.onready = options.onReady;		//prevent confusion
 		}
 		//options
 		//required:	parentElement, widget or widgetUrl
 		//optional:	brand
 		//events: 	onready (NOTE: will trigger only once)
+		//			onTitleChange, onUrlChange
 
 		var thisPlayer = this;
 		//console.error("Embedded MediaPlayer", options);      //DEBUG
+		var currentMediaTitle;
+		var currentMediaUrl;
+		var currentVolume;
 
 		//ID
 		var playerId = getNewMediaPlayerId();
@@ -173,7 +193,12 @@ function sepiaFW_build_ui_cards_embed(){
 		}
 
 		//Widget URL
-		var widgetUrl = (options.widgetUrl || playerWidgets[options.widget]).trim();
+		var widgetUrl = (options.widgetUrl || getPlayerWidget(options.widget) || "").trim();
+		if (!widgetUrl){
+			SepiaFW.debug.error("Embedded MediaPlayer - No widget found for: " + options.widget);
+			SepiaFW.ui.showPopup("Embedded MediaPlayer: Widget '" + options.widget + "' not found.");
+			return;
+		}
 		widgetUrl = SepiaFW.config.replacePathTagWithActualPath(widgetUrl);
 		//check URL - NOTE: currently we do not allow unknown URLs
 		var isValidLocalURL = SepiaFW.tools.isRelativeFileUrl(widgetUrl, "html");
@@ -181,7 +206,7 @@ function sepiaFW_build_ui_cards_embed(){
 			&& (SepiaFW.tools.isSameOrigin(widgetUrl) || SepiaFW.config.urlIsSepiaFileHost(widgetUrl));
 		var widgetIsTrusted = isValidLocalURL || isTrustedRemoteUrl;
 		if (!widgetIsTrusted){
-			SepiaFW.debug.error("WARNING: Widget URL has remote location and was BLOCKED due to security restrictions! - URL: " + widgetUrl);
+			SepiaFW.debug.error("WARNING: Embedded MediaPlayer Widget URL has remote location and was BLOCKED due to security restrictions! - URL: " + widgetUrl);
 			SepiaFW.ui.showSafeWarningPopup("Warning", [
 				"SEPIA was asked to open a widget with an untrusted remote URL. The request has been blocked due to security restrictions.",
 				"If you want to use this widget please ask an admin to move it to a secure location (e.g. the SEPIA file server).",
@@ -226,6 +251,25 @@ function sepiaFW_build_ui_cards_embed(){
 			thisPlayer.release();
 		}
 
+		//Media title and URL change
+		function onTitleSubmit(newTitle){
+			if (newTitle != currentMediaTitle){
+				currentMediaTitle = newTitle;
+				if (options.onTitleChange) options.onTitleChange(newTitle);
+			}
+			setTimeout(function(){
+				if (Embed.mediaPlayerIsActiveGlobalSource() && lastActiveMediaPlayer == thisPlayer){
+					SepiaFW.audio.setPlayerTitle(newTitle, "embedded-media-player");
+				}
+			}, 50);
+		}
+		function onUrlSubmit(newUrl){
+			if (newUrl != currentMediaUrl){
+				currentMediaUrl = newUrl;
+				if (options.onUrlChange) options.onUrlChange(newUrl);
+			}
+		}
+
 		//SEPIA postMessage interface
 		function sendEvent(ev){
 			if (state && state == 11){
@@ -253,13 +297,30 @@ function sepiaFW_build_ui_cards_embed(){
 			if (ev.state != undefined){
 				stateHandler(ev);
 			}
+			if (ev.properties){
+				propertiesHandler(ev.properties);	//temporary properties to adjust, e.g. UI size
+			}
 			if (ev.settings){
-				widgetSettings = ev.settings;
+				widgetSettings = ev.settings;	//custom widget settings to restore player
 			}
 		}
 
 		//Settings backup
 		var widgetSettings;		//settings specific to widget that will be submitted e.g. after move or reload
+
+		//properties
+		function propertiesHandler(props){
+			if (props.size && props.size.height){
+				thisPlayer.iframe.style.height = props.size.height;
+			}
+			if (props.volume != undefined){
+				currentVolume = props.volume;
+				if (thisPlayer.isPlaying() || thisPlayer.isActive){
+					$('#sepiaFW-audio-ctrls-vol').text(currentVolume);	
+					//TODO: this should be replaced with a proper function
+				}
+			}
+		}
 
 		//States
 		var state = 0;	//0: created, 1: ready, 2: playing, 3: paused, 10: error, 11: closed
@@ -295,8 +356,8 @@ function sepiaFW_build_ui_cards_embed(){
 				SepiaFW.debug.info("Embedded MediaPlayer - Last active player switched to: " + playerId);
 				//Embed.stopAllMediaPlayers(thisPlayer)	//this should be handled globally for ALL media
 				if (ev.data && ev.data.meta){
-					//TODO: store (e.g.: for URL open action), use (e.g.: for audio player title)
-					console.error("META", ev.data.meta);		//DEBUG
+					if (ev.data.meta.title) onTitleSubmit(ev.data.meta.title);
+					if (ev.data.meta.url) onUrlSubmit(ev.data.meta.url);
 				}
 
 			//on-pause
@@ -394,6 +455,14 @@ function sepiaFW_build_ui_cards_embed(){
 		thisPlayer.volumeDown = function(doneCallback, errorCallback){
 			sendEvent({controls: "volumeDown"});
 		}
+		thisPlayer.volumeSet = function(vol, doneCallback, errorCallback){
+			sendEvent({controls: "volumeSet", data: vol});
+		}
+
+		//get properties
+		thisPlayer.getVolume = function(){
+			return currentVolume;
+		}
 
 		//Content
 		thisPlayer.mediaRequest = function(type, request, autoplay, safeRequest, doneCallback, errorCallback){
@@ -409,6 +478,8 @@ function sepiaFW_build_ui_cards_embed(){
 					SepiaFW.audio.stop();
 				}
 			}
+			if (request.title) onTitleSubmit(request.title);
+			if (request.uri) onUrlSubmit(request.uri);
 			sendEvent({
 				mediaType: type || "auto",	//e.g. music, video
 				mediaRequest: request,
@@ -424,12 +495,14 @@ function sepiaFW_build_ui_cards_embed(){
 		}
 
 		//Specials
-		thisPlayer.openInExternalPage = function(initialUrl){
-			//TODO: implement - use META to update URL
-			if (initialUrl){
-				SepiaFW.ui.actions.openUrlAutoTarget(initialUrl, true);
+		thisPlayer.openInExternalPage = function(sourceUrl){
+			//we check internal URL first, then we use given URL
+			var openUrl = currentMediaUrl || sourceUrl || "";
+			//TODO: improve features
+			if (openUrl){
+				SepiaFW.ui.actions.openUrlAutoTarget(openUrl, true);
 			}else{
-				SepiaFW.ui.showPopup(SepiaFW.local.g("cant_execute") + " (Coming Soon)");
+				SepiaFW.ui.showPopup(SepiaFW.local.g("cant_execute") + " (-- Under Construction --)"); 	
 			}
 		}
 

@@ -311,8 +311,9 @@ function sepiaFW_build_config(){
 		"spotify_embedded": {name: "Spotify Widget"},
 		"apple_music_link": {name: "Apple Music Web"},
 		"apple_music_embedded": {name: "Apple Music Widget"}
+		//"soundcloud_embedded": {name: "SoundCloud Widget"}
     }
-	var defaultMusicApp = "embedded";
+	var defaultMusicApp = "youtube_embedded";
 
 	Config.getMusicAppCollection = function(){
 		if (SepiaFW.ui.isAndroid){

@@ -60,11 +60,18 @@ function sepiaFW_build_ui_cards(){
 		if (!url) return false;
 		var testUrl = url.toLowerCase().trim();
 		//YouTube
-		if (Cards.canEmbedYouTube && testUrl.indexOf("https://www.youtube.com/embed/") == 0){
-			//TODO: add more variations
-			return {
-				type: "videoSearch",
-				typeData: {service: "youtube", uri: url}
+		if (Cards.canEmbedYouTube && testUrl.indexOf("https://www.youtube") == 0){
+			var testUrl = testUrl.replace("youtube-nocookie.com", "youtube.com"); //easier for testing
+			if (testUrl.indexOf("https://www.youtube.com") == 0 && (
+				testUrl.indexOf("/embed") == 23
+				|| testUrl.indexOf("/playlist") == 23
+				|| testUrl.indexOf("listType=playlist") > 0
+				|| !!testUrl.match(/(&|\?)v=.+/)
+			)){
+				return {
+					type: "videoSearch",
+					typeData: {service: "youtube", uri: url}
+				}
 			}
 		}
 		return false;
@@ -1296,14 +1303,16 @@ function sepiaFW_build_ui_cards(){
 		}
 		var description = data.desc;
 		if (description && description.length > 120) description = description.substring(0, 119) + "...";
+		var cardTitle = data.title;
+		if (cardTitle && cardTitle.length > 120) cardTitle = cardTitle.substring(0, 119) + "...";
 				
 		//build actual card element
 		var rightElement = "<div class='itemRight linkCardRight'><a href='' target='_blank' rel='noopener'><i class='material-icons md-mnu'>&#xE895;</i></a></div>";
 		linkCardEle.innerHTML = leftElement
 				+ SepiaFW.tools.sanitizeHtml("<div class='itemCenter linkCardCenter'>" 
-					+ (data.title? ("<h3>" + data.title + "</h3>") : ("")) + (description? ("<p>" + description + "</p></div>") : ""))
+					+ (cardTitle? ("<h3>" + cardTitle + "</h3>") : ("")) + (description? ("<p>" + description + "</p></div>") : ""))
 				+ rightElement;
-		linkCardEle.title = linkUrl || data.title;
+		linkCardEle.title = linkUrl || data.title || "";
 		//linkCardEle.setAttribute('data-element', JSON.stringify(cardElementInfo));
 		if (linkUrl){
 			$(linkCardEle).find(".linkCardRight").find("a").attr("href", linkUrl);
@@ -1320,7 +1329,16 @@ function sepiaFW_build_ui_cards(){
 			var mediaType = (data.type == "videoSearch")? "video" : "music";		//add more later?
 			typeInfo.mediaPlayer = addEmbeddedPlayerToCard(cardBody, mediaType, data.typeData, isSafeSource, {
 				brand: data.brand,
-				autoplay: data.autoplay
+				autoplay: data.autoplay,
+				onTitleChange: function(newTitle){
+					data.title = newTitle;
+					if (newTitle && newTitle.length > 120) newTitle = newTitle.substring(0, 119) + "...";
+					$(cardBody).find(".linkCardCenter h3").first().text(newTitle);
+				},
+				onUrlChange: function(newUrl){
+					linkCardEle.title = newUrl;
+					cardElementInfo.url = newUrl;	//keep up-to-date for URL share
+				}
 			});
 		}
 		
@@ -1343,6 +1361,9 @@ function sepiaFW_build_ui_cards(){
 				}
 			});
 		})(linkUrl);
+
+		//make sure cardElementInfo is up-to-date
+		cardElementInfo.url = linkUrl;
 		
 		//context menu with extra buttons
 		makeLinkCardContextMenu(cardElement.id, cardBody, linkCardEle, cardElementInfo, data.type, typeInfo);
@@ -1355,7 +1376,21 @@ function sepiaFW_build_ui_cards(){
 		var newBodyClass = "sepiaFW-cards-list-body sepiaFW-cards-list-link";			//class in case we need to create new body
 		var shareButton = {
 			type: SepiaFW.client.SHARE_TYPE_LINK,
-			data: linkElementInfo,
+			//data: linkElementInfo,	//we use 'getData' instead to account for data changes
+			getData: function(){
+				//we limit the amount of data shared ...
+				var d = linkElementInfo.data || {};
+				return {
+					url: linkElementInfo.url,
+					image: linkElementInfo.image,
+					imageBackground: linkElementInfo.imageBackground,
+					data: {
+						title: d.title,
+						desc: d.desc
+						//TODO: this might break some link cards that require entire data (e.g.: data.typeData)
+					}
+				}
+			},
 			buttonName: SepiaFW.local.g('exportToUrl'),
 			buttonTitle: "Copy SEPIA share link to clipboard."	//TODO: add local translation
 		}
@@ -1363,7 +1398,8 @@ function sepiaFW_build_ui_cards(){
 		if (linkElementInfo.url){
 			copyUrlButton = {
 				buttonName: SepiaFW.local.g('copyUrl'),
-				url: linkElementInfo.url
+				getUrl: function(){ return linkElementInfo.url; }
+				//url: linkElementInfo.url		//we use 'getUrl' instead to account for URL changes
 			}
 		}
 		//custom button sections
@@ -1372,8 +1408,16 @@ function sepiaFW_build_ui_cards(){
 			if (typeInfo.mediaPlayer){
 				customButtonSections = [{className: "", buttons: []}];
 				customButtonSections[0].buttons.push({
+					buttonName: '<i class="material-icons md-inherit">skip_previous</i>',
+					fun: function(){ typeInfo.mediaPlayer.previous(); }
+				});
+				customButtonSections[0].buttons.push({
 					buttonName: '<i class="material-icons md-inherit">play_arrow</i>',
 					fun: function(){ typeInfo.mediaPlayer.play(); }
+				});
+				customButtonSections[0].buttons.push({
+					buttonName: '<i class="material-icons md-inherit">skip_next</i>',
+					fun: function(){ typeInfo.mediaPlayer.next(); }
 				});
 				customButtonSections[0].buttons.push({
 					buttonName: '<i class="material-icons md-inherit">pause</i>',
@@ -1793,8 +1837,9 @@ function sepiaFW_build_ui_cards(){
 				//$(contextMenu).fadeOut(500);
 				var shareData = {
 					type: menuConfig.shareButton.type,
-					data: menuConfig.shareButton.data
+					data: (typeof menuConfig.shareButton.getData == "function")? menuConfig.shareButton.getData() : menuConfig.shareButton.data
 				}
+				//console.error("SHARE DATA", shareData);		//DEBUG
 				SepiaFW.ui.showPopup("Click OK to copy link to clipboard", {
 					inputLabelOne: "Link",
 					inputOneValue: SepiaFW.client.buildDeepLinkForSharePath(shareData),
@@ -1822,7 +1867,8 @@ function sepiaFW_build_ui_cards(){
 				//copy link
 				SepiaFW.ui.showPopup("Click OK to copy link to clipboard", {
 					inputLabelOne: "Link",
-					inputOneValue: menuConfig.copyUrlButton.url,
+					//inputOneValue: menuConfig.copyUrlButton.url,
+					inputOneValue: ((typeof menuConfig.copyUrlButton.getUrl == "function")? menuConfig.copyUrlButton.getUrl() : menuConfig.copyUrlButton.url),
 					buttonOneName: "OK",
 					buttonOneAction: function(btn, linkValue, iv2, inputEle1, ie2){
 						if (linkValue && inputEle1){
@@ -1958,6 +2004,7 @@ function sepiaFW_build_ui_cards(){
 
 	//-- Embedded Media Player --
 
+	//Basic media-player card (for testing - TODO: replace with link-card like in offline services)
 	Cards.addEmbeddedPlayer = function(targetView, widgetUrl){
 		var cardBody = addContainerToTargetView(targetView, "sepiaFW-embedded-player-container", "sepia-embedded-player-card");
 		var player = new SepiaFW.ui.cards.embed.MediaPlayer({
@@ -1988,6 +2035,7 @@ function sepiaFW_build_ui_cards(){
 		});
 		cardBody.appendChild(cardEle);
 	}
+	//Add full media-player features to card
 	function addEmbeddedPlayerToCard(cardBody, type, data, isSafeSource, options){
 		if (!options) options = {};
 		//type: music, video
@@ -2013,7 +2061,9 @@ function sepiaFW_build_ui_cards(){
 				}else{
 					request();
 				}
-			}
+			},
+			onTitleChange: options.onTitleChange,
+			onUrlChange: options.onUrlChange
 		});
 		return player;
 	}

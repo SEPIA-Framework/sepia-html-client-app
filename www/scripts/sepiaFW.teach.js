@@ -396,6 +396,8 @@ function sepiaFW_build_teach(sepiaSessionId){
 		});
 	}
 
+	//TODO: replace ancient pop-up functions with 'UI.showPopup' (or convenience version)
+
 	//parameter input help box pop-up
 	function showInputHelpPopup(paramName, value, assignFun, type, examples){
 		var $box = $('#sepiaFW-teachUI-input-helper');

@@ -7,10 +7,11 @@ function sepiaFW_build_offline(){
 	//more at: SepiaFW.embedded.services
 	
 	//Get action to open an URL
-	Offline.getUrlOpenAction = function(_url){
+	Offline.getUrlOpenAction = function(_url, skipIfEmbeddable){
 		var action = {
 			type: "open_in_app_browser",
-			url: _url
+			url: _url,
+			skipIfEmbeddable: (skipIfEmbeddable || false)
 		}
 		return action;
 	}
@@ -87,6 +88,9 @@ function sepiaFW_build_offline(){
 		"type": "musicSearch",
 		"brand": "Spotify"
 		*/
+		data.type = imageUrl? "custom" : "default";
+		data.typeData = undefined;
+		//var embedData = SepiaFW.ui.cards.canEmbedUrl(url);	//handled by Cards by default
 		var cardInfoItem = {
 			"cardType": "single",
 			"N": 1,
