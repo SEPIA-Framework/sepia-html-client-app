@@ -224,6 +224,7 @@ function sepiaFW_build_frames(){
 		//Error
 		}, function(){
 			$('#sepiaFW-frames-view').html("Error - could not load page");
+			SepiaFW.ui.showInfo("Custom view failed to load. URL: " + framePage, true);
 		});
 	}
 

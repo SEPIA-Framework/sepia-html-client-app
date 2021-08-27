@@ -31,9 +31,25 @@
 <script>
 	//NOTE: this is a more basic version of "<assist_server>/views/custom-view-demo.html"
 	
+	//Use this action in your service (or Teach-UI) to trigger the demo frame:
+	//Action name: "open_frames_view";
+	//Action data: "info": {"pageUrl": "<custom_data>/views/demo-view.html"}
+	
+	//Localize some UI text
 	$('#sepiaFW-frame-carousel').find('[data-localize]').each(function(){
 		$(this).html(SepiaFW.local.g(this.dataset.localize));
 	});
+	/* Currently available frame events:
+		onFinishSetup
+		onOpen
+		onFramePageChange
+		onClose
+		onMessageHandler
+		onMissedMessageHandler
+		onSpeechToTextInputHandler
+		onChatOutputHandler
+		actionHandler (for custom actions of type: 'frames_view_action')
+	*/
 	//Define scope
 	SepiaFW.frames.currentScope = {
 		//Theme (frame: light, dark, mod.: flat, screen: dark_full)
@@ -43,7 +59,7 @@
 		load: function(){
 			$('#sepiaFW-frames-mic').attr('class', 'entry icon-button');
 		},
-		sayHelloOnOpen: function(){
+		onOpen: function(){
 			//we use '$('#sepiaFW-frame-page-...')' to avoid conflicts with global ID:
 			$('#sepiaFW-frame-page-1 #sepiaFW-frame-c-hello').html(
 				"<p>Welcome to the Demo-View frame.</p>" 
@@ -51,7 +67,10 @@
 				+ "<p>This type of frames can only be used when loaded from safe origins (e.g. app folder, or SEPIA server).</p>"
 			);
 		},
-		handleSttData: function(data){
+		onClose: function(){
+			console.log("BYE BYE");
+		},
+		onSpeechToTextInputHandler: function(data){
 			$('#sepiaFW-frame-page-2 #sepiaFW-frame-c-stt-data').val(JSON.stringify(data, "", 2));
 			//modify text to include custom tag (can be used to redirect all input to a custom service for example)
 			if (data.text && data.isFinal){
@@ -59,7 +78,7 @@
 				return textWithPrefix;	//<-- return the data to actually modify it
 			}
 		},
-		handleChatOutput: function(data){
+		onChatOutputHandler: function(data){
 			$('#sepiaFW-frame-page-2').find('#sepiaFW-frame-c-chat-data').val(JSON.stringify(data, "", 2));
 		},
 		
@@ -71,15 +90,10 @@
 			$('#sepiaFW-frames-mic').attr('class', 'entry icon-button state-' + animState);
 		},
 		
-		//Custom actions (only)
+		//For custom 'frames_view_action' (only)
 		actionHandler: function(action){
 			console.error(action);
 		}
-		
-		//Use this action in your service to trigger the demo frame:
-		//Action name: "open_frames_view";
-		//Action data: "info": {"pageUrl": "<custom_data>/demo-view.html", "onOpen": "sayHelloOnOpen", "onSpeechToTextInputHandler": "handleSttData", "onChatOutputHandler": "handleChatOutput"}
-		//- alternatively use: {"pageUrl":..., "autoFillFrameEvents": true} to load all handlers via default name from frame scope
 	}
 	SepiaFW.frames.currentScope.load();
 </script>

@@ -20,11 +20,11 @@ function sepiaFW_build_ui_cards_embed(){
 		soundcloud: "<assist_server>/widgets/mp-soundcloud.html"
 	}
 	function getPlayerWidget(widget){
-		if (SepiaFW.client.isDemoMode()){
-			return playerWidgets.template;
-		}else{
-			return playerWidgets[widget];
+		var wUrl = playerWidgets[widget];
+		if (wUrl && SepiaFW.client.isDemoMode()){
+			wUrl = wUrl.replace("<assist_server>", "<custom_data>");
 		}
+		return wUrl;
 	}
 
 	var activeMediaPlayers = {};
@@ -227,6 +227,7 @@ function sepiaFW_build_ui_cards_embed(){
 			//on-load
 			//console.error("on-load", playerId);		//DEBUG
 		});
+		var loadTimer = setTimeout(function(){ $(thisPlayer.overlay).hide(); }, 6000);	//fallback if read event never comes
 		thisPlayer.iframe = mpObj.iframe;
 		thisPlayer.cardItem = mpObj.card;
 		thisPlayer.overlay = mpObj.overlay;
@@ -337,6 +338,7 @@ function sepiaFW_build_ui_cards_embed(){
 				if (data.size && data.size.height){
 					thisPlayer.iframe.style.height = data.size.height;
 				}
+				clearTimeout(loadTimer);
 				setTimeout(function(){ $(thisPlayer.overlay).hide(); }, 500);
 				//settings stored?
 				if (widgetSettings){

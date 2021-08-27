@@ -85,7 +85,7 @@ function sepiaFW_build_offline(){
 		data.desc = description || "Click to open";
 		if (!url) url = "https://sepia-framework.github.io/app/search.html";
 		/* other data content e.g.:
-		"type": "musicSearch",
+		"type": "musicSearch",		//default, custom, websearch, musicSearch, videoSearch
 		"brand": "Spotify"
 		*/
 		data.type = imageUrl? "custom" : "default";
@@ -102,7 +102,8 @@ function sepiaFW_build_offline(){
 				"url": url
 			}]
 		};
-		return cardInfoItem;		//NOTE: it is ONE ITEM of the cardInfo-array! To build use e.g. [getLinkCard(...)]
+		return cardInfoItem;
+		//NOTE: it is ONE ITEM of the cardInfo-array! To build use e.g. [getLinkCard(...)]
 	}
 
 	//------------------ custom buttons -------------------
