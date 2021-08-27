@@ -264,7 +264,7 @@ function sepiaFW_build_embedded_services(){
 		return serviceResult;
 	}
 
-	//Custom chat with action or card test
+	//Custom chat with action or card test - Trigger via 'action [test]' or 'card [test]'
 	Services.customChatWithActionOrCardTest = function(nluInput, nluResult){
 		//Get dummy answer
 		var answerText = "Ok";
@@ -274,11 +274,15 @@ function sepiaFW_build_embedded_services(){
 		if (SepiaFW.offline && nluResult.parameters && nluResult.parameters.data){
 			var cardInfo = "";
 			var actionInfo = "";
-			var t = nluResult.parameters.data.test;
+			var t = nluResult.parameters.data.test;		//[test] value
+			//action
 			if (nluResult.parameters.data.type == "action"){
-				actionInfo = dummyActions[t];
+				var fun = dummyActions[t];
+				if (fun) actionInfo = fun();
+			//card
 			}else if (nluResult.parameters.data.type == "card"){
-				cardInfo = ""; 		//TODO
+				var fun = dummyCards[t];
+				if (fun) cardInfo = fun();
 			}
 			var htmlInfo = "";
 			serviceResult = Services.buildServiceResult(
@@ -325,47 +329,56 @@ function sepiaFW_build_embedded_services(){
 		return actionInfo;
 	}
 
+	//NOTE: trigger test via chat "action html_1" etc.
 	var dummyActions = {
-		"html_1": Services.buildCustomActionInfo("show_html_result", {
+		"html_1": function(){ return Services.buildCustomActionInfo("show_html_result", {
 			data: "<div class='card-box'>" 
 				+ "<div style='background:#fff; color:#111; padding:5px;'><span>Hello World</span></div>" 
-				+ "<script>alert('fail');</script></div>" 	//<-- script will be filtered out
-		}),
-		"frame_1": Services.buildCustomActionInfo("open_frames_view", {
-			info: {pageUrl: "templates/frames_template.html"}
-		}),
-		"frame_2": Services.buildCustomActionInfo("open_frames_view", {
-			info: {pageUrl: (location.href.replace(/index.html$/, "") + "templates/frames_template.html")}
-		}),
-		"frame_3": Services.buildCustomActionInfo("open_frames_view", {
-			info: {pageUrl: "https://b07z.net/downloads/cors/frames_template.html"}
-		}),
-		"frame_4": Services.buildCustomActionInfo("open_frames_view", {
+				+ "<script>alert('fail');</script></div>" 	//<-- script will be filtered out (test)
+		}); },
+		"frame_1": function(){ return Services.buildCustomActionInfo("open_frames_view", {		//test relative link and view itself
+			info: {pageUrl: "xtensions/custom-data/views/demo-view.html"}
+		}); },
+		"frame_2": function(){ return Services.buildCustomActionInfo("open_frames_view", {		//test absolute link
+			info: {pageUrl: (location.href.replace(/index.html$/, "") + "xtensions/custom-data/views/demo-view.html")}
+		}); },
+		"frame_3": function(){ return Services.buildCustomActionInfo("open_frames_view", {		//test remote link
+			info: {pageUrl: "https://b07z.net/downloads/cors/demo-view.html"}
+		}); },
+		"frame_4": function(){ return Services.buildCustomActionInfo("open_frames_view", {		//test path-replaced link
+			info: {pageUrl: "<custom_data>/views/clock.html"}
+		}); },
+		"frame_5": function(){ return Services.buildCustomActionInfo("open_frames_view", {		//server-path + old style
 			info: {
-				pageUrl: "<custom_data>/demo-view.html", onOpen: "sayHelloOnOpen", 
+				pageUrl: "<assist_server>/views/custom-view-demo.html", onOpen: "sayHelloOnOpen",
 				onSpeechToTextInputHandler: "handleSttData", onChatOutputHandler: "handleChatOutput"
 			}
-		}),
-		"frame_5": Services.buildCustomActionInfo("open_frames_view", {
-			info: {
-				pageUrl: "<assist_server>/views/custom-view-demo.html", onOpen: "sayHelloOnOpen", 
-				onSpeechToTextInputHandler: "handleSttData", onChatOutputHandler: "handleChatOutput"
-			}
-		}),
-		"custom_event_btn_1": Services.buildCustomActionInfo("button_custom_event", {
+		}); },
+		"custom_event_btn_1": function(){ return Services.buildCustomActionInfo("button_custom_event", {
 			title: "Test", name: "test", data: {"button": 1}
-		}),
-		"custom_event_1": Services.buildCustomActionInfo("trigger_custom_event", {
+		}); },
+		"custom_event_1": function(){ return Services.buildCustomActionInfo("trigger_custom_event", {
 			name: "test", data: {"direct": 1}
-		}),
-		"settings_1": Services.buildCustomActionInfo("open_settings", {
+		}); },
+		"settings_1": function(){ return Services.buildCustomActionInfo("open_settings", {
 			section: "addresses"
-		})
-		
-		//NOTE: trigger test via chat "action html_1" etc.
+		}); }
 	}
 
 	//----- Cards dummy data -----
+
+	//NOTE: trigger test via chat "card embedded_player" etc.
+	var dummyCards = {
+		"embedded_player": function(){
+			var url = "";
+			var service = "embedded";
+			var serviceResult = {};
+			return Services.buildEmbeddedPlayerCardInfoDummy(url, {
+				artist: "Ed",
+				song: "Twister"
+			}, service, serviceResult);
+		}
+	}
 
 	//Build a list with custom or dummy data
 	Services.buildListCardInfoDummy = function(id, title, section, indexType, group, listData){
@@ -543,7 +556,7 @@ function sepiaFW_build_embedded_services(){
 	}
 
 	//Build a radio dummy card
-	Services.buildRadioCardInfoDummy =  function(language){
+	Services.buildRadioCardInfoDummy = function(language){
 		var cardInfo = [{
 			"cardType": "uni_list",
 			"N": 2,
@@ -559,6 +572,34 @@ function sepiaFW_build_embedded_services(){
 				"type": "radio"
 			}]
 		}];
+		return cardInfo;
+	}
+
+	//Build link dummy card
+	Services.buildEmbeddedPlayerCardInfoDummy = function(url, searchObj, service, serviceResult){
+		var image = undefined;
+		var imageBackground = undefined;
+		var cardInfo = [
+			SepiaFW.offline.getLinkCard(url, undefined, undefined, image, imageBackground, {})
+		];
+		if (!searchObj) searchObj = {};
+		cardInfo[0].info[0].data = {
+			"title": "Embedded Player",
+			"desc": "Test Card",
+			"type": "musicSearch",	//or "videoSearch"
+			"autoplay": true,
+			"typeData": {
+				"song": searchObj.song || "",
+				"playlist": searchObj.playlist || "",
+				"artist": searchObj.artist || "",
+				"album": searchObj.album || "",
+				"genre": searchObj.genre || "",
+				"uri": url,
+				"service": service || "embedded",
+				"serviceResult": serviceResult || {}  //specific to service
+			},
+			"brand": ""
+		}
 		return cardInfo;
 	}
 
