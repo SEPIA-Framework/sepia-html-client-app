@@ -211,7 +211,8 @@ html.landscape-small #sepiaFW-chat-controls {
 .sepiaFW-cards-button,
 .sepiaFW-notouch-device .sepiaFW-cards-button:hover {
 	background: #CEFF1A;
-    color: #121212;
+	color: #121212;
+	border: 1px solid #dadada;
 }
 
 .sepiaFW-cards-list-title {

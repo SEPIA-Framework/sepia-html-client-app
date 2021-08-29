@@ -441,6 +441,12 @@ html.landscape-small #sepiaFW-assist-btn-area {
 .sepiaFW-cards-list-body .weatherNowSmall > div:last-of-type {
     border-radius: 0 28px 28px 0;
 }
+.sepiaFW-cards-list-body .cardBodyItem .itemLeft:not(.listLeft) .material-icons {
+	padding-left: 4px;
+}
+.sepiaFW-cards-list-body .cardBodyItem .itemRight:not(.listRight) .material-icons {
+	padding-right: 4px;
+}
 
 .sepiaFW-cards-list-body .timeEvent div {
 	background: #fb9e37;

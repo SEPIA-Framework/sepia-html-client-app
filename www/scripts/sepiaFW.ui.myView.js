@@ -48,7 +48,9 @@ function sepiaFW_build_ui_my_view(){
 		}
 	}
 	function findSectionNameFromElement(elementToAdd){
+		var $elementFirstCardBodyItem = $(elementToAdd).find(".cardBodyItem").first();
 		var sectionIndicator = elementToAdd.firstChild.className;
+		var subSectionIndicator = $elementFirstCardBodyItem? $elementFirstCardBodyItem[0].className : "";
 		var sectionName;
 		//console.error("elementToAdd", elementToAdd.firstChild.className);		//DEBUG
 		if (sectionIndicator.indexOf("cards-list-title") >= 0){
@@ -63,7 +65,7 @@ function sepiaFW_build_ui_my_view(){
 				sectionName = "section_news_articles";
 			}else if (sectionIndicator.indexOf("timer") >= 0 || sectionIndicator.indexOf("alarm") >= 0){
 				sectionName = "section_time_events";
-			}else if (sectionIndicator.indexOf("radio") >= 0){
+			}else if (sectionIndicator.indexOf("radio") >= 0 || subSectionIndicator.indexOf("musicSearch") >= 0){
 				sectionName = "section_music";
 			}else if (sectionIndicator.indexOf("link") >= 0){
 				sectionName = "section_links";

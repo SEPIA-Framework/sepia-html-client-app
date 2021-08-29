@@ -21,8 +21,12 @@
 	margin: 0px 0px;
 	padding: 0px 0px;
 }
+article + .sepiaFW-cards-flexSize-container.oneElement,
 .sepiaFW-cards-flexSize-container.oneElement.addSpacer {
 	margin-top: 5px;
+}
+.sepiaFW-results-container > .addSpacer {
+	margin-bottom: 5px;
 }
 .sepiaFW-my-view-section .sepiaFW-cards-flexSize-container {
 	margin: 5px 5px 0px 5px;
@@ -360,6 +364,10 @@
 .dark-skin .sepiaFW-cards-list-body .fullWidthItem .cardItemBlock {
 	background: #212327;
     color: #eee;
+}
+.sepiaFW-cards-list-body .fullWidthItem .cardItemBlock.cardDisabledMessage {
+	padding: 5px;
+	opacity: 0.75;
 }
 .sepiaFW-cards-flexSize-container .cardBodyItem.fullWidthItem .cardItemOverlay {
 	position: absolute;
@@ -734,6 +742,7 @@
     justify-content: center;
     flex-direction: column;
 	/*width: calc(100% - 80px);*/
+	min-height: 48px;
 	flex: 1 1 auto;
 	/*max-width: 120px;*/
 	margin: 5px 0px 0px 0px;

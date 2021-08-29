@@ -206,7 +206,8 @@ html.landscape-small #sepiaFW-chat-controls {
 .sepiaFW-cards-flexSize-container.oneElement {
 	padding-bottom: 5px;
 }
-.chatMsg > .sepiaFW-cards-flexSize-container.oneElement:only-of-type {
+.chatMsg > .sepiaFW-cards-flexSize-container.oneElement:only-of-type,
+.sepiaFW-results-container > .sepiaFW-cards-flexSize-container.oneElement {
 	padding-bottom: 0px;
 }
 .chatMsg > .sepiaFW-cards-flexSize-container.oneElement {

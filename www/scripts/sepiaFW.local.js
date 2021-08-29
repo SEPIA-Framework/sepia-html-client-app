@@ -78,6 +78,8 @@ function sepiaFW_build_strings(){
 	StringsDE.copy = 'Kopieren';
 	StringsDE.show = 'Anzeigen';
 	StringsDE.open = 'Öffnen';
+	StringsDE.close = 'Schließen';
+	StringsDE.closed = 'geschlossen';
 	StringsDE.new = 'Neu';
 	StringsDE.unknown = 'Unbekannt';
 	StringsDE.not_defined = 'Nicht definiert';
@@ -109,6 +111,7 @@ function sepiaFW_build_strings(){
 	StringsDE.exportToUrl = '<i class="material-icons md-inherit">share</i><span>&nbsp;Link</span>';
 	StringsDE.copyUrl = '<i class="material-icons md-inherit">link</i><span>&nbsp;Kopieren</span>';
 	StringsDE.playOn = '<i class="material-icons md-inherit">airplay</i><span>&nbsp;Play On</span>';
+	StringsDE.closeCard = '<i class="material-icons md-inherit">cancel_presentation</i><span>&nbsp;Beenden</span>';
 	StringsDE.readNewsArticle = '<i class="material-icons md-inherit">local_library</i><span>&nbsp;Artikel lesen</span>';
 	StringsDE.alarm = 'Wecker';
 	StringsDE.alarmClock = 'Wecker'; 		//name is title of UserDataList
@@ -172,6 +175,7 @@ function sepiaFW_build_strings(){
 	StringsDE.no_media_found = "Es wurde nichts zum Abspielen gefunden.";
 	StringsDE.remote_action = "Remote-Zugriff";
 	StringsDE.remote_action_audio_stream = "ich habe einen Audio Stream via Remote-Zugriff empfangen. Stream wird gestartet.";
+	StringsDE.remote_action_media_player = "habe Daten via Remote-Zugriff empfangen. Media player wird gestartet.";
 	StringsDE.remote_action_notify = "ich habe eine Benachrichtigung für dich.";
 	StringsDE.read_article = "Artikel lesen";
 	StringsDE.choose_device_for_music = "Wähle ein Gerät auf dem du die Musik abspielen willst";
@@ -191,6 +195,7 @@ function sepiaFW_build_strings(){
 	StringsDE.myNewsDemoBtn = 'Öffne meine persönlichen News';
 	StringsDE.myRadioDemoBtn = 'Starte mein Lieblingsradio';
 	StringsDE.myToDoDemoBtn = 'Öffne meine To-Do Liste';
+	StringsDE.myMusicPlayerDemoBtn = 'Spiele Musik von Ed';
 	//Connection status
 	StringsDE.status_connecting = "Wird verbunden...";
 	StringsDE.status_opened = "Online";
@@ -291,6 +296,8 @@ function sepiaFW_build_strings(){
 	StringsEN.copy = 'Copy';
 	StringsEN.show = 'Show';
 	StringsEN.open = 'Open';
+	StringsEN.close = 'Close';
+	StringsEN.closed = 'closed';
 	StringsEN.new = 'New';
 	StringsEN.unknown = 'Unknown';
 	StringsEN.not_defined = 'Not defined';
@@ -322,6 +329,7 @@ function sepiaFW_build_strings(){
 	StringsEN.exportToUrl = '<i class="material-icons md-inherit">share</i><span>&nbsp;Link</span>';
 	StringsEN.copyUrl = '<i class="material-icons md-inherit">link</i><span>&nbsp;Copy</span>';
 	StringsEN.playOn = '<i class="material-icons md-inherit">airplay</i><span>&nbsp;Play On</span>';
+	StringsEN.closeCard = '<i class="material-icons md-inherit">cancel_presentation</i><span>&nbsp;Close</span>';
 	StringsEN.readNewsArticle = '<i class="material-icons md-inherit">local_library</i><span>&nbsp;Read article</span>';
 	StringsEN.alarm = 'Alarm';
 	StringsEN.alarmClock = 'Alarm';		//name is title of UserDataList
@@ -385,6 +393,7 @@ function sepiaFW_build_strings(){
 	StringsEN.no_media_found = "Found no media to play.";
 	StringsEN.remote_action = "Remote access";
 	StringsEN.remote_action_audio_stream = "I've received an audio stream via remote access. Starting now.";
+	StringsEN.remote_action_media_player = "I've received media via remote access. Starting player.";
 	StringsEN.remote_action_notify = "I have a message for you.";
 	StringsEN.read_article = "Read article";
 	StringsEN.choose_device_for_music = "Choose a device to play your music on";
@@ -404,6 +413,7 @@ function sepiaFW_build_strings(){
 	StringsEN.myNewsDemoBtn = 'Open my personal news';
 	StringsEN.myRadioDemoBtn = 'Start my favorite radio station';
 	StringsEN.myToDoDemoBtn = 'Open my to-do list';
+	StringsEN.myMusicPlayerDemoBtn = 'Play music from Ed';
 	//Connection status
 	StringsEN.status_connecting = "Connecting...";
 	StringsEN.status_opened = "Online";

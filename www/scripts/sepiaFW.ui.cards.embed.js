@@ -13,11 +13,11 @@ function sepiaFW_build_ui_cards_embed(){
 	var playerWidgets = {
 		default: "<assist_server>/widgets/mp-default.html",
 		embedded: "<assist_server>/widgets/mp-default.html",
-		template: "templates/media-player_template.html",
 		spotify: "<assist_server>/widgets/mp-spotify.html",
 		apple_music: "<assist_server>/widgets/mp-apple-music.html",
 		youtube: "<assist_server>/widgets/mp-youtube.html",
-		soundcloud: "<assist_server>/widgets/mp-soundcloud.html"
+		soundcloud: "<assist_server>/widgets/mp-soundcloud.html",
+		template: "templates/media-player_template.html"
 	}
 	function getPlayerWidget(widget){
 		var wUrl = playerWidgets[widget];
@@ -29,24 +29,27 @@ function sepiaFW_build_ui_cards_embed(){
 
 	var activeMediaPlayers = {};
 	var lastActiveMediaPlayer = undefined;
-	var maxActiveMediaPlayers = 5; 		//NOTE: "active" does not mean "playing" but "exists" with event listeners
+	var maxActiveMediaPlayers = 4; 		//NOTE: "active" does not mean "playing" but "exists" with event listeners
 
 	function getNewMediaPlayerId(){
 		mediaPlayerLastId++;
-		var overflow = false;
 		if (mediaPlayerLastId > maxActiveMediaPlayers){
 			mediaPlayerLastId = 1;
-			overflow = true;
 		}
 		var newId = ("sepia-embedded-player-" + mediaPlayerLastId);
-		if (overflow){
-			//remove old players
-			var oldMp = activeMediaPlayers[newId];
-			if (oldMp && oldMp.exists()){
-				oldMp.cardItem.sepiaCardOnBeforeRemove();
-				$(oldMp.cardItem).remove();
+		//remove old players, but try to keep my-view players if possbile
+		var oldMp = activeMediaPlayers[newId];
+		if (oldMp && oldMp.exists()){
+			var myViewPlayersN = $("#sepiaFW-my-view").find(".embeddedWebPlayer").length;
+			if (myViewPlayersN > 0 && myViewPlayersN < maxActiveMediaPlayers 
+					&& $(oldMp.cardItem).closest("#sepiaFW-my-view").length){
+				//skip
+				return getNewMediaPlayerId();
+			}else{
+				//remove
+				oldMp.cardItem.sepiaCardClose();
+				//console.error("RELEASED and REMOVED", newId, oldMp);		//DEBUG
 			}
-			//console.error("RELEASED and REMOVED", newId, activeMediaPlayers[newId]);		//DEBUG
 		}
 		return newId;
 	}
@@ -98,6 +101,14 @@ function sepiaFW_build_ui_cards_embed(){
 		return {
 			card: mediaPlayerDiv, iframe: iframe, overlay: loadOverlay
 		}
+	}
+	function createMediaPlayerClosedCardMsg(){
+		var msgDiv = document.createElement('div');
+		msgDiv.className = "embeddedWebPlayerClosed cardBodyItem fullWidthItem";
+		msgDiv.innerHTML = "<div class='cardItemBlock cardDisabledMessage'>" 
+				+ "Media-Player " + SepiaFW.local.g("closed") + "&nbsp;" + "<i class='material-icons md-inherit'>block</i>"
+			+ "</div>";
+		return msgDiv;
 	}
 	//Register new audio fade (stop/start) handler
 	function registerMediaPlayerFadeInOutListener(){
@@ -250,6 +261,10 @@ function sepiaFW_build_ui_cards_embed(){
 			//TODO: no reliable way to call it atm (too many events: history clear, parent list remove, etc...)
 			//console.error("BEFORE REMOVE EVENT", playerId);	//DEBUG
 			thisPlayer.release();
+		}
+		thisPlayer.cardItem.sepiaCardClose = function(){
+			thisPlayer.cardItem.sepiaCardOnBeforeRemove();
+			$(thisPlayer.cardItem).remove();
 		}
 
 		//Media title and URL change
@@ -471,14 +486,10 @@ function sepiaFW_build_ui_cards_embed(){
 			SepiaFW.audio.broadcastAudioEvent("embedded-media-player", "prepare");
 			if (autoplay){
 				//stop all previous audio first
-				if (SepiaFW.client.controls){
-					SepiaFW.client.controls.media({
-						action: "stop",
-						skipFollowUp: true
-					});
-				}else{
-					SepiaFW.audio.stop();
-				}
+				SepiaFW.client.controls.media({
+					action: "stop",
+					skipFollowUp: true
+				});
 			}
 			if (request.title) onTitleSubmit(request.title);
 			if (request.uri) onUrlSubmit(request.uri);
@@ -510,10 +521,15 @@ function sepiaFW_build_ui_cards_embed(){
 
 		//Release resources and remove handler
 		thisPlayer.release = function(doneCallback, errorCallback){
+			if (state == 11){
+				return;		//already closed
+			}
 			//remove from active players, block incoming events
 			state = 11;
 			if (lastActiveMediaPlayer == thisPlayer) lastActiveMediaPlayer = undefined;
 			delete activeMediaPlayers[playerId];
+			//add "removed" card info
+			$(thisPlayer.cardItem).before(createMediaPlayerClosedCardMsg());
 			SepiaFW.debug.info("Embedded MediaPlayer - Released player with id: " + playerId);
 		}
 

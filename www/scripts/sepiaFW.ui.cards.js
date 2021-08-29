@@ -25,11 +25,16 @@ function sepiaFW_build_ui_cards(){
 	var topIndexZ = 1;			//to get an active element to the top (deprecated?)
 
 	//some specials
+	var storedEmbedSettings = SepiaFW.data.get("embeddedPlayerSettings") || {};
 	Cards.canEmbedCustomPlayer = true;
-	Cards.canEmbedYouTube = true;
-	Cards.canEmbedSoundCloud = false;	//TODO: not selectable yet
-	Cards.canEmbedSpotify = false;		//deactivated by default because it only works in desktop and gives no control over start/stop/volume
-	Cards.canEmbedAppleMusic = false;	// "" ""
+	Cards.canEmbedYouTube = (storedEmbedSettings.canEmbedYouTube != undefined)?
+		storedEmbedSettings.canEmbedYouTube : true;
+	Cards.canEmbedSpotify = (storedEmbedSettings.canEmbedSpotify != undefined)?
+		storedEmbedSettings.canEmbedSpotify : false;	//deactivated by default because it only works in desktop and gives no control over start/stop/volume
+	Cards.canEmbedAppleMusic = (storedEmbedSettings.canEmbedAppleMusic != undefined)?
+		storedEmbedSettings.canEmbedAppleMusic : false;		// "" ""
+	Cards.canEmbedSoundCloud = (storedEmbedSettings.canEmbedSoundCloud != undefined)?
+		storedEmbedSettings.canEmbedSoundCloud : false;		//TODO: not selectable yet
 	Cards.getSupportedWebPlayers = function(){
 		var players = [];
 		if (Cards.canEmbedCustomPlayer) players.push("embedded");
@@ -1326,6 +1331,13 @@ function sepiaFW_build_ui_cards(){
 			&& data.typeData && Cards.canEmbedWebPlayer(data.typeData.service);
 		if (embedWebPlayer){
 			//Embedded player
+			if (data.autoplay){
+				//stop all previous audio ... we will try it later anyway
+				SepiaFW.client.controls.media({
+					action: "stop",
+					skipFollowUp: true
+				});
+			}
 			var mediaType = (data.type == "videoSearch")? "video" : "music";		//add more later?
 			typeInfo.mediaPlayer = addEmbeddedPlayerToCard(cardBody, mediaType, data.typeData, isSafeSource, {
 				brand: data.brand,
@@ -1380,7 +1392,7 @@ function sepiaFW_build_ui_cards(){
 			getData: function(){
 				//we limit the amount of data shared ...
 				var d = linkElementInfo.data || {};
-				return {
+				return {	//use 'exportEmbeddedPlayerDataForRemoteAction' instead?
 					url: linkElementInfo.url,
 					image: linkElementInfo.image,
 					imageBackground: linkElementInfo.imageBackground,
@@ -1402,18 +1414,52 @@ function sepiaFW_build_ui_cards(){
 				//url: linkElementInfo.url		//we use 'getUrl' instead to account for URL changes
 			}
 		}
-		//custom button sections
+		//custom buttons
+		var customButtons;
 		var customButtonSections;
 		if (linkElementType == "musicSearch" || linkElementType == "videoSearch"){
+			//play-on feature and player-close
+			customButtons = [{
+				buttonName: SepiaFW.local.g('playOn'),
+				fun: function(){
+					//play stream on different device
+					SepiaFW.client.showConnectedUserClientsAsMenu(SepiaFW.local.g('choose_device_for_music'), 
+						function(deviceInfo){
+							SepiaFW.client.sendRemoteActionToOwnDevice("media", {
+								type: "embedded_player",
+								playerData: exportEmbeddedPlayerDataForRemoteAction(linkElementInfo)
+							}, deviceInfo.deviceId);
+						}, true
+					);
+				}
+			},{
+				buttonName: SepiaFW.local.g('closeCard'),
+				fun: function(thisBtn, parentEle){
+					$(cardBody).find(".embeddedWebPlayer").each(function(i, ele){
+						if (typeof ele.sepiaCardClose == "function") ele.sepiaCardClose();
+					});
+					$(parentEle).find(".cards-ctx-mp-controls").fadeOut(300);
+					$(thisBtn).fadeOut(300);
+				}
+			}];
+			//custom button section for media-control buttons
 			if (typeInfo.mediaPlayer){
-				customButtonSections = [{className: "", buttons: []}];
+				customButtonSections = [{className: "cards-ctx-mp-controls", buttons: []}];
 				customButtonSections[0].buttons.push({
 					buttonName: '<i class="material-icons md-inherit">skip_previous</i>',
 					fun: function(){ typeInfo.mediaPlayer.previous(); }
 				});
 				customButtonSections[0].buttons.push({
 					buttonName: '<i class="material-icons md-inherit">play_arrow</i>',
-					fun: function(){ typeInfo.mediaPlayer.play(); }
+					fun: function(){
+						SepiaFW.client.controls.media({
+							action: "stop",
+							skipFollowUp: true
+						});
+						setTimeout(function(){
+							typeInfo.mediaPlayer.play();
+						}, 500);
+					}
 				});
 				customButtonSections[0].buttons.push({
 					buttonName: '<i class="material-icons md-inherit">skip_next</i>',
@@ -1429,7 +1475,8 @@ function sepiaFW_build_ui_cards(){
 		var ctxConfig = {
 			toggleButtonSelector: ".linkCardLogo",
 			newBodyClass: newBodyClass,
-			shareButton: shareButton
+			shareButton: shareButton,
+			customButtons: customButtons
 		}
 		if (copyUrlButton) ctxConfig.copyUrlButton = copyUrlButton;
 		if (customButtonSections) ctxConfig.customButtonSections = customButtonSections;
@@ -1898,6 +1945,14 @@ function sepiaFW_build_ui_cards(){
 			SepiaFW.ui.onclick(cmHideBtn, function(){
 				var flexCard = $(cmHideBtn).closest(".sepiaFW-cards-flexSize-container");
 				var title = flexCard.find('.sepiaFW-cards-list-title');
+				//synchronous before-move events:
+				var $cardBodyItems = flexCard.find(".cardBodyItem");
+				if ($cardBodyItems.length) $cardBodyItems.each(function(i, cbi){
+					//inform card body items of remove event - NOTE: this is not reliable (DOM can change in many ways) but at least we catch some events
+					if (typeof cbi.sepiaCardOnBeforeRemove == "function"){
+						cbi.sepiaCardOnBeforeRemove();
+					}
+				});
 				//remove:
 				if (title.length > 0){
 					//hide save button (just to be sure the user does not save an incomplete list)
@@ -1935,7 +1990,9 @@ function sepiaFW_build_ui_cards(){
 			var btn = document.createElement('LI');
 			btn.className = "sepiaFW-cards-button sepiaFW-cards-list-contextMenu-customBtn";
 			btn.innerHTML = SepiaFW.tools.sanitizeHtml(customButtonData.buttonName || customButtonData.name);
-			SepiaFW.ui.onclick(btn, customButtonData.fun, true);	//TODO: make sure this never falls into user hands!
+			SepiaFW.ui.onclick(btn, function(){
+				if (customButtonData.fun) customButtonData.fun(btn, parentEle);	//TODO: make sure this never falls into user hands!
+			}, true);
 			parentEle.appendChild(btn);
 		});
 	}
@@ -2004,8 +2061,49 @@ function sepiaFW_build_ui_cards(){
 
 	//-- Embedded Media Player --
 
-	//Basic media-player card (for testing - TODO: replace with link-card like in offline services)
-	Cards.addEmbeddedPlayer = function(targetView, widgetUrl){
+	//Default link-card based media-player widget
+	Cards.addEmbeddedPlayer = function(targetView, playerData, isSafeSource){
+		if (!playerData) playerData = {};
+		var data = playerData.data || {};
+		var typeData = data.typeData || {};
+		//TODO: add player instance settings?
+		var cardInfo = [
+			SepiaFW.offline.getLinkCard(playerData.url, undefined, undefined,
+				playerData.image, playerData.imageBackground, {})
+		];
+		cardInfo[0].info[0].url = playerData.url;
+		cardInfo[0].info[0].data = {
+			"title": data.title || "Media Player",
+			"desc": data.desc,
+			"type": data.type || "musicSearch",
+			"autoplay": data.autoplay,
+			"typeData": {
+				"song": typeData.song || "",
+				"playlist": typeData.playlist || "",
+				"artist": typeData.artist || "",
+				"album": typeData.album || "",
+				"genre": typeData.genre || "",
+				"uri": typeData.uri || playerData.url || "",
+				"service": typeData.service || "embedded",
+				"serviceResult": typeData.serviceResult || {}  //specific to service
+			},
+			"brand": data.brand || ""
+		}
+		var cardElement = buildLinkElement(cardInfo[0].info[0], isSafeSource);
+		addCardElementToTargetView(targetView, cardElement);
+	}
+	function exportEmbeddedPlayerDataForRemoteAction(linkElementInfo){
+		var d = linkElementInfo.data || {};
+		//TODO: add player instance settings?
+		return {
+			url: linkElementInfo.url,
+			image: linkElementInfo.image,
+			imageBackground: linkElementInfo.imageBackground,
+			data: d
+		}
+	}
+	//Basic media-player card (for testing)
+	Cards.addCustomEmbeddedPlayer = function(targetView, widgetUrl){
 		var cardBody = addContainerToTargetView(targetView, "sepiaFW-embedded-player-container", "sepia-embedded-player-card");
 		var player = new SepiaFW.ui.cards.embed.MediaPlayer({
 			parentElement: cardBody,
@@ -2013,19 +2111,12 @@ function sepiaFW_build_ui_cards(){
 		});
 		var cardEle = document.createElement('div');
 		cardEle.className = 'cardBodyItem fullWidthItem';
-		var buttons = [{
-			icon: "skip_previous",
-			fun: player.previous
-		},{
-			icon: "play_arrow",
-			fun: player.play
-		},{
-			icon: "pause",
-			fun: player.pause
-		},{
-			icon: "skip_next",
-			fun: player.next
-		}];
+		var buttons = [
+			{ icon: "skip_previous", fun: player.previous },
+			{ icon: "play_arrow", fun: player.play },
+			{ icon: "pause", fun: player.pause },
+			{ icon: "skip_next", fun: player.next }
+		];
 		buttons.forEach(function(b){
 			var btn = document.createElement('div');
 			btn.className = "cardItemBlock";
@@ -2099,9 +2190,13 @@ function sepiaFW_build_ui_cards(){
 		cardElement.classList.add(cardClass);
 		cardElement.appendChild(container);
 		//add
+		addCardElementToTargetView(targetView, cardElement);
+		return container;
+	}
+	function addCardElementToTargetView(targetView, cardElement){
 		var resultView = SepiaFW.ui.getResultViewByName(targetView);
 		SepiaFW.ui.addDataToResultView(resultView, cardElement);
-		return container;
+		return resultView;
 	}
 	
 	return Cards;

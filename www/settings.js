@@ -48,7 +48,12 @@ SepiaFW.settings = {
 			"activeSkin": "2",
 			"activeAvatar": "0",
 			"proactiveNotes": false,
-			"autoGPS": false
+			"autoGPS": false,
+			"embeddedPlayerSettings": {
+				"canEmbedYouTube": true,
+				"canEmbedSpotify": false,
+				"canEmbedAppleMusic": false
+			}
 		},
 		location: {
 			"latitude": "",

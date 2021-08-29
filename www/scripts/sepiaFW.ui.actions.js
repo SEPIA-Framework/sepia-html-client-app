@@ -409,13 +409,9 @@ function sepiaFW_build_ui_actions(){
 	//STOP AUDIO STREAM
 	Actions.stopAudio = function(action){
 		//SepiaFW.debug.info("Action: type 'stop_audio_stream'.");
-		if (SepiaFW.client.controls){
-			SepiaFW.client.controls.media({
-				action: "stop"
-			});
-		}else{
-			SepiaFW.audio.stop();
-		}
+		SepiaFW.client.controls.media({
+			action: "stop"
+		});
 	}
 	
 	//SCHEDULE Messages

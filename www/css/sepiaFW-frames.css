@@ -300,16 +300,16 @@
 /* mic animations (idle, loading, speaking, listening, awaitDialog) */
 
 #sepiaFW-frames-view #sepiaFW-frames-mic.state-loading {
-	color: #8e8e8e;
+	color: #8e8e8e !important;
 }
 #sepiaFW-frames-view #sepiaFW-frames-mic.state-speaking {
-	color: #16ABC3;
+	color: #16ABC3 !important;
 }
 #sepiaFW-frames-view #sepiaFW-frames-mic.state-listening {
-	color: #ba2a2a;
+	color: #ba2a2a !important;
 }
 #sepiaFW-frames-view #sepiaFW-frames-mic.state-awaitDialog {
-	color: #ffeb3b;
+	color: #ffeb3b !important;
 }
 
 /* Small Landscape Modes */

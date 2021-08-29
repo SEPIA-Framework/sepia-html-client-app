@@ -865,12 +865,10 @@ function sepiaFW_build_audio(){
 			broadcastAudioRequested();
 
 			//stop all other audio sources
-			if (SepiaFW.client.controls){
-				SepiaFW.client.controls.media({
-					action: "stop",
-					skipFollowUp: true
-				});
-			}
+			SepiaFW.client.controls.media({
+				action: "stop",
+				skipFollowUp: true
+			});
 			Stream.isLoading = true;
 
 		}else if (audioPlayer == player2){

@@ -49,6 +49,10 @@ function sepiaFW_build_embedded_services(){
 			}else if (nluResult.command == "news"){
 				serviceResult = Services.news(nluInput, nluResult);
 
+			//Music (media player)
+			}else if (nluResult.command == "music"){
+				serviceResult = Services.music(nluInput, nluResult);
+
 			//Radio
 			}else if (nluResult.command == "music_radio"){
 				serviceResult = Services.radio(nluInput, nluResult);
@@ -166,12 +170,31 @@ function sepiaFW_build_embedded_services(){
 		return serviceResult;
 	}
 
+	//Embedded music service
+	Services.music = function(nluInput, nluResult){
+		//Get dummy answer
+		var answerText = "Ok";
+		
+		//Get dummy media player card
+		var serviceResult;
+		if (SepiaFW.offline && nluResult.parameters && nluResult.parameters.music_service == "embedded"){
+			var cardInfo = dummyCards["embedded_player"]();
+			var actionInfo = "";
+			var htmlInfo = "";
+			serviceResult = Services.buildServiceResult(
+				nluInput.user, nluInput.language, 
+				nluResult.command, answerText, cardInfo, actionInfo, htmlInfo
+			);
+		}
+		return serviceResult;
+	}
+
 	//Embedded radio service
 	Services.radio = function(nluInput, nluResult){
 		//Get dummy answer
 		var answerText = "Ok";
 		
-		//Get dummy weather service-result
+		//Get dummy radio service-result
 		var serviceResult;
 		if (SepiaFW.offline){
 			var cardInfo = Services.buildRadioCardInfoDummy(nluResult.language);
@@ -376,6 +399,15 @@ function sepiaFW_build_embedded_services(){
 			return Services.buildEmbeddedPlayerCardInfoDummy(url, {
 				artist: "Ed",
 				song: "Twister"
+			}, service, serviceResult);
+		},
+		"embedded_player_youtube": function(){
+			var url = "https://www.youtube.com/embed?listType=playlist&list=OLAK5uy_nMLnwHRhSOAO6sO7LmFRkp21RATGG6mT8";
+			var service = "youtube_embedded";
+			var serviceResult = {};
+			return Services.buildEmbeddedPlayerCardInfoDummy(url, {
+				playlist: "Metallica",
+				uri: url
 			}, service, serviceResult);
 		}
 	}
@@ -583,6 +615,7 @@ function sepiaFW_build_embedded_services(){
 			SepiaFW.offline.getLinkCard(url, undefined, undefined, image, imageBackground, {})
 		];
 		if (!searchObj) searchObj = {};
+		cardInfo[0].info[0].url = url;
 		cardInfo[0].info[0].data = {
 			"title": "Embedded Player",
 			"desc": "Test Card",
