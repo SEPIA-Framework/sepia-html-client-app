@@ -221,7 +221,7 @@ function sepiaFW_build_embedded_nlu(){
 		nluResult.context = "chat";
 		nluResult.parameters = {
 			"data": {
-				"type": inputText.match(/^action|^card/)[0],
+				"type": inputText.toLowerCase().match(/^action|^card/)[0],
 				"test": inputText.match(/ .*/)[0].trim()
 			}
 		};
