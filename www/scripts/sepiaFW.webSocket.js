@@ -2276,11 +2276,10 @@ function sepiaFW_build_webSocket_client(sepiaSessionId){
 					}else{
 						//handle
 						if (action.type == "audio_stream"){
-							//TODO: this works for internal player stream URLs ... what about embedded media player? Check supported URLs? Add flag?
 							if (action.streamURL){
 								//wait for opportunity and execute
 								SepiaFW.assistant.waitForOpportunitySayLocalTextAndRunAction(
-									SepiaFW.local.g('remote_action_audio_stream'), 
+									SepiaFW.account.getUserName() + ", " + SepiaFW.local.g('remote_action_audio_stream'), 
 									function(){
 										SepiaFW.ui.showInfo(SepiaFW.local.g('remote_action') + " - Media Audio Stream: " + (action.name || action.streamURL), false);
 										//SepiaFW.ui.showCustomChatMessage(msg);
@@ -2294,11 +2293,28 @@ function sepiaFW_build_webSocket_client(sepiaSessionId){
 							}
 						}else if (action.type == "control"){
 							//control audio (stop, pause, resume, next, ...)
-							if (SepiaFW.client.controls && action.controlAction){
+							if (action.controlAction){
 								SepiaFW.ui.showInfo(SepiaFW.local.g('remote_action') + " - Media Control: " + action.controlAction, false);
 								SepiaFW.client.controls.media({
 									action: action.controlAction
 								});
+							}
+						}else if (action.type == "embedded_player"){
+							//embedded media-player
+							if (action.playerData){
+								if (!action.playerData.data) action.playerData.data = {};
+								//wait for opportunity and execute
+								SepiaFW.assistant.waitForOpportunitySayLocalTextAndRunAction(
+									SepiaFW.account.getUserName() + ", " + SepiaFW.local.g('remote_action_media_player'), 
+									function(){
+										SepiaFW.ui.showInfo(SepiaFW.local.g('remote_action') + " - Media Player: " 
+											+ (action.playerData.data && action.playerData.data.title || action.playerData.url), false);
+										var isSafeSource = true;	//it comes from own account
+										action.playerData.data.autoplay = true;		//it doesn't really make sense without ;-)
+										SepiaFW.ui.cards.addEmbeddedPlayer("chat", action.playerData, isSafeSource);
+									}, 
+									undefined, 10000
+								);
 							}
 						}else{
 							SepiaFW.debug.error("remoteAction - type: media - no support yet for action type: " + action.type);
