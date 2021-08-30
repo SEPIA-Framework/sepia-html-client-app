@@ -2148,7 +2148,8 @@ function sepiaFW_build_ui_cards(){
 				if (SepiaFW.animate.assistant.getState() != "idle"){
 					SepiaFW.ui.actions.delayFunctionUntilIdle(function(){
 						request();
-					}, "any");	//idleState req.
+					}, "any", 	//idleState req.
+					8000, "Failed to start media player (timeout).");
 				}else{
 					request();
 				}

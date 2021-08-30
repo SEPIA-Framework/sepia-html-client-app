@@ -5,8 +5,10 @@ function sepiaFW_build_ui_actions(){
 	//Simple delay queue that waits for next idle state - NOTE: don't mistake this for 'command queue' (client)
 	//Executes all functions in next idle state so MAKE SURE! they don't interfere with each other!
 	var delayQueue = {};
+	var delayQueueTimers = {};
+	var delayQueueTimeout = 6000;
 	var delayId = 0;
-	Actions.delayFunctionUntilIdle = function(fun, idleState){
+	Actions.delayFunctionUntilIdle = function(fun, idleState, timeoutDelay, timeoutMessage){
 		delayId++;
 		if (delayId > 64000) delayId = 0;
 		if (!idleState) idleState = "any"; 		//could be: unknown, ttsFinished, dialogFinished, asrFinished, anyButAsr
@@ -15,6 +17,12 @@ function sepiaFW_build_ui_actions(){
 			idleState: idleState,
 			id: delayId
 		};
+		if (timeoutDelay){
+			delayQueueTimers[delayId] = setTimeout(function(){
+				SepiaFW.ui.showInfo(timeoutMessage || ("Delayed function lost due to timeout - Id: " + delayId));
+				delete delayQueue[delayId];
+			}, timeoutDelay);
+		}
 		//NOTE: At the time of this function call the state can actually BE IDLE (short transient)
 		//Should we add a timeout fallback?
 		//console.error("delayFunction", "state", SepiaFW.animate.assistant.getState());		//DEBUG
@@ -26,13 +34,16 @@ function sepiaFW_build_ui_actions(){
 			if (!stateFilter 
 				|| queueData.idleState == "any" 
 				|| (queueData.idleState == stateFilter)
-				|| (queueData.idleState == "anyButAsr" && stateFilter != "asrFinished")){
+				|| (queueData.idleState == "anyButAsr" && stateFilter != "asrFinished")
+			){
+				clearTimeout(delayQueueTimers[queueData.id]);
 				queueData.fun();
 				cleanUpIds.push(queueData.id);
 			}
 		});
 		for (var i=0; i<cleanUpIds.length; i++){
 			delete delayQueue[cleanUpIds[i]];
+			delete delayQueueTimers[cleanUpIds[i]];
 		}
 	}
 	Actions.getDelayQueueSize = function(){
@@ -41,6 +52,10 @@ function sepiaFW_build_ui_actions(){
 	}
 	Actions.clearDelayQueue = function(){
 		delayQueue = {};
+		Object.keys(delayQueueTimers).forEach(function(dId){
+			clearTimeout(delayQueueTimers[dId]);
+		});
+		delayQueueTimers = {};
 	}
 
 	//custom action event dispatcher
@@ -203,7 +218,8 @@ function sepiaFW_build_ui_actions(){
 		if (delayUntilIdle || action.delayUntilIdle){
 			Actions.delayFunctionUntilIdle(function(){
 				SepiaFW.client.controls.handle(action.fun, action.controlData);
-			}, "any");	//idleState req.
+			}, "any",	//idleState req.
+			8000, "Failed to start audio (timeout).");
 		}else{
 			SepiaFW.client.controls.handle(action.fun, action.controlData);
 		}
@@ -390,7 +406,8 @@ function sepiaFW_build_ui_actions(){
 			var idleState = "anyButAsr";
 			Actions.delayFunctionUntilIdle(function(){
 				playAction(action);
-			}, idleState);
+			}, idleState,
+			14000, "Failed to start audio (timeout).");
 		}else{
 			playAction(action);
 		}
