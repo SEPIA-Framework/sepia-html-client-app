@@ -158,9 +158,10 @@ function sepiaFW_build_frames(){
 		//get HTML - is there a language dependent version?
 		var framePage = Frames.getLocalOrDefaultPage(info.pageUrl, SepiaFW.config.appLanguage).trim();
 		var isValidLocalURL = SepiaFW.tools.isRelativeFileUrl(framePage, "html");
+		var isAcceptableFileOrigin = (framePage.indexOf("file://") == 0);	//any other condition? - This is important for Android (Cordova)
 		var isTrustedRemoteUrl = SepiaFW.tools.isRemoteFileUrl(framePage, "html") 
 			&& (SepiaFW.tools.isSameOrigin(framePage) || SepiaFW.config.urlIsSepiaFileHost(framePage));
-		var isTrusted = isValidLocalURL || isTrustedRemoteUrl;
+		var isTrusted = isValidLocalURL || isAcceptableFileOrigin || isTrustedRemoteUrl;
 
 		//$.get(framePage, function(frameHtml){
         SepiaFW.files.fetch(framePage, function(frameHtml){

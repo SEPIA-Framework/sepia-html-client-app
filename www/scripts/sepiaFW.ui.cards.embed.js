@@ -213,9 +213,10 @@ function sepiaFW_build_ui_cards_embed(){
 		widgetUrl = SepiaFW.config.replacePathTagWithActualPath(widgetUrl);
 		//check URL - NOTE: currently we do not allow unknown URLs
 		var isValidLocalURL = SepiaFW.tools.isRelativeFileUrl(widgetUrl, "html");
+		var isAcceptableFileOrigin = (widgetUrl.indexOf("file://") == 0);	//any other condition? - This is important for Android (Cordova)
 		var isTrustedRemoteUrl = SepiaFW.tools.isRemoteFileUrl(widgetUrl, "html") 
 			&& (SepiaFW.tools.isSameOrigin(widgetUrl) || SepiaFW.config.urlIsSepiaFileHost(widgetUrl));
-		var widgetIsTrusted = isValidLocalURL || isTrustedRemoteUrl;
+		var widgetIsTrusted = isValidLocalURL || isAcceptableFileOrigin || isTrustedRemoteUrl;
 		if (!widgetIsTrusted){
 			SepiaFW.debug.error("WARNING: Embedded MediaPlayer Widget URL has remote location and was BLOCKED due to security restrictions! - URL: " + widgetUrl);
 			SepiaFW.ui.showSafeWarningPopup("Warning", [
@@ -485,8 +486,9 @@ function sepiaFW_build_ui_cards_embed(){
 
 		//Content
 		thisPlayer.mediaRequest = function(type, request, autoplay, safeRequest, doneCallback, errorCallback){
+			SepiaFW.debug.info("Embedded MediaPlayer - MediaRequest: " + type + " - autoplay: " + !!(autoplay && widgetIsTrusted));
 			SepiaFW.audio.broadcastAudioEvent("embedded-media-player", "prepare");
-			if (autoplay){
+			if (autoplay && widgetIsTrusted){
 				//stop all previous audio first
 				SepiaFW.client.controls.media({
 					action: "stop",
