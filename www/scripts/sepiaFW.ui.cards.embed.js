@@ -349,6 +349,7 @@ function sepiaFW_build_ui_cards_embed(){
 			
 			//on-ready
 			if (ev.state == 1){
+				SepiaFW.debug.info("Embedded MediaPlayer - Player ready: " + playerId);
 				state = ev.state;
 				if (data.size && data.size.height){
 					thisPlayer.iframe.style.height = data.size.height;
@@ -395,6 +396,7 @@ function sepiaFW_build_ui_cards_embed(){
 					}else if (ev.name == "PlayerErrorNotAllowed"){
 						SepiaFW.client.controls.sendMediaPlayerErrorFollowUpMessage("notPossible", undefined, undefined);
 					}else{
+						SepiaFW.ui.showInfo("Media-Player error: " + (ev.name || ev.message || "?"));
 						SepiaFW.client.controls.sendMediaPlayerErrorFollowUpMessage("error", undefined, undefined);
 					}
 				}
