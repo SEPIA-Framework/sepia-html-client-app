@@ -65,11 +65,15 @@ function sepiaFW_build_ui_cards(){
 		if (!url) return false;
 		var testUrl = url.toLowerCase().trim();
 		//YouTube
-		if (Cards.canEmbedYouTube && testUrl.indexOf("https://www.youtube") == 0){
-			var testUrl = testUrl.replace("youtube-nocookie.com", "youtube.com"); //easier for testing
-			if (testUrl.indexOf("https://www.youtube.com") == 0 && (
-				testUrl.indexOf("/embed") == 23
-				|| testUrl.indexOf("/playlist") == 23
+		if (Cards.canEmbedYouTube && !!testUrl.match(/https:\/\/(www\.|m\.|)(youtube|youtube-nocookie|youtu)\.(com|be)/)){
+			var testUrl = testUrl	//easier for testing
+				.replace("www.", "")
+				.replace("youtube-nocookie", "youtube")
+				.replace("m.youtube", "youtube")
+				.replace("youtu.be/", "youtube.com/embed/");
+			if (testUrl.indexOf("https://youtube.com") == 0 && (
+				testUrl.indexOf("/embed") == 19
+				|| testUrl.indexOf("/playlist") == 19
 				|| testUrl.indexOf("listType=playlist") > 0
 				|| !!testUrl.match(/(&|\?)v=.+/)
 			)){
