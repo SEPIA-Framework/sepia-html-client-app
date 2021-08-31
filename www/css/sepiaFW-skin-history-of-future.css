@@ -65,8 +65,8 @@ html {
 #sepiaFW-adC 	{ background-color: #fb9e37; }
 #sepiaFW-lC 	{ background-color: #292929; }
 
-#sepiaFW-statC 	{ background-color: #fb9e37; }
-#sepiaFW-navC 	{ background-color: #fd827b; }
+#sepiaFW-statC 	{ background-color: #111111; }	/*#fb9e37*/
+#sepiaFW-navC 	{ background-color: #111111; }	/*#fd827b*/
 
 #sepiaFW-login-box {
 	background: #ffad01;

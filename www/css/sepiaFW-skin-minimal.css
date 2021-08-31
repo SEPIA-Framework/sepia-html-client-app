@@ -34,6 +34,7 @@ html.landscape-small #sepiaFW-nav-bar {
 }
 #sepiaFW-chat-controls {
 	background: linear-gradient(rgba(0,0,0,0), #000, #000);
+	border-bottom: 1px solid #000;
 }
 #sepiaFW-chat-controls.full-screen {
 	background: linear-gradient(rgba(0,0,0,0), #000);
