@@ -6,7 +6,6 @@ function sepiaFW_build_ui_actions(){
 	//Executes all functions in next idle state so MAKE SURE! they don't interfere with each other!
 	var delayQueue = {};
 	var delayQueueTimers = {};
-	var delayQueueTimeout = 6000;
 	var delayId = 0;
 	Actions.delayFunctionUntilIdle = function(fun, idleState, timeoutDelay, timeoutMessage){
 		delayId++;
@@ -218,8 +217,8 @@ function sepiaFW_build_ui_actions(){
 		if (delayUntilIdle || action.delayUntilIdle){
 			Actions.delayFunctionUntilIdle(function(){
 				SepiaFW.client.controls.handle(action.fun, action.controlData);
-			}, "any",	//idleState req.
-			8000, "Failed to start audio (timeout).");
+			}, "any",	//idleState req. (change?)
+			8000, "Failed to trigger client controls (timeout).");
 		}else{
 			SepiaFW.client.controls.handle(action.fun, action.controlData);
 		}
@@ -407,7 +406,7 @@ function sepiaFW_build_ui_actions(){
 			Actions.delayFunctionUntilIdle(function(){
 				playAction(action);
 			}, idleState,
-			14000, "Failed to start audio (timeout).");
+			14000, "Failed to trigger audio player (timeout).");
 		}else{
 			playAction(action);
 		}

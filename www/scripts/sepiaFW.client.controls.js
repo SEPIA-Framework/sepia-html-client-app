@@ -241,11 +241,12 @@ function sepiaFW_build_client_controls(sepiaSessionId){
                     //Embedded media player
                     sentAdditionalEvent = SepiaFW.ui.cards.embed.stopAllMediaPlayers();
                     SepiaFW.debug.info("Client controls - Media: stopping embedded media player(s)");
-                }else if (SepiaFW.ui.isAndroid){
+                }
+                if (SepiaFW.ui.isAndroid){
                     //we do this only if we have a recent Android media event - otherwhise it will activate all music apps
                     var requireMediaAppPackage = true;
                     SepiaFW.debug.info("Client controls - Media: trying to stop Android media player");
-                    sentAdditionalEvent = SepiaFW.android.broadcastMediaButtonDownUpIntent(127, requireMediaAppPackage);  
+                    sentAdditionalEvent = SepiaFW.android.broadcastMediaButtonDownUpIntent(127, requireMediaAppPackage) || sentAdditionalEvent;
                     //127: KEYCODE_MEDIA_PAUSE
                 }
                 //TODO: add iOS and Windows?

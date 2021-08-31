@@ -158,7 +158,7 @@ function sepiaFW_build_ui_cards_embed(){
 		var triedToStopAtLeastOne = false;
 		Object.values(activeMediaPlayers).forEach(function(mp){
 			if (!except || mp != except){
-				if (mp.isPlaying() || mp.isWaitingForPlay()){
+				if (mp.isPlaying() || mp.isWaitingForPlay() || mp.isOnHold()){
 					mp.pause();
 					triedToStopAtLeastOne = true;
 				}
