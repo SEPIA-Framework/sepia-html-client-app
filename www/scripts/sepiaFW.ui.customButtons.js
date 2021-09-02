@@ -113,7 +113,8 @@ function sepiaFW_build_ui_custom_buttons(sepiaSessionId){
                 SepiaFW.offline.createCustomButton("My Radio", "music_note", "dummy;;info=my_radio_dummy", SepiaFW.local.g('myRadioDemoBtn'), lang),
                 SepiaFW.offline.createCustomButton("Media Player", "play_circle_outline", "dummy;;info=my_music_dummy", SepiaFW.local.g('myMusicPlayerDemoBtn'), lang),
                 SepiaFW.offline.createCustomButton("My News", "local_library", "dummy;;info=my_news_dummy", SepiaFW.local.g('myNewsDemoBtn'), lang),
-                SepiaFW.offline.createCustomButton("To-Do List", "list", "dummy;;info=my_todo_list_dummy", SepiaFW.local.g('myToDoDemoBtn'), lang)
+                SepiaFW.offline.createCustomButton("To-Do List", "list", "dummy;;info=my_todo_list_dummy", SepiaFW.local.g('myToDoDemoBtn'), lang),
+                SepiaFW.offline.createCustomButton("Custom View", "schedule", "dummy;;info=my_frames_view_dummy", "Custom view: Clock", lang)
             ];
         }
         return offlineCustomButtonObjects;

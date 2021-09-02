@@ -34,6 +34,9 @@ function sepiaFW_build_frames(){
 		}else{
 			resPageUrl = pageUrl;
 		}
+		if (resPageUrl && SepiaFW.client.isDemoMode()){
+			resPageUrl = resPageUrl.replace("<assist_server>", "xtensions/custom-data");
+		}
 		resPageUrl = SepiaFW.config.replacePathTagWithActualPath(resPageUrl);
 		return resPageUrl;
 	}

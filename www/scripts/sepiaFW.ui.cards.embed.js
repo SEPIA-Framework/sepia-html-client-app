@@ -22,7 +22,7 @@ function sepiaFW_build_ui_cards_embed(){
 	function getPlayerWidget(widget){
 		var wUrl = playerWidgets[widget];
 		if (wUrl && SepiaFW.client.isDemoMode()){
-			wUrl = wUrl.replace("<assist_server>", "<custom_data>");
+			wUrl = wUrl.replace("<assist_server>", "xtensions/custom-data");
 		}
 		return wUrl;
 	}

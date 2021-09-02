@@ -48,6 +48,12 @@ function sepiaFW_build_embedded_nlu(){
 			if (text.match(/(^http(s|):)/i)){
 				getOpenLinkCmd(nluResult, text);
 
+			//Chat with custom action or card
+			}else if (text.match(/^(action|card) /i)){
+				getActionOrCardCmd(nluResult, text);
+			}else if (text.match(/^(custom view|my widget)(:|) /i)){
+				getActionOrCardCmd(nluResult, text.replace(/^(custom view|my widget)(:|) /i, "action ").toLowerCase());
+
 			//Lists
 			}else if (text.match(/(list|todo)/i)){
 				getListCmd(nluResult, text);
@@ -75,12 +81,8 @@ function sepiaFW_build_embedded_nlu(){
 			//Websearch
 			}else if (text.match(/(search|find|such(e|)|finde|link)\b/i)){
 				getOpenLinkCmd(nluResult, text);
-
-			//Chat with custom action or card
-			}else if (text.match(/^(action|card) /i)){
-				getActionOrCardCmd(nluResult, text);
 			}
-
+			
 			return nluResult;
 		}else{
 			SepiaFW.debug.info("Embedded.Nlu - offline NLU cannot handle data-type: " + dataType);

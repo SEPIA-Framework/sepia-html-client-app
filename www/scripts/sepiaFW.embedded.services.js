@@ -377,6 +377,9 @@ function sepiaFW_build_embedded_services(){
 				onSpeechToTextInputHandler: "handleSttData", onChatOutputHandler: "handleChatOutput"
 			}
 		}); },
+		"clock": function(){ return Services.buildCustomActionInfo("open_frames_view", {		//test relative link and view itself
+			info: {pageUrl: "xtensions/custom-data/views/clock.html"}
+		}); },
 		"custom_event_btn_1": function(){ return Services.buildCustomActionInfo("button_custom_event", {
 			title: "Test", name: "test", data: {"button": 1}
 		}); },
