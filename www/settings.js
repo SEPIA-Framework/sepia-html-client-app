@@ -23,6 +23,8 @@ SepiaFW.settings = {
 				"micConfirm": "sounds/coin.mp3",
 				"alarm": "sounds/alarm.mp3"
 			},
+			"wakeWordNames": "Hey SEPIA",
+			"wakeWordVersion": "1.4",
 			"voiceEngine": "sepia",
 			"voiceCustomServerURI": "",
 			"en-voice": "",
