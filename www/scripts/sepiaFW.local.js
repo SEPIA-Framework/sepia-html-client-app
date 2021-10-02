@@ -407,7 +407,7 @@ function sepiaFW_build_strings(){
 	StringsEN.link_create_reminder = "Create a reminder.";
 	//Offline demo texts
 	StringsEN.demoMode = 'You are in demo-mode! This mode only allows you to change settings (e.g. hostname), check out the tutorial and play with some(!) parts of the UI. To get access to your assistant please log-in first.';
-	StringsEN.setupMode = 'You are in setup-mode! This mode is used to configure the client locally or via remote access. Note that most client featires will not work in this mode!';
+	StringsEN.setupMode = 'You are in setup-mode! This mode is used to configure the client locally or via remote access. Note that most client features will not work in this mode!';
 	StringsEN.notPossibleInDemoMode = 'Sorry this is not yet possible in demo-mode.';
 	StringsEN.demoModeBtn = 'Demo-Mode';
 	StringsEN.myNewsDemoBtn = 'Open my personal news';
