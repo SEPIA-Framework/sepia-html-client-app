@@ -74,6 +74,7 @@ function sepiaFW_build_strings(){
 	StringsDE.save = 'Speichern';
 	StringsDE.store = 'Speichern';
 	StringsDE.load = 'Laden';
+	StringsDE.export = 'Exportieren';
 	StringsDE.edit = 'Bearbeiten';
 	StringsDE.copy = 'Kopieren';
 	StringsDE.show = 'Anzeigen';
@@ -292,6 +293,7 @@ function sepiaFW_build_strings(){
 	StringsEN.save = 'Save';
 	StringsEN.store = 'Store';
 	StringsEN.load = 'Load';
+	StringsEN.export = 'Export';
 	StringsEN.edit = 'Edit';
 	StringsEN.copy = 'Copy';
 	StringsEN.show = 'Show';

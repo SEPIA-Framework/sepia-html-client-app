@@ -724,6 +724,7 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 						+ "<div>"
 							+ "<button id='sepiaFW-menu-load-app-settings-btn' class='sepiaFW-button-inline'>" + SepiaFW.local.g('load') + "</button>"
 							+ "<button id='sepiaFW-menu-store-app-settings-btn' class='sepiaFW-button-inline'>" + SepiaFW.local.g('save') + "</button>"
+							+ "<button id='sepiaFW-menu-export-app-settings-btn' class='sepiaFW-button-inline'>" + SepiaFW.local.g('export') + "</button>"
 							//TODO: add delete button
 						+ "</div>"
 					+ "</li>"
@@ -1483,12 +1484,15 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 				//update account cache
 				SepiaFW.account.setUserPreferredTemperatureUnit(selectedOption.value);
 			}));
-			//Store and load app settings
+			//Store, load and export app settings
 			document.getElementById("sepiaFW-menu-store-app-settings-btn").addEventListener("click", function(){
 				SepiaFW.account.saveAppSettings();
 			});
 			document.getElementById("sepiaFW-menu-load-app-settings-btn").addEventListener("click", function(){
 				SepiaFW.account.loadAppSettings();
+			});
+			document.getElementById("sepiaFW-menu-export-app-settings-btn").addEventListener("click", function(){
+				SepiaFW.config.exportSettingsForHeadlessMode();
 			});
 			//Sign-out all clients
 			document.getElementById("sepiaFW-menu-ui-signoutall-btn").addEventListener("click", function(){

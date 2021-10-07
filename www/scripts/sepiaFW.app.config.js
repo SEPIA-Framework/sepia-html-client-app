@@ -392,6 +392,35 @@ function sepiaFW_build_config(){
 	}
 	//NOTE: see SepiaFW.account #skipLogin for temporary setup settings (e.g. TTS off)
 
+	Config.exportSettingsForHeadlessMode = function(){
+		//build
+		var headlessConfigJson;
+		if (SepiaFW.settings && SepiaFW.settings.headless){
+			headlessConfigJson = JSON.parse(JSON.stringify(SepiaFW.settings));	//copy
+		}else{
+			headlessConfigJson = {headless: {}};
+		}
+		headlessConfigJson.headless.device = SepiaFW.data.getAllPermanent();
+		headlessConfigJson.headless.user = SepiaFW.data.getAll();
+		//filter account
+		delete headlessConfigJson.headless.user["account"];
+		delete headlessConfigJson.headless.user["contacts-from-chat"];
+		delete headlessConfigJson.headless.user["lastChannelMessageTimestamps"];
+		//... more?
+		//show
+		var msgBox = document.createElement("div");
+		var titleBox = document.createElement("div");
+		titleBox.innerHTML = "<h3>Client Settings</h3><p>Copy this to your SEPIA client settings.js file:</p>";
+		var jsonBox = document.createElement("textarea");
+		jsonBox.value = JSON.stringify(headlessConfigJson, null, 4);
+		jsonBox.style.whiteSpace = "pre";
+		msgBox.appendChild(titleBox);
+		msgBox.appendChild(jsonBox);
+		SepiaFW.ui.showPopup(msgBox);
+		//adjust size
+		jsonBox.style.height = jsonBox.scrollHeight + 32 + "px";
+	}
+
 	Config.loadAppSettings = function(readyCallback){
 		//TODO: this should be simplified with a service! ...
 		addAppSettingsReadyCallback(readyCallback);
