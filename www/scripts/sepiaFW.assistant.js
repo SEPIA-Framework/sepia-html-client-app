@@ -130,6 +130,7 @@ function sepiaFW_build_assistant(sepiaSessionId){
 			prefSearchEngine: (SepiaFW.config.getPreferredSearchEngine() || "google"),
 			deviceLocalSite: SepiaFW.config.getDeviceLocalSiteData()
 			//TODO: add 'SepiaFW.config.isUiHeadless' info ? Or rely on 'env' parameter?
+			//TODO: add region parameter for language
 		};
 		State.custom_data = JSON.stringify(cd);
 
@@ -147,7 +148,8 @@ function sepiaFW_build_assistant(sepiaSessionId){
 	//evaluate result and store states
 	Assistant.setState = function(result, returnToIdle){
 		//set state only when the message was intended for this user - TODO: rethink this
-		if (SepiaFW.account && (SepiaFW.account.getUserId() !== result.more.user)){
+		if (SepiaFW.account.getUserId() !== result.more.user 
+				&& !(SepiaFW.client.isDemoMode() && result.more.user == "username")){
 			return;
 		}
 
@@ -252,9 +254,13 @@ function sepiaFW_build_assistant(sepiaSessionId){
 
 	//------------------ SOME METHODS TO ENGAGE USER ------------------
 
+	//NOTE: Check as well:
+	//- SepiaFW.events.setProActiveBackgroundNotification(action); - uses: 'waitForOpportunityAndSay'
+
 	/**
 	 * Wait for the right opportunity (e.g. idle time) and let the assistant say a text
 	 * loaded from server.
+	 * NOTE: This will send the text to the server first (currently it does not support 'speakOptions')
 	 */
 	Assistant.waitForOpportunityAndSay = function(dialogTagOrText, fallbackAction, minWait, maxWait, doneCallback){
 		if (!minWait) minWait = 2000;	//NOTE: <2000 not allowed and will be used in any case!
@@ -264,7 +270,7 @@ function sepiaFW_build_assistant(sepiaSessionId){
 			var options = {};   //things like skipTTS etc. (see sendCommand function)
 			var dataset = {
 				info: "direct_cmd",
-				cmd: "chat;;reply=" + dialogTagOrText + ";;",
+				cmd: "chat;;reply=" + dialogTagOrText + ";;",		//TODO: does this support one-time-language switch?
 				newReceiver: SepiaFW.assistant.id
 			};
 			SepiaFW.client.sendCommand(dataset, options);
@@ -276,18 +282,19 @@ function sepiaFW_build_assistant(sepiaSessionId){
 	}
 	/**
 	 * Wait for the right opportunity (e.g. idle time), let the assistant say a localized text 
-	 * and then run some action. NOTE: This will be a bit more agressive compared to 'waitForOpportunityAndSay'.
+	 * and then run some action. 
+	 * NOTE: This will be a bit more agressive compared to 'waitForOpportunityAndSay'.
 	 */
-	Assistant.waitForOpportunitySayLocalTextAndRunAction = function(localizedText, actionFun, fallbackAction, maxWait){
+	Assistant.waitForOpportunitySayLocalTextAndRunAction = function(localizedText, actionFun, fallbackAction, maxWait, speakOptions){
 		if (!fallbackAction) fallbackAction = actionFun;		//NOTE: this is different to function above. We try to run even on error!
 		var minWait = 2000;		//NOTE: <2000 not allowed, but will only be used when not idle in first place
 		if (!maxWait) maxWait = 30000;
 		if (SepiaFW.animate.assistant.getState() == "idle"){
-			SepiaFW.speech.speak(localizedText, actionFun, fallbackAction);
+			SepiaFW.speech.speak(localizedText, actionFun, fallbackAction, function(){}, speakOptions);
 		}else{
 			SepiaFW.client.queueIdleTimeEvent(function(){
 				//Start
-				SepiaFW.speech.speak(localizedText, actionFun, fallbackAction);
+				SepiaFW.speech.speak(localizedText, actionFun, fallbackAction, function(){}, speakOptions);
 			}, minWait, maxWait, function(){
 				//Fallback
 				fallbackAction();

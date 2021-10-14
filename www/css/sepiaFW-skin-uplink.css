@@ -23,6 +23,10 @@ html {
 	background: #283059;
 	color: #fff;
 }
+html.landscape-small #sepiaFW-chat-controls {
+	background: #283059 !important;
+	color: #fff !important;
+}
 
 #sepiaFW-nav-bar-page-indicator {
 	background: linear-gradient(to right, #1bffe6 0%, #4470ae 100%);

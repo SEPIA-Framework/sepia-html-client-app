@@ -10,18 +10,37 @@ SepiaFW.settings = {
 				"name": "unassigned", 
 				"index": ""
 			},
+			"mediaDevices": {
+				"mic": {},
+				"player": {},
+				"tts": {},
+				"fx": {}
+			},
+			"microphoneSettings": {
+				"gain": 1.0
+			},
+			"deviceSounds": {
+				"micConfirm": "sounds/coin.mp3",
+				"alarm": "sounds/alarm.mp3"
+			},
+			"wakeWordNames": "Hey SEPIA",
+			"wakeWordVersion": "1.4",
+			"voiceEngine": "sepia",
+			"voiceCustomServerURI": "",
 			"en-voice": "",
 			"de-voice": "",
-			"wakeWordSensitivity": [0.5]
+			"asrEngine": "native",
+			"asrServerURI": "http://localhost:20726/sepia/stt",
+			"asrServerUser": "any",
+			"asrServerToken": "test1234",
+			"en-asrModel": "",
+			"de-asrModel": ""
 		},
 		user: {
 			"clexiSocketURI": "ws://localhost:8080",
 			"clexiServerId": "clexi-123",
 			"clexiConnect": true,
 			"useRemoteCmdl": true,
-			"speech-voice-engine": "sepia",
-			"speech-asr-engine": "native",
-			"speech-websocket-uri": "ws://localhost:20741/stt/socket",
 			"useGamepads": true,
 			"useBluetoothBeacons": true,
 			"useBluetoothBeaconsInAoModeOnly": false,
@@ -31,7 +50,12 @@ SepiaFW.settings = {
 			"activeSkin": "2",
 			"activeAvatar": "0",
 			"proactiveNotes": false,
-			"autoGPS": false
+			"autoGPS": false,
+			"embeddedPlayerSettings": {
+				"canEmbedYouTube": true,
+				"canEmbedSpotify": false,
+				"canEmbedAppleMusic": false
+			}
 		},
 		location: {
 			"latitude": "",
@@ -45,7 +69,8 @@ SepiaFW.settings = {
 			"speech": true,
 			"wakeWord": true,
 			"audioPlayer": true,
-			"alarm": true
+			"alarm": true,
+			"info": false
 		}
 	}
 };

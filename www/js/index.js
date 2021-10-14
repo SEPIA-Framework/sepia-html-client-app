@@ -82,7 +82,7 @@ var app = {
 		});
 		
 		//load setup function from index.html
-		appSetup();
+		appSetup();		//NOTE: supports additional 'readyCallback'
 		
 		//document.getElementById('sepiaFW-login-box').innerHTML += 'login box ready<br>'; 		//DEBUG
 		/* moved to login box action:

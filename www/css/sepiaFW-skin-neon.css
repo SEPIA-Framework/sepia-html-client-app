@@ -25,11 +25,28 @@ html {
 #sepiaFW-adC 	{ background-color: #ff1af6; }
 #sepiaFW-lC 	{ background-color: rgba(200, 200, 200, 0.50); 	}
 
-#sepiaFW-login-box, #sepiaFW-nav-bar, #sepiaFW-chat-controls-form, #sepiaFW-chat-controls-right {
+#sepiaFW-login-box, #sepiaFW-nav-bar, 
+#sepiaFW-chat-controls-form, #sepiaFW-chat-controls-right {
 	background: rgba(23, 23, 52, 0.93);
 	border: 1px solid #3F51B5;
 	box-shadow: 0 0 5px #3F51B5;
 	color: #fff;
+}
+.sepiaFW-notouch-device #sepiaFW-login-box button:hover {
+	background-color: #af19b3;
+	color: #fff;
+}
+html.landscape-small #sepiaFW-nav-bar {
+	border: 0;
+	margin: 0;
+}
+html.landscape-small #sepiaFW-chat-controls {
+	background: rgba(23, 23, 52, 0.93) !important;
+}
+html.landscape-small #sepiaFW-chat-controls-right {
+	border: 0;
+    box-shadow: unset;
+    background: transparent;
 }
 .sepiaFW-ao-mode #sepiaFW-nav-bar, 
 .sepiaFW-ao-mode #sepiaFW-chat-controls-form, 
@@ -214,7 +231,7 @@ html {
 	background-color: rgba(205, 52, 214, 0.55);
 }
 
-#sepiaFW-nav-label-note{
+#sepiaFW-nav-label-note {
     border: 1px solid #ff1af6;
 }
 
@@ -234,21 +251,21 @@ html {
 	color: #ffffff;
 	text-shadow: 0px 0px 2px #ffffff;
 }
-#sepiaFW-chat-output article:not(.statusUpdate) span{
+#sepiaFW-chat-output article:not(.statusUpdate) span {
 	color: #FFEB3B;
 }
-#sepiaFW-chat-output article.chatMe{
+#sepiaFW-chat-output article.chatMe {
 	margin: 2px 6px 2px 30px;
 	background: rgba(148, 41, 129, 0.75);
 	color: #fff;
 	box-shadow: 0 0 5px #ff1af6;
 	border-color: #ff1af6;
 }
-#sepiaFW-chat-output article.chatMe b{
+#sepiaFW-chat-output article.chatMe b {
 	color: #eee;
 	text-shadow: 0px 0px 2px #ff1af6;
 }
-#sepiaFW-chat-output article.chatMe span{
+#sepiaFW-chat-output article.chatMe span {
 	color: #ff1af6;
 }
 #sepiaFW-chat-output article.chatAssistant {
@@ -257,22 +274,23 @@ html {
 	box-shadow: 0 0 5px #03b0f4;
 	border-color: #03b0f4;
 }
-#sepiaFW-chat-output article.chatAssistant b{
+#sepiaFW-chat-output article.chatAssistant b {
 	color: #eee;
 	text-shadow: 0px 0px 2px #9fd4ff;
 }
-#sepiaFW-chat-output article.chatAssistant span{
+#sepiaFW-chat-output article.chatAssistant span {
 	color: #03b0f4;
 }
-#sepiaFW-chat-output article.chatAssistant.chatPm{
+#sepiaFW-chat-output article.chatAssistant.chatPm {
 	border-left-color: #ff1af6;
+	/*border-left-color: #23b6f9;*/
 	border-left-width: 2px;
 }
-#sepiaFW-chat-output article.chatMe.chatPm{
-	border-left-color: rgba(255, 0, 0, 1.0);
+#sepiaFW-chat-output article.chatMe.chatPm {
+	border-left-color: #e136f4;
 	border-left-width: 2px;
 }
-#sepiaFW-chat-output article.chatOther.chatPm{
+#sepiaFW-chat-output article.chatOther.chatPm {
 	border-left-color: rgba(255, 0, 0, 1.0);
 	border-left-width: 2px;
 }
@@ -365,11 +383,15 @@ html {
 .sepiaFW-cards-list-body .timeEvent > div,
 .sepiaFW-cards-list-body .radioStation > div,
 .sepiaFW-cards-list-body .weatherNowSmall > div,
-.sepiaFW-cards-list-body .linkCard > div {
+.sepiaFW-cards-list-body .linkCard > div,
+.dark-skin .sepiaFW-cards-list-body .fullWidthItem .cardItemBlock {
     background: rgba(217, 188, 27, 0.66);
     color: #fff !important;
     box-shadow: 0 0 5px #FFEB3B;
     border: 1px solid #FFEB3B;
+}
+.dark-skin .sepiaFW-cards-flexSize-container .cardBodyItem.fullWidthItem .cardItemOverlay {
+	background: rgba(217, 188, 27, 1.0);
 }
 .sepiaFW-cards-list-body .weatherNowSmall .weatherNowSmallImage {
 	background: rgba(217, 188, 27, 0.66);
@@ -377,6 +399,27 @@ html {
 .sepiaFW-cards-list-body .weatherNowDetails li {
     background: rgba(32, 41, 79, 0.55); /*rgba(12, 94, 158, 0.75);*/
     color: #fff;
+}
+
+/*----- Frames ----- */
+
+#sepiaFW-frames-view,
+#sepiaFW-frames-view.dark {
+	background: #101035;
+	color: #eee;
+}
+#sepiaFW-frames-view:not(.sepiaFW-ao-mode) {
+    box-shadow: 0 0 5px #3F51B5;
+}
+.sepiaFW-frames-page button,
+.sepiaFW-frames-page.dark button {
+    background: rgba(148, 41, 129, 0.75) !important;
+    color: #fff !important;
+	box-shadow: 0 0 5px #c91bc3;
+	border: 1px solid #c91bc3 !important;
+}
+#sepiaFW-frames-nav-bar {
+	background: #15194b;
 }
 
 /*----- teachUI -----*/

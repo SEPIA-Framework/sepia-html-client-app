@@ -228,7 +228,7 @@ function sepiaFW_build_teach(sepiaSessionId){
 						//manager active
 						if (isFirstManagerLoad){
 							isFirstManagerLoad = false;
-							$('#sepiaFW-teachUI-load-commands').trigger('click');
+							loadRecentCommands();
 						}
 					}else if (currentPane == 0){
 						//editor active
@@ -311,39 +311,92 @@ function sepiaFW_build_teach(sepiaSessionId){
 					SepiaFW.ui.hidePopup();
 				});
 			});
+
+			//-SEARCH commands
+			var $cmdSearchInput = $('#sepiaFW-teachUI-cmd-search');
+			function searchCommands(){
+				var searchText = $cmdSearchInput.val();
+				if (searchText){
+					Teach.searchPersonalCommands(SepiaFW.account.getKey(sepiaSessionId), searchText, function(data){
+						//success
+						$cmdSearchInput.val("");
+						buildPersonalCommandsResult(data.result, true, "Search Results:");
+						//console.log(JSON.stringify(data));
+						$('#sepiaFW-teachUI-load-more-commands').fadeIn(300);
+						
+					}, function(msg){
+						//error
+						SepiaFW.ui.showPopup(msg);
+					}, '');
+				}
+			}
+			$cmdSearchInput.keypress(function(event){
+				if (event.key === "Enter"){
+					searchCommands();
+				}
+			});
+			$('#sepiaFW-teachUI-cmd-search-btn').on('click', function(){
+				searchCommands();
+			});
 			
-			//-LOAD commands
-			$('#sepiaFW-teachUI-load-commands').on('click', function(){
+			//-LOAD commands (recent)
+			function loadRecentCommands(){
 				var startingFrom = 0;
-				nextStartingFrom = 10;
-				Teach.loadPersonalCommands(SepiaFW.account.getKey(sepiaSessionId), startingFrom, loadAtOnce, function(data){
+				nextStartingFrom = 8;	//reset
+				var loadMax = 8;
+				Teach.loadPersonalCommands(SepiaFW.account.getKey(sepiaSessionId), startingFrom, loadMax, function(data){
 					//success
-					buildPersonalCommandsResult(data.result, true);
+					buildPersonalCommandsResult(data.result, true, "Recent:");
 					//console.log(JSON.stringify(data));
+					$('#sepiaFW-teachUI-load-more-commands').fadeIn(300);
 					
 				}, function(msg){
 					//error
 					SepiaFW.ui.showPopup(msg);
-				}, '');
+				}, '', {
+					sortByDate: true
+				});
+			}
+			$('#sepiaFW-teachUI-load-commands').on('click', function(){
+				loadRecentCommands();
 			});
 			//-LOAD more commands
-			$('#sepiaFW-teachUI-load-more-commands').on('click', function(){
+			function loadMoreCommands(){
 				var startingFrom = nextStartingFrom;
-				nextStartingFrom += 10;
+				nextStartingFrom += loadAtOnce;
 				Teach.loadPersonalCommands(SepiaFW.account.getKey(sepiaSessionId), startingFrom, loadAtOnce, function(data){
 					//success
-					buildPersonalCommandsResult(data.result, false);
+					var resultComment;
+					var startN = (startingFrom + 1);
+					var endN = (data.result && data.result.length)? (startingFrom + data.result.length) : 0;
+					//show more?
+					if (data.result && data.result.length < loadAtOnce){
+						resultComment = (startN != endN)? ("Last " + startN + "-" + endN) : "Last";
+						$('#sepiaFW-teachUI-load-more-commands').fadeOut(300);
+					}else if (endN){
+						resultComment = "Next "  + startN + "-" + endN;
+					}else{
+						resultComment = "Done";
+					}
+					buildPersonalCommandsResult(data.result, startingFrom == 0, resultComment);
 					//console.log(JSON.stringify(data));
 					
 				}, function(msg){
 					//error
 					SepiaFW.ui.showPopup(msg);
-				}, '');
+				}, '', {
+					sortByDate: true
+				});
+			}
+			$('#sepiaFW-teachUI-load-more-commands').on('click', function(){
+				loadMoreCommands();
 			});
 			
 			if (finishCallback) finishCallback();
 		});
 	}
+
+	//TODO: replace ancient pop-up functions with 'UI.showPopup' (or convenience version)
 
 	//parameter input help box pop-up
 	function showInputHelpPopup(paramName, value, assignFun, type, examples){
@@ -591,10 +644,15 @@ function sepiaFW_build_teach(sepiaSessionId){
 	}
 	
 	//build result for command manager page
-	function buildPersonalCommandsResult(data, clearBox){
+	function buildPersonalCommandsResult(data, clearBox, headerTitle){
 		var cmdCardsBox = $('#sepiaFW-teachUI-manager').find('.sepiaFW-command-cards-container');
 		if (clearBox){
 			cmdCardsBox.html('');
+		}
+		if (headerTitle){
+			var ht = document.createElement("h3");
+			ht.textContent = headerTitle;
+			cmdCardsBox.append(ht);
 		}
 		$.each(data, function(index, obj){
 			var sentence = obj.sentence[0];
@@ -627,12 +685,6 @@ function sepiaFW_build_teach(sepiaSessionId){
 				})(newCmdCard);
 			}
 		});
-		//show more?
-		if (data && data.length>=10){
-			$('#sepiaFW-teachUI-manager-bottom-buttons').fadeIn(300);
-		}else if (data){
-			$('#sepiaFW-teachUI-manager-bottom-buttons').fadeOut(300);
-		}
 	}
 	function makeCmdCard(sentence, cmdId){
 		var newCard = document.createElement('DIV');
@@ -835,91 +887,63 @@ function sepiaFW_build_teach(sepiaSessionId){
 	}
 	
 	//load personal and custom assistant commands
-	Teach.loadPersonalCommands = function(key, startingFrom, loadSize, successCallback, errorCallback, debugCallback, with_button_only){
-		loadPersonalOrCustomAssistantCommands("getAllPersonalCommands", key, startingFrom, loadSize, 
-			successCallback, errorCallback, debugCallback, with_button_only);
+	Teach.loadPersonalCommands = function(key, startingFrom, loadSize, successCallback, errorCallback, debugCallback, options){
+		loadPersonalOrCustomAssistantCommands("getAllPersonalCommands", key, startingFrom, loadSize,
+			successCallback, errorCallback, debugCallback, options);
 	}
-	Teach.loadCustomAssistantCommands = function(key, startingFrom, loadSize, successCallback, errorCallback, debugCallback, with_button_only){
+	Teach.loadCustomAssistantCommands = function(key, startingFrom, loadSize, successCallback, errorCallback, debugCallback, options){
 		loadPersonalOrCustomAssistantCommands("getAllCustomAssistantCommands", key, startingFrom, loadSize, 
-			successCallback, errorCallback, debugCallback, with_button_only);
+			successCallback, errorCallback, debugCallback, options);
 	}
-	function loadPersonalOrCustomAssistantCommands(endpoint, key, startingFrom, loadSize, successCallback, errorCallback, debugCallback, with_button_only){
+	function loadPersonalOrCustomAssistantCommands(endpoint, key, startingFrom, loadSize, successCallback, errorCallback, debugCallback, options){
+		if (!options) options = {};
 		SepiaFW.ui.showLoader();
 		var apiUrl = SepiaFW.config.teachAPI + endpoint;
 		var submitData = new Object();
-		submitData.KEY = key;
-		submitData.client = SepiaFW.config.getClientDeviceInfo(); //SepiaFW.config.clientInfo;
 		submitData.from = startingFrom;
 		submitData.size = loadSize;
-		if (with_button_only){
+		if (options.withButtonOnly){
 			submitData.button = true;
 		}
-		$.ajax({
-			url: apiUrl,
-			timeout: 10000,
-			type: "POST",
-			data: submitData,
-			headers: {
-				"content-type": "application/x-www-form-urlencoded"
-			},
-			success: function(data) {
-				SepiaFW.ui.hideLoader();
-				if (debugCallback) debugCallback(data);
-				if (data.result && data.result === "fail"){
-					if (errorCallback) errorCallback('Sorry, but something went wrong while loading personal commands! :-(');
-					return;
-				}
-				//--callback--
-				if (successCallback) successCallback(data);
-			},
-			error: function(data) {
-				SepiaFW.ui.hideLoader();
-				if (errorCallback) errorCallback('Sorry, but I could not connect to API :-( Please wait a bit and then try again.');
-				if (debugCallback) debugCallback(data);
-			}
-		});
+		if (options.sortByDate){
+			submitData.sortByDate = true;
+		}
+		sendTeachApiRequest(apiUrl, key, submitData, successCallback, errorCallback, debugCallback,
+			'Sorry, but something went wrong while loading personal commands! :-(');
 	}
 	Teach.loadPersonalCommandsWithIds = function(key, ids, successCallback, errorCallback, debugCallback){
 		SepiaFW.ui.showLoader();
 		var apiUrl = SepiaFW.config.teachAPI + "getPersonalCommandsByIds";
 		var submitData = new Object();
-		submitData.KEY = key;
-		submitData.client = SepiaFW.config.getClientDeviceInfo(); //SepiaFW.config.clientInfo;
 		submitData.ids = JSON.stringify(ids);
-		$.ajax({
-			url: apiUrl,
-			timeout: 10000,
-			type: "POST",
-			data: submitData,
-			headers: {
-				"content-type": "application/x-www-form-urlencoded"
-			},
-			success: function(data) {
-				SepiaFW.ui.hideLoader();
-				if (debugCallback) debugCallback(data);
-				if (data.result && data.result === "fail"){
-					if (errorCallback) errorCallback('Sorry, but something went wrong while loading personal commands! :-(');
-					return;
-				}
-				//--callback--
-				if (successCallback) successCallback(data);
-			},
-			error: function(data) {
-				SepiaFW.ui.hideLoader();
-				if (errorCallback) errorCallback('Sorry, but I could not connect to API :-( Please wait a bit and then try again.');
-				if (debugCallback) debugCallback(data);
-			}
-		});
+		sendTeachApiRequest(apiUrl, key, submitData, successCallback, errorCallback, debugCallback,
+			'Sorry, but something went wrong while loading personal commands! :-(');
 	}
-	
+	Teach.searchPersonalCommands = function(key, searchText, successCallback, errorCallback, debugCallback){
+		SepiaFW.ui.showLoader();
+		var apiUrl = SepiaFW.config.teachAPI + "getPersonalCommands";
+		var state = SepiaFW.assistant.getState();
+		var submitData = new Object();
+		submitData.language = state.lang;
+		submitData.searchText = searchText;
+		sendTeachApiRequest(apiUrl, key, submitData, successCallback, errorCallback, debugCallback,
+			'Sorry, but something went wrong while loading personal commands! :-(');
+	}
+		
 	//remove personal command
 	Teach.removePersonalCommand = function(key, cmdId, successCallback, errorCallback, debugCallback){
 		SepiaFW.ui.showLoader();
 		var apiUrl = SepiaFW.config.teachAPI + "deletePersonalCommand";
 		var submitData = new Object();
+		submitData.id = cmdId;
+		sendTeachApiRequest(apiUrl, key, submitData, successCallback, errorCallback, debugCallback,
+			'Sorry, but something went wrong while trying to delete the command! Maybe invalid id?');
+	}
+
+	//basic request method
+	function sendTeachApiRequest(apiUrl, key, submitData, successCallback, errorCallback, debugCallback, resultFailErrorMsg){
 		submitData.KEY = key;
 		submitData.client = SepiaFW.config.getClientDeviceInfo(); //SepiaFW.config.clientInfo;
-		submitData.id = cmdId;
 		$.ajax({
 			url: apiUrl,
 			timeout: 10000,
@@ -932,7 +956,8 @@ function sepiaFW_build_teach(sepiaSessionId){
 				SepiaFW.ui.hideLoader();
 				if (debugCallback) debugCallback(data);
 				if (data.result && data.result === "fail"){
-					if (errorCallback) errorCallback('Sorry, but something went wrong while trying to delete the command! Maybe invalid id?');
+					if (errorCallback) errorCallback(resultFailErrorMsg ||
+						'Sorry, but something went wrong during personal commands request! :-(');
 					return;
 				}
 				//--callback--

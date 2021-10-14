@@ -1,8 +1,8 @@
 <?xml version='1.0' encoding='utf-8'?>
-<widget id="org.example.sepia.app.web" version="0.23.0" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
+<widget id="org.example.sepia.app.web" version="0.24.0" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
     <name>S.E.P.I.A.</name>
     <description>
-        Prototype of S.E.P.I.A. framework client
+        S.E.P.I.A. framework client app
     </description>
     <author email="info@example.org" href="https://sepia.example.org">
         Name - Organisation
@@ -10,7 +10,7 @@
     
 	<content src="start.html" />
 	
-	<preference name="orientation" value="portrait" />
+	<preference name="orientation" value="default" />
 	<!--<preference name="BackgroundColor" value="0xff000000"/>-->
 		
 	<!--plugins-->

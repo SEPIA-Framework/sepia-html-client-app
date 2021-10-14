@@ -1,0 +1,7 @@
+#sepiaFW-alwaysOn-avatar {
+    background: url(../img/avatars/ILA_v4.svg);
+}
+
+#sepiaFW-alwaysOn-avatar .avatar-mouth {
+    top: 61%;
+}

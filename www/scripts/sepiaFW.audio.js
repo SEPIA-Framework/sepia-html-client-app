@@ -1,12 +1,12 @@
 //AUDIO PLAYER
-function sepiaFW_build_audio(sepiaSessionId){
+function sepiaFW_build_audio(){
 	var AudioPlayer = {};
 	var Stream = {};
 	var TTS = {};			//TTS parameters for SepiaFW external TTS like Acapela. I've tried to seperate TTS and AudioPlayer as good as possible, but there might be some bugs using both
 	var Alarm = {};
 
 	//Sounds
-	AudioPlayer.micConfirmSound = 'sounds/coin.mp3';
+	AudioPlayer.micConfirmSound = 'sounds/coin.mp3';	//might change for mobile (see below)
 	AudioPlayer.alarmSound = 'sounds/alarm.mp3'; 		//please NOTE: UI.events is using 'file://sounds/alarm.mp3' for 'cordova.plugins.notification' (is it wokring? Idk)
 	AudioPlayer.setCustomSound = function(name, path){
 		//system: 'micConfirm', 'alarm'
@@ -16,6 +16,9 @@ function sepiaFW_build_audio(sepiaSessionId){
 		AudioPlayer.loadCustomSounds(customSounds);
 	}
 	AudioPlayer.loadCustomSounds = function(sounds){
+		if (SepiaFW.ui.isMobile){
+			AudioPlayer.micConfirmSound = 'sounds/blob.mp3';	//for mobile this works better
+		}
 		var customSounds = sounds || SepiaFW.data.getPermanent("deviceSounds");
 		if (customSounds){
 			if (customSounds.micConfirm) AudioPlayer.micConfirmSound = customSounds.micConfirm;
@@ -29,8 +32,186 @@ function sepiaFW_build_audio(sepiaSessionId){
 	var player;				//AudioPlayer for music and stuff
 	var player2;			//AudioPlayer for sound effects
 	var speaker;			//Player for TTS
+	var speakerAudioCtx, speakerSource, speakerGainNode;	//for TTS effects filter
+
 	var doInitAudio = true;			//workaround to activate scripted audio on touch devices
-	var audioOnEndFired = false;	//state: prevent doublefireing of audio onend onpause
+
+	//Media Session Interface (see below for events)
+	var isMediaSessionSupported = 'mediaSession' in navigator;
+
+	//Media Devices Options
+	AudioPlayer.mediaDevicesSelected = {
+		mic: { "value": "", "name": "Default" },
+		player: { "value": "", "name": "Default" },
+		tts: { "value": "", "name": "Default" },
+		fx: { "value": "", "name": "Default" }
+	}
+	AudioPlayer.mediaDevicesAvailable = {		//IMPORTANT: deviceId can change any time on client reload. Use label!
+		in: {},
+		out: {}
+	};
+	AudioPlayer.refreshAvailableMediaDevices = function(successCallback, errorCallback){
+		if (!navigator.mediaDevices || !navigator.mediaDevices.enumerateDevices || !navigator.mediaDevices.getUserMedia) {
+			SepiaFW.debug.log("Media-Devices: Device enumeration is not supported on this device.");
+			if (errorCallback) errorCallback({
+				message: "Media device enumeration not supported",
+				name: "NotSupportedError"
+			});
+			return;
+		}
+		//List media devices
+		var didTimeout = false;
+		var timeoutTimer = undefined;
+		function enumDevices(successCallb, errorCallb){
+			if (didTimeout){
+				return;
+			}
+			navigator.mediaDevices.enumerateDevices()	//TODO: as soon as browser support is ok use: navigator.permissions.query(...)
+			.then(function(devices){
+				devices.forEach(function(device){
+					//console.log(device.kind + ": " + device.label + " id = " + device.deviceId);
+					if (device.kind == "audioinput"){
+						AudioPlayer.mediaDevicesAvailable.in[device.label] = device.deviceId;
+					}else if (device.kind == "audiooutput"){
+						AudioPlayer.mediaDevicesAvailable.out[device.label] = device.deviceId;
+					}
+				});
+				if (successCallb) successCallb(AudioPlayer.mediaDevicesAvailable);
+			})
+			.catch(function(err) {
+				SepiaFW.debug.error("Media-Devices: Error in device enumeration -", err.message);
+				if (errorCallb) errorCallb({
+					message: err.message,
+					name: err.name
+				});
+			});
+		};
+		timeoutTimer = setTimeout(function(){
+			didTimeout = true;
+			if (errorCallback) errorCallback({
+				message: "Media device enumeration timeout. Permission might require user interaction.",
+				name: "TimeoutError"
+			});
+		}, 8000);
+		//audio constraints
+		var constraints = JSON.parse(JSON.stringify(SepiaFW.webAudio.getSupportedAudioConstraints()));
+		//if (constraints.sampleRate) ...;
+		var audioVideoConstraints = { 
+			video : false, audio: (Object.keys(constraints).length? constraints : true)
+		};
+		//get permission
+		navigator.mediaDevices.getUserMedia(audioVideoConstraints)
+		.then(function(stream){
+			//close stream right away
+			try {
+				track0 = stream.getAudioTracks()[0];
+				if (track0 && typeof track0.stop == "function" && track0.readyState == "live"){
+					track0.stop();
+				}
+			}catch(e){};
+			clearTimeout(timeoutTimer);
+			enumDevices(successCallback, errorCallback);
+		})
+		.catch(function(err){
+			clearTimeout(timeoutTimer);
+			if (errorCallback) errorCallback({
+				message: err.message,
+				name: err.name		//probably: NotAllowedError or SecurityError
+			});
+		});
+	}
+	AudioPlayer.setMediaDeviceForNode = function(mediaNodeType, mediaDevice, successCallback, errorCallback){
+		var audioNodeElement;
+		if (mediaNodeType == "mic"){
+			//mic changes need to happen in web-audio recorder (this can only fail when recorder is created)
+			SepiaFW.audioRecorder.setWebAudioConstraint("deviceId", mediaDevice.deviceId);
+			SepiaFW.debug.log("Audio - Set sink ID for media-node '" + mediaNodeType + "'. Label:", mediaDevice.label);
+			AudioPlayer.mediaDevicesSelected[mediaNodeType] = {name: mediaDevice.label, value: mediaDevice.deviceId};
+			if (successCallback) successCallback();
+			return;
+		}
+		else if (mediaNodeType == "player") audioNodeElement = AudioPlayer.getMusicPlayer();
+		else if (mediaNodeType == "tts") audioNodeElement = AudioPlayer.getTtsPlayer();
+		else if (mediaNodeType == "fx") audioNodeElement = AudioPlayer.getEffectsPlayer();
+
+		if (!audioNodeElement.setSinkId){
+			if (errorCallback) errorCallback("This audio-node does not support custom sink IDs.");
+		}else{
+			audioNodeElement.setSinkId(mediaDevice.deviceId)
+			.then(function(){
+				if (audioNodeElement.sinkId == mediaDevice.deviceId){
+					SepiaFW.debug.log("Audio - Set sink ID for media-node '" + mediaNodeType + "'. Label:", mediaDevice.label);
+					AudioPlayer.mediaDevicesSelected[mediaNodeType] = {name: mediaDevice.label, value: mediaDevice.deviceId};
+					if (successCallback) successCallback();
+				}else{
+					SepiaFW.debug.error("Audio - tried to set sink ID but failed! Label: " + mediaDevice.label);	//can this actually happen?
+					if (errorCallback) errorCallback("Label: " + mediaDevice.label + " - Message: Failed to set sink ID.");
+				}
+			}).catch(function(err){
+				SepiaFW.debug.error("Audio - sink ID cannot be set. Label: " + mediaDevice.label + " - Error:", err);	//TODO: revert back? delete setting?
+				if (errorCallback) errorCallback("Label: " + mediaDevice.label + " - Message: " + err.message);
+			});
+			/* dispatch event? if we want to use this for CLEXI we may need to wait for connection 
+			document.dispatchEvent(new CustomEvent('sepia_info_event', { detail: {	type: "audio", info: { message: "" }}})); */
+		}
+	}
+	AudioPlayer.storeMediaDevicesSetting = function(){
+		SepiaFW.data.setPermanent("mediaDevices", AudioPlayer.mediaDevicesSelected);
+	}
+	AudioPlayer.resetMediaDevicesSetting = function(){
+		SepiaFW.data.delPermanent("mediaDevices");	//NOTE: reload client after reset
+	}
+	AudioPlayer.mediaDevicesSetup = function(successCallback){
+		var mediaDevicesStored = SepiaFW.data.getPermanent("mediaDevices") || {};
+		var deviceNamesStored = Object.keys(mediaDevicesStored);	//mic, tts, etc...
+		if (deviceNamesStored.length > 0){
+			//make sure this is worth it to load because it can slow-down start time:
+			var customSettingsN = 0;
+			for (let i=0; i<deviceNamesStored.length; i++){
+				var d = mediaDevicesStored[deviceNamesStored[i]];
+				if (d.name && d.name.toLowerCase() != "default" && AudioPlayer.mediaDevicesSelected[deviceNamesStored[i]]){
+					customSettingsN++;
+				}
+			}
+			if (customSettingsN > 0){
+				function countAndFinish(){
+					--customSettingsN;
+					if (customSettingsN <= 0 && successCallback) successCallback();
+				}
+				function restoreAsyncAndCheckComplete(mediaDevicesAvailable, deviceTypeName, deviceLabelToSet){
+					//restore sink IDs ... if any
+					var deviceId = (deviceTypeName == "mic")? mediaDevicesAvailable.in[deviceLabelToSet] : mediaDevicesAvailable.out[deviceLabelToSet];
+					if (deviceId){
+						//mic or speaker - we distinguish inside set method
+						AudioPlayer.setMediaDeviceForNode(deviceTypeName, {deviceId: deviceId, label: deviceLabelToSet}, countAndFinish, countAndFinish);
+					}else{
+						//device gone - TODO: what now? remove from storage?
+						SepiaFW.debug.error("Audio - sink ID for '" + deviceTypeName + "' cannot be set because ID was not available! Label:", deviceLabelToSet);
+						countAndFinish();
+					}
+				}
+				SepiaFW.debug.log("Audio - Restoring media-device settings");
+				//first load all available devices
+				AudioPlayer.refreshAvailableMediaDevices(function(mediaDevicesAvailable){	//NOTE: same as AudioPlayer.mediaDevicesAvailable
+					deviceNamesStored.forEach(function(typeName){
+						var d = mediaDevicesStored[typeName];
+						//NOTE: we apply SAME criteria as above
+						if (d.name && d.name.toLowerCase() != "default" && AudioPlayer.mediaDevicesSelected[typeName]){
+							//NOTE: we check the name (label) since deviceId can change
+							restoreAsyncAndCheckComplete(mediaDevicesAvailable, typeName, d.name);
+						}
+					});
+				}, function(err){
+					SepiaFW.debug.error("Audio - FAILED to restore media-device settings", err);
+					if (successCallback) successCallback();		//we still continue
+				});
+			}else{
+				if (successCallback) successCallback();
+			}
+		}else{
+			if (successCallback) successCallback();
+		}
+	}
 
 	Stream.isPlaying = false;		//state: stream player
 	Stream.isLoading = false;
@@ -50,13 +231,6 @@ function sepiaFW_build_audio(sepiaSessionId){
 			&& !player.ended
 			&& player.readyState > 2;
 	}
-	AudioPlayer.startNextMusicStreamOfQueue = function(successCallback, errorCallback){
-		//TODO: Currently the only thing 'player' can do is stream radio or URL, so this will always return ERROR for now.
-		if (errorCallback) errorCallback({
-			error: "No next stream available",
-			status: 1
-		});
-	}
 	AudioPlayer.getEffectsPlayer = function(){
 		return player2;
 	}
@@ -68,32 +242,23 @@ function sepiaFW_build_audio(sepiaSessionId){
 	AudioPlayer.isAnyAudioSourceActive = function(){
 		//Stop internal player
 		var isInternalPlayerStreaming = Stream.isLoading || AudioPlayer.isMusicPlayerStreaming() || AudioPlayer.isMainOnHold() || TTS.isPlaying;
-		var isYouTubePlayerStreaming = SepiaFW.ui.cards.youTubePlayerGetState() == 1 || SepiaFW.ui.cards.youTubePlayerIsOnHold();
+		var emp = SepiaFW.ui.cards.embed.getActiveMediaPlayer();
+		var isEmbeddedMediaPlayerStreaming = emp && emp.isActive();
 		var isAndroidPlayerStreaming = SepiaFW.ui.isAndroid && SepiaFW.android.lastReceivedMediaData && SepiaFW.android.lastReceivedMediaData.playing 
 										&& ((new Date().getTime() - SepiaFW.android.lastReceivedMediaAppTS) < (1000*60*15));		//This is pure guessing ...
-		return isInternalPlayerStreaming || isYouTubePlayerStreaming || isAndroidPlayerStreaming;			
+		return isInternalPlayerStreaming || isEmbeddedMediaPlayerStreaming || isAndroidPlayerStreaming;			
 	}
-	AudioPlayer.getLastActiveAudioStreamPlayer = function(){
+	AudioPlayer.getLastActiveAudioSource = function(){
 		return lastAudioPlayerEventSource;
 	}
 	
-	//AudioContext stuff:
-	AudioPlayer.useAudioContext = false;	//experimental feature for things like gain control and music visualization (unfortunately fails for quite a few radio streams)
-	var gotPlayerAudioContext = false;		//state of context
-	var playerAudioContext; 	//AudioContext for player
-	var playerAudioSource;		//Source of player
-	var playerGainNode;			//Gain for player
-	var playerAudioAnalyser;	//Analyzer for player
-	var playerGainFader;		//interval control to fade in and out
-	var playerSpectrum;			//Spectrum of player
-	
 	//controls
 	var audioTitle;
+	var currentAudioTitleBelongsToStreamPlayer = true;	//default: true
 	var audioStartBtn;
 	var audioStopBtn;
 	var audioVolUp;
 	var audioVolDown;
-	var audioVolD;
 	var lastAudioStream = 'sounds/empty.mp3';
 	var beforeLastAudioStream = 'sounds/empty.mp3';
 	var lastAudioStreamTitle = '';
@@ -101,49 +266,96 @@ function sepiaFW_build_audio(sepiaSessionId){
 	var mainAudioIsOnHold = false;
 	var mainAudioStopRequested = false;
 	var orgVolume = 1.0;
-	var orgGain = 1.0;
 	var FADE_OUT_VOL = 0.05; 	//note: on some devices audio is actually stopped so this value does not apply
+
+	//MediaSession Interface
+	if (isMediaSessionSupported){
+		navigator.mediaSession.setActionHandler('play', function(){ 
+			//console.log("MediaSession - play");		//DEBUG
+			SepiaFW.client.controls.media({
+				action: "resume"
+			});
+		});
+  		navigator.mediaSession.setActionHandler('pause', function(){ 
+			//console.log("MediaSession - pause");		//DEBUG
+			SepiaFW.client.controls.media({
+				action: "stop"
+			});
+		});
+  		navigator.mediaSession.setActionHandler('stop', function() { 
+			//console.log("MediaSession - stop");		//DEBUG
+			SepiaFW.client.controls.media({
+				action: "stop"
+			});
+		});
+	}
+	function setMediaSessionState(state){
+		if (isMediaSessionSupported && ["none", "paused", "playing"].indexOf(state) >= 0){
+			navigator.mediaSession.playbackState = state;
+		}
+	}
+	function setMediaSessionMetaData(title, artist, album, artwork){
+		if (isMediaSessionSupported){
+			var defaultArtworkBaseUrl = SepiaFW.config.getAppRootUrl() + "img/";
+			var defaultArtwork = [
+				{ src: defaultArtworkBaseUrl + "icon-96.png", sizes: '96x96', type: 'image/png' },
+				{ src: defaultArtworkBaseUrl + "icon.png", sizes: '192x192', type: 'image/png' },
+				{ src: defaultArtworkBaseUrl + "icon-512.png", sizes: '512x512', type: 'image/png' }
+				//{ src: defaultArtworkBaseUrl + "ui/sepia.svg", sizes: '256x256', type: 'image/svg' }
+			];
+			navigator.mediaSession.metadata = new MediaMetadata({
+				title: title || "Unknown",
+				artist: artist || "SEPIA Stream",
+				album: album || undefined,
+				artwork: artwork || defaultArtwork
+			});
+			//example states: title, artist, album, artwork
+		}
+	}
 
 	//---- broadcasting -----
 
 	AudioPlayer.broadcastAudioEvent = function(source, action, playerObject){
-		//stream, effects, tts-player, unknown - start, stop, error, fadeOut, fadeIn
+		//stream, effects, tts-player, unknown - prepare, start, stop, error, fadeOut, fadeIn
 		//android-intent - stop, start
-		//youtube-embedded - start, resume, pause, hold
+		//embedded-media-player - start, resume, pause, hold
 		source = source.toLowerCase();
 		action = action.toLowerCase();
-		if (source == "stream" || source.indexOf("youtube") >= 0 || source.indexOf("android") >= 0){
+		if (source == "stream" || source == "embedded-media-player" || source.indexOf("android") >= 0){
 			lastAudioPlayerEventSource = source;
 		}
 		var event = new CustomEvent('sepia_audio_player_event', { detail: {
 			source: source,
 			action: action
 		}});
-		document.dispatchEvent(event);
+		document.dispatchEvent(event);  //NOTE: we could check result for 'prevent default' (its sync.)
 		//console.error("audio event: " + source + " - " + action);
 	}
 	
+	//NOTE: this is for the stream player only
 	function broadcastAudioRequested(){
-		//EXAMPLE: 
 		if (audioTitle) audioTitle.textContent = 'Loading ...';
 	}
 	function broadcastAudioFinished(){
-		//EXAMPLE: 
-		if (gotPlayerAudioContext) setTimeout(function(){ if (!Stream.isPlaying) clearInterval(playerSpectrum); },1500);
-		else SepiaFW.animate.audio.playerIdle();
+		SepiaFW.animate.audio.playerIdle();
 		if (audioTitle.innerHTML === "Loading ...") audioTitle.textContent = "Stopped";
+		//send event for OS:
+		setMediaSessionState("paused");
+		setMediaSessionMetaData(player.title, "SEPIA Stream");
 	}
 	function broadcastAudioStarted(){
-		//EXAMPLE: 
 		if (audioTitle) audioTitle.textContent = player.title;
-		if (gotPlayerAudioContext){ 	clearInterval(playerSpectrum); playerSpectrum = setInterval(playerDrawSpectrum, 30); 	}
-		else SepiaFW.animate.audio.playerActive();
+		SepiaFW.animate.audio.playerActive();
+		//send event for OS:
+		setMediaSessionState("playing");
+		setMediaSessionMetaData(player.title, "SEPIA Stream");
 	}
 	function broadcastAudioError(){
-		//EXAMPLE: 
 		if (audioTitle) audioTitle.textContent = 'Error';
-		if (gotPlayerAudioContext) setTimeout(function(){ if (!Stream.isPlaying) clearInterval(playerSpectrum); },1500);
-		else SepiaFW.animate.audio.playerIdle();
+		SepiaFW.animate.audio.playerIdle();
+		//send event for OS:
+		setMediaSessionState("none");
+		setMediaSessionMetaData(player.title, "SEPIA Stream");
 	}
 	function broadcastPlayerVolumeSet(){
 	}
@@ -156,94 +368,80 @@ function sepiaFW_build_audio(sepiaSessionId){
 	//-----------------------
 	
 	//set default parameters for audio
-	AudioPlayer.setup = function (){
-		//modified sounds by user?
-		AudioPlayer.loadCustomSounds();
-
+	AudioPlayer.setup = function(readyCallback){
 		//get players
 		player = document.getElementById('sepiaFW-audio-player');
 		player2 = document.getElementById('sepiaFW-audio-player2');
 		speaker = document.getElementById('sepiaFW-audio-speaker');
 		if (speaker) speaker.setAttribute('data-tts', true);
-		
-		//get audio context (for ios volume and spectrum analyzers)
-		connectAudioContext();
+
+		//Part 1
+		audioSetupPart1(function(){
+			//Part 2
+			audioSetupPart2(function(){
+				//Ready
+				if (readyCallback) readyCallback();
+			});
+		});
+	}
+	function audioSetupPart1(readyCallback){
+		//Media devices
+		AudioPlayer.mediaDevicesSetup(readyCallback);
+	}
+	function audioSetupPart2(readyCallback){
+		//modified sounds by user?
+		AudioPlayer.loadCustomSounds();
 		
 		//get player controls
 		audioTitle = document.getElementById('sepiaFW-audio-ctrls-title');
 		audioStartBtn = document.getElementById('sepiaFW-audio-ctrls-start');
 		$(audioStartBtn).off().on('click', function(){
-			//test: player.src = "sounds/coin.mp3";
-			//player.play();
-			if (!AudioPlayer.initAudio(function(){ AudioPlayer.playURL('', player); })){
-				AudioPlayer.playURL('', player);
-			}
+			AudioPlayer.initAudio(undefined, function(){
+				if (currentAudioTitleBelongsToStreamPlayer){
+					//we keep this for now...
+					AudioPlayer.playURL('', "stream");
+				}else{
+					SepiaFW.client.controls.media({
+						action: "resume",
+						skipFollowUp: true
+					});
+				}
+			});
 		});
 		audioStopBtn = document.getElementById('sepiaFW-audio-ctrls-stop');
 		$(audioStopBtn).off().on('click', function(){
 			SepiaFW.client.controls.media({
-				action: "stop"
+				action: "stop",
+				skipFollowUp: true
 			});
 		});
 		audioVolUp = document.getElementById('sepiaFW-audio-ctrls-volup');
 		$(audioVolUp).off().on('click', function(){
-			playerSetVolume(playerGetVolume() + 1.0);
+			//playerSetVolume(playerGetVolume() + 1.0);
+			SepiaFW.client.controls.volume({
+				action: "up"
+			});
 		});
 		audioVolDown = document.getElementById('sepiaFW-audio-ctrls-voldown');
 		$(audioVolDown).off().on('click', function(){
-			playerSetVolume(playerGetVolume() - 1.0);
+			//playerSetVolume(playerGetVolume() - 1.0);
+			SepiaFW.client.controls.volume({
+				action: "down"
+			});
 		});
 		audioVol = document.getElementById('sepiaFW-audio-ctrls-vol');
 		if (audioVol) audioVol.textContent = Math.round(player.volume*10.0);
+
+		if (readyCallback) readyCallback();
 	}
-	
-	//connect / disconnect AudioContext
-	function connectAudioContext(){
-		//get audio context (for ios volume and spectrum analyzers - TODO: why is '!SepiaFW.ui.isIOS' used? Didn't we deactivate the whole thing?)
-		if(AudioPlayer.useAudioContext && !gotPlayerAudioContext 
-					&& ('webkitAudioContext' in window || 'AudioContext' in window) 
-					&& !((window.location.toString().indexOf('file') == 0) 
-					&& !SepiaFW.ui.isSafari && !SepiaFW.ui.isIOS)){
-			player.crossOrigin = "anonymous";
-						
-			playerAudioContext = new (window.AudioContext || window.webkitAudioContext)();
-			playerAudioSource = playerAudioContext.createMediaElementSource(player);
-			
-			playerGainNode = playerAudioContext.createGain();
-			playerGainNode.gain.value = 1.0;
-			
-			playerAudioSource.connect(playerGainNode);
-			
-			// an analyser is used for the spectrum
-			playerAudioAnalyser = playerAudioContext.createAnalyser();
-			playerAudioAnalyser.smoothingTimeConstant = 0.85;
-			
-			playerGainNode.connect(playerAudioAnalyser);
-			playerAudioAnalyser.connect(playerAudioContext.destination);
-			
-			gotPlayerAudioContext = true;
-		}
-	}
-	/*	-- NOT WORKING --
-	function disconnectAudioContext(){
-		if (gotPlayerAudioContext){
-			player.removeAttribute('crossorigin');
-			
-			playerGainNode.disconnect();
-			playerAudioAnalyser.disconnect();
-			playerAudioSource.disconnect();
-			
-			playerAudioContext.close();
-			
-			gotPlayerAudioContext = false;
-		}
-	}*/
-	
+		
 	//sound init - returns true if it will be executed, false everytime after first call
 	AudioPlayer.requiresInit = function(){
+		//TODO: is this still up-to-date?
 		return (!SepiaFW.ui.isStandaloneWebApp && (SepiaFW.ui.isMobile || SepiaFW.ui.isSafari) && doInitAudio);
 	}
-	AudioPlayer.initAudio = function(continueCallback){
+	AudioPlayer.initAudio = function(continueCallback, noopOrContinueCallback){
+		if (noopOrContinueCallback && !continueCallback) continueCallback = noopOrContinueCallback;
 		//workaround for mobile devices to activate audio by scripts
 		if (AudioPlayer.requiresInit()){
 			SepiaFW.debug.info('Audio - trying to initialize players');
@@ -269,43 +467,148 @@ function sepiaFW_build_audio(sepiaSessionId){
 			return true;
 			
 		}else{
+			if (noopOrContinueCallback) noopOrContinueCallback();
 			return false;
 		}
 	}
 
-	//set default parameters for TTS
-	TTS.setup = function (Settings){
-		TTS.playOn = (Settings.playOn)? Settings.playOn : "client"; 		//play TTS on client (can also be played on "server" if available)
-		TTS.format = (Settings.format)? Settings.format : "default";		//you can force format to default,OGG,MP3,MP3_CBR_32 and WAV (if using online api)
-		//about voices
-		TTS.voice = (Settings.voice)? Settings.voice : "default";			//name of the voice used
-		TTS.gender = (Settings.gender)? Settings.gender : "default";		//name of gender ("male", "female", "child", "old, "creature")
-		TTS.mood = (Settings.mood)? Settings.mood : 5;						//mood state
-		TTS.speed = (Settings.speed)? Settings.speed : "1.0";
-		TTS.tone = (Settings.tone)? Settings.tone : "1.0";
-		TTS.maxChunkLength = (Settings.maxChunkLength)? Settings.maxChunkLength : 600;
-		TTS.maxMoodIndex = (Settings.maxMoodIndex)? Settings.maxMoodIndex : 3;
+	//TTS voice effects
+	var voiceEffects = {
+		"volume": {
+			id: "volume", name: "Volume", 
+			getOptions: function(){ 
+				return [{key: "gain", name: "Volume", default: 1.0, range: [0.1, 5.0], step: 0.1}]; 
+			},
+			applyFun: function(audioCtx, masterGainNode, options, doneCallback){
+				if (masterGainNode) masterGainNode.gain.value = options.gain || 1.0;
+				masterGainNode.connect(audioCtx.destination);
+				if (doneCallback) doneCallback(true);
+			}
+		},
+		"robo_1": {
+			id: "robo_1", name: "Robotic Modulator 1", 
+			getOptions: function(){ return SepiaFW.audio.effects.getVoiceEffectOptions("robo_1"); },
+			applyFun: function(audioCtx, masterGainNode, options, doneCallback){
+				SepiaFW.audio.effects.applyVoiceEffect("robo_1", audioCtx, masterGainNode, options, doneCallback);
+			}
+		}, 
+		"highpass_1": {
+			id: "highpass_1", name: "High-Pass Filter 1", 
+			getOptions: function(){ return SepiaFW.audio.effects.getVoiceEffectOptions("highpass_1"); },
+			applyFun: function(audioCtx, masterGainNode, options, doneCallback){
+				SepiaFW.audio.effects.applyVoiceEffect("highpass_1", audioCtx, masterGainNode, options, doneCallback);
+			}
+		}
+	}
+	var voiceEffectActive = "";
+	var voiceEffectOptionsActive = {};
+	var isVoiceEffectSetupPending = false;
+
+	TTS.setVoiceEffect = function(effectId, options, successCallback, errorCallback){
+		if (!options) options = {};
+		var optionsAreSame = SepiaFW.tools.simpleObjectsAreSame(options, voiceEffectOptionsActive);		//NOTE: we use a simple compare
+		if (voiceEffectActive == effectId && optionsAreSame){
+			if (successCallback) successCallback();
+			return;
+		}
+		var effect = effectId? voiceEffects[effectId] : undefined;
+		isVoiceEffectSetupPending = true;
+		if (!effectId){
+			removeActiveVoiceEffect(function(){
+				isVoiceEffectSetupPending = false;
+				if (successCallback) successCallback();
+			});
+		}else if (effect){
+			applyVoiceEffect(effect, options, function(){
+				isVoiceEffectSetupPending = false;
+				if (successCallback) successCallback();
+			});
+		}else{
+			removeActiveVoiceEffect(function(){
+				isVoiceEffectSetupPending = false;
+				SepiaFW.debug.error("TTS effect for id: " + effectId + " NOT FOUND or NOT AVAILABLE!");
+				if (errorCallback) errorCallback({name: "VoiceEffectError", message: "not found or not available for this voice"});
+			});
+		}
+	}
+	TTS.restoreVoiceEffect = function(selectedVoice, doneCallback){
+		var storedData = SepiaFW.data.getPermanent(SepiaFW.speech.getLanguage() + "-voice-effects") || {};
+		var voiceEffect = storedData[selectedVoice];
+		var effectId;
+		var options;
+		if (!voiceEffect){
+			effectId = "";
+			options = {};
+		}else{
+			effectId = voiceEffect.effectId;
+			options = voiceEffect.effectOptions;
+		}
+		TTS.setVoiceEffect(effectId, options, doneCallback, doneCallback);
+	}
+	function applyVoiceEffect(effect, options, doneCallback){
+		if (speakerGainNode){
+			//clean-up what we can
+			speakerGainNode.disconnect();
+		}
+		speaker.crossOrigin = "anonymous";
+		speakerAudioCtx = speakerAudioCtx || SepiaFW.webAudio.createAudioContext({});
+		speakerSource = speakerSource || speakerAudioCtx.createMediaElementSource(speaker);
+		speakerGainNode = speakerAudioCtx.createGain();
+		speakerSource.connect(speakerGainNode);
+		speaker.sepiaVoiceEffectsSourceNode = speakerSource;
+		effect.applyFun(speakerAudioCtx, speakerGainNode, options, function(){
+			voiceEffectActive = effect.id;
+			voiceEffectOptionsActive = JSON.parse(JSON.stringify(options));		//clone options
+			SepiaFW.debug.log("Set TTS effect: " + effect.id + " (" + effect.name + ")");
+			if (doneCallback) doneCallback();
+		});
+	}
+	function removeActiveVoiceEffect(doneCallback){
+		//NOTE: this is not a "real" clean-up since we cannot get rid of the 'createMediaElementSource' anymore O_o
+		//REF: https://github.com/WebAudio/web-audio-api/issues/1202
+		if (speakerGainNode){
+			speakerGainNode.disconnect();
+			speakerGainNode.connect(speakerAudioCtx.destination);
+		}
+		//speaker.crossOrigin = null;
+		voiceEffectActive = "";
+		voiceEffectOptionsActive = {};
+		SepiaFW.debug.log("Removed TTS effect");
+		if (doneCallback) doneCallback();
+	}
+	TTS.getAvailableVoiceEffects = function(){
+		var effects = [
+			{value: "", name: "No effect", effectOptions: []}
+		];
+		//TODO: return different values depending on selected voice?
+		Object.keys(voiceEffects).forEach(function(v){
+			var eff = voiceEffects[v];
+			effects.push({value: eff.id, name: eff.name, effectOptions: eff.getOptions()});
+		});
+		return effects;
+	}
+	TTS.getVoiceEffectForId = function(effectId){
+		return voiceEffects[effectId];
+	}
+	TTS.getActiveVoiceEffectId = function(){
+		return voiceEffectActive;
 	}
 
 	//use TTS endpoint to generate soundfile and speak answer
-	TTS.speak = function (message, onStartCallback, onEndCallback, onErrorCallback){
+	TTS.speak = function(message, onStartCallback, onEndCallback, onErrorCallback, options){
+		//NOTE: For the state-ful version of 'speak' (with settings and events) use: 'SepiaFW.speech.speak'
 		//gets URL and calls play(URL)
-		TTS.getURL(message, function(audioUrl){
-			if (audioUrl.indexOf("/") == 0){
-				audioUrl = SepiaFW.config.assistAPI + audioUrl.substring(1);
-			}else if (audioUrl.indexOf("tts") == 0){
-				audioUrl = SepiaFW.config.assistAPI + audioUrl;
-			}
+		SepiaFW.speech.getTtsStreamURL(message, function(audioUrl){
 			SepiaFW.debug.info("TTS audio url: " + audioUrl);
 			AudioPlayer.playURL(audioUrl, speaker, onStartCallback, onEndCallback, onErrorCallback);
-		}, onErrorCallback);		
+		}, onErrorCallback, options);
 	}
 	TTS.stop = function(){
 		AudioPlayer.stop(speaker);
 	}
 
 	//STOP all audio
-	AudioPlayer.stop = function (audioPlayer){
+	AudioPlayer.stop = function(audioPlayer){
 		if (!audioPlayer) audioPlayer = player;
 		if (audioPlayer == player){
 			if (Stream.isPlaying){
@@ -316,8 +619,7 @@ function sepiaFW_build_audio(sepiaSessionId){
 			broadcastAudioFinished();
 			mainAudioIsOnHold = false;
 			mainAudioStopRequested = true;		//We try to prevent the race-condition with that (1)
-			if (gotPlayerAudioContext) playerGainNode.gain.value = orgGain;
-			else audioPlayer.volume = orgVolume;
+			audioPlayer.volume = orgVolume;
 		
 		}else if (audioPlayer == player2){
 			//TODO: ?
@@ -345,16 +647,10 @@ function sepiaFW_build_audio(sepiaSessionId){
 				SepiaFW.debug.info('AUDIO: instant fadeOutMain');
 				player.pause(); 		//<-- try without broadcasting, is it save?
 			}
-			if (!gotPlayerAudioContext){
-				//orgVolume = (player.volume < orgVolume)? orgVolume : player.volume;
-				SepiaFW.debug.info('AUDIO: fadeOutMain orgVol=' + orgVolume);
-				$(player).stop(); 	//note: this is an animation stop
-				$(player).animate({volume: FADE_OUT_VOL}, 300);
-			}else{
-				//orgGain = (playerGainNode.gain.value < orgGain)? orgGain : playerGainNode.gain.value;
-				SepiaFW.debug.info('AUDIO: fadeOutMain orgVol=' + orgGain);
-				playerFadeOut(1.0); 	//note: argument is speed of fader
-			}
+			//orgVolume = (player.volume < orgVolume)? orgVolume : player.volume;
+			SepiaFW.debug.info('AUDIO: fadeOutMain orgVol=' + orgVolume);
+			$(player).stop(); 	//note: this is an animation stop
+			$(player).animate({volume: FADE_OUT_VOL}, 300);
 			broadcastPlayerFadeOut();
 			if (!mainAudioStopRequested){		//(if forced ..) We try to prevent the race-condition with that (2)
 				mainAudioIsOnHold = true;
@@ -370,13 +666,8 @@ function sepiaFW_build_audio(sepiaSessionId){
 			AudioPlayer.broadcastAudioEvent("stream", "fadeIn", player);
 		}/*else{
 			//just restore volume
-			if (!gotPlayerAudioContext){
-				SepiaFW.debug.info('AUDIO: fadeInMain - no play just reset vol=' + orgVolume);
-				playerSetVolume(orgVolume * 10.0);
-			}else{
-				SepiaFW.debug.info('AUDIO: fadeInMain - no play just reset vol=' + orgGain);
-				playerSetVolume(orgGain * 10.0);
-			}
+			SepiaFW.debug.info('AUDIO: fadeInMain - no play just reset vol=' + orgVolume);
+			playerSetVolume(orgVolume * 10.0);
 		}*/
 	}
 	//More general functions for fading
@@ -424,7 +715,7 @@ function sepiaFW_build_audio(sepiaSessionId){
 			SepiaFW.debug.error("AudioPlayer.registerNewFadeListener - not a valid object to register!");
 			//valid obejct example:
 			/* {
-				id: "youtube",
+				id: "embedded-media-player",
 				isOnHold: myFunA,			(return true/false)
 				onFadeOutRequest: myFunB,	(return true/false, param: force)
 				onFadeInRequest: myFunC		(return true/false)
@@ -441,41 +732,24 @@ function sepiaFW_build_audio(sepiaSessionId){
 	//player specials
 
 	function playerGetVolume(){
-		if (!gotPlayerAudioContext){
-			return Math.round(10.0 * player.volume);
-		}else{
-			return Math.round(10.0 * playerGainNode.gain.value);
-		}
+		return Math.round(10.0 * player.volume);
 	}
 	AudioPlayer.playerGetVolume = playerGetVolume;
 	AudioPlayer.getOriginalVolume = function(){
-		if (!gotPlayerAudioContext){
-			return Math.round(10.0 * orgVolume);
-		}else{
-			return Math.round(10.0 * orgGain);
-		}
+		return Math.round(10.0 * orgVolume);
 	}
 
 	function playerSetVolume(newVol){
 		var setVol = getValidVolume(newVol)/10.0;
-		if (!gotPlayerAudioContext){
-			player.volume = setVol;
-			orgVolume = setVol;
-		}else{
-			playerGainNode.gain.value = setVol;
-			orgGain = setVol;
-		}
-		$('#sepiaFW-audio-ctrls-vol').html(Math.floor(setVol*10.0));
+		player.volume = setVol;
+		orgVolume = setVol;
+		$('#sepiaFW-audio-ctrls-vol').text(Math.floor(setVol*10.0));
 		SepiaFW.debug.info('AUDIO: volume set (and stored) to ' + setVol);
 		broadcastPlayerVolumeSet();
 	}
 	function playerSetVolumeTemporary(newVol){
 		var setVol = getValidVolume(newVol)/10.0;
-		if (!gotPlayerAudioContext){
-			player.volume = setVol;
-		}else{
-			playerGainNode.gain.value = setVol;
-		}
+		player.volume = setVol;
 		SepiaFW.debug.info('AUDIO: volume set temporary (till next fadeIn) to ' + setVol);
 	}
 	function getValidVolume(volumeIn){
@@ -492,12 +766,8 @@ function sepiaFW_build_audio(sepiaSessionId){
 	AudioPlayer.playerSetCurrentOrTargetVolume = function(newVol){
 		if (mainAudioIsOnHold || (SepiaFW.speech.isSpeakingOrListening())){
 			var setVol = getValidVolume(newVol)/10.0;
-			if (!gotPlayerAudioContext){
-				orgVolume = setVol;
-			}else{
-				orgGain = setVol;
-			}
-			$('#sepiaFW-audio-ctrls-vol').html(Math.floor(setVol*10.0));
+			orgVolume = setVol;
+			$('#sepiaFW-audio-ctrls-vol').text(Math.floor(setVol*10.0));
 			SepiaFW.debug.info('AUDIO: unfaded volume set to ' + setVol);
 			broadcastPlayerVolumeSet();
 		}else{
@@ -512,134 +782,15 @@ function sepiaFW_build_audio(sepiaSessionId){
 			var lastStream = SepiaFW.audio.getLastAudioStream();
 			var lastStreamTitle = (lastStream)? SepiaFW.audio.getLastAudioStreamTitle() : "";
 			SepiaFW.audio.playURL(lastStream, ''); 	//<-- potentially looses callBack info here, but since this is stopped
-			SepiaFW.audio.setPlayerTitle(lastStreamTitle, '');
+			SepiaFW.audio.setPlayerTitle(lastStreamTitle, "stream");
 		}
-		if (!gotPlayerAudioContext){
-			SepiaFW.debug.info('AUDIO: fadeToOriginal - restore vol=' + orgVolume);
-			$(player).stop(); 	//note: this is an animation stop
-			$(player).animate({volume: orgVolume}, 3000);
-		}else{
-			SepiaFW.debug.info('AUDIO: fadeToOriginal - restore vol=' + orgGain);
-			playerFadeIn(10.0); 	//note: argument is speed of fader
-		}
+		SepiaFW.debug.info('AUDIO: fadeToOriginal - restore vol=' + orgVolume);
+		$(player).stop(); 	//note: this is an animation stop
+		$(player).animate({volume: orgVolume}, 3000);
 		broadcastPlayerFadeIn();
-	}
-	function playerFadeOut(slowness){
-		clearInterval(playerGainFader);
-		playerGainFader = setInterval(function(){
-			var gain = playerGainNode.gain.value;
-			if (gain > FADE_OUT_VOL){ 	playerGainNode.gain.value = (gain - 0.05);	}
-			else { 
-				playerGainNode.gain.value = (orgGain<FADE_OUT_VOL)? orgGain : FADE_OUT_VOL;
-				clearInterval(playerGainFader); 
-			}
-		}, (15 * slowness));
-	}
-	function playerFadeIn(slowness){
-		clearInterval(playerGainFader);
-		playerGainFader = setInterval(function(){
-			var gain = playerGainNode.gain.value;
-			if (gain < orgGain){ 	playerGainNode.gain.value = (gain + 0.05);	}
-			else { 
-				playerGainNode.gain.value = orgGain;	
-				clearInterval(playerGainFader); 
-			}
-		}, (15 * slowness));
-	}
-	function playerDrawSpectrum() {
-		var canvas = document.getElementById('sepiaFW-audio-ctrls-canvas');
-		var ctx = canvas.getContext('2d');
-		var width = canvas.width;
-		var height = canvas.height;
-		var bar_width = 10;
-
-		ctx.clearRect(0, 0, width, height);
-		//ctx.fillStyle=SepiaFW.ui.assistantColor;
-
-		var freqByteData = new Uint8Array(playerAudioAnalyser.frequencyBinCount);
-		playerAudioAnalyser.getByteFrequencyData(freqByteData);
-
-		var barCount = Math.round(width / bar_width);
-		for (var i = 0; i < barCount; i++) {
-			var magnitude = freqByteData[i];
-			// some values need adjusting to fit on the canvas
-			ctx.fillRect(bar_width * i, height, bar_width - 2, -magnitude + 80);
-		}
 	}
 
 	//--------helpers----------
-
-	//get audio URL
-	TTS.getURL = function(message, successCallback, errorCallback){
-		var apiUrl = SepiaFW.config.assistAPI + "tts";
-		var submitData = {
-			text: message,
-			lang: ((SepiaFW.speech)? SepiaFW.speech.getLanguage() : SepiaFW.config.appLanguage),
-			mood: ((SepiaFW.assistant)? SepiaFW.assistant.getMood() : TTS.mood),
-			voice: TTS.voice,
-			gender: TTS.gender,
-			speed: TTS.speed,
-			tone: TTS.tone,
-			playOn: TTS.playOn,		//check play on server 
-			format: TTS.format		//sound format (e.g. wav file)
-		};
-		submitData.KEY = SepiaFW.account.getKey(sepiaSessionId);
-		submitData.client = SepiaFW.config.getClientDeviceInfo();
-		submitData.env = SepiaFW.config.environment;
-
-		//get url
-		$.ajax({
-			url: apiUrl,
-			timeout: 10000,
-			type: "POST",
-			data: submitData,
-			headers: {
-				"content-type": "application/x-www-form-urlencoded"
-			},
-			success: function(response){
-				SepiaFW.debug.info("GET_AUDIO SUCCESS: " + JSON.stringify(response));
-				if (response.result === "success"){
-					if (successCallback) successCallback(response.url);
-				}else{
-					if (errorCallback) errorCallback();
-				}
-			},
-			error: function(e){
-				SepiaFW.debug.info("GET_AUDIO ERROR: " + JSON.stringify(e));
-				if (errorCallback) errorCallback();
-			}
-		});
-	}
-	TTS.getVoices = function(successCallback, errorCallback){
-		var apiUrl = SepiaFW.config.assistAPI + "tts-info";
-		var submitData = {};
-		submitData.KEY = SepiaFW.account.getKey(sepiaSessionId);
-		submitData.client = SepiaFW.config.getClientDeviceInfo();
-		submitData.env = SepiaFW.config.environment;
-
-		//get url
-		$.ajax({
-			url: apiUrl,
-			timeout: 10000,
-			type: "POST",
-			data: submitData,
-			headers: {
-				"content-type": "application/x-www-form-urlencoded"
-			},
-			success: function(response){
-				SepiaFW.debug.info("GET_VOICES SUCCESS: " + JSON.stringify(response));
-				if (response.result === "success"){
-					if (successCallback) successCallback(response);
-				}else{
-					if (errorCallback) errorCallback(response);
-				}
-			},
-			error: function(e){
-				SepiaFW.debug.info("GET_VOICES ERROR: " + JSON.stringify(e));
-				if (errorCallback) errorCallback(e);
-			}
-		});
-	}
 	
 	//test same origin - TODO: EXPERIMENTAL
 	function testSameOrigin(url) {
@@ -651,14 +802,19 @@ function sepiaFW_build_audio(sepiaSessionId){
 			   a.protocol == loc.protocol;
 	}
 	
-	//set title of player
-	AudioPlayer.setPlayerTitle = function(newTitle, audioPlayer){
-		if (!audioPlayer) audioPlayer = player;
-		audioPlayer.title = newTitle;
-		if (audioTitle) audioTitle.textContent = newTitle || "SepiaFW audio player";
-		if (audioPlayer == player){
+	//set title of player - NOTE: compared to most functions below this is not limited to "stream" player
+	AudioPlayer.setPlayerTitle = function(newTitle, playerTag){
+		//playerTag: stream, embedded-media-player, android-intent
+		if (playerTag == undefined) playerTag = "stream";
+		if (playerTag == "stream" || playerTag == player){
+			//Stream player
 			lastAudioStreamTitle = newTitle;
+			player.title = newTitle;
+			currentAudioTitleBelongsToStreamPlayer = true;
+		}else{
+			currentAudioTitleBelongsToStreamPlayer = false;
 		}
+		if (audioTitle) audioTitle.textContent = newTitle || "SEPIA Audio Player";
 	}
 
 	//get the stream last played
@@ -675,7 +831,7 @@ function sepiaFW_build_audio(sepiaSessionId){
 		var lastStreamTitle = (lastStream)? AudioPlayer.getLastAudioStreamTitle() : "";
 		if (lastStream){
 			AudioPlayer.playURL(lastStream, player);
-			AudioPlayer.setPlayerTitle(lastStreamTitle);
+			AudioPlayer.setPlayerTitle(lastStreamTitle, "stream");
 			return true;
 		}else{
 			return false;
@@ -691,40 +847,59 @@ function sepiaFW_build_audio(sepiaSessionId){
 		}else if (audioPlayer === 'tts'){
 			audioPlayer = speaker;
 		}
+		var sourceName = "unknown";
+		var audioOnEndFired = false;			//prevent doublefireing of audio onend onpause
+
 		if (audioURL) audioURL = SepiaFW.config.replacePathTagWithActualPath(audioURL);
-		
-		if (audioURL && audioPlayer == player){
-			beforeLastAudioStream = lastAudioStream;
-			lastAudioStream = audioURL;
-			lastAudioStreamTitle = "";		//we reset this and assume "setTitle" is called after "playUrl"
-		}
-		if (!audioURL) audioURL = lastAudioStream;
-		
-		audioOnEndFired = false;
+
 		if (audioPlayer == player){
+			sourceName = "stream";
+			if (audioURL){
+				beforeLastAudioStream = lastAudioStream;
+				lastAudioStream = audioURL;
+				lastAudioStreamTitle = "";		//we reset this and assume "setTitle" is called after "playUrl"
+			}else{
+				audioURL = lastAudioStream;
+			}
+
 			broadcastAudioRequested();
 
 			//stop all other audio sources
-			if (SepiaFW.client.controls){
-				SepiaFW.client.controls.media({
-					action: "stop",
-					skipFollowUp: true
-				});
-			}
+			SepiaFW.client.controls.media({
+				action: "stop",
+				skipFollowUp: true
+			});
 			Stream.isLoading = true;
 
 		}else if (audioPlayer == player2){
+			sourceName = "effects";
 			//TODO: ?
+		
 		}else if (audioPlayer == speaker){
-			//TODO: more?
+			sourceName = "tts-player";
+			if (isVoiceEffectSetupPending){
+				//TODO: delay
+				SepiaFW.debug.error("AUDIO: voice-effects setup still pending! Should delay 'AudioPlayer.playURL'");	//debug
+			}
+			if (speakerAudioCtx && (speakerAudioCtx.state == "suspended" || speakerAudioCtx.state == "closed")){
+				SepiaFW.debug.log("AUDIO: context for voice-effects is suspended or closed! Trying to resume now.");	//debug
+				speakerAudioCtx.resume().then(function(){
+					SepiaFW.debug.log("AUDIO: context for voice-effects successfully resumed.");
+				}).catch(function(err){
+					audioPlayer.onerror({name: "AudioContextResumeError", message: "Failed to resume suspended/closed context", info: err});
+				});	
+				//TODO: wait for promise? Or add timeout fallback? - NOTE: "closed" will fail on purpose
+			}
 			TTS.isLoading = true;
+			//TODO: more?
 		}
 
 		audioPlayer.preload = 'auto';
+		AudioPlayer.broadcastAudioEvent(sourceName, "prepare", audioPlayer);
 
 		//console.log("Audio-URL: " + audioURL); 		//DEBUG
 		audioPlayer.src = audioURL;
-		audioPlayer.oncanplay = function() {
+		audioPlayer.oncanplay = function(){
 			SepiaFW.debug.info("AUDIO: can be played now (oncanplay event)");		//debug
 			if (audioPlayer == player){
 				Stream.isPlaying = true;
@@ -741,17 +916,9 @@ function sepiaFW_build_audio(sepiaSessionId){
 			}
 			//callback
 			if (onStartCallback) onStartCallback();
-			if (audioPlayer == player){
-				AudioPlayer.broadcastAudioEvent("stream", "start", audioPlayer);
-			}else if (audioPlayer == player2){
-				AudioPlayer.broadcastAudioEvent("effects", "start", audioPlayer);
-			}else if (audioPlayer == speaker){
-				AudioPlayer.broadcastAudioEvent("tts-player", "start", audioPlayer);
-			}else{
-				AudioPlayer.broadcastAudioEvent("unknown", "start", audioPlayer);
-			}
+			AudioPlayer.broadcastAudioEvent(sourceName, "start", audioPlayer);
 		};
-		audioPlayer.onpause = function() {
+		audioPlayer.onpause = function(){
 			if (!audioOnEndFired){
 				SepiaFW.debug.info("AUDIO: ended (onpause event)");				//debug
 				audioOnEndFired = true;
@@ -769,15 +936,15 @@ function sepiaFW_build_audio(sepiaSessionId){
 				}
 				//callback
 				if (onEndCallback) onEndCallback();
+				var sourceName = "unknown";
 				if (audioPlayer == player){
-					AudioPlayer.broadcastAudioEvent("stream", "stop", audioPlayer);
+					sourceName = "stream";
 				}else if (audioPlayer == player2){
-					AudioPlayer.broadcastAudioEvent("effects", "stop", audioPlayer);
+					sourceName = "effects";
 				}else if (audioPlayer == speaker){
-					AudioPlayer.broadcastAudioEvent("tts-player", "stop", audioPlayer);
-				}else{
-					AudioPlayer.broadcastAudioEvent("unknown", "stop", audioPlayer);
+					sourceName = "tts-player";
 				}
+				AudioPlayer.broadcastAudioEvent(sourceName, "stop", audioPlayer);
 			}
 		};
 		audioPlayer.onended = function(){
@@ -809,15 +976,15 @@ function sepiaFW_build_audio(sepiaSessionId){
 			}
 			//callback
 			if (onErrorCallback) onErrorCallback();
+			var sourceName = "unknown";
 			if (audioPlayer == player){
-				AudioPlayer.broadcastAudioEvent("stream", "error", audioPlayer);
+				sourceName = "stream";
 			}else if (audioPlayer == player2){
-				AudioPlayer.broadcastAudioEvent("effects", "error", audioPlayer);
+				sourceName = "effects";
 			}else if (audioPlayer == speaker){
-				AudioPlayer.broadcastAudioEvent("tts-player", "error", audioPlayer);
-			}else{
-				AudioPlayer.broadcastAudioEvent("unknown", "error", audioPlayer);
+				sourceName = "tts-player";
 			}
+			AudioPlayer.broadcastAudioEvent(sourceName, "error", audioPlayer);
 		};
 		var p = audioPlayer.play();	
 		if (p && ('catch' in p)){
@@ -888,13 +1055,14 @@ function sepiaFW_build_audio(sepiaSessionId){
 			}
 		}
 						
-		audioOnEndFired = false;
+		var audioOnEndFired = false;
+		AudioPlayer.broadcastAudioEvent("effects", "prepare", audioPlayer);
 
 		audioPlayer.src = alarmSound;
 		audioPlayer.preload = 'auto';
 		Alarm.isLoading = true;
 
-		audioPlayer.oncanplay = function() {
+		audioPlayer.oncanplay = function(){
 			SepiaFW.debug.info("AUDIO: can be played now (oncanplay event)");		//debug
 			Alarm.isPlaying = true;
 			Alarm.isLoading = false;
@@ -903,7 +1071,7 @@ function sepiaFW_build_audio(sepiaSessionId){
 			if (onStartCallback) onStartCallback;
 			AudioPlayer.broadcastAudioEvent("effects", "start", audioPlayer);
 		};
-		audioPlayer.onpause = function() {
+		audioPlayer.onpause = function(){
 			if (!audioOnEndFired){
 				SepiaFW.debug.info("AUDIO: ended (onpause event)");				//debug
 				audioOnEndFired = true;
@@ -920,13 +1088,13 @@ function sepiaFW_build_audio(sepiaSessionId){
 				SepiaFW.animate.assistant.idle();
 			}
 		};
-		audioPlayer.onended = function() {
+		audioPlayer.onended = function(){
 			if (!audioOnEndFired){
 				SepiaFW.debug.info("AUDIO: ended (onend event)");				//debug
 				audioPlayer.pause();
 			}
 		};
-		audioPlayer.onerror = function(error) {
+		audioPlayer.onerror = function(error){
 			SepiaFW.debug.info("AUDIO: error occured! - code: " + (audioPlayer.error? audioPlayer.error.code : error.name));			//debug
 			if (error && error.name && error.name == "NotAllowedError"){
 				SepiaFW.ui.showInfo("Cannot play audio because access was denied! This can happen if the user didn't interact with the client first.");

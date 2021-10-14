@@ -1,0 +1,592 @@
+<div id='sepiaFW-frame-carousel' class="sepiaFW-inner-container sepiaFW-carousel">
+	<div class='sepiaFW-carousel-pane-container'>
+		<!-- Page 1 -->
+		<div id="sepiaFW-frame-page-1" class='sepiaFW-frames-page sepiaFW-carousel-pane'>
+			<h3>Media Devices Settings</h3>
+			<p class="info-text">Here you can configure the media devices like microphone and audio sources (speakers) of your device. Don't forget to press <u>store</u> to make changes permanent!</p>
+			<p id="sepiaFW-media-devices-mobile-note" class="info-text"><b>NOTE:</b> Support for this feature on mobile devices is usually very poor!</p>
+			<div id="sepiaFW-media-devices-settings" class="group-container">
+				<div class="group" style="justify-content: center; flex-wrap: wrap;">
+					<button id="SepiaFW-media-devices-refresh" onclick="SepiaFW.frames.currentScope.refreshDevices()">Refresh devices</button>
+					<button id="SepiaFW-media-devices-store" onclick="SepiaFW.frames.currentScope.store()">Store settings</button>
+					<button id="SepiaFW-media-devices-default" onclick="SepiaFW.frames.currentScope.resetToDefault()">Default</button>
+				</div>
+				<h3>Speakers</h3>
+				<div class="group">
+					<label>Audio player output:</label>
+					<div id="sepiaFW-media-devices-audio-player-box"></div>
+				</div>
+				<div class="group">
+					<label>Voice (TTS) output:</label>
+					<div id="sepiaFW-media-devices-tts-player-box"></div>
+				</div>
+				<div class="group">
+					<label>FX output:</label>
+					<div id="sepiaFW-media-devices-fx-player-box"></div>
+				</div>
+				<div class="group" style="justify-content: center;">
+					<button onclick="SepiaFW.frames.showFramePage(3);">Voice Effects</button>
+				</div>
+				<h3>Microphone</h3>
+				<div class="group">
+					<label>Microphone input:</label>
+					<div id="sepiaFW-media-devices-mic-box"></div>
+				</div>
+				<div class="group" style="justify-content: center;">
+					<button onclick="SepiaFW.frames.showFramePage(2);">Microphone Setup</button>
+				</div>
+				<h3>Info</h3>
+				<div id="sepiaFW-media-devices-info-msg" style="width: 100%; white-space: break-spaces;"></div>
+			</div>
+		</div>
+		<!-- Page 2 -->
+		<div id="sepiaFW-frame-page-2" class='sepiaFW-frames-page sepiaFW-carousel-pane'>
+			<h3>Microphone Setup</h3>
+			<p class="info-text">Test your microphone and tweak the device specific parameters to optimize quality. Don't forget to press <u>store</u> to make changes permanent!</p>
+			<div id="sepiaFW-media-devices-mic-options-box" class="group-container">
+				<!-- dynamically created -->
+			</div>
+			<div class="group-container">
+				<div class="group" style="justify-content: center;">
+					<p id="sepiaFW-media-devices-mic-test-state" class="info-text" style="white-space: break-spaces;">Press 'Start Test' to begin recording</p>
+				</div>
+				<div class="group" style="justify-content: center; flex-wrap: wrap;">
+					<button id="SepiaFW-media-devices-mic-test" onclick="SepiaFW.frames.currentScope.startMicrophoneTest()">Start Test</button>
+					<button id="SepiaFW-media-devices-mic-test-stop" onclick="SepiaFW.frames.currentScope.stopMicrophoneTest()">Abort Test</button>
+					<button id="SepiaFW-media-devices-mic-opt-store" onclick="SepiaFW.frames.currentScope.storeMicSettings()">Store settings</button>
+					<button id="SepiaFW-media-devices-mic-opt-default" onclick="SepiaFW.frames.currentScope.resetMicSettingsToDefault()">Default</button>
+				</div>
+			</div>
+			<div class="group-container">
+				<p style="flex: 1 0 100%; text-align: center;">Volume and Voice Activity:</p>
+				<div id="sepiaFW-media-devices-mic-test-wave" style="margin: 16px 0;"></div>
+				<div id="sepiaFW-media-devices-mic-test-plot-1" class="sepiaFW-plot-container" style="margin: 8px 0;"></div>
+				<div id="sepiaFW-media-devices-mic-test-plot-2" class="sepiaFW-plot-container" style="margin: 8px 0;"></div>
+			</div>
+		</div>
+		<!-- Page 3 -->
+		<div id="sepiaFW-frame-page-3" class='sepiaFW-frames-page sepiaFW-carousel-pane'>
+			<h3>Text-To-Speech Effects</h3>
+			<p class="info-text">Here you can add custom effects to the voice output IF you use the <b>custom engine</b>.</p>
+			<div id="sepiaFW-media-devices-tts-effects-box" class="group-container">
+				<!-- dynamically created -->
+			</div>
+			<div id="sepiaFW-media-devices-tts-effects-options-box" class="group-container">
+				<!-- dynamically created -->
+			</div>
+			<div class="group-container"></div>
+				<div class="group" style="justify-content: center; flex-wrap: wrap;">
+					<button id="SepiaFW-media-devices-tts-effects-set" onclick="SepiaFW.frames.currentScope.setVoiceEffect()">Set Effect</button>
+					<button id="SepiaFW-media-devices-tts-effects-test" onclick="SepiaFW.frames.currentScope.startVoiceTest()">Test Voice</button>
+					<button id="SepiaFW-media-devices-tts-effects-test-stop" onclick="SepiaFW.frames.currentScope.stopVoiceTest()">Stop Voice</button>
+					<button id="SepiaFW-media-devices-tts-effects-store" onclick="SepiaFW.frames.currentScope.storeVoiceEffectSettings()">Store Settings</button>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+<div id="sepiaFW-frames-nav-bar" class='sepiaFW-layer-header'>
+	<button id="sepiaFW-frames-close" class='entry'>
+		<i class="material-icons md-btn2">&#xE5CD;</i>
+	</button>
+	<button id="sepiaFW-frames-show-prev-page" class='entry'>
+		<i class="material-icons md-btn2">keyboard_arrow_left</i><span data-localize="back">back</span>
+	</button>
+	<button id="sepiaFW-frames-show-next-page" class='entry'>
+		<span data-localize="next">next</span><i class="material-icons md-btn2">keyboard_arrow_right</i>
+	</button>
+	<div id="sepiaFW-frames-nav-bar-page-indicator"><div>&nbsp;</div><div>&nbsp;</div><div>&nbsp;</div></div>
+</div>
+<script>
+	$('#sepiaFW-frame-carousel').find('[data-localize]').each(function(){
+		$(this).html(SepiaFW.local.g(this.dataset.localize));
+	});
+	
+	//Define scope
+	SepiaFW.frames.currentScope = {
+
+		onFinishSetup: function(){
+			if (SepiaFW.ui.isMobile){
+				$('#sepiaFW-media-devices-mobile-note').show();
+			}else{
+				$('#sepiaFW-media-devices-mobile-note').hide();
+			}
+			SepiaFW.frames.currentScope.refreshDevices();
+		},
+		
+		onOpen: function(){
+			$('#sepiaFW-media-devices-mic').val(SepiaFW.audio.mediaDevicesSelected["mic"].value);
+			$('#sepiaFW-media-devices-audio-player').val(SepiaFW.audio.mediaDevicesSelected["player"].value);
+			$('#sepiaFW-media-devices-tts-player').val(SepiaFW.audio.mediaDevicesSelected["tts"].value);
+			$('#sepiaFW-media-devices-fx-player').val(SepiaFW.audio.mediaDevicesSelected["fx"].value);
+		},
+
+		onFramePageChange: function(pageNbr, triggeredByOpenEvent){
+			//NOTE: 'triggeredByOpenEvent' can be used to distinguish real "change" events from "open" events
+			if (pageNbr == 2){
+				SepiaFW.frames.currentScope.showMicOptions();
+			}else if (pageNbr == 3){
+				SepiaFW.frames.currentScope.showAvailableTtsEffects();
+			}
+		},
+		
+		refreshDevices: function(){
+			SepiaFW.frames.currentScope.showInfo("Loading devices...");
+			SepiaFW.audio.refreshAvailableMediaDevices(function(mediaDevicesAvailable){
+				SepiaFW.frames.currentScope.updateSelectors();
+				var logMsg = "Found devices:\n\n" 
+					+ "Input: " + (Object.keys(mediaDevicesAvailable.in).length) + "\n"
+					+ "Output: " + (Object.keys(mediaDevicesAvailable.in).length) + "\n"
+					+ '\nPlease note that the "same" device can show up with multiple names.';
+				SepiaFW.frames.currentScope.showInfo(logMsg);
+			}, function(err){
+				SepiaFW.debug.error("Media-Devices - failed to load devices:", err);
+				SepiaFW.frames.currentScope.showError(err.name + " - " + err.message);
+			});
+		},
+		
+		updateSelectors: function(){
+			var micEle = document.getElementById('sepiaFW-media-devices-mic-box');
+			var playerEle = document.getElementById('sepiaFW-media-devices-audio-player-box');
+			var ttsEle = document.getElementById('sepiaFW-media-devices-tts-player-box');
+			var fxEle = document.getElementById('sepiaFW-media-devices-fx-player-box');
+			
+			micEle.innerHTML = "";
+			playerEle.innerHTML = "";
+			ttsEle.innerHTML = "";
+			fxEle.innerHTML = "";
+			
+			var inOptions = [{value: "", name: "Default"}];
+			Object.keys(SepiaFW.audio.mediaDevicesAvailable.in).forEach(function(label){
+				var deviceId = SepiaFW.audio.mediaDevicesAvailable.in[label];
+				inOptions.push({
+					value: deviceId,
+					name: label
+				});
+			});
+			micEle.appendChild(SepiaFW.ui.build.optionSelector(
+				"sepiaFW-media-devices-mic", inOptions, SepiaFW.audio.mediaDevicesSelected["mic"].value, function(ele){
+					SepiaFW.frames.currentScope.setMediaSink("mic", ele.selectedOptions[0].textContent, ele.value);
+				}
+			));
+			
+			var outOptions = [{value: "", name: "Default"}];
+			Object.keys(SepiaFW.audio.mediaDevicesAvailable.out).forEach(function(label){
+				var deviceId = SepiaFW.audio.mediaDevicesAvailable.out[label];
+				outOptions.push({
+					value: deviceId,
+					name: label
+				});
+			});
+			playerEle.appendChild(SepiaFW.ui.build.optionSelector(
+				"sepiaFW-media-devices-audio-player", outOptions, SepiaFW.audio.mediaDevicesSelected["player"].value, function(ele){
+					SepiaFW.frames.currentScope.setMediaSink("player", ele.selectedOptions[0].textContent, ele.value);
+				}
+			));
+			ttsEle.appendChild(SepiaFW.ui.build.optionSelector(
+				"sepiaFW-media-devices-tts-player", outOptions, SepiaFW.audio.mediaDevicesSelected["tts"].value, function(ele){
+					SepiaFW.frames.currentScope.setMediaSink("tts", ele.selectedOptions[0].textContent, ele.value);
+					if (SepiaFW.speech.voiceEngine == 'native') SepiaFW.ui.showPopup("Please note that this setting only works for a 'custom' (streaming) voice!");
+				}
+			));
+			fxEle.appendChild(SepiaFW.ui.build.optionSelector(
+				"sepiaFW-media-devices-fx-player", outOptions, SepiaFW.audio.mediaDevicesSelected["fx"].value, function(ele){
+					SepiaFW.frames.currentScope.setMediaSink("fx", ele.selectedOptions[0].textContent, ele.value);
+				}
+			));
+		},
+
+		setMediaSink: function(mediaNodeType, mediaDeviceLabel, mediaDeviceId){
+			//console.log(mediaNodeType, mediaDeviceLabel, mediaDeviceId); 		//DEBUG
+			SepiaFW.audio.setMediaDeviceForNode(mediaNodeType, {deviceId: mediaDeviceId, label: mediaDeviceLabel}, 
+				function(){
+					//DONE
+					SepiaFW.debug.log("Media-Devices - set device sink for '" + mediaNodeType + "' to (label): " + mediaDeviceLabel);
+					//SepiaFW.frames.currentScope.showInfo("Success - Set device for type '" + mediaNodeType + "' to: " + mediaDeviceLabel);
+				}, function(err){
+					//FAIL
+					SepiaFW.debug.error("Media-Devices - failed to set device sink for '" + mediaNodeType + "':", err);
+					SepiaFW.frames.currentScope.showError("Failed to set device for '" + mediaNodeType + "' - " + err);
+				}
+			);
+		},
+		
+		store: function(){
+			SepiaFW.audio.storeMediaDevicesSetting();
+			SepiaFW.ui.showPopup("Settings stored.");		//SepiaFW.local.g("...")
+		},
+		resetToDefault: function(){
+			SepiaFW.audio.resetMediaDevicesSetting();
+			SepiaFW.ui.showPopup("Reset settings, please reload client.");
+		},
+
+		showInfo: function(msg){
+			$('#sepiaFW-media-devices-info-msg').css("color", "").text(msg);
+		},
+		showError: function(msg){
+			$('#sepiaFW-media-devices-info-msg').css("color", "#f00").text(msg);
+		},
+
+		//Mic Settings
+
+		showMicOptions: function(){
+			var micOptionsBox = document.getElementById('sepiaFW-media-devices-mic-options-box');
+			//constraints
+			var constraints = SepiaFW.webAudio.getSupportedAudioConstraints();
+			var activeConstraints = SepiaFW.audioRecorder.getWebAudioConstraints();
+			function buildConstraintOption(key, name, type, disabled){
+				var inputId = 'sepiaFW-media-devices-mic-constraints-' + key;
+				var onInputChange = function(inputVal){
+					SepiaFW.audioRecorder.setMicrophoneOption(key, inputVal, "context");
+				};
+				var val = (activeConstraints[key] != undefined)? activeConstraints[key] : constraints[key];
+				var c = SepiaFW.frames.build.inputGroup(name, val, type, disabled, inputId, onInputChange);
+				micOptionsBox.appendChild(c.element);
+			}
+			micOptionsBox.innerHTML = "";
+			Object.keys(constraints).forEach(function(co){
+				//Know and allowed keys:
+				if (co == "channelCount") buildConstraintOption(co, "Channels", "number", true);
+				else if (co == "noiseSuppression") buildConstraintOption(co, "Noise Suppression", "checkbox", false);
+				else if (co == "autoGainControl") buildConstraintOption(co, "Auto Gain", "checkbox", false);
+				else if (co == "echoCancellation") buildConstraintOption(co, "Echo Cancellation", "checkbox", false);
+				//Skipped, unknown or handled elsewhere:
+				else SepiaFW.debug.log("Media-Devices - Skipped media constraint option: " + co);
+			});
+			//options
+			var activeOptions = SepiaFW.audioRecorder.getWebAudioRecorderOptions();
+			//gain
+			var gainOpt = SepiaFW.frames.build.inputGroup(
+				"Gain (Module)", activeOptions.gain, "number", false, 
+				"sepiaFW-media-devices-mic-options-moduleGain", function(val){
+					SepiaFW.audioRecorder.setMicrophoneOption("gain", +val, "processor");
+				}
+			);
+			gainOpt.input.step = 0.1;
+			micOptionsBox.appendChild(gainOpt.element);
+			//VAD
+			var vadOpt = SepiaFW.frames.build.inputGroup(
+				"Voice Activity Det. (VAD)", [
+					{value: "webrtc-vad-worker", name: "WebRTC VAD"},
+					{value: "sepia-vad-worker", name: "SEPIA VAD (Beta)"},
+					{value: "", name: "Disabled (5s Limit)"}
+				], "select", false, 
+				"sepiaFW-media-devices-mic-options-vadModule", function(val){
+					SepiaFW.audioRecorder.setMicrophoneOption("vadModule", val, "processor");
+				}
+			);
+			vadOpt.setValue(activeOptions.vadModule);
+			micOptionsBox.appendChild(vadOpt.element);
+			//resampler opt.
+			var nativeResamplerOpt = SepiaFW.frames.build.inputGroup(
+				"Try Native Resampling", false, "checkbox", false, 
+				"sepiaFW-media-devices-mic-options-tryNativeResampling", function(val){
+					SepiaFW.audioRecorder.setMicrophoneOption("tryNativeResampling", val, "processor");
+				}
+			);
+			nativeResamplerOpt.setValue(activeOptions.tryNativeResampling);
+			micOptionsBox.appendChild(nativeResamplerOpt.element);
+			//audio source type
+			var typeOpt = SepiaFW.frames.build.inputGroup(
+				"Source Processor", [
+					{value: "audioWorklet", name: "Audio Worklet"},
+					{value: "scriptProcessor", name: "Legacy Audio Node"}
+				], "select", false, 
+				"sepiaFW-media-devices-mic-options-sourceType", function(val){
+					SepiaFW.audioRecorder.setMicrophoneOption("sourceType", val, "source");
+				}
+			);
+			typeOpt.setValue(activeOptions.sourceType);
+			micOptionsBox.appendChild(typeOpt.element);
+		},
+
+		storeMicSettings: function(){
+			SepiaFW.audioRecorder.storeMicrophoneSettings();
+			SepiaFW.ui.showPopup("Microphone settings stored.");		//SepiaFW.local.g("...")
+		},
+		resetMicSettingsToDefault: function(){
+			SepiaFW.audioRecorder.resetMicrophoneSettings();
+			SepiaFW.ui.showPopup("Reset microphone settings, please reload client.");
+		},
+
+		//Mic Test
+
+		showMicTestInfo: function(msg){
+			$('#sepiaFW-media-devices-mic-test-state').css("color", "").text(msg);
+		},
+		showMicTestError: function(msg){
+			$('#sepiaFW-media-devices-mic-test-state').css("color", "#f00").text(msg);
+		},
+		micTestState: {},
+		startMicrophoneTest: function(){
+			var recLimit = 8000;
+			var state = SepiaFW.frames.currentScope.micTestState;
+			state.waveEncoderGateIsOpen = false;
+			state.waveEncModule = undefined;
+			state.startedRecording = undefined;
+			state.recordingDuration = undefined;
+			state.rmsData = { points:[], sum: 0 };
+			state.vadData = { points:[], sum: 0, speechStart: 0, speechEnd: 0 };
+			clearTimeout(state.micStartTimer);
+			var chartEle1 = document.getElementById("sepiaFW-media-devices-mic-test-plot-1");
+			chartEle1.innerHTML = "";
+			var chartEle2 = document.getElementById("sepiaFW-media-devices-mic-test-plot-2");
+			chartEle2.innerHTML = "";
+			var volumeGraph = SepiaFW.ui.plot.createLineSeries(chartEle1, 150);
+			var vadGraph = SepiaFW.ui.plot.createLineSeries(chartEle2, 150);
+			//stop and release existing recorders
+			SepiaFW.frames.currentScope.showMicTestInfo("Stopping existing recorders...");
+			SepiaFW.audioRecorder.stopAndReleaseIfActive(function(){
+				SepiaFW.frames.currentScope.showMicTestInfo("Creating new recorder...");
+				var waveEncModule = SepiaFW.audioRecorder.createDefaultWaveEncoderModule(function(msg){
+					//console.log("DEBUG --- waveEncoderModule msg", msg);			//DEBUG
+					if (msg){
+						if (msg.gate && msg.gate.isOpen == false && state.waveEncoderGateIsOpen){
+							state.waveEncoderGateIsOpen = false;
+							if (state.startedRecording && msg.gate.closedAt){
+								state.recordingDuration = msg.gate.closedAt - state.startedRecording;
+							}
+							SepiaFW.frames.currentScope.showMicTestInfo("Recorder closed. Duration (ms): " + state.recordingDuration + ". Generating wave file.");
+							SepiaFW.audioRecorder.stopIfActive(function(){
+								//stopped
+								state.waveEncModule.handle.sendToModule({request: {get: "wave"}});
+							});
+						}else if (msg.output && msg.output.wav){
+							//add wav to play
+							SepiaFW.frames.currentScope.addWaveToPage(msg.output.wav);
+							//evaluate data
+							if (state.rmsData.points.length){
+								var maxRms = Math.max(...state.rmsData.points).toFixed(4);
+								var minRms = Math.min(...state.rmsData.points).toFixed(4);
+								var avgRms = (state.rmsData.sum/state.rmsData.points.length).toFixed(4);
+								var durationGood = state.recordingDuration < (recLimit*1.1) && state.recordingDuration > (recLimit * 0.9);
+								var maxVolGood = maxRms > 0.1;
+								SepiaFW.frames.currentScope.showMicTestInfo(
+									"Duration is " + (durationGood? "good" : "BAD") + ": " + state.recordingDuration + "ms\n" +
+									"Volume (max) is " + (maxVolGood? "good" : "BAD") + ": " + maxRms + " rms\n" +
+									"Volume (min) is " + (minRms/maxRms < 0.2? "good" : "BAD") + ": " + minRms + " rms\n" +
+									"Volume avg: " + avgRms + " rms\n" +
+									"VAD start: " + (state.vadData.speechStart) + "ms, end: " + (state.vadData.speechEnd) + "ms\n" + 
+									"Notes:\n" +
+									(durationGood? "" : "Try source processor setting.\n") +
+									(maxVolGood? "" : "Try to increase gain.\n") +
+									"Please check audio recording for quality."
+								);
+							}
+							//TODO: mark clipped audio?
+						}
+					}
+				}, {
+					recordBufferLimitMs: recLimit
+				});
+				state.waveEncModule = waveEncModule;
+				SepiaFW.audioRecorder.createWebAudioRecorder({
+					vadModule: SepiaFW.audioRecorder.createDefaultVadModule(undefined, function(energy){
+						if (energy != undefined){
+							//plot
+							vadGraph.addValues(energy);
+							vadGraph.draw();
+							state.vadData.points.push(energy);
+							state.vadData.sum += energy;
+						}
+					}, undefined, function(){
+						SepiaFW.frames.currentScope.showMicTestInfo("VAD - Speech input block detected.");
+						state.vadData.speechStart = new Date().getTime() - state.startedRecording;
+					}, undefined, undefined, function(started, ended){
+						SepiaFW.frames.currentScope.showMicTestInfo("VAD - Speech input block ended.");
+						state.vadData.speechStart = started - state.startedRecording;	//overwrite
+						state.vadData.speechEnd = ended - state.startedRecording;
+					}, {
+						maxSequenceTime: recLimit,
+						minSequenceTime: 600
+					}),
+					wakeWordModule: false,		//block default module
+					waveEncoderModule: waveEncModule,
+					onResamplerMessage: function(msg){
+						//if (msg.rms == undefined) console.log("DEBUG --- onResamplerMessage msg", msg);		//DEBUG
+						if (msg && msg.rms != undefined){
+							//plot
+							volumeGraph.addValues(msg.rms);
+							volumeGraph.draw();
+							state.rmsData.points.push(msg.rms);
+							state.rmsData.sum += msg.rms;
+						}
+					}
+				}, function(audioProcessor, info){
+					//on init
+					SepiaFW.frames.currentScope.showMicTestInfo("Recorder ready. Recording starts in 3s.");
+					//start
+					state.micStartTimer = setTimeout(function(){
+						SepiaFW.audioRecorder.startWebAudioRecorder(function(){
+							state.waveEncModule.handle.sendToModule({gate: "open"});
+							state.waveEncoderGateIsOpen = true;
+							state.startedRecording = new Date().getTime();
+							SepiaFW.frames.currentScope.showMicTestInfo("Recorder started. Please speak for " + Math.round(recLimit/1000) + "s :-)");
+						});
+					}, 3000);
+				}, function(initErr){
+					//on init err.
+					SepiaFW.debug.error("Media-Devices - Microphone test init. error:", initErr);
+					SepiaFW.frames.currentScope.showMicTestError("Recorder init. error!" 
+						+ (initErr && initErr.message? (" - Msg.: " + initErr.message) : "")
+						+ (initErr && initErr.info? (" - Info: " + initErr.info.name + " - " + initErr.info.message) : ""));
+				}, function(runtimeErr){
+					//on runtime err.
+					SepiaFW.debug.error("Media-Devices - Microphone test runtime error:", runtimeErr);
+					SepiaFW.frames.currentScope.showMicTestError("Recorder runtime error."
+						+ (runtimeErr && runtimeErr.message? (" - Msg.: " + runtimeErr.message) : "")
+						+ (runtimeErr && runtimeErr.info? (" - Info: " + runtimeErr.info.name + " - " + runtimeErr.info.message) : ""));
+					return true;
+				});
+			});
+		},
+		stopMicrophoneTest: function(){
+			var state = SepiaFW.frames.currentScope.micTestState;
+			clearTimeout(state.micStartTime);
+			var wasRecording = false;
+			if (SepiaFW.audioRecorder.isWebAudioRecorderActive() && state.waveEncModule && state.waveEncoderGateIsOpen){
+				state.waveEncModule.handle.sendToModule({gate: "close"});
+				state.waveEncoderGateIsOpen = false;
+				wasRecording = true;
+			}
+			if (wasRecording){
+				//just stop
+				SepiaFW.frames.currentScope.showMicTestInfo("Stopping existing recorders...");
+				SepiaFW.audioRecorder.stopIfActive(function(){
+					//stopped
+					SepiaFW.frames.currentScope.showMicTestInfo("Recorder test aborted");
+				});
+			}else{
+				//stop and release
+				SepiaFW.frames.currentScope.showMicTestInfo("Releasing existing recorders...");
+				SepiaFW.audioRecorder.stopAndReleaseIfActive(function(){
+					//released
+					SepiaFW.frames.currentScope.showMicTestInfo("Recorder released");
+				});
+			}
+		},
+		addWaveToPage: function(wavAudio){
+			var audioEle = document.createElement("audio");
+			audioEle.src = window.URL.createObjectURL((wavAudio.constructor.name == "Blob")? wavAudio : (new Blob([wavAudio], { type: "audio/wav" })));
+			audioEle.setAttribute("controls", "controls");
+			var audioBox = document.createElement("div");
+			audioBox.appendChild(audioEle);
+			var targetEle = document.getElementById("sepiaFW-media-devices-mic-test-wave");
+			targetEle.innerHTML = "";
+			targetEle.appendChild(audioBox);
+		},
+
+		//TTS Effects
+
+		showAvailableTtsEffects: function(){
+			var ttsEffectsBox = document.getElementById('sepiaFW-media-devices-tts-effects-box');
+			ttsEffectsBox.innerHTML = "";
+			var disabled = (SepiaFW.speech.voiceEngine == 'native');		//TODO: this should probably be set for each voice individually
+			//effects
+			var effects = SepiaFW.audio.tts.getAvailableVoiceEffects();
+			//Voice effect selector
+			var effectSel = SepiaFW.frames.build.inputGroup(
+				"Voice Effect", effects, "select", disabled, 
+				"sepiaFW-media-devices-tts-effect-select", function(effectId){
+					//load options
+					SepiaFW.frames.currentScope.showOptionsForSelectedTtsEffect(effectId);
+				}
+			);
+			effectSel.setValue(SepiaFW.audio.tts.getActiveVoiceEffectId());
+			ttsEffectsBox.appendChild(effectSel.element);
+			if (disabled){
+				SepiaFW.ui.showPopup("Please choose a 'custom' (streaming) voice to apply effects.");
+			}else if (effectSel.input.value){
+				SepiaFW.frames.currentScope.showOptionsForSelectedTtsEffect(effectSel.input.value);
+			}else{
+				var ttsEffectsOptionsBox = document.getElementById('sepiaFW-media-devices-tts-effects-options-box');
+				ttsEffectsOptionsBox.innerHTML = "";
+			}
+		},
+		showOptionsForSelectedTtsEffect: function(effectId){
+			//stored effect options
+			var preset = {};
+			var effectsStored = SepiaFW.data.getPermanent(SepiaFW.speech.getLanguage() + "-voice-effects");
+			var voice = SepiaFW.speech.getActiveVoice();
+			if (effectsStored && effectsStored[voice]){
+				if (effectId == effectsStored[voice].effectId){
+					preset = effectsStored[voice].effectOptions;
+				}
+			}
+			var ttsEffectsOptionsBox = document.getElementById('sepiaFW-media-devices-tts-effects-options-box');
+			ttsEffectsOptionsBox.innerHTML = "";
+			var effect = SepiaFW.audio.tts.getVoiceEffectForId(effectId);
+			var options = [];
+			if (effect){
+				options = effect.getOptions();
+			}
+			SepiaFW.frames.currentScope.voiceEffectState.selectedEffectId = effectId;
+			SepiaFW.frames.currentScope.voiceEffectState.options = preset || {};
+			var disabled = false;
+			options.forEach(function(opt){
+				var effectOpt = SepiaFW.frames.build.inputGroup(
+					opt.name, opt, "range", disabled, 
+					"sepiaFW-media-devices-tts-effects-option-" + effectId + "-" + opt.key, 
+					function(newVal){
+						SepiaFW.frames.currentScope.voiceEffectState.options[opt.key] = newVal;
+					}
+				);
+				if (preset[opt.key] != undefined) effectOpt.setValue(preset[opt.key]);
+				ttsEffectsOptionsBox.appendChild(effectOpt.element);
+			});
+		},
+		voiceEffectState: {},
+		setVoiceEffect: function(doneCallback){
+			var effSelect = document.getElementById("sepiaFW-media-devices-tts-effect-select");
+			var effectId = effSelect.value;
+			var options = SepiaFW.frames.currentScope.voiceEffectState.options || {};
+			//console.error("setVoiceEffect", effectId, options); 	//DEBUG
+			SepiaFW.audio.tts.setVoiceEffect(effectId, options, function(){
+				//success
+				SepiaFW.frames.currentScope.voiceEffectState.activeEffectId = effectId;
+				if (typeof doneCallback == "function") doneCallback();
+			}, function(err){
+				//error - reload available effects
+				SepiaFW.ui.showPopup("Failed to set voice effect - Info: " + err.message);
+				SepiaFW.frames.currentScope.showAvailableTtsEffects();
+				if (typeof doneCallback == "function") doneCallback();
+			});
+		},
+		startVoiceTest: function(){
+			SepiaFW.audio.tts.stop();
+			SepiaFW.frames.currentScope.setVoiceEffect(function(){
+				//SepiaFW.speech.speak(SepiaFW.local.g("tts_test"));
+				SepiaFW.audio.tts.speak(SepiaFW.local.g("tts_test"));	//low level/event-less interface
+			});
+		},
+		stopVoiceTest: function(){
+			//SepiaFW.speech.stopSpeech();
+			SepiaFW.audio.tts.stop();
+		},
+		storeVoiceEffectSettings: function(){
+			var effSelect = document.getElementById("sepiaFW-media-devices-tts-effect-select");
+			var voiceEffectId = SepiaFW.frames.currentScope.voiceEffectState.activeEffectId;
+			var voiceEffectOptions = SepiaFW.frames.currentScope.voiceEffectState.options;
+			//var voiceEngine = SepiaFW.speech.getVoiceEngine();
+			var voice = SepiaFW.speech.getActiveVoice();
+			//TODO: make sure UI shows actual effect
+			//effSelect.value = voiceEffectId;
+			//store
+			var storeData = SepiaFW.data.getPermanent(SepiaFW.speech.getLanguage() + "-voice-effects");
+			if (!storeData) storeData = {};
+			var voiceEffect;
+			if (!voiceEffectId){
+				delete storeData[voice];
+			}else{
+				voiceEffect = {
+					effectId: voiceEffectId,
+					effectOptions: voiceEffectOptions
+				}
+				storeData[voice] = voiceEffect;
+			}
+			//console.log("Voice effect store", JSON.stringify(storeData));		//DEBUG
+			SepiaFW.data.setPermanent(SepiaFW.speech.getLanguage() + "-voice-effects", storeData);
+			SepiaFW.ui.showPopup("Voice effect settings stored.");		//SepiaFW.local.g("...")
+		}
+	}
+</script>

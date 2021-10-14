@@ -39,7 +39,7 @@ function sepiaFW_build_always_on(){
 
     //Load always-on screen
     AlwaysOn.start = function(){
-        SepiaFW.frames.open({ 
+        SepiaFW.frames.open({
             pageUrl: "always-on.html",
             onFinishSetup: AlwaysOn.onFinishSetup,
             onOpen: AlwaysOn.onOpen,
@@ -48,7 +48,8 @@ function sepiaFW_build_always_on(){
             onMissedMessageHandler: AlwaysOn.onMissedMessageHandler,
             onSpeechToTextInputHandler: AlwaysOn.onSpeechToTextInputHandler,
             onChatOutputHandler: AlwaysOn.onChatOutputHandler,
-            theme: "dark_full"
+            theme: "dark_full",
+            autoFillFrameEvents: false
         });
     }
     AlwaysOn.stop = function(){
@@ -94,7 +95,7 @@ function sepiaFW_build_always_on(){
         SepiaFW.config.environment = thisEnvironment;
         //make sure there are no frames - TODO: we should reduce the necessary modifiers!
         mainWasFullscreenOpen = $('.sepiaFW-carousel-pane').hasClass('full-screen');        //or use 'UI.isInterfaceFullscreen' ?
-        $mainWindow.removeClass('sepiaFW-skin-mod');
+        $mainWindow.removeClass('sepiaFW-skin-mod').removeClass('sepiaFW-frame-mode');      //remove "normal" frame style
         $mainWindow.addClass('sepiaFW-ao-mode');
         $topLayer.addClass('sepiaFW-ao-mode');
         $carouselPanes.addClass('full-screen');
@@ -268,12 +269,18 @@ function sepiaFW_build_always_on(){
             $activityArea.removeClass('speaking');
             $avatarMouth.removeClass('speaking');
             $activityArea.removeClass('waiting');
+            $avatar.removeClass('loading');
+            $avatar.removeClass('listening');
+            $avatar.removeClass('speaking');
+            $avatar.removeClass('waiting');
 
             //modify by mood
             if (SepiaFW.assistant.getState().moodState == 2){
                 $avatarMouth.addClass('sad');
+                $avatar.addClass('sad');
             }else{
                 $avatarMouth.removeClass('sad');
+                $avatar.removeClass('sad');
             }
         }
         if (!triggeredByOtherAnim){
@@ -287,6 +294,7 @@ function sepiaFW_build_always_on(){
         if ($activityArea){
             $activityArea.addClass('loading');
         }
+        $avatar.addClass('loading');
     }
     AlwaysOn.avatarSpeaking = function(){
         AlwaysOn.avatarIdle(true);
@@ -294,12 +302,14 @@ function sepiaFW_build_always_on(){
             $activityArea.addClass('speaking');
             $avatarMouth.addClass('speaking');
         }
+        $avatar.addClass('speaking');
     }
     AlwaysOn.avatarListening = function(){
         AlwaysOn.avatarIdle(true);
         if ($activityArea){
             $activityArea.addClass('listening');
         }
+        $avatar.addClass('listening');
     }
     AlwaysOn.avatarAwaitingInput = function(){
         AlwaysOn.avatarIdle(true);
@@ -307,16 +317,19 @@ function sepiaFW_build_always_on(){
         if ($activityArea){
             $activityArea.addClass('waiting');
         }
+        $avatar.addClass('waiting');
         //prevent text fadeout
         if (fadeTtsTimer) clearTimeout(fadeTtsTimer);
         $ttsOut.stop().fadeIn(0);
     }
     //States
     function wakeAvatar(){
+        $avatar.removeClass('sleep');
         $avatarEyelid.removeClass('sleep');
         $avatarMouth.removeClass('sleep');
     }
     function makeAvatarSleepy(){
+        $avatar.addClass('sleep');
         $avatarEyelid.addClass('sleep');
         $avatarMouth.addClass('sleep');
     }
@@ -327,6 +340,7 @@ function sepiaFW_build_always_on(){
         avatarIsAlarmed = true;
         //show animation
         if (alarmTriggerTimer) clearTimeout(alarmTriggerTimer);
+        $avatar.addClass('alarm');
         $alarmArea.addClass('sepiaFW-alwaysOn-alarm-anim');
         alarmTriggerTimer = setTimeout(function(){
             //auto-remove after delay - only animation
@@ -339,9 +353,7 @@ function sepiaFW_build_always_on(){
         if (avatarIsAlarmed){
             if (alarmTriggerTimer) clearTimeout(alarmTriggerTimer);
             //stop alarm sound
-            if (SepiaFW.audio){
-                SepiaFW.audio.stopAlarmSound("alwaysOn");
-            }
+            SepiaFW.audio.stopAlarmSound("alwaysOn");
             //remove animation
             removeAlarmAnimation();
             //remove missed event (since the user actively stopped it)
@@ -350,6 +362,7 @@ function sepiaFW_build_always_on(){
     }
     function removeAlarmAnimation(){
         //optics
+        $avatar.removeClass('alarm');
         $alarmArea.removeClass('sepiaFW-alwaysOn-alarm-anim');
         //state
         avatarIsAlarmed = false;

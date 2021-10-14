@@ -74,6 +74,7 @@ html {
 	background-size: 818px;
     background-repeat: no-repeat;
 	background-position: calc(50% + 1px) center;
+	transition: background .3s, background-color .3s;
 }
 html.dark {
 	background-color: #000;
@@ -114,6 +115,9 @@ body.limit-size {
 	overflow: hidden;
 	z-index: 50;
 	border: 0px solid black;
+	-webkit-touch-callout: none !important;
+	-webkit-user-select: none;
+	user-select: none;
 }
 .sepiaFW-swipeBar-switchable {
 	background: transparent;
@@ -122,6 +126,9 @@ body.limit-size {
 	margin: 0px;
 	padding: 0px;
 	border: 0px solid black;
+	-webkit-touch-callout: none !important;
+	-webkit-user-select: none;
+	user-select: none;
 }
 .sepiaFW-fullSize {
 	width: 100% !important;
@@ -164,7 +171,9 @@ body.limit-size {
 	padding: 0px;
 	width: 100vw;
 	height: 100vh;
-	user-select: none;
+	-webkit-user-select: none;
+  	-ms-user-select: none;
+  	user-select: none;
 	pointer-events: none;
 	overflow: hidden;
 	z-index: 99;
@@ -222,7 +231,9 @@ body.limit-size {
 	border-radius: 100px;
 	background: rgba(0, 0, 0, 0.25);
 	z-index: 99;
-	user-select: none;
+	-webkit-user-select: none;
+  	-ms-user-select: none;
+  	user-select: none;
 }
 .sepiaFW-long-press-indicator.grow {
 	display: block;
@@ -316,13 +327,24 @@ body.limit-size {
 	min-height: 40px;
 	max-height: 85%;
 	width: 86%;
-    max-width: 380px;
+    max-width: 400px;
 	padding: 16px;
 	text-align: center;
 	z-index: 90;
 	overflow: hidden;
 	display: flex;
     flex-direction: column;
+}
+.big-screen .sepiaFW-input-popup {
+	width: 640px;
+    max-width: 86%;
+}
+.sepiaFW-input-popup .warn-text {
+	color: #f00;
+}
+.sepiaFW-input-popup h3.warn-text {
+	width: 100%;
+	text-align: center;
 }
 .sepiaFW-input-popup div {
 	margin-bottom: 12px;
@@ -455,7 +477,7 @@ body.limit-size {
 	}
 }
 #sepiaFW-main-window.sepiaFW-skin-mod {
-	/* skins should write main-window modifications to this class */
+	/* skins should write main-window modifications to this class so other views like frame or ao-mode stay untouched*/
 }
 
 #sepiaFW-main-window input, 
@@ -463,13 +485,13 @@ body.limit-size {
 	border: 1px solid transparent;
 	border-radius: 0;
     width: 100%;
-    padding: 0px 8px 0px 8px;
+    padding: 6px 8px;
 	min-height: 33px;
     margin: 5px 0;
 	font-size: 15px;
 }
-#sepiaFW-main-window input:not([type='checkbox']), 
-#sepiaFW-login-box input:not([type='checkbox']) {
+#sepiaFW-main-window input:not([type='checkbox']):not([type='range']), 
+#sepiaFW-login-box input:not([type='checkbox']):not([type='range']) {
 	-moz-appearance: none;
 	-webkit-appearance: none;
 	appearance: none;
@@ -666,29 +688,22 @@ html.dark-skin #sepiaFW-login-help-btn {
 	border-radius: 3px;
 }
 
-#sepiaFW-nav-bar, #sepiaFW-chat-controls-form, #sepiaFW-chat-controls-right {
+#sepiaFW-nav-bar {
 	background-color: #ceff1a;
 	border-radius: 0px;
 }
 #sepiaFW-chat-controls-form {
+	background-color: #ceff1a;
 	border-radius: 28px 0px 0px 28px;
 }
 #sepiaFW-chat-controls-right {
+	background-color: #ceff1a;
 	border-radius: 0px 28px 28px 0px;
 }
-/*
-@media (max-width: 768px), (max-height: 768px) {
-	#sepiaFW-nav-bar {
-		border-radius: 0px 0px 3px 3px;
-	}
-	#sepiaFW-chat-controls-form {
-		border-radius: 28px 3px 0px 28px;
-	}
-	#sepiaFW-chat-controls-right {
-		border-radius: 3px 28px 28px 0px;
-	}
+#sepiaFW-chat-controls-vertical {
+	background-color: transparent;
+	border-radius: 28px;
 }
-*/
 
 #sepiaFW-main-window {
 	position: relative;
@@ -761,6 +776,12 @@ html.dark-skin #sepiaFW-login-help-btn {
 #sepiaFW-main-window .chat-buttons-area .my-view-custom-button span {
 	padding: 4px;
 }
+#sepiaFW-main-window .chat-buttons-area .my-view-custom-button .mv-button-label {
+	padding: 4px 8px;
+	max-width: 100%;
+	overflow: hidden;
+	font-size: 14px;
+}
 #sepiaFW-main-window .chat-buttons-area button.chat-button-url {
 }
 #sepiaFW-main-window .chat-buttons-area button.chat-button-cmd {
@@ -800,6 +821,9 @@ html.dark-skin #sepiaFW-login-help-btn {
 
 .sepiaFW-translucent-10 {
 	opacity: 0.10;
+}
+.sepiaFW-translucent-10.no-interaction {
+	pointer-events: none;
 }
 .sepiaFW-right{
 	float: right;
@@ -843,6 +867,11 @@ html.dark-skin #sepiaFW-login-help-btn {
 .sepiaFW-notouch-device .sepiaFW-menu li:not(.sepiaFW-cards-button):hover{
 	background: rgba(255, 255, 255, 0.33) !important;
 }
+/*
+.sepiaFW-notouch-device.dark-skin .sepiaFW-menu li:not(.sepiaFW-cards-button):hover{
+	background: rgba(128, 128, 128, 0.33) !important;
+}
+*/
 
 #sepiaFW-chat-menu {
 	background: rgba(33, 33, 33, 1.00);
@@ -905,11 +934,6 @@ html.dark-skin #sepiaFW-login-help-btn {
 	margin: 8px;
 	border-bottom: 0;
 }
-#sepiaFW-menu-ui-refresh-box {
-    display: inline-block;
-	max-width: 300px;
-	font-size: 14px;
-}
 #sepiaFW-chat-menu-head {
 	-webkit-flex: 0 1 auto;
 		-ms-flex: 0 1 auto;
@@ -962,9 +986,13 @@ html.dark-skin #sepiaFW-login-help-btn {
     background: linear-gradient(to right, rgba(0,0,0,0) 0%,rgba(155,155,155,0.5) 40%,rgba(155,155,155,0.5) 60%,rgba(0,0,0,0) 100%);
 }
 #sepiaFW-chat-menu-info {
-	opacity: 0.5;
-	margin: 16px;
-	font-size: 14px;
+	opacity: 0.66;
+    margin: 10px 8px;
+    font-size: 14px;
+    border: 1px solid currentColor;
+    padding: 2px;
+    border-radius: 3px;
+    cursor: pointer;
 }
 #sepiaFW-by-Florian-Quirin {
 	display: block;
@@ -996,6 +1024,35 @@ html.dark-skin #sepiaFW-login-help-btn {
 	min-height: 38px;
     margin: 2px 0;
 }
+#sepiaFW-chat-menu li.spacer {
+	background: transparent !important;
+    height: 8px !important;
+    padding: 0 !important;
+    min-height: unset !important;
+}
+#sepiaFW-chat-menu li.info-box {
+	font-size: 14px;
+	background: transparent !important;
+}
+#sepiaFW-chat-menu li.flex {
+	display: flex;
+    justify-content: space-around;
+    align-items: center;
+    flex-wrap: wrap;
+}
+#sepiaFW-chat-menu li.flex > span {
+	flex: 3 1 auto;
+    padding: 4px 4px 4px 0 !important;
+    text-align: left;
+}
+#sepiaFW-chat-menu li.flex > div {
+	display: inline-flex;
+    justify-content: center;
+    flex: 1 1 auto;
+}
+#sepiaFW-chat-menu li.flex > div > button {
+    flex: 1 1 auto;
+}
 .sepiaFW-menu-settings-list li {
 	font-size: 17px;
 	padding: 5px 8px !important;
@@ -1015,20 +1072,27 @@ html.dark-skin #sepiaFW-login-help-btn {
 	padding-top: 2px;
 }
 .sepiaFW-menu-settings-list li span {
-	padding-top: 5px !important;
+	padding: 4px 8px 4px 0 !important;
+    min-height: 28px;
+    display: flex;
+    align-items: center;
 }
-#sepiaFW-chat-menu li i {
+#sepiaFW-chat-menu li i,
+.sepiaFW-menu-settings-list li span + div {
 	float: right;
 }
 #sepiaFW-chat-menu li .sepiaFW-button-inline {
 	float: right;
 	margin: 0;
 	margin-left: 4px;
-	height: 28px;
-	padding: 0px 10px;
+	min-height: 28px;
+	padding: 2px 10px;
 	display: flex;
     justify-content: center;
     align-items: center;
+}
+#sepiaFW-chat-menu li select + .sepiaFW-button-inline {
+	margin-right: 4px;
 }
 #sepiaFW-chat-menu li .sepiaFW-button-inline i {
 	float: none;
@@ -1046,8 +1110,13 @@ html.dark-skin #sepiaFW-login-help-btn {
     padding: 0px;
 	cursor: pointer;
 }
+.sepiaFW-toggle-btn.disabled {
+	cursor: not-allowed;
+}
 .sepiaFW-toggle-btn .on {
-	user-select: none;
+	-webkit-user-select: none;
+  	-ms-user-select: none;
+  	user-select: none;
     pointer-events: none;
 	background: rgba(0, 255, 0, 0.55);
 	border-radius: 3px;
@@ -1059,9 +1128,11 @@ html.dark-skin #sepiaFW-login-help-btn {
 	float: right;
 }
 .sepiaFW-toggle-btn .off {
-	user-select: none;
+	-webkit-user-select: none;
+  	-ms-user-select: none;
+  	user-select: none;
     pointer-events: none;
-	background: rgba(0, 0, 0, 0.25);
+	background: rgba(72, 72, 72, 0.25);
 	border-radius: 3px;
 	border: 0px;
 	height: 100%;
@@ -1418,6 +1489,7 @@ html.dark-skin #sepiaFW-login-help-btn {
 #sepiaFW-nav-label-box {
 	display: inline-block;
 	width: 90px;
+	max-width: 100%;
 	height: 34px;
 	position: relative;
 	padding: 0;
@@ -1435,6 +1507,7 @@ html.dark-skin #sepiaFW-login-help-btn {
 }
 #sepiaFW-nav-label-online-status {
 	width: 90px;
+	max-width: 100%;
 	font-size: 8px;
 	position: relative;
 	opacity: 0.66;
@@ -1467,8 +1540,7 @@ html.dark-skin #sepiaFW-login-help-btn {
     margin: 0;
 	line-height: 13px;
     color: #2f3035;
-	-webkit-animation: sepiaFW-animation-blink 4.5s infinite;
-            animation: sepiaFW-animation-blink 4.5s infinite;
+    animation: sepiaFW-animation-blink 4.5s infinite;
 	overflow: hidden;
 	cursor: pointer;
 }
@@ -1477,8 +1549,7 @@ html.dark-skin #sepiaFW-login-help-btn {
 	position: relative;
 }
 #sepiaFW-nav-users-btn.marked {
-	-webkit-animation: sepiaFW-animation-blink-inv 4.5s 1;
-            animation: sepiaFW-animation-blink-inv 4.5s 1;
+	animation: sepiaFW-animation-blink-inv 4.5s 1;
 }
 #sepiaFW-nav-users-btn.marked::after {
 	content: " \2022 ";
@@ -1486,8 +1557,7 @@ html.dark-skin #sepiaFW-login-help-btn {
     position: absolute;
     top: 11px;
 	left: 26px;
-	-webkit-animation: sepiaFW-animation-blink 4.5s 3;
-            animation: sepiaFW-animation-blink 4.5s 3;
+	animation: sepiaFW-animation-blink 4.5s 3;
 }
 #sepiaFW-nav-bar-page-indicator {
 	position: absolute;
@@ -1535,11 +1605,15 @@ html.dark-skin #sepiaFW-login-help-btn {
 #sepiaFW-chat-controls.chat-controls-more-menu {
 	background: transparent;
 }
-#sepiaFW-chat-controls-more-btn {
+#sepiaFW-chat-controls-more-btn,
+#sepiaFW-chat-controls-vertical-btn {
 	padding-left: 0px !important;
 	padding-right: 0px !important;
 	width: 100%;
 	height: 100%;
+	-webkit-touch-callout: none !important;
+	-webkit-user-select: none;
+	user-select: none;
 }
 #sepiaFW-chat-send i {
 	transform: rotate(180deg);
@@ -1555,12 +1629,9 @@ html.dark-skin #sepiaFW-login-help-btn {
 	max-width: 41px;
 }
 #sepiaFW-chat-controls .eButton {
-	border-radius: 3px 18px 18px 3px;
-	/* margin: 0px 4px 0px 4px; */
-	/* max-width: 41px; */
+	border-radius: 0px 28px 28px 0px;
 	margin: 0;
 	padding: 0;
-	border-radius: 0px 28px 28px 0px;
 }
 .sepiaFW-notouch-device #sepiaFW-chat-controls .eButton:hover {
 	border-radius: 28px;
@@ -1627,6 +1698,7 @@ html.dark-skin #sepiaFW-login-help-btn {
 	user-select: none;
 	pointer-events: none;
 	text-align: center;
+	/*font-size: 12px;*/
 }
 #sepiaFW-chat-controls-form input {
 	-webkit-flex: 1 0 80px;
@@ -1659,7 +1731,8 @@ html.dark-skin #sepiaFW-login-help-btn {
 		width: calc(100% - 46px);
 	}
 }
-#sepiaFW-chat-controls-right {
+#sepiaFW-chat-controls-right,
+#sepiaFW-chat-controls-vertical {
 	flex: 0 0 auto;
 	/*padding: 10px 5px 10px 5px; */
 	padding: 3px 3px 3px 0;
@@ -1671,6 +1744,12 @@ html.dark-skin #sepiaFW-login-help-btn {
 	display: -webkit-flex;
 	display: -ms-flexbox;
 	display: flex;
+}
+#sepiaFW-chat-controls-vertical {
+	border: 0;
+	padding: 0;
+	min-width: 55px;
+	display: none;
 }
 #sepiaFW-assist-btn-area {
 	position: relative;
@@ -1686,7 +1765,10 @@ html.dark-skin #sepiaFW-login-help-btn {
 	overflow: visible;
 	display: flex;
     align-items: center;
-    justify-content: center;
+	justify-content: center;
+	-webkit-touch-callout: none !important;
+	-webkit-user-select: none;
+	user-select: none;
 }
 #sepiaFW-assist-btn-area button {
 	border-radius: 23px;
@@ -1695,6 +1777,9 @@ html.dark-skin #sepiaFW-login-help-btn {
 	padding: 0px;
 	width: 37px;
 	height: 37px;
+	-webkit-touch-callout: none !important;
+	-webkit-user-select: none;
+	user-select: none;
 }
 #sepiaFW-assist-btn-orbiters {
 	position: absolute;
@@ -1721,10 +1806,8 @@ html.dark-skin #sepiaFW-login-help-btn {
 	height: 6px;
 }
 .sepiaFW-animation-rotate1 {
-	-webkit-animation: sepiaFW-assist-btn-orbiters-rotate 20.0s infinite linear;
-            animation: sepiaFW-assist-btn-orbiters-rotate 20.0s infinite linear;
-	-webkit-animation-fill-mode: both;
-			animation-fill-mode: both;
+	animation: sepiaFW-assist-btn-orbiters-rotate 20.0s infinite linear;
+	animation-fill-mode: both;
 }
 .sepiaFW-animation-pause {
 	animation-play-state: paused;
@@ -1755,7 +1838,9 @@ html.dark-skin #sepiaFW-login-help-btn {
 	border-radius: 3px 0 0 3px;
 	min-width: 45px;
 	padding: 5px;
-	user-select: none;
+	-webkit-user-select: none;
+  	-ms-user-select: none;
+  	user-select: none;
 	cursor: pointer;
 }
 #sepiaFW-chat-controls-speech-box-bubble {
@@ -1781,7 +1866,7 @@ html.dark-skin #sepiaFW-login-help-btn {
 }
 #sepiaFW-chat-controls-speech-box-bubble-loader {
 	flex: 1 0 auto;
-	max-width: calc(100% - 90px);
+	/*max-width: calc(100% - 90px);*/
 	margin: 0 0px;
 	display: flex;
 	justify-content: center;
@@ -1801,7 +1886,7 @@ html.dark-skin #sepiaFW-login-help-btn {
 	animation-delay: -0.12s;
 }
 #sepiaFW-chat-controls-speech-box-bubble-loader div:nth-child(3) {
-	animation-delay: 0;
+	animation-delay: 0s;
 }
 @keyframes speech-box-bubble-loader-ani {
 	0% { height: 24px; }
@@ -1848,14 +1933,23 @@ html.dark-skin #sepiaFW-login-help-btn {
 	-webkit-overflow-scrolling: touch;
 	scrollbar-color: rgba(128,128,128,0.24) rgba(128,128,128,0.12);
 }
+body.big-screen .sepiaFW-results-container {
+	display: flex;
+	flex-direction: row;
+	flex-wrap: wrap;
+	align-items: flex-start;
+    align-content: flex-start;
+}
 .sepiaFW-results-container:after {
-    content: "";
-    height: 60px;
+	content: "";
+	width: 100%;
+	height: 60px;
+	min-height: 60px;
     display: block;
 }
-.sepiaFW-results-container  > :last-child {
-	/*margin-bottom: 68px !important;*/
-}
+/* .sepiaFW-results-container  > :last-child {
+	margin-bottom: 68px !important;
+}*/
 .sepiaFW-results-container h2 {
 	padding: 8px;
 }
@@ -1864,7 +1958,7 @@ html.dark-skin #sepiaFW-login-help-btn {
 	color: #4ec48f;
 }
 .sepiaFW-results-container > :first-child {
-	margin-top: 4px !important;
+	margin-top: 5px !important;
 }
 
 .sepiaFW-results-container article,
@@ -1893,7 +1987,7 @@ html.dark-skin #sepiaFW-login-help-btn {
 	border: 0;
 	color: #2f3035;
 	max-width: 100%;
-	margin: 7px 0;
+	margin: 7px 2px;
 	padding: 7px;
 	font-size: 13px;
 }
@@ -1950,6 +2044,14 @@ html.dark-skin #sepiaFW-login-help-btn {
 	padding: 0px;
 	margin: 0px 0 10px 0;
 	text-align: left;
+}
+body.big-screen .sepiaFW-results-container .statusMsg,
+body.big-screen #sepiaFW-chat-output .statusMsg {
+	width: 100%;
+}
+body.big-screen .sepiaFW-results-container .chatMsg,
+body.big-screen #sepiaFW-chat-output .chatMsg {
+	width: 100%;
 }
 .sepiaFW-results-container .chatMsg p,
 #sepiaFW-chat-output .chatMsg p {
@@ -2031,32 +2133,59 @@ html.dark-skin #sepiaFW-login-help-btn {
 .sepiaFW-results-container .statusUpdate:last-of-type ,*/
 #sepiaFW-chat-output .chatMsg, 
 #sepiaFW-chat-output .statusUpdate {
-	/*border-top-color: rgba(255,255,255,0.5);
-	border-bottom-color: rgba(255,255,255,0.5); 
-	border-right-color: rgba(255,255,255,0.5);
-	border-left-color: rgba(255,255,255,0.5);
-    -webkit-animation: sepiaFW-chat-output-enter_slide .5s 1 linear;
-            animation: sepiaFW-chat-output-enter_slide .5s 1 linear;
-	*/
-	overflow: hidden;
+	/* animation: sepiaFW-chat-output-enter_slide .5s 1 linear; */
+	overflow: unset;		/* Note: hidden will cut shadows etc. */
 }
 
 #sepiaFW-my-view {
 }
 #sepiaFW-my-view.disabled {
 	pointer-events: none;
-	user-select: none;
+	-webkit-user-select: none;
+  	-ms-user-select: none;
+  	user-select: none;
 }
+.sepiaFW-my-view-section {
+	width: calc(100% + 10px);
+    margin-left: -5px;
+    margin-right: -5px;
+	margin-bottom: 5px;
+	padding-bottom: 5px !important;
+	display: flex;
+	flex-wrap: wrap;
+    align-content: center;
+	align-items: flex-start;
+}
+@media screen and (min-width: 960px) {
+	body.big-screen .sepiaFW-my-view-section {
+		width: auto;
+		margin-top: 5px;
+		margin-left: 0;
+		margin-right: 0;
+		flex: 1 0 100%; /*420px*/
+	}
+}
+.sepiaFW-my-view-section .sepiaFW-mySections-titleNote {
+	text-align: left;
+	font-size: 16px;
+    font-weight: bold;
+    margin: 4px 10px 6px 10px;
+	min-width: calc(100% - 20px);
+}
+.sepiaFW-my-view-section > .sepiaFW-cards-flexSize-container,
 #sepiaFW-my-view > .sepiaFW-cards-flexSize-container {
 	padding-bottom: 5px !important;
 	margin-bottom: 5px; /* we make this smaller (prev. it was 10px ...) */
 }
+.sepiaFW-my-view-section > .sepiaFW-cards-flexSize-container + div:not(.sepiaFW-cards-flexSize-container),
 #sepiaFW-my-view > .sepiaFW-cards-flexSize-container + div:not(.sepiaFW-cards-flexSize-container) {
 	margin-top: 10px;	/* ... and we add it here on every direct sibling that is not a card container */
 }
+.sepiaFW-my-view-section > .sepiaFW-cards-flexSize-container > :last-child,
 #sepiaFW-my-view > .sepiaFW-cards-flexSize-container > :last-child {
 	margin-bottom: 0px !important;
 }
+.sepiaFW-my-view-section > .sepiaFW-cards-flexSize-container > :last-child:not(.sepiaFW-cards-list-footer),
 #sepiaFW-my-view > .sepiaFW-cards-flexSize-container > :last-child:not(.sepiaFW-cards-list-footer) {
 	padding-bottom: 0px !important;
 }
@@ -2075,11 +2204,15 @@ html.dark-skin #sepiaFW-login-help-btn {
     flex-wrap: wrap;
     justify-content: space-between; Note: overwritten by: #sepiaFW-main-window .chat-buttons-area*/
 	text-align: center;
-	padding: 2px 0px;;
+	padding: 2px 0px;
 }
 #sepiaFW-myCustom-buttons,
 #sepiaFW-myCustom-buttons-replaced {
     justify-content: space-evenly !important;
+}
+body.big-screen #sepiaFW-myCustom-buttons,
+body.big-screen #sepiaFW-myCustom-buttons-replaced {
+	width: 100%;
 }
 #sepiaFW-myEvents-buttons button,
 #sepiaFW-myEvents-buttons-replaced button,
@@ -2105,6 +2238,100 @@ html.dark-skin #sepiaFW-login-help-btn {
     margin: 4px 5px 12px 5px !important;
 	min-width: calc(100% - 10px);
 }
+
+/* Small Landscape Modes */
+
+/*@media (max-height: 480px) and (min-aspect-ratio: 13/10) and (min-width: 380px) {}*/
+
+/* see as well: sepiaFW-frames.css */
+
+html.landscape-small body.limit-size {
+	max-width: unset;
+}
+html.landscape-small #sepiaFW-main-window.sepiaFW-skin-mod:not(.full-screen) {
+	width: calc(100% - 110px);
+	margin-left: 55px;
+}
+html.landscape-small #sepiaFW-main-window.sepiaFW-skin-mod ~ #sepiaFW-swipeBar-container-left {
+	left: 55px;
+}
+html.landscape-small #sepiaFW-main-window.sepiaFW-skin-mod ~ #sepiaFW-swipeBar-container-right {
+	right: 55px;
+}
+html.landscape-small #sepiaFW-nav-bar,
+html.landscape-small #sepiaFW-chat-controls {
+	position: fixed;
+	height: 100%;
+	max-height: unset;
+	width: 55px;
+	left: 0;
+	top: 0;
+	padding: 10px 5px;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: space-between;
+}
+html.landscape-small #sepiaFW-chat-controls {
+	left: unset;
+	right: 0;
+	padding: 0;
+	border: 0 !important;
+	background: transparent !important;
+	flex-direction: column-reverse;
+}
+html.landscape-small #sepiaFW-chat-controls-speech-box {
+	bottom: 0;
+}
+html.landscape-small #sepiaFW-assist-btn-area {
+	margin: 0;
+}
+html.landscape-small #sepiaFW-nav-bar-page-indicator {
+	display: none;
+}
+html.landscape-small #sepiaFW-nav-label-box {
+	padding: 24px 2px;
+	height: auto;
+}
+html.landscape-small #sepiaFW-nav-label {
+	font-size: 9px;
+}
+html.landscape-small #sepiaFW-nav-label-note {
+	left: 12px;
+	top: 0;
+}
+html.landscape-small #sepiaFW-chat-controls-form {
+	display: none;
+}
+
+html.landscape-small #sepiaFW-chat-channel-view {
+	top: 0;
+}
+html.landscape-small #sepiaFW-chat-menu {
+	top: 0;
+	height: 100%;
+	padding: 4px 8px;
+}
+html.landscape-small #sepiaFW-chat-controls-more-menu {
+	width: 100%;
+	max-width: 100%;
+	max-height: 100%;
+}
+html.landscape-small #sepiaFW-chat-controls-right {
+	min-width: 55px;
+	min-height: 55px;
+	border-radius: 28px;
+	border: 0;
+	padding: 3px;
+}
+html.landscape-small #sepiaFW-chat-controls-vertical {
+	display: flex;
+}
+html.landscape-small #sepiaFW-chat-controls .eButton {
+	border-radius: 28px;
+}
+
+/* --- landscape-small END --- */
 
 /* Animations */
 

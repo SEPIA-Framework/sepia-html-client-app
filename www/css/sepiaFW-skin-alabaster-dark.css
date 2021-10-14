@@ -1,0 +1,183 @@
+html {
+	background-color: #0c0c0c;
+	background-size: 900px;
+}
+@media (max-height: 720px) {
+	html {
+		background-size: 780px;
+	}
+}
+#sepiaFW-main-window {
+	color: #eee;
+}
+@media (min-width: 480px) and (min-height: 481px) {
+	#sepiaFW-main-window {
+		box-shadow: 0 0px 2px 1px rgba(155, 155, 155, 0.25);
+	}
+}
+
+#sepiaFW-pC 	{ background-color: #0c0c0c; }
+#sepiaFW-asC 	{ background-color: #c4c0f4; }
+
+#sepiaFW-nav-bar, #sepiaFW-chat-controls-form, #sepiaFW-chat-controls-right {
+	border: 1px solid rgb(24, 25, 28);
+	background: rgb(24, 25, 28);
+	color: #eee;
+}
+#sepiaFW-login-box {
+	background: linear-gradient(320deg, #1c1c1c, #3a3b40);
+	border: 0;
+	color: #eee;
+}
+#sepiaFW-language-selector select {
+	color: #eee;
+}
+.sepiaFW-results-container {
+    scrollbar-color: rgba(83, 83, 83, 0.3) transparent;
+}
+#sepiaFW-chat-controls {
+	background: linear-gradient(rgba(17, 16, 18, 0), #0c0c0c, #0c0c0c);
+}
+#sepiaFW-main-window button,
+.sepiaFW-touch-device #sepiaFW-main-window button:hover {
+	color: #eee;
+}
+.sepiaFW-notouch-device #sepiaFW-main-window button:hover {
+    background: transparent;
+    color: #c4c0f4;
+}
+#sepiaFW-chat-input {
+    background: rgb(39, 41, 45);
+    color: #eee;
+}
+
+.sepiaFW-menu {
+	background: linear-gradient(320deg, #121018, #14181b) !important;
+	color: #eee !important;
+	border: 1px solid #181a1b;
+}
+#sepiaFW-chat-menu li {
+	background: rgba(75, 75, 75, 0.14);
+}
+.sepiaFW-notouch-device.dark-skin .sepiaFW-menu li:not(.sepiaFW-cards-button):hover{
+	background: rgba(128, 128, 128, 0.33) !important;
+}
+
+#sepiaFW-assist-btn-area {
+    border: 2px solid rgb(24, 25, 28);
+	background-color: rgb(24, 25, 28) !important;
+}
+#sepiaFW-chat-controls-speech-box > div {
+    background: rgb(27, 29, 32);
+	color: #eee;
+}
+
+#sepiaFW-chat-controls-swipe-area .sepiaFW-swipeBar-switchable {
+	background: linear-gradient(to right, #18191c 0%, #120f19 100%);
+    color: #eee;
+}
+
+#sepiaFW-chat-output article,
+#sepiaFW-chat-output article.chatMe,
+#sepiaFW-chat-output article.chatAssistant {
+	border: 1px solid rgb(42, 43, 44);
+	background: rgba(36, 41, 43, 0.42);
+    box-shadow: 1px 1px 8px 0 rgba(0, 0, 0, 0.30), 1px 1px 2px 0 rgba(0, 0, 0, 0.60);
+	color: #eee;
+}
+#sepiaFW-chat-output article b,
+#sepiaFW-chat-output article.chatMe b,
+#sepiaFW-chat-output article.chatAssistant b {
+	color: #c4c0f4;
+}
+#sepiaFW-chat-output article span,
+#sepiaFW-chat-output article.chatMe span,
+#sepiaFW-chat-output article.chatAssistant span {
+	color: #eee;
+}
+#sepiaFW-chat-output article.chatPm,
+#sepiaFW-chat-output article.chatMe.chatPm,
+#sepiaFW-chat-output article.chatAssistant.chatPm {
+	border-left-color: rgb(42, 43, 44);
+}
+
+#sepiaFW-main-window .chat-buttons-area button,
+#sepiaFW-main-window .chat-buttons-area .my-view-custom-button,
+.sepiaFW-touch-device #sepiaFW-main-window .chat-buttons-area button,
+.sepiaFW-touch-device #sepiaFW-main-window .chat-buttons-area .my-view-custom-button {
+    border: 1px solid rgb(42, 43, 44);
+	background: rgba(36, 41, 43, 0.42);
+    box-shadow: 1px 1px 8px 0 rgba(0, 0, 0, 0.30), 1px 1px 2px 0 rgba(0, 0, 0, 0.60);
+}
+.sepiaFW-notouch-device #sepiaFW-main-window .chat-buttons-area button:hover {
+	background: rgba(46, 51, 53, 0.42);
+}
+
+/*----- cards ------*/
+
+.sepiaFW-cards-list-contextMenu, 
+.sepiaFW-cards-contextMenu-single {
+	background: rgba(68, 70, 79, 0.33) !important;
+}
+
+.sepiaFW-cards-list-body .timeEvent > div,
+.sepiaFW-cards-list-body .radioStation > div,
+.sepiaFW-cards-list-body .weatherNowSmall > div,
+.sepiaFW-cards-list-body .linkCard > div,
+.sepiaFW-cards-list-body .newsArticle > div,
+.sepiaFW-cards-list-body .listElement div,
+.sepiaFW-cards-list-body .listElement .listRight,
+.dark-skin .sepiaFW-cards-list-body .fullWidthItem .cardItemBlock,
+.sepiaFW-cards-list-title,
+.sepiaFW-cards-list-footer {
+	border: 1px solid rgb(42, 43, 44);
+	background: rgba(36, 41, 43, 0.42);
+    box-shadow: 1px 1px 8px 0 rgba(0, 0, 0, 0.30), 1px 1px 2px 0 rgba(0, 0, 0, 0.60);
+	color: #eee;
+}
+.dark-skin .sepiaFW-cards-flexSize-container .cardBodyItem.fullWidthItem .cardItemOverlay {
+	background: rgb(24, 25, 28);
+}
+.sepiaFW-cards-list-title.newsHeader {
+	border: 0 !important;
+	background: rgba(250, 250, 250, 0.85);
+}
+.sepiaFW-cards-list-body .newsArticle .newsCenter,
+.sepiaFW-cards-list-body .weatherNowDetails li {
+    background: rgba(36, 41, 43, 0.42);
+}
+
+.sepiaFW-cards-button, 
+.sepiaFW-notouch-device .sepiaFW-cards-button:hover {
+    background: transparent;
+	color: #eee;
+	border: 1px solid #acacac;
+}
+
+/*----- Frames & TeachUI -----*/
+
+#sepiaFW-frames-nav-bar,
+#sepiaFW-teachUI-nav-bar {
+    background: linear-gradient(45deg, #027bff, #3e98ff);
+    color: #fff;
+}
+#sepiaFW-frames-view.dark,
+#sepiaFW-teachUI-view {
+	background: #121213;
+    color: #eee;
+}
+#sepiaFW-teachUI-view label {
+    color: #027BFF;
+}
+.sepiaFW-frames-page.dark .info-text {
+    color: #c4c0f4;
+}
+.sepiaFW-frames-page.dark button,
+#sepiaFW-teachUI-editor button, 
+#sepiaFW-teachUI-manager button {
+    background: linear-gradient(45deg, #027bff, #3e98ff) !important;
+    color: #fff !important;
+}
+.sepiaFW-frames-page.dark .subgroup.menu-button {
+    color: #77b7ff;
+}

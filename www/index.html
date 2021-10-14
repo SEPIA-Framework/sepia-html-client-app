@@ -20,6 +20,15 @@
 		}else{
 			sepiaFW_scale_viewport(320);
 		}
+		function sepiaFW_landscape_check(){
+			//(max-height: 480px) and (min-aspect-ratio: 13 / 10) and (min-width: 380px)
+			if (window.innerHeight <= 480 && window.innerWidth >= 380 && (window.innerWidth/window.innerHeight > 13/10)){
+				document.documentElement.classList.add("landscape-small");
+			}else{
+				document.documentElement.classList.remove("landscape-small");
+			}
+		}
+		sepiaFW_landscape_check();
 	</script>
 	<title>S.E.P.I.A.</title>
 	<meta name="application-name" content="S.E.P.I.A."/>
@@ -53,14 +62,14 @@
 	<link rel="manifest" href="sepia.webmanifest">
 	
 	<!-- imports -->
-	<!--<link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">-->
-	<!-- <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,600" rel="stylesheet"> -->
 	<link rel="stylesheet" href="css/sepiaFW-style.css" title='main'>
 	<link rel="stylesheet" href="css/sepiaFW-style-tiny.css" title='main'>	<!-- TODO: we should load this only when needed -->
 	<link rel="stylesheet" href="css/sepiaFW-style-dual-screen.css" title='main'>
 	<!-- FOR MORE STYLESHEETS SEE END-OF-BODY -->
 	<script src="scripts/sepiaFW.app.config.js"></script>
 	<script src="scripts/sepiaFW.app.js"></script>
+	<!-- IE11 Polyfills -->
+	<script>if (SepiaFW.config.uiIsIE11){ document.write('<script src="scripts/ie11.polyfills.js"><\/script>'); }</script>
 	<script src="scripts/sepiaFW.local.js"></script>
 	<script src="settings.js"></script>
 	<!-- FOR MORE JS SEE END-OF-BODY -->
@@ -91,7 +100,8 @@
 			<input id="sepiaFW-login-id" type="email" placeholder="Username" aria-label="Username" spellcheck="false" autocomplete="username">
 			<input id="sepiaFW-login-pwd" type="password" placeholder="Password" aria-label="Password">
 			<button id="sepiaFW-login-send"><script>SepiaFW.local.w('sendLogin')</script></button><br>
-			<button id="sepiaFW-login-close" class="extended-controls" style="display:none;"><script>SepiaFW.local.w('closeLogin')</script></button><br>
+			<button id="sepiaFW-login-create" class="extended-controls" style="display:none;"><script>SepiaFW.local.w('createAccount')</script></button><br>
+			<button id="sepiaFW-login-close" class="extended-controls" style="display:none;"><script>SepiaFW.local.w('offlineTestMode')</script></button><br>
 			<button id="sepiaFW-login-retry" style="display:none;"><script>SepiaFW.local.w('retry')</script></button><br>
 		</div>
 		<!-- Host-name pre-login box -->
@@ -117,7 +127,7 @@
 		<button id="sepiaFW-login-help-btn" onclick="SepiaFW.ui.actions.openUrlAutoTarget('https://github.com/SEPIA-Framework/sepia-docs#welcome-to-the-documentation-page-for-sepia');"><i class="material-icons md-inherit">help</i></button>
 	</div>
 	<!-- Main -->
-	<div id="sepiaFW-main-window" class="sepiaFW-translucent-10 sepiaFW-skin-mod">
+	<div id="sepiaFW-main-window" class="sepiaFW-translucent-10 no-interaction sepiaFW-skin-mod">
 		<!-- Menues -->
 		<div id="sepiaFW-chat-menu" class="sepiaFW-menu" style="display:none;"><!-- Dynamic content --></div>
 		<div id="sepiaFW-chat-channel-view" class="sepiaFW-menu" style="display:none;">
@@ -210,7 +220,7 @@
 			<div id="sepiaFW-chat-controls-right">
 				<button id="sepiaFW-chat-controls-more-btn" class="eButton"><i class="material-icons md-btn">&#xE5C3;</i></button>
 			</div>
-			<div id="sepiaFW-assist-btn-area">
+			<div id="sepiaFW-assist-btn-area" class="idle">
 				<button id="sepiaFW-assist-btn"><i class="material-icons md-mic">&#xE029;</i></button>
 				<div id="sepiaFW-assist-btn-orbiters" class="sepiaFW-animation-rotate1 sepiaFW-animation-pause"><div id="sepiaFW-assist-btn-orbiter1"></div></div>
 			</div>
@@ -222,9 +232,12 @@
 					<div id="sepiaFW-swipeBar-menu-controls" class='sepiaFW-swipeBar-switchable'><span>MENUE BAR</span></div>
 				</div>
 			</div>
+			<div id="sepiaFW-chat-controls-vertical">
+				<button id="sepiaFW-chat-controls-vertical-btn" class="eButton"><span class="sepia-icon-font md-btn sepia-icon-sepia_bw"><span class="path1"></span><span class="path2"></span></span><span></button>
+			</div>
 		</div>
 		<div id="sepiaFW-chat-controls-speech-box" style="display:none;">
-			<div id="sepiaFW-chat-controls-speech-box-edit"><i class="material-icons md-18">&#xE14C;</i></div><!-- &#xE3C9; -->
+			<div id="sepiaFW-chat-controls-speech-box-edit"><i class="material-icons md-18">keyboard</i></div><!-- &#xE3C9; &#xE14C; -->
 			<div id="sepiaFW-chat-controls-speech-box-bubble" style="display: none;"></div>
 			<div id="sepiaFW-chat-controls-speech-box-bubble-loader"><div></div><div></div><div></div></div>
 			<div id="sepiaFW-chat-controls-speech-box-finish"><i class="material-icons md-18">&#xE409;</i></div><!-- &#xE163; -->
@@ -292,6 +305,7 @@
 <link rel="stylesheet" href="css/sepiaFW-teachUI.css">
 <link rel="stylesheet" href="css/sepiaFW-frames.css">
 <link rel="stylesheet" href="css/sepiaFW-alwaysOn.css">
+<link rel="stylesheet" href="css/sepiaFW-plots.css">
 <script>
 	//Optimized skin loader
 	(function(){
@@ -301,23 +315,26 @@
 			"Legacy": 				{id:  3, css: "css/sepiaFW-skin-legacy.css", 			avatar: "1"},
 			"Legacy Dark":			{id:  4, css: "css/sepiaFW-skin-dark-sepia.css", 		avatar: "1"},
 			"Bytemind":				{id:  5, css: "css/sepiaFW-skin-bytemind.css", 			avatar: "1"},
-			"Street":				{id:  6, css: "css/sepiaFW-skin-street.css", 			avatar: "1"},
+			"Street":				{id:  6, css: "css/sepiaFW-skin-street.css", 			avatar: "6"},
 			"Sakura":				{id:  7, css: "css/sepiaFW-skin-sakura.css", 			avatar: "1"},
 			"9 to 5":				{id:  8, css: "css/sepiaFW-skin-9to5.css", 				avatar: "1"},
 			"Autum":				{id:  9, css: "css/sepiaFW-skin-autum.css", 			avatar: "1"},
 			"Nippon":				{id: 10, css: "css/sepiaFW-skin-nippon.css", 			avatar: "1"},
 			"Poppy":				{id: 11, css: "css/sepiaFW-skin-poppy.css", 			avatar: "1"},
 			"Orange Style 1":		{id: 12, css: "css/sepiaFW-skin-os1.css", 				avatar: "1"},
+			"Orange Style 2.0":		{id: 37, css: "css/sepiaFW-skin-os2.css", 				avatar: "1"},
 			"My Message":			{id: 13, css: "css/sepiaFW-skin-myMessage.css", 		avatar: "1"},
 			"Uplink":				{id: 14, css: "css/sepiaFW-skin-uplink.css", 			avatar: "1"},
 			"Tasty":				{id: 15, css: "css/sepiaFW-skin-pizza.css", 			avatar: "1"},
-			"The Grid":				{id: 16, css: "css/sepiaFW-skin-grid.css", 				avatar: "1"},
+			"The Grid":				{id: 16, css: "css/sepiaFW-skin-grid.css", 				avatar: "10"},
 			"Canny": 				{id: 17, css: "css/sepiaFW-skin-canny.css", 			avatar: "1"},
 			"Essential": 			{id: 18, css: "css/sepiaFW-skin-minimal.css", 			avatar: "1"},
+			"Essential Green": 			{id: 35, css: "css/sepiaFW-skin-minimal-green.css", 	avatar: "1", base: 18},
+			"Essential Orange":			{id: 36, css: "css/sepiaFW-skin-minimal-orange.css", 	avatar: "1", base: 18},
 			"Study": 				{id: 19, css: "css/sepiaFW-skin-study.css", 			avatar: "1"},
 			"Professional": 		{id: 20, css: "css/sepiaFW-skin-professional.css", 		avatar: "1"},
-			"Odyssey 1": 			{id: 21, css: "css/sepiaFW-skin-odyssey1.css", 			avatar: "3"},
-			"Odyssey 2": 			{id: 22, css: "css/sepiaFW-skin-odyssey2.css", 			avatar: "3"},
+			"Odyssey Explorer":		{id: 21, css: "css/sepiaFW-skin-odyssey1.css", 			avatar: "3"},
+			"Odyssey Conqueror":	{id: 22, css: "css/sepiaFW-skin-odyssey2.css", 			avatar: "10"},
 			"Malachite": 			{id: 23, css: "css/sepiaFW-skin-malachite.css", 		avatar: "1"},
 			"Nightlife": 			{id: 24, css: "css/sepiaFW-skin-neon.css", 				avatar: "1"},
 			"Spots": 				{id: 25, css: "css/sepiaFW-skin-spot.css", 				avatar: "1"},
@@ -326,13 +343,24 @@
 			"Historic Future": 		{id: 28, css: "css/sepiaFW-skin-history-of-future.css", avatar: "3"},
 			//"Future Reloaded": 	{id: 29, css: "css/sepiaFW-skin-future-reloaded.css", avatar: "3"},
 			"Flaming Squirrel":			{id: 30, css: "css/sepiaFW-skin-flaming-squirrel.css", 		avatar: "4"},
-			"Flaming Dark Squirrel":	{id: 31, css: "css/sepiaFW-skin-flaming-squirrel-dark.css", avatar: "4", base: 30}
+			"Flaming Dark Squirrel":	{id: 31, css: "css/sepiaFW-skin-flaming-squirrel-dark.css", avatar: "4", base: 30},
+			"Alabaster Mystical":	{id: 32, css: "css/sepiaFW-skin-alabaster-mystical.css",	avatar: "5"},
+			"Alabaster Motley":		{id: 33, css: "css/sepiaFW-skin-alabaster-motley.css",		avatar: "5", base: 32},
+			"Alabaster Dark":		{id: 34, css: "css/sepiaFW-skin-alabaster-dark.css",		avatar: "5", base: 32}
+			//next: 38
 		}
 		var avatars = {
 			"Classic": 				{id:  1, css: "css/sepiaFW-avatar-classic.css"},
+			"Classy":				{id:  6, css: "css/sepiaFW-avatar-classic-cool.css"},
 			"ILA 9000":				{id:  2, css: "css/sepiaFW-avatar-ILA.css"},
+			"ILA O-Five Tower":		{id:  7, css: "css/sepiaFW-avatar-ILA-o-five-1.css", base: 2},
+			"ILA O-Five Floppy":	{id:  8, css: "css/sepiaFW-avatar-ILA-o-five-2.css", base: 2},
+			"ILA O-Five Tiny":		{id:  9, css: "css/sepiaFW-avatar-ILA-o-five-3.css", base: 2},
 			"Star Control": 		{id:  3, css: "css/sepiaFW-avatar-star-control.css"},
-			"Flaming Squirrel":		{id:  4, css: "css/sepiaFW-avatar-flaming-squirrel.css"}
+			"S-Tech":				{id:  10, css: "css/sepiaFW-avatar-s-tech.css"},
+			"Flaming Squirrel":		{id:  4, css: "css/sepiaFW-avatar-flaming-squirrel.css"},
+			"The Dots":				{id:  5, css: "css/sepiaFW-avatar-dots.css"}
+			//next: 11
 		}
 		var skinNames = Object.keys(skins);
 		var askin = SepiaFW.data.get("activeSkin") || "1";
@@ -382,18 +410,21 @@
 		SepiaFW.debug.info("Config - Loaded skin: " + askin + " - Loaded avatar: " + aav);
 	})();
 </script>
-<!-- IE11 Polyfills -->
-<script src="scripts/ie11.polyfills.js"></script>
 <!-- START JS -->
 <script src="scripts/jquery-3.4.1.min.js"></script>
 <!--<script src="https://code.jquery.com/jquery-3.1.1.min.js" integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8=" crossorigin="anonymous"></script>-->
 <script src="scripts/sjcl.js"></script>
-<script src="scripts/recorder.js"></script>
-<script src="scripts/vad.js"></script>
 <script src="scripts/hammer.min.js"></script>
 <script src="scripts/hammer-time.min.js"></script>
 <script src="scripts/svg-inject.min.js"></script>
 <script src="scripts/purify.min.js"></script>
+<script>if (!SepiaFW.config.uiIsIE11){
+	document.write('<script src="scripts/visualization/uPlot.iife.min.js?v=1.5.2"><\/script>');
+	document.write('<link rel="stylesheet" href="scripts/visualization/uPlot.min.css?v=1.5.2">');
+	document.write('<script src="scripts/visualization/uPlot-lazy.min.js?v=0.9.2"><\/script>');
+	document.write('<script src="scripts/visualization/uPlot-lazy-heatmap.min.js?v=0.9.2"><\/script>');
+}</script>
+
 <!-- SEPIA -->
 <script src="scripts/clexi-0.8.2.js"></script>
 <script src="scripts/sepiaFW.ui.js"></script>
@@ -402,17 +433,26 @@
 <script src="scripts/sepiaFW.ui.notify.js"></script>
 <script src="scripts/sepiaFW.ui.carousel.js"></script>
 <script src="scripts/sepiaFW.ui.dragDrop.js"></script>
+<script src="scripts/sepiaFW.ui.myView.js"></script>
 <script src="scripts/sepiaFW.ui.events.js"></script>
 <script src="scripts/sepiaFW.ui.actions.js"></script>
+<script src="scripts/sepiaFW.ui.cards.embed.js"></script>
 <script src="scripts/sepiaFW.ui.cards.js"></script>
+<script src="scripts/sepiaFW.ui.plot.js"></script>
 <script src="scripts/sepiaFW.ui.customButtons.js"></script>
 <script src="scripts/sepiaFW.account.js"></script>
 <script src="scripts/sepiaFW.account.contacts.js"></script>
 <script src="scripts/sepiaFW.assistant.js"></script>
 <script src="scripts/sepiaFW.geocoder.js"></script>
+<script>if (!SepiaFW.config.uiIsIE11){
+	document.write('<script src="scripts/sepiaFW.webAudio.js?v=0.9.7"><\/script>');
+}</script>
 <script src="scripts/sepiaFW.audio.js"></script>
+<script src="scripts/sepiaFW.audio.effects.js"></script>
 <script src="scripts/sepiaFW.audioRecorder.js"></script>
-<script src="scripts/sepiaFW.speechWebSocket.js"></script>
+<script src="scripts/sepiaFW.speechAudioProcessor.js"></script>
+<script src="scripts/sepiaFW.speechRecognition.js"></script>
+<script src="scripts/sepiaFW.speechSynthesis.js"></script>
 <script src="scripts/sepiaFW.speech.js"></script>
 <script src="scripts/sepiaFW.webSocket.js"></script>
 <script src="scripts/sepiaFW.webSocket.channels.js"></script>
@@ -523,7 +563,7 @@
 	}
 
 	//define app setup (called either here (index.html) or in cordova device-ready (index.js)
-	function appSetup(){
+	function appSetup(readyCallback){
 		//get some more settings via URL parameters
 		var isTest = SepiaFW.tools.isURLParameterTrue('isTest');
 		var hostParam = SepiaFW.tools.getURLParameter('host');
@@ -608,10 +648,24 @@
 		
 		//what happens after login?
 		SepiaFW.account.afterLogin = function(){
+			//check language support
+			if (!SepiaFW.local.getSupportedAppLanguages().find(function(lc){ 
+				return (!lc.experimental && lc.value == SepiaFW.config.appLanguage);
+			})){
+				var langInfoMsg = "Selected language code '" + SepiaFW.config.appLanguage  + "' is not fully supported yet.";
+				SepiaFW.debug.error(langInfoMsg);
+				SepiaFW.ui.showInfo(langInfoMsg + " Please use for development only! " 
+					+ "If you want to help implementing this language please " 
+					+ "<a href='https://github.com/SEPIA-Framework/sepia-docs/discussions' target=_blank>start or join the discussion</a>.");
+			}
+
 			if (SepiaFW.client.isDemoMode()){
 				//SepiaFW.ui.showInfo(SepiaFW.local.g('demoMode'), true);
-				SepiaFW.ui.showCustomChatMessage(SepiaFW.local.g('demoMode'), { 
+				var demoMsg = SepiaFW.account.isSetupMode()? SepiaFW.local.g('setupMode') : SepiaFW.local.g('demoMode');
+				SepiaFW.ui.showCustomChatMessage(demoMsg, { 
 					channelId: 'info'
+				}, {
+					displayOptions: { beSilent: (SepiaFW.account.getTestUserType() == 2) }
 				});
 				//pseudo client - usually handled by client.startClient()
 				SepiaFW.client.buildUI();
@@ -657,35 +711,70 @@
 		}
 		
 		//load UI
-		SepiaFW.ui.setup();
-		
-		//load login
-		SepiaFW.account.setupLoginBox();
+		SepiaFW.ui.setup(function(){
+			//after setup:
+			
+			//load login
+			SepiaFW.account.setupLoginBox();
+
+			//ready event
+			if (readyCallback) readyCallback();
+		});
 	}
 	
 	//SETUP via browser or cordova
-	if (isCordova){
-		document.write(unescape(
-			'%3Cscript src="cordova.js"%3E%3C/script%3E'+
-			'%3Cscript src="js/index.js"%3E%3C/script%3E'
-		));
-	}else{
-		//register service worker in non-Cordova app only for now
-		if('serviceWorker' in navigator){
-			navigator.serviceWorker
-				.register('sw.js')
-				.then(function(){ 
-					SepiaFW.debug.log('Service Worker: Registered');
-				}, function(err){
-					SepiaFW.debug.error('Service Worker: Failed to register', err);
-				});
-		}else{
-			SepiaFW.debug.log('Service Worker: Not available');
-		}
+	function appStart(){
+		if (isCordova){
+			document.write(unescape(
+				'%3Cscript src="cordova.js"%3E%3C/script%3E'+
+				'%3Cscript src="js/index.js"%3E%3C/script%3E'
+			));
+			//NOTE: calls 'appSetup()' via index.js
 
-		//call setup
-		appSetup();
+		}else{
+			//register service worker in non-Cordova app ONLY if pwa=true ... for now
+			var noSW = !!window.location.href.match(/(&|\?)(noSW)=true(&|$)/);
+			var pwa = !!window.location.href.match(/(&|\?)(pwa)=true(&|$)/);
+			if('serviceWorker' in navigator){
+				//skip service worker? Some clients don't really like it
+				if (pwa && noSW){
+					SepiaFW.debug.log("Service Worker: Skipped via 'noSW=true' URL param.");
+				}else if (pwa){
+					var scope = location.pathname.replace(/(.*\/).*?\.html$/, "$1");
+					navigator.serviceWorker
+						.register(scope + 'sw.js', {scope: scope}) 		//we may revert this back to simply "./sw.js"
+						.then(function(registration){ 
+							SepiaFW.debug.log('Service Worker: Registered for scope: ' + scope);
+							window.sepiaClientSwRegistration = registration;
+						}, function(err){
+							SepiaFW.debug.error('Service Worker: Failed to register for scope: ' + scope, err);
+						});
+				}else{
+					SepiaFW.debug.log("Service Worker: Not enabled (you can use 'pwa=true' URL param.)");
+				}
+				//we still check if a worker exists
+				navigator.serviceWorker.ready.then(function(registration){
+					if (!window.sepiaClientSwRegistration && !pwa){
+						SepiaFW.debug.log('Service Worker: Registered after initial skip (or was never closed).');
+						window.sepiaClientSwRegistration = registration;
+					}
+					if (noSW){
+						SepiaFW.debug.error("Service Worker: Trying to unregister existing SW to comply with 'noSW' param.");
+						registration.unregister().then(function(boolean){
+							SepiaFW.debug.log('Service Worker: Unregistered!');
+						});
+					}
+				});
+			}else{
+				SepiaFW.debug.log('Service Worker: Not available');
+			}
+
+			//call setup
+			appSetup();		//NOTE: supports additional 'readyCallback'
+		}
 	}
+	appStart();
+
 </script>
 <!-- Resources for later -->
 <script src="css/googleMaterialIcons.js"></script> <!-- glyph table for icons -->

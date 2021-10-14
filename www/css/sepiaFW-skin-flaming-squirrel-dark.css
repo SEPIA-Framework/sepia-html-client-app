@@ -41,3 +41,8 @@ html {
 	background: #ffdd64;
 	color: #1a0f30;
 }
+
+.dark-skin .sepiaFW-cards-list-body .fullWidthItem .cardItemBlock {
+    background: #ebeaed;
+    color: #000;
+}

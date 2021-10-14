@@ -24,9 +24,17 @@ html {
 #sepiaFW-adC { background-color: #ffeb3b; }							/* Await-dialog color - used during "wait for interaction" in assistant button */
 #sepiaFW-lC  { background-color: #8e8e8e; }						/* Loading color - used during loading in assistant button */
 
-#sepiaFW-login-box, #sepiaFW-nav-bar, #sepiaFW-chat-controls-form, #sepiaFW-chat-controls-right {
+/* #sepiaFW-navC 	{ background-color: #000; } */ 		/* Navigation bar color - can be used to overwrite color for nav-bar (depends on OS support) */
+/* #sepiaFW-statC 	{ background-color: #000; } */ 		/* Status bar color - can be used to overwrite color for status-bar (depends on OS support) */
+
+#sepiaFW-login-box, #sepiaFW-nav-bar, #sepiaFW-chat-controls-form, 
+#sepiaFW-chat-controls-right, #sepiaFW-chat-controls-vertical {
 	background: #000000;
 	color: #fff;
+}
+html.landscape-small #sepiaFW-chat-controls {
+	background: #000000 !important;
+	color: #fff !important;
 }
 
 #sepiaFW-nav-bar-page-indicator {
@@ -203,7 +211,8 @@ html {
 .sepiaFW-cards-button,
 .sepiaFW-notouch-device .sepiaFW-cards-button:hover {
 	background: #CEFF1A;
-    color: #121212;
+	color: #121212;
+	border: 1px solid #dadada;
 }
 
 .sepiaFW-cards-list-title {

@@ -99,7 +99,10 @@ function sepiaFW_build_ui_custom_buttons(sepiaSessionId){
             SepiaFW.debug.err(msg);
             if (errorCallback) errorCallback();
             
-        }, '', withButtonOnly);
+        }, '', {
+            //options
+            withButtonOnly: withButtonOnly
+        });
     }
 
     //Load some offline demo buttons
@@ -108,8 +111,10 @@ function sepiaFW_build_ui_custom_buttons(sepiaSessionId){
             var lang = SepiaFW.config.appLanguage;
             var offlineCustomButtonObjects = [
                 SepiaFW.offline.createCustomButton("My Radio", "music_note", "dummy;;info=my_radio_dummy", SepiaFW.local.g('myRadioDemoBtn'), lang),
+                SepiaFW.offline.createCustomButton("Media Player", "play_circle_outline", "dummy;;info=my_music_dummy", SepiaFW.local.g('myMusicPlayerDemoBtn'), lang),
                 SepiaFW.offline.createCustomButton("My News", "local_library", "dummy;;info=my_news_dummy", SepiaFW.local.g('myNewsDemoBtn'), lang),
-                SepiaFW.offline.createCustomButton("To-Do List", "list", "dummy;;info=my_todo_list_dummy", SepiaFW.local.g('myToDoDemoBtn'), lang)
+                SepiaFW.offline.createCustomButton("To-Do List", "list", "dummy;;info=my_todo_list_dummy", SepiaFW.local.g('myToDoDemoBtn'), lang),
+                SepiaFW.offline.createCustomButton("Custom View", "schedule", "dummy;;info=my_frames_view_dummy", "Custom view: Clock", lang)
             ];
         }
         return offlineCustomButtonObjects;
@@ -171,17 +176,21 @@ function sepiaFW_build_ui_custom_buttons(sepiaSessionId){
             button.className += " my-view-assistant-custom-button";
         }
         if (buttonData.icon){
-            button.innerHTML = SepiaFW.tools.sanitizeHtml('<i class="material-icons md-24">' + buttonData.icon + '</i><span>' + buttonData.name + '</span>');
+            button.innerHTML = SepiaFW.tools.sanitizeHtml('<i class="material-icons md-24">' + buttonData.icon + '</i><span class="mv-button-label">' + buttonData.name + '</span>');
         }else{
             //button.innerHTML = SepiaFW.tools.sanitizeHtml('<span>' + buttonData.name + '</span>');
-            button.innerHTML = SepiaFW.tools.sanitizeHtml('<span class="sepia-icon-font sepia-icon-sepia_bw"><span class="path1"></span><span class="path2"></span></span><span>' + buttonData.name + '</span>');
+            button.innerHTML = SepiaFW.tools.sanitizeHtml('<span class="sepia-icon-font sepia-icon-sepia_bw"><span class="path1"></span><span class="path2"></span></span><span class="mv-button-label">' + buttonData.name + '</span>');
         }
         
         //Action
         var animateShortPress = true;
         SepiaFW.ui.onShortLongPress(button, function(){
             //Short press
-            CustomButtons.callAction(buttonData);
+            if (SepiaFW.audio && SepiaFW.audio.initAudio(function(){ CustomButtons.callAction(buttonData); })){
+                //retry after audio-init
+            }else{
+                CustomButtons.callAction(buttonData);
+            }
             
         }, function(){
             //Long press - used to edit the button

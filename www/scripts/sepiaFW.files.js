@@ -7,7 +7,9 @@ function sepiaFW_build_files(){
 	//- <custom_data> 	- Browser: "xtensions/custom-data" 	- Android: (cordova.file.externalDataDirectory) 	- iOS: (cordova.file.documentsDirectory)
 	//- <local_data> 	- Browser: "xtensions/local-data" 	- Android/iOS: (cordova.file.dataDirectory)
 	//- <app_data> 		- Browser: [base folder] 			- Android/iOS: (cordova.file.applicationDirectory + "www")
+	//
 	//NOTE: for server paths (including this) see: SepiaFW.config.replacePathTagWithActualPath
+	//
 	Files.replaceSystemFilePath = function(path){
 		if (SepiaFW.ui.isCordova && cordova.file && (SepiaFW.ui.isAndroid || SepiaFW.ui.isIOS)){
 			if (path.indexOf("<custom_data>") == 0){
@@ -64,6 +66,9 @@ function sepiaFW_build_files(){
 
 		//via Cordova local filesystem
 		if (SepiaFW.ui.isCordova && cordova.file){
+
+			//TODO: this will (most likely) fail if inside a Web Worker
+
             var path = fileUrl;
 			if ((fileUrl.indexOf("file://") != 0)
 					&& (!cordova.file.applicationDirectory || fileUrl.indexOf(cordova.file.applicationDirectory) != 0)
@@ -119,10 +124,17 @@ function sepiaFW_build_files(){
 		request.open('GET', fileUrl);
 		request.responseType = 'arraybuffer';
 		request.timeout = 8000;
-		request.onload = function(e) {
-			successCallback(request.response); 	//the arraybuffer is in request.response
+		request.onload = function(e){
+			if (request.status >= 200 && request.status < 300){
+				successCallback(request.response); 	//the arraybuffer is in request.response
+			}else{
+				errorCallback({
+					status: request.status,
+					message: request.statusText
+				});
+			}
 		};
-		request.onerror = function(e) {
+		request.onerror = function(e){
 			errorCallback(e);
 		};
 		request.send();

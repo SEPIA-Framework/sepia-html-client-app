@@ -30,7 +30,7 @@ function sepiaFW_build_client_controls(sepiaSessionId){
     //Wait for opportunity and send a message (e.g. "some text" or "<error_client_control_0a>") and optionally show info fallback.
     function sendFollowUpMessage(msgOrAnswerTag, info, deliveredCallback, fallbackCallback, sourceTag, blockIfScheduled){
         var minWait = 2000;
-        var maxWait = 30000;
+        var maxWait = 20000;
         if (sourceTag && blockIfScheduled){
             if (followUpsRunning[sourceTag] && (new Date().getTime() - followUpsRunning[sourceTag]) <= maxWait){
                 //block
@@ -58,6 +58,29 @@ function sepiaFW_build_client_controls(sepiaSessionId){
         });    
     }
     var followUpsRunning = {};
+
+    //Media player/search error follow-up messages
+    Controls.sendMediaPlayerErrorFollowUpMessage = function(errorType, deliveredCallback, fallbackCallback){
+        if (errorType == "notPossible"){
+            //"can't execute" - alt.: <error_client_control_0a>: "control function could not be executed"
+            sendFollowUpMessage(
+                SepiaFW.local.g('cant_execute'), SepiaFW.local.g('cant_execute'),
+                deliveredCallback, fallbackCallback, "controls.mediaSearch.notPossible", true
+            );
+        }else if (errorType == "notFound"){
+            //"found nothing to play"
+            sendFollowUpMessage(
+                "<error_media_player_0b>", SepiaFW.local.g('no_media_found'),
+                deliveredCallback, fallbackCallback, "controls.mediaSearch.notFound", true
+            );
+        }else{
+            //"media playback error"
+            sendFollowUpMessage(
+                "<error_media_player_0a>", SepiaFW.local.g('cant_execute'),
+                deliveredCallback, fallbackCallback, "controls.mediaSearch.error", true
+            );
+        }
+    }
 
     //Open/close settings menu
     Controls.settings = function(controlData){
@@ -138,15 +161,58 @@ function sepiaFW_build_client_controls(sepiaSessionId){
         return false;
     }
     function volumeUp(){
-        //$("#sepiaFW-audio-ctrls-volup").trigger('click', {bm_force : true});
-        SepiaFW.audio.playerSetCurrentOrTargetVolume(SepiaFW.audio.getOriginalVolume() + 1.0);
+        volumeAction(function(){
+            SepiaFW.audio.playerSetCurrentOrTargetVolume(SepiaFW.audio.getOriginalVolume() + 1.0);
+        }, function(emp){
+            emp.volumeUp();
+            $('#sepiaFW-audio-ctrls-vol').text("?");
+        }, function(){
+            //TODO: not supported yet
+            $('#sepiaFW-audio-ctrls-vol').text("?");
+        });
     }
     function volumeDown(){
-        //$("#sepiaFW-audio-ctrls-voldown").trigger('click', {bm_force : true});
-        SepiaFW.audio.playerSetCurrentOrTargetVolume(SepiaFW.audio.getOriginalVolume() - 1.0);
+        volumeAction(function(){
+            SepiaFW.audio.playerSetCurrentOrTargetVolume(SepiaFW.audio.getOriginalVolume() - 1.0);
+        }, function(emp){
+            emp.volumeDown();
+            $('#sepiaFW-audio-ctrls-vol').text("?");
+        }, function(){
+            //TODO: not supported yet
+            $('#sepiaFW-audio-ctrls-vol').text("?");
+        });
     }
     function volumeSet(newVol){
-        SepiaFW.audio.playerSetCurrentOrTargetVolume(newVol);       //value between 0.0-10.0
+        //value between 0.0-10.0
+        volumeAction(function(){
+            SepiaFW.audio.playerSetCurrentOrTargetVolume(newVol);
+        }, function(emp){
+            emp.volumeSet(newVol);
+            $('#sepiaFW-audio-ctrls-vol').text("?");
+        }, function(){
+            //TODO: not supported yet
+            $('#sepiaFW-audio-ctrls-vol').text("?");
+        });
+    }
+    function volumeAction(streamPlayerFun, embeddedPlayerFun, androidFun){
+        var lastActivePlayer = SepiaFW.audio.getLastActiveAudioSource();
+        var emp = SepiaFW.ui.cards.embed.getActiveMediaPlayer();
+        //find right player
+        if (!lastActivePlayer || lastActivePlayer == "stream"){
+            //default
+            streamPlayerFun();
+            return true;
+        }else if (lastActivePlayer == "embedded-media-player"){
+            //Embedded media player
+            if (emp && emp.isReady()){
+                embeddedPlayerFun(emp);
+                return true;
+            }
+        }else if (lastActivePlayer == "android-intent" && SepiaFW.ui.isAndroid){
+            //Android intent controls
+            androidFun();
+            return true;
+        }
     }
 
     //Media player controls
@@ -158,6 +224,8 @@ function sepiaFW_build_client_controls(sepiaSessionId){
             //2) client player (outside app but with full or partial fade support)
             //3) remote player (no fade control, but start/stop etc.)
             SepiaFW.debug.info("Client controls - Media action: " + controlData.action);
+            
+            var emp = SepiaFW.ui.cards.embed.getActiveMediaPlayer();
 
             //STOP
             if (controlData.action == "stop" || controlData.action == "pause" || controlData.action == "close"){
@@ -169,15 +237,16 @@ function sepiaFW_build_client_controls(sepiaSessionId){
                 }
                 //Player and platform specific additional STOP methods
                 var sentAdditionalEvent = false;
-                if (SepiaFW.ui.cards.youTubePlayerGetState() == 1 || SepiaFW.ui.cards.youTubePlayerIsOnHold()){
-                    //YouTube embedded player
-                    SepiaFW.debug.info("Client controls - Media: stopping YouTube media player");
-                    sentAdditionalEvent = (SepiaFW.ui.cards.youTubePlayerControls("stop") > 0);
-                }else if (SepiaFW.ui.isAndroid){
+                if (emp){       //&& (emp.isPlaying() || emp.isOnHold())
+                    //Embedded media player
+                    sentAdditionalEvent = SepiaFW.ui.cards.embed.stopAllMediaPlayers();
+                    SepiaFW.debug.info("Client controls - Media: stopping embedded media player(s)");
+                }
+                if (SepiaFW.ui.isAndroid){
                     //we do this only if we have a recent Android media event - otherwhise it will activate all music apps
                     var requireMediaAppPackage = true;
-                    SepiaFW.debug.info("Client controls - Media: stopping Android media player");
-                    sentAdditionalEvent = SepiaFW.android.broadcastMediaButtonDownUpIntent(127, requireMediaAppPackage);  
+                    SepiaFW.debug.info("Client controls - Media: trying to stop Android media player");
+                    sentAdditionalEvent = SepiaFW.android.broadcastMediaButtonDownUpIntent(127, requireMediaAppPackage) || sentAdditionalEvent;
                     //127: KEYCODE_MEDIA_PAUSE
                 }
                 //TODO: add iOS and Windows?
@@ -195,33 +264,43 @@ function sepiaFW_build_client_controls(sepiaSessionId){
             //RESUME
             }else if (controlData.action == "resume"){
                 //try to find last active player
-                var lastActivePlayer = SepiaFW.audio.getLastActiveAudioStreamPlayer();
+                var lastActivePlayer = SepiaFW.audio.getLastActiveAudioSource();
                 var isAnyPlayerStreaming = SepiaFW.audio.isAnyAudioSourceActive();
+                var sentEvent = false;
+                
                 if (!isAnyPlayerStreaming){
-                    var sentAdditionalEvent = false;
-                    
-                    //try right order first
+                    //find last active player to resume
                     if (!lastActivePlayer){
                         //TODO: ?
                     
                     }else if (lastActivePlayer == "stream"){
                         //Internal stream
-                        sentAdditionalEvent = SepiaFW.audio.resumeLastAudioStream();
+                        SepiaFW.debug.info("Client controls - Media: resuming internal media player");
+                        sentEvent = SepiaFW.audio.resumeLastAudioStream();
                     
-                    }else if (lastActivePlayer == "youtube-embedded" && SepiaFW.ui.cards.youTubePlayerGetState() == 2){     //2: paused
-                        //YouTube embedded player
-                        sentAdditionalEvent = (SepiaFW.ui.cards.youTubePlayerControls("resume") > 0);
+                    }else if (lastActivePlayer == "embedded-media-player"){
+                        //Embedded media player
+		                if (emp && (emp.isPaused() || emp.isReady())){
+                            SepiaFW.debug.info("Client controls - Media: resuming embedded media player");
+                            sentEvent = true;
+                            emp.play();
+                        }else{
+                            //add note that media-player was killed?
+                            SepiaFW.ui.showInfo("Active Media-Player widget was removed");
+                            //TODO: send custom follow up?
+                        }
                     
                     }else if (lastActivePlayer == "android-intent" && SepiaFW.ui.isAndroid){
                         //we do this only if we have a recent Android media event - otherwhise it will activate all music apps
+                        SepiaFW.debug.info("Client controls - Media: trying to resume Android media player");
                         var requireMediaAppPackage = true;
-                        sentAdditionalEvent = SepiaFW.android.broadcastMediaButtonDownUpIntent(126, requireMediaAppPackage);  
+                        sentEvent = SepiaFW.android.broadcastMediaButtonDownUpIntent(126, requireMediaAppPackage);  
                         //126: KEYCODE_MEDIA_PLAY
                     }
                 }
                 //TODO: add iOS and Windows?
                 //TODO: we could use a Mesh-Node and the sendMessage API in Windows
-                if (!isInternalPlayerStreaming && !sentAdditionalEvent && !controlData.skipFollowUp){
+                if (!isAnyPlayerStreaming && !sentEvent && !controlData.skipFollowUp){
                     //The user has probably tried to resume an external app but that was not possible
                     var blockMultiple = true;
                     var source = "controls.media.resume";
@@ -233,36 +312,40 @@ function sepiaFW_build_client_controls(sepiaSessionId){
 
             //NEXT
             }else if (controlData.action == "next"){
-                SepiaFW.audio.startNextMusicStreamOfQueue(function(){}, function(err){
-                    //Failed to execute NEXT on internal player:
-                    
-                    //Player or platform specific additional NEXT methods
-                    if (SepiaFW.ui.cards.youTubePlayerGetState() > 0){
-                        //YouTube embedded player
-                        SepiaFW.ui.cards.youTubePlayerControls("next");
+                //try to find last active player
+                var lastActivePlayer = SepiaFW.audio.getLastActiveAudioSource();
+                var sentEvent = false;
 
-                    }else if (SepiaFW.ui.isAndroid){
-                        //Stop internal player
-                        if (SepiaFW.audio.isMusicPlayerStreaming()){
-                            SepiaFW.audio.stop(SepiaFW.audio.getMusicPlayer());    
-                        }
-                        //we do this only if we have a recent Android media event - otherwhise it will activate all music apps
-                        var requireMediaAppPackage = true;
-                        SepiaFW.android.broadcastMediaButtonDownUpIntent(87, requireMediaAppPackage);   //87: KEYCODE_MEDIA_NEXT
-                    
-                    //Out of options ... for now
-                    }else if (!controlData.skipFollowUp){
-                        var blockMultiple = true;
-                        var source = "controls.media.next";
-                        sendFollowUpMessage(
-                            "<default_under_construction_0b>", SepiaFW.local.g('no_client_support') + " Media: NEXT",
-                            undefined, undefined, source, blockMultiple
-                        );
-                        SepiaFW.debug.error("Client controls - Unsupported action in 'media': " + controlData.action);
+                //find right player
+                if (!lastActivePlayer || lastActivePlayer == "stream"){
+                    //NOTE: internal stream has no queue (yet?)
+                
+                }else if (lastActivePlayer == "embedded-media-player"){
+                    //Embedded media player
+                    if (emp && emp.isReady()){
+                        SepiaFW.debug.info("Client controls - Media: triggering 'next' via embedded media player");
+                        sentEvent = true;
+                        emp.next();
                     }
-                    //TODO: add iOS and Windows?
-                    //TODO: we could use a Mesh-Node and the sendMessage API in Windows
-                });
+                
+                }else if (lastActivePlayer == "android-intent" && SepiaFW.ui.isAndroid){
+                    //we do this only if we have a recent Android media event - otherwhise it will activate all music apps
+                    SepiaFW.debug.info("Client controls - Media: trying to trigger 'next' via Android media player");
+                    var requireMediaAppPackage = true;
+                    sentEvent = SepiaFW.android.broadcastMediaButtonDownUpIntent(87, requireMediaAppPackage);   //87: KEYCODE_MEDIA_NEXT
+                }
+                //TODO: add iOS and Windows?
+                //TODO: we could use a Mesh-Node and the sendMessage API in Windows
+                if (!sentEvent && !controlData.skipFollowUp){
+                    //Out of options ... for now
+                    var blockMultiple = true;
+                    var source = "controls.media.next";
+                    sendFollowUpMessage(
+                        "<default_under_construction_0b>", SepiaFW.local.g('no_client_support') + " Media: NEXT",
+                        undefined, undefined, source, blockMultiple
+                    );
+                    SepiaFW.debug.error("Client controls - Unsupported action in 'media': " + controlData.action);
+                }
 
             }else{
                 var blockMultiple = true;
@@ -298,18 +381,20 @@ function sepiaFW_build_client_controls(sepiaSessionId){
             console.log('Service: ' + controlData.service);
             console.log('URI: ' + controlData.uri);
             */
+           SepiaFW.debug.info("Client controls - SearchForMusic service: " + controlData.service);
 
-            //Stop other players
+            //Stop other players - TODO: move down?
             Controls.media({
                 action: "stop",
                 skipFollowUp: true
             });
 
-            //Embedded Player - TODO: check if service has web-player support
-            if (controlData.uri && (SepiaFW.ui.cards.canEmbedWebPlayer(controlData.service) || controlData.service.indexOf("_embedded") > 0)){
-                //just skip, cards will do the rest...
-                //YouTube
-                //if (controlData.service.indexOf("youtube") == 0){}
+            //Embedded Player
+            if (controlData.service && (controlData.service == "embedded" || controlData.service.indexOf("_embedded") >= 0) 
+                    && SepiaFW.ui.cards.canEmbedWebPlayer(controlData.service)){
+                //NOTE: this should be handled by attached cards request...
+                //TODO: if we want to use this via remote-action (not supported atm) we need to build the card by hand ...
+                //console.error("Controls.searchForMusic", controlData);      //DEBUG
 
             //Android Intent music search
             }else if (SepiaFW.ui.isAndroid && (!controlData.service || controlData.service.indexOf("_link") == -1)){
@@ -317,15 +402,33 @@ function sepiaFW_build_client_controls(sepiaSessionId){
                 SepiaFW.android.startMusicSearchActivity(controlData, allowSpecificService, function(err){
                     //error callback
                     if (err.code == 1){
-                        sendFollowUpMessage("<error_client_control_0a>", SepiaFW.local.g('cant_execute'));
+                        var blockMultiple = true;
+                        var source = "controls.searchForMusic.error";
+                        //"problem with the music player"
+                        sendFollowUpMessage(
+                            "<server_music_0b>", SepiaFW.local.g('cant_execute'),   //alt.: <error_client_control_0a>: "control function could not be executed"
+                            undefined, undefined, source, blockMultiple
+                        );
                     }else if (err.code == 2){
-                        sendFollowUpMessage("<music_0b>", SepiaFW.local.g('no_music_playing'));
+                        var blockMultiple = true;
+                        var source = "controls.searchForMusic.notFound";
+                        //"music not found"
+                        sendFollowUpMessage(
+                            "<music_0b>", SepiaFW.local.g('no_music_playing'),
+                            undefined, undefined, source, blockMultiple
+                        );
                     }
+                    //NOTE: we could use 'Controls.sendMediaPlayerErrorFollowUpMessage' instead
                 });
 
             //Supported app?
             }else if (controlData.service && !SepiaFW.config.getMusicAppCollection()[controlData.service]){
-                sendFollowUpMessage(SepiaFW.local.g('cant_execute'), SepiaFW.local.g('cant_execute'));      //"<error_client_control_0a>"
+                var blockMultiple = true;
+                var source = "controls.searchForMusic.notPossible";
+                sendFollowUpMessage(
+                    SepiaFW.local.g('cant_execute'), SepiaFW.local.g('cant_execute'),    //"<error_client_control_0a>"
+                    undefined, undefined, source, blockMultiple
+                );
                 SepiaFW.debug.error("Client controls - 'searchForMusic' is trying to use an app that is not supported by this client!");
 
             //Common URI fallback or fail
@@ -337,8 +440,13 @@ function sepiaFW_build_client_controls(sepiaSessionId){
                     }
                     SepiaFW.ui.actions.openUrlAutoTarget(controlData.uri);
                 }else{
-                    //Feedback (to server and user)
-                    sendFollowUpMessage("<music_0b>", SepiaFW.local.g('cant_execute'));        //<error_client_control_0a>
+                    var blockMultiple = true;
+                    var source = "controls.searchForMusic.notFound";
+                    //"music not found"
+                    sendFollowUpMessage(
+                        "<music_0b>", SepiaFW.local.g('cant_execute'),      //alt.: <error_client_control_0a>: "control function could not be executed"
+                        undefined, undefined, source, blockMultiple
+                    );
                     SepiaFW.debug.error("Client controls - 'searchForMusic' is missing URI data and has no other options to search for music!");
                 }
             }

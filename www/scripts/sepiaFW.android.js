@@ -13,11 +13,16 @@ function sepiaFW_build_android(){
     Android.musicApps = {
         "system": {name: "System", package: ""},
         "select": {name: "Select", package: ""},
-        "youtube": {name: "YouTube", package: "com.google.android.youtube"},
+        "embedded": {name: "Embedded Player", package: ""},
+        "youtube": {name: "YouTube App", package: "com.google.android.youtube"},
+        "youtube_link": {name: "YouTube Web", package: "com.google.android.youtube"},
+        "youtube_embedded": {name: "YouTube Widget", package: "com.google.android.youtube"},
         "spotify": {name: "Spotify App", package: "com.spotify.music"},
-        "spotify_link": {name: "Spotify URI", package: "com.spotify.music"},
+        "spotify_link": {name: "Spotify Web", package: "com.spotify.music"},
+        "spotify_embedded": {name: "Spotify Widget", package: "com.spotify.music"},
         "apple_music": {name: "Apple Music App", package: "com.apple.android.music"},
-        "apple_music_link": {name: "Apple Music URI", package: "com.apple.android.music"},
+        "apple_music_link": {name: "Apple Music Web", package: "com.apple.android.music"},
+        "apple_music_embedded": {name: "Apple Music Widget", package: "com.apple.android.music"},
         //"amazon_music": {name: "Amazon Music", package: "com.amazon.mp3"},
         //"soundcloud": {name: "SoundCloud", package: "com.soundcloud.android"},
         //"deezer": {name: "Deezer", package: "deezer.android.app"},
@@ -124,9 +129,9 @@ function sepiaFW_build_android(){
             }
             if (intent.extras.playing){
                 if (intent.extras.artist && intent.extras.track){
-                    SepiaFW.audio.setPlayerTitle(intent.extras.artist + " - " + intent.extras.track, '');
+                    SepiaFW.audio.setPlayerTitle(intent.extras.artist + " - " + intent.extras.track, 'android-intent');
                 }else if (intent.extras.track){
-                    SepiaFW.audio.setPlayerTitle(intent.extras.track, '');
+                    SepiaFW.audio.setPlayerTitle(intent.extras.track, 'android-intent');
                 }
             }else{
                 SepiaFW.audio.setPlayerTitle('', '');

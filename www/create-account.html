@@ -1,0 +1,59 @@
+<div id='sepiaFW-frame-carousel' class="sepiaFW-inner-container sepiaFW-carousel">
+	<div class='sepiaFW-carousel-pane-container'>
+		<!-- Page 1 -->
+		<div id="sepiaFW-frame-page-1" class='sepiaFW-frames-page sepiaFW-carousel-pane'>
+			<div id="sepiaFW-create-account-view-1" class="group-container">
+				<div class="group column">
+					<h2>Create Account</h2>
+					<p class="info-text centered" style="margin-bottom: 0; font-size: 18px;">
+						Since SEPIA is <b>self-hosted</b>, privacy focused, open-source assistant there is <b>no global server</b> that will store your data.<br>
+						<br>
+						To learn how you can create your own server for example using a Raspberry Pi SBC please visit: <a href="https://github.com/SEPIA-Framework/sepia-docs/wiki" target="_blank">SEPIA documentation</a><br>
+						<br>
+						If you are the administrator of your own server please visit the SEPIA Control-HUB to create new user accounts.<br>
+						<button class="sepia-open-control-hub-btn">Open my Control-HUB</button><br>
+						<br>
+						If you got this link from your company or a friend that hosts his own SEPIA server please ask them how to get your account.<br>
+					</p>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+<div id="sepiaFW-frames-nav-bar" class='sepiaFW-layer-header'>
+	<button id="sepiaFW-frames-close" class='entry'>
+		<i class="material-icons md-btn2">&#xE5CD;</i>
+	</button>
+	<!--<button id="sepiaFW-frames-show-prev-page" class='entry'>
+		<i class="material-icons md-btn2">keyboard_arrow_left</i><span data-localize="back">back</span>
+	</button>
+	<button id="sepiaFW-frames-show-next-page" class='entry'>
+		<span data-localize="next">next</span><i class="material-icons md-btn2">keyboard_arrow_right</i>
+	</button>-->
+	<!--<div id="sepiaFW-frames-nav-bar-page-indicator"><div>&nbsp;</div><div>&nbsp;</div><div>&nbsp;</div><div>&nbsp;</div></div>-->
+	<div id="sepiaFW-frames-nav-bar-page-indicator"><div>&nbsp;</div></div>
+</div>
+<script>
+	$('#sepiaFW-frame-carousel').find('[data-localize]').each(function(){
+		$(this).html(SepiaFW.local.g(this.dataset.localize));
+	});
+	$('#sepiaFW-create-account-view-1').find('.sepia-open-control-hub-btn').each(function(){
+		$(this).off().on("click", function(){
+			var userManagementPage;
+			if (!SepiaFW.ui.isMobile){
+				userManagementPage = SepiaFW.config.replacePathTagWithActualPath('<assist_server>/tools/index.html#!user-management');
+			}else{
+				userManagementPage = "https://sepia-framework.github.io/tools/index.html#!user-management";
+			}
+			SepiaFW.ui.actions.openUrlAutoTarget(userManagementPage, true);
+		});
+	});
+
+	//Define scope
+	SepiaFW.frames.currentScope = {
+
+		//Load scope (default method)
+		load: function(){}
+	}
+	SepiaFW.frames.currentScope.load();
+</script>

@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="900" viewBox="0 0 900 900" fill="none" filter="url(#filter1)">
+    <g opacity="0.56">
+        <rect x="470" y="420" width="200" height="200" rx="70" fill="#6949d0"/>
+    </g>
+    <g opacity="0.56">
+        <rect x="220" y="420" width="200" height="200" rx="70" fill="#f34974"/>
+    </g><g opacity="0.56">
+        <rect x="470" y="200" width="200" height="200" rx="70" fill="#34bcf9"/>
+    </g>
+    <g opacity="0.56">
+        <rect x="220" y="200" width="200" height="200" rx="70" fill="#fa9f7d"/>
+    </g>
+    <defs>
+		<filter id="filter1" x="0" y="0" width="900" height="900" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+            <feGaussianBlur stdDeviation="100"/>
+        </filter>
+    </defs>
+</svg>

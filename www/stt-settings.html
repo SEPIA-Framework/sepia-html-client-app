@@ -1,0 +1,159 @@
+<div id='sepiaFW-frame-carousel' class="sepiaFW-inner-container sepiaFW-carousel">
+	<div class='sepiaFW-carousel-pane-container'>
+		<!-- Page 1 -->
+		<div id="sepiaFW-frame-page-1" class='sepiaFW-frames-page sepiaFW-carousel-pane'>
+			<h3>STT Settings</h3>
+			<p class="info-text">Here you can configure the connection to your STT server and set some engine parameters.</p>
+			<p class="info-text">To learn how to run you own speech recognition server locally please visit: 
+				<a href="https://github.com/SEPIA-Framework/sepia-stt-server" target=_blank>SEPIA STT Server</a>
+			</p>
+			<div class="group-container">
+				<h3>Active Engine</h3>
+				<div class="group">
+					<label>ASR Engine:</label>
+					<span id="sepiaFW-stt-settings-server-engine" class="string-value">---</span>
+				</div>
+				<h3>SEPIA STT Server</h3>
+				<div class="group fill">
+					<label>Server URL:</label>
+					<input id="sepiaFW-stt-settings-server-url" type="url" placeholder="http://localhost:20741">
+				</div>
+				<div class="group fill">
+					<label>User:</label>
+					<input id="sepiaFW-stt-settings-server-user" placeholder="any">
+				</div>
+				<div class="group fill">
+					<label>Auth. Token:</label>
+					<input id="sepiaFW-stt-settings-server-token" type="password" placeholder="test1234">
+				</div>
+				<div class="group" style="justify-content: center;">
+					<button id="sepiaFW-stt-settings-server-info-btn" 
+						onclick="SepiaFW.frames.currentScope.showServerInfo();">Load Server Info</button>
+				</div>
+				<h3>ASR Engine</h3>
+				<div class="group">
+					<label>Model for selected language (<span id="sepiaFW-stt-settings-language"></span>):</label>
+					<select id="sepiaFW-stt-settings-asr-model"></select>
+				</div>
+				<div class="group">
+					<label>Optimize final result:</label>
+					<div id="sepiaFW-stt-settings-opt-fr" title="Try to convert words to numbers for example (if supported)."></div>
+				</div>
+				<h3>Info</h3>
+				<div id="sepiaFW-stt-settings-info-msg" style="width: 100%; white-space: break-spaces; word-wrap: break-word;"></div>
+			</div>
+		</div>
+	</div>
+</div>
+<div id="sepiaFW-frames-nav-bar" class='sepiaFW-layer-header'>
+	<button id="sepiaFW-frames-close" class='entry'>
+		<i class="material-icons md-btn2">&#xE5CD;</i>
+	</button>
+	<button id="sepiaFW-frames-show-prev-page" class='entry'>
+		<i class="material-icons md-btn2">keyboard_arrow_left</i><span data-localize="back">back</span>
+	</button>
+	<button id="sepiaFW-frames-show-next-page" class='entry'>
+		<span data-localize="next">next</span><i class="material-icons md-btn2">keyboard_arrow_right</i>
+	</button>
+	<div id="sepiaFW-frames-nav-bar-page-indicator"><div>&nbsp;</div></div>
+</div>
+<script>
+	$('#sepiaFW-frame-carousel').find('[data-localize]').each(function(){
+		$(this).html(SepiaFW.local.g(this.dataset.localize));
+	});
+	
+	//Define scope
+	SepiaFW.frames.currentScope = {
+
+		onFinishSetup: function(){
+			$('#sepiaFW-stt-settings-server-url').off().on("blur", function(){
+				SepiaFW.speechAudioProcessor.setSocketURI(this.value);
+				SepiaFW.debug.info("STT Server URL: " + this.value);
+			});
+			$('#sepiaFW-stt-settings-server-user').off().on("blur", function(){
+				SepiaFW.speechAudioProcessor.setServerUser(this.value);
+				SepiaFW.debug.info("STT Server user: " + this.value);
+			});
+			$('#sepiaFW-stt-settings-server-token').off().on("blur", function(){
+				SepiaFW.speechAudioProcessor.setServerToken(this.value);
+				SepiaFW.debug.info("STT Server token set");
+			});
+			$('#sepiaFW-stt-settings-asr-model').off().on("change", function(){
+				SepiaFW.debug.info("STT Server ASR model: " + this.value);
+				SepiaFW.speechAudioProcessor.setAsrModel(this.value);
+			});
+			var optimizeFinalResultToggle = document.getElementById('sepiaFW-stt-settings-opt-fr');
+			optimizeFinalResultToggle.appendChild(SepiaFW.ui.build.toggleButton(
+				'sepiaFW-stt-settings-toggle-opt-fr', 
+				function(){
+					SepiaFW.speechAudioProcessor.setOptimizeFinalResult(true);
+					SepiaFW.debug.info("STT Server 'optimizeFinalResult' is 'true'");
+				},function(){
+					SepiaFW.speechAudioProcessor.setOptimizeFinalResult(false);
+					SepiaFW.debug.info("STT Server 'optimizeFinalResult' is 'false'");
+				}, SepiaFW.speechAudioProcessor.getOptimizeFinalResult()
+			));
+		},
+		
+		onOpen: function(){
+			$('#sepiaFW-stt-settings-server-engine').text(SepiaFW.speech.getAsrEngine());
+			$('#sepiaFW-stt-settings-server-url').val(SepiaFW.speechAudioProcessor.getSocketURI());
+			$('#sepiaFW-stt-settings-server-user').val(SepiaFW.speechAudioProcessor.serverUser || "");
+			$('#sepiaFW-stt-settings-server-token').val(SepiaFW.speechAudioProcessor.serverToken || "");	//TODO: replace with input only?
+			$('#sepiaFW-stt-settings-language').text(SepiaFW.speech.getLanguage());
+			//model options
+			var modelOptionsSelect = $('#sepiaFW-stt-settings-asr-model')[0];
+			SepiaFW.speechAudioProcessor.getServerSettings(function(settings){
+				modelOptionsSelect.innerHTML = "<option value=''>Default</option>";
+				var models = (settings && settings.models)? settings.models : [];
+				models.forEach(function(m){
+					var opt = document.createElement("option");
+					opt.value = m;
+					opt.textContent = m;
+					modelOptionsSelect.appendChild(opt);
+				});
+				modelOptionsSelect.value = SepiaFW.speechAudioProcessor.getActiveAsrModel() || "";
+			}, function(err){
+				modelOptionsSelect.innerHTML = "<option value='' disabled selected>-Not found-</option>";
+			});
+			//optimize result?
+			var optFinalResToggle = $('#sepiaFW-stt-settings-toggle-opt-fr').get(0);
+			optFinalResToggle.setValue(SepiaFW.speechAudioProcessor.getOptimizeFinalResult());
+			//enable/disable options
+			if (SepiaFW.speech.getAsrEngine() != "sepia"){
+				SepiaFW.frames.currentScope.showInfo("Note: Most options only apply to 'sepia' engine atm.");
+				$('#sepiaFW-stt-settings-server-info-btn').hide();
+				optFinalResToggle.setDisabled(true);
+			}else{
+				SepiaFW.frames.currentScope.showInfo("Note: 'Optimize final result' is still experimental.");
+				$('#sepiaFW-stt-settings-server-info-btn').show();
+				optFinalResToggle.setDisabled(false);
+			}
+		},
+
+		onClose: function(){
+			//Update settings
+			$('#sepiaFW-menu-stt-socket-url').val(SepiaFW.speechAudioProcessor.getSocketURI());
+		},
+
+		showServerInfo: function(){
+			SepiaFW.frames.currentScope.showInfo("Loading server info...");
+			SepiaFW.speechAudioProcessor.getServerSettings(function(settings){
+				var msg = "Server info:\n\n";
+				Object.keys(settings).forEach(function(k){
+					msg += k + " = " + settings[k] + "\n";
+				});
+				SepiaFW.frames.currentScope.showInfo(msg);
+			}, function(err){
+				SepiaFW.frames.currentScope.showError("Failed to load server info.");
+			});
+		},
+
+		showInfo: function(msg){
+			$('#sepiaFW-stt-settings-info-msg').css("color", "").text(msg);
+		},
+		showError: function(msg){
+			$('#sepiaFW-stt-settings-info-msg').css("color", "#f00").text(msg);
+		}
+	}
+</script>

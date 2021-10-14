@@ -7,10 +7,11 @@ function sepiaFW_build_offline(){
 	//more at: SepiaFW.embedded.services
 	
 	//Get action to open an URL
-	Offline.getUrlOpenAction = function(_url){
+	Offline.getUrlOpenAction = function(_url, skipIfEmbeddable){
 		var action = {
 			type: "open_in_app_browser",
-			url: _url
+			url: _url,
+			skipIfEmbeddable: (skipIfEmbeddable || false)
 		}
 		return action;
 	}
@@ -84,9 +85,12 @@ function sepiaFW_build_offline(){
 		data.desc = description || "Click to open";
 		if (!url) url = "https://sepia-framework.github.io/app/search.html";
 		/* other data content e.g.:
-		"type": "musicSearch",
+		"type": "musicSearch",		//default, custom, websearch, musicSearch, videoSearch
 		"brand": "Spotify"
 		*/
+		data.type = imageUrl? "custom" : "default";
+		data.typeData = undefined;
+		//var embedData = SepiaFW.ui.cards.canEmbedUrl(url);	//handled by Cards by default
 		var cardInfoItem = {
 			"cardType": "single",
 			"N": 1,
@@ -98,7 +102,8 @@ function sepiaFW_build_offline(){
 				"url": url
 			}]
 		};
-		return cardInfoItem;		//NOTE: it is ONE ITEM of the cardInfo-array! To build use e.g. [getLinkCard(...)]
+		return cardInfoItem;
+		//NOTE: it is ONE ITEM of the cardInfo-array! To build use e.g. [getLinkCard(...)]
 	}
 
 	//------------------ custom buttons -------------------
@@ -119,7 +124,7 @@ function sepiaFW_build_offline(){
 
 	//Handle a message offline sent via Client.sendMessage - currently used for demo-mode
 	Offline.handleClientSendMessage = function(message){
-		var userId = SepiaFW.account.getUserId() || 'username';
+		var userId = SepiaFW.account.getUserId() || 'username';	//NOTE: "username" is sometimes used as fallback in demo-mode
 		var dataIn = { sender: userId };
 		//console.log(message); 								//DEBUG
 		var nluResult;
@@ -136,7 +141,7 @@ function sepiaFW_build_offline(){
 		if (message.text){
 			//try to get some result from offline interpreter
 			if (SepiaFW.embedded && SepiaFW.embedded.nlu){
-				if (SepiaFW.client.isDemoMode() && SepiaFW.account.getUserRoles() && SepiaFW.account.getUserRoles()[0] == "setup"){
+				if (SepiaFW.account.isSetupMode()){
 					//TODO: should setup generate response?
 				}else{
 					nluResult = SepiaFW.embedded.nlu.interpretMessage(message);

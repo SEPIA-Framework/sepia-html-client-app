@@ -31,9 +31,16 @@ html {
 	background: linear-gradient(to right, #ff7139 0%, #fb535b 100%);
 	color: #fff;
 }
+html.landscape-small #sepiaFW-chat-controls {
+	background: linear-gradient(to right, #fb535b 0%, #ff7139 100%) !important;
+    color: #fff !important;
+}
 #sepiaFW-chat-controls-right {
 	background: #ff7139;
 	color: #fff;
+}
+html.landscape-small #sepiaFW-chat-controls-right {
+	background: transparent;
 }
 
 #sepiaFW-nav-bar-page-indicator {

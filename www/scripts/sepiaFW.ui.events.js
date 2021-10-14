@@ -324,13 +324,13 @@ function sepiaFW_build_events(){
 			});
 			Timers = {};
 
-			//NOTE: this will not remove old timer cards only add new ones and disable old background notifications
-			SepiaFW.ui.cards.findAllTimeEventCards(false, true).forEach(function(item){ 
+			//NOTE: this will remove all timer cards first
+			SepiaFW.ui.cards.findAllTimeEventCards(false, false).forEach(function(item){ 
 				item.remove();
 				//more info: SepiaFW.events.getRunningOrActivatedTimeEventById(item.data.eventId)
 			});
 
-			//clear all background notifications
+			//clear all background notifications - then reload
 			Events.clearAllTimeEventBackgroundNotifications(function(){
 				//reload Timers
 				var options = {};
@@ -453,6 +453,7 @@ function sepiaFW_build_events(){
 	}
 	//deactivate timeEvent - optionally resync server list afterwards
 	Events.removeTimeEvent = function(name, resyncList, callbackRemovedBackgroundActivity){
+		//console.error("removeTimeEvent", name); 		//DEBUG
 		var Timer = Events.getTimeEvent(name);
 		if (Timer){
 			//Remove background notification
@@ -490,6 +491,7 @@ function sepiaFW_build_events(){
 	}
 	//synchronize timeEvents with server - since creating an event should be done via server request we assume that only silently removed or UI-unknown events need sync.
 	Events.syncTimeEvents = function(type){
+		//console.error("syncTimeEvents - removedTimerIds", removedTimerIds);
 		if (SepiaFW.client.isDemoMode()){
 			//we skip this in demo-mode to avoid confusing error-messages
 			return;
@@ -503,10 +505,11 @@ function sepiaFW_build_events(){
 			SepiaFW.debug.log('UI.Actions timeEvent: Can\'t synchronize type "' + Timer.type + '" yet!');
 			return;
 		}
-		var listToLoad = {};
-			listToLoad.section = "timeEvents";
-			listToLoad.indexType = "alarms"; 		//see UI.cards: INDEX_TYPE_ALARMS
-			if (title) listToLoad.title = title;
+		var listToLoad = {
+			section: "timeEvents",
+			indexType: "alarms" 		//see UI.cards: INDEX_TYPE_ALARMS
+		};
+		if (title) listToLoad.title = title;
 		SepiaFW.account.loadList(listToLoad, function(data){
 			//got list(s)
 			var lists = data.lists;
@@ -518,6 +521,7 @@ function sepiaFW_build_events(){
 				//iterate account events
 				var i=0;
 				var newListData = [];
+				var listChanged = false;
 				while (i < syncList.data.length){
 					//is not on list of silently removed timeEvents?
 					if ($.inArray(syncList.data[i].eventId, removedTimerIds) === -1){
@@ -525,20 +529,23 @@ function sepiaFW_build_events(){
 						//check if timer exists and has newer lastChange date (e.g. because the name was changed in UI)
 						var Timer = SepiaFW.events.getRunningOrActivatedTimeEventById(syncList.data[i].eventId);
 						if (Timer && Timer.data.lastChange > syncList.data[i].lastChange){
-							//console.log('updated');
+							//console.error('updated');
+							listChanged = true;
 							newListData.push(Timer.data);
 						}else{
-							//console.log('refreshed');
+							//console.error('kept');
 							newListData.push(syncList.data[i]);
 						}
+					}else{
+						//console.error('removed');
+						listChanged = true;
 					}
 					i++;
 				}
 				var removedItems = (syncList.data.length - newListData.length);
 				SepiaFW.debug.info("TimeEvent - " + removedItems + " removed during synchronization");
 				syncList.data = newListData;
-				//save changes
-				SepiaFW.account.saveList(syncList, function(data){
+				var finalize = function(){
 					//clean remove queue
 					removedTimerIds = [];
 					//TODO: clean up ActivatedTimers ???
@@ -555,11 +562,20 @@ function sepiaFW_build_events(){
 							saveBtn.removeClass('active');
 						});
 					}
-					
-				},function(msg){
-					//error
-					SepiaFW.ui.showPopup(msg);
-				});
+				}
+				//save changes
+				if (listChanged){
+					SepiaFW.account.saveList(syncList, function(data){
+						//ok
+						finalize();
+					},function(msg){
+						//error
+						SepiaFW.ui.showPopup(msg);
+					});
+				}else{
+					//still finalize
+					finalize();
+				}
 			
 			}else{
 				//TODO: in this case we need to create an alarm first
@@ -790,11 +806,7 @@ function sepiaFW_build_events(){
 		}
 		//play sound
 		if (playSound){
-			if (SepiaFW.audio){
-				SepiaFW.audio.playAlarmSound(startCallback, endCallback, errorCallback);
-			}else{
-				SepiaFW.debug.err("Alarm: Audio CANNOT be played, SepiaFW.audio is missing!");
-			}
+			SepiaFW.audio.playAlarmSound(startCallback, endCallback, errorCallback);
 		}
 		//add missed message?
 		if (showMissedNote){

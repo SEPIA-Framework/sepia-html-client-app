@@ -11,6 +11,7 @@ function sepiaFW_build_strings(){
 	StringsDE.help = 'Hilfe';
 	StringsDE.ok = 'Ok';
 	StringsDE.more = 'Mehr';
+	StringsDE.select = 'Auswählen';
 	StringsDE.username = 'Username';
 	StringsDE.nickname = 'Spitzname';
 	StringsDE.password = 'Passwort';
@@ -19,18 +20,20 @@ function sepiaFW_build_strings(){
 	StringsDE.general = 'Allgemein';
 	StringsDE.sendLogin = 'Login';
 	StringsDE.sign_out = 'Abmelden';
-	StringsDE.sign_out_all = 'Alle Apps abmelden';
-	StringsDE.apps_admin = 'Apps verwalten';
+	StringsDE.sign_out_all = 'Alle abmelden';
+	StringsDE.apps_admin = 'Verwalten';
 	StringsDE.account = 'Account';
 	StringsDE.addresses = 'Adressen';
 	StringsDE.contacts = 'Kontakte';
 	StringsDE.favorites = 'Favoriten';
 	StringsDE.logout = 'Logout';
-	StringsDE.closeLogin = 'Weiter ohne Login';
+	StringsDE.offlineTestMode = 'Offline Test-Modus';
+	StringsDE.continueWithoutLogin = 'Weiter ohne Login';
+	StringsDE.createAccount = 'Account erstellen';
 	StringsDE.info_and_help = 'Infos und Support';
 	StringsDE.control_hub = 'Control HUB';
 	StringsDE.tutorial = 'Tutorial';
-	StringsDE.change_account_password = "Account Passwort ändern";
+	StringsDE.change_account_password = "Passwort ändern";
 	StringsDE.channels = "Kanäle";
 	StringsDE.active_users = "Aktive User";
 	StringsDE.edit_chat_channels = "Kanäle bearbeiten";
@@ -55,7 +58,8 @@ function sepiaFW_build_strings(){
 	StringsDE.messageLost = 'Die letzte Nachricht konnte nicht zugestellt werden';
 	StringsDE.noAsrSupport = 'Es tut mir leid, aber dieser Client unterstütz die Spracherkennung leider nicht :-(';
 	StringsDE.asrMissingServer = 'Mir fehlen noch Server Informationen um diese Spracherkennungsengine nutzen zu können, check noch mal die Settings bitte (ASR server).';
-	StringsDE.asrSettingsProblem = 'Mikrofon nicht richtig erkannt oder Zugriff verweigert.';
+	StringsDE.asrSettingsProblem = 'Es gab ein unerwartetes Problem mit dem Mikrofon oder bei der Verarbeitung des Audiosignals.';
+	StringsDE.asrMicProblem = 'Mikrofon nicht richtig erkannt oder Zugriff verweigert.';
 	StringsDE.asrOtherError = 'Es tut mir leid, aber es gab ein unerwartetes Problem mit der Spracherkennung.';
 	StringsDE.nobodyThere = 'Uups, es scheint zur Zeit leider keiner hier zu sein, der dir antworten könnte :-(';
 	StringsDE.userNotFound = 'Uups, dieser User scheint gerade nicht hier zu sein :-(';
@@ -70,10 +74,13 @@ function sepiaFW_build_strings(){
 	StringsDE.save = 'Speichern';
 	StringsDE.store = 'Speichern';
 	StringsDE.load = 'Laden';
+	StringsDE.export = 'Exportieren';
 	StringsDE.edit = 'Bearbeiten';
 	StringsDE.copy = 'Kopieren';
 	StringsDE.show = 'Anzeigen';
 	StringsDE.open = 'Öffnen';
+	StringsDE.close = 'Schließen';
+	StringsDE.closed = 'geschlossen';
 	StringsDE.new = 'Neu';
 	StringsDE.unknown = 'Unbekannt';
 	StringsDE.not_defined = 'Nicht definiert';
@@ -100,10 +107,13 @@ function sepiaFW_build_strings(){
 	StringsDE.addItem = 'Item hinzufügen';
 	StringsDE.moveToMyView = '← Zu My-View hinzufügen';
 	StringsDE.moveToMyViewWithIcon = '<i class="material-icons md-inherit">add_to_home_screen</i>';
-	StringsDE.exportToCalendar = '<i class="material-icons md-inherit">share</i>&nbsp;Kalender';
-	StringsDE.exportToAlarms = '<i class="material-icons md-inherit">share</i>&nbsp;Alarm</i>';
-	StringsDE.exportToUrl = '<i class="material-icons md-inherit">share</i>&nbsp;Link</i>';
-	StringsDE.copyUrl = '<i class="material-icons md-inherit">link</i>&nbsp;Kopieren</i>';
+	StringsDE.exportToCalendar = '<i class="material-icons md-inherit">share</i><span>&nbsp;Kalender</span>';
+	StringsDE.exportToAlarms = '<i class="material-icons md-inherit">share</i><span>&nbsp;Alarm</span>';
+	StringsDE.exportToUrl = '<i class="material-icons md-inherit">share</i><span>&nbsp;Link</span>';
+	StringsDE.copyUrl = '<i class="material-icons md-inherit">link</i><span>&nbsp;Kopieren</span>';
+	StringsDE.playOn = '<i class="material-icons md-inherit">airplay</i><span>&nbsp;Play On</span>';
+	StringsDE.closeCard = '<i class="material-icons md-inherit">cancel_presentation</i><span>&nbsp;Beenden</span>';
+	StringsDE.readNewsArticle = '<i class="material-icons md-inherit">local_library</i><span>&nbsp;Artikel lesen</span>';
 	StringsDE.alarm = 'Wecker';
 	StringsDE.alarmClock = 'Wecker'; 		//name is title of UserDataList
 	StringsDE.timer = 'Timer';				//name is title of UserDataList
@@ -113,10 +123,13 @@ function sepiaFW_build_strings(){
 	StringsDE.clearHistory = 'Verlauf löschen';
 	StringsDE.history = 'Verlauf';
 	StringsDE.newMessages = 'Neue Nachrichten';
+	StringsDE.message = 'Nachricht';
+	StringsDE.notification = 'Benachrichtigung';
 	StringsDE.reload = 'Neu laden';
-	StringsDE.refreshUI = 'Interface neu laden';
-	StringsDE.refreshUI_info = 'Um Änderungen, die hier gemacht wurden zu <u>sehen</u> muss das Interface neu geladen werden';
-	StringsDE.newSepiaWindow = 'Neues SEPIA Fenster';
+	StringsDE.newWindow = 'Neues Fenster';
+	StringsDE.mySepiaClients = 'My Clients';
+	StringsDE.reloadApp = 'Neustart';
+	StringsDE.reloadAppInfo = 'Änderungen, die hier gemacht wurden sollten durch einen Neustart bestätigt werden';
 	StringsDE.lastUpdate = 'Zuletzt aktualisiert';
 	StringsDE.recommendationsFor = 'Empfehlungen für';
 	StringsDE.forNewcomers = 'Für Neuankömmlinge';
@@ -135,13 +148,16 @@ function sepiaFW_build_strings(){
 	StringsDE.credits = 'Credits';
 	StringsDE.data_privacy = 'Datenschutz';
 	StringsDE.way_home = 'Weg nach Hause';
+	StringsDE.audioDevices = "Audiogeräte";
+	StringsDE.mediaDevices = "Mediengeräte";
 	//Fill words
 	StringsDE.from = 'von';
 	StringsDE.atClock = 'um';
 	StringsDE.toMe = 'zu mir';
 	//More errors/info
+	StringsDE.tts_test = "Hallo Boss, wenn du diese Nachricht hören kannst, dann funktioniert die Sprachausgabe. Ich hoffe es hat geklappt!";
 	StringsDE.error_after_try = "Habs versucht aber irgendwas ging schief. Versuch es vielleicht später noch mal?!";
-	StringsDE.serverVersionTooLow = 'Beachte: Deine SEPIA Server Version ist niedrig und manche Features des Clients funktionieren eventuell nicht wie erwartet. Bitte führe ein Server Update durch, wenn möglich!';
+	StringsDE.serverVersionTooLow = 'Beachte: Dein SEPIA Server nutzt nicht die aktuellste Version und manche Features des Clients funktionieren eventuell nicht wie erwartet. Bitte führe ein Server Update durch, wenn möglich!';
 	StringsDE.mesh_node_fail = 'Sorry, die Mesh-Node Funktion zeigte einen Fehler.';
 	StringsDE.no_client_support = 'Sorry, aber diese Version der App unterstütz die aufgerufene Aktion nicht.';
 	StringsDE.cant_execute = "Sorry, aber es sieht so aus als könnte ich diese Aktion nicht ausführen.";
@@ -157,22 +173,30 @@ function sepiaFW_build_strings(){
 	//Service and action texts
 	StringsDE.opening_link = "Link wird geöffnet.";
 	StringsDE.no_music_playing = "Kannst du was hören? Wahrscheinlich wurde keine Musik gefunden.";
+	StringsDE.no_media_found = "Es wurde nichts zum Abspielen gefunden.";
 	StringsDE.remote_action = "Remote-Zugriff";
-	StringsDE.remote_action_audio_stream = "Habe einen Audio Stream via Remote-Zugriff empfangen. Stream wird gestartet.";
+	StringsDE.remote_action_audio_stream = "ich habe einen Audio Stream via Remote-Zugriff empfangen. Stream wird gestartet.";
+	StringsDE.remote_action_media_player = "habe Daten via Remote-Zugriff empfangen. Media player wird gestartet.";
+	StringsDE.remote_action_notify = "ich habe eine Benachrichtigung für dich.";
 	StringsDE.read_article = "Artikel lesen";
 	StringsDE.choose_device_for_music = "Wähle ein Gerät auf dem du die Musik abspielen willst";
+	StringsDE.choose_device_for_action = "Auf welchem Gerät soll die Aktion ausgeführt werden?";
+	StringsDE.broadcast_to_device_or_chat = "Broadcast an eines deiner Geräte schicken oder per Chat senden?";
 	StringsDE.relative_precipitation = "relativer Niederschlag";
 	//Link sharing
-	StringsDE.link_join_channel = "Einem Chat-Kanal beitreten."
-	StringsDE.link_open_url = "Einen Link öffnen."
-	StringsDE.link_create_reminder = "Eine Erinnerung einrichten."
+	StringsDE.link_join_channel = "Einem Chat-Kanal beitreten.";
+	StringsDE.link_open_url = "Einen Link öffnen.";
+	StringsDE.link_media_search = "Mediensuche";
+	StringsDE.link_create_reminder = "Eine Erinnerung einrichten.";
 	//Offline demo texts
 	StringsDE.demoMode = 'Du befindest dich im Demo-Modus! In diesem Modus kannst du die Einstellungen ändern (z.B. hostname), das Tutorial anschauen und mit manchen(!) Teilen des Interfaces spielen. Um auf deinen Assistenten zuzugreifen melde dich bitte zuerst an.';
+	StringsDE.setupMode = 'Du befindest dich im Setup-Modus! Dieser Modus kann genutzt werden um den Client lokal oder via Fernzugriff zu konfigurieren. Bitte beachte, dass die meisten Grundfunktionen nicht verfügbar sind in diesem Modus!';
 	StringsDE.notPossibleInDemoMode = 'Sorry aber das geht noch nicht im Demo-Modus.';
 	StringsDE.demoModeBtn = 'Demo-Modus';
 	StringsDE.myNewsDemoBtn = 'Öffne meine persönlichen News';
 	StringsDE.myRadioDemoBtn = 'Starte mein Lieblingsradio';
 	StringsDE.myToDoDemoBtn = 'Öffne meine To-Do Liste';
+	StringsDE.myMusicPlayerDemoBtn = 'Spiele Musik von Ed';
 	//Connection status
 	StringsDE.status_connecting = "Wird verbunden...";
 	StringsDE.status_opened = "Online";
@@ -191,12 +215,22 @@ function sepiaFW_build_strings(){
 	StringsDE.view_home = "Home Screen";
 	StringsDE.view_chat = "Chat";
 	StringsDE.view_extended_results = "SEPIA Service Infos";
+	//My-View sections
+	StringsDE.section_music = "Musik";
+	StringsDE.section_time_events = "Events";
+	StringsDE.section_lists = "Listen";
+	StringsDE.section_news_articles = "Nachrichten";
+	StringsDE.section_news_outlets = "Nachrichtenkanäle";
+	StringsDE.section_weather = "Wetter";
+	StringsDE.section_links = "Links";
+	StringsDE.section_others = "Mehr";
 	
 	//ENGLISH
 	StringsEN.welcome = 'Welcome';
 	StringsEN.help = 'Help';
 	StringsEN.ok = 'Ok';
 	StringsEN.more = 'More';
+	StringsEN.select = 'Select';
 	StringsEN.username = 'Username';
 	StringsEN.nickname = 'Nickname';
 	StringsEN.password = 'Password';
@@ -205,18 +239,20 @@ function sepiaFW_build_strings(){
 	StringsEN.general = 'General';
 	StringsEN.sendLogin = 'Login';
 	StringsEN.sign_out = 'Sign out';
-	StringsEN.sign_out_all = 'Sign out all apps';
-	StringsEN.apps_admin = 'Manage apps';
+	StringsEN.sign_out_all = 'Sign out all';
+	StringsEN.apps_admin = 'Manage';
 	StringsEN.account = 'Account';
 	StringsEN.addresses = 'Addresses';
 	StringsEN.contacts = 'Contacts';
 	StringsEN.favorites = 'Favorites';
 	StringsEN.logout = 'Logout';
-	StringsEN.closeLogin = 'Continue without login';
+	StringsEN.offlineTestMode = 'Offline test mode';
+	StringsEN.continueWithoutLogin = 'Continue without login';
+	StringsEN.createAccount = 'Create account';
 	StringsEN.info_and_help = 'Info and support';
 	StringsEN.control_hub = 'Control HUB';
 	StringsEN.tutorial = 'Tutorial';
-	StringsEN.change_account_password = "Change account password";
+	StringsEN.change_account_password = "Change password";
 	StringsEN.channels = "Channels";
 	StringsEN.active_users = "Active Users";
 	StringsEN.edit_chat_channels = "Edit Channels";
@@ -241,7 +277,8 @@ function sepiaFW_build_strings(){
 	StringsEN.messageLost = 'The last message could not be delivered';
 	StringsEN.noAsrSupport = 'I\'m sorry but this client does not support speech recognition :-(';
 	StringsEN.asrMissingServer = 'I\'m missing some server info to use this speech recognition engine, please check the settings again (ASR server).';
-	StringsEN.asrSettingsProblem = 'Microphone has not been recognized properly or access was denied.';
+	StringsEN.asrSettingsProblem = 'There was a problem with the microphone or with audio signal processing.';
+	StringsEN.asrMicProblem = 'Microphone has not been recognized properly or access was denied.';
 	StringsEN.asrOtherError = 'I\'m sorry but there was an unexpected problem with the speech recognition.';
 	StringsEN.nobodyThere = 'Uups, sorry but it seems there is nobody here to answer your message :-(';
 	StringsEN.userNotFound = 'Uups, this user seems to be not available right now :-(';
@@ -256,10 +293,13 @@ function sepiaFW_build_strings(){
 	StringsEN.save = 'Save';
 	StringsEN.store = 'Store';
 	StringsEN.load = 'Load';
+	StringsEN.export = 'Export';
 	StringsEN.edit = 'Edit';
 	StringsEN.copy = 'Copy';
 	StringsEN.show = 'Show';
 	StringsEN.open = 'Open';
+	StringsEN.close = 'Close';
+	StringsEN.closed = 'closed';
 	StringsEN.new = 'New';
 	StringsEN.unknown = 'Unknown';
 	StringsEN.not_defined = 'Not defined';
@@ -286,10 +326,13 @@ function sepiaFW_build_strings(){
 	StringsEN.addItem = 'Add item';
 	StringsEN.moveToMyView = '← Move to My-View';
 	StringsEN.moveToMyViewWithIcon = '<i class="material-icons md-inherit">add_to_home_screen</i>';
-	StringsEN.exportToCalendar = '<i class="material-icons md-inherit">share</i>&nbsp;Calendar';
-	StringsEN.exportToAlarms = '<i class="material-icons md-inherit">share</i>&nbsp;Alarm</i>';
-	StringsEN.exportToUrl = '<i class="material-icons md-inherit">share</i>&nbsp;Link</i>';
-	StringsEN.copyUrl = '<i class="material-icons md-inherit">link</i>&nbsp;Copy</i>';
+	StringsEN.exportToCalendar = '<i class="material-icons md-inherit">share</i><span>&nbsp;Calendar</span>';
+	StringsEN.exportToAlarms = '<i class="material-icons md-inherit">share</i><span>&nbsp;Alarm</span>';
+	StringsEN.exportToUrl = '<i class="material-icons md-inherit">share</i><span>&nbsp;Link</span>';
+	StringsEN.copyUrl = '<i class="material-icons md-inherit">link</i><span>&nbsp;Copy</span>';
+	StringsEN.playOn = '<i class="material-icons md-inherit">airplay</i><span>&nbsp;Play On</span>';
+	StringsEN.closeCard = '<i class="material-icons md-inherit">cancel_presentation</i><span>&nbsp;Close</span>';
+	StringsEN.readNewsArticle = '<i class="material-icons md-inherit">local_library</i><span>&nbsp;Read article</span>';
 	StringsEN.alarm = 'Alarm';
 	StringsEN.alarmClock = 'Alarm';		//name is title of UserDataList
 	StringsEN.timer = 'Timer';			//name is title of UserDataList
@@ -299,10 +342,13 @@ function sepiaFW_build_strings(){
 	StringsEN.clearHistory = 'Clear history';
 	StringsEN.history = 'History';
 	StringsEN.newMessages = "New messages";
+	StringsEN.message = 'Message';
+	StringsEN.notification = 'Notification';
 	StringsEN.reload = 'Reload';
-	StringsEN.refreshUI = 'Refresh interface';
-	StringsEN.refreshUI_info = 'To <u>see</u> changes you made here you need to refresh the interface';
-	StringsEN.newSepiaWindow = 'New SEPIA window';
+	StringsEN.newWindow = 'New window';
+	StringsEN.mySepiaClients = 'Meine Clients';
+	StringsEN.reloadApp = 'Reload app';
+	StringsEN.reloadAppInfo = 'Changes you made here should be confirmed via a reload of the app';
 	StringsEN.lastUpdate = 'Last update';
 	StringsEN.recommendationsFor = 'Recommendations for';
 	StringsEN.forNewcomers = 'For newcomers';
@@ -321,13 +367,16 @@ function sepiaFW_build_strings(){
 	StringsEN.credits = 'Credits';
 	StringsEN.data_privacy = 'Data privacy';
 	StringsEN.way_home = 'Way home';
+	StringsEN.audioDevices = "Audio devices";
+	StringsEN.mediaDevices = "Media devices";
 	//Fill words
 	StringsEN.from = 'from';
 	StringsEN.atClock = 'at';
 	StringsEN.toMe = 'to me';
 	//More errors/info
+	StringsEN.tts_test = "Hello Boss, if you can hear this message then the voice output must be ok. I hope it's working!";
 	StringsEN.error_after_try = "I've tried but something went wrong. Try again later maybe?!";
-	StringsEN.serverVersionTooLow = 'Note: Your SEPIA server version is low and some features of the client might not work as expected. Please update the server when possible!';
+	StringsEN.serverVersionTooLow = 'Note: Your SEPIA server is not using the latest version and some features of the client might not work as expected. Please update the server when possible!';
 	StringsEN.mesh_node_fail = 'Sorry, the Mesh-Node function showed an error.';
 	StringsEN.no_client_support = 'Sorry, but this version of the app does not support the requested action.';
 	StringsEN.cant_execute = "Sorry, but it seems I can't execute the requested action.";
@@ -343,22 +392,30 @@ function sepiaFW_build_strings(){
 	//Service and action texts
 	StringsEN.opening_link = "Opening link.";
 	StringsEN.no_music_playing = "Can you hear something? Probably no music found.";
+	StringsEN.no_media_found = "Found no media to play.";
 	StringsEN.remote_action = "Remote access";
 	StringsEN.remote_action_audio_stream = "I've received an audio stream via remote access. Starting now.";
+	StringsEN.remote_action_media_player = "I've received media via remote access. Starting player.";
+	StringsEN.remote_action_notify = "I have a message for you.";
 	StringsEN.read_article = "Read article";
 	StringsEN.choose_device_for_music = "Choose a device to play your music on";
+	StringsEN.choose_device_for_action = "On which device should the action be executed?";
+	StringsEN.broadcast_to_device_or_chat = "Broadcast to one of your devices or via chat?";
 	StringsEN.relative_precipitation = "relative precipitation";
 	//Link sharing
-	StringsEN.link_join_channel = "Join a chat-channel."
-	StringsEN.link_open_url = "Open a link."
-	StringsEN.link_create_reminder = "Create a reminder."
+	StringsEN.link_join_channel = "Join a chat-channel.";
+	StringsEN.link_open_url = "Open a link.";
+	StringsEN.link_media_search = "Media Search";
+	StringsEN.link_create_reminder = "Create a reminder.";
 	//Offline demo texts
 	StringsEN.demoMode = 'You are in demo-mode! This mode only allows you to change settings (e.g. hostname), check out the tutorial and play with some(!) parts of the UI. To get access to your assistant please log-in first.';
+	StringsEN.setupMode = 'You are in setup-mode! This mode is used to configure the client locally or via remote access. Note that most client features will not work in this mode!';
 	StringsEN.notPossibleInDemoMode = 'Sorry this is not yet possible in demo-mode.';
 	StringsEN.demoModeBtn = 'Demo-Mode';
 	StringsEN.myNewsDemoBtn = 'Open my personal news';
 	StringsEN.myRadioDemoBtn = 'Start my favorite radio station';
 	StringsEN.myToDoDemoBtn = 'Open my to-do list';
+	StringsEN.myMusicPlayerDemoBtn = 'Play music from Ed';
 	//Connection status
 	StringsEN.status_connecting = "Connecting...";
 	StringsEN.status_opened = "Online";
@@ -377,14 +434,24 @@ function sepiaFW_build_strings(){
 	StringsEN.view_home = "Home Screen";
 	StringsEN.view_chat = "Chat";
 	StringsEN.view_extended_results = "SEPIA service info";
+	//My-View sections
+	StringsEN.section_music = "Music";
+	StringsEN.section_time_events = "Events";
+	StringsEN.section_lists = "Lists";
+	StringsEN.section_news_articles = "News";
+	StringsEN.section_news_outlets = "News Channels";
+	StringsEN.section_weather = "Weather";
+	StringsEN.section_links = "Links";
+	StringsEN.section_others = "More";
 
 	//--------------------------------------------------------
 	
 	var StringsLocale = {};
 	
 	//get string
-	StringsLocale.g = function(name){
-		if (SepiaFW.config.appLanguage.toLowerCase() === "de"){
+	StringsLocale.g = function(name, lang){
+		var langCode = (lang || SepiaFW.config.appLanguage).toLowerCase();
+		if (langCode == "de"){
 			return StringsDE[name];
 		}else{
 			return StringsEN[name];
@@ -392,8 +459,9 @@ function sepiaFW_build_strings(){
 	}
 	
 	//write string
-	StringsLocale.w = function(name){
-		if (SepiaFW.config.appLanguage.toLowerCase() === "de"){
+	StringsLocale.w = function(name, lang){
+		var langCode = (lang || SepiaFW.config.appLanguage).toLowerCase();
+		if (langCode == "de"){
 			document.write(StringsDE[name]);
 		}else{
 			document.write(StringsEN[name]);
@@ -416,11 +484,13 @@ function sepiaFW_build_strings(){
 	//-------------- Languages --------------
 
 	//ISO639-1 language codes
+	var supportedAppLanguages = [
+		{value:"de", name:"DE"},
+		{value:"en", name:"EN"},
+		//see below for experimental add
+	];
 	StringsLocale.getSupportedAppLanguages = function(){
-		return [
-			{value:"de", name:"DE"},
-			{value:"en", name:"EN"},
-		];
+		return supportedAppLanguages;
 	}
 	//BCP47 language-REGION codes
 	StringsLocale.getExperimentalAsrLanguages = function(){
@@ -429,10 +499,13 @@ function sepiaFW_build_strings(){
 			{value:"en-AU", name:"Australia (en-AU)"},
 			{value:"ar-XA", name:"Arabia (ar-XA)"},
 			{value:"es-AR", name:"Argentina (es-AR)"},
+			{value:"nl-BE", name:"Belgium (nl-BE)"},
 			{value:"pt-BR", name:"Brasil (pt-BR)"},
 			{value:"en-CA", name:"Canada (en-CA)"},
+			{value:"fr-CA", name:"Canada (fr-CA)"},
 			{value:"zh-CN", name:"China (zh-CN)"},
 			{value:"es-CO", name:"Colombia (es-CO)"},
+			{value:"da-DK", name:"Denmark (da-DK)"},
 			{value:"fr-FR", name:"France (fr-FR)"},
 			{value:"de-DE", name:"Germany (de-DE)"},
 			{value:"el-GR", name:"Greece (el-GR)"},
@@ -443,6 +516,7 @@ function sepiaFW_build_strings(){
 			{value:"es-MX", name:"Mexico (es-MX)"},
 			{value:"nl-NL", name:"Netherlands (nl-NL)"},
 			{value:"en-NZ", name:"New Zealand (en-NZ)"},
+			{value:"no-NO", name:"Norway (no-NO)"},
 			{value:"pl-PL", name:"Poland (pl-PL)"},
 			{value:"pt-PT", name:"Portugal (pt-PT)"},
 			{value:"ru-RU", name:"Russia (ru-RU)"},
@@ -454,6 +528,39 @@ function sepiaFW_build_strings(){
 			{value:"en-GB", name:"United Kingdom (en-GB)"},
 			{value:"en-US", name:"USA (en-US)"}
 		];
+	}
+	//Add experimental app languages
+	function addExperimentalAppLanguages(){
+		supportedAppLanguages.push({value: "---", name: "--Dev. Only--", disabled: true});
+		StringsLocale.getExperimentalAsrLanguages().forEach(function(langObj){
+			if (langObj.value && !langObj.disabled){
+				var shortCode = langObj.value.split("-")[0];
+				if (!supportedAppLanguages.find(function(lo){ return lo.value == shortCode; })){
+					supportedAppLanguages.push({value: shortCode, name: (shortCode.toUpperCase() + " (exp.)"), experimental: true});
+				}
+			}
+		});
+	}
+	addExperimentalAppLanguages();
+	//Map short to default long
+	StringsLocale.getDefaultBcp47LanguageCode = function(langCodeShort){
+		if (langCodeShort && langCodeShort.length === 2){
+			langCodeShort = langCodeShort.toLowerCase();
+			var mappedCode = defaultShortLangCodeToLongMap[langCodeShort];
+			if (!mappedCode){
+				var firstExpCode = StringsLocale.getExperimentalAsrLanguages().find(function(lc){ return lc.value.indexOf(langCodeShort) == 0; });
+				mappedCode = firstExpCode? firstExpCode.value : "";
+			}
+			return mappedCode;
+		}
+	}
+	var defaultShortLangCodeToLongMap = {
+		"de": "de-DE",
+		"en": "en-US",
+		"es": "es-ES",
+		"fr": "fr-FR",
+		"nl": "nl-BE",
+		"pt": "pt-PT"
 	}
 	
 	return StringsLocale;

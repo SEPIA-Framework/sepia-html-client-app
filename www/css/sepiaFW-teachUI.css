@@ -130,10 +130,24 @@
 	display: none;
 }
 
+#sepiaFW-teachUI-manager #sepiaFW-teachUI-cmd-search {
+	flex: 1 1 auto;
+    height: 40px;
+}
+#sepiaFW-teachUI-manager #sepiaFW-teachUI-cmd-search-btn {
+	margin: 0;
+    flex: 0 0 52px;
+    height: 40px;
+    border-left: 2px solid #5f5f5f;
+}
+
 #sepiaFW-teachUI-manager .sepiaFW-command-cards-container {
 	display: flex;
 	flex-direction: column;
 	padding: 0 4px;
+}
+#sepiaFW-teachUI-manager .sepiaFW-command-cards-container h3 {
+	margin: 12px 6px;
 }
 #sepiaFW-teachUI-manager .sepiaFW-command-card {
 	flex: 1 1 auto;
@@ -164,7 +178,9 @@
 }
 #sepiaFW-teachUI-manager .sepiaFW-command-card span {
 	flex: 0 0 auto;
-	user-select: none;
+	-webkit-user-select: none;
+  	-ms-user-select: none;
+  	user-select: none;
 }
 
 .sepiaFW-teachUI-menu-group ul {

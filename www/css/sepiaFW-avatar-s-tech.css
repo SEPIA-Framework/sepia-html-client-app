@@ -1,0 +1,102 @@
+#sepiaFW-alwaysOn-avatar {
+    width: 320px;
+    height: 320px;
+    left: calc(50% - 160px);
+    top: calc(50% - 160px);
+    background: unset;
+}
+#sepiaFW-alwaysOn-avatar-touch-area {
+    left: 10%;
+    top: 10%;
+    width: 80%;
+    height: 80%;
+    background: url(../img/avatars/SEPIA_tech.svg);
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 105%;
+    /*transition: transform .1s;*/
+    animation: avatar-s-tech-rotate 60.0s infinite linear;
+    animation-delay: 8s;
+}
+
+#sepiaFW-alwaysOn-stt-out {
+    color: #fff;
+}
+#sepiaFW-alwaysOn-tts-out {
+    color: #3285ff;
+}
+
+#sepiaFW-alwaysOn-avatar .avatar-activity {
+    top: calc(43% + 6px);
+    left: calc(50% - 16px);
+    width: 32px;
+    height: 32px;
+    border: 2px solid rgba(100, 100, 100, 0.25);
+    background: #ceff1a;
+    z-index: 100;
+    pointer-events: none;
+    transition: top .5s, left .5s, width .5s, height .5s, transform .5s;
+}
+#sepiaFW-alwaysOn-avatar.sleep .avatar-activity {
+    animation: avatar-s-tech-sleep 80s infinite ease-in;
+}
+
+#sepiaFW-alwaysOn-avatar .avatar-activity.listening {
+    background: #f20710;
+}
+#sepiaFW-alwaysOn-avatar .avatar-activity.speaking {
+	background: #3285ff;
+}
+#sepiaFW-alwaysOn-avatar .avatar-activity.waiting {
+	background: #4ec48f;
+}
+#sepiaFW-alwaysOn-avatar .avatar-activity.loading {
+    background: #d9d9d9;
+}
+#sepiaFW-alwaysOn-avatar .avatar-activity.listening,
+#sepiaFW-alwaysOn-avatar .avatar-activity.speaking,
+#sepiaFW-alwaysOn-avatar .avatar-activity.waiting,
+#sepiaFW-alwaysOn-avatar .avatar-activity.loading {
+    /*
+    top: calc(43% + 2px);
+    left: calc(50% - 20px);
+    width: 40px;
+    height: 40px;
+    */
+    transform: scale(1.25);
+}
+
+#sepiaFW-alwaysOn-avatar .avatar-eye {
+    display: none;
+}
+#sepiaFW-alwaysOn-avatar .avatar-mouth {
+    display: none;
+}
+
+/* --- tiny style --- */
+
+.sepiaFW-tiny-app #sepiaFW-alwaysOn-avatar {
+    width: 320px;
+    height: 320px;
+    left: calc(50% - 160px);
+    top: calc(50% - 160px);
+    transform: scale3d(0.60, 0.60, 0.60);
+}
+
+/* --- animations --- */
+
+@keyframes avatar-s-tech-rotate {
+	0%   { transform: rotate(0deg); }
+	100% { transform: rotate(-360deg); }
+}
+@keyframes avatar-s-tech-sleep {
+    0% {}
+    25% { transform: scale(1.0); }
+    25.6% { transform: scale(1.25); }
+    29% { transform: scale(1.25); }
+    30% { transform: scale(1.0); }
+    36% { transform: scale(1.0); }
+    36.6% { transform: scale(0.5); }
+    39.4% { transform: scale(0.5); }
+    40% { transform: scale(1.0); }
+}

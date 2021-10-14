@@ -32,6 +32,9 @@
 .sepia-icon-font.s48 {
 	font-size: 48px;
 }
+.sepia-icon-font.md-btn {
+	font-size: 22px;
+}
 .sepia-icon-font span {
 	padding: 0 !important;
   margin: 0 !important;

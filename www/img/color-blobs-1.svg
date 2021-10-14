@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="900" viewBox="0 0 900 900" fill="none" filter="url(#filter1)">
+    <g opacity="0.56">
+        <rect x="330" y="420" width="225" height="225" rx="113" fill="#8A3FFC"/>
+    </g>
+    <g opacity="0.56">
+        <rect x="470" y="200" width="200" height="200" rx="100" fill="#FF5ABD"/>
+    </g>
+    <g opacity="0.56">
+        <rect x="220" y="200" width="200" height="200" rx="100" fill="#23DCF5"/>
+    </g>
+    <defs>
+		<filter id="filter1" x="0" y="0" width="900" height="900" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+            <feGaussianBlur stdDeviation="125"/>
+        </filter>
+    </defs>
+</svg>

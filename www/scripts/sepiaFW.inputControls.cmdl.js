@@ -69,6 +69,11 @@ function sepiaFW_build_input_controls_cmdl() {
             }else{
                 document.removeEventListener('sepia_alarm_event', alarmBroadcaster);
             }
+            if (Cmdl.broadcasters.info){
+                document.addEventListener('sepia_info_event', commonInfoBroadcaster);
+            }else{
+                document.removeEventListener('sepia_info_event', commonInfoBroadcaster);
+            }
 
             //say hello
             broadcastEvent("event", {
@@ -87,6 +92,7 @@ function sepiaFW_build_input_controls_cmdl() {
             document.removeEventListener('sepia_wake_word', wakeWordBroadcaster);
             document.removeEventListener('sepia_audio_player_event', audioPlayerBroadcaster);
             document.removeEventListener('sepia_alarm_event', alarmBroadcaster);
+            document.removeEventListener('sepia_info_event', commonInfoBroadcaster);
         }
     }
 
@@ -99,7 +105,8 @@ function sepiaFW_build_input_controls_cmdl() {
         speech: true,
         wakeWord: true,
         audioPlayer: true,
-        alarm: true
+        alarm: true,
+        info: false
     };
     function stateBroadcaster(ev){
         if (Cmdl.broadcasters.state && ev.detail && (ev.detail.state || ev.detail.connection)){
@@ -162,6 +169,11 @@ function sepiaFW_build_input_controls_cmdl() {
                 d.info = ev.detail.info;
             }
             broadcastEvent("sepia-alarm-event", d);
+        }
+    }
+    function commonInfoBroadcaster(ev){
+        if (Cmdl.broadcasters.info && ev.detail){
+            broadcastEvent("sepia-info-event", ev.detail);
         }
     }
 
@@ -275,6 +287,17 @@ function sepiaFW_build_input_controls_cmdl() {
         broadcastEvent("sepia-wake-word", {
             state: (SepiaFW.wakeTriggers.isListening()? "active" : "inactive"),
             keywords: SepiaFW.wakeTriggers.getWakeWords()
+        });
+    }
+
+    Cmdl.get.mediadevices = function(){
+        SepiaFW.audio.refreshAvailableMediaDevices(function(mediaDevicesAvailable){
+            broadcastEvent("sepia-info-event", { type: "audio", info: { 
+                mediaDevicesAvailable: { input: Object.keys(mediaDevicesAvailable.in), output: Object.keys(mediaDevicesAvailable.out) },
+                mediaDevicesSelected: SepiaFW.audio.mediaDevicesSelected
+            }});
+        }, function(err){
+            broadcastEvent("sepia-info-event", { type: "audio", error: { message: err.message, name: err.name }});
         });
     }
 

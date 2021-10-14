@@ -1,0 +1,21 @@
+<svg xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:svg="http://www.w3.org/2000/svg" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" viewBox="0 0 60.854165 89.429176" height="338.00003" width="230" id="svg10" style="&#10;">
+  <metadata id="metadata41">
+    <rdf:RDF>
+      <cc:Work rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
+        <dc:title/>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g style="display:inline;fill:none" transform="translate(-22.489583,-133.48748)" id="layer1">
+    <circle r="22.754166" cx="52.916668" cy="185.87498" id="path4528-4" style="display:inline;opacity:1;fill:none;fill-opacity:1;fill-rule:nonzero;stroke: #1f3548;stroke-width:3.17499998;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;"/>
+  </g>
+  <g transform="translate(-22.489583,-48.154165)" style="display:inline;fill:#333333;fill-opacity:1" id="layer5">
+    <path id="path815" d="M 83.343749,137.58334 52.916666,112.44792 22.489583,137.58334 42.333333,95.250005 52.916666,48.154165 63.499999,95.250005 Z" style="opacity:1;fill: #1d2e3e;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:1.26499999;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;"/>
+  </g>
+  <g transform="translate(-22.489583,-48.154165)" style="display:inline" id="layer3">
+    <circle r="7.9375" cy="100.54166" cx="52.916668" id="path4528-5" style="display:inline;opacity:1;fill: #1f3548;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:1.2650001;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;"/>
+  </g>
+  <path id="path5544" style="fill:none;stroke: #192938;stroke-width:0.26458332;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;paint-order:normal;" d="m 30.407586,60.356437 0.0195,3.937317 m 0.0047,-19.971593 -0.0047,-43.96387731 m 0.04262,44.09028931 -0.02528,-0.07585 c 4.484999,0.0371 8.086064,3.76835 8.079412,8.104606 -0.0067,4.336255 -3.631169,7.854864 -8.116261,7.879106"/>
+</svg>

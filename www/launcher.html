@@ -32,105 +32,107 @@
 	<meta property="og:locale" content="en_GB"/>
 	<meta property="og:locale:alternate" content="en_US"/>
 	<meta property="og:locale:alternate" content="de_DE"/>
+	<style>
+		* {
+			box-sizing: border-box;
+			-webkit-tap-highlight-color: transparent;
+		}
+		input:focus,
+		select:focus,
+		textarea:focus,
+		button:focus {
+			outline: none;
+		}
+		::-moz-focus-inner {
+			border:0;
+		}
+		html {
+			font-family: sans-serif;
+			width: 100%;
+			height: 100%;
+			margin: 0;
+			padding: 0;
+			background-color: #000;
+			color: #fff;
+		}
+		body {
+			width: 100%;
+			height: 100%;
+			margin: 0;
+			padding: 0;
+			position: relative;
+			text-align: center;
+		}
+		section {
+			width: 100%;
+			max-width: 360px;
+			text-align: center;
+			padding: 16px;
+			margin: auto;
+		}
+		input[type="text"] {
+			-moz-appearance: none;
+			-webkit-appearance: none;
+			appearance: none;
+			background: transparent;
+			color: inherit;
+			border: 0;
+			border-bottom: 1px solid;
+			text-align: center;
+			padding: 5px;
+			margin-bottom: 5px;
+			font-size: 14px;
+			width: 100%;
+			max-width: 100%;
+		}
+		.buttonBlock {
+			display: flex;
+			flex-direction: column;
+			justify-content: center;
+			align-items: stretch;
+		}
+		.buttonBlock button {
+			border: 0;
+			border-radius: 3px;
+			background: #beff1a;
+			color: #222;
+			font-size: 16px;
+			padding: 5px 12px;
+			margin: 4px 2px;
+		}
+		.buttonBlock button:hover {
+			color: #000;
+			background: #fff;
+		}
+		.buttonBlock select,	
+		.buttonBlock span {
+			padding: 4px 8px;
+		}
+		.buttonBlock label {
+			padding: 8px 8px;
+		}
+		.buttonBlock em {
+			color: #bef11a;
+		}
+		#sepia-load-overlay {
+			display: flex; 
+			justify-content: center; 
+			align-items: center; 
+			width: 100%; 
+			height: 100%; 
+			min-height: 180px; 
+			position: absolute; 
+			top: 0; 
+			left: 0; 
+			z-index: 100;
+			background: #000;
+		}
+		#sepia-load-overlay.faded {
+			transition: opacity 1.0s;
+			opacity: 0;
+		}
+	</style>
 </head>
-<style>
-	* {
-		box-sizing: border-box;
-		-webkit-tap-highlight-color: transparent;
-	}
-	input:focus,
-	select:focus,
-	textarea:focus,
-	button:focus {
-		outline: none;
-	}
-	::-moz-focus-inner {
-		border:0;
-	}
-	html {
-		font-family: sans-serif;
-		width: 100%;
-		height: 100%;
-		margin: 0;
-		padding: 0;
-		background-color: #000;
-		color: #fff;
-	}
-	body {
-		width: 100%;
-		height: 100%;
-		margin: 0;
-		padding: 0;
-		position: relative;
-		text-align: center;
-	}
-	section {
-		width: 100%;
-		max-width: 300px;
-		text-align: center;
-		padding: 16px;
-		margin: auto;
-	}
-	input[type="text"] {
-		-moz-appearance: none;
-		-webkit-appearance: none;
-		appearance: none;
-		background: transparent;
-		color: inherit;
-		border: 0;
-		border-bottom: 1px solid;
-		text-align: center;
-		padding: 5px;
-		margin-bottom: 5px;
-		font-size: 14px;
-	}
-	.buttonBlock {
-		display: flex;
-		flex-direction: column;
-		justify-content: center;
-		align-items: stretch;
-	}
-	.buttonBlock button {
-		border: 0;
-		border-radius: 3px;
-		background: #beff1a;
-		color: #222;
-		font-size: 16px;
-		padding: 5px 12px;
-		margin: 4px 2px;
-	}
-	.buttonBlock button:hover {
-		color: #000;
-		background: #fff;
-	}
-	.buttonBlock select,	
-	.buttonBlock span {
-		padding: 4px 8px;
-	}
-	.buttonBlock label {
-		padding: 8px 8px;
-	}
-	.buttonBlock em {
-		color: #bef11a;
-	}
-	#sepia-load-overlay {
-		display: flex; 
-		justify-content: center; 
-		align-items: center; 
-		width: 100%; 
-		height: 100%; 
-		min-height: 180px; 
-		position: absolute; 
-		top: 0; 
-		left: 0; 
-		z-index: 100;
-		background: #000;
-	}
-	#sepia-load-overlay.faded {
-		transition: opacity 1.0s;
-		opacity: 0;
-	}
-</style>
 <body >
 	<!-- Main -->
 	<div id="sepia-load-overlay">
@@ -149,6 +151,9 @@
 				<input id="sepia-url-param-app" class="sepia-storable" type="checkbox" name="isApp" value="isApp=true">isApp<br><em>Modify client ID and token lifespan</em>
 			</label>
 			<label>
+				<input id="sepia-url-param-pwa" class="sepia-storable" type="checkbox" name="pwa" value="pwa=true">pwa<br><em>Load features like service worker for progressive web aps (PWA)</em>
+			</label>
+			<label>
 				<input id="sepia-open-new-win" class="sepia-storable" type="checkbox" name="newWindow" checked>Open in new window<br><em>Create 480x800 (or max size) pop-up window</em>
 			</label>
 			<label style="display:none;">
@@ -156,20 +161,28 @@
 			</label>
 			<label>
 				<span>Environment: </span>
-				<br><input id="sepia-custom-environment" class="sepia-storable" type="text" placeholder="default">
+				<input id="sepia-custom-environment" class="sepia-storable" type="text" placeholder="default">
 				<br><em>Set custom environment name (used to detect client abilities)</em>
 			</label>
 			<label>
 				<span>View: </span><select id="sepia-url-param-view" class="sepia-storable">
 					<option value="">Default (Chat View)</option>
+					<option value="_custom_">Custom</option>
 					<option value="view=ao">Always-On Mode</option>
 					<option value="view=teachui">Teach-UI</option>
+					<option value="view=tutorial">Tutorial</option>
 				</select>
+			</label>
+			<label>
+				<span>Custom View (path): </span>
+				<input id="sepia-url-param-view-custom" class="sepia-storable" type="text" placeholder="<assist_server>/widgets/clock.html">
+				<br><em>Choose a custom view you've created for SEPIA</em>
 			</label>
 		</div>
 	</section>
 	<section>
 		<div class='buttonBlock'>
+			<button id="restore-btn">Retore Defaults</button>
 			<button id="launch-btn">Launch App</button>
 		</div>
 	</section>
@@ -178,7 +191,9 @@
 function ready(){
 	var isTiny = document.getElementById('sepia-url-param-tiny');
 	var isApp = document.getElementById('sepia-url-param-app');
+	var pwa = document.getElementById('sepia-url-param-pwa');
 	var view = document.getElementById('sepia-url-param-view');
+	var customView = document.getElementById('sepia-url-param-view-custom');
 	var newWindow = document.getElementById('sepia-open-new-win');
 	var customEnv = document.getElementById('sepia-custom-environment');
 	var preLoadTts = document.getElementById('sepia-preload-tts');
@@ -188,38 +203,85 @@ function ready(){
 	}else{
 		preLoadTts.checked = false;
 	}
-	if ('localStorage' in window){
-		isTiny.addEventListener("change", function(){
-			window.localStorage.setItem('isTiny', isTiny.checked);
-		});
-		if (window.localStorage.getItem('isTiny') == "true")		isTiny.checked = true;
-		
-		isApp.addEventListener("change", function(){
-			window.localStorage.setItem('isApp', isApp.checked);
-		});
-		if (window.localStorage.getItem('isApp') == "true")		isApp.checked = true;
-		
-		view.addEventListener("change", function(){
-			window.localStorage.setItem('view', view.value);
-		});
-		var viewMem = window.localStorage.getItem('view');
-		if (viewMem)	view.value = viewMem;
-		
-		newWindow.addEventListener("change", function(){
-			window.localStorage.setItem('newWindow', newWindow.checked);
-		});
-		if (window.localStorage.getItem('newWindow') == "false")	newWindow.checked = false;
-		
-		customEnv.addEventListener("change", function(){
-			window.localStorage.setItem('customEnv', customEnv.value);
-		});
-		customEnv.value = window.localStorage.getItem('customEnv') || "";
-		
-		preLoadTts.addEventListener("change", function(){
-			window.localStorage.setItem('preLoadTts', preLoadTts.checked);
-		});
-		if (ttsSupported && window.localStorage.getItem('preLoadTts') == "false")	preLoadTts.checked = false;
+	
+	var launcherStorage = {};
+	function loadStorage(){
+		if ('localStorage' in window){
+			var storageString = window.localStorage.getItem("sepia-launcher");
+			if (storageString){
+				try {
+					launcherStorage = JSON.parse(storageString);
+				}catch(err){
+					launcherStorage = {};
+				}
+			}
+		}
 	}
+	function clearStorage(){
+		if ('localStorage' in window){
+			window.localStorage.removeItem("sepia-launcher");
+		}
+		launcherStorage = {};
+	}
+	
+	function storeValue(key, val){
+		launcherStorage[key] = val;
+		if ('localStorage' in window){
+			window.localStorage.setItem("sepia-launcher", JSON.stringify(launcherStorage));
+		}
+	}
+	function loadValue(key){
+		return launcherStorage[key];
+	}
+		
+	isTiny.addEventListener("change", function(){
+		storeValue('isTiny', isTiny.checked);
+	});
+	isApp.addEventListener("change", function(){
+		storeValue('isApp', isApp.checked);
+	});
+	pwa.addEventListener("change", function(){
+		storeValue('pwa', pwa.checked);
+	});
+	view.addEventListener("change", function(){
+		storeValue('view', view.value);
+	});
+	customView.addEventListener("change", function(){
+		storeValue('customView', customView.value);
+		if (customView.value){
+			view.value = "_custom_";
+		}else{
+			view.value = "";
+		}
+	});
+	newWindow.addEventListener("change", function(){
+		storeValue('newWindow', newWindow.checked);
+	});
+	customEnv.addEventListener("change", function(){
+		storeValue('customEnv', customEnv.value);
+	});
+	preLoadTts.addEventListener("change", function(){
+		storeValue('preLoadTts', preLoadTts.checked);
+	});
+		
+	function refreshUi(){
+		if (loadValue('isTiny') == true) isTiny.checked = true;
+		if (loadValue('isApp') == true) isApp.checked = true;
+		if (loadValue('pwa') == true) pwa.checked = true;
+		
+		view.value = loadValue('view') || "";
+		customView.value = loadValue('customView') || "";
+		if (customView.value){
+			view.value = "_custom_";
+		}
+		
+		customEnv.value = loadValue('customEnv') || "";
+		
+		if (loadValue('newWindow') == false) newWindow.checked = false;
+		
+		if (ttsSupported && loadValue('preLoadTts') == false) preLoadTts.checked = false;
+	}
+	
 	function launch(){
 		var url = location.href.replace(/launcher\.html/,"index.html?ref=launcher");
 		url = url.replace(/(&|\?)autolaunch=true/, "");
@@ -229,7 +291,12 @@ function ready(){
 		if (isApp.checked){
 			url += ("&" + isApp.value);
 		}
-		if (view.value){
+		if (pwa.checked){
+			url += ("&" + pwa.value);
+		}
+		if (view.value == "_custom_" && customView.value){
+			url += ("&view=" + encodeURIComponent(customView.value));
+		}else if (view.value && view.value != "_custom_"){
 			url += ("&" + view.value);
 		}
 		if (customEnv.value){
@@ -243,12 +310,22 @@ function ready(){
 			location.href = url;
 		}
 	}
+	
+	loadStorage();
+	console.log("launcherStorage", launcherStorage);
+	refreshUi();
+	
 	//TTS
 	if (preLoadTts){
 		var voices = speechSynthesis.getVoices();
 	}
 	document.getElementById('launch-btn').addEventListener("click", function(){
 		launch();
+	});
+	document.getElementById('restore-btn').addEventListener("click", function(){
+		clearStorage();
+		//refreshUi();	(does not yet properly restore defaults)
+		location.href = location.href.replace(/(&|\?)autolaunch=true/, "");
 	});
 	if (location.href.indexOf('autolaunch=true') >= 0){
 		launch();

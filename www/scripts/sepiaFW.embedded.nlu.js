@@ -44,14 +44,28 @@ function sepiaFW_build_embedded_nlu(){
 		}else if (dataType == "openText"){
 			//Mixed languages:
 
+			//URLs
+			if (text.match(/(^http(s|):)/i)){
+				getOpenLinkCmd(nluResult, text);
+
+			//Chat with custom action or card
+			}else if (text.match(/^(action|card) /i)){
+				getActionOrCardCmd(nluResult, text);
+			}else if (text.match(/^(custom view|my widget)(:|) /i)){
+				getActionOrCardCmd(nluResult, text.replace(/^(custom view|my widget)(:|) /i, "action ").toLowerCase());
+
 			//Lists
-			if (text.match(/(list|todo)/i)){
+			}else if (text.match(/(list|todo)/i)){
 				getListCmd(nluResult, text);
 			
 			//News
 			}else if (text.match(/(news|nachrichten)/i)){
 				getNewsCmd(nluResult, text);
 			
+			//Media Player (music)
+			}else if (text.match(/(music (by|of|from)|musik von)/i)){
+				getMusicCmd(nluResult, text);
+
 			//Radio
 			}else if (text.match(/(radio|music|musik)/i)){
 				getRadioCmd(nluResult, text);
@@ -65,14 +79,10 @@ function sepiaFW_build_embedded_nlu(){
 				getWeatherCmd(nluResult, text);
 			
 			//Websearch
-			}else if (text.match(/(search|find|such(e|)|finde|link|^http(s|):.*)\b/i)){
+			}else if (text.match(/(search|find|such(e|)|finde|link)\b/i)){
 				getOpenLinkCmd(nluResult, text);
-
-			//Chat with custom action or card
-			}else if (text.match(/^(action|card) /i)){
-				getActionOrCardCmd(nluResult, text);
 			}
-
+			
 			return nluResult;
 		}else{
 			SepiaFW.debug.info("Embedded.Nlu - offline NLU cannot handle data-type: " + dataType);
@@ -153,6 +163,18 @@ function sepiaFW_build_embedded_nlu(){
 		return nluResult;
 	}
 
+	//Music
+	function getMusicCmd(nluResult, inputText){
+		nluResult.result = "success";
+		nluResult.context = "music";
+		nluResult.parameters = {
+			"music_service": "embedded",
+			"artist": "Ed"
+		};
+		nluResult.command = "music";
+		return nluResult;
+	}
+
 	//Radio
 	function getRadioCmd(nluResult, inputText){
 		nluResult.result = "success";
@@ -201,7 +223,7 @@ function sepiaFW_build_embedded_nlu(){
 		nluResult.context = "chat";
 		nluResult.parameters = {
 			"data": {
-				"type": inputText.match(/^action|^card/)[0],
+				"type": inputText.toLowerCase().match(/^action|^card/)[0],
 				"test": inputText.match(/ .*/)[0].trim()
 			}
 		};

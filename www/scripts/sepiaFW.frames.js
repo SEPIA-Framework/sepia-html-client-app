@@ -34,6 +34,9 @@ function sepiaFW_build_frames(){
 		}else{
 			resPageUrl = pageUrl;
 		}
+		if (resPageUrl && SepiaFW.client.isDemoMode()){
+			resPageUrl = resPageUrl.replace("<assist_server>", "xtensions/custom-data");
+		}
 		resPageUrl = SepiaFW.config.replacePathTagWithActualPath(resPageUrl);
 		return resPageUrl;
 	}
@@ -46,22 +49,29 @@ function sepiaFW_build_frames(){
 	
 	Frames.open = function(info){
 		var isThisFrameActive = (isActive == info.pageUrl);
-
+		
 		//callbacks?
-		onFinishSetup = info.onFinishSetup;
+		if (info.autoFillFrameEvents == undefined) info.autoFillFrameEvents = true;		//make this default true
 		if (isThisFrameActive){
-			onOpen = getFunctionOrScopeEntry(info.onOpen);
-			onClose = getFunctionOrScopeEntry(info.onClose);
-			onFinishSetup = getFunctionOrScopeEntry(info.onFinishSetup);
-			onMessageHandler = getFunctionOrScopeEntry(info.onMessageHandler);
-			onMissedMessageHandler = getFunctionOrScopeEntry(info.onMissedMessageHandler);
-			onSpeechToTextInputHandler = getFunctionOrScopeEntry(info.onSpeechToTextInputHandler);
-			onChatOutputHandler = getFunctionOrScopeEntry(info.onChatOutputHandler);		//NOTE: difference to 'messageHandler' is that this will not block the normal queue, it just delivers the text
+			onOpen = getFunctionOrScopeEntry(info.onOpen, "onOpen", info.autoFillFrameEvents);
+			onClose = getFunctionOrScopeEntry(info.onClose, "onClose", info.autoFillFrameEvents);
+			onFinishSetup = getFunctionOrScopeEntry(info.onFinishSetup, "onFinishSetup", info.autoFillFrameEvents);
+			onMessageHandler = getFunctionOrScopeEntry(info.onMessageHandler, "onMessageHandler", info.autoFillFrameEvents);
+			onMissedMessageHandler = getFunctionOrScopeEntry(info.onMissedMessageHandler, "onMissedMessageHandler", info.autoFillFrameEvents);
+			onSpeechToTextInputHandler = getFunctionOrScopeEntry(info.onSpeechToTextInputHandler, "onSpeechToTextInputHandler", info.autoFillFrameEvents);
+			onChatOutputHandler = getFunctionOrScopeEntry(info.onChatOutputHandler, "onChatOutputHandler", info.autoFillFrameEvents);		
+			//NOTE: difference between 'onChatOutputHandler' and 'messageHandler' is that it will not block the normal queue, it just delivers the text
 		}else{
 			Frames.currentScope = {};
 		}
 		
-		//theme:
+		//theme (part 1 - frame):
+		//-get theme from scope?
+		if (info.loadFrameTheme == undefined) info.loadFrameTheme = true;				//make this default true
+		if (!info.theme && info.loadFrameTheme){
+			if (Frames.currentScope.theme) info.theme = Frames.currentScope.theme;
+			else info.theme = SepiaFW.ui.getSkinStyle();
+		}
 		//-clean up old theme first
 		$('#sepiaFW-frames-view').removeClass('dark');
 		$('.sepiaFW-frames-page').removeClass('dark');
@@ -69,20 +79,28 @@ function sepiaFW_build_frames(){
 		$('html').removeClass('dark-frame');
 		//-then add new
 		if (info.theme){
+			//basic frame theme: light, dark,
+			//add: flat (removes frame page inner padding)
+			//screen: dark_full (will mod. frame as well if not set to light)
 			if (info.theme.indexOf("dark") >= 0){
 				$('#sepiaFW-frames-view').addClass('dark');
 				$('.sepiaFW-frames-page').addClass('dark');
 			}
+			/*
 			if (info.theme.indexOf("dark_full") >= 0){
 				$('html').addClass('dark-frame');
 			}
+			*/
 			if (info.theme.indexOf("flat") >= 0){
 				$('.sepiaFW-frames-page').addClass('flat');
 			}
 		}
+		$('#sepiaFW-main-window')
+			.addClass('sepiaFW-frame-mode')
+			.removeClass('sepiaFW-skin-mod');
 
 		if (!isThisFrameActive){
-			//load frame and make active
+			//SETUP: load frame and make active
 			Frames.setup(info, function(){
 				Frames.open(info);
 			});
@@ -90,19 +108,38 @@ function sepiaFW_build_frames(){
 			return;
 		
 		}else{
-			//open frame
+			//OPEN frame
 			$('#sepiaFW-frames-view').slideDown(300, function(){
 				Frames.uic.refresh();
 			});
 			Frames.isOpen = true;
 			SepiaFW.ui.switchSwipeBars('frames');
 		}
+		//theme (part 2 - window)
+		if (info.theme){
+			if (info.theme.indexOf("dark_full") >= 0){
+				$('html').addClass('dark-frame');
+			}
+		}
+
 		//on open
 		if(onOpen) onOpen();
+		
+		//trigger page-change to refresh content
+		if (Frames.currentScope && (Frames.currentScope.onFramePageChange || Frames.currentScope.onPaneChange)){
+			var currentPane = SepiaFW.frames.uic.getCurrentPane();
+			var triggeredByOpenEvent = true;	//NOTE: this can be used to distinguish real "change" events from "open" events
+			//NOTE: we count pages: 1, 2, 3, ... (panes are 0, 1, ...)
+			if (Frames.currentScope.onFramePageChange) Frames.currentScope.onFramePageChange(currentPane + 1, triggeredByOpenEvent);
+			else if (Frames.currentScope.onPaneChange) Frames.currentScope.onPaneChange(currentPane, paneHistory, triggeredByOpenEvent);
+		}
 	}
 	Frames.close = function(){
 		//design resets (global changes)
 		$('html').removeClass('dark-frame');
+		$('#sepiaFW-main-window')
+			.removeClass('sepiaFW-frame-mode')
+			.addClass('sepiaFW-skin-mod');
 		//close
 		$('#sepiaFW-frames-view').slideUp(300);
 		Frames.isOpen = false;
@@ -122,23 +159,22 @@ function sepiaFW_build_frames(){
 		
 	Frames.setup = function(info, finishCallback){
 		//get HTML - is there a language dependent version?
-		var framePage = Frames.getLocalOrDefaultPage(info.pageUrl, SepiaFW.config.appLanguage);
-		var isRemote = (framePage.indexOf("http:") == 0) || (framePage.indexOf("https:") == 0) || (framePage.indexOf("ftp:") == 0);
-		if (isRemote){
-			var isSameOrigin = SepiaFW.tools.isSameOrigin(framePage);
-			var isSepiaFileHost = SepiaFW.config.urlIsSepiaFileHost(framePage);
-			if (isSameOrigin || isSepiaFileHost) isRemote = false;
-		}
+		var framePage = Frames.getLocalOrDefaultPage(info.pageUrl, SepiaFW.config.appLanguage).trim();
+		var isValidLocalURL = SepiaFW.tools.isRelativeFileUrl(framePage, "html");
+		var isAcceptableFileOrigin = (framePage.indexOf("file://") == 0);	//any other condition? - This is important for Android (Cordova)
+		var isTrustedRemoteUrl = SepiaFW.tools.isRemoteFileUrl(framePage, "html") 
+			&& (SepiaFW.tools.isSameOrigin(framePage) || SepiaFW.config.urlIsSepiaFileHost(framePage));
+		var isTrusted = isValidLocalURL || isAcceptableFileOrigin || isTrustedRemoteUrl;
 
 		//$.get(framePage, function(frameHtml){
         SepiaFW.files.fetch(framePage, function(frameHtml){
-			if (isRemote){
-				SepiaFW.debug.error("WARNING: Frame page has remote location and can contain harmful code. It has been BLOCKED! - URL: " + framePage);
-				SepiaFW.ui.showPopup("<h3 style='color:#f00; width:100%; text-align: center;'>Warning</h3>" 
-					+ "<p>SEPIA was asked to open a remote URL in a custom view (frame). The request has been blocked due to security concerns.</p>" 
-					+ "<p>URL: " + framePage + "</p>"
-					+ "<p>If you want to use this view please ask an admin to move it to a secure location (e.g. the SEPIA file server).</p>"
-				);
+			if (!isTrusted){
+				SepiaFW.debug.error("WARNING: Frame page has remote location and was BLOCKED due to security restrictions! - URL: " + framePage);
+				SepiaFW.ui.showSafeWarningPopup("Warning", [
+					"SEPIA was asked to open a remote URL in a custom view (frame). The request has been blocked due to security restrictions.",
+					"If you want to use this view please ask an admin to move it to a secure location (e.g. the SEPIA file server).",
+					"URL:"
+				], framePage);
 				Frames.close();
 				return;
 			}else{
@@ -162,15 +198,19 @@ function sepiaFW_build_frames(){
 			
 			//frame carousel
 			Frames.uic = new SepiaFW.ui.Carousel('#sepiaFW-frame-carousel', '', '#sepiaFW-swipeBar-frames-left', '#sepiaFW-swipeBar-frames-right', '',
-				function(currentPane){
+				function(currentPane, paneHistory){
 					$("#sepiaFW-frames-nav-bar-page-indicator").find('div').removeClass("active");
 					$("#sepiaFW-frames-nav-bar-page-indicator > div:nth-child(" + (currentPane+1) + ")").addClass('active').fadeTo(350, 1.0).fadeTo(350, 0.0);
-					if (currentPane == 1){
-						//page 1 active
-					}else if (currentPane == 0){
-						//page 2 active
+					if (Frames.currentScope && (Frames.currentScope.onFramePageChange || Frames.currentScope.onPaneChange)){
+						if (paneHistory.length < 2 || paneHistory[paneHistory.length - 2] != currentPane){
+							var triggeredByOpenEvent = false;
+							//NOTE: we count pages: 1, 2, 3, ... (panes are 0, 1, ...)
+							if (Frames.currentScope.onFramePageChange) Frames.currentScope.onFramePageChange(currentPane + 1, triggeredByOpenEvent);
+							else if (Frames.currentScope.onPaneChange) Frames.currentScope.onPaneChange(currentPane, paneHistory, triggeredByOpenEvent);
+						}
 					}
 				});
+			Frames.showFramePage = function(pageNbr){ Frames.uic.showPane(pageNbr - 1); };		//NOTE: don't mix up with localPage (HTML path)
 			Frames.uic.init();
 			Frames.uic.showPane(0);
 			
@@ -180,6 +220,7 @@ function sepiaFW_build_frames(){
 			}
 
 			//on finish setup
+			onFinishSetup = getFunctionOrScopeEntry(info.onFinishSetup, "onFinishSetup", info.autoFillFrameEvents);
 			if(onFinishSetup) onFinishSetup();
 
 			if (finishCallback) finishCallback();
@@ -187,6 +228,7 @@ function sepiaFW_build_frames(){
 		//Error
 		}, function(){
 			$('#sepiaFW-frames-view').html("Error - could not load page");
+			SepiaFW.ui.showInfo("Custom view failed to load. URL: " + framePage, true);
 		});
 	}
 
@@ -222,9 +264,101 @@ function sepiaFW_build_frames(){
 		}
 	}
 
-	function getFunctionOrScopeEntry(funOrName){
+	function getFunctionOrScopeEntry(funOrName, handlerName, fillViaScope){
+		if (funOrName == undefined && fillViaScope) funOrName = handlerName;
 		return (funOrName && typeof funOrName == "string")? Frames.currentScope[funOrName] : funOrName;
 	}
+
+	/* --- build helpers --- */
+
+	Frames.build = {};
+
+	//Input components for frames:
+
+	Frames.build.inputGroup = function(name, value, type, disabled, inputId, onInputChange){
+		var c = document.createElement("div");
+		c.className = "group";
+		if (disabled){
+			c.classList.add("disabled");
+		}
+		var cName = document.createElement("label");
+		cName.textContent = name;
+		c.appendChild(cName);
+		var cVal;
+
+		if (type == "checkbox"){
+			cVal = SepiaFW.ui.build.toggleButton(inputId, function(){ 
+				onInputChange(true); 
+			},function(){ 
+				onInputChange(false); 
+			}, value, disabled);
+			
+			c.appendChild(cVal);
+			return {element: c, label: cName, input: undefined, setValue: cVal.setValue, getValue: cVal.getValue};
+
+		}else if (type == "select" || Array.isArray(value)){
+			cVal = SepiaFW.ui.build.optionSelector(inputId, value, "", function(ele){
+				onInputChange(ele.value, ele.selectedOptions[0].textContent);
+			});
+			cVal.disabled = disabled;
+		
+		}else if (type == "range" && typeof value == "object"){
+			var groupDiv = document.createElement("div");
+			groupDiv.className = "action-group";
+
+			var cValSpan = document.createElement("span");
+
+			cVal = document.createElement("input");
+			if (inputId) cVal.id = inputId;
+			cVal.type = "range";
+			var minMax = value.range;
+			if (minMax && minMax.length == 2){
+				cVal.min = minMax[0];
+				cVal.max = minMax[1];
+			}else{
+				if (value.min != undefined) cVal.min = value.min;
+				if (value.max != undefined) cVal.max = value.max;
+			}
+			cVal.step = value.step || 0.1;
+			cVal.value = (value.default != undefined)? value.default : value.value;
+			//cVal.setAttribute("data-after", cVal.value);
+			cValSpan.textContent = cVal.value;
+			cVal.disabled = disabled;
+			cVal.onchange = function(){ 
+				onInputChange(cVal.value);
+				//cVal.setAttribute("data-after", cVal.value);
+				cValSpan.textContent = cVal.value;
+			};
+			cVal.oninput = function(){
+				//cVal.setAttribute("data-after", cVal.value);
+				cValSpan.textContent = cVal.value;
+			};
+
+			groupDiv.appendChild(cValSpan);
+			groupDiv.appendChild(cVal);
+			c.appendChild(groupDiv);
+			return {element: c, label: cName, input: cVal, setValue: function(val){ 
+				cVal.value = val;
+				cValSpan.textContent = cVal.value;
+			}, getValue: function(val){ return val; }};
+			
+		}else{
+			cVal = document.createElement("input");
+			if (inputId) cVal.id = inputId;
+			cVal.type = type;
+			cVal.value = value;
+			cVal.disabled = disabled;
+			cVal.onchange = function(){ onInputChange(cVal.value) };
+		}
+		c.appendChild(cVal);
+		return {
+			element: c, 
+			label: cName, 
+			input: cVal, 
+			setValue: function(val){ cVal.value = val; },
+			getValue: function(){ return cVal.value; }
+		};
+	};
 	
 	return Frames;
 }

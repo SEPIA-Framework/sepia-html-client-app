@@ -5,16 +5,26 @@ function sepiaFW_build_ui_actions(){
 	//Simple delay queue that waits for next idle state - NOTE: don't mistake this for 'command queue' (client)
 	//Executes all functions in next idle state so MAKE SURE! they don't interfere with each other!
 	var delayQueue = {};
+	var delayQueueTimers = {};
 	var delayId = 0;
-	Actions.delayFunctionUntilIdle = function(_fun, _idleState){
+	Actions.delayFunctionUntilIdle = function(fun, idleState, timeoutDelay, timeoutMessage){
 		delayId++;
 		if (delayId > 64000) delayId = 0;
-		if (!_idleState) _idleState = "any"; 		//could be: unknown, ttsFinished, dialogFinished, asrFinished, anyButAsr
+		if (!idleState) idleState = "any"; 		//could be: unknown, ttsFinished, dialogFinished, asrFinished, anyButAsr
 		delayQueue[delayId] = {
-			fun: _fun,
-			idleState: _idleState,
+			fun: fun,
+			idleState: idleState,
 			id: delayId
 		};
+		if (timeoutDelay){
+			delayQueueTimers[delayId] = setTimeout(function(){
+				SepiaFW.ui.showInfo(timeoutMessage || ("Delayed function lost due to timeout - Id: " + delayId));
+				delete delayQueue[delayId];
+			}, timeoutDelay);
+		}
+		//NOTE: At the time of this function call the state can actually BE IDLE (short transient)
+		//Should we add a timeout fallback?
+		//console.error("delayFunction", "state", SepiaFW.animate.assistant.getState());		//DEBUG
 	}
 	Actions.executeDelayedFunctionsAndRemove = function(stateFilter){
 		var cleanUpIds = [];
@@ -23,13 +33,16 @@ function sepiaFW_build_ui_actions(){
 			if (!stateFilter 
 				|| queueData.idleState == "any" 
 				|| (queueData.idleState == stateFilter)
-				|| (queueData.idleState == "anyButAsr" && stateFilter != "asrFinished")){
+				|| (queueData.idleState == "anyButAsr" && stateFilter != "asrFinished")
+			){
+				clearTimeout(delayQueueTimers[queueData.id]);
 				queueData.fun();
 				cleanUpIds.push(queueData.id);
 			}
 		});
 		for (var i=0; i<cleanUpIds.length; i++){
 			delete delayQueue[cleanUpIds[i]];
+			delete delayQueueTimers[cleanUpIds[i]];
 		}
 	}
 	Actions.getDelayQueueSize = function(){
@@ -38,6 +51,10 @@ function sepiaFW_build_ui_actions(){
 	}
 	Actions.clearDelayQueue = function(){
 		delayQueue = {};
+		Object.keys(delayQueueTimers).forEach(function(dId){
+			clearTimeout(delayQueueTimers[dId]);
+		});
+		delayQueueTimers = {};
 	}
 
 	//custom action event dispatcher
@@ -172,7 +189,8 @@ function sepiaFW_build_ui_actions(){
 				actionFun = function(){
 					Actions.clientControlFun({
 						"fun": fun,
-						"controlData": act
+						"controlData": act,
+						"delayUntilIdle": false
 					}, sender);
 				};	
 			}
@@ -185,8 +203,23 @@ function sepiaFW_build_ui_actions(){
 		parentBlock.appendChild(funBtn);
 	}
 	//CLIENT Control function
+	/*
 	Actions.clientControlFun = function(action, sender){
 		if (action && action.fun){
+			SepiaFW.client.controls.handle(action.fun, action.controlData);
+		}
+	}
+	*/
+	Actions.clientControlFun = function(action, sender, delayUntilIdle){
+		if (!action || !action.fun){
+			return;
+		}
+		if (delayUntilIdle || action.delayUntilIdle){
+			Actions.delayFunctionUntilIdle(function(){
+				SepiaFW.client.controls.handle(action.fun, action.controlData);
+			}, "any",	//idleState req. (change?)
+			8000, "Failed to trigger client controls (timeout).");
+		}else{
 			SepiaFW.client.controls.handle(action.fun, action.controlData);
 		}
 	}
@@ -207,20 +240,52 @@ function sepiaFW_build_ui_actions(){
 	//OPEN URLs
 	Actions.openURL = function(action, forceExternal){
 		if (!action.url) return;
+		if (action.skipIfEmbeddable){
+			if (SepiaFW.ui.cards.canEmbedUrl(action.url)){
+				//Cards will show it (or at least try)
+				return;
+			}
+		}
 		Actions.openUrlAutoTarget(action.url, forceExternal);
 	}
 	var inAppBrowserOptions = 'location=yes,toolbar=yes,mediaPlaybackRequiresUserAction=yes,allowInlineMediaPlayback=yes,hardwareback=yes,disableswipenavigation=no,clearsessioncache=no,clearcache=no';
 	Actions.openUrlAutoTarget = function(url, forceExternal){
 		if (!url) return;
-		var urlLower = url.toLowerCase();
+
+		//tiny and headless do not support URL action
 		if (SepiaFW.ui.isTinyApp || SepiaFW.ui.isHeadless){
 			//Tiny and headless apps usually have no ability to open in-app browser
 			SepiaFW.assistant.waitForOpportunityAndSay("<error_client_support_0a>", function(){
 				//Fallback after max-wait:
 				SepiaFW.ui.showInfo(SepiaFW.local.g('no_client_support'));
 			}, 2000, 30000);    //min-wait, max-wait
-			
-		}else if (SepiaFW.ui.isCordova){
+			return;
+		}
+
+		//check URL vor sanity (at least a bit)
+		var hasValidUrlProtocol = SepiaFW.tools.urlHasValidProtocol(url);
+		if (!hasValidUrlProtocol){
+			var question = document.createElement("div");
+			var p = document.createElement("p");
+			p.textContent = "Open URL:";
+			question.appendChild(p);
+			var unsafeContent = document.createElement("textarea");
+			unsafeContent.textContent = url;
+			question.appendChild(unsafeContent);
+			SepiaFW.ui.askForPermissionToExecute(question, function(){
+				//open
+				openUrlAutoTargetFun(url, forceExternal);
+			}, function(){
+				SepiaFW.debug.error("Action - 'openUrlAutoTarget' blocked due to suspicious URL: " + url);
+			});
+		}else{
+			//open
+			openUrlAutoTargetFun(url, forceExternal);
+		}
+	}
+	function openUrlAutoTargetFun(url, forceExternal){
+		var urlLower = url.toLowerCase();
+		if (SepiaFW.ui.isCordova){
 			if (forceExternal 
 				|| (urlLower.indexOf('http') !== 0 && !!urlLower.match(/^\w+:/)) 		//TODO: keep an eye on this! Does it prevent some cool URL scheme features?
 				|| urlLower.indexOf('https://maps.') === 0 || urlLower.indexOf('http://maps.') === 0
@@ -333,20 +398,17 @@ function sepiaFW_build_ui_actions(){
 	
 	//PLAY AUDIO STREAM
 	Actions.playAudioURL = function(action, triggeredViaButton){
-		if (SepiaFW.audio){
-			if (SepiaFW.speech && (SepiaFW.speech.isSpeaking() || SepiaFW.speech.isWaitingForSpeech())){	//its starting to get messy here with all the exceptions, we need a proper event queue ...
-				//do something to delay start?
-			}
-			if (!triggeredViaButton){
-				var idleState = "anyButAsr";
-				Actions.delayFunctionUntilIdle(function(){
-					playAction(action);
-				}, idleState);
-			}else{
+		if (SepiaFW.speech.isSpeaking() || SepiaFW.speech.isWaitingForSpeech()){	//its starting to get messy here with all the exceptions, we need a proper event queue ...
+			//do something to delay start?
+		}
+		if (!triggeredViaButton){
+			var idleState = "anyButAsr";
+			Actions.delayFunctionUntilIdle(function(){
 				playAction(action);
-			}
+			}, idleState,
+			14000, "Failed to trigger audio player (timeout).");
 		}else{
-			SepiaFW.debug.info("Action: type 'play_audio_stream' is not supported yet.");
+			playAction(action);
 		}
 	}
 	function playAction(action){
@@ -358,18 +420,14 @@ function sepiaFW_build_ui_actions(){
 		SepiaFW.audio.playURL(action.audio_url, '', function(){
 			SepiaFW.audio.playerFadeToOriginalVolume();
 		});//, onEndCallback, onErrorCallback)
-		SepiaFW.audio.setPlayerTitle(action.audio_title, '');
+		SepiaFW.audio.setPlayerTitle(action.audio_title, 'stream');
 	}
 	//STOP AUDIO STREAM
 	Actions.stopAudio = function(action){
 		//SepiaFW.debug.info("Action: type 'stop_audio_stream'.");
-		if (SepiaFW.client.controls){
-			SepiaFW.client.controls.media({
-				action: "stop"
-			});
-		}else{
-			SepiaFW.audio.stop();
-		}
+		SepiaFW.client.controls.media({
+			action: "stop"
+		});
 	}
 	
 	//SCHEDULE Messages
@@ -427,7 +485,7 @@ function sepiaFW_build_ui_actions(){
 			
 			if (parentBlock){
 				if (parentBlock.id == 'sepiaFW-my-view'){
-					$(parentBlock).prepend(card);
+					SepiaFW.ui.myView.addElement(card, true);
 				}else{
 					parentBlock.appendChild(card);
 				}
@@ -458,7 +516,7 @@ function sepiaFW_build_ui_actions(){
 				var suppLangs = SepiaFW.local.getSupportedAppLanguages();
 				var foundLang = false;
 				suppLangs.forEach(function(sl){
-					if (sl.value == lang){
+					if (!sl.disabled && sl.value == lang){
 						foundLang = true;
 						SepiaFW.debug.log("language-switch action - app lang.: " + lang);
 						SepiaFW.config.broadcastLanguage(lang);

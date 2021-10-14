@@ -65,8 +65,8 @@ html {
 #sepiaFW-adC 	{ background-color: #fb9e37; }
 #sepiaFW-lC 	{ background-color: #292929; }
 
-#sepiaFW-statC 	{ background-color: #fb9e37; }
-#sepiaFW-navC 	{ background-color: #fd827b; }
+#sepiaFW-statC 	{ background-color: #111111; }	/*#fb9e37*/
+#sepiaFW-navC 	{ background-color: #111111; }	/*#fd827b*/
 
 #sepiaFW-login-box {
 	background: #ffad01;
@@ -107,6 +107,12 @@ html {
 	border-top: 2px solid #292929;
 	border-bottom: 2px solid #292929;
 	/*border-radius: 28px;*/
+}
+html.landscape-small #sepiaFW-nav-bar {
+    border: 0;
+}
+html.landscape-small #sepiaFW-chat-controls {
+	background: #df616d !important;
 }
 #sepiaFW-chat-controls-form {
 	background: #df616d;
@@ -178,6 +184,13 @@ html {
 	margin: 0;
     min-width: 61px;
     max-width: 61px;
+}
+html.landscape-small #sepiaFW-assist-btn-area {
+    border: 0;
+    border-bottom: 3px solid black;
+    border-top: 3px solid black;
+    max-width: 55px;
+    min-width: 55px;
 }
 #sepiaFW-assist-btn-area button {
 	border: 3px solid #111111;
@@ -428,6 +441,12 @@ html {
 .sepiaFW-cards-list-body .weatherNowSmall > div:last-of-type {
     border-radius: 0 28px 28px 0;
 }
+.sepiaFW-cards-list-body .cardBodyItem .itemLeft:not(.listLeft) .material-icons {
+	padding-left: 4px;
+}
+.sepiaFW-cards-list-body .cardBodyItem .itemRight:not(.listRight) .material-icons {
+	padding-right: 4px;
+}
 
 .sepiaFW-cards-list-body .timeEvent div {
 	background: #fb9e37;
@@ -524,6 +543,15 @@ html {
     border-radius: 28px;
     background: #b3c8fd;
     color: #111111;
+}
+
+.dark-skin .sepiaFW-cards-list-body .fullWidthItem .cardItemBlock {
+    background: #212121;
+    color: #f4f4f4;
+    border-radius: 14px;
+}
+.dark-skin .sepiaFW-cards-list-body .fullWidthItem .cardItemBlock.cardItemOverlay {
+	border-radius: 13px;
 }
 
 /*----- Tiny style -----*/

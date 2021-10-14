@@ -49,6 +49,10 @@ function sepiaFW_build_embedded_services(){
 			}else if (nluResult.command == "news"){
 				serviceResult = Services.news(nluInput, nluResult);
 
+			//Music (media player)
+			}else if (nluResult.command == "music"){
+				serviceResult = Services.music(nluInput, nluResult);
+
 			//Radio
 			}else if (nluResult.command == "music_radio"){
 				serviceResult = Services.radio(nluInput, nluResult);
@@ -166,12 +170,31 @@ function sepiaFW_build_embedded_services(){
 		return serviceResult;
 	}
 
+	//Embedded music service
+	Services.music = function(nluInput, nluResult){
+		//Get dummy answer
+		var answerText = "Ok";
+		
+		//Get dummy media player card
+		var serviceResult;
+		if (SepiaFW.offline && nluResult.parameters && nluResult.parameters.music_service == "embedded"){
+			var cardInfo = dummyCards["embedded_player"]();
+			var actionInfo = "";
+			var htmlInfo = "";
+			serviceResult = Services.buildServiceResult(
+				nluInput.user, nluInput.language, 
+				nluResult.command, answerText, cardInfo, actionInfo, htmlInfo
+			);
+		}
+		return serviceResult;
+	}
+
 	//Embedded radio service
 	Services.radio = function(nluInput, nluResult){
 		//Get dummy answer
 		var answerText = "Ok";
 		
-		//Get dummy weather service-result
+		//Get dummy radio service-result
 		var serviceResult;
 		if (SepiaFW.offline){
 			var cardInfo = Services.buildRadioCardInfoDummy(nluResult.language);
@@ -254,7 +277,7 @@ function sepiaFW_build_embedded_services(){
 		var serviceResult;
 		if (SepiaFW.offline){
 			var cardInfo = [SepiaFW.offline.getLinkCard(url, title, description, imageUrl, imageBackground, data)];
-			var actionInfo = [SepiaFW.offline.getUrlOpenAction(url)];
+			var actionInfo = [SepiaFW.offline.getUrlOpenAction(url, true)]; 	//skipIfEmbeddable = true
 			var htmlInfo = "";
 			serviceResult = Services.buildServiceResult(
 				nluInput.user, nluInput.language, 
@@ -264,7 +287,7 @@ function sepiaFW_build_embedded_services(){
 		return serviceResult;
 	}
 
-	//Custom chat with action or card test
+	//Custom chat with action or card test - Trigger via 'action [test]' or 'card [test]'
 	Services.customChatWithActionOrCardTest = function(nluInput, nluResult){
 		//Get dummy answer
 		var answerText = "Ok";
@@ -274,11 +297,15 @@ function sepiaFW_build_embedded_services(){
 		if (SepiaFW.offline && nluResult.parameters && nluResult.parameters.data){
 			var cardInfo = "";
 			var actionInfo = "";
-			var t = nluResult.parameters.data.test;
+			var t = nluResult.parameters.data.test;		//[test] value
+			//action
 			if (nluResult.parameters.data.type == "action"){
-				actionInfo = dummyActions[t];
+				var fun = dummyActions[t];
+				if (fun) actionInfo = fun();
+			//card
 			}else if (nluResult.parameters.data.type == "card"){
-				cardInfo = ""; 		//TODO
+				var fun = dummyCards[t];
+				if (fun) cardInfo = fun();
 			}
 			var htmlInfo = "";
 			serviceResult = Services.buildServiceResult(
@@ -325,47 +352,68 @@ function sepiaFW_build_embedded_services(){
 		return actionInfo;
 	}
 
+	//NOTE: trigger test via chat "action html_1" etc.
 	var dummyActions = {
-		"html_1": Services.buildCustomActionInfo("show_html_result", {
+		"html_1": function(){ return Services.buildCustomActionInfo("show_html_result", {
 			data: "<div class='card-box'>" 
 				+ "<div style='background:#fff; color:#111; padding:5px;'><span>Hello World</span></div>" 
-				+ "<script>alert('fail');</script></div>" 	//<-- script will be filtered out
-		}),
-		"frame_1": Services.buildCustomActionInfo("open_frames_view", {
-			info: {pageUrl: "templates/frames_template.html"}
-		}),
-		"frame_2": Services.buildCustomActionInfo("open_frames_view", {
-			info: {pageUrl: (location.href.replace(/index.html$/, "") + "templates/frames_template.html")}
-		}),
-		"frame_3": Services.buildCustomActionInfo("open_frames_view", {
-			info: {pageUrl: "https://b07z.net/downloads/cors/frames_template.html"}
-		}),
-		"frame_4": Services.buildCustomActionInfo("open_frames_view", {
+				+ "<script>alert('fail');</script></div>" 	//<-- script will be filtered out (test)
+		}); },
+		"frame_1": function(){ return Services.buildCustomActionInfo("open_frames_view", {		//test relative link and view itself
+			info: {pageUrl: "xtensions/custom-data/views/demo-view.html"}
+		}); },
+		"frame_2": function(){ return Services.buildCustomActionInfo("open_frames_view", {		//test absolute link
+			info: {pageUrl: (location.href.replace(/index.html$/, "") + "xtensions/custom-data/views/demo-view.html")}
+		}); },
+		"frame_3": function(){ return Services.buildCustomActionInfo("open_frames_view", {		//test remote link
+			info: {pageUrl: "https://b07z.net/downloads/cors/demo-view.html"}
+		}); },
+		"frame_4": function(){ return Services.buildCustomActionInfo("open_frames_view", {		//test path-replaced link
+			info: {pageUrl: "<custom_data>/views/clock.html"}
+		}); },
+		"frame_5": function(){ return Services.buildCustomActionInfo("open_frames_view", {		//server-path + old style
 			info: {
-				pageUrl: "<custom_data>/demo-view.html", onOpen: "sayHelloOnOpen", 
+				pageUrl: "<assist_server>/views/custom-view-demo.html", onOpen: "sayHelloOnOpen",
 				onSpeechToTextInputHandler: "handleSttData", onChatOutputHandler: "handleChatOutput"
 			}
-		}),
-		"frame_5": Services.buildCustomActionInfo("open_frames_view", {
-			info: {
-				pageUrl: "<assist_server>/views/demo-view.html", onOpen: "sayHelloOnOpen", 
-				onSpeechToTextInputHandler: "handleSttData", onChatOutputHandler: "handleChatOutput"
-			}
-		}),
-		"custom_event_btn_1": Services.buildCustomActionInfo("button_custom_event", {
+		}); },
+		"clock": function(){ return Services.buildCustomActionInfo("open_frames_view", {		//test relative link and view itself
+			info: {pageUrl: "xtensions/custom-data/views/clock.html"}
+		}); },
+		"custom_event_btn_1": function(){ return Services.buildCustomActionInfo("button_custom_event", {
 			title: "Test", name: "test", data: {"button": 1}
-		}),
-		"custom_event_1": Services.buildCustomActionInfo("trigger_custom_event", {
+		}); },
+		"custom_event_1": function(){ return Services.buildCustomActionInfo("trigger_custom_event", {
 			name: "test", data: {"direct": 1}
-		}),
-		"settings_1": Services.buildCustomActionInfo("open_settings", {
+		}); },
+		"settings_1": function(){ return Services.buildCustomActionInfo("open_settings", {
 			section: "addresses"
-		})
-		
-		//NOTE: trigger test via chat "action html_1" etc.
+		}); }
 	}
 
 	//----- Cards dummy data -----
+
+	//NOTE: trigger test via chat "card embedded_player" etc.
+	var dummyCards = {
+		"embedded_player": function(){
+			var url = "";
+			var service = "embedded";
+			var serviceResult = {};
+			return Services.buildEmbeddedPlayerCardInfoDummy(url, {
+				artist: "Ed",
+				song: "Twister"
+			}, service, serviceResult);
+		},
+		"embedded_player_youtube": function(){
+			var url = "https://www.youtube.com/embed?listType=playlist&list=OLAK5uy_nMLnwHRhSOAO6sO7LmFRkp21RATGG6mT8";
+			var service = "youtube_embedded";
+			var serviceResult = {};
+			return Services.buildEmbeddedPlayerCardInfoDummy(url, {
+				playlist: "Metallica",
+				uri: url
+			}, service, serviceResult);
+		}
+	}
 
 	//Build a list with custom or dummy data
 	Services.buildListCardInfoDummy = function(id, title, section, indexType, group, listData){
@@ -377,17 +425,17 @@ function sepiaFW_build_embedded_services(){
 		var dateAdded = new Date().getTime();
 		var id = id || ("ABCDx123456"); 	//usually this is defined by database id generator
 		var data = listData || [{
-			"name": "Find to-do list", "checked": true, "dateAdded": dateAdded
+			"name": "Find to-do list", "checked": true, "dateAdded": dateAdded, "lastChange": dateAdded, "eleType": "checkable"
 		}, {
-			"name": "Check-out tutorial and (this) demo", "checked": false, "state": "inProgress", "dateAdded": dateAdded
+			"name": "Check-out tutorial and (this) demo", "checked": false, "state": "inProgress", "dateAdded": dateAdded, "lastChange": dateAdded, "eleType": "checkable"
 		}, {
-			"name": "Install <b>own</b> SEPIA server", "checked": false, "dateAdded": dateAdded
+			"name": "Install <b>own</b> SEPIA server", "checked": false, "dateAdded": dateAdded, "lastChange": dateAdded, "eleType": "checkable"
 		}, {
-			"name": "Create own services and commands", "checked": false, "dateAdded": dateAdded
+			"name": "Create own services and commands", "checked": false, "dateAdded": dateAdded, "lastChange": dateAdded, "eleType": "checkable"
 		}, {
-			"name": "Find alarms in shortcut-menu", "checked": false, "dateAdded": dateAdded
+			"name": "Find alarms in shortcut-menu", "checked": false, "dateAdded": dateAdded, "lastChange": dateAdded, "eleType": "checkable"
 		}, {
-			"name": "Don't use HTML like <script>console.log(':-p');</script>", "checked": false, "dateAdded": dateAdded
+			"name": "Don't use HTML like <script>console.log(':-p');</script>", "checked": false, "dateAdded": dateAdded, "lastChange": dateAdded, "eleType": "checkable"
 		}];
 		var user = "userid";
 
@@ -414,10 +462,11 @@ function sepiaFW_build_embedded_services(){
 		var id = id || ("BCDEx123456"); 	//usually this is defined by database id generator
 		var data = alarmData;
 		if (!alarmData){
+			var isTestUser1 = SepiaFW.account.getTestUserType() == 1;
 			//dummy dates
 			var dateAdded = new Date().getTime() - 300000;
-			//5min
-			var time1 = (dateAdded + 600000);
+			//5min (6h for test2)
+			var time1 = !isTestUser1? (dateAdded + 300000 + (60000*60*6)) : (dateAdded + 600000);
 			var date1 = new Date(time1);
 			var dateString1 = date1.toLocaleDateString(language);
 			var day1 = date1.toLocaleDateString(language, {weekday: 'long'});
@@ -429,7 +478,7 @@ function sepiaFW_build_embedded_services(){
 			var day2 = date2.toLocaleDateString(language, {weekday: 'long'});
 			var timeString2 = date2.toLocaleTimeString(language);
 			data = [{
-				"name": "5min Alarm", "eleType": "alarm", "repeat": "onetime", "activated": false,
+				"name": "Next Alarm", "eleType": "alarm", "repeat": "onetime", "activated": false,
 				"date": dateString1,
 				"eventId": "alarm-1-630",
 				"lastChange": dateAdded,
@@ -470,6 +519,7 @@ function sepiaFW_build_embedded_services(){
 	Services.buildTimerCardInfoDummy = function(id, alarmData, language){
 		var id = id || ("BCDEy123456"); 	//usually this is defined by database id generator
 		if (!alarmData){
+			var isTestUser1 = SepiaFW.account.getTestUserType() == 1;
 			//dummy timers
 			var now = new Date().getTime();
 			alarmData = [{
@@ -479,7 +529,7 @@ function sepiaFW_build_embedded_services(){
 				"type": "timer",
 				"info": "set",
 				"lastChange": now,
-				"targetTimeUnix": (now + 1000*60*30),
+				"targetTimeUnix": (!isTestUser1? (now + 1000*60*60*5) : (now + 1000*60*30)),
 				"activated": false
 			}];
 		}
@@ -541,17 +591,51 @@ function sepiaFW_build_embedded_services(){
 	}
 
 	//Build a radio dummy card
-	Services.buildRadioCardInfoDummy =  function(language){
+	Services.buildRadioCardInfoDummy = function(language){
 		var cardInfo = [{
 			"cardType": "uni_list",
-			"N": 1,
+			"N": 2,
 			"info": [{
-				"streamURL": "http://stream.radiojar.com/atr1e8aswa5tv",
+				"streamURL": "https://stream.radiojar.com/atr1e8aswa5tv",
 				"playlistURL": "https://www.size-radio.com/",
 				"name": "SIZE RADIO",
 				"type": "radio"
+			},{
+				"streamURL": "https://egofm-pure.cast.addradio.de/egofm/pure/mp3/high/stream.mp3",
+				"playlistURL": "https://www.egofm.de/radio/playlist?stream=egopure",
+				"name": "egoFM Pure",
+				"type": "radio"
 			}]
 		}];
+		return cardInfo;
+	}
+
+	//Build link dummy card
+	Services.buildEmbeddedPlayerCardInfoDummy = function(url, searchObj, service, serviceResult){
+		var image = undefined;
+		var imageBackground = undefined;
+		var cardInfo = [
+			SepiaFW.offline.getLinkCard(url, undefined, undefined, image, imageBackground, {})
+		];
+		if (!searchObj) searchObj = {};
+		cardInfo[0].info[0].url = url;
+		cardInfo[0].info[0].data = {
+			"title": "Embedded Player",
+			"desc": "Test Card",
+			"type": "musicSearch",	//or "videoSearch"
+			"autoplay": true,
+			"typeData": {
+				"song": searchObj.song || "",
+				"playlist": searchObj.playlist || "",
+				"artist": searchObj.artist || "",
+				"album": searchObj.album || "",
+				"genre": searchObj.genre || "",
+				"uri": url,
+				"service": service || "embedded",
+				"serviceResult": serviceResult || {}  //specific to service
+			},
+			"brand": ""
+		}
 		return cardInfo;
 	}
 

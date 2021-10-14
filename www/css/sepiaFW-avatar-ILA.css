@@ -63,9 +63,12 @@
 #sepiaFW-alwaysOn-avatar .avatar-mouth {
     width: 20%;
     height: 10%;
-    top: 62%;
+    top: 61.5%;
     left: 40%;
     border-color: transparent transparent #646464 transparent;
+}
+#sepiaFW-alwaysOn-avatar .avatar-mouth.sleep {
+    border-radius: 17%;
 }
 
 /* --- tiny style --- */

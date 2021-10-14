@@ -19,6 +19,7 @@ REM add plugins
 sleep 2
 echo "#Adding plugins ..."
 cordova plugin add cordova-plugin-device |more
+cordova plugin add cordova-plugin-screen-orientation |more
 cordova plugin add cordova-plugin-geolocation |more
 cordova plugin add cordova-plugin-inappbrowser |more
 cordova plugin add cordova-plugin-tts |more
@@ -72,5 +73,7 @@ xcopy "resources\themes\android\values" "platforms\android\app\src\main\res\valu
 xcopy "resources\themes\android\values-v21" "platforms\android\app\src\main\res\values-v21" /i |more
 xcopy "resources\config\android\xml" "platforms\android\app\src\main\res\xml" /i |more
 echo "#DONE"
-echo "If everything worked out fine the next step would be to build the app from the %APP_NAME% folder: cordova build android"
+echo "If everything worked out fine the next step would be to build the app from the %APP_NAME% folder: cordova build android."
+echo "Alternatively just open the project in Android Studio and let Gradle build it."
+echo "If you get Gradle errors try setting 'distributionUrl' version in gradle-wrapper.properties to '4.10.1-all'."
 pause

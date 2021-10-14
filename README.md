@@ -27,11 +27,11 @@ Features of the app are:
 
 ### Quick-start
 
-The latest release version is always **online** at: `https://sepia-framework.github.io/app/index.html` (requires server with SSL)  
+The latest release version is **online** at: https://sepia-framework.github.io/app/index.html  
 When you've installed **SEPIA-Home** the default link is: `http://[sepia-home-IP]:20721/app/index.html`  
 The Android app can be installed via the **Google Play Store**: [Play Store link](https://play.google.com/store/apps/details?id=de.bytemind.sepia.app.web)  
   
-Note: If you don't operate your own SEPIA server you can still open the app in "demo-mode" (simply skip the log-in) and look around a bit though most of the features will not be active in this mode.  
+Note: If you don't operate your own SEPIA server you can still open the public app in **demo-mode** (simply skip the log-in) and look around a bit though many of the features will not be available in this mode.  
 More languages for Android and an iOS app are in beta-test phase and will be release "when they are done" :-p  
   
 For experts only: Use the build-scripts in this repository to build your own version of the app (Android and iOS are available).
@@ -42,6 +42,8 @@ You can modify the client configuration via several URL parameters:
 * `host` - SEPIA server host, e.g. IP address or domain + path
 * `lang` - Default language code for client (ISO code)
 * `isApp` - 'true' will change client to behave as if it was an app (not a website), e.g. login tokens will be valid for much longer etc.
+* `pwa` - 'true' will put the app in a PWA (progressive web app) compatible state by enabling the service-worker.
+* `noSW` - 'true' will force disable the service-worker of the page. This might be useful to find issues related to blocked cookies etc.
 * `isTiny` - 'true' will optimize the UI and controls to support small displays (e.g. Apple Watch or 240x240px screens)
 * `isHeadless` or `autoSetup` - Load client settings from file (settings.js) and trigger setup mode if no user is logged in. 'isHeadless' will set some supported client features as well (e.g. don't open browser tabs etc.).
 * `env` - 'environment' setting for client

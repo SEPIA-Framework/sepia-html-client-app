@@ -18,15 +18,19 @@ SepiaFW.buildSepiaFwPlugins = function(){
 	SepiaFW.ui.dragDrop = sepiaFW_build_ui_drag_and_drop();
 	SepiaFW.ui.notification = sepiaFW_build_ui_notifications();
 	SepiaFW.ui.build = sepiaFW_build_ui_build(sepiaSessionId);
+	SepiaFW.ui.myView = sepiaFW_build_ui_my_view();
 	SepiaFW.ui.cards = sepiaFW_build_ui_cards();
 	SepiaFW.ui.actions = sepiaFW_build_ui_actions();
+	SepiaFW.ui.plot = ('sepiaFW_build_ui_plot' in window)? sepiaFW_build_ui_plot() : {};
 	SepiaFW.ui.customButtons = sepiaFW_build_ui_custom_buttons(sepiaSessionId);
 	SepiaFW.events = sepiaFW_build_events();
 	SepiaFW.geocoder = sepiaFW_build_geocoder();
-	SepiaFW.audio = sepiaFW_build_audio(sepiaSessionId);
+	SepiaFW.webAudio = ('sepiaFW_build_web_audio' in window)? sepiaFW_build_web_audio() : {};
+	SepiaFW.audio = sepiaFW_build_audio();
+	SepiaFW.audio.effects = sepiaFW_build_audio_effects();
 	SepiaFW.audioRecorder = sepiaFW_build_audio_recorder();
-	SepiaFW.speechWebSocket = sepiaFW_build_speechWebSocket();
-	SepiaFW.speech = sepiaFW_build_speech();
+	SepiaFW.speechAudioProcessor = sepiaFW_build_speech_audio_proc();
+	SepiaFW.speech = sepiaFW_build_speech(sepiaSessionId);
 	SepiaFW.webSocket = new Object();
 	SepiaFW.webSocket.common = sepiaFW_build_webSocket_common();
 	SepiaFW.webSocket.client = sepiaFW_build_webSocket_client(sepiaSessionId);
@@ -371,17 +375,43 @@ function sepiaFW_build_tools(){
 
 	//URL is same origin?
 	Tools.isSameOrigin = function(uri1, uri2){
-		uri1 = new URL(uri1);
-		uri2 = new URL(uri2 || window.location.href);
-		if(uri1.host !== uri2.host) return false;
-		if(uri1.port !== uri2.port) return false;
-		if(uri1.protocol !== uri2.protocol) return false;
-		return true;
+		try {
+			uri1 = new URL(uri1);
+			uri2 = new URL(uri2 || window.location.href);
+			if(uri1.host !== uri2.host) return false;
+			if(uri1.port !== uri2.port) return false;
+			if(uri1.protocol !== uri2.protocol) return false;
+			return true;
+		}catch(error){
+			return false;	
+		}
+	}
+	//URL is remote file
+	Tools.isRemoteFileUrl = function(url, fileEnding){
+		if (!url) return false;
+		else url = url.trim().toLowerCase().replace(/\?.*/, "");
+		if (!url.match(/\.[a-z0-9]+$/)) return false;
+		if (fileEnding && url.split(".").pop() != fileEnding.toLowerCase()) return false;
+		return (url.indexOf("http:") == 0) || (url.indexOf("https:") == 0) || (url.indexOf("ftp:") == 0);
+	}
+	//URL is local file
+	Tools.isRelativeFileUrl = function(url, fileEnding){
+		if (!url) return false;
+		else url = url.trim().replace(/\?.*/, "");
+		if (fileEnding && url.toLowerCase().split(".").pop() != fileEnding.toLowerCase()) return false;
+		return (!!url.match(/^[-+%a-zA-Z0-9_\/]*\.[a-zA-Z0-9]+$/));
+	}
+	//URL has valid protocol
+	Tools.urlHasValidProtocol = function(url){
+		if (!url) return false;
+		else url = url.toLowerCase().trim();
+		return (!!url.match(/^[a-z][-a-z0-9_]*:/) && !url.match(/^(javascript|data):/));
 	}
 	
 	//get URL parameters
 	Tools.getURLParameter = function(name){
 		return decodeURIComponent((new RegExp('[?|&]' + name + '=' + '([^&;]+?)(&|#|;|$)').exec(location.search)||[,""])[1].replace(/\+/g, '%20'))||null
+		//TODO: if we drop IE11 "support" we can use 'new URL(..).searchParams'
 	}
 	Tools.getURLParameterFromUrl = function(url, name){
 		if (url.indexOf("?") < 0){
@@ -393,6 +423,11 @@ function sepiaFW_build_tools(){
 	}
 	//set or add a parameter of a given URL with encoding and return modified url
 	Tools.setParameterInURL = function(url, parameter, value){
+		//prevent insert after '#'
+		var hashMatch = url.match("#.*");
+		var hash = hashMatch? hashMatch[0] : "";
+		if (hash) url = url.replace(/#.*/, "").trim();
+
 		if ((url.indexOf('?' + parameter + '=') > -1) || (url.indexOf('&' + parameter + '=') > -1)){
 			url = url.replace(new RegExp("(\\?|&)(" + parameter + "=.*?)(&|$)"), "$1" + parameter + "=" + encodeURIComponent(value) + "$3");
 		}else{
@@ -402,6 +437,7 @@ function sepiaFW_build_tools(){
 				url += '?' + parameter + "=" + encodeURIComponent(value);
 			}
 		}
+		url = url + hash;
 		return url;
 	}
 	//remove a parameter of a given URL (parameter has to contain a '=' e.g. x=1)
@@ -520,6 +556,20 @@ function sepiaFW_build_tools(){
 	//Match regular expression - shortcut for boolean regExp matching
 	Tools.doesMatchRegExp = function(str, regEx, flags) {
 		return !!str.match(new RegExp(regEx, flags));
+	}
+
+	//A simple comparison of objects just checking if keys and first level values are same
+	Tools.simpleObjectsAreSame = function(objA, objB){
+		//NOTE: if values are arrays or objects this will most likeyl not give the result you seek
+		if (objA == objB) return true;
+		if (objA == undefined || objB == undefined) return false;
+		var keysA = Object.keys(objA);
+		var keysB = Object.keys(objB);
+		if (keysA.length != keysB.length) return false;
+		for (let i=0; i<keysA.length; i++){
+			if (objA[keysA[i]] != objB[keysA[i]]) return false;
+		}
+		return true;
 	}
 		
 	//prepend a zero to a number if it is lower than 10

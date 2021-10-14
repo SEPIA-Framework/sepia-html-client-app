@@ -25,6 +25,10 @@ html {
 	background: #C74927;
 	color: #fcf9ee;
 }
+html.landscape-small #sepiaFW-chat-controls {
+	background: #C74927 !important;
+	color: #fcf9ee !important;
+}
 #sepiaFW-login-box button {
 	background: #685238;
 	color: #fcf9ee;
@@ -117,30 +121,30 @@ html {
     background: #f0cbad;
 	color: #2f3035;
 }
-#sepiaFW-chat-output article.chatMe{
+#sepiaFW-chat-output article.chatMe {
 	background: #85807e;
 	color: #fcf9ee;
 }
-#sepiaFW-chat-output article.chatMe b{
+#sepiaFW-chat-output article.chatMe b {
 	color: #fcf9ee;
 }
-#sepiaFW-chat-output article.chatMe span{
+#sepiaFW-chat-output article.chatMe span {
 	color: #fcf9ee;
 }
 #sepiaFW-chat-output article.chatAssistant {
 	background: rgba(199, 73, 39, 0.96); /*this is #C74927 with alpha*/
 	color: #fcf9ee;
 }
-#sepiaFW-chat-output article.chatAssistant b{
+#sepiaFW-chat-output article.chatAssistant b {
 	color: #fcf9ee;
 }
-#sepiaFW-chat-output article.chatAssistant.chatPm{
+#sepiaFW-chat-output article.chatAssistant.chatPm {
 	border-left-color: rgba(243, 214, 104, 0.92);
 }
-#sepiaFW-chat-output article.chatMe.chatPm{
+#sepiaFW-chat-output article.chatMe.chatPm {
 	border-left-color: rgba(243, 214, 104, 0.92);
 }
-#sepiaFW-chat-output article.chatOther.chatPm{
+#sepiaFW-chat-output article.chatOther.chatPm {
 	border-left-color: rgba(243, 214, 104, 0.92);
 }
 

@@ -25,11 +25,24 @@ html {
 #sepiaFW-adC 	{ background-color: #ceff1a; }
 #sepiaFW-lC 	{ background-color: rgba(200, 200, 200, 0.50); 	}
 
-#sepiaFW-login-box, #sepiaFW-nav-bar, #sepiaFW-chat-controls-form, #sepiaFW-chat-controls-right {
+#sepiaFW-login-box, #sepiaFW-nav-bar, 
+#sepiaFW-chat-controls-form, #sepiaFW-chat-controls-right {
 	background: rgba(16, 32, 48, 0.75);
 	border: 1px solid #15abc3;
 	box-shadow: 0 0 5px #15abc3;
 	color: #fff;
+}
+html.landscape-small #sepiaFW-nav-bar {
+	border: 0;
+	margin: 0;
+}
+html.landscape-small #sepiaFW-chat-controls {
+	background: rgba(16, 32, 48, 0.75) !important;
+}
+html.landscape-small #sepiaFW-chat-controls-right {
+	border: 0;
+    box-shadow: unset;
+    background: transparent;
 }
 .sepiaFW-ao-mode #sepiaFW-nav-bar, 
 .sepiaFW-ao-mode #sepiaFW-chat-controls-form, 
@@ -180,7 +193,8 @@ html {
 	border: 1px solid #15abc3;
 	box-shadow: 0 0 5px #15abc3;
 	color: #fff;
-	background: rgba(16, 32, 48, 0.75);
+	/*background: rgba(16, 32, 48, 0.75);*/
+	background: rgba(7, 43, 61, 0.75);
 }
 
 /*
@@ -269,7 +283,7 @@ html {
 	border-left-width: 2px;
 }
 #sepiaFW-chat-output article.chatMe.chatPm{
-	border-left-color: rgba(255, 0, 0, 1.0);
+	border-left-color: #ceff1a;
 	border-left-width: 2px;
 }
 #sepiaFW-chat-output article.chatOther.chatPm{
@@ -367,11 +381,36 @@ html {
 .sepiaFW-cards-list-body .timeEvent > div,
 .sepiaFW-cards-list-body .radioStation > div,
 .sepiaFW-cards-list-body .weatherNowSmall > div,
-.sepiaFW-cards-list-body .linkCard > div {
+.sepiaFW-cards-list-body .linkCard > div,
+.dark-skin .sepiaFW-cards-list-body .fullWidthItem .cardItemBlock {
     background: rgba(20, 163, 187, 0.66);
     color: #fff !important;
     box-shadow: 0 0 5px #15abc3;
 	border: 1px solid #15abc3;
+}
+.dark-skin .sepiaFW-cards-flexSize-container .cardBodyItem.fullWidthItem .cardItemOverlay {
+	background: rgba(20, 163, 187, 1.0);
+}
+
+/*----- Frames ----- */
+
+#sepiaFW-frames-view,
+#sepiaFW-frames-view.dark {
+	background: #102030;
+	color: #eee;
+}
+#sepiaFW-frames-view:not(.sepiaFW-ao-mode) {
+	/*border: 1px solid #15abc3;*/
+    box-shadow: 0 0 5px #15abc3;
+}
+.sepiaFW-frames-page button {
+    background: #15abc3 !important;
+    color: #fff !important;
+	box-shadow: 0 0 5px #fff;
+	border: 1px solid #fff !important;
+}
+#sepiaFW-frames-nav-bar {
+	background: #103041;
 }
 
 /*----- teachUI -----*/

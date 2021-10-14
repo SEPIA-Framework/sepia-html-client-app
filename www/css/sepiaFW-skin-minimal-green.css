@@ -1,0 +1,92 @@
+#sepiaFW-login-box {
+    border-image: linear-gradient( to bottom, #ceff1a, #16ABC3 );
+    border-image-slice: 1;
+}
+
+#sepiaFW-main-output-carousel .sepiaFW-carousel-pane {
+    border-left: 1px solid #314816;
+    border-right: 1px solid #314816; /*#094751*/
+}
+#sepiaFW-chat-menu {
+    background: #191b19;
+}
+#sepiaFW-chat-channel-view.sepiaFW-menu,
+#sepiaFW-chat-controls-more-menu.sepiaFW-menu {
+    background: #1f221f;
+}
+
+#sepiaFW-nav-bar {
+	border: 1px solid #ceff1a;
+}
+#sepiaFW-chat-controls-form {
+	border: 1px solid #6dd373;
+}
+#sepiaFW-chat-controls-right {
+	border: 1px solid #6dd373;
+}
+
+#sepiaFW-main-window .chat-buttons-area button {
+    border: 1px solid #ceff1a;
+	border-image: linear-gradient( to bottom, #ceff1a, #6dd373 );
+    border-image-slice: 1;
+}
+#sepiaFW-myEvents-buttons button, #sepiaFW-myEvents-buttons-replaced button, .sepiaFW-touch-device #sepiaFW-myEvents-buttons button {
+	border: 1px solid #16ABC3 !important;
+	/*clip-path: polygon(0 12px, 12px 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 101%, 0 101%);*/
+}
+
+#sepiaFW-main-window button, #sepiaFW-main-window article {
+    border-radius: 0;
+}
+
+#sepiaFW-assist-btn-area {
+    border: 1px solid #16ABC3;
+}
+#sepiaFW-assist-btn-area button {
+	border-radius: 23px;
+	background: #191b19 !important;
+}
+
+#sepiaFW-chat-output article:not(.statusUpdate) {
+    background: #121212;
+	border: 1px solid #ceff1a;
+	border-image: linear-gradient( to bottom, #ceff1a, #6dd373 );
+    border-image-slice: 1;
+}
+
+/*--- cards ---*/
+
+.sepiaFW-cards-flexSize-container {
+    background: transparent;
+}
+.sepiaFW-cards-list-body div {
+    border-radius: 0 !important;
+}
+.sepiaFW-cards-list-body > div > div {
+    background: #161816 !important;
+    color: #eeeeee;
+    border: 1px solid #172117;
+}
+.dark-skin .sepiaFW-cards-list-body .fullWidthItem .cardItemBlock {
+    background: #161816;
+    color: #eeeeee;
+    border: 1px solid #172117;
+    border-radius: 0;
+}
+
+.sepiaFW-cards-list-title {
+	background: #191b19;
+    border: 1px solid #16ABC3;
+    border-radius: 0;
+}
+
+.sepiaFW-cards-list-body .listElement .checked {
+    background: #6dd373 !important;
+}
+
+.sepiaFW-cards-button, .sepiaFW-notouch-device .sepiaFW-cards-button:hover {
+    background: #191b19;
+	border: 1px solid #ceff1a;
+	border-image: linear-gradient( to bottom, #ceff1a, #6dd373 );
+    border-image-slice: 1;
+}

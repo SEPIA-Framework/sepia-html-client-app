@@ -75,8 +75,7 @@ function sepiaFW_build_input_controls() {
             pageUrl: "input-controls.html",
             onFinishSetup: onSetupFinish,
             onOpen: onSettingsOpen,
-            onClose: onSettingsClose,
-            theme: SepiaFW.ui.getSkinStyle()
+            onClose: onSettingsClose
         });
     }
     function onSetupFinish(){
@@ -276,6 +275,7 @@ function sepiaFW_build_input_controls() {
 
     function handleRemoteInputEvent(e, source){
         //sources: ble-beacon, clexi-remote, sepia-chat-server  - TODO: use for security!
+        if (!source) source = "remote-input";
         var isProtectedSource = false;
         if (source && source.indexOf("sepia-chat-server") >= 0){
             isProtectedSource = true;
@@ -286,13 +286,13 @@ function sepiaFW_build_input_controls() {
         //MIC with permission check
         if (e == "F4" || e == "1"){
             if (SepiaFW.wakeTriggers && SepiaFW.wakeTriggers.useWakeWord){
-                toggleMicrophone();
+                toggleMicrophone(source);
             }else{
                 SepiaFW.debug.log("InputControls remoteAction - NOT ALLOWED to use remote wake-word! Key:", e);
             }
         //MIC
         }else if (e == "mic"){
-            if (isProtectedSource) toggleMicrophone(); else logProtectedRemoteInputFail(e, source);
+            if (isProtectedSource) toggleMicrophone(source); else logProtectedRemoteInputFail(e, source);
         }else if (e == "mr" || e == "micReset"){
             resetMic();
         //BACK
@@ -552,7 +552,7 @@ function sepiaFW_build_input_controls() {
         //check always on display
         if (InputControls.useHotkeysInAlwaysOn && SepiaFW.alwaysOn && SepiaFW.alwaysOn.isOpen){
             var action = hotkeyActionMatrix[e.which];
-            if (action)     action();
+            if (action) action("app-hotkey");
         }
         return false;
     }
@@ -731,7 +731,7 @@ function sepiaFW_build_input_controls() {
                     var action = actionController[buttonIndex];
                     if (action){
                         //Call button onRelease action
-                        action();
+                        action("controller-button");
                     }
                 }
             }
@@ -794,54 +794,54 @@ function sepiaFW_build_input_controls() {
     //------- Button Actions -------
 
     function defaultButtonActionOnRelease(){
-        toggleMicrophone();
+        toggleMicrophone("app-hotkey");
     }
-    function toggleMicrophone(){
-        SepiaFW.ui.toggleMicButton();
+    function toggleMicrophone(sourceAction){
+        SepiaFW.ui.toggleMicButton(undefined, sourceAction);
     }
-    function nextView(){
+    function nextView(sourceAction){
         SepiaFW.ui.pageRight();
     }
-    function previousView(){
+    function previousView(sourceAction){
         SepiaFW.ui.pageLeft();
     }
-    function backButton(){
+    function backButton(sourceAction){
         SepiaFW.ui.backButtonAction();
     }
-    function openAlwaysOn(){
+    function openAlwaysOn(sourceAction){
         SepiaFW.ui.closeAllMenus();
         SepiaFW.alwaysOn.start();
     }
-    function resetMic(){
+    function resetMic(sourceAction){
         SepiaFW.ui.resetMicButton();
     }
-    function clientConnect(){
+    function clientConnect(sourceAction){
         SepiaFW.client.resumeClient();
     }
-    function clientDisconnect(){
+    function clientDisconnect(sourceAction){
         SepiaFW.client.closeClient();
     }
-    function wakeWordOn(){
+    function wakeWordOn(sourceAction){
         if (!SepiaFW.wakeTriggers.engineLoaded){
             SepiaFW.wakeTriggers.setupWakeWords();      //will auto-start after setup
         }else if (!SepiaFW.wakeTriggers.isListening()){
             SepiaFW.wakeTriggers.listenToWakeWords();
         }
     }
-    function wakeWordOff(){
+    function wakeWordOff(sourceAction){
         if (SepiaFW.wakeTriggers.engineLoaded && SepiaFW.wakeTriggers.isListening()){
             SepiaFW.wakeTriggers.stopListeningToWakeWords();
         }
     }
-    function reloadClient(){
+    function reloadClient(sourceAction){
         setTimeout(function(){
             window.location.reload();
         }, 1000);
     }
-    function test1(){
+    function test1(sourceAction){
         console.log('TEST 1');
     }
-    function test2(){
+    function test2(sourceAction){
         console.log('TEST 2');
     }
 

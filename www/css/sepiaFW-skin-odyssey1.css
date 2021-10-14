@@ -1,5 +1,5 @@
 html {
-	background-image: url(../img/SEPIA_back-w.png);
+	background-image: url(../img/SEPIA_space_2.svg);
 	background-size: auto 50%;
 	background-color: #172735;
 }
@@ -153,7 +153,7 @@ html {
 }
 #sepiaFW-main-window .chat-buttons-area button {
     background: #ffc107 !important;
-	color: #fff !important
+	color: #fff !important;
 }
 #sepiaFW-main-window .chat-buttons-area .my-view-custom-button {
 	background-color: #09BBD3 !important;
@@ -161,7 +161,7 @@ html {
 }
 #sepiaFW-main-window #sepiaFW-myFirstStart-buttons button {
 	background: #FA9D09 !important;
-	color: #ECEBE7 !important
+	color: #ECEBE7 !important;
 }
 #sepiaFW-main-window #sepiaFW-myEvents-buttons button,
 #sepiaFW-main-window #sepiaFW-myEvents-buttons-replaced button,

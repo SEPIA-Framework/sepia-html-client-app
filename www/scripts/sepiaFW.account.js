@@ -18,7 +18,24 @@ function sepiaFW_build_account(sepiaSessionId){
 	var demoAccounts = {
 		"appstore": "eval20192X",
 		"test": "test123",
+		"test2": "test123",
 		"setup": "setup123"
+	}
+	Account.getTestUserType = function(){
+		if (SepiaFW.client.isDemoMode()){
+			if (Account.getUserRoles() && (Account.getUserRoles()[0] == "setup" || Account.getUserRoles()[0] == "test2")){
+				//type 2 has reduces automic stuff during test-mode
+				return 2;
+			}else{
+				return 1;
+			}
+		}else{
+			return 0;
+		}
+	}
+	Account.isSetupMode = function(){
+		return (SepiaFW.client.isDemoMode() && Account.getUserRoles() && Account.getUserRoles()[0] == "setup");
+		//NOTE: check for demoId or '== "setup"' as well when looking for references in code
 	}
 	
 	//---- Account settings mapping (to simplify access) and options ----//
@@ -71,7 +88,7 @@ function sepiaFW_build_account(sepiaSessionId){
 		//set user ID indicator
 		$('#sepiaFW-menu-account-my-id').text("Demo");
 		//play sound?
-		if (Account.getUserRoles() && Account.getUserRoles()[0] == "setup"){
+		if (Account.isSetupMode()){
 			//TODO: should we play another sound when CLEXI connected?
 			SepiaFW.client.addOnActiveOneTimeAction(function(){ SepiaFW.audio.playURL("sounds/setup.mp3"); }, "setup");
 		}
@@ -680,6 +697,13 @@ function sepiaFW_build_account(sepiaSessionId){
 		$(pwdInput).off().on("keypress", function (e) {
 			if (e.keyCode === 13) { sendLoginFromBox(); }
 		});
+		//create-account-button
+		var $createAccBtn = $('#sepiaFW-login-create').off().on("click", function(){
+			Account.toggleLoginBox();
+			setTimeout(function(){
+				SepiaFW.frames.open({pageUrl: "create-account.html", onClose: Account.toggleLoginBox});
+			}, 200);
+		});
 		//close-button
 		var $clsBtn = $("#sepiaFW-login-close").off().on("click", function(){
 			skipLogin();
@@ -916,7 +940,7 @@ function sepiaFW_build_account(sepiaSessionId){
 		}
 		var box = document.getElementById("sepiaFW-login-box");
 		if (box && box.style.display == 'none'){
-			$("#sepiaFW-main-window").addClass("sepiaFW-translucent-10");
+			$("#sepiaFW-main-window").addClass("sepiaFW-translucent-10 no-interaction");
 			$(box).fadeIn(300, function(){
 				$(box).css({'opacity':1.0}); 		//strange bug here sometimes leaves the box translucent
 			});
@@ -925,7 +949,7 @@ function sepiaFW_build_account(sepiaSessionId){
 			$(box).stop().fadeOut(300, function(){
 				$(box).css({'opacity':1.0}); 		//strange bug here sometimes leaves the box translucent
 			});
-			$("#sepiaFW-main-window").removeClass("sepiaFW-translucent-10");
+			$("#sepiaFW-main-window").removeClass("sepiaFW-translucent-10 no-interaction");
 		}
 	}
 	Account.isLoginBoxOpen = function(){

@@ -851,38 +851,46 @@ function sepiaFW_build_webSocket_client(sepiaSessionId){
 		}
 		//console.log(shareData);
 		if (shareData.type && shareData.data){
+			var sdd = shareData.data;
 			var ask;
 			//give more info
 			if (shareData.type == SepiaFW.client.SHARE_TYPE_LINK){
 				//Link
-				ask = "<p><b>" + SepiaFW.local.g('link_open_url') + "</b></p>";
-				ask += "<b>URL:</b> ";
-				if (shareData.data.url){
-					ask += (shareData.data.url.length > 30)? (shareData.data.url.substring(0,29) + "...") : shareData.data.url;
+				if (sdd.url){
+					ask = "<p><b>" + SepiaFW.local.g('link_open_url') + "</b></p>";
+					ask += "<b>URL:</b> ";
+					ask += (sdd.url.length > 30)? (sdd.url.substring(0,29) + "...") : sdd.url;
+				}else if (sdd.data && sdd.data.type && (sdd.data.type == "musicSearch" || sdd.data.type == "videoSearch")){
+					ask = "<p><b>" + SepiaFW.local.g('link_media_search') + "</b></p>";
+					if (sdd.data.brand) ask += "<p>Link Card Type: " + sdd.data.brand + "</p>";
+					ask += sdd.data.title;
+				}else{
+					ask = "<p><b>" + "Link Card" + "</b></p>";
+					ask += "<b>Unknown</b>";
 				}
 			}else if (shareData.type == SepiaFW.client.SHARE_TYPE_CHANNEL_INVITE){
 				//Channel Invite
 				ask = "<p><b>" + SepiaFW.local.g('link_join_channel') + "</b></p>";
-				ask += "<b>Channel Name:</b> " + shareData.data.name + "<br>";
-				ask += "<b>Channel Owner:</b> " + shareData.data.owner;
+				ask += "<b>Channel Name:</b> " + sdd.name + "<br>";
+				ask += "<b>Channel Owner:</b> " + sdd.owner;
 			}else if (shareData.type == SepiaFW.client.SHARE_TYPE_ALARM){
 				//Alarm
 				ask = "<p><b>" + SepiaFW.local.g('link_create_reminder') + "</b></p>";
-				ask += "<b>Title:</b> " + shareData.data.title;
+				ask += "<b>Title:</b> " + sdd.title;
 			}else{
 				//Other
 				ask = "<p>Shared data of type: <b>" + shareData.type.toUpperCase() + "</b></p>";
 			}
 			SepiaFW.ui.askForPermissionToExecute(ask, function(){
 				//ALARM
-				if (shareData.type == SepiaFW.client.SHARE_TYPE_ALARM && shareData.data.beginTime){
+				if (shareData.type == SepiaFW.client.SHARE_TYPE_ALARM && sdd.beginTime){
 					var options = {};   //things like skipTTS etc. (see sendCommand function)
 					var dataset = {
 						info: "direct_cmd",
-						cmd: "timer;;alarm_name=" + (shareData.data.title || "Shared Alarm") 
+						cmd: "timer;;alarm_name=" + (sdd.title || "Shared Alarm") 
 							+ ";;alarm_type=" + "<alarmClock>" 
-							+ ";;time=" + "<unix>" + shareData.data.beginTime 
-							+ ";;clock=" + "<unix>" + shareData.data.beginTime
+							+ ";;time=" + "<unix>" + sdd.beginTime 
+							+ ";;clock=" + "<unix>" + sdd.beginTime
 							+ ";;action=<set>",
 						newReceiver: SepiaFW.assistant.id
 					};
@@ -900,7 +908,7 @@ function sepiaFW_build_webSocket_client(sepiaSessionId){
 					var nluResult = {
 						command: "open_link"
 					}
-					var serviceResult = SepiaFW.embedded.services.link(nluInput, nluResult, shareData.data);
+					var serviceResult = SepiaFW.embedded.services.link(nluInput, nluResult, sdd);
 					//serviceResult.answer = "";
 					//serviceResult.answer_clean = "";
 					var assistantIdOrName = ""; 	//SepiaFW.assistant.id
@@ -911,7 +919,7 @@ function sepiaFW_build_webSocket_client(sepiaSessionId){
 				//CHANNEL INVITE
 				}else if (shareData.type == SepiaFW.client.SHARE_TYPE_CHANNEL_INVITE){
 					//send request
-					SepiaFW.client.joinNewChannel(shareData.data, function(res){
+					SepiaFW.client.joinNewChannel(sdd, function(res){
 						//additional onSuccess
 						SepiaFW.ui.showPopup(SepiaFW.local.g('joinedChannel') + ":"
 							+ "<br><br><b>Name:</b> " + res.channelName
@@ -935,13 +943,16 @@ function sepiaFW_build_webSocket_client(sepiaSessionId){
 		//console.log('Android intent action: ' + JSON.stringify(intent.action));		//DEBUG
 		if (intent.action){
 			//NOTE: the following assumes that the intent was properly executed after onActive
-			if (intent.action == "android.intent.action.ASSIST"){
+			if (intent.action == "android.intent.action.ASSIST" 
+				|| intent.action == "android.intent.action.VOICE_COMMAND"){
 				//DEBUG
 				//var intentExtras = intent.extras;
 				//if (intentExtras)	console.log('Intent extras: ' + JSON.stringify(intentExtras));
 				//Start mic
 				var useConfirmationSound = SepiaFW.speech.shouldPlayConfirmation();
-				SepiaFW.ui.toggleMicButton(useConfirmationSound);
+				var sourceAction = "intent-" 
+					+ (intent.action.replace("android.intent.action.", "").replace(/_/g, "-").trim().toLowerCase());
+				SepiaFW.ui.toggleMicButton(useConfirmationSound, sourceAction);
 			}
 		}		
 	}
@@ -1043,14 +1054,14 @@ function sepiaFW_build_webSocket_client(sepiaSessionId){
 			var backBtn = document.getElementById("sepiaFW-back-btn");
 			if (backBtn){
 				$(backBtn).off();
-				$(backBtn).on("click", function () {
+				$(backBtn).on("click", function(){
 					SepiaFW.ui.backButtonAction();
 				});
 			}
 			//-always on mode
 			var alwaysOnBtn = document.getElementById("sepiaFW-alwaysOn-btn");
 			if (alwaysOnBtn){
-				$(alwaysOnBtn).off().on("click", function () {
+				$(alwaysOnBtn).off().on("click", function(){
 					if (SepiaFW.alwaysOn){
 						SepiaFW.ui.closeAllMenus();
 						SepiaFW.alwaysOn.start();
@@ -1061,7 +1072,7 @@ function sepiaFW_build_webSocket_client(sepiaSessionId){
 			var teachUiBtn = document.getElementById("sepiaFW-teachUI-open");
 			if (teachUiBtn){
 				$(teachUiBtn).off();
-				$(teachUiBtn).on("click", function () {
+				$(teachUiBtn).on("click", function(){
 					if (SepiaFW.teach){
 						SepiaFW.ui.closeAllMenus();
 						SepiaFW.teach.openUI();
@@ -1072,11 +1083,35 @@ function sepiaFW_build_webSocket_client(sepiaSessionId){
 			var saythisBtn = document.getElementById("sepiaFW-saythis-btn");
 			if (saythisBtn){
 				$(saythisBtn).off();
-				$(saythisBtn).on("click", function () {
+				$(saythisBtn).on("click", function(){
 					closeControlsMenueWithDelay();
-					var inp = document.getElementById("sepiaFW-chat-input");
-					inp.value = SepiaFW.assistant.name + ' ' + CMD_SAYTHIS + ' ';
-					inp.focus();
+					//chat or remote?
+					SepiaFW.ui.showPopup(SepiaFW.local.g('broadcast_to_device_or_chat'), {
+						inputLabelOne: "Text",
+						buttonOneName: "Remote Device",
+						buttonOneAction: function(btn, inputVal1){
+							//Remote
+							if (!inputVal1) return;
+							setTimeout(function(){
+								SepiaFW.client.showConnectedUserClientsAsMenu(SepiaFW.local.g('choose_device_for_action'), 
+									function(deviceInfo){
+										SepiaFW.client.sendRemoteActionToOwnDevice("notify", {
+											type: "assistant_message",
+											text: inputVal1,
+											language: SepiaFW.speech.getLanguage() 		//speech or app lang.?
+										}, deviceInfo.deviceId);
+									}, true
+								);
+							}, 0);
+						},
+						buttonTwoName: "Send via Chat",
+						buttonTwoAction: function(btn, inputVal1){
+							//Chat
+							var inp = document.getElementById("sepiaFW-chat-input");
+							inp.value = SepiaFW.assistant.name + ' ' + CMD_SAYTHIS + ' ' + inputVal1;
+							inp.focus();
+						}
+					});
 				});
 			}
 			//-clear history
@@ -1288,20 +1323,23 @@ function sepiaFW_build_webSocket_client(sepiaSessionId){
 		}
 		text = text.trim();
 
-		//show results in frame as well? (SHOW ONLY!)
+		//show results in frame as well ...
 		if (SepiaFW.frames && SepiaFW.frames.isOpen && SepiaFW.frames.canHandleSpeechToTextInput()){
 			var modText = SepiaFW.frames.handleSpeechToTextInput({
 				"text": text,
 				"isFinal": true
 			});
 			if (modText) text = modText;
-		}
 		
-		//draw speech (e.g. into speech bubble or input field)
-		drawSpeech(text, true);
+		//... or default?
+		}else{
+			//draw speech (e.g. into speech bubble or input field)
+			drawSpeech(text, true);
+		}
+
 		if (text){
 			inputCameViaAsr = true;
-			SepiaFW.client.sendInputText();
+			SepiaFW.client.sendInputText(text);
 		}else{
 			//rare cases were callback triggers but there is no input
 			SepiaFW.animate.assistant.idle('asrNoResult');
@@ -1309,17 +1347,19 @@ function sepiaFW_build_webSocket_client(sepiaSessionId){
 		}
 	}
 	Client.asrCallbackInterim = function(text){
-		//show results in frame as well? (SHOW ONLY!)
+		//show results in frame ...
 		if (SepiaFW.frames && SepiaFW.frames.isOpen && SepiaFW.frames.canHandleSpeechToTextInput()){
 			var modText = SepiaFW.frames.handleSpeechToTextInput({
 				"text": text,
 				"isFinal": false
 			});
 			if (modText) text = modText;
+		
+		//... or default?
+		}else{
+			//draw speech (e.g. into speech bubble or input field)
+			drawSpeech(text, false);
 		}
-
-		//draw speech (e.g. into speech bubble or input field)
-		drawSpeech(text, false);
 	}
 	Client.asrErrorCallback = function(error){
 		SepiaFW.debug.err("UI-ASR: " + error);
@@ -1328,34 +1368,7 @@ function sepiaFW_build_webSocket_client(sepiaSessionId){
 		SepiaFW.debug.info("UI-ASR: " + msg);
 	}
 	function drawSpeech(text, isFinal){
-		//try speech-bubble
-		var inBox =	document.getElementById('sepiaFW-chat-controls-speech-box-bubble');
-		if (inBox){
-			if (text){
-				$(inBox).show();
-				$('#sepiaFW-chat-controls-speech-box-bubble-loader').hide();
-				inBox.textContent = text;
-			}else if (isFinal){
-				inBox.textContent = "";
-			}
-		//try default text input field
-		}else{
-			var inBox =	document.getElementById("sepiaFW-chat-input");
-			if (inBox){ 
-				if (text && isFinal){
-					inBox.value = text;
-				}else if (text){
-					//cut text to fit in input?
-					var maxWidth = $(inBox).innerWidth();
-					if (text.length*7.5 > maxWidth){
-						text = text.slice(-1 * Math.floor(maxWidth / 7.5));
-					}
-					inBox.value = text;
-				}else if (isFinal){
-					inBox.value = "";
-				}
-			}
-		}
+		SepiaFW.ui.drawLiveSpeechInputText(text, isFinal);
 	}
 	
 	//add credentials and parameters
@@ -1397,11 +1410,11 @@ function sepiaFW_build_webSocket_client(sepiaSessionId){
 
 		webSocket = new WebSocket(uri);
 		
-		webSocket.onmessage = function (msg) {
+		webSocket.onmessage = function(msg){
 			Client.handleMessage(msg); 
 		};
 
-		webSocket.onclose = function () {
+		webSocket.onclose = function(){
 			SepiaFW.debug.log("WebSocket: connection closed or lost");
 			connectionIsOpen = false;
 			isConnecting = false;
@@ -1412,7 +1425,7 @@ function sepiaFW_build_webSocket_client(sepiaSessionId){
 			Client.handleCloseEvent();
 		};
 
-		webSocket.onopen = function () { 
+		webSocket.onopen = function(){
 			SepiaFW.debug.log("WebSocket: connection open");
 			clearTimeout(reconTimer);
 			clearTimeout(instaReconTimer);
@@ -1430,7 +1443,7 @@ function sepiaFW_build_webSocket_client(sepiaSessionId){
 			}
 		};
 
-		webSocket.onerror = function (error) { 
+		webSocket.onerror = function(error){
 			SepiaFW.debug.err("WebSocket:", error);
 			SepiaFW.client.broadcastConnectionStatus(SepiaFW.client.STATUS_ERROR);
 			//TODO: does error mean connection lost?
@@ -1500,7 +1513,7 @@ function sepiaFW_build_webSocket_client(sepiaSessionId){
 		}
 		clearTimeout(sendInputTimeout);
 		//prep text
-		var text = inputText || document.getElementById("sepiaFW-chat-controls-speech-box-bubble").innerText || document.getElementById("sepiaFW-chat-input").value;
+		var text = inputText || getInputTextFromInterface();
 		if (text && text.trim()){
 			//specials?
 			var inputSpecialCommand = Client.inputHasSpecialCommand(text);
@@ -1600,12 +1613,11 @@ function sepiaFW_build_webSocket_client(sepiaSessionId){
 		//reset all possible text fields
 		clearInputText();
 	}
+	function getInputTextFromInterface(){
+		return SepiaFW.ui.getActiveSpeechOrChatInputText();
+	}
 	function clearInputText(){
-		//reset all possible text fields
-		var inputField = document.getElementById("sepiaFW-chat-input");
-		if (inputField) inputField.value = "";
-		var speechBubble = document.getElementById("sepiaFW-chat-controls-speech-box-bubble");
-		if (speechBubble) speechBubble.innerHTML = "";
+		SepiaFW.ui.clearSpeechAndChatInputText();
 	}
 	
 	Client.getActiveChannelUsersByIdOrName = function(nameOrId){
@@ -2211,7 +2223,7 @@ function sepiaFW_build_webSocket_client(sepiaSessionId){
 						if (action.events == "timeEvents" || action.events == SepiaFW.events.TIMER || action.events == SepiaFW.events.ALARM){
 							//if its old we remove the card here (because the update will only refresh future timers)
 							if (action.details && action.details.eventId){
-								//NOTE: currently this will probably never be triggered because we are missing the eventId (event update = complete list sync)
+								//NOTE: this will ONLY be triggered if its not a complete list-sync. because list-sync. is missing individual eventIds
 								SepiaFW.ui.cards.findAllTimeEventCards(true, false).forEach(function(item){
 									if (item.data && item.data.eventId == action.details.eventId){
 										item.remove();
@@ -2249,6 +2261,7 @@ function sepiaFW_build_webSocket_client(sepiaSessionId){
 				//Music
 				}else if (message.data.type === "media"){
 					if (typeof action == "string"){
+						//default is stream
 						action = {
 							type: "audio_stream",
 							streamURL: action
@@ -2266,7 +2279,7 @@ function sepiaFW_build_webSocket_client(sepiaSessionId){
 							if (action.streamURL){
 								//wait for opportunity and execute
 								SepiaFW.assistant.waitForOpportunitySayLocalTextAndRunAction(
-									SepiaFW.local.g('remote_action_audio_stream'), 
+									SepiaFW.account.getUserName() + ", " + SepiaFW.local.g('remote_action_audio_stream'), 
 									function(){
 										SepiaFW.ui.showInfo(SepiaFW.local.g('remote_action') + " - Media Audio Stream: " + (action.name || action.streamURL), false);
 										//SepiaFW.ui.showCustomChatMessage(msg);
@@ -2280,14 +2293,81 @@ function sepiaFW_build_webSocket_client(sepiaSessionId){
 							}
 						}else if (action.type == "control"){
 							//control audio (stop, pause, resume, next, ...)
-							if (SepiaFW.client.controls && action.controlAction){
+							if (action.controlAction){
 								SepiaFW.ui.showInfo(SepiaFW.local.g('remote_action') + " - Media Control: " + action.controlAction, false);
 								SepiaFW.client.controls.media({
 									action: action.controlAction
 								});
 							}
+						}else if (action.type == "embedded_player"){
+							//embedded media-player
+							if (action.playerData){
+								if (!action.playerData.data) action.playerData.data = {};
+								//wait for opportunity and execute
+								SepiaFW.assistant.waitForOpportunitySayLocalTextAndRunAction(
+									SepiaFW.account.getUserName() + ", " + SepiaFW.local.g('remote_action_media_player'), 
+									function(){
+										SepiaFW.ui.showInfo(SepiaFW.local.g('remote_action') + " - Media Player: " 
+											+ (action.playerData.data && action.playerData.data.title || action.playerData.url), false);
+										var isSafeSource = true;	//it comes from own account
+										action.playerData.data.autoplay = true;		//it doesn't really make sense without ;-)
+										SepiaFW.ui.cards.addEmbeddedPlayer("chat", action.playerData, isSafeSource);
+									}, 
+									undefined, 10000
+								);
+							}
 						}else{
 							SepiaFW.debug.error("remoteAction - type: media - no support yet for action type: " + action.type);
+						}
+					}
+
+				//Notification
+				}else if (message.data.type === "notify"){
+					if (typeof action == "string"){
+						//default is assistant text
+						action = {
+							type: "assistant_message",
+							text: action
+						}
+					}
+					SepiaFW.debug.info("remoteAction - notify: " + JSON.stringify(action));
+
+					//user has to be same! (security)
+					if (actionUser !== SepiaFW.account.getUserId()){
+						SepiaFW.debug.error("remoteAction - tried to use type 'notify' with wrong user");
+					}else{
+						//handle
+						if (action.type == "assistant_message"){
+							if (action.text){
+								if (!action.language) action.language = SepiaFW.speech.getLanguage();
+								action.text = action.text.replace(/\.$/, "") + ".";		//make sure we end with "." (important for some TTS)
+								var orgMsg = action.text;
+								if (!action.skipIntro){
+									action.text = SepiaFW.account.getUserName() + ", " 
+										+ SepiaFW.local.g('remote_action_notify', action.language).trim() + " " 
+										+ action.text;
+								}
+								var actionFun = function(){
+									SepiaFW.ui.showCustomChatMessage(orgMsg, {
+										sender: SepiaFW.local.g("notification"), //SepiaFW.assistant.name,
+										//senderType: 'assistant',
+										channelId: 'info'
+									});
+								}
+								SepiaFW.assistant.waitForOpportunitySayLocalTextAndRunAction(
+									//localizedText, actionFun, fallbackAction, maxWait, speakOptions:
+									action.text, function(){
+										actionFun();
+									}, function(){
+										SepiaFW.ui.showInfo(SepiaFW.local.g("notification"), false);
+										actionFun();
+									}, 15000, {oneTimeLanguage: action.language}
+								);
+								//use instead? SepiaFW.events.setProActiveBackgroundNotification(action)
+								//TODO: add intro text? add notification? add something in the chat!
+							}
+						}else{
+							SepiaFW.debug.error("remoteAction - type: notify - no support yet for action type: " + action.type);
 						}
 					}
 				
@@ -2554,10 +2634,10 @@ function sepiaFW_build_webSocket_client(sepiaSessionId){
 			}
 		}
 		
-		//Assistant states - TODO: this needs some rework to make it compatible with background commands 
+		//Assistant states - TODO: this needs some rework to make it compatible with background commands
 		if ((isAssistAnswer || isAssistFollowUp) && !(options.loadOnlyData || options.skipInsert || options.skipText)){
 			var returnToIdle;
-			if (options.skipTTS || !SepiaFW.speech || SepiaFW.speech.skipTTS || !SepiaFW.speech.isTtsSupported){
+			if (options.skipTTS || SepiaFW.speech.skipTTS || !SepiaFW.speech.isTtsSupported){
 				returnToIdle = true;
 			}else{
 				returnToIdle = false;
@@ -2566,7 +2646,7 @@ function sepiaFW_build_webSocket_client(sepiaSessionId){
 		
 		}else if ((isAssistAnswer || isAssistFollowUp) && options.skipTTS){
 			//there will be no trigger for queued commands now, so we have to check it manually
-			if (SepiaFW.ui.actions && SepiaFW.client.getCommandQueueSize() > 0){
+			if (SepiaFW.client.getCommandQueueSize() > 0){
 				SepiaFW.animate.assistant.loading();
 				var action = SepiaFW.client.getAndRemoveNextCommandInQueue();
 				SepiaFW.ui.actions.openCMD(action);
@@ -2578,9 +2658,12 @@ function sepiaFW_build_webSocket_client(sepiaSessionId){
 			if (message.senderType === "assistant"){
 				SepiaFW.speech.speak(messageTextSpeak, function(){
 					//finished - same callback as below
-				},function(){
+				}, function(){
 					//error			
-				});
+				}, function(){
+					//started
+				}, {});	
+				//TODO: support 'options'
 			}
 		}else{
 			if (message.senderType === "assistant"){
@@ -2695,7 +2778,7 @@ function sepiaFW_build_webSocket_client(sepiaSessionId){
 		var header = document.createElement("p");
 		header.style.fontWeight = "bold";
 		header.style.fontSize = "16px";
-		header.innerText = title;
+		header.textContent = title;
 		menu.appendChild(header);
 		var thisDevice = SepiaFW.config.getDeviceId();
 		clients.forEach(function(cl){

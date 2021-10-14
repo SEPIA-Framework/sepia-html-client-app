@@ -6,6 +6,9 @@ function sepiaFW_build_config(){
 	var deviceId = "";						//set in settings and chosen by user to address his devices directly (only numbers and letters, space is replaced by '-', lower-case)
 	Config.environment = SepiaFW.tools.getURLParameter("env") || "default";		//'default' supports all features, other options: 'speaker', 'smart_display', 'silent_display', 'car_display'
 	//NOTE: switches to "avatar_display" in AO-Mode !
+
+	function isIE11(){return!(!(0<window.navigator.userAgent.indexOf("MSIE "))&&!navigator.userAgent.match(/Trident.*rv\:11\./))}
+	Config.uiIsIE11 = isIE11();
 	
 	//set client info
 	Config.setClientInfo = function(clientInfo){
@@ -38,6 +41,10 @@ function sepiaFW_build_config(){
 	Config.getDeviceId = function(){
 		return deviceId;
 	}
+	//get app root
+	Config.getAppRootUrl = function(){
+		return (location.origin + location.pathname.replace(/\/index.html.*/, "/")).trim();
+	}
 	//set hostname
 	Config.setHostName = function(hostName, skipReload){
 		if (hostName != undefined){
@@ -60,21 +67,22 @@ function sepiaFW_build_config(){
 		path = path
 			.replace("<assist_server>/", Config.assistAPI)
 			.replace("<teach_server>/", Config.teachAPI)
-			.replace("<chat_server>/", Config.webSocketAPI);
+			.replace("<chat_server>/", Config.webSocketAPI)
+			.replace("<sepia_website>/", Config.sepiaWebsite)
+		;
 		//local app paths - e.g. <custom_data>, <local_data>, <app_data>
 		path = SepiaFW.files.replaceSystemFilePath(path);
 		return path;
 	}
 	
-	//language
-	var lang = SepiaFW.tools.getURLParameter("lang") || SepiaFW.data.get('app-language') || navigator.language || navigator.userLanguage;
-	if (lang && lang.toLowerCase().indexOf('de') === 0){
-		lang = 'de';
-	}else{
-		lang = 'en';
-	}
+	//language (Note: account settings will overwrite URL param)
+	var lang = SepiaFW.tools.getURLParameter("lang") || SepiaFW.data.get('app-language') || navigator.language || navigator.userLanguage || "en";
+	lang = lang.toLowerCase().replace(/-.*/, "");
 	Config.appLanguage = lang; 
 	SepiaFW.debug.log('Config: language=' + Config.appLanguage);
+
+	//Hard-coded URLs
+	Config.sepiaWebsite = "https://sepia-framework.github.io/";
 	
 	//set API URLs
 	Config.host = "localhost:20726/sepia"; 	//location.hostname + ":" + location.port
@@ -142,19 +150,11 @@ function sepiaFW_build_config(){
 	Config.openEndPointsSettings = function(){
 		SepiaFW.frames.open({ 
 			pageUrl: "server-access.html",
-			onFinishSetup: function(){
-				SepiaFW.frames.currentScope.onFinishSetup();
-			},
-			onOpen: function(){
-				SepiaFW.frames.currentScope.onOpen();
-			},
 			onClose: function(){
 				if (!SepiaFW.account.getUserId() && !SepiaFW.client.isDemoMode()){
 					SepiaFW.account.toggleLoginBox();
 				}
-			},
-			/*onClose: onSettingsClose,*/
-			theme: SepiaFW.ui.getSkinStyle()
+			}
 		});
 	}
 	
@@ -196,14 +196,16 @@ function sepiaFW_build_config(){
 		//app
 		Config.appLanguage = language; 		//TODO: interface reload to set texts?
 		//speech
-		if (SepiaFW.speech){ 	
-			SepiaFW.speech.setLanguage(language);
-			SepiaFW.speech.refreshVoice();
-		}
+		if (SepiaFW.speech)		SepiaFW.speech.setLanguage(language);
 		//geocoder
 		if (SepiaFW.geocoder) 	SepiaFW.geocoder.setLanguage(language);
 		//menue
 		$('#sepiaFW-menu-account-language-li').find('select').val(language);
+		//URL
+		if (window.history && window.history.replaceState && SepiaFW.tools.getURLParameter("lang")){
+			var url = SepiaFW.tools.setParameterInURL(window.location.href, "lang", language);
+			window.history.replaceState(history.state, document.title, url);
+		}
 		//log and save
 		SepiaFW.data.updateAccount('language', language);
 		SepiaFW.data.set('app-language', language);
@@ -301,11 +303,17 @@ function sepiaFW_build_config(){
 
 	//Collection of universally supported apps and their names
     Config.musicApps = {
-		"youtube": {name: "YouTube"},
-		"spotify_link": {name: "Spotify"},
-		"apple_music_link": {name: "Apple Music"}
+		//NOTE: _link services will skip 'Controls.searchForMusic' action (server will not send it)
+		"embedded": {name: "Embedded Player"},
+		"youtube_link": {name: "YouTube Web"},
+		"youtube_embedded": {name: "YouTube Widget"},
+		"spotify_link": {name: "Spotify Web"},
+		"spotify_embedded": {name: "Spotify Widget"},
+		"apple_music_link": {name: "Apple Music Web"},
+		"apple_music_embedded": {name: "Apple Music Widget"}
+		//"soundcloud_embedded": {name: "SoundCloud Widget"}
     }
-	var defaultMusicApp = "youtube";
+	var defaultMusicApp = "youtube_embedded";
 
 	Config.getMusicAppCollection = function(){
 		if (SepiaFW.ui.isAndroid){
@@ -384,8 +392,39 @@ function sepiaFW_build_config(){
 	}
 	//NOTE: see SepiaFW.account #skipLogin for temporary setup settings (e.g. TTS off)
 
-	Config.loadAppSettings = function(){
+	Config.exportSettingsForHeadlessMode = function(){
+		//build
+		var headlessConfigJson;
+		if (SepiaFW.settings && SepiaFW.settings.headless){
+			headlessConfigJson = JSON.parse(JSON.stringify(SepiaFW.settings));	//copy
+		}else{
+			headlessConfigJson = {headless: {}};
+		}
+		headlessConfigJson.headless.device = SepiaFW.data.getAllPermanent();
+		headlessConfigJson.headless.user = SepiaFW.data.getAll();
+		//filter account
+		delete headlessConfigJson.headless.user["account"];
+		delete headlessConfigJson.headless.user["contacts-from-chat"];
+		delete headlessConfigJson.headless.user["lastChannelMessageTimestamps"];
+		//... more?
+		//show
+		var msgBox = document.createElement("div");
+		var titleBox = document.createElement("div");
+		titleBox.innerHTML = "<h3>Client Settings</h3><p>Copy this to your SEPIA client settings.js file:</p>";
+		var jsonBox = document.createElement("textarea");
+		jsonBox.value = JSON.stringify(headlessConfigJson, null, 4);
+		jsonBox.style.whiteSpace = "pre";
+		msgBox.appendChild(titleBox);
+		msgBox.appendChild(jsonBox);
+		SepiaFW.ui.showPopup(msgBox);
+		//adjust size
+		jsonBox.style.height = jsonBox.scrollHeight + 32 + "px";
+	}
+
+	Config.loadAppSettings = function(readyCallback){
 		//TODO: this should be simplified with a service! ...
+		addAppSettingsReadyCallback(readyCallback);
+		addAppSettingsReadyCondition("app-settings-tasks");
 		
 		//TTS
 		if (SepiaFW.speech){
@@ -480,7 +519,26 @@ function sepiaFW_build_config(){
 		if (prefSearchEngineStored){
 			Config.setPreferredSearchEngine(prefSearchEngineStored);
 		}
+
+		finishAppSettingsConditionAndCheckReadyState("app-settings-tasks");
 	}
+	function addAppSettingsReadyCallback(readyFun){
+		appSettingsReadyCallback = readyFun;
+	}
+	function addAppSettingsReadyCondition(conditionName){
+		appSettingsReadyConditions[conditionName] = "pending";
+	}
+	function finishAppSettingsConditionAndCheckReadyState(finishConditionName){
+		delete appSettingsReadyConditions[finishConditionName];
+		SepiaFW.debug.log("App settings finished condition: " + finishConditionName);
+		if (Object.keys(appSettingsReadyConditions).length == 0){
+			SepiaFW.debug.log("App settings complete");
+			if (appSettingsReadyCallback) appSettingsReadyCallback();
+			appSettingsReadyCallback = null;
+		}
+	}
+	var appSettingsReadyCallback;
+	var appSettingsReadyConditions = {};
 	
 	return Config;
 }

@@ -314,7 +314,8 @@ html {
 .sepiaFW-cards-list-body .linkCard > div,
 .sepiaFW-cards-list-body .timeEvent div,
 .sepiaFW-cards-list-body .newsArticle .newsCenter,
-.sepiaFW-cards-list-body .radioStation div {
+.sepiaFW-cards-list-body .radioStation div,
+.dark-skin .sepiaFW-cards-list-body .fullWidthItem .cardItemBlock {
 	background: #212121;
 	color: #ECEBE7;
 }
