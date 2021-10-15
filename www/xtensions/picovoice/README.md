@@ -5,9 +5,12 @@ All wake-words found here are taken from their official GitHub account and are u
 
 ## Switching the Wake-Word
 
-Since SEPIA client v0.24.0 you can select the wake-word via the "Hey SEPIA" settings page (expert settings). If you cannot access the UI (for example because you use the headless client) you fo the following.  
-Open `wakeWords.js` and change the entries for `SepiaFW.wakeTriggers.porcupineWakeWords` and `SepiaFW.wakeTriggers.porcupineVersion` (if required).  
-To switch the wake-word to "Raspberry" for example enter the following:
+Since SEPIA client v0.24.0 you can select the wake-word via the "Hey SEPIA" settings page (expert settings). If you cannot access the UI because you're using the headless client then you should edit the `settings.js` file in your base folder. Look for:
+```
+"wakeWordNames": "Hey SEPIA",
+"wakeWordVersion": "1.4",
+```
+If you are not using 'headless' mode but still want to edit the default settings open `wakeWords.js` and change the entries for `SepiaFW.wakeTriggers.porcupineWakeWords` and `SepiaFW.wakeTriggers.porcupineVersion` (if required). To switch the wake-word to "Raspberry" for example enter the following:
 ```
 SepiaFW.wakeTriggers.porcupineVersion = "1.5";
 SepiaFW.wakeTriggers.porcupineWakeWords = ["Raspberry"];
