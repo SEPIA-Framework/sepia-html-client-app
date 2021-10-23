@@ -933,7 +933,7 @@ function sepiaFW_build_speech_synthesis(Speech, sepiaSessionId){
 		var apiUrl = Speech.voiceCustomServer.replace(/\/$/, "") + "/process" 
 			+ "?INPUT_TYPE=TEXT" + "&OUTPUT_TYPE=AUDIO" + "&AUDIO=WAVE_FILE"
 			+ "&LOCALE=" + encodeURIComponent(voiceInfo[1])
-			+ "&VOICE=" + encodeURIComponent(voiceInfo[0])		//TODO: Larynx special: + ";hifi_gan:vctk_small"
+			+ "&VOICE=" + encodeURIComponent(voiceInfo[0])
 			+ "&INPUT_TEXT=" + encodeURIComponent(message)
 		;
 		SepiaFW.debug.info("Speech.maryTTS - getURL SUCCESS: " + apiUrl);

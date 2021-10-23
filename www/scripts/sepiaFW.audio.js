@@ -598,6 +598,7 @@ function sepiaFW_build_audio(){
 	TTS.speak = function(message, onStartCallback, onEndCallback, onErrorCallback, options){
 		//NOTE: For the state-ful version of 'speak' (with settings and events) use: 'SepiaFW.speech.speak'
 		//gets URL and calls play(URL)
+		SepiaFW.debug.info("TTS audio requested: " + Date.now());
 		SepiaFW.speech.getTtsStreamURL(message, function(audioUrl){
 			SepiaFW.debug.info("TTS audio url: " + audioUrl);
 			AudioPlayer.playURL(audioUrl, speaker, onStartCallback, onEndCallback, onErrorCallback);
@@ -897,10 +898,19 @@ function sepiaFW_build_audio(){
 		audioPlayer.preload = 'auto';
 		AudioPlayer.broadcastAudioEvent(sourceName, "prepare", audioPlayer);
 
+		var audioRequestedTime = Date.now();
+		var audioFirstLoadTime = 0;
+		var audioCanPlayTime = 0;
+		SepiaFW.debug.info("AUDIO: pre-loading - " + audioRequestedTime);		//debug
 		//console.log("Audio-URL: " + audioURL); 		//DEBUG
 		audioPlayer.src = audioURL;
+		audioPlayer.onloadedmetadata = function(e){
+			SepiaFW.debug.info("AUDIO: meta data received (onloadedmetadata event)");		//debug
+			audioFirstLoadTime = Date.now();
+		};
 		audioPlayer.oncanplay = function(){
 			SepiaFW.debug.info("AUDIO: can be played now (oncanplay event)");		//debug
+			audioCanPlayTime = Date.now();
 			if (audioPlayer == player){
 				Stream.isPlaying = true;
 				Stream.isLoading = false;
@@ -920,7 +930,11 @@ function sepiaFW_build_audio(){
 		};
 		audioPlayer.onpause = function(){
 			if (!audioOnEndFired){
-				SepiaFW.debug.info("AUDIO: ended (onpause event)");				//debug
+				SepiaFW.debug.info("AUDIO: ended (onpause event)" 	//debug
+					+ " - First load: " + (audioFirstLoadTime - audioRequestedTime)
+					+ " - Time to play: " + (audioCanPlayTime - audioRequestedTime)
+					+ " - Playtime: " + (Date.now() - audioCanPlayTime)
+				);				
 				audioOnEndFired = true;
 				if (audioPlayer == player){
 					Stream.isPlaying = false;
