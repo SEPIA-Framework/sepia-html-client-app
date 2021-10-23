@@ -49,7 +49,7 @@ You can modify the client configuration via several URL parameters:
 * `env` - 'environment' setting for client
 * `q` - Question that will be triggered when client is connected
 * `share` - Shared data e.g. via deeplinks
-* `view` - Switch to specific view on start for example always-on mode (e.g.: aomode, teachui, "frame name")
+* `view` - Switch to specific view on start for example always-on mode (e.g.: aomode, teachui, <custom_data>/views/demo-view, <assist_server>/views/demo-view)
 * `clexi` and `clexiId` - CLEXI socket URL and access ID
 * `logout` - 'true' will make sure client is logged out at start (all previous user date removed)
 * `cordova` - Set Cordova framework mode if 'true'
