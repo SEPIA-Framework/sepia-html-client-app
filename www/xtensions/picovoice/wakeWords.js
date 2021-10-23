@@ -18,6 +18,7 @@ SepiaFW.wakeTriggers.porcupineAvailableKeywords = {
     "Grasshopper": "1.9",
     "Hot Pink": "1.6",
     "Magenta": "1.6",
+	"Flamingo": "1.6",
     "Midnight Blue": "1.6",
     "Sandy Brown": "1.6",
     "Blueberry": "1.6",
