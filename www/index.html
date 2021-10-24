@@ -28,7 +28,22 @@
 				document.documentElement.classList.remove("landscape-small");
 			}
 		}
+		function sepiaFW_border_check(){
+			//frame for larger screens (non-mobile) - (min-width: 480px) and (min-height: 481px)
+			if (window.innerWidth >= 480 && window.innerHeight > 480){
+				document.documentElement.classList.add("framed-view");
+			}else{
+				document.documentElement.classList.remove("framed-view");
+			}
+			//edge-2-edge - (max-width: 768px), (max-height: 768px)
+			if (window.innerWidth <= 768 || window.innerHeight <= 768){
+				document.documentElement.classList.add("edge-2-edge");
+			}else{
+				document.documentElement.classList.remove("edge-2-edge");
+			}
+		}
 		sepiaFW_landscape_check();
+		sepiaFW_border_check();
 	</script>
 	<title>S.E.P.I.A.</title>
 	<meta name="application-name" content="S.E.P.I.A."/>

@@ -77,6 +77,7 @@ function sepiaFW_build_ui(){
 	function orientationAndBasicWindowSizeCheck(){
 		//format
 		sepiaFW_landscape_check();
+		sepiaFW_border_check();
 
 		//document.getElementById('sepiaFW-chat-output').innerHTML += ('<br>resize, new size: ' + window.innerHeight);
 		var windowSizeDifference = (window.innerHeight - UI.windowExpectedSize);

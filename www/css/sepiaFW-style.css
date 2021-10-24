@@ -460,6 +460,7 @@ body.limit-size {
 
 /* -------------------- MAIN ------------------------- */
 
+/* TODO: replace with html.framed-view ... */
 @media (min-width: 480px) and (min-height: 481px) {
 	body {
 		display: flex;
@@ -475,6 +476,10 @@ body.limit-size {
 	body.limit-size #sepiaFW-main-window {
 		max-height: 820px;
 	}
+}
+html.edge-2-edge body.big-screen #sepiaFW-main-window {
+	border-radius: 0;
+	border-width: 0;
 }
 #sepiaFW-main-window.sepiaFW-skin-mod {
 	/* skins should write main-window modifications to this class so other views like frame or ao-mode stay untouched*/
