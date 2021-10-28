@@ -8,17 +8,14 @@
 	<meta name="viewport" id="sepia-viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=0">
 	<script>
 		function sepiaFW_scale_viewport(refSize){
-			if (!refSize) refSize = 240;
+			if (!refSize) refSize = (window.location.href.indexOf('isTiny=true') > 0)? 240 : 320;
+			var mvp = document.getElementById('sepia-viewport');
 			if (window.screen.width < refSize && window.matchMedia("(orientation: portrait)").matches){
-				var mvp = document.getElementById('sepia-viewport');
 				//mvp.setAttribute('content','initial-scale=' + screen.width/340);
 				mvp.setAttribute('content','width=' + refSize + ', initial-scale=' + window.screen.width/refSize + ', user-scalable=0');
+			}else{
+				mvp.setAttribute('content','width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=0');
 			}
-		}
-		if (window.location.href.indexOf('isTiny=true') > 0){
-			sepiaFW_scale_viewport(240);
-		}else{
-			sepiaFW_scale_viewport(320);
 		}
 		function sepiaFW_landscape_check(){
 			//(max-height: 480px) and (min-aspect-ratio: 13 / 10) and (min-width: 380px)
@@ -42,6 +39,7 @@
 				document.documentElement.classList.remove("edge-2-edge");
 			}
 		}
+		sepiaFW_scale_viewport();
 		sepiaFW_landscape_check();
 		sepiaFW_border_check();
 	</script>

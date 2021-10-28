@@ -76,6 +76,7 @@ function sepiaFW_build_ui(){
 	});
 	function orientationAndBasicWindowSizeCheck(){
 		//format
+		sepiaFW_scale_viewport();
 		sepiaFW_landscape_check();
 		sepiaFW_border_check();
 
