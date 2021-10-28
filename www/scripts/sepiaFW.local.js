@@ -555,12 +555,25 @@ function sepiaFW_build_strings(){
 		}
 	}
 	var defaultShortLangCodeToLongMap = {
+		"af": "af-ZA",
+		"ar": "ar-XA",
+		"da": "da-DK",
 		"de": "de-DE",
+		"el": "el-GR",
 		"en": "en-US",
 		"es": "es-ES",
 		"fr": "fr-FR",
+		"it": "it-IT",
+		"ja": "ja-JP",
+		"ko": "ko-KR",
 		"nl": "nl-BE",
-		"pt": "pt-PT"
+		"no": "no-NO",
+		"pl": "pl-PL",
+		"pt": "pt-PT",
+		"ru": "ru-RU",
+		"sv": "sv-SE",
+		"tr": "tr-TR",
+		"zh": "zh-CN"
 	}
 	
 	return StringsLocale;
