@@ -493,10 +493,11 @@ function sepiaFW_build_strings(){
 		return supportedAppLanguages;
 	}
 	//BCP47 language-REGION codes
-	StringsLocale.getExperimentalAsrLanguages = function(){
+	StringsLocale.getExperimentalAppLanguages = function(){
 		return [
 			{value:"", name:"Default (app lang.)"},
 			{value:"en-AU", name:"Australia (en-AU)"},
+			{value:"de-AT", name:"Austria (de-AT)"},
 			{value:"ar-XA", name:"Arabia (ar-XA)"},
 			{value:"es-AR", name:"Argentina (es-AR)"},
 			{value:"nl-BE", name:"Belgium (nl-BE)"},
@@ -509,6 +510,7 @@ function sepiaFW_build_strings(){
 			{value:"fr-FR", name:"France (fr-FR)"},
 			{value:"de-DE", name:"Germany (de-DE)"},
 			{value:"el-GR", name:"Greece (el-GR)"},
+			{value:"zh-HK", name:"Hong Kong (zh-HK)"},
 			{value:"en-IE", name:"Ireland (en-IE)"},
 			{value:"it-IT", name:"Italy (it-IT)"},
 			{value:"ja-JP", name:"Japan (ja-JP)"},
@@ -517,6 +519,7 @@ function sepiaFW_build_strings(){
 			{value:"nl-NL", name:"Netherlands (nl-NL)"},
 			{value:"en-NZ", name:"New Zealand (en-NZ)"},
 			{value:"no-NO", name:"Norway (no-NO)"},
+			{value:"es-PE", name:"Peru (es-PE)"}, 
 			{value:"pl-PL", name:"Poland (pl-PL)"},
 			{value:"pt-PT", name:"Portugal (pt-PT)"},
 			{value:"ru-RU", name:"Russia (ru-RU)"},
@@ -524,15 +527,29 @@ function sepiaFW_build_strings(){
 			{value:"af-ZA", name:"South Africa (af-ZA)"},
 			{value:"es-ES", name:"Spain (es-ES)"},
 			{value:"sv-SE", name:"Sweden (sv-SE)"},
+			{value:"de-CH", name:"Switzerland (de-CH)"},
+			{value:"zh-TW", name:"Taiwan (zh-TW)"},
 			{value:"tr-TR", name:"Turkey (tr-TR)"},
-			{value:"en-GB", name:"United Kingdom (en-GB)"},
-			{value:"en-US", name:"USA (en-US)"}
+			{value:"en-GB", name:"UK (en-GB)"},
+			{value:"en-US", name:"USA (en-US)"},
+			{value:"es-VE", name:"Venezuela (es-VE)"}
 		];
 	}
-	//Add experimental app languages
+	//Region codes for specific language
+	StringsLocale.getRegionCodesForActiveLang = function(){
+		var regions = [{value: "", name: "Default"}];
+		StringsLocale.getExperimentalAppLanguages().forEach(function(langObj){
+			if (langObj.value && !langObj.disabled 
+					&& langObj.value.indexOf(SepiaFW.config.appLanguage + "-") == 0){
+				regions.push(langObj);
+			}
+		});
+		return regions;
+	}
+	//Add experimental app languages (regions) to supported languages (basics)
 	function addExperimentalAppLanguages(){
 		supportedAppLanguages.push({value: "---", name: "--Dev. Only--", disabled: true});
-		StringsLocale.getExperimentalAsrLanguages().forEach(function(langObj){
+		StringsLocale.getExperimentalAppLanguages().forEach(function(langObj){
 			if (langObj.value && !langObj.disabled){
 				var shortCode = langObj.value.split("-")[0];
 				if (!supportedAppLanguages.find(function(lo){ return lo.value == shortCode; })){
@@ -542,13 +559,14 @@ function sepiaFW_build_strings(){
 		});
 	}
 	addExperimentalAppLanguages();
+	
 	//Map short to default long
 	StringsLocale.getDefaultBcp47LanguageCode = function(langCodeShort){
 		if (langCodeShort && langCodeShort.length === 2){
 			langCodeShort = langCodeShort.toLowerCase();
 			var mappedCode = defaultShortLangCodeToLongMap[langCodeShort];
 			if (!mappedCode){
-				var firstExpCode = StringsLocale.getExperimentalAsrLanguages().find(function(lc){ return lc.value.indexOf(langCodeShort) == 0; });
+				var firstExpCode = StringsLocale.getExperimentalAppLanguages().find(function(lc){ return lc.value.indexOf(langCodeShort) == 0; });
 				mappedCode = firstExpCode? firstExpCode.value : "";
 			}
 			return mappedCode;

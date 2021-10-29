@@ -19,20 +19,11 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 		var ele = document.createElement("SELECT");
 		if (btnId) ele.id = btnId;
 		optionsObjectArray.forEach(function(option){
-			var opt = document.createElement("OPTION");
-			opt.value = option.value;
-			opt.textContent = option.name;
-			if (option.disabled != undefined) opt.disabled = option.disabled;
+			var opt = buildOptionEle(option);
 			ele.appendChild(opt);
 		});
-		
 		//initialize selected value
-		for(var i, j = 0; i = ele.options[j]; j++) {
-			if(i.value == selectedValue) {
-				ele.selectedIndex = j;
-				break;
-			}
-		}
+		if (selectedValue != undefined) ele.value = selectedValue;
 
 		//change listener
 		$(ele).off().on('change', function(){
@@ -40,16 +31,49 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 		});
 		return ele;
 	}
+	function buildOptionEle(option){
+		var opt = document.createElement("OPTION");
+		opt.value = option.value;
+		opt.textContent = option.name;
+		if (option.disabled != undefined) opt.disabled = option.disabled;
+		return opt;
+	}
 	//build reuseable language selector
-	Build.languageSelector = function(btnId, languageChangeAction){
+	Build.languageSelector = function(btnId, changeAction){
 		return Build.optionSelector(btnId, 
 			SepiaFW.local.getSupportedAppLanguages(), 
 			SepiaFW.config.appLanguage, 
 			function(ele){
 				SepiaFW.config.broadcastLanguage(ele.value);
-				languageChangeAction(ele.value);
+				if (SepiaFW.config.appRegionCode && SepiaFW.config.appRegionCode.indexOf(ele.value + "-") != 0){
+					//reset region
+					SepiaFW.config.broadcastRegionCode("");
+				}
+				//NOTE: we need to add all IDs here manually
+				Build.updateRegionCodeSelector("sepiaFW-menu-account-region-dropdown");		
+				changeAction(ele.value);
 			}
 		);
+	}
+	//build reuseable language-region selector
+	Build.regionCodeSelector = function(btnId, changeAction){
+		return Build.optionSelector(btnId, SepiaFW.local.getRegionCodesForActiveLang(), SepiaFW.config.appRegionCode, 
+			function(ele){
+				SepiaFW.config.broadcastRegionCode(ele.value);
+				changeAction(ele.value);
+			}
+		);
+	}
+	Build.updateRegionCodeSelector = function(btnId){
+		var regions = SepiaFW.local.getRegionCodesForActiveLang();
+		var ele = document.getElementById(btnId);
+		if (ele){
+			ele.innerHTML = "";
+			regions.forEach(function(option){
+				ele.appendChild(buildOptionEle(option));
+			});
+			if (SepiaFW.config.appRegionCode != undefined) ele.value = SepiaFW.config.appRegionCode;
+		}
 	}
 	
 	//toggle button
@@ -694,7 +718,6 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 					+ "<li class='spacer'></li>"
 					+ "<li id='sepiaFW-menu-experimental-settings-li'><span>Experimental settings </span></li>"
 						+ "<li class='sepiaFW-menu-experimental'><span><u>Note: Changes will not be permanent</u></span></li>"
-						+ "<li id='sepiaFW-menu-select-stt-language-li' class='sepiaFW-menu-experimental'><span>ASR country </span></li>"
 						+ "<li id='sepiaFW-menu-toggle-youtube-wp-li' class='sepiaFW-menu-experimental'><span>YouTube embedded </span></li>"
 						+ "<li id='sepiaFW-menu-toggle-spotify-wp-li' class='sepiaFW-menu-experimental'><span>Spotify embedded </span></li>"
 						+ "<li id='sepiaFW-menu-toggle-apple-music-wp-li' class='sepiaFW-menu-experimental'><span>Apple Music embedded </span></li>"
@@ -716,6 +739,7 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 				+ "<ul class='sepiaFW-menu-settings-list'>"
 					+ "<li id='sepiaFW-menu-account-my-id-li'><span>" + "User ID" + ": </span><span id='sepiaFW-menu-account-my-id' style='float: right;'></span></li>"
 					+ "<li id='sepiaFW-menu-account-language-li'><span>" + SepiaFW.local.g('language') + ": </span></li>"
+					+ "<li id='sepiaFW-menu-account-region-li'><span>" + SepiaFW.local.g('country') + ": </span></li>"
 					+ "<li id='sepiaFW-menu-account-nickname-li'><span>" + SepiaFW.local.g('nickname') + ": </span><input id='sepiaFW-menu-account-nickname' type='text' maxlength='24'></li>"
 					+ "<li id='sepiaFW-menu-account-preftempunit-li'><span>" + SepiaFW.local.g('preferred_temp_unit') + ": </span></li>"
 					+ "<li class='spacer'></li>"
@@ -1418,14 +1442,6 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 					$('.sepiaFW-menu-experimental').toggle(300);
 				}
 			));
-			//ASR (STT) voice input language
-			document.getElementById('sepiaFW-menu-select-stt-language-li').appendChild(Build.optionSelector('sepiaFW-menu-select-stt-language', 
-				SepiaFW.local.getExperimentalAsrLanguages(), 
-				"", 
-				function(ele){
-					SepiaFW.speech.setCountryCode(ele.value);
-				}
-			));
 			//Embedded web-players
 			document.getElementById('sepiaFW-menu-toggle-youtube-wp-li').appendChild(Build.toggleButton('sepiaFW-menu-toggle-youtube-wp', 
 				function(){
@@ -1449,14 +1465,27 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 				}, SepiaFW.ui.cards.canEmbedAppleMusic)
 			);
 			//Account-Language
-			document.getElementById("sepiaFW-menu-account-language-li").appendChild(SepiaFW.ui.build.languageSelector("sepiaFW-menu-account-language-dropdown", function(selectedLanguage){
+			document.getElementById("sepiaFW-menu-account-language-li").appendChild(Build.languageSelector("sepiaFW-menu-account-language-dropdown", function(selectedLanguage){
 				//save
 				var lang = {};		lang[SepiaFW.account.LANGUAGE_PREF] = selectedLanguage;
 				var data = {};		data[SepiaFW.account.INFOS] = lang;
 				SepiaFW.account.saveAccountData(data);
 				//change url to reflect change
 				var url = SepiaFW.tools.setParameterInURL(window.location.href, 'lang', selectedLanguage);
-				history.pushState({"language":selectedLanguage}, "", url);
+				history.pushState({"language": selectedLanguage}, "", url);
+			}));
+			//Account-Region - for example used as: ASR (STT) voice input language
+			document.getElementById('sepiaFW-menu-account-region-li').appendChild(Build.regionCodeSelector('sepiaFW-menu-account-region-dropdown', function(selectedRegion){
+				//TODO: save in account?
+				//...
+				//change url to reflect change
+				var url;
+				if (selectedRegion){
+					url = SepiaFW.tools.setParameterInURL(window.location.href, 'rc', selectedRegion);
+				}else{
+					url = SepiaFW.tools.removeParameterFromURL(window.location.href, 'rc');
+				}
+				history.pushState({"rc": selectedRegion}, "", url);
 			}));
 			//Account-Nickname
 			document.getElementById("sepiaFW-menu-account-nickname").addEventListener("change", function(){

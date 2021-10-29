@@ -526,19 +526,19 @@ function sepiaFW_build_ui_actions(){
 				});
 				var foundRegion = false;
 				if (region){
-					var suppBcp47 = SepiaFW.local.getExperimentalAsrLanguages();
+					var suppBcp47 = SepiaFW.local.getExperimentalAppLanguages();
 					var bcp47 = (lang + "-" + region);
 					suppBcp47.forEach(function(sbcp47){
 						if (sbcp47.value == bcp47){
 							foundRegion = true;
 							SepiaFW.debug.log("language-switch action - speech lang.: " + bcp47);
-							SepiaFW.speech.setCountryCode(bcp47);
+							SepiaFW.config.broadcastRegionCode(bcp47);
 							return;
 						}
 					});
 				}
 				if (foundLang && !foundRegion){
-					SepiaFW.speech.setCountryCode("");
+					SepiaFW.config.broadcastRegionCode("");
 				}
 			}
 		}

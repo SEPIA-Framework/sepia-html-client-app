@@ -6,7 +6,7 @@ function sepiaFW_build_speech(sepiaSessionId){
 	
 	//Common
 	var speechLanguage = SepiaFW.config.appLanguage;
-	var speechCountryCode = "";
+	var speechCountryCode = SepiaFW.config.appRegionCode;
 	Speech.getLanguage = function(){
 		return speechLanguage;
 	}
