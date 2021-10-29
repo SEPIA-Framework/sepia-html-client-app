@@ -1,25 +1,32 @@
 # SEPIA Cross-Platform App
-Part of the [SEPIA Framework](https://sepia-framework.github.io/)  
+Part of the [SEPIA Framework](https://sepia-framework.github.io/).  
 
 <p align="center">
   <img src="https://github.com/SEPIA-Framework/SEPIA-Framework.github.io/blob/master/img/teach-ui.png" alt="S.E.P.I.A. App"/>
 </p>
-
-This is a HTML-based application (SEPIA client) to communicate with SEPIA via browser, iOS and Android.  
+  
+More screenshots can be found [here](screenshots).  
+  
+This is the primary SEPIA client used to communicate with SEPIA assistant. It is written in modern HTML5 and runs cross-platform on any modern browser (desktop PC, Android, iOS),
+as web and mobile app or even as [smart-speaker (headless) and smart-display](https://github.com/SEPIA-Framework/sepia-installation-and-setup/tree/master/sepia-client-installation) on SBCs like the Raspberry Pi.  
+  
 Features of the app are:
-* Input via voice (Android, iOS, browser) and text
-* Native platform (Android, iOS, Chrome) and open-source ASR supported ([see STT-Server](https://github.com/SEPIA-Framework/sepia-stt-server))
-* Text-to-Speech voice output via client platform and open-source SEPIA server
-* WebSocket based chat with SEPIA and other users that are registered on your private or public server ([see Chat-Server](https://github.com/SEPIA-Framework/sepia-websocket-server-java))
-* Customizable start-screen with user-recommendations (created by the SEPIA server)
-* AlwaysOn mode with animated avatar (works best with OLED screens! ^_^)
+* Controllable via voice, touch and text input on Android, iOS and basically any modern browser
+* Speech recognition via native platform APIs (Android, Chrome, Safari, Microsoft Edge) and custom open-source [STT-Server](https://github.com/SEPIA-Framework/sepia-stt-server)
+* Text-to-Speech voice output via native client APIs, custon SEPIA server and other open-source tools like Mary-TTS or Larynx
+* Built-in wake-word support for phrases like "Hey SEPIA", "Computer", "Jarvis", "Alexa" (:-p) and many more thanks to [SEPIA Web-Audio library](https://github.com/SEPIA-Framework/sepia-web-audio)
+* Chat with SEPIA and other users that are registered on your server via private WebSocket connection ([see Chat-Server](https://github.com/SEPIA-Framework/sepia-websocket-server-java))
+* Customizable start-screen with user-recommendations (created by the SEPIA server) and user-defined shortcut buttons
+* AlwaysOn mode with [animated avatar](screenshots/avatar-classic.png) (works great with OLED screens! ^_^)
 * In-chat card results (e.g. for to-do lists), audio player (e.g. for web-radio) and in-app browser for iOS and Android
-* User-account management
+* [Customizable look](screenshots/README.md) (skins for app and multiple avatars)
+* Support for [custom voice widgets](https://github.com/SEPIA-Framework/sepia-docs/wiki/Creating-HTML-voice-widgets-for-the-SEPIA-client) written in HTML/Javascript 
+* Support for [custom media-player widgets](https://github.com/SEPIA-Framework/sepia-docs/wiki/Embedded-Media-Player), e.g. to add your own music player
 * Teach-interface to add your own commands/chats/actions to SEPIA ([see Teach-Server](https://github.com/SEPIA-Framework/sepia-teach-server))
+* Remote-actions to communicate between clients and devices, e.g. to start music on another device or broadcast a message
+* User-account management
 * Remote terminal support via CLEXI server to work in 'headless' mode
-* Customizable look (skins for the app)
 * Tutorial and help screens to get started
-* Remote-actions to communicate between clients and devices (e.g. for [wake-word](https://github.com/SEPIA-Framework/sepia-wakeword-tools) integration)
 * Deeplinks to open the app via URLs
 * Local notifications (e.g. for alarms - push-notifications under construction)
 * Language support for german and english
@@ -41,6 +48,7 @@ For experts only: Use the build-scripts in this repository to build your own ver
 You can modify the client configuration via several URL parameters:
 * `host` - SEPIA server host, e.g. IP address or domain + path
 * `lang` - Default language code for client (ISO code)
+* `rc` - Default region code for client (BCP47 language-REGION code)
 * `isApp` - 'true' will change client to behave as if it was an app (not a website), e.g. login tokens will be valid for much longer etc.
 * `pwa` - 'true' will put the app in a PWA (progressive web app) compatible state by enabling the service-worker.
 * `noSW` - 'true' will force disable the service-worker of the page. This might be useful to find issues related to blocked cookies etc.
@@ -54,6 +62,15 @@ You can modify the client configuration via several URL parameters:
 * `logout` - 'true' will make sure client is logged out at start (all previous user date removed)
 * `cordova` - Set Cordova framework mode if 'true'
 * `isTest` - tbd
+
+### Chat 'hacks'
+
+The chat input field has some direct commands that will influence the way the input is handled:
+* `i18n:[lang_code]` - This will tell the assistant to handle the input in a certain langauge, e.g.: `i18n:de Guten Tag` (assuming you are in english mode)
+* `linkshare [URL]` - This will generate a link card for the given URL, e.g.: `linkshare https://example.com`
+* `[URL]` - Direct input of URLs will open the URL in a new tab or in-app browser. Some URLs might be handled via widgets like YouTube.
+* `saythis [text]` - Let the assistant speak this text, e.g.: `saythis You are cool.`
+* `@[user]` - Send private message to specific user (if in same channel). The same can be triggered via tap on the user name.
 
 ### App deeplinks
 
