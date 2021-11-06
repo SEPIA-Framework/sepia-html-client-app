@@ -34,7 +34,8 @@ SepiaFW.settings = {
 			"asrServerUser": "any",
 			"asrServerToken": "test1234",
 			"en-asrModel": "",
-			"de-asrModel": ""
+			"de-asrModel": "",
+			"big-screen-mode": true
 		},
 		user: {
 			"clexiSocketURI": "ws://localhost:8080",
