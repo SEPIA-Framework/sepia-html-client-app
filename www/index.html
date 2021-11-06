@@ -8,7 +8,8 @@
 	<meta name="viewport" id="sepia-viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=0">
 	<script>
 		function sepiaFW_scale_viewport(refSize){
-			if (!refSize) refSize = (window.location.href.indexOf('isTiny=true') > 0)? 240 : 320;
+			var isTiny = (window.SepiaFW == undefined)? (window.location.href.indexOf('isTiny=true') > 0) : SepiaFW.ui.isTinyApp;
+			if (!refSize) refSize = isTiny? 240 : 320;
 			var mvp = document.getElementById('sepia-viewport');
 			if (window.screen.width < refSize && window.matchMedia("(orientation: portrait)").matches){
 				//mvp.setAttribute('content','initial-scale=' + screen.width/340);
@@ -18,8 +19,9 @@
 			}
 		}
 		function sepiaFW_landscape_check(){
+			var isTiny = (window.SepiaFW == undefined)? (window.location.href.indexOf('isTiny=true') > 0) : SepiaFW.ui.isTinyApp;
 			//(max-height: 480px) and (min-aspect-ratio: 13 / 10) and (min-width: 380px)
-			if (window.innerHeight <= 480 && window.innerWidth >= 380 && (window.innerWidth/window.innerHeight > 13/10)){
+			if (!isTiny && window.innerHeight <= 480 && window.innerWidth >= 380 && (window.innerWidth/window.innerHeight > 13/10)){
 				document.documentElement.classList.add("landscape-small");
 			}else{
 				document.documentElement.classList.remove("landscape-small");
@@ -212,7 +214,7 @@
 			<button id="sepiaFW-nav-menu-go-left">•</button>
 			<div id="sepiaFW-nav-label-box">
 				<div id="sepiaFW-nav-label">S.E.P.I.A.</div><span id='sepiaFW-nav-label-note' style='display:none;'>...</span>
-				<div id="sepiaFW-nav-label-online-status" class="offline">offline</div>
+				<div id="sepiaFW-nav-label-online-status" class="offline sepiaFW-ww-indicator">offline</div>
 			</div>
 			<button id="sepiaFW-nav-menu-go-right">•</button>
 			<button id="sepiaFW-nav-users-btn"><i class="material-icons md-btn2">&#xE8CD;</i></button>
