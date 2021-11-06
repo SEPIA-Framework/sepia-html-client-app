@@ -39,27 +39,27 @@ function sepiaFW_build_files(){
 	}
 	
 	//Read file and decide for yourself if it's remote or local
-	Files.fetch = function(fileUrl, successCallback, errorCallback, responseType){
+	Files.fetch = function(fileUrl, successCallback, errorCallback, responseType, timeout){
 		if(fileUrl.indexOf("http:") == 0 || fileUrl.indexOf("https:") == 0 || fileUrl.indexOf("ftp:") == 0){
-			Files.fetchRemote(fileUrl, successCallback, errorCallback, responseType);
+			Files.fetchRemote(fileUrl, successCallback, errorCallback, responseType, timeout);
 		}else{
-			Files.fetchLocal(fileUrl, successCallback, errorCallback, responseType);
+			Files.fetchLocal(fileUrl, successCallback, errorCallback, responseType, timeout);
 		}
 	}
 	
 	//Read file from remote source as text or a binary type
-	Files.fetchRemote = function(fileUrl, successCallback, errorCallback, responseType){
+	Files.fetchRemote = function(fileUrl, successCallback, errorCallback, responseType, timeout){
 		if (responseType && responseType == "arraybuffer"){
 			//ArrayBuffer
-			xmlHttpCallForArrayBuffer(fileUrl, successCallback, errorCallback);
+			xmlHttpCallForArrayBuffer(fileUrl, successCallback, errorCallback, timeout);
 		}else{
 			//Default response type: string
-			ajaxCallForText(fileUrl, successCallback, errorCallback);
+			ajaxCallForText(fileUrl, successCallback, errorCallback, timeout);
 		}
 	}
 	
 	//Read file from local drive as text or a binary type
-	Files.fetchLocal = function(fileUrl, successCallback, errorCallback, responseType){
+	Files.fetchLocal = function(fileUrl, successCallback, errorCallback, responseType, timeout){
 		if (!errorCallback) errorCallback = function(){};
 		
 		fileUrl = Files.replaceSystemFilePath(fileUrl);
@@ -77,15 +77,15 @@ function sepiaFW_build_files(){
 					&& (!cordova.file.documentsDirectory || fileUrl.indexOf(cordova.file.documentsDirectory) != 0)){
                 path = cordova.file.applicationDirectory + "www/" + fileUrl; 		//Note: we assume that this path makes most sense
             }
-            window.resolveLocalFileSystemURL(path, function (entry){
+            window.resolveLocalFileSystemURL(path, function(entry){
 				entry.file(
 					function(file){
 						if (responseType && responseType == "arraybuffer"){
 							//ArrayBuffer
-							readFileAsArrayBuffer(file, successCallback, errorCallback); 		//NOTE: untested
+							readFileAsArrayBuffer(file, successCallback, errorCallback, timeout); 		//NOTE: untested
 						}else{
 							//Default response type: string
-							readFileAsText(file, successCallback, errorCallback);
+							readFileAsText(file, successCallback, errorCallback, timeout);
 						}
 					}, 
 					errorCallback
@@ -97,19 +97,19 @@ function sepiaFW_build_files(){
 			//Note: currently it's the same as Files.fetchRemote ... but might change
 			if (responseType && responseType == "arraybuffer"){
 				//ArrayBuffer
-				xmlHttpCallForArrayBuffer(fileUrl, successCallback, errorCallback);
+				xmlHttpCallForArrayBuffer(fileUrl, successCallback, errorCallback, timeout);
 			}else{
 				//Default response type: string
-				ajaxCallForText(fileUrl, successCallback, errorCallback);
+				ajaxCallForText(fileUrl, successCallback, errorCallback, timeout);
 			}
 		}
 	}
 
 	//HTTP GET based requests
-	function ajaxCallForText(fileUrl, successCallback, errorCallback){
+	function ajaxCallForText(fileUrl, successCallback, errorCallback, timeout){
 		$.ajax({
 			url: fileUrl,
-			timeout: 8000,
+			timeout: (timeout || 8000),
 			method: "GET",
 			success: function(data) {
 				successCallback(data);
@@ -119,11 +119,11 @@ function sepiaFW_build_files(){
 			}
 		});
 	}
-	function xmlHttpCallForArrayBuffer(fileUrl, successCallback, errorCallback){
+	function xmlHttpCallForArrayBuffer(fileUrl, successCallback, errorCallback, timeout){
 		var request = new XMLHttpRequest();
 		request.open('GET', fileUrl);
 		request.responseType = 'arraybuffer';
-		request.timeout = 8000;
+		request.timeout = (timeout || 8000);
 		request.onload = function(e){
 			if (request.status >= 200 && request.status < 300){
 				successCallback(request.response); 	//the arraybuffer is in request.response
@@ -137,26 +137,33 @@ function sepiaFW_build_files(){
 		request.onerror = function(e){
 			errorCallback(e);
 		};
+		request.ontimeout = function(e){
+			errorCallback(e);
+		};
 		request.send();
 	}
 	
 	//Convert file-object to text
-	function readFileAsText(file, successCallback, errorCallback){
+	function readFileAsText(file, successCallback, errorCallback, timeout){
+		//NOTE: only works inside Cordova, outside FileReader requires user interaction
 		var reader = new FileReader();
 		reader.onload = function(e){
 			successCallback(e.target.result);
 		};
 		reader.onerror = errorCallback;
 		reader.readAsText(file);
+		//TODO: what about timeout?
 	}
 	//Convert file-object to arraybuffer
-	function readFileAsArrayBuffer(file, successCallback, errorCallback){
+	function readFileAsArrayBuffer(file, successCallback, errorCallback, timeout){
+		//NOTE: only works inside Cordova, outside FileReader requires user interaction
 		var reader = new FileReader();
 		reader.onload = function(e){
 			successCallback(e.target.result);
 		};
 		reader.onerror = errorCallback;
 		reader.readAsArrayBuffer(file);
+		//TODO: what about timeout?
 	}
 		
 	return Files;

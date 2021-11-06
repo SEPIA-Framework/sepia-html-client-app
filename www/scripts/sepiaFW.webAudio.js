@@ -4,7 +4,7 @@ function sepiaFW_build_web_audio(){
 	
 	//--- START: Copy of SEPIA Web-Audio Lib --->
 	
-	WebAudio.version = "0.9.7";
+	WebAudio.version = "0.9.8";
 	
 	//Preparations
 	var AudioContext = window.AudioContext || window.webkitAudioContext;
@@ -1344,7 +1344,7 @@ function sepiaFW_build_web_audio(){
 	WebAudio.readFileAsBuffer = function(fileUrl, successCallback, errorCallback){
 		if (SepiaFW && SepiaFW.files){
 			//more robust method
-			SepiaFW.files.fetch(fileUrl, successCallback, errorCallback, "arraybuffer");
+			SepiaFW.files.fetch(fileUrl, successCallback, errorCallback, "arraybuffer", WebAudio.contentFetchTimeout);
 		}else{
 			//fallback
 			xmlHttpCall('arraybuffer', fileUrl, successCallback, errorCallback);
@@ -1352,7 +1352,7 @@ function sepiaFW_build_web_audio(){
 	}
 	WebAudio.readFileAsText = function(fileUrl, successCallback, errorCallback){
 		if (SepiaFW && SepiaFW.files){
-			SepiaFW.files.fetch(fileUrl, successCallback, errorCallback);	//default: text
+			SepiaFW.files.fetch(fileUrl, successCallback, errorCallback, undefined, WebAudio.contentFetchTimeout);	//default: text
 		}else{
 			xmlHttpCall('text', fileUrl, successCallback, errorCallback);
 		}

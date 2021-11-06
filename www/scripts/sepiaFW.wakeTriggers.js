@@ -251,7 +251,7 @@ function sepiaFW_build_wake_triggers() {
 						WakeTriggers.porcupineVersion, wasmFile, WakeTriggers.porcupineWakeWords, keywordsData, WakeTriggers.porcupineSensitivities
 					);
 					//DONE
-					WakeTriggers.engineLoaded = true;
+					WakeTriggers.engineLoaded = true; 	//TODO: This doesn't mean the 'wasmFile' is in cache yet ... the rest can still timeout!
 					SepiaFW.debug.log("WakeTriggers - Picovoice Porcupine engine module setup complete.");
 					SepiaFW.debug.log("WakeTriggers - Set wake words: " + JSON.stringify(WakeTriggers.porcupineWakeWords));
 					SepiaFW.debug.log("WakeTriggers - Wake word sensitivities: [" + WakeTriggers.porcupineSensitivities.toString() + "]");
@@ -320,6 +320,9 @@ function sepiaFW_build_wake_triggers() {
 					//'onProcessorInitError'
 					if (onErrorCallback){
 						onErrorCallback(err);
+					}else{
+						logInfo('INIT-ERROR: ' + (err? (err.message || err.name || err.type) : "unknown"), true);
+						SepiaFW.debug.error("WakeTriggers - onProcessorInitError", err);
 					}
 				}, function(err){
 					//'onProcessorRuntimeError' (with return false/true to stop recorder on error)
