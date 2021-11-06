@@ -5,3 +5,16 @@
 #sepiaFW-alwaysOn-avatar .avatar-mouth {
     top: 61%;
 }
+#sepiaFW-alwaysOn-avatar .avatar-mouth.speaking {
+	top: 61%;
+}
+
+#sepiaFW-alwaysOn-avatar .avatar-ww-indicator {
+    top: 36.1%;
+    left: 41.0%;
+    height: 5px;
+    width: 5px;
+}
+.wake-word-active #sepiaFW-alwaysOn-avatar .avatar-ww-indicator {
+	background: #ffeb3b;
+}

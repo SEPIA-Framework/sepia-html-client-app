@@ -1523,6 +1523,9 @@ html.dark-skin #sepiaFW-login-help-btn {
 #sepiaFW-nav-label-online-status.connecting {
 	opacity: 0.50;
 }
+#sepiaFW-nav-label-online-status.wake-word-active {
+	animation: sepiaFW-animation-blink 2.0s 1;
+}
 #sepiaFW-nav-label-online-status.wake-word-active:after, 
 #sepiaFW-nav-label-online-status.wake-word-active:before {
     content: ' Ξ ';

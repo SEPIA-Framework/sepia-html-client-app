@@ -22,6 +22,17 @@
     color: #3285ff;
 }
 
+#sepiaFW-alwaysOn-avatar .avatar-ww-indicator {
+    top: 62.2%;
+    left: 22.4%;
+    width: 6px;
+    height: 10px;
+    transform: rotate(45deg);
+}
+.wake-word-active #sepiaFW-alwaysOn-avatar .avatar-ww-indicator {
+	background: #795548;
+}
+
 #sepiaFW-alwaysOn-avatar .avatar-activity {
     top: 63%;
     left: 23%;
@@ -79,6 +90,10 @@
 
 #sepiaFW-alwaysOn-avatar .avatar-mouth {
     display: none;
+}
+#sepiaFW-alwaysOn-avatar.speaking .avatar-mouth-part-2 {
+	display: none;
+	animation: unset;
 }
 
 @keyframes squirrel-blink {

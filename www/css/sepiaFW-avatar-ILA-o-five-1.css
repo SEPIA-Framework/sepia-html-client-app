@@ -1,7 +1,22 @@
 #sepiaFW-alwaysOn-avatar {
     background: url(../img/avatars/ILA_v2.svg);
+    background-repeat: no-repeat;
+    background-size: 100%;
 }
 
 #sepiaFW-alwaysOn-avatar .avatar-mouth {
     top: 61%;
+}
+#sepiaFW-alwaysOn-avatar .avatar-mouth.speaking {
+	top: 61%;
+}
+
+#sepiaFW-alwaysOn-avatar .avatar-ww-indicator {
+    top: 31.6%;
+    left: 58.2%;
+    height: 4px;
+    width: 4px;
+}
+.wake-word-active #sepiaFW-alwaysOn-avatar .avatar-ww-indicator {
+	background: #3285ff;
 }
