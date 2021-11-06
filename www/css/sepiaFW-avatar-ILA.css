@@ -23,13 +23,27 @@
 
 #sepiaFW-alwaysOn-avatar .avatar-ww-indicator {
     top: 25%;
-    left: 60.4%;
+    left: 38.8%;
     height: 4px;
     width: 4px;
-    border-radius: 0;
+    border-radius: 2px;
 }
 .wake-word-active #sepiaFW-alwaysOn-avatar .avatar-ww-indicator {
 	background: #ba2a2a;
+}
+#sepiaFW-alwaysOn-avatar .avatar-ww-indicator::after {
+    position: absolute;
+    display: none;
+    content: '';
+    top: 0;
+    left: 7px;
+    width: 4px;
+    height: 4px;
+    background: #646464;
+    border-radius: 2px;
+}
+.wake-word-active #sepiaFW-alwaysOn-avatar .avatar-ww-indicator::after {
+	display: block;
 }
 
 #sepiaFW-alwaysOn-avatar .avatar-activity {
@@ -83,7 +97,6 @@
 }
 #sepiaFW-alwaysOn-avatar .avatar-mouth.speaking {
 	animation: avatar-flicker 1.0s infinite;
-	top: 61.5%;
 }
 #sepiaFW-alwaysOn-avatar.speaking .avatar-mouth-part-2 {
 	display: none;

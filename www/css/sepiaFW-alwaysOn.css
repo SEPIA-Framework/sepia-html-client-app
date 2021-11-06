@@ -171,10 +171,10 @@
 #sepiaFW-alwaysOn-avatar .avatar-mouth.sad {
 	border-radius: 0%;
 }
-#sepiaFW-alwaysOn-avatar .avatar-mouth.speaking {
-	/*animation: avatar-flicker 1.5s infinite;*/
+/* #sepiaFW-alwaysOn-avatar .avatar-mouth.speaking {
+	animation: avatar-flicker 1.5s infinite;
 	top: 44%;
-}
+} */
 #sepiaFW-alwaysOn-avatar .avatar-mouth-part-2 {
 	position: absolute;
     background: transparent;
@@ -188,6 +188,13 @@
 	transition: border-radius 2s;
 	display: none;
 }
+/* alternative mouth-part-2:
+    top: 49.5%;
+    width: 24%;
+    left: 38%;
+    border-radius: 42%;
+	border-color: #bbb transparent transparent transparent;
+*/
 #sepiaFW-alwaysOn-avatar.speaking .avatar-mouth-part-2 {
 	display: flex;
 	animation: avatar-mouth-oszi 0.5s infinite;
@@ -271,9 +278,9 @@
 	50.25% {  top: 23%;	}
 }
 @keyframes avatar-mouth-oszi {
-	0%   { top: 46%; }
-	50%  { top: 47%; }
-	100% { top: 46%; }
+	0%   { transform: translate(0, 0%); }
+	50%  { transform: translate(0, 11%); }
+	100% { transform: translate(0, 0%); }
 }
 @keyframes avatar-flicker {
 	0%   { opacity: 1; }

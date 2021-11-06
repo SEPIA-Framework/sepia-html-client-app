@@ -7,16 +7,45 @@
 #sepiaFW-alwaysOn-avatar .avatar-mouth {
     top: 61%;
 }
-#sepiaFW-alwaysOn-avatar .avatar-mouth.speaking {
-	top: 61%;
-}
 
 #sepiaFW-alwaysOn-avatar .avatar-ww-indicator {
-    top: 31.6%;
-    left: 58.2%;
+    top: 35.4%;
+    left: 57.6%;
     height: 4px;
     width: 4px;
+    border: 2px solid #0057d6;
+    border-radius: 0;
+    box-sizing: content-box;
+    background: #ff0000;
 }
 .wake-word-active #sepiaFW-alwaysOn-avatar .avatar-ww-indicator {
-	background: #3285ff;
+	background: #ffd700;
+}
+#sepiaFW-alwaysOn-avatar .avatar-ww-indicator::after {
+    display: block;
+    top: 5px;
+    left: -2px;
+    height: 4px;
+    width: 4px;
+    border: 2px solid #0057d6;
+    border-radius: 0;
+    background: #ff0000;
+}
+.wake-word-active #sepiaFW-alwaysOn-avatar .avatar-ww-indicator::after {
+    background: #ff0000;
+}
+#sepiaFW-alwaysOn-avatar .avatar-ww-indicator::before {
+    position: absolute;
+    display: block;
+    content: '';
+    top: -9px;
+    left: -2px;
+    height: 4px;
+    width: 4px;
+    border: 2px solid #0057d6;
+    border-radius: 0;
+    background: #06fa74;
+}
+.wake-word-active #sepiaFW-alwaysOn-avatar .avatar-ww-indicator::before {
+    display: block;
 }
