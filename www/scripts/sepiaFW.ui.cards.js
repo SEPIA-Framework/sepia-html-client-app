@@ -725,6 +725,16 @@ function sepiaFW_build_ui_cards(){
 				}
 			});
 		}
+		//media control
+		customButtons.push({
+			buttonName: '<i class="material-icons md-inherit">pause</i>',
+			fun: function(){
+				SepiaFW.client.controls.media({
+					action: "stop",
+					skipFollowUp: true
+				});
+			}
+		});
 		//context menu
 		var contextMenu = makeBodyElementContextMenu(flexCardId, cardBody, cardBodyItem, cardBodyItem.id, {
 			toggleButtonSelector: ".radioLeft",
