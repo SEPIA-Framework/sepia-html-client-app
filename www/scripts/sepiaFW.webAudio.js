@@ -4,7 +4,7 @@ function sepiaFW_build_web_audio(){
 	
 	//--- START: Copy of SEPIA Web-Audio Lib --->
 	
-	WebAudio.version = "0.9.8";
+	WebAudio.version = "0.9.9";
 	
 	//Preparations
 	var AudioContext = window.AudioContext || window.webkitAudioContext;
@@ -1186,6 +1186,29 @@ function sepiaFW_build_web_audio(){
 	WebAudio.createFileSource = function(fileUrl, options){
 		if (!options) options = {};		//e.g.: 'targetSampleRate'
 		return new Promise(function(resolve, reject){
+			try {
+				function errorCallback(err){
+					reject(err);
+				}
+				function successCallback(arrayBuffer){
+					WebAudio.createAudioBufferSource(arrayBuffer, options).then(function(res){
+						res.typeData = {
+							fileUrl: fileUrl
+						}
+						resolve(res);
+					}).catch(errorCallback);
+				}
+				WebAudio.readFileAsBuffer(fileUrl, successCallback, errorCallback);
+				
+			}catch (err){
+				reject(err);
+			}
+		});
+	}
+	//Direct AudioBufferSourceNode with start/stop/release
+	WebAudio.createAudioBufferSource = function(audioBuffer, options){
+		if (!options) options = {};		//e.g.: 'targetSampleRate'
+		return new Promise(function(resolve, reject){
 			(async function(){
 				try {
 					//AudioContext and AudioBufferSourceNode - NOTE: maybe useful: new OfflineAudioContext(1, 128, 16000);
@@ -1193,37 +1216,36 @@ function sepiaFW_build_web_audio(){
 					try { await audioContext.resume(); } catch(error){};		//TODO: prevent quirky stuff on e.g. iOS
 					await audioContext.suspend();
 					var audioBufferSourceNode = audioContext.createBufferSource();
-					
-					function successCallback(arrayBuffer){
-						audioContext.decodeAudioData(arrayBuffer, function(buffer){
-							audioBufferSourceNode.buffer = buffer;
-							//audioBufferSourceNode.connect(audioContext.destination);
-							audioBufferSourceNode.loop = true;
-							return resolve({
-								node: audioBufferSourceNode,
-								type: "fileAudioBuffer",
-								typeData: {
-									fileUrl: fileUrl
-								},
-								start: function(){ audioBufferSourceNode.start(); },
-								stop: function(){ audioBufferSourceNode.stop(); },
-								release: function(){}	//TODO: ?!?
-							});
-						
-						}, function(err){ 
-							return reject(err);
+					//decode to get buffer
+					audioContext.decodeAudioData(audioBuffer, function(buffer){
+						audioBufferSourceNode.buffer = buffer;
+						audioBufferSourceNode.loop = true;
+						return resolve({
+							node: audioBufferSourceNode,
+							type: "fileAudioBuffer",
+							typeData: {},
+							start: function(){ audioBufferSourceNode.start(); },
+							stop: function(){ audioBufferSourceNode.stop(); },
+							release: function(){}	//TODO: ?!?
 						});
-					}
-					function errorCallback(err){
+					}, function(err){ 
 						return reject(err);
-					}
-					WebAudio.readFileAsBuffer(fileUrl, successCallback, errorCallback);
-					
+					});
 				}catch (err){
 					return reject(err);
 				}
 			})();
 		});
+	}
+	
+	//Create player for source nodes (e.g. audio URL or buffer nodes)
+	WebAudio.createAudioPlayer = function(source, options, audioModules, onInit, onInitError){
+		if (!options) options = {};
+		options.modules = audioModules || [];
+		options.customSource = source;
+		if (options.startSuspended == undefined) options.startSuspended = true;
+		var webAudioProcessor = new WebAudio.Processor(options, onInit, onInitError);
+		return webAudioProcessor;
 	}
 	
 	//Encode buffer to wave
