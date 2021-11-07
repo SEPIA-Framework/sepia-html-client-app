@@ -586,9 +586,9 @@ function sepiaFW_build_audio_recorder(){
 		state.vadData = { points:[], sum: 0, speechStart: 0, speechEnd: 0 };
 		logFun("Stopping existing recorders...");
 		AudioRecorder.stopAndReleaseIfActive(function(){
+			var procInfo;
 			logFun("Creating new recorder...");
 			var waveEncModule = AudioRecorder.createDefaultWaveEncoderModule(function(msg){
-				//console.log("DEBUG --- waveEncoderModule msg", msg);			//DEBUG
 				if (msg){
 					if (msg.gate && msg.gate.isOpen == false && state.waveEncoderGateIsOpen){
 						state.waveEncoderGateIsOpen = false;
@@ -602,24 +602,43 @@ function sepiaFW_build_audio_recorder(){
 						});
 					}else if (msg.output && msg.output.wav){
 						logFun("Evaluating result...");
-						//handle wav data
-						if (wavDataHandler) wavDataHandler(msg.output.wav);
-						//evaluate data
-						if (state.rmsData.points.length){
-							var maxRms = Math.max(...state.rmsData.points).toFixed(4);
-							var minRms = Math.min(...state.rmsData.points).toFixed(4);
-							resultHandler({
-								maxRms: maxRms,
-								minRms: minRms,
-								avgRms: (state.rmsData.sum/state.rmsData.points.length).toFixed(4),
-								durationGood: state.recordingDuration < (recLimit*1.1) && state.recordingDuration > (recLimit * 0.9),
-								maxVolGood: maxRms > 0.06,
-								minVolGood: minRms/maxRms < 0.2,
-								vadSpeechStart: state.vadData.speechStart,
-								vadSpeechEnd: state.vadData.speechEnd
-							});
-						}
-						//TODO: mark clipped audio?
+						console.log("procInfo", procInfo);		//DEBUG
+						AudioRecorder.stopAndReleaseIfActive(function(){
+							//handle wav data
+							if (typeof wavDataHandler == "function"){
+								wavDataHandler(msg.output.wav);
+							}else if (typeof wavDataHandler == "string" && wavDataHandler == "player"){
+								SepiaFW.webAudio.createAudioBufferSource(msg.output.wav.buffer).then(function(source){
+									source.node.loop = false;	//play once
+									var wbsPlayer = SepiaFW.webAudio.createAudioPlayer(source, {
+										onaudiostart: console.log,
+										onaudioend: console.log,	//TODO: this only triggers on manual stop() call
+										onerror: console.error
+									}, [], function(){
+										logFun("Playing recording...");
+										wbsPlayer.start();
+									}, console.error);
+								}).catch(function(err){
+									console.error(err);
+								});
+							}
+							//evaluate data
+							if (state.rmsData.points.length){
+								var maxRms = Math.max(...state.rmsData.points).toFixed(4);
+								var minRms = Math.min(...state.rmsData.points).toFixed(4);
+								resultHandler({
+									maxRms: maxRms,
+									minRms: minRms,
+									avgRms: (state.rmsData.sum/state.rmsData.points.length).toFixed(4),
+									durationGood: state.recordingDuration < (recLimit*1.1) && state.recordingDuration > (recLimit * 0.9),
+									maxVolGood: maxRms > 0.06,
+									minVolGood: minRms/maxRms < 0.2,
+									vadSpeechStart: state.vadData.speechStart,
+									vadSpeechEnd: state.vadData.speechEnd
+								});
+							}
+							//TODO: mark clipped audio?
+						});
 					}
 				}
 			}, {
@@ -656,6 +675,7 @@ function sepiaFW_build_audio_recorder(){
 				}
 			}, function(audioProcessor, info){
 				//on init
+				procInfo = info;
 				logFun("Recorder ready. Recording starts in 3s.");
 				//start
 				state.micStartTimer = setTimeout(function(){
@@ -663,7 +683,7 @@ function sepiaFW_build_audio_recorder(){
 						state.waveEncModule.handle.sendToModule({gate: "open"});
 						state.waveEncoderGateIsOpen = true;
 						state.startedRecording = new Date().getTime();
-						logFun("Recorder started. Please speak for about " + Math.round((recLimit - 1000)/1000) + "s then wait another 1s.");
+						logFun("Recorder started. Please speak for about " + Math.round((recLimit - 2000)/1000) + "s then wait another 2s.");
 					});
 				}, 3000);
 			}, function(initErr){
