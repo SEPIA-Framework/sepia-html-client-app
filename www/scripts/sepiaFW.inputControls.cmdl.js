@@ -391,11 +391,13 @@ function sepiaFW_build_input_controls_cmdl() {
     }
 
     Cmdl.functions.mictest = function(ev){
+        var play = ev.play;
         var state = {};
+        var wavHandler = (play && play == "recording")? "player" : undefined;
         SepiaFW.audioRecorder.testMicrophone(state, 8000, function(res){
             //broadcast result
             broadcastEvent("mictest-result", res);
-        }, undefined, undefined, undefined, function(logMsg){
+        }, wavHandler, undefined, undefined, function(logMsg){
             broadcastEvent("mictest-log", {message: logMsg});
         }, function(errName, errMsg){
             broadcastEvent("mictest-error", {name: errName, message: errMsg});

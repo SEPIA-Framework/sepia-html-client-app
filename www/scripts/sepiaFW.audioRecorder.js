@@ -586,7 +586,7 @@ function sepiaFW_build_audio_recorder(){
 		state.vadData = { points:[], sum: 0, speechStart: 0, speechEnd: 0 };
 		logFun("Stopping existing recorders...");
 		AudioRecorder.stopAndReleaseIfActive(function(){
-			var procInfo;
+			var procInfo;	//NOTE: use for player? (sample-rate etc.)
 			logFun("Creating new recorder...");
 			var waveEncModule = AudioRecorder.createDefaultWaveEncoderModule(function(msg){
 				if (msg){
@@ -602,24 +602,33 @@ function sepiaFW_build_audio_recorder(){
 						});
 					}else if (msg.output && msg.output.wav){
 						logFun("Evaluating result...");
-						console.log("procInfo", procInfo);		//DEBUG
 						AudioRecorder.stopAndReleaseIfActive(function(){
 							//handle wav data
 							if (typeof wavDataHandler == "function"){
 								wavDataHandler(msg.output.wav);
 							}else if (typeof wavDataHandler == "string" && wavDataHandler == "player"){
-								SepiaFW.webAudio.createAudioBufferSource(msg.output.wav.buffer).then(function(source){
-									source.node.loop = false;	//play once
-									var wbsPlayer = SepiaFW.webAudio.createAudioPlayer(source, {
-										onaudiostart: console.log,
-										onaudioend: console.log,	//TODO: this only triggers on manual stop() call
-										onerror: console.error
+								var wbsPlayer;
+								var sourceLoop = false; 	//play once
+								SepiaFW.webAudio.createAudioBufferSource(msg.output.wav.buffer, {}, sourceLoop, function(){
+									//source stream ended
+									logFun("Recording ended");
+									//clean up
+									wbsPlayer.stop(function(){
+										wbsPlayer.release();
+									});
+								}).then(function(source){
+									wbsPlayer = SepiaFW.webAudio.createSourceAudioPlayer(source, {
+										onerror: function(err){
+											errorLog("SourceAudioPlayerError", "Audio player error: " + (err? (err.message || err.name || "?") : "?"));
+										}
 									}, [], function(){
 										logFun("Playing recording...");
 										wbsPlayer.start();
-									}, console.error);
+									}, function(err){
+										errorLog("SourceAudioPlayerInitError", "Audio player failed to init.: " + (err? (err.message || err.name || "?") : "?"));
+									});
 								}).catch(function(err){
-									console.error(err);
+									errorLog("AudioBufferSourceError", "Failed to decode buffer: " + (err? (err.message || err.name || "?") : "?"));
 								});
 							}
 							//evaluate data
@@ -676,6 +685,7 @@ function sepiaFW_build_audio_recorder(){
 			}, function(audioProcessor, info){
 				//on init
 				procInfo = info;
+				//console.log("procInfo", procInfo);				//DEBUG
 				logFun("Recorder ready. Recording starts in 3s.");
 				//start
 				state.micStartTimer = setTimeout(function(){

@@ -28,7 +28,7 @@ function sepiaFW_build_web_audio(){
 		initErrorCallback: console.error,
 		//modules: [],
 		//onaudiostart: console.log,
-		//onaudioend: console.log,
+		//onaudioend: console.log,		//NOTE: this only triggers if 'stop' is called not if stream ends etc. - compare: 'onEndCallback' of source
 		//onrelease: console.log,
 		onerror: console.error
 		//debugLog: console.log
@@ -589,7 +589,7 @@ function sepiaFW_build_web_audio(){
 				.then(startCallback)
 				.catch(function(err){
 					onProcessorError({name: "ProcessorStartError", message: (err.name + " - Message: " + (err.message || err))});
-					errorCallback(err);
+					if (errorCallback) errorCallback(err);
 				});
 			}
 			//STOP
@@ -612,7 +612,7 @@ function sepiaFW_build_web_audio(){
 				.then(stopCallback)
 				.catch(function(err){
 					onProcessorError({name: "ProcessorStopError", message: (err.name + " - Message: " + (err.message || err))});
-					errorCallback(err);
+					if (errorCallback) errorCallback(err);
 				});
 			}
 			//RELEASE
@@ -638,7 +638,7 @@ function sepiaFW_build_web_audio(){
 				.then(releaseCallback)
 				.catch(function(err){
 					onProcessorError({name: "ProcessorReleaseError", message: (err.name + " - Message: " + (err.message || err))});
-					errorCallback(err);
+					if (errorCallback) errorCallback(err);
 				});
 			}
 			
@@ -1149,14 +1149,14 @@ function sepiaFW_build_web_audio(){
 	}
 	
 	//White-noise-generator node for testing
-	WebAudio.createWhiteNoiseGeneratorNode = function(noiseGain, options){
-		if (!options) options = {};		//e.g. 'onMessageCallback' and 'targetSampleRate'
-		var moduleFolder = (options.moduleFolder || WebAudio.defaultProcessorOptions.moduleFolder).replace(/\/$/, "") + "/";
+	WebAudio.createWhiteNoiseGeneratorNode = function(noiseGain, ctxOptions, onMessageCallback){
+		if (!ctxOptions) ctxOptions = {};		//e.g. 'targetSampleRate'
+		var moduleFolder = WebAudio.defaultProcessorOptions.moduleFolder.replace(/\/$/, "") + "/";
 		return new Promise(function(resolve, reject){
 			(async function(){
 				try {
 					//Audio context and source node
-					var audioContext = WebAudio.createAudioContext(options);
+					var audioContext = WebAudio.createAudioContext(ctxOptions);
 					try { await audioContext.resume(); } catch(error){};		//TODO: prevent quirky stuff on e.g. iOS
 					await audioContext.suspend();
 					
@@ -1169,9 +1169,9 @@ function sepiaFW_build_web_audio(){
 							gain: (noiseGain || 0.1)
 						}
 					});
-					if (options.onMessageCallback){
+					if (onMessageCallback){
 						//just in case
-						thisProcessNode.port.onmessage = options.onMessageCallback;
+						thisProcessNode.port.onmessage = onMessageCallback;
 					}
 					resolve(thisProcessNode);
 					
@@ -1183,20 +1183,22 @@ function sepiaFW_build_web_audio(){
 	};
 	
 	//File AudioBufferSourceNode with start/stop/release
-	WebAudio.createFileSource = function(fileUrl, options){
-		if (!options) options = {};		//e.g.: 'targetSampleRate'
+	WebAudio.createFileSource = function(fileUrl, ctxOptions, loop, onEndCallback){
+		if (!ctxOptions) ctxOptions = {};		//e.g.: 'targetSampleRate'
 		return new Promise(function(resolve, reject){
 			try {
 				function errorCallback(err){
 					reject(err);
 				}
 				function successCallback(arrayBuffer){
-					WebAudio.createAudioBufferSource(arrayBuffer, options).then(function(res){
+					WebAudio.createAudioBufferSource(arrayBuffer, ctxOptions, loop, onEndCallback)
+					.then(function(res){
 						res.typeData = {
 							fileUrl: fileUrl
 						}
 						resolve(res);
-					}).catch(errorCallback);
+					})
+					.catch(errorCallback);
 				}
 				WebAudio.readFileAsBuffer(fileUrl, successCallback, errorCallback);
 				
@@ -1206,20 +1208,21 @@ function sepiaFW_build_web_audio(){
 		});
 	}
 	//Direct AudioBufferSourceNode with start/stop/release
-	WebAudio.createAudioBufferSource = function(audioBuffer, options){
-		if (!options) options = {};		//e.g.: 'targetSampleRate'
+	WebAudio.createAudioBufferSource = function(audioBuffer, ctxOptions, loop, onEndCallback){
+		if (!ctxOptions) ctxOptions = {};		//e.g.: 'targetSampleRate'
 		return new Promise(function(resolve, reject){
 			(async function(){
 				try {
 					//AudioContext and AudioBufferSourceNode - NOTE: maybe useful: new OfflineAudioContext(1, 128, 16000);
-					var audioContext = WebAudio.createAudioContext(options);
+					var audioContext = WebAudio.createAudioContext(ctxOptions);
 					try { await audioContext.resume(); } catch(error){};		//TODO: prevent quirky stuff on e.g. iOS
 					await audioContext.suspend();
 					var audioBufferSourceNode = audioContext.createBufferSource();
 					//decode to get buffer
 					audioContext.decodeAudioData(audioBuffer, function(buffer){
 						audioBufferSourceNode.buffer = buffer;
-						audioBufferSourceNode.loop = true;
+						audioBufferSourceNode.loop = (loop != undefined)? loop : true;
+						if (onEndCallback) audioBufferSourceNode.onended = onEndCallback;	//NOTE: req. loop=false
 						return resolve({
 							node: audioBufferSourceNode,
 							type: "fileAudioBuffer",
@@ -1239,10 +1242,10 @@ function sepiaFW_build_web_audio(){
 	}
 	
 	//Create player for source nodes (e.g. audio URL or buffer nodes)
-	WebAudio.createAudioPlayer = function(source, options, audioModules, onInit, onInitError){
+	WebAudio.createSourceAudioPlayer = function(source, options, audioModules, onInit, onInitError){
 		if (!options) options = {};
 		options.modules = audioModules || [];
-		options.customSource = source;
+		options.customSource = source;	//important source prop.: 'loop' and 'onended'
 		if (options.startSuspended == undefined) options.startSuspended = true;
 		var webAudioProcessor = new WebAudio.Processor(options, onInit, onInitError);
 		return webAudioProcessor;
@@ -1405,6 +1408,9 @@ function sepiaFW_build_web_audio(){
 			}
 		};
 		request.onerror = function(e){
+			errorCallback(e);
+		};
+		request.ontimeout = function(e){
 			errorCallback(e);
 		};
 		request.send();
