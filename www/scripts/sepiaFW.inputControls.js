@@ -274,12 +274,13 @@ function sepiaFW_build_input_controls() {
     //-------------- shared event handler ---------------
 
     function handleRemoteInputEvent(e, source){
-        //sources: ble-beacon, clexi-remote, sepia-chat-server  - TODO: use for security!
+        //sources: ble-beacon, clexi-remote, clexi-gpio, sepia-chat-server  - TODO: use for security!
         if (!source) source = "remote-input";
         var isProtectedSource = false;
         if (source && source.indexOf("sepia-chat-server") >= 0){
             isProtectedSource = true;
-        }else if (source && source.indexOf("clexi-remote") >= 0 && SepiaFW.clexi.serverId){
+        }else if (source && SepiaFW.clexi.serverId 
+                && (source.indexOf("clexi-remote") >= 0 || source.indexOf("clexi-gpio") >= 0)){
             isProtectedSource = true;
         }
         if (!e) return;        
@@ -292,6 +293,7 @@ function sepiaFW_build_input_controls() {
             }
         //MIC
         }else if (e == "mic"){
+            //TODO: currently BLE can't reach any mic trigger anymore I think
             if (isProtectedSource) toggleMicrophone(source); else logProtectedRemoteInputFail(e, source);
         }else if (e == "mr" || e == "micReset"){
             resetMic();
@@ -514,6 +516,10 @@ function sepiaFW_build_input_controls() {
         }else if (SepiaFW.clexi){
             SepiaFW.clexi.removeHttpEventsListener("remote-button");
         }
+    }
+    //This will be called by CLEXI GPIO hardware buttons/events (the listener is inside clexi module)
+    InputControls.handleClexiHardwareButton = function(eventData){
+        handleRemoteInputEvent(eventData, "clexi-gpio");
     }
 
     //--------------- Keyboard Shortcuts ----------------

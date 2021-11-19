@@ -42,8 +42,9 @@ SepiaFW.settings = {
 					"pin": null
 				}],
 				"leds": [{
-					"id": "listening-led",
-					"pin": null
+					"id": "state-led-1",
+					"pin": null,
+					"state": "listening"
 				}],
 				"items": [{
 					"id": "led-array",

@@ -468,8 +468,9 @@ function sepiaFW_build_clexi(){
                         SepiaFW.debug.log("CLEXI registered GPIO led: " + led.id);
                         registeredGpioObjects[let.id] = led; //we assume it worked and can remove later if we get an error
                         //internally supported LED IDs:
-                        if (led.id == "listening-led"){
-                            gpioListeningLed = led;
+                        if (led.state && supportedGpioLedStates.indexOf(led.state) >= 0){
+                            if (!gpioStateLeds) gpioStateLeds = {};
+                            gpioStateLeds[led.state] = led;
                         }
                     }
                 });
@@ -492,7 +493,17 @@ function sepiaFW_build_clexi(){
     var registeredGpioObjects = {};
     var gpioMicButton;
     var primaryGpioLedArray;
-    var gpioListeningLed;
+    var supportedGpioLedStates = ["idle", "listening", "speaking", "awaitDialog", "loading", "wakeWordActive", "wakeWordInactive"];
+    var gpioStateLeds;
+
+    function handleClexiGpioEvent(ev){
+        //Mic button?
+        if (gpioMicButton && ev.id && ev.pin != null && ev.id == gpioMicButton.id){
+            if (ev.value == 1){
+                SepiaFW.inputControls.handleClexiHardwareButton("mic");
+            }
+        }
+    }
 
     function sendGpioInterfaceRequest(action, type, config){
         var msgId = ClexiJS.send('gpio-interface', {
@@ -504,16 +515,16 @@ function sepiaFW_build_clexi(){
     }
     function clientStateHandlerForGpio(ev){
         if (ev && ev.detail && ev.type){
+            var state = ev.detail.state;
             if (ev.type = "sepia_wake_word"){
-                if (ev.detail.state == "active"){
-                    ev.detail.state = "wakeWordActive";
-                }else if (ev.detail.state == "inactive"){
-                    ev.detail.state = "wakeWordInactive";
+                if (state == "active"){
+                    state = "wakeWordActive";
+                }else if (state == "inactive"){
+                    state = "wakeWordInactive";
                 }
             }
-            var state = ev.detail.state;
             //console.log('state event: ' + state);       //DEBUG
-            //supported internal state handlers
+            //Items - LED array (only supported "state" item so far)
             if (primaryGpioLedArray && primaryGpioLedArray.modes){
                 var modeAction = primaryGpioLedArray.modes[state];
                 if (modeAction && modeAction.length){
@@ -527,6 +538,18 @@ function sepiaFW_build_clexi(){
                     });
                 }
             }
+            //LEDs
+            if (gpioStateLeds){
+                //we activate one and switch all other LEDs off
+                Object.keys(gpioStateLeds).forEach(function(stateLabel){
+                    var led = gpioStateLeds[stateLabel];
+                    if (stateLabel == state){
+                        sendGpioInterfaceRequest("set", "led", {id: led.id, pin: led.pin, value: 1});
+                    }else{
+                        sendGpioInterfaceRequest("set", "led", {id: led.id, pin: led.pin, value: 0});
+                    }
+                });
+            }
         }
     }
     document.addEventListener("sepia_state_change", clientStateHandlerForGpio);
@@ -534,16 +557,19 @@ function sepiaFW_build_clexi(){
 
     function subscribeToGpioInterface(){
         ClexiJS.subscribeTo('gpio-interface', function(e){
-            console.log('GpioInterface event: ' + JSON.stringify(e));       //DEBUG
+            //console.log('GpioInterface event: ' + JSON.stringify(e));       //DEBUG
             var event = new CustomEvent('gpio-interface-event', {detail: e});
             document.dispatchEvent(event);
+            if (e && e.gpio){
+                handleClexiGpioEvent(e.gpio);
+            }
         }, function(e, msgId){
-            //returns: 'sent' or 'sent but invalid' for invalid format
+            //returns: 'sent' if request arrived at CLEXI and was executed (does not mean success!)
             if (e != "sent"){
-                console.error('GpioInterface response: ' + e);
+                SepiaFW.debug.error('GpioInterface response:', e);     //DEBUG
             }
         }, function(e){
-            console.error('GpioInterface error: ' + JSON.stringify(e));     //DEBUG
+            SepiaFW.debug.error('GpioInterface error:', e);     //DEBUG
             var event = new CustomEvent('gpio-interface-error', {detail: e});
             document.dispatchEvent(event);
             //TODO: clean up faulty items?
