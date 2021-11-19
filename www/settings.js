@@ -35,7 +35,33 @@ SepiaFW.settings = {
 			"asrServerToken": "test1234",
 			"en-asrModel": "",
 			"de-asrModel": "",
-			"big-screen-mode": true
+			"big-screen-mode": true,
+			"clexiGpioInterface": {
+				"buttons": [{
+					"id": "hw-mic-button",
+					"pin": null
+				}],
+				"leds": [{
+					"id": "listening-led",
+					"pin": null
+				}],
+				"items": [{
+					"id": "led-array",
+					"file": null,
+					"options": {
+						"numOfLeds": 3
+					},
+					"modes": {
+						"idle": [{"ledIndex": 1, "red": 0, "green": 0, "blue": 0}],
+						"listening": [{"ledIndex": 1, "red": 150, "green": 0, "blue": 0}],
+						"speaking": [{"ledIndex": 1, "red": 0, "green": 0, "blue": 150}],
+						"awaitDialog": [{"ledIndex": 1, "red": 100, "green": 100, "blue": 0}],
+						"loading": [{"ledIndex": 1, "red": 10, "green": 10, "blue": 10}],
+						"wakeWordActive": [{"ledIndex": 2, "red": 10, "green": 0, "blue": 0}],
+						"wakeWordInactive": [{"ledIndex": 2, "red": 0, "green": 0, "blue": 0}]
+					}
+				}]
+			}
 		},
 		user: {
 			"clexiSocketURI": "ws://localhost:8080",
