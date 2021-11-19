@@ -37,12 +37,12 @@
 }
 
 #sepiaFW-alwaysOn-avatar .avatar-ww-indicator {
-    top: 63%;
+    top: 64%;
     border-radius: 0;
     transform: rotate(45deg);
 }
 .wake-word-active #sepiaFW-alwaysOn-avatar .avatar-ww-indicator {
-    background: #333;
+    background: #444;
 }
 
 @keyframes avatar-check-glasses {
