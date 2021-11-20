@@ -122,16 +122,17 @@ function sepiaFW_build_clexi(){
             subscribeToHttpEvents();
             if (Clexi.hasXtension("ble-beacon-scanner")){
                 subscribeToBeaconScanner();
+                //request state
+                Clexi.requestBleBeaconScannerState();       //TODO: repeat from time to time or at least on error?
             }
             if (Clexi.hasXtension("runtime-commands")){
                 subscribeToRuntimeCommands();
             }
             if (Clexi.hasXtension("gpio-interface")){
                 subscribeToGpioInterface();
+                //request registrations
+                Clexi.requestRegisteredGpioObjects();       //TODO: handle refresh
             }
-
-            //request some states
-            Clexi.requestBleBeaconScannerState();       //TODO: repeat from time to time or at least on error?
         });
     }
     Clexi.close = function(){
@@ -254,12 +255,14 @@ function sepiaFW_build_clexi(){
     var expectedBleBeaconScannerState = undefined;
 
     Clexi.startBleBeaconScanner = function(){
+        SepiaFW.debug.log("CLEXI starting BLE Beacon scanner");
         ClexiJS.send('ble-beacon-scanner', {
             ctrl: "start"
         }, Clexi.numOfSendRetries);
         expectedBleBeaconScannerState = "on";
     }
     Clexi.stopBleBeaconScanner = function(){
+        SepiaFW.debug.log("CLEXI stopping BLE Beacon scanner");
         ClexiJS.send('ble-beacon-scanner', {
             ctrl: "stop"
         }, Clexi.numOfSendRetries);
@@ -444,16 +447,22 @@ function sepiaFW_build_clexi(){
     //GPIO Interface (e.g. to control hardware LEDs)
 
     //Register items defined e.g. via settings.js
-    function registerGpioItems(){
+    function registerGpioItems(alreadyRegistered){
         if (SepiaFW.settings && SepiaFW.settings.headless && 
                 SepiaFW.settings.headless.device.clexiGpioInterface){
             var gpio = SepiaFW.settings.headless.device.clexiGpioInterface;
             if (gpio.buttons && gpio.buttons.length){
+                if (!alreadyRegistered.buttons) alreadyRegistered.buttons = [];
                 gpio.buttons.forEach(function(button){
                     if (button.pin != undefined){
-                        sendGpioInterfaceRequest("register", "button", button);
-                        SepiaFW.debug.log("CLEXI registered GPIO button: " + button.id);
-                        registeredGpioObjects[button.id] = button; //we assume it worked and can remove later if we get an error
+                        var found = alreadyRegistered.buttons.find(function(o){ return (o.pin == button.pin); });
+                        if (found){
+                            SepiaFW.debug.log("CLEXI found GPIO button: " + button.id);
+                        }else{
+                            sendGpioInterfaceRequest("register", "button", button);
+                            SepiaFW.debug.log("CLEXI registered GPIO button: " + button.id);
+                            registeredGpioObjects[button.id] = button; //we assume it worked and can remove later if we get an error
+                        }
                         //internally supported button IDs:
                         if (button.id == "hw-mic-button"){
                             gpioMicButton = button;
@@ -462,11 +471,17 @@ function sepiaFW_build_clexi(){
                 });
             }
             if (gpio.leds && gpio.leds.length){
+                if (!alreadyRegistered.leds) alreadyRegistered.leds = [];
                 gpio.leds.forEach(function(led){
                     if (led.pin != undefined){
-                        sendGpioInterfaceRequest("register", "led", led);
-                        SepiaFW.debug.log("CLEXI registered GPIO led: " + led.id);
-                        registeredGpioObjects[let.id] = led; //we assume it worked and can remove later if we get an error
+                        var found = alreadyRegistered.leds.find(function(o){ return (o.pin == led.pin); });
+                        if (found){
+                            SepiaFW.debug.log("CLEXI found GPIO led: " + led.id);
+                        }else{
+                            sendGpioInterfaceRequest("register", "led", led);
+                            SepiaFW.debug.log("CLEXI registered GPIO led: " + led.id);
+                            registeredGpioObjects[let.id] = led; //we assume it worked and can remove later if we get an error
+                        }
                         //internally supported LED IDs:
                         if (led.state && supportedGpioLedStates.indexOf(led.state) >= 0){
                             if (!gpioStateLeds) gpioStateLeds = {};
@@ -476,11 +491,17 @@ function sepiaFW_build_clexi(){
                 });
             }
             if (gpio.items && gpio.items.length){
+                if (!alreadyRegistered.items) alreadyRegistered.items = [];
                 gpio.items.forEach(function(item){
                     if (item.file){
-                        sendGpioInterfaceRequest("register", "item", item);
-                        SepiaFW.debug.log("CLEXI registered GPIO item: " + item.id);
-                        registeredGpioObjects[item.id] = item; //we assume it worked and can remove later if we get an error
+                        var found = alreadyRegistered.items.find(function(o){ return (o.file == item.file); });
+                        if (found){
+                            SepiaFW.debug.log("CLEXI found GPIO item: " + item.id);
+                        }else{
+                            sendGpioInterfaceRequest("register", "item", item);
+                            SepiaFW.debug.log("CLEXI registered GPIO item: " + item.id);
+                            registeredGpioObjects[item.id] = item; //we assume it worked and can remove later if we get an error
+                        }
                         //internally supported item IDs:
                         if (item.id == "led-array"){
                             primaryGpioLedArray = item;
@@ -497,12 +518,23 @@ function sepiaFW_build_clexi(){
     var gpioStateLeds;
 
     function handleClexiGpioEvent(ev){
-        //Mic button?
+        //Registration info
+        if (ev.type == "getAll"){
+            //register devices
+            registerGpioItems(ev || {});    //NOTE: This will ALWAYS restore registration (on every event)
+        }
+        //Mic button
         if (gpioMicButton && ev.id && ev.pin != null && ev.id == gpioMicButton.id){
             if (ev.value == 1){
                 SepiaFW.inputControls.handleClexiHardwareButton("mic");
             }
         }
+        //TODO: handle 'release' events
+    }
+
+    //get array of already registered GPIO objects
+    Clexi.requestRegisteredGpioObjects = function(){
+        sendGpioInterfaceRequest("get", "all", {});
     }
 
     function sendGpioInterfaceRequest(action, type, config){
@@ -574,8 +606,6 @@ function sepiaFW_build_clexi(){
             document.dispatchEvent(event);
             //TODO: clean up faulty items?
         });
-        //register devices
-        registerGpioItems();
     }
     function removeGpioInterfaceSubscription(){
         ClexiJS.removeSubscription('gpio-interface');
