@@ -72,6 +72,7 @@ SepiaFW.settings = {
 			"useGamepads": true,
 			"useBluetoothBeacons": true,
 			"useBluetoothBeaconsInAoModeOnly": false,
+			"knownBluetoothBeaconAddresses": [],
 			"useWakeWord": false,
 			"autoloadWakeWord": false,
 			"allowWakeWordDuringStream": false,
