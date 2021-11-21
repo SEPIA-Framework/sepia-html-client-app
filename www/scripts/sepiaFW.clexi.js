@@ -457,7 +457,7 @@ function sepiaFW_build_clexi(){
                     if (button.pin != undefined){
                         var found = alreadyRegistered.buttons.find(function(o){ return (o.pin == button.pin); });
                         if (found){
-                            SepiaFW.debug.log("CLEXI found GPIO button: " + button.id);
+                            SepiaFW.debug.info("CLEXI found GPIO button: " + button.id);
                         }else{
                             sendGpioInterfaceRequest("register", "button", button);
                             SepiaFW.debug.log("CLEXI registered GPIO button: " + button.id);
@@ -476,7 +476,7 @@ function sepiaFW_build_clexi(){
                     if (led.pin != undefined){
                         var found = alreadyRegistered.leds.find(function(o){ return (o.pin == led.pin); });
                         if (found){
-                            SepiaFW.debug.log("CLEXI found GPIO led: " + led.id);
+                            SepiaFW.debug.info("CLEXI found GPIO led: " + led.id);
                         }else{
                             sendGpioInterfaceRequest("register", "led", led);
                             SepiaFW.debug.log("CLEXI registered GPIO led: " + led.id);
@@ -496,7 +496,7 @@ function sepiaFW_build_clexi(){
                     if (item.file){
                         var found = alreadyRegistered.items.find(function(o){ return (o.file == item.file); });
                         if (found){
-                            SepiaFW.debug.log("CLEXI found GPIO item: " + item.id);
+                            SepiaFW.debug.info("CLEXI found GPIO item: " + item.id);
                         }else{
                             sendGpioInterfaceRequest("register", "item", item);
                             SepiaFW.debug.log("CLEXI registered GPIO item: " + item.id);

@@ -559,7 +559,7 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 		SepiaFW.ui.toggleMicButton = function(useConfirmationSound, sourceAction){
 			if (sourceAction == undefined) sourceAction = "";
 			//source actions (so far):
-			//app-button, app-hotkey, controller-button, (remote-input), ble-beacon, clexi-remote, sepia-chat-server, 
+			//app-button, app-hotkey, controller-button, (remote-input), ble-beacon, ble-beacon-registered, clexi-remote, clexi-gpio, sepia-chat-server, 
 			//smart-mic, wake-word, intent-assist, intent-voice-command, 
 			//... more tbd
 			//TODO: at some point we could use the source info to control when voice output should be triggered
