@@ -176,7 +176,7 @@ function sepiaFW_build_input_controls() {
         beaconKnownAddresses.value = InputControls.knownBluetoothBeaconAddresses.join(", ");
         $(beaconKnownAddresses).off().on('change', function(){
             if (this.value){
-                InputControls.knownBluetoothBeaconAddresses = this.value.split(/\s*,\s*/g);
+                InputControls.knownBluetoothBeaconAddresses = this.value.trim().split(/\s*,\s*/g);
             }else{
                 InputControls.knownBluetoothBeaconAddresses = [];
             }
@@ -300,9 +300,10 @@ function sepiaFW_build_input_controls() {
             isProtectedSource = true;
         }else if (source && SepiaFW.clexi.serverId && (
             source.indexOf("clexi-remote") >= 0 ||
-            source.indexOf("clexi-gpio") >= 0 ||
-            source.indexOf("ble-beacon-registered") >= 0
+            source.indexOf("clexi-gpio") >= 0
         )){
+            isProtectedSource = true;
+        }else if (source && source.indexOf("ble-beacon-registered") >= 0){
             isProtectedSource = true;
         }
         if (!e) return;
@@ -447,19 +448,23 @@ function sepiaFW_build_input_controls() {
             reducedData.beaconType = beaconData.detail.beacon.beaconType;
             beaconData = reducedData;     //for now we use eddystone URL, power level, address and beaconType
         }
-        //TODO: we probably need a method to filter duplicated calls ... e.g. an ID of the beacon "session"
-        //console.error("Beacon URL: " + beaconData.url + ", power: " + beaconData.txPower);
+        //console.error("Beacon: " + JSON.stringify(beaconData));
+        var isKnown = false;
+        if (beaconData && beaconData.address){
+            if (InputControls.knownBluetoothBeaconAddresses.indexOf(beaconData.address) >= 0){
+                isKnown = true;
+            }
+        }
         if (InputControls.settingsAreOpen && beaconData){
             if (!beaconData.url){
-                settingsAppendDebug("Unknown Beacon: " + JSON.stringify(beaconData));
+                settingsAppendDebug("Unsupported Beacon signal: " + JSON.stringify(beaconData));
             }else if (bleBeaconInterface == "evothings"){
                 //debug with distance
                 var distance = evothings.eddystone.calculateAccuracy(beaconData.txPower, beaconData.rssi);
-                settingsAppendDebug("Beacon URL: " + beaconData.url + ", distance: " + distance + ", address: " + beaconData.address);
+                settingsAppendDebug("Beacon URL (device: " + (isKnown? "known" : "unknown") + "): " + beaconData.url + ", distance: " + distance + ", address: " + beaconData.address);
             }else if (bleBeaconInterface == "clexi"){
                 //debug
-                //console.log(beaconData);
-                settingsAppendDebug("Beacon URL: " + beaconData.url + ", address: " + beaconData.address);
+                settingsAppendDebug("Beacon URL (device: " + (isKnown? "known" : "unknown") + "): " + beaconData.url + ", address: " + beaconData.address);
             }
         }else{
             if (!beaconData || !beaconData.url){
@@ -476,12 +481,7 @@ function sepiaFW_build_input_controls() {
                 blockAllFurtherBeaconEvents = false;
             }
             var e = getBeaconEvent(beaconData);
-            var source = "ble-beacon";
-            if (beaconData.address){
-                if (InputControls.knownBluetoothBeaconAddresses.indexOf(beaconData.address) >= 0){
-                    source = "ble-beacon-registered";
-                }
-            }
+            var source = isKnown? "ble-beacon-registered" : "ble-beacon";
             handleRemoteInputEvent(e, source, beaconData);
 
             blockAllFurtherBeaconEvents = true;
