@@ -28,6 +28,10 @@ Version 0.24.1:
     <intent>
       <action android:name="android.media.action.MEDIA_PLAY_FROM_SEARCH" />
     </intent>
+    <intent>
+      <action android:name="android.intent.action.VIEW" />
+      <data android:scheme="*" />
+    </intent>
   </queries>
   ```
 

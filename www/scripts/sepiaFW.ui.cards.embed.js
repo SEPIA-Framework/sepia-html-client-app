@@ -329,6 +329,8 @@ function sepiaFW_build_ui_cards_embed(){
 		function propertiesHandler(props){
 			if (props.size && props.size.height){
 				thisPlayer.iframe.style.height = props.size.height;
+				var $scrollBody = $(thisPlayer.iframe).closest(SepiaFW.ui.JQ_RES_VIEW_IDS);
+				SepiaFW.ui.scrollToElement(thisPlayer.iframe, $scrollBody[0], 300);
 			}
 			if (props.volume != undefined){
 				currentVolume = props.volume;

@@ -64,8 +64,10 @@ function sepiaFW_build_android(){
             }
         };
         /*
+        Action:
         0: KeyEvent.ACTION_DOWN
         1: KeyEvent.ACTION_UP
+        Code:
         85: KEYCODE_MEDIA_PLAY_PAUSE
         87: KEYCODE_MEDIA_NEXT
         88: KEYCODE_MEDIA_PREVIOUS
@@ -293,6 +295,8 @@ function sepiaFW_build_android(){
             if (data.url) dataObj.url = data.url;
             if (data.package) dataObj.package = data.package;
             if (data.chooser) dataObj.chooser = data.chooser;       //chooser: "Select application to share"
+            if (data.component) dataObj.component = data.component; //{"package": ..., "class": ...}
+            if (data.flags) dataObj.flags = data.flags;             //JSON array
             window.plugins.intentShim.startActivity(dataObj, function(intent){
                 SepiaFW.debug.log("Sent Android Activity-Intent '" + data.action);
                 if (successCallback) successCallback(intent);
@@ -310,6 +314,9 @@ function sepiaFW_build_android(){
             if (data.extras) dataObj.extras = data.extras;
             if (data.url) dataObj.url = data.url;
             if (data.package) dataObj.package = data.package;
+            if (data.chooser) dataObj.chooser = data.chooser;       //chooser: "Select application to share"
+            if (data.component) dataObj.component = data.component; //{"package": ..., "class": ...}
+            if (data.flags) dataObj.flags = data.flags;             //JSON array
             window.plugins.intentShim.sendBroadcast(dataObj, function(intent){
                 SepiaFW.debug.log("Sent Android Broadcast-Intent '" + data.action);
                 if (successCallback) successCallback(intent);

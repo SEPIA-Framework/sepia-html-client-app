@@ -495,7 +495,7 @@ function sepiaFW_build_client_controls(sepiaSessionId){
                 }else{
                     SepiaFW.debug.error("Missing 'platformFunction' support for type: " + req.type);
                 }
-            //TODO: iosIntent, windowsIntent, browserIntent (more?)
+            //TODO: iosIntent, windowsIntent (more?)
             }else{
                 SepiaFW.debug.error("Missing 'platformFunction' support or data for: " + req.type);
             }
