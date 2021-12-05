@@ -178,6 +178,7 @@ function sepiaFW_build_strings(){
 	StringsDE.remote_action_audio_stream = "ich habe einen Audio Stream via Remote-Zugriff empfangen. Stream wird gestartet.";
 	StringsDE.remote_action_media_player = "habe Daten via Remote-Zugriff empfangen. Media player wird gestartet.";
 	StringsDE.remote_action_notify = "ich habe eine Benachrichtigung für dich.";
+	StringsDE.shared_access_permissions = "Zugriff freigeben (User IDs)";
 	StringsDE.read_article = "Artikel lesen";
 	StringsDE.choose_device_for_music = "Wähle ein Gerät auf dem du die Musik abspielen willst";
 	StringsDE.choose_device_for_action = "Auf welchem Gerät soll die Aktion ausgeführt werden?";
@@ -397,6 +398,7 @@ function sepiaFW_build_strings(){
 	StringsEN.remote_action_audio_stream = "I've received an audio stream via remote access. Starting now.";
 	StringsEN.remote_action_media_player = "I've received media via remote access. Starting player.";
 	StringsEN.remote_action_notify = "I have a message for you.";
+	StringsEN.shared_access_permissions = "Share Access (user IDs)";
 	StringsEN.read_article = "Read article";
 	StringsEN.choose_device_for_music = "Choose a device to play your music on";
 	StringsEN.choose_device_for_action = "On which device should the action be executed?";

@@ -7,10 +7,13 @@ function sepiaFW_build_account(sepiaSessionId){
 	var userTokenValidUntil = 0;
 	var userName = "Boss";
 	var language = SepiaFW.config.appLanguage;
+	//TODO: add 'regionCode'?
 	var clientFirstVisit = true;
 
 	var userRoles = undefined;
 	var userPreferredTempUnit = undefined;
+
+	var sharedAccessPermissions = undefined;
 	
 	var pwdIsToken = false;
 	var defaultIdPrefix = "uid";
@@ -49,7 +52,9 @@ function sepiaFW_build_account(sepiaSessionId){
 	Account.BIRTH = "birth";
 	Account.GENDER = "gender";
 	Account.APP_SETTINGS = "app_settings";
-	Account.UNIT_PREF_TEMP = "unit_pref_temp";		
+	Account.UNIT_PREF_TEMP = "unit_pref_temp";
+
+	Account.SHARED_ACCESS_PERMISSIONS = "shared_access";
 	
 	Account.LISTS = "lists";
 	Account.ADDRESSES = "addresses";
@@ -75,6 +80,16 @@ function sepiaFW_build_account(sepiaSessionId){
 		if (userPreferredTempUnit){
 			//set selector
 			$('#sepiaFW-menu-account-preftempunit-dropdown').val(userPreferredTempUnit);
+		}
+		if (sharedAccessPermissions){
+			//set input fields
+			if (sharedAccessPermissions.remoteActions && sharedAccessPermissions.remoteActions.length){
+				var userListAllowRemote = [];
+				sharedAccessPermissions.remoteActions.forEach(function(ara){
+					if (ara.user) userListAllowRemote.push(ara.user);	//NOTE: this might get more complex later
+				});
+				$('#sepiaFW-menu-account-shared-access-remote-actions').val(userListAllowRemote.join(", "));
+			}
 		}
 	}
 	
@@ -285,6 +300,17 @@ function sepiaFW_build_account(sepiaSessionId){
 		userPreferredTempUnit = newValue;
 		SepiaFW.data.updateAccount('userPreferredTempUnit', userPreferredTempUnit);
 		SepiaFW.debug.log('Account: set userPreferredTempUnit=' + userPreferredTempUnit);
+	}
+
+	//get shared access permission
+	Account.getSharedAccessPermissions = function(){
+		return sharedAccessPermissions;
+	}
+	Account.setSharedAccessPermissions = function(newValue){
+		//TODO: update or replace?
+		sharedAccessPermissions = newValue;
+		SepiaFW.data.updateAccount('sharedAccessPermissions', sharedAccessPermissions);
+		SepiaFW.debug.log('Account: set sharedAccessPermissions=' + JSON.stringify(sharedAccessPermissions));
 	}
 	
 	//load data from account
@@ -623,6 +649,7 @@ function sepiaFW_build_account(sepiaSessionId){
 			//secondary
 			userRoles = account.userRoles;
 			userPreferredTempUnit = account.userPreferredTempUnit;
+			sharedAccessPermissions = account.sharedAccessPermissions;
 
 			SepiaFW.debug.log('Account: login restored');
 			
@@ -852,6 +879,10 @@ function sepiaFW_build_account(sepiaSessionId){
 		if (data['unit_pref_temp']){
 			userPreferredTempUnit = data['unit_pref_temp'];
 		}
+		//get shared access permissions
+		if (data['shared_access']){
+			sharedAccessPermissions = data['shared_access'];
+		}
 		
 		//store data
 		var account = new Object();
@@ -866,6 +897,7 @@ function sepiaFW_build_account(sepiaSessionId){
 		//secondary infos (not necessarily in login-data)
 		account.userRoles = userRoles;
 		account.userPreferredTempUnit = userPreferredTempUnit;
+		account.sharedAccessPermissions = sharedAccessPermissions;
 
 		//write
 		SepiaFW.data.set('account', account);

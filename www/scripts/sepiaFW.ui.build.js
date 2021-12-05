@@ -743,6 +743,9 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 					+ "<li id='sepiaFW-menu-account-nickname-li'><span>" + SepiaFW.local.g('nickname') + ": </span><input id='sepiaFW-menu-account-nickname' type='text' maxlength='24'></li>"
 					+ "<li id='sepiaFW-menu-account-preftempunit-li'><span>" + SepiaFW.local.g('preferred_temp_unit') + ": </span></li>"
 					+ "<li class='spacer'></li>"
+					+ "<li style='min-height: auto; text-align: left;'>" + SepiaFW.local.g('shared_access_permissions') + ":</li>"
+					+ "<li id='sepiaFW-menu-account-shared-access-remote-actions-li'><span>" + "Remote Actions" + ": </span><input id='sepiaFW-menu-account-shared-access-remote-actions' type='text'></li>"
+					+ "<li class='spacer'></li>"
 					+ "<li id='sepiaFW-menu-store-load-app-settings-li' class='flex'>"
 						+ "<span>App settings: </span>"
 						+ "<div>"
@@ -1513,6 +1516,32 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 				//update account cache
 				SepiaFW.account.setUserPreferredTemperatureUnit(selectedOption.value);
 			}));
+			//Account-Shared Access Permissions (remote-action)
+			document.getElementById("sepiaFW-menu-account-shared-access-remote-actions").addEventListener("change", function(){
+				var allowedUsers = [];
+				var remoteActions = [];
+				//convert string to array
+				if (this.value){
+					this.value.split(/\s*,\s*/g).forEach(function(cl){
+						if (cl && cl.trim()) allowedUsers.push(cl.trim());
+					});
+				}
+				//update field
+				this.value = allowedUsers.join(", ");
+				//update account
+				allowedUsers.forEach(function(ac){
+					remoteActions.push({user: ac});		//NOTE: later we can add more stuff here, types, devices etc.
+				});
+				var sharedAcc = {
+					"remoteActions": remoteActions
+				};
+				var infos = {};		infos[SepiaFW.account.SHARED_ACCESS_PERMISSIONS] = sharedAcc;
+				var data = {};		data[SepiaFW.account.INFOS] = infos;
+				SepiaFW.account.saveAccountData(data);
+				//update account cache
+				SepiaFW.account.setSharedAccessPermissions(sharedAcc);
+				this.blur();
+			});
 			//Store, load and export app settings
 			document.getElementById("sepiaFW-menu-store-app-settings-btn").addEventListener("click", function(){
 				SepiaFW.account.saveAppSettings();
