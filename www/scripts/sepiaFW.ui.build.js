@@ -1522,8 +1522,10 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 				var remoteActions = [];
 				//convert string to array
 				if (this.value){
+					var ownUser = SepiaFW.account.getUserId();
 					this.value.split(/\s*,\s*/g).forEach(function(cl){
-						if (cl && cl.trim()) allowedUsers.push(cl.trim());
+						cl = cl.trim();
+						if (cl && cl != ownUser) allowedUsers.push(cl.trim());
 					});
 				}
 				//update field

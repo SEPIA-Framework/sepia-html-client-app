@@ -51,7 +51,7 @@ function sepiaFW_build_client_interface(){
 
 	ClientInterface.getConnectedUserClients = SepiaFW.webSocket.client.getConnectedUserClients;
 	ClientInterface.showConnectedUserClientsAsMenu = SepiaFW.webSocket.client.showConnectedUserClientsAsMenu;
-	ClientInterface.sendRemoteActionToOwnDevice = SepiaFW.webSocket.client.sendRemoteActionToOwnDevice;
+	ClientInterface.sendRemoteActionToOwnDeviceOrShared = SepiaFW.webSocket.client.sendRemoteActionToOwnDeviceOrShared;
 
 	ClientInterface.getNewMessageId = SepiaFW.webSocket.client.getNewMessageId;
 	ClientInterface.handleServerMessage = SepiaFW.webSocket.client.handleServerMessage;
@@ -1092,15 +1092,17 @@ function sepiaFW_build_webSocket_client(sepiaSessionId){
 						buttonOneAction: function(btn, inputVal1){
 							//Remote
 							if (!inputVal1) return;
+							var includeSharedFor = [{dataType: "remoteAction", action: "notify", actionType: "assistant_message"}];
 							setTimeout(function(){
 								SepiaFW.client.showConnectedUserClientsAsMenu(SepiaFW.local.g('choose_device_for_action'), 
 									function(deviceInfo){
-										SepiaFW.client.sendRemoteActionToOwnDevice("notify", {
+										var sharedReceiver = deviceInfo.isShared? deviceInfo.id : undefined;
+										SepiaFW.client.sendRemoteActionToOwnDeviceOrShared("notify", {
 											type: "assistant_message",
 											text: inputVal1,
 											language: SepiaFW.speech.getLanguage() 		//speech or app lang.?
-										}, deviceInfo.deviceId);
-									}, true
+										}, deviceInfo.deviceId, sharedReceiver);
+									}, true, includeSharedFor
 								);
 							}, 0);
 						},
@@ -1889,7 +1891,7 @@ function sepiaFW_build_webSocket_client(sepiaSessionId){
 	}
 
 	//Send remote action via client connection
-	Client.sendRemoteActionToOwnDevice = function(type, action, deviceId){
+	Client.sendRemoteActionToOwnDeviceOrShared = function(type, action, deviceId, sharedReceiver){
 		if (!SepiaFW.account.getUserId() || !deviceId) return;	//required
 		//build data
 		var data = new Object();
@@ -1899,6 +1901,7 @@ function sepiaFW_build_webSocket_client(sepiaSessionId){
 		data.type = type;
 		data.action = (typeof action != "string")? JSON.stringify(action) : action;
 		//source and target
+		//TODO: use 'sharedReceiver'
 		data.remoteUserId = SepiaFW.account.getUserId();
 		data.targetDeviceId = deviceId;
 		data.skipDeviceId = SepiaFW.config.getDeviceId();	//skip own
@@ -2173,6 +2176,8 @@ function sepiaFW_build_webSocket_client(sepiaSessionId){
 						action = message.data.action;
 					}
 				}
+				//TODO: we could use for additional info:
+				//var originalSender = message.data.originalSender;	//defined if action came from user allowed via shared access
 
 				//invalid
 				if (!message.data.type || !action){
@@ -2353,6 +2358,7 @@ function sepiaFW_build_webSocket_client(sepiaSessionId){
 										//senderType: 'assistant',
 										channelId: 'info'
 									});
+									//NOTE: we can use 'originalSender' for something (see above)
 								}
 								SepiaFW.assistant.waitForOpportunitySayLocalTextAndRunAction(
 									//localizedText, actionFun, fallbackAction, maxWait, speakOptions:
@@ -2716,7 +2722,7 @@ function sepiaFW_build_webSocket_client(sepiaSessionId){
 
 	//--- WebSocket server clients endpoint ---//
 
-	Client.getConnectedUserClients = function(successCallback, errorCallback){
+	Client.getConnectedUserClients = function(successCallback, errorCallback, includeSharedFor){
 		if (SepiaFW.client.isDemoMode()){
 			successCallback({clients:[
 				{role:"user", name:"Testy", id:"uid202", sessionId:3, isActive:true, deviceId:"test1", info:{
@@ -2730,6 +2736,7 @@ function sepiaFW_build_webSocket_client(sepiaSessionId){
 		var dataBody = new Object();
 		dataBody.KEY = SepiaFW.account.getKey(sepiaSessionId);
 		dataBody.client = SepiaFW.config.getClientDeviceInfo();
+		if (includeSharedFor) dataBody.includeShared = true;	//TODO: for now we get all shared. Later we can support granular filter.
 		$.ajax({
 			url: apiUrl,
 			timeout: 8000,
@@ -2746,6 +2753,26 @@ function sepiaFW_build_webSocket_client(sepiaSessionId){
 					return;
 				}
 				//--callback--
+				if (includeSharedFor && data.clients && data.clients.length){
+					//filter shared access using 'sharedAccessInfo'
+					var filteredClients = [];
+					data.clients.forEach(function(cl){
+						//own
+						if (!cl.isShared){
+							filteredClients.push(cl);
+						//shared
+						}else if (cl.sharedAccessInfo){
+							if (cl.sharedAccessInfo.details){
+								//TODO: filter (e.g.: {dataType: "remoteAction", action: "notify", actionType: "assistant_message"})
+							}else{
+								//no 'details' means all!
+								filteredClients.push(cl);
+							}
+						}
+					});
+					data.clients = filteredClients;
+					//console.error("data", data);	//DEBUG
+				}
 				if (successCallback) successCallback(data);
 			},
 			error: function(data) {
@@ -2754,8 +2781,8 @@ function sepiaFW_build_webSocket_client(sepiaSessionId){
 			}
 		});
 	}
-	Client.showConnectedUserClientsAsMenu = function(title, deviceButtonFun, closeAfterPress){
-		SepiaFW.client.getConnectedUserClients(function(data){
+	Client.showConnectedUserClientsAsMenu = function(title, deviceButtonFun, closeAfterPress, includeSharedFor){
+		Client.getConnectedUserClients(function(data){
 			if (data.clients && data.clients.length > 0){
 				var menu = buildUserDevicesListForAction(data.clients, title, function(deviceInfo){
 					if (closeAfterPress) SepiaFW.ui.hidePopup();
@@ -2771,7 +2798,7 @@ function sepiaFW_build_webSocket_client(sepiaSessionId){
 		}, function(err){
 			SepiaFW.ui.showPopup(SepiaFW.local.g('error_after_try'));
 			SepiaFW.debug.error("Failed to get connected clients - Msg.:", err);
-		});
+		}, includeSharedFor);
 	}
 	function buildUserDevicesListForAction(clients, title, deviceButtonFun){
 		var menu = document.createElement("div");
@@ -2782,8 +2809,8 @@ function sepiaFW_build_webSocket_client(sepiaSessionId){
 		menu.appendChild(header);
 		var thisDevice = SepiaFW.config.getDeviceId();
 		clients.forEach(function(cl){
-			if (!cl.deviceId) return;
-			var isThisDevice = (cl.deviceId == thisDevice);
+			if (!cl.deviceId) return;	//check 'isActive'?
+			var isThisDevice = (!cl.isShared && cl.deviceId == thisDevice);
 			var type = "", name = "", index = "";
 			if (cl.info && cl.info.deviceLocalSite && cl.info.deviceLocalSite.type){
 				type = cl.info.deviceLocalSite.type || "";
@@ -2797,13 +2824,20 @@ function sepiaFW_build_webSocket_client(sepiaSessionId){
 				info = (type + " " + name + " " + index ).replace(/\s+/, " ").trim() 
 					|| SepiaFW.local.g("not_defined");
 			}
+			var sharedName = "";
+			if (cl.isShared){
+				sharedName = "<span>User: <b>" + cl.name + "</b> (" + cl.id + ") - "
+					+ SepiaFW.local.g("deviceId") + ": <b>" + (cl.deviceId) + "</b></span>";
+			}else{
+				sharedName = "<span>" + SepiaFW.local.g("deviceId") + ": <b>" + (cl.deviceId) + "</b>" 
+					+ (isThisDevice? (" (<i>" + SepiaFW.local.g("thisDevice") + "</i>)") : "") + "</span>";
+			}
 			var device = document.createElement("div");
 			device.style.display = "flex";
 			device.style.flexDirection = "column";
 			device.innerHTML = SepiaFW.tools.sanitizeHtml(
 				"<button class='" + (isThisDevice? "same-device" : "") + "'>" 
-					+ "<span>" + SepiaFW.local.g("deviceId") + ": <b>" + cl.deviceId + "</b>" 
-						+ (isThisDevice? (" (<i>" + SepiaFW.local.g("thisDevice") + "</i>)") : "") + "</span><br>"
+					+ sharedName + "<br>"
 					+ "<span>Info: " + info.replace(/^./, info[0].toUpperCase()) + "</span>" +
 				"</button>"
 			);

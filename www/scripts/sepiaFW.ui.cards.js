@@ -712,15 +712,17 @@ function sepiaFW_build_ui_cards(){
 				buttonName: SepiaFW.local.g('playOn'),
 				fun: function(){
 					//play stream on different device
+					var includeSharedFor = [{dataType: "remoteAction", action: "media", actionType: "audio_stream"}];
 					SepiaFW.client.showConnectedUserClientsAsMenu(SepiaFW.local.g('choose_device_for_music'), 
 						function(deviceInfo){
-							SepiaFW.client.sendRemoteActionToOwnDevice("media", {
+							var sharedReceiver = deviceInfo.isShared? deviceInfo.id : undefined;
+							SepiaFW.client.sendRemoteActionToOwnDeviceOrShared("media", {
 								type: "audio_stream",
 								name: radioElementInfo.name,
 								streamURL: radioElementInfo.streamURL,
 								playlistURL: radioElementInfo.playlistURL
-							}, deviceInfo.deviceId);
-						}, true
+							}, deviceInfo.deviceId, sharedReceiver);
+						}, true, includeSharedFor
 					);
 				}
 			});
@@ -1437,13 +1439,15 @@ function sepiaFW_build_ui_cards(){
 				buttonName: SepiaFW.local.g('playOn'),
 				fun: function(){
 					//play stream on different device
+					var includeSharedFor = [{dataType: "remoteAction", action: "media", actionType: "embedded_player"}];
 					SepiaFW.client.showConnectedUserClientsAsMenu(SepiaFW.local.g('choose_device_for_music'), 
 						function(deviceInfo){
-							SepiaFW.client.sendRemoteActionToOwnDevice("media", {
+							var sharedReceiver = deviceInfo.isShared? deviceInfo.id : undefined;
+							SepiaFW.client.sendRemoteActionToOwnDeviceOrShared("media", {
 								type: "embedded_player",
 								playerData: exportEmbeddedPlayerDataForRemoteAction(linkElementInfo)
-							}, deviceInfo.deviceId);
-						}, true
+							}, deviceInfo.deviceId, sharedReceiver);
+						}, true, includeSharedFor
 					);
 				}
 			},{
