@@ -1530,19 +1530,35 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 				}
 				//update field
 				this.value = allowedUsers.join(", ");
+				this.blur();
 				//update account
 				allowedUsers.forEach(function(ac){
-					remoteActions.push({user: ac});		//NOTE: later we can add more stuff here, types, devices etc.
+					//Format: {user: "...", device: "...", details: {...}}
+					//user: allowed user ID - device: where action is executed - details: action specific details
+					//each field that is not set (null) means no further restriction
+					remoteActions.push({user: ac});
 				});
 				var sharedAcc = {
 					"remoteActions": remoteActions
 				};
 				var infos = {};		infos[SepiaFW.account.SHARED_ACCESS_PERMISSIONS] = sharedAcc;
 				var data = {};		data[SepiaFW.account.INFOS] = infos;
-				SepiaFW.account.saveAccountData(data);
-				//update account cache
-				SepiaFW.account.setSharedAccessPermissions(sharedAcc);
-				this.blur();
+				SepiaFW.account.saveAccountData(data, function(){
+					//update account cache
+					SepiaFW.account.setSharedAccessPermissions(sharedAcc);
+					//ask user to reload client (to refresh WebSocket client)
+					SepiaFW.ui.showPopup('Please reload client to apply changes!', {
+						buttonOneName : "Reload",
+						buttonOneAction : function(){
+							setTimeout(function(){
+								window.location.reload();
+							}, 1000);
+						}
+					});
+				}, function(err){
+					SepiaFW.debug.error("Failed to store shared-access setting.", err);
+					SepiaFW.ui.showPopup('Sorry, but something went wrong!');
+				});
 			});
 			//Store, load and export app settings
 			document.getElementById("sepiaFW-menu-store-app-settings-btn").addEventListener("click", function(){

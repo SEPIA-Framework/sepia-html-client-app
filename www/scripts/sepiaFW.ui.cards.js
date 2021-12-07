@@ -712,7 +712,7 @@ function sepiaFW_build_ui_cards(){
 				buttonName: SepiaFW.local.g('playOn'),
 				fun: function(){
 					//play stream on different device
-					var includeSharedFor = [{dataType: "remoteAction", action: "media", actionType: "audio_stream"}];
+					var includeSharedFor = [{dataType: "remoteActions", action: "media", actionType: "audio_stream"}];
 					SepiaFW.client.showConnectedUserClientsAsMenu(SepiaFW.local.g('choose_device_for_music'), 
 						function(deviceInfo){
 							var sharedReceiver = deviceInfo.isShared? deviceInfo.id : undefined;
@@ -1439,7 +1439,7 @@ function sepiaFW_build_ui_cards(){
 				buttonName: SepiaFW.local.g('playOn'),
 				fun: function(){
 					//play stream on different device
-					var includeSharedFor = [{dataType: "remoteAction", action: "media", actionType: "embedded_player"}];
+					var includeSharedFor = [{dataType: "remoteActions", action: "media", actionType: "embedded_player"}];
 					SepiaFW.client.showConnectedUserClientsAsMenu(SepiaFW.local.g('choose_device_for_music'), 
 						function(deviceInfo){
 							var sharedReceiver = deviceInfo.isShared? deviceInfo.id : undefined;

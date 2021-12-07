@@ -1092,7 +1092,7 @@ function sepiaFW_build_webSocket_client(sepiaSessionId){
 						buttonOneAction: function(btn, inputVal1){
 							//Remote
 							if (!inputVal1) return;
-							var includeSharedFor = [{dataType: "remoteAction", action: "notify", actionType: "assistant_message"}];
+							var includeSharedFor = [{dataType: "remoteActions", action: "notify", actionType: "assistant_message"}];
 							setTimeout(function(){
 								SepiaFW.client.showConnectedUserClientsAsMenu(SepiaFW.local.g('choose_device_for_action'), 
 									function(deviceInfo){
@@ -1375,7 +1375,7 @@ function sepiaFW_build_webSocket_client(sepiaSessionId){
 	
 	//add credentials and parameters
 	function addCredentialsAndParametersToData(data, skipAssistantState){
-		//NOTE: compare to 'Assistant.getParametersForActionCall'
+		//NOTE: compare to 'Assistant -> getParametersForHttpCall'
 		
 		if (SepiaFW.account.getUserId() && SepiaFW.account.getToken(sepiaSessionId)){
 			//use "safe" field: credentials
@@ -1893,6 +1893,12 @@ function sepiaFW_build_webSocket_client(sepiaSessionId){
 	//Send remote action via client connection
 	Client.sendRemoteActionToOwnDeviceOrShared = function(type, action, deviceId, sharedReceiver){
 		if (!SepiaFW.account.getUserId() || !deviceId) return;	//required
+		//redirect to HTTP call?
+		if (sharedReceiver){
+			//TODO: we currently have to redirect shared-access remote-actions to HTTP for authentication!
+			SepiaFW.assistant.sendHttpRemoteAction(type, action, deviceId, sharedReceiver);
+			return;
+		}
 		//build data
 		var data = new Object();
 		data.dataType = "remoteAction";
@@ -1901,7 +1907,6 @@ function sepiaFW_build_webSocket_client(sepiaSessionId){
 		data.type = type;
 		data.action = (typeof action != "string")? JSON.stringify(action) : action;
 		//source and target
-		//TODO: use 'sharedReceiver'
 		data.remoteUserId = SepiaFW.account.getUserId();
 		data.targetDeviceId = deviceId;
 		data.skipDeviceId = SepiaFW.config.getDeviceId();	//skip own
@@ -2763,7 +2768,7 @@ function sepiaFW_build_webSocket_client(sepiaSessionId){
 						//shared
 						}else if (cl.sharedAccessInfo){
 							if (cl.sharedAccessInfo.details){
-								//TODO: filter (e.g.: {dataType: "remoteAction", action: "notify", actionType: "assistant_message"})
+								//TODO: filter (e.g.: {dataType: "remoteActions", action: "notify", actionType: "assistant_message"})
 							}else{
 								//no 'details' means all!
 								filteredClients.push(cl);
