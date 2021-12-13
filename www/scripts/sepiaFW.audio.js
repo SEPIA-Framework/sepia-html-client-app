@@ -602,7 +602,10 @@ function sepiaFW_build_audio(){
 		SepiaFW.speech.getTtsStreamURL(message, function(audioUrl){
 			SepiaFW.debug.info("TTS audio url: " + audioUrl);
 			AudioPlayer.playURL(audioUrl, speaker, onStartCallback, onEndCallback, onErrorCallback);
-		}, onErrorCallback, options);
+		}, function(err){
+			SepiaFW.ui.showInfo(SepiaFW.local.g('ttsAudioFailedToCreate'));
+			if (onErrorCallback) onErrorCallback(err);
+		}, options);
 	}
 	TTS.stop = function(){
 		AudioPlayer.stop(speaker);

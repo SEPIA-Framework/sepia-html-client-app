@@ -316,6 +316,9 @@ body.limit-size {
 	align-items: center;
 	padding-bottom: 10%;
 }
+.dark-skin .sepiaFW-popup-cover-layer {
+	background: rgba(96, 96, 100, 0.92);
+}
 .sepiaFW-input-popup {
 	position: relative;
 	/*top: 40%;
