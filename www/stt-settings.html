@@ -53,7 +53,7 @@
 			</div>
 			<h3>Info <button onclick="SepiaFW.frames.currentScope.clearSttDebugBox();">clear</button></h3>
 			<div id="sepiaFW-stt-settings-debug-log" style="width: 100%; white-space: break-spaces; word-wrap: break-word; 
-				overflow-y: auto; border: 1px solid currentColor; background: #111; color: #eee;
+				overflow-y: auto; border: 1px solid #aaa; background: #111; color: #eee; 
 				max-height: calc(100% - 200px); min-height: 135px; padding: 0 4px; font-size: 13px;"
 			></div>
 		</div>
@@ -147,7 +147,6 @@
 			SepiaFW.speech.setActiveGlobalSpeechEventListener(function(ev){
 				if (SepiaFW.frames.currentScope.speechEvents) SepiaFW.frames.currentScope.speechEvents(ev);
 			});
-			SepiaFW.frames.currentScope.debuggerState.audioRecorderDebugOrg = SepiaFW.audioRecorder.debugInterfaces;
 			SepiaFW.audioRecorder.debugInterfaces = true;
 			SepiaFW.audioRecorder.debuggerLogFunction = SepiaFW.frames.currentScope.audioRecorderEvents;
 		},
@@ -157,7 +156,7 @@
 			$('#sepiaFW-menu-stt-socket-url').val(SepiaFW.speechAudioProcessor.getSocketURI());
 			//remove global speech listener
 			SepiaFW.speech.setActiveGlobalSpeechEventListener(undefined);
-			SepiaFW.audioRecorder.debugInterfaces = SepiaFW.frames.currentScope.debuggerState.audioRecorderDebugOrg;
+			SepiaFW.audioRecorder.debugInterfaces = false;
 			SepiaFW.audioRecorder.debuggerLogFunction = undefined;
 		},
 
@@ -184,8 +183,7 @@
 		//Debugger page
 
 		debuggerState: {
-			tic: 0,
-			audioRecorderDebugOrg: SepiaFW.audioRecorder.debugInterfaces
+			tic: 0
 		},
 
 		showDebugMsg: function(msg, isError, color){
@@ -195,7 +193,7 @@
 			if (color) msgEle.style.color = color;
 			else if (isError) msgEle.style.color = "#f00";
 			var $msgBox = $('#sepiaFW-stt-settings-debug-log');
-			$msgBox.css("color", "").append(msgEle);
+			$msgBox.append(msgEle);
 			$msgBox[0].scrollTop = $msgBox[0].scrollHeight;
 		},
 		clearSttDebugBox: function(){
