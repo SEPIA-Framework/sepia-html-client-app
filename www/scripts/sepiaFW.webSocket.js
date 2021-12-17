@@ -2601,6 +2601,8 @@ function sepiaFW_build_webSocket_client(sepiaSessionId){
 			SepiaFW.debug.error('Failed to publish chat-entry, data was invalid! ChannelId issue?');
 			return;
 		}
+		//TODO: if we have 'options.loadOnlyData' (or skipInsert etc.) we shouldn't build the whole cEntry :-/ 
+		//... currently we need it for events handled in cards though (e.g timer)
 		
 		//get right view
 		var resultView = SepiaFW.ui.getResultViewByName(options.targetView);

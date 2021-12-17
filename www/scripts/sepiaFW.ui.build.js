@@ -971,13 +971,21 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 					}
 				));
 
-				//add voice select options - delayed due to loading process
+				//add voice select options - delayed due to loading process - SEPIA engine requires active user
 				var voiceSelectorBox = document.getElementById('sepiaFW-menu-select-voice-li');
-				setTimeout(function(){
-					SepiaFW.speech.getVoices(function(voices, voiceSelector){
-						voiceSelectorBox.appendChild(voiceSelector);
-					});
-				}, 1000);
+				if (SepiaFW.speech.getVoiceEngine() == "sepia"){
+					SepiaFW.client.addOnActiveOneTimeAction(function(){
+						SepiaFW.speech.getVoices(function(voices, voiceSelector){
+							voiceSelectorBox.appendChild(voiceSelector);
+						});
+					}, "tts-voice-setup");
+				}else{
+					setTimeout(function(){
+						SepiaFW.speech.getVoices(function(voices, voiceSelector){
+							voiceSelectorBox.appendChild(voiceSelector);
+						});
+					}, 1000);
+				}
 
 				//TTS custom external server
 				var speechSynthServerInput = document.getElementById("sepiaFW-menu-external-tts-url");
@@ -2101,7 +2109,6 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 		//add card-data - NOTE: we allow this even if isAssistMsg=false
 		if (msg.data && msg.data.assistAnswer && msg.data.assistAnswer.hasCard){
 			var card = SepiaFW.ui.cards.get(msg.data.assistAnswer, sender, isSafeMsg);
-			//TODO: handle both? Right now its 'take inline if you can and ignore fullscreen'
 			
 			//Inline data
 			if (card.dataInline && card.dataInline.length>0){
@@ -2112,15 +2119,10 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 			//Full screen cards
 			}else if (card.dataFullScreen && card.dataFullScreen.length>0){
 				//This is a bit quirky, since the parent function should decide how to handle the block ...
-				//... but we currently depend on the card-handler method that can overwrite the target-view options
+				//... but the card-handler method can overwrite the target-view
 
-				/* -- this is how it should be, but for big-results there should be no text-message or action-buttons included --
-				for (i=0; i<card.dataFullScreen.length; i++){
-					block.appendChild(card.dataFullScreen[i]);
-				}
-				*/
-				
-				//... this is how we need it currently ... but at least we should check the options.skipInsert
+				//... so we don't add to block but big-results and check 'options.skipInsert' here instead
+				//NOTE: do we need to check more options?
 				if (!options.skipInsert){
 					var bigResultView = document.getElementById('sepiaFW-result-view');
 					bigResultView.innerHTML = '';

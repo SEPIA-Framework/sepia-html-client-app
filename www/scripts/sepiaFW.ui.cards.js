@@ -117,8 +117,8 @@ function sepiaFW_build_ui_cards(){
 						if (elementType === USER_DATA_LIST){
 							var section = cardInfoI.info[j].section;
 							var dataN = (cardInfoI.info[j].data)? cardInfoI.info[j].data.length : 0;
+							//console.error('card list element info: ' + JSON.stringify(cardInfoI.info[j]));	//DEBUG
 							var cardElement = buildUserDataList(cardInfoI.info[j]);
-							//console.log('card list element info: ' + JSON.stringify(cardInfoI.info[j]));
 							if (N == 1){ 	//one list is shown in-chat
 								if (section === "timeEvents" && dataN > 3){
 									card.dataFullScreen.push(cardElement);
@@ -403,24 +403,26 @@ function sepiaFW_build_ui_cards(){
 		for (i=0; i<N; i++){
 			//note: if you add element types here don't forget to add them in 'getUserDataList' too! (e.g. listElement, timerEvent, ...)
 			//console.log('build card ele: ' + elementsData[i].eleType); 		//DEBUG
+			var listEle;
 			
 			//timer element
 			if (elementsData[i].eleType === "timer"){
-				var listEle = makeTimerElement(elementsData[i], cardElement.id, cardBody);		//make AND add
+				listEle = makeTimerElement(elementsData[i], cardElement.id, cardBody);		//make AND add
 				if (hasTimer === 0) { hasTimer = 1;	cardBody.className = "sepiaFW-cards-list-body sepiaFW-cards-list-timers"; }
 				//refresh interval actions
 				SepiaFW.events.addOrRefreshTimeEvent(elementsData[i].targetTimeUnix, elementsData[i].eleType, elementsData[i]);
+				//console.error("CREATED time event: " + elementsData[i].name, listEle);		//DEBUG
 			
 			//alarm element
 			}else if (elementsData[i].eleType === "alarm"){
-				var listEle = makeAlarmElement(elementsData[i], cardElement.id, cardBody);		//make AND add
+				listEle = makeAlarmElement(elementsData[i], cardElement.id, cardBody);		//make AND add
 				if (hasAlarm === 0) { hasAlarm = 1; cardBody.className = "sepiaFW-cards-list-body sepiaFW-cards-list-alarms"; }
 				//refresh interval actions
 				SepiaFW.events.addOrRefreshTimeEvent(elementsData[i].targetTimeUnix, elementsData[i].eleType, elementsData[i]);
 			
 			//default: checkable element (default list element)
 			}else{
-				var listEle = makeUserDataListElement(elementsData[i], cardElementInfo); 	//just make (add self)
+				listEle = makeUserDataListElement(elementsData[i], cardElementInfo); 	//just make (add self)
 				cardBody.appendChild(listEle);
 				if (hasCheckable === 0) { hasCheckable = 1; cardBody.className = "sepiaFW-cards-list-body sepiaFW-cards-list-checkables"; }
 				setupUserDataListElementButtons(listEle); 		//we do this as last step, after classes are set and ele ist appended!

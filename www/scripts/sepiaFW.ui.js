@@ -1076,7 +1076,7 @@ function sepiaFW_build_ui(){
 		var includePastMs = 120*60*60*1000;
 		var nextTimers = SepiaFW.events.getNextTimeEvents(maxTargetTime, '', includePastMs);
 		var myView = document.getElementById('sepiaFW-my-view'); 		//TODO: don't we have a method for this or a permanent variable?
-		//TODO: smart clean-up of old timers - This has to be done before when we get the new list
+		//TODO: smart clean-up of old timers - This has to be done before we get the new list
 		$.each(nextTimers, function(index, Timer){
 			//check if alarm is present in myView 	
 			var timerPresentInMyView = $(myView).find('[data-id="' + Timer.data.eventId + '"]');	//TODO: we don't need this if we clean first
