@@ -120,7 +120,7 @@ function sepiaFW_build_speech_recognition(Speech){
 	}
 
 	//create recognizer for right engine
-	function newRecognizer(event){
+	function newRecognizer(event, logFunction){
 		//check engine
 		if (Speech.asrEngine == "native"){
 			//TODO: check event: onprepare, onstart, onreset
@@ -133,7 +133,7 @@ function sepiaFW_build_speech_recognition(Speech){
 			}
 		}else if (Speech.asrEngine == "sepia" || Speech.asrEngine == "socket"){
 			//TODO: check event: onprepare, onstart, onreset
-			return SepiaFW.speechAudioProcessor.getRecognizer();
+			return SepiaFW.speechAudioProcessor.getRecognizer(logFunction);
 		}
 	}
 	
@@ -255,8 +255,9 @@ function sepiaFW_build_speech_recognition(Speech){
 		Speech.dispatchSpeechEvent("asr_error", "no connection to server");
 	}
 
-	function broadcastUnknownAsrError(err){
+	function broadcastUnknownAsrError(err, additionalInfoMsg){
 		var msg = SepiaFW.local.g('asrOtherError') + " Error: '" + (err || "unknown") + "'";
+		if (additionalInfoMsg) msg += " - " + additionalInfoMsg;
 		SepiaFW.ui.showInfo(msg);
 		Speech.dispatchSpeechEvent("asr_error", msg);
 	}
@@ -436,7 +437,8 @@ function sepiaFW_build_speech_recognition(Speech){
 			wait_timestamp = 0;
 			clearTimeout(waitTimeout);
 			clearTimeout(onAudioEndSafetyTimer);
-			recognition = newRecognizer("onreset");		//NOTE: after this we cannot get any other events anymore!
+			log_callback('STT ENGINE RESET');
+			recognition = newRecognizer("onreset", log_callback);		//NOTE: after this we cannot get any other events anymore!
 		}
 
 		if (!Speech.isAsrSupported){
@@ -446,7 +448,8 @@ function sepiaFW_build_speech_recognition(Speech){
 		
 		}else{
 			if (!recognition){
-				recognition = newRecognizer("onstart");
+				log_callback('STT ENGINE CREATE');
+				recognition = newRecognizer("onstart", log_callback);
 			}
 			//Default recognition setting:
 			recognition.interimResults = true;
@@ -478,11 +481,13 @@ function sepiaFW_build_speech_recognition(Speech){
 			//A warning - TODO: Edge is still buggy and Safari crashes a lot when other audio is used as well :-/
 			if ((SepiaFW.ui.isEdge || SepiaFW.ui.isSafari) && Speech.asrEngine == "native"){	//add later? !SepiaFW.ui.isCordova
 				if (!showedAsrLimitInfo){
-					SepiaFW.ui.showInfo("Note: Native speech recognition on this device is still fresh and not thoroughly tested yet.", false, "", true);
-					SepiaFW.debug.log("ASR: Experimental Web Speech API support (fresh).");
+					SepiaFW.ui.showInfo("Note: Native speech recognition on this device is still new and not thoroughly tested yet.", false, "", true);
+					SepiaFW.debug.log("ASR: Experimental Web Speech API support.");
 					showedAsrLimitInfo = true;
 				}
 			}
+
+			log_callback('STT REC. SETTINGS - interimResults: ' + recognition.interimResults + ", continuous: " + recognition.continuous);
 			
 			//ON START
 			recognition.onstart = function(event){
@@ -491,7 +496,7 @@ function sepiaFW_build_speech_recognition(Speech){
 				isRecognizing = true;
 				recognizerWaitingForResult = false;
 				asrAutoStop = false;
-				log_callback('-LOG- REC START');
+				log_callback('STT REC. START');
 				broadcastAsrMicOpen();
 				start_timestamp = event.timeStamp;
 				ignore_onend = false;
@@ -527,7 +532,7 @@ function sepiaFW_build_speech_recognition(Speech){
 				wait_timestamp = new Date().getTime();
 				broadcastAsrWaitingForResult();
 				asrAutoStop = false;
-				log_callback('-LOG- ABORT REQUESTED');
+				log_callback('STT REC. ABORT REQUESTED');
 				recognition.stop();			//TODO: currently on Edge this will break successive calls of 'recognition.abort'
 			};
 			recognition.clearWaitTimeoutAndIgnoreEnd = function(){
@@ -538,6 +543,7 @@ function sepiaFW_build_speech_recognition(Speech){
 			
 			//ON ERROR
 			recognition.onerror = function(event){
+				log_callback('STT REC-ONERROR');
 				//reset recognizer
 				resetsOnUnexpectedEnd();	//NOTE: after this we cannot get 'onend' event anymore!
 				isRecognizing = false;		//  ... so implementations need to MAKE SURE audio ends
@@ -601,9 +607,10 @@ function sepiaFW_build_speech_recognition(Speech){
 				}else{
 					SepiaFW.debug.err('ASR: '+ (event.error? event.error : 'Unknown ERROR!'), event);
 					//TODO: do something here!
-					var err_msg = 'E0? - ' + (event.error? event.error : 'Unknown ERROR!');
-					broadcastUnknownAsrError(err_msg);
-					before_error(error_callback, err_msg);
+					var errorMsg = 'E0? - ' + (event.error? event.error : 'Unknown ERROR!');
+					var orgMsg = (event.message)? ((event.name || "Info") + ": " + event.message) : "";
+					broadcastUnknownAsrError(errorMsg, orgMsg);
+					before_error(error_callback, errorMsg);
 					return;
 				}
 			};
@@ -621,10 +628,12 @@ function sepiaFW_build_speech_recognition(Speech){
 			}
 			*/
 			recognition.onaudioend = function(e){
+				log_callback('STT REC-ONAUDIOEND');
 				//console.error("onaudioend", e); 			//DEBUG
 				onAudioEndSafetyTimer = setTimeout(function(){
 					if (recognizerWaitingForResult && recognition.onend){
 						SepiaFW.debug.error("Speech: Had to force 'onend' event via abort because it did not trigger.");
+						log_callback("STT REC. msg: Had to force 'onend' event via abort");
 						if (!!recognition.abort) recognition.abort();
 						//recognition.onend();
 						//recognition.onerror();
@@ -632,6 +641,7 @@ function sepiaFW_build_speech_recognition(Speech){
 				}, onAudioEndSafetyTime);
 			}
 			recognition.onend = function(e){
+				log_callback('STT REC-ONEND');
 				//console.error("onend", e); 				//DEBUG - TODO: this will not fire reliably on Edge
 				clearTimeout(onAudioEndSafetyTimer);
 				onEndWasAlreadyCalled = true;
@@ -640,7 +650,7 @@ function sepiaFW_build_speech_recognition(Speech){
 				if (ignore_onend && !restart_anyway) {
 					isRecognizing = false;
 					recognizerWaitingForResult = false;
-					log_callback('-LOG- REC END. input ignored');		//only an ERROR can lead here that has been broadcasted before so we just LOG and go
+					log_callback('STT REC. END - input ignored');		//only an ERROR can lead here that has been broadcasted before so we just LOG and go
 					return;
 				}
 				if (!final_transcript && lastResultType != "final" && quit_on_final_result){	//NOTE: 'lastResultType' prevents trigger for empty final result
@@ -679,10 +689,10 @@ function sepiaFW_build_speech_recognition(Speech){
 				
 				//restart for 'always on' or send result
 				if (!quit_on_final_result){
-					log_callback('-LOG- REC END. auto-restart for "always-on"');
+					log_callback('STT REC. END - auto-restart for "always-on"');
 					recognition.start();
 				}else{
-					log_callback('-LOG- REC END. sending final result');
+					log_callback('STT REC. END - sending final result');
 					if (!abortRecognition){
 						broadcastAsrFinished();
 						var final_fixed = postProcessTranscription(final_transcript);
@@ -730,13 +740,16 @@ function sepiaFW_build_speech_recognition(Speech){
 				
 				interim_transcript = '';
 				var mod_str = '';
-				for (var i = (event.resultIndex || 0); i < event.results.length; ++i){
+				var n = 0; //(event.resultIndex || 0);	//NOTE: this should probably be 0 always
+				var N = event.results.length;		//NOTE: this will probably be required if we have multiple final res.
+				//console.log('ASR RES resultIndex: ' + event.resultIndex);			//DEBUG
+				for (var i = n; i < N; ++i){
 					partialWasTriggered = true;
-					//console.log('ASR RES:', event.results[i]);			//DEBUG
+					//console.log('ASR RES ' + i + ":", event.results[i]);			//DEBUG
 					if (event.results[i].isFinal || event.results[i][0]['final']){
+						log_callback('STT REC-FINAL');
 						lastResultType = 'final';
 						asrAutoStop = false;
-						//interim_transcript = '';
 						mod_str = event.results[i][0].transcript;
 
 						if (quit_on_final_result){
@@ -746,7 +759,7 @@ function sepiaFW_build_speech_recognition(Speech){
 								recognizerWaitingForResult = true;
 								wait_timestamp = new Date().getTime();
 								broadcastAsrWaitingForResult();
-								log_callback('-LOG- STOP REQUESTED');
+								log_callback('STT REC. STOP REQUESTED');
 								if (recognition.continuous) recognition.stop();
 							}
 							return;
@@ -759,6 +772,11 @@ function sepiaFW_build_speech_recognition(Speech){
 						}
 					}else{
 						lastResultType = 'partial';
+						//var confidence = event.results[i][0].confidence;
+						//if (!confidence || confidence > 0.1){
+							//take if confidence is undefined or actually is bigger than x
+							//..
+						//}
 						interim_transcript += event.results[i][0].transcript;
 					}
 				}

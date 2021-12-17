@@ -38,6 +38,10 @@ html {
 #sepiaFW-chat-controls {
 	background: linear-gradient(rgba(17, 16, 18, 0), #0c0c0c, #0c0c0c);
 }
+html.landscape-small #sepiaFW-chat-controls {
+    background: rgb(24, 25, 28) !important;
+    color: #eee !important;
+}
 #sepiaFW-main-window button,
 .sepiaFW-touch-device #sepiaFW-main-window button:hover {
 	color: #eee;

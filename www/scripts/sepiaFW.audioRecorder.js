@@ -4,6 +4,7 @@ function sepiaFW_build_audio_recorder(){
 
 	//Debug modules and interfaces?
 	AudioRecorder.debugInterfaces = false;
+	AudioRecorder.debuggerLogFunction = undefined;	//set this in your debug script (and remove it later)
 
 	//set default parameters for audio recorder
 	AudioRecorder.setup = function(successCallback, errorCallback){
@@ -452,6 +453,7 @@ function sepiaFW_build_audio_recorder(){
 		if (AudioRecorder.debugInterfaces){
 			console.log("WebAudioProcessor - LOG:");
 			console.log.apply(console, arguments);
+			if (AudioRecorder.debuggerLogFunction) AudioRecorder.debuggerLogFunction("WebAudioProcessor - LOG:", arguments);
 		}
 	}
 

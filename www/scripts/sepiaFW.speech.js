@@ -41,7 +41,14 @@ function sepiaFW_build_speech(sepiaSessionId){
 			msg: eventMsg
 		}});
 		document.dispatchEvent(event);
+		if (globalActiveSpeechEventListener) globalActiveSpeechEventListener(event.detail);
+		//NOTE: replace with something like 'SepiaFW.frames.currentScope.onSpeechStateChange' ?
 	}
+	//use this to debug a specific sequence and set to undefined again afterwards
+	Speech.setActiveGlobalSpeechEventListener = function(evListener){
+		globalActiveSpeechEventListener = evListener;
+	}
+	var globalActiveSpeechEventListener;
 
 	//Import TTS and STT sub-libs
 	sepiaFW_build_speech_recognition(Speech);
