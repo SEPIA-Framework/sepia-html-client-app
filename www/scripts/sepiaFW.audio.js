@@ -431,6 +431,11 @@ function sepiaFW_build_audio(){
 		});
 		audioVol = document.getElementById('sepiaFW-audio-ctrls-vol');
 		if (audioVol) audioVol.textContent = Math.round(player.volume*10.0);
+		
+		//player remote
+		$("#sepiaFW-audio-ctrls-broadcast").off().on("click", function(){
+			AudioPlayer.openRemoteControl();
+		});
 
 		if (readyCallback) readyCallback();
 	}
@@ -1152,6 +1157,44 @@ function sepiaFW_build_audio(){
 				Alarm.lastActive = 0;
 			}
 		}
+	}
+
+	//Remote control
+	AudioPlayer.openRemoteControl = function(){
+		var remotePlayer = document.createElement("div");
+		var header = document.createElement("p");
+		header.textContent = "Remote Media Player";
+		var pauseBtn = document.createElement("button");
+		pauseBtn.innerHTML = '<i class="material-icons md-24">pause</i>';
+		var playBtn = document.createElement("button");
+		playBtn.innerHTML = '<i class="material-icons md-24">play_arrow</i>';
+		var nextBtn = document.createElement("button");
+		nextBtn.innerHTML = '<i class="material-icons md-24">skip_next</i>';
+		$(pauseBtn).on("click", function(){
+			sendRemotePlayerAction({type: "control", controlAction: {action: "pause"}});
+		});
+		$(playBtn).on("click", function(){
+			sendRemotePlayerAction({type: "control", controlAction: {action: "resume"}});
+		});
+		$(nextBtn).on("click", function(){
+			sendRemotePlayerAction({type: "control", controlAction: {action: "next"}});
+		});
+		//TODO: add 'previous' (after it's been added to client controls)
+		remotePlayer.appendChild(header);
+		remotePlayer.appendChild(pauseBtn);
+		remotePlayer.appendChild(playBtn);
+		remotePlayer.appendChild(nextBtn);
+		SepiaFW.ui.showPopup(remotePlayer, {buttonOneName: SepiaFW.local.g("abort"), buttonOneAction: function(){}});
+	}
+	function sendRemotePlayerAction(action){
+		var includeSharedFor = [{dataType: "remoteActions", action: "media", actionType: action.type}];
+		SepiaFW.client.showConnectedUserClientsAsMenu(SepiaFW.local.g('choose_device_for_action'), 
+			function(deviceInfo){
+				var sharedReceiver = deviceInfo.isShared? deviceInfo.id : undefined;
+				SepiaFW.client.sendRemoteActionToOwnDeviceOrShared("media", action, 
+					deviceInfo.deviceId, sharedReceiver);
+			}, true, includeSharedFor
+		);
 	}
 	
 	AudioPlayer.tts = TTS;

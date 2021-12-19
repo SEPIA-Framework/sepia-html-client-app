@@ -346,6 +346,7 @@ function sepiaFW_build_client_controls(sepiaSessionId){
                     );
                     SepiaFW.debug.error("Client controls - Unsupported action in 'media': " + controlData.action);
                 }
+            //TODO: add "previous"
 
             }else{
                 var blockMultiple = true;
