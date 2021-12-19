@@ -662,6 +662,9 @@ function sepiaFW_build_ui(){
 			UI.isTouchDevice = false;
 			document.documentElement.className += " sepiaFW-notouch-device";
 		}
+		//win and mac
+		UI.isMacOs = /Mac OS/g.test(navigator.userAgent);
+		UI.isWindows = /Windows/g.test(navigator.userAgent);
 		
 		//is Edge (Chromium based)?
 		UI.isEdge = matchUserAgentBrandOrFallback("Microsoft Edge", function(){ return /Edg/gi.test(navigator.userAgent); });
@@ -670,14 +673,14 @@ function sepiaFW_build_ui(){
 		UI.isChrome = matchUserAgentBrandOrFallback("Google Chrome", function(){ return (/Chrome/gi.test(navigator.userAgent)) && !UI.isEdge; });
 		//is iOS or Safari?
 		UI.isIOS = (UI.isCordova)? (device.platform === "iOS") : (/iPad|iPhone|iPod/g.test(navigator.userAgent) && !window.MSStream);
-		UI.isSafari = /Safari/g.test(navigator.userAgent) && !UI.isAndroid && !UI.isChrome && !UI.isEdge; //exclude iOS chrome (not recommended since its still appleWebKit): && !navigator.userAgent.match('CriOS');
+		UI.isSafari = UI.isIOS || (UI.isMacOs && /Safari/g.test(navigator.userAgent) && !UI.isChrome && !UI.isEdge);  //NOTE: everything on iOS is basically appleWebKit :-/
 		//is Chromium Desktop?
 		UI.isAnyChromium = !!window.chrome;
 		if (UI.isAnyChromium && !(UI.isAndroid || UI.isIOS)){
 			UI.isChromiumDesktop = true;
 		}
 		//is mobile?
-		UI.isMobile = !UI.isChromiumDesktop && (UI.isAndroid || UI.isIOS);
+		UI.isMobile = UI.isAndroid || UI.isIOS;
 		if (UI.isMobile){
 			document.documentElement.className += " sepiaFW-mobile-device";
 		}
