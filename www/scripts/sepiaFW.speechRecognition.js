@@ -509,11 +509,12 @@ function sepiaFW_build_speech_recognition(Speech){
 				onEndWasAlreadyCalled = false;
 				onErrorWasAlreadyCalled = false;
 			};
+			//SPEECH START (might not be supported by all engines!)
+			recognition.onspeechstart = function(){
+				log_callback('STT REC-ONSPEECHSTART');
+			}
 			//other start events tbd
 			/*
-			recognition.onspeechstart = function(){
-				console.error("onspeechstart"); 		//DEBUG
-			}
 			recognition.onaudiostart = function(e){
 				console.error("onaudiostart", e); 		//DEBUG
 			}
@@ -654,7 +655,7 @@ function sepiaFW_build_speech_recognition(Speech){
 					return;
 				}
 				if (!final_transcript && lastResultType != "final" && quit_on_final_result){	//NOTE: 'lastResultType' prevents trigger for empty final result
-					//we might need to go in a loop here since onend can fire before final result (e.g. on Android, although it shouldn't for WebSpeechAPI)
+					//we might need to go in a loop here since onend can fire before final result (e.g. on Android or SEPIA STT, although it shouldn't for WebSpeechAPI)
 					if (interim_transcript || partialWasTriggered || (resultWasNeverCalled && !onErrorWasAlreadyCalled)){
 						if (!wait_timestamp || wait_timestamp == 0){
 							wait_timestamp = new Date().getTime();
@@ -673,8 +674,13 @@ function sepiaFW_build_speech_recognition(Speech){
 								}
 							}, 334);
 							return;
+						}else{
+							log_callback('STT REC-ONEND TIMEOUT');
+							//make sure recognizer is properly stopped
+							if (!!recognition.abort) recognition.abort();	//NOTE: not to be confused with 'abortRecognition'
+							ignore_onend = true;
+							//continue below
 						}
-						//else: continue below
 					}else{
 						resetsOnUnexpectedEnd();
 						isRecognizing = false;

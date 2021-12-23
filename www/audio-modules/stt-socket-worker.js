@@ -128,11 +128,6 @@ function gateControl(open, gateOptions, triggeredOnError){
 		msg.gate.isOpen = false;
 		msg.gate.openedAt = _gateOpenTS;
 		msg.gate.closedAt = _gateCloseTS;
-		var closedDueToBufferLimit = (!continuous && recordedBuffers && recordBufferMaxN 
-			&& recordedBuffers.length && recordedBuffers.length >= recordBufferMaxN);
-		if (closedDueToBufferLimit){
-			msg.gate.bufferOrTimeLimit = true;
-		}
 		//---------- DRY-RUN TEST: fake final result ----------
 		if (enableDryRun && recordedBuffers.length && recordedBuffers.length > recordBufferMaxN/3){
 			setTimeout(function(){
@@ -145,12 +140,14 @@ function gateControl(open, gateOptions, triggeredOnError){
 			}, 2000);
 		//-------------------------------------------------------
 		}else if (sttServer && sttServer.connectionIsOpen && sttServer.isReadyForStream){
-			var byteLength = 0;
-			recordedBuffers.forEach(function(ta){
-				byteLength += ta.byteLength;
-			});
-			sttServer.sendAudioEnd(byteLength, closedDueToBufferLimit);		//close input and request final result
+			var closedDueToBufferLimit = checkIfBufferLimitWasReached();
+			if (closedDueToBufferLimit){
+				msg.gate.bufferOrTimeLimit = true;
+			}
+			//close input and request final result
+			requestFinalResult(closedDueToBufferLimit);
 		}
+		//else we rely on '_gateCloseTS' to finish after last buffer is sent
 
 		//send WAV?
 		if (!triggeredOnError && returnAudioFile && recordedBuffers.length){
@@ -419,9 +416,29 @@ function startOrContinueStream(){
 	}else{
 		//ignore
 	}
+	//no bytes left and stream ended?
+	if (_gateCloseTS){
+		var closedDueToBufferLimit = checkIfBufferLimitWasReached();
+		requestFinalResult(closedDueToBufferLimit);
+	}
 }
 function sendBytes(data){
 	sttServer.sendBytes(data);
+}
+
+function requestFinalResult(closedDueToBufferLimit){
+	//close input and request final result
+	var byteLength = 0;
+	recordedBuffers.forEach(function(ta){
+		byteLength += ta.byteLength;
+	});
+	sttServer.sendAudioEnd(byteLength, closedDueToBufferLimit);
+}
+
+function checkIfBufferLimitWasReached(){
+	var reachedBufferLimit = (!continuous && recordedBuffers && recordBufferMaxN 
+		&& recordedBuffers.length && recordedBuffers.length >= recordBufferMaxN);
+	return reachedBufferLimit;
 }
 
 function clearBuffer(){
