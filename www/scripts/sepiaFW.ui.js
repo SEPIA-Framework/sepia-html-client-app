@@ -655,12 +655,12 @@ function sepiaFW_build_ui(){
 	//setup device properties and stuff
 	UI.beforeSetup = function(){
 		//is touch device?
-		if ("ontouchstart" in document.documentElement){
+		if ("ontouchstart" in document.documentElement || SepiaFW.tools.getURLParameter("hasTouch")){
 			UI.isTouchDevice = true;
-			document.documentElement.className += " sepiaFW-touch-device";
+			document.documentElement.classList.add("sepiaFW-touch-device");
 		}else{
 			UI.isTouchDevice = false;
-			document.documentElement.className += " sepiaFW-notouch-device";
+			document.documentElement.classList.add("sepiaFW-notouch-device");
 		}
 		//win and mac
 		UI.isMacOs = /Mac OS/g.test(navigator.userAgent);

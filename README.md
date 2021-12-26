@@ -54,6 +54,7 @@ You can modify the client configuration via several URL parameters:
 * `noSW` - 'true' will force disable the service-worker of the page. This might be useful to find issues related to blocked cookies etc.
 * `isTiny` - 'true' will optimize the UI and controls to support small displays (e.g. Apple Watch or 240x240px screens)
 * `isHeadless` or `autoSetup` - Load client settings from file (settings.js) and trigger setup mode if no user is logged in. 'isHeadless' will set some supported client features as well (e.g. don't open browser tabs etc.).
+* `hasTouch` - 'true' will set touch-screen mode (tweaked UI hover effects etc.) if screen itself is "emulating" touch and client does not properly detect mode.
 * `env` - 'environment' setting for client
 * `q` - Question that will be triggered when client is connected
 * `share` - Shared data e.g. via deeplinks
