@@ -1102,7 +1102,9 @@ function sepiaFW_build_webSocket_client(sepiaSessionId){
 											text: inputVal1,
 											language: SepiaFW.speech.getLanguage() 		//speech or app lang.?
 										}, deviceInfo.deviceId, sharedReceiver);
-									}, true, includeSharedFor
+									}, true, includeSharedFor, {
+										skipOwnDevice: true
+									}
 								);
 							}, 0);
 						},
@@ -2788,13 +2790,14 @@ function sepiaFW_build_webSocket_client(sepiaSessionId){
 			}
 		});
 	}
-	Client.showConnectedUserClientsAsMenu = function(title, deviceButtonFun, closeAfterPress, includeSharedFor){
+	Client.showConnectedUserClientsAsMenu = function(title, deviceButtonFun, closeAfterPress, includeSharedFor, options){
+		if (!options) options = {};
 		Client.getConnectedUserClients(function(data){
 			if (data.clients && data.clients.length > 0){
 				var menu = buildUserDevicesListForAction(data.clients, title, function(deviceInfo){
 					if (closeAfterPress) SepiaFW.ui.hidePopup();
 					if (deviceButtonFun) deviceButtonFun(deviceInfo);
-				});
+				}, options.skipOwnDevice);
 				SepiaFW.ui.showPopup(menu, {
 					buttonOneName: SepiaFW.local.g("abort"),
 					buttonOneAction: function(){}
@@ -2807,7 +2810,7 @@ function sepiaFW_build_webSocket_client(sepiaSessionId){
 			SepiaFW.debug.error("Failed to get connected clients - Msg.:", err);
 		}, includeSharedFor);
 	}
-	function buildUserDevicesListForAction(clients, title, deviceButtonFun){
+	function buildUserDevicesListForAction(clients, title, deviceButtonFun, skipOwnDevice){
 		var menu = document.createElement("div");
 		var header = document.createElement("p");
 		header.style.fontWeight = "bold";
@@ -2818,6 +2821,7 @@ function sepiaFW_build_webSocket_client(sepiaSessionId){
 		clients.forEach(function(cl){
 			if (!cl.deviceId) return;	//check 'isActive'?
 			var isThisDevice = (!cl.isShared && cl.deviceId == thisDevice);
+			if (isThisDevice && skipOwnDevice) return;
 			var type = "", name = "", index = "";
 			if (cl.info && cl.info.deviceLocalSite && cl.info.deviceLocalSite.type){
 				type = cl.info.deviceLocalSite.type || "";

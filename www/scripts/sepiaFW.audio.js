@@ -1171,13 +1171,13 @@ function sepiaFW_build_audio(){
 		var nextBtn = document.createElement("button");
 		nextBtn.innerHTML = '<i class="material-icons md-24">skip_next</i>';
 		$(pauseBtn).on("click", function(){
-			sendRemotePlayerAction({type: "control", controlAction: {action: "pause"}});
+			sendRemotePlayerAction({type: "control", controlAction: "pause"});
 		});
 		$(playBtn).on("click", function(){
-			sendRemotePlayerAction({type: "control", controlAction: {action: "resume"}});
+			sendRemotePlayerAction({type: "control", controlAction: "resume"});
 		});
 		$(nextBtn).on("click", function(){
-			sendRemotePlayerAction({type: "control", controlAction: {action: "next"}});
+			sendRemotePlayerAction({type: "control", controlAction: "next"});
 		});
 		//TODO: add 'previous' (after it's been added to client controls)
 		remotePlayer.appendChild(header);
@@ -1193,7 +1193,9 @@ function sepiaFW_build_audio(){
 				var sharedReceiver = deviceInfo.isShared? deviceInfo.id : undefined;
 				SepiaFW.client.sendRemoteActionToOwnDeviceOrShared("media", action, 
 					deviceInfo.deviceId, sharedReceiver);
-			}, true, includeSharedFor
+			}, true, includeSharedFor, {
+				skipOwnDevice: true
+			}
 		);
 	}
 	

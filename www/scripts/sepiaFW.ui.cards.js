@@ -724,7 +724,9 @@ function sepiaFW_build_ui_cards(){
 								streamURL: radioElementInfo.streamURL,
 								playlistURL: radioElementInfo.playlistURL
 							}, deviceInfo.deviceId, sharedReceiver);
-						}, true, includeSharedFor
+						}, true, includeSharedFor, {
+							skipOwnDevice: true
+						}
 					);
 				}
 			});
@@ -1449,7 +1451,9 @@ function sepiaFW_build_ui_cards(){
 								type: "embedded_player",
 								playerData: exportEmbeddedPlayerDataForRemoteAction(linkElementInfo)
 							}, deviceInfo.deviceId, sharedReceiver);
-						}, true, includeSharedFor
+						}, true, includeSharedFor, {
+							skipOwnDevice: true
+						}
 					);
 				}
 			},{
