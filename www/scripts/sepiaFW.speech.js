@@ -56,7 +56,7 @@ function sepiaFW_build_speech(sepiaSessionId){
 
 	//--------- COMMON INTERFACE -----------
 
-	//reset all states of speech
+	//reset all states of speech - NOTE: this finishes async.!
 	Speech.reset = function(){
 		Speech.resetTTS();
 		Speech.resetRecognition();

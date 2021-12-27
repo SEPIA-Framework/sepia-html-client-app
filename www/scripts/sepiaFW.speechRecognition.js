@@ -346,7 +346,7 @@ function sepiaFW_build_speech_recognition(Speech){
 	}
 	
 	//reset all states of speech STT
-	Speech.resetRecognition = function(){
+	Speech.resetRecognition = function(finishCallback, logCallback){
 		Speech.skipCurrentSmartMicToggle();
 		Speech.stopRecognition();
 		recognizerWaitingForResult = false;
@@ -355,8 +355,9 @@ function sepiaFW_build_speech_recognition(Speech){
 			recognition.clearWaitTimeoutAndIgnoreEnd();
 		}
 		SepiaFW.audioRecorder.stopAndReleaseIfActive(function(){
-			recognition = newRecognizer("onreset");
+			recognition = newRecognizer("onreset", logCallback);
 			SepiaFW.wakeTriggers.checkPossibilityToSwitchOnWakeWord("resetRecognition");
+			if (finishCallback) finishCallback();
 		});
 		//recognition = newRecognizer("onreset");
 	}

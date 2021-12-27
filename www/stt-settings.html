@@ -50,6 +50,7 @@
 			<div class="group" style="justify-content: center;">
 				<button id="sepiaFW-stt-settings-record-btn" 
 					onclick="SepiaFW.frames.currentScope.toggleRecordingWithConfirmSound();">Toggle Recording</button>
+				<button onclick="SepiaFW.frames.currentScope.resetRecognizer();">Reset Recognizer</button>
 			</div>
 			<h3>Info <button onclick="SepiaFW.frames.currentScope.clearSttDebugBox();">clear</button></h3>
 			<div id="sepiaFW-stt-settings-debug-log" style="width: 100%; white-space: break-spaces; word-wrap: break-word; 
@@ -149,6 +150,7 @@
 			});
 			SepiaFW.audioRecorder.debugInterfaces = true;
 			SepiaFW.audioRecorder.debuggerLogFunction = SepiaFW.frames.currentScope.audioRecorderEvents;
+			SepiaFW.frames.currentScope.resetRecognizer();
 		},
 
 		onClose: function(){
@@ -204,7 +206,10 @@
 			console.log("SpeechEvent", ev);		//DEBUG
 		},
 		audioRecorderEvents: function(logTag, args){
-			if (!args || !args.length) return;
+			if (logTag && (!args || !args.length)){
+				SepiaFW.frames.currentScope.showDebugMsg(logTag, false, "#00d4d4");
+				return;
+			}
 			var msg = "";
 			for (let i=0; i<args.length; i++){
 				msg += args[i] + " ";
@@ -249,6 +254,13 @@
 			}, function(logMsg){
 				SepiaFW.frames.currentScope.showDebugMsg(logMsg);
 			});
+		},
+		resetRecognizer: function(){
+			if (!SepiaFW.speech.isSpeakingOrListening()){
+				SepiaFW.speech.resetRecognition(undefined, SepiaFW.frames.currentScope.audioRecorderEvents);
+			}else{
+				SepiaFW.speech.stopRecognition();
+			}
 		}
 	}
 </script>
