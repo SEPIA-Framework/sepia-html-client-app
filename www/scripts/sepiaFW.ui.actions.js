@@ -264,7 +264,7 @@ function sepiaFW_build_ui_actions(){
 
 		//check URL vor sanity (at least a bit)
 		var hasValidUrlProtocol = SepiaFW.tools.urlHasValidProtocol(url);
-		var isSpecialUrl = (url == "<inappbrowser-last>" || url == '<inappbrowser-home>');
+		var isSpecialUrl = (url == "<inappbrowser-last>" || url == '<inappbrowser-home>' || url.indexOf("search.html") == 0);
 		if (!hasValidUrlProtocol && !isSpecialUrl){
 			var question = document.createElement("div");
 			var p = document.createElement("p");
