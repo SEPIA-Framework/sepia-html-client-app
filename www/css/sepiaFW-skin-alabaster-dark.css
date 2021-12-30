@@ -104,6 +104,9 @@ html.landscape-small #sepiaFW-chat-controls {
 #sepiaFW-chat-output article.chatAssistant.chatPm {
 	border-left-color: rgb(42, 43, 44);
 }
+#sepiaFW-chat-output article.statusUpdate {
+	color: #eee;
+}
 
 #sepiaFW-main-window .chat-buttons-area button,
 #sepiaFW-main-window .chat-buttons-area .my-view-custom-button,
@@ -115,6 +118,15 @@ html.landscape-small #sepiaFW-chat-controls {
 }
 .sepiaFW-notouch-device #sepiaFW-main-window .chat-buttons-area button:hover {
 	background: rgba(46, 51, 53, 0.42);
+}
+
+/*----- details -----*/
+
+#sepiaFW-audio-ctrls-canvas {
+    background: #787878;
+}
+#sepiaFW-chat-controls-more-menu #sepiaFW-more-menu-input-text {
+    background: rgba(120, 120, 120, 0.0);
 }
 
 /*----- cards ------*/

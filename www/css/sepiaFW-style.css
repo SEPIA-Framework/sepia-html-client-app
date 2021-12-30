@@ -1443,7 +1443,8 @@ html.dark-skin #sepiaFW-login-help-btn {
     content: "→ ";
 }
 #sepiaFW-chat-userlist .assistant::after { 
-    content: " \2660";
+    content: " \2726";
+    font-size: 13px;
 }
 
 #sepiaFW-chat-channellist {
@@ -1459,7 +1460,9 @@ html.dark-skin #sepiaFW-login-help-btn {
     content: "→ ";
 }
 #sepiaFW-chat-channellist .my-channel::after { 
-    content: " \2660"; /*221E, 00A9*/
+    /*2605, 2660, 221E, 00A9*/
+	content: " \2726";
+    font-size: 13px;
 }
 #sepiaFW-chat-channellist .public::after { 
     content: " \221E"; /*221E, 00A9*/
@@ -2327,6 +2330,29 @@ html.landscape-small #sepiaFW-chat-controls-more-menu {
 	width: 100%;
 	max-width: 100%;
 	max-height: 100%;
+	padding-bottom: 0;
+}
+#sepiaFW-chat-controls-more-menu #sepiaFW-more-menu-input {
+	display: none;
+}
+#sepiaFW-chat-controls-more-menu #sepiaFW-more-menu-input-text {
+	width: calc(100% - 42px);
+}
+.dark-skin #sepiaFW-chat-controls-more-menu #sepiaFW-more-menu-input-text {
+	color: inherit;
+    border: 1px solid;
+}
+#sepiaFW-chat-controls-more-menu #sepiaFW-more-menu-input-send {
+	background: transparent !important;
+    color: currentColor !important;
+    transform: rotate(-90deg);
+    padding: 0;
+    margin: 5px;
+    width: 30px;
+    height: 30px;
+}
+html.landscape-small #sepiaFW-chat-controls-more-menu #sepiaFW-more-menu-input {
+	display: flex;
 }
 html.landscape-small #sepiaFW-chat-controls-right {
 	min-width: 55px;

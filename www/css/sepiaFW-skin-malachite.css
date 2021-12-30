@@ -39,9 +39,15 @@ html {
 	background: linear-gradient(to right, #07333a 0%, #16ABC3 100%);
 	color: #fff;
 }
+html.landscape-small #sepiaFW-nav-bar {
+    background: transparent;
+}
 #sepiaFW-chat-controls-right {
 	background: #07333a;
 	color: #fff;
+}
+html.landscape-small #sepiaFW-chat-controls-right {
+    background: transparent;
 }
 
 #sepiaFW-login-box p {

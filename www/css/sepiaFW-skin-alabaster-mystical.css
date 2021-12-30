@@ -167,6 +167,12 @@ html.landscape-small #sepiaFW-chat-controls {
 	color: #dda3f2;
 }
 
+#sepiaFW-chat-controls-more-menu #sepiaFW-more-menu-input-text {
+    color: #000;
+	border: 1px solid;
+    background: rgba(255, 255, 255, 0.2);
+}
+
 #sepiaFW-chat-controls-swipe-area .sepiaFW-swipeBar-switchable {
 	background: linear-gradient(to right, #f0f0f0 0%, #ecebee 100%);
 	color: #000;
@@ -216,6 +222,7 @@ html.landscape-small #sepiaFW-chat-controls {
 
 #sepiaFW-chat-output article.statusUpdate {
 	background: transparent;
+	color: #000;
 }
 
 #sepiaFW-main-window .chat-buttons-area button,

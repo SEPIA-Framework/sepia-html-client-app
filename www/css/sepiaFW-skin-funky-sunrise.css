@@ -2,7 +2,7 @@
 html {
 	background-color: #232323;
 	background-image: url(../img/blocksAlpha.png);
-    background-size: auto 56%;
+    background-size: 600px;
 }
 #sepiaFW-main-window {
 	color: #fff;
@@ -87,6 +87,10 @@ html.landscape-small #sepiaFW-nav-bar {
 .sepiaFW-notouch-device #sepiaFW-chat-controls-more-menu button:hover {
     background-color: #ffdb5a !important;
     color: #000 !important;
+}
+.dark-skin #sepiaFW-chat-controls-more-menu #sepiaFW-more-menu-input-text {
+    background: rgba(255, 255, 255, 0.20);
+    color: #fff;
 }
 
 .sepiaFW-results-container .statusUpdate, #sepiaFW-chat-output .statusUpdate {
