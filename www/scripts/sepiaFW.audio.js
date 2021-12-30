@@ -1164,12 +1164,17 @@ function sepiaFW_build_audio(){
 		var remotePlayer = document.createElement("div");
 		var header = document.createElement("p");
 		header.textContent = "Remote Media Player";
+		var previousBtn = document.createElement("button");
+		previousBtn.innerHTML = '<i class="material-icons md-24">skip_previous</i>';
 		var pauseBtn = document.createElement("button");
 		pauseBtn.innerHTML = '<i class="material-icons md-24">pause</i>';
 		var playBtn = document.createElement("button");
 		playBtn.innerHTML = '<i class="material-icons md-24">play_arrow</i>';
 		var nextBtn = document.createElement("button");
 		nextBtn.innerHTML = '<i class="material-icons md-24">skip_next</i>';
+		$(previousBtn).on("click", function(){
+			sendRemotePlayerAction({type: "control", controlAction: "previous"});
+		});
 		$(pauseBtn).on("click", function(){
 			sendRemotePlayerAction({type: "control", controlAction: "pause"});
 		});
@@ -1179,8 +1184,8 @@ function sepiaFW_build_audio(){
 		$(nextBtn).on("click", function(){
 			sendRemotePlayerAction({type: "control", controlAction: "next"});
 		});
-		//TODO: add 'previous' (after it's been added to client controls)
 		remotePlayer.appendChild(header);
+		remotePlayer.appendChild(previousBtn);
 		remotePlayer.appendChild(pauseBtn);
 		remotePlayer.appendChild(playBtn);
 		remotePlayer.appendChild(nextBtn);
