@@ -5,6 +5,7 @@ html {
 }
 #sepiaFW-main-window {
 	border: 0;
+	border-radius: 0;
 	box-shadow: inset 0px 0px 6px 1px #15abc3;
 }
 @media (min-width: 480px) and (min-height: 481px) {
@@ -73,8 +74,7 @@ html.landscape-small #sepiaFW-chat-controls-right {
 	color: #fff;
 }
 
-#sepiaFW-main-window button,
-.sepiaFW-touch-device #sepiaFW-main-window button:hover {
+#sepiaFW-main-window button {
 	background: transparent;
 	color: #15abc3;
 }
@@ -408,6 +408,12 @@ html.landscape-small #sepiaFW-chat-controls-right {
 
 #sepiaFW-chat-channel-controls button {
 	color: #eee;
+}
+
+/* ---- Details ---- */
+
+.sepiaFW-audio-soundbar {
+    background: #fff;
 }
 
 /*----- Frames ----- */

@@ -372,7 +372,11 @@ function sepiaFW_build_speech_recognition(Speech){
 			return false;
 		//Everything else
 		}else{
-			return true;
+			if (!SepiaFW.audio.micConfirmSound || SepiaFW.audio.micConfirmSound.indexOf("empty.mp3") >= 0){
+				return false;
+			}else{
+				return true;
+			}
 		}
 	}
 	

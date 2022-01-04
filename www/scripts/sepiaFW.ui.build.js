@@ -578,7 +578,8 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 				useConfirmationSound = SepiaFW.speech.shouldPlayConfirmation();
 			}
 			//play a sound before activating mic?
-			if (useConfirmationSound && !SepiaFW.speech.isRecognizing()){ 		//&& (SepiaFW.config.clientInfo.indexOf('chrome_')>-1)
+			if (useConfirmationSound && !SepiaFW.speech.isRecognizing()){
+				//TODO: depending on hardware (and browser) there is a gap between sound and record-start that can be to long!
 				SepiaFW.audio.playURL(SepiaFW.audio.micConfirmSound, '2', '', function(){
 					SepiaFW.speech.toggleRecognition(SepiaFW.client.asrCallbackFinal, SepiaFW.client.asrCallbackInterim, SepiaFW.client.asrErrorCallback, SepiaFW.client.asrLogCallback);
 				}, SepiaFW.client.asrErrorCallback);

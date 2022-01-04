@@ -1028,12 +1028,12 @@ function sepiaFW_build_webSocket_client(sepiaSessionId){
 		//chat controls more menue aka SHORTCUTS-MENU
 		var chatMenuBtn = document.getElementById("sepiaFW-chat-controls-more-btn");
 		if (chatMenuBtn){
-			function closeControlsMenueWithDelay(){
+			function closeControlsMenueWithDelay(delay){
 				setTimeout(function(){
 					if ($("#sepiaFW-chat-controls-more-menu").css('display') != 'none'){
 						$('#sepiaFW-chat-controls-more-btn').trigger('click', { bm_force : true });
 					}
-				}, 750);
+				}, delay || 750);
 			}
 			
 			//-screen size
@@ -1325,12 +1325,14 @@ function sepiaFW_build_webSocket_client(sepiaSessionId){
 						//Return-Key
 						SepiaFW.client.sendInputText(landscapeInputText.value);
 						landscapeInputText.value = "";
+						closeControlsMenueWithDelay();
 					}
 				});
 				$('#sepiaFW-more-menu-input-send').off().on("click", function(){
 					if (landscapeInputText.value){
 						SepiaFW.client.sendInputText(landscapeInputText.value);
 						landscapeInputText.value = "";
+						closeControlsMenueWithDelay();
 					}
 				});
 			}

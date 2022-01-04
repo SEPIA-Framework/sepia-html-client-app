@@ -1531,11 +1531,17 @@ html.dark-skin #sepiaFW-login-help-btn {
 }
 #sepiaFW-nav-label-online-status.wake-word-active {
 	animation: sepiaFW-animation-blink 2.0s 1;
+    display: flex;
+    justify-content: space-around;
+    flex-wrap: nowrap;
+	overflow: visible;
 }
-#sepiaFW-nav-label-online-status.wake-word-active:after, 
 #sepiaFW-nav-label-online-status.wake-word-active:before {
-    content: ' Ξ ';
-    /*color: #ff2550;*/
+    content: 'Ξ ';
+    font-family: monospace;
+}
+#sepiaFW-nav-label-online-status.wake-word-active:after {
+    content: ' Ξ';
     font-family: monospace;
 }
 #sepiaFW-nav-label-note {
