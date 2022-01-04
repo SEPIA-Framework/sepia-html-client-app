@@ -9,10 +9,10 @@ html {
     box-shadow: inset 0px 0px 4px 1px #85b987;
 }
 .sepiaFW-results-container {
-	scrollbar-color: rgba(20, 120, 20, 0.2) transparent;
+	scrollbar-color: rgba(84, 114, 86, 0.15) rgba(84, 114, 86, 0.15);
 }
 
-#sepiaFW-pC 	{ background-color: #102030; }
+#sepiaFW-pC 	{ background-color: #000; }
 #sepiaFW-sC 	{ background-color: #14aa22; }
 #sepiaFW-sC2 	{ background-color: #fff; }
 #sepiaFW-aC 	{ background-color: #9f0b00; }
@@ -20,6 +20,9 @@ html {
 #sepiaFW-asC 	{ background-color: #14aa22; }
 #sepiaFW-adC 	{ background-color: #83c223; }
 #sepiaFW-lC 	{ background-color: #555; }
+
+#sepiaFW-navC 	{ background-color: #000; }
+#sepiaFW-statC 	{ background-color: #000; }
 
 #sepiaFW-login-box, #sepiaFW-nav-bar, #sepiaFW-chat-controls-form, #sepiaFW-chat-controls-right {
     background: rgba(12, 120, 16, 0.66);
