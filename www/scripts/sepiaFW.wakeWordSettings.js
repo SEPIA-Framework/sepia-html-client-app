@@ -41,6 +41,12 @@ function sepiaFW_build_wake_word_settings() {
         SepiaFW.ui.showPopup("Make sure to reset the engine to load a new wake-word!");
         SepiaFW.wakeTriggers.setWakeWord(name, version);
     }
+    //Set access key
+    WakeWordSettings.updateWakeWordAccessKey = function(){
+        var key = $("#sepiaFW-wake-word-access-key").val();
+        SepiaFW.ui.showPopup("Make sure to reset the engine to load a new access key!");
+        SepiaFW.wakeTriggers.setWakeWordAccessKey(key);
+    }
     //Change mic confirmation sound
     WakeWordSettings.setMicConfirmationSound = function(){
         var path = $("#sepiaFW-wake-word-confirm-sound-path").val();
@@ -134,15 +140,18 @@ function sepiaFW_build_wake_word_settings() {
             return;
         }
         var currentVal = $("#sepiaFW-wake-word-name").val();
+        var currentVers = $("#sepiaFW-wake-word-version").val();
         var selectOptions = [
             {text: "Default", value: ""}
         ];
         var akw = SepiaFW.wakeTriggers.getAvailableWakeWords() || {};
         Object.keys(akw).forEach(function(kw){
+            var kwClean = kw.replace(/\(.*?\)/, "").trim();
+            var version = akw[kw];
             selectOptions.push({
-                text: (kw + " (v" + akw[kw] + ")"), 
-                value: JSON.stringify({v: akw[kw], kw: kw}),
-                selected: (currentVal == kw)
+                text: (kwClean + " (v" + version + ")"), 
+                value: JSON.stringify({v: version, kw: kwClean}),
+                selected: (currentVal == kwClean && currentVers == version)
             });
         });
         SepiaFW.ui.showSelectPopup(
@@ -337,6 +346,8 @@ function sepiaFW_build_wake_word_settings() {
             //Show active wake-word
             $("#sepiaFW-wake-word-version").val(SepiaFW.wakeTriggers.getWakeWordVersion());
             $("#sepiaFW-wake-word-name").val(SepiaFW.wakeTriggers.getWakeWords()[0]);
+            //Show access key
+            $("#sepiaFW-wake-word-access-key").val(SepiaFW.wakeTriggers.getWakeWordAccessKey());
             //Show confirmation sound
             $('#sepiaFW-wake-word-confirm-sound-path').val(SepiaFW.audio.micConfirmSound);
             //Show Porcupine remote URL
