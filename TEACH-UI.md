@@ -27,14 +27,21 @@ Data: {"value": {"xtension":"clexi-broadcaster", "data":{"text":"Hello", "sender
 
 ### Call Android Intent for certain device or browser action
 ```
-Device IDs: {"value": { "a1": {"type": "androidIntent", "data": {"action": "android.media.action.MEDIA_PLAY_FROM_SEARCH", "extras": {"query": "Paradise City"} }} } }
+Device IDs: {"value": { "a1": {"type": "androidActivity", "data": {"action": "android.media.action.MEDIA_PLAY_FROM_SEARCH", "extras": {"query": "Paradise City"} }} } }
 Browser: {"value": { "type": "url", "data": "https://open.spotify.com/track/3YBZIN3rekqsKxbJc9FZko?si=Stqe48xYS52Gim_Lr-JEFg" } }
 ```
 ***Some useful Android intents:***  
 https://developer.android.com/guide/components/intents-common  
 android.settings.VOICE_INPUT_SETTINGS  
 android.media.action.MEDIA_PLAY_FROM_SEARCH  
-
+  
+More Examples:
+```
+Android Intent (open URL): {"value": {"type": "androidActivity", "data": {"action": "android.intent.action.VIEW", "url":"https://example.com"} } }
+Android Intent (set alarm): {"value": {"type": "androidActivity", "data": {"action": "android.intent.action.SET_ALARM", "extras": {"android.intent.extra.alarm.HOUR": 8, "android.intent.extra.alarm.MINUTES": 30}} } }
+Android Intent (search): {"value": {"type": "androidActivity", "data": {"action": "android.intent.action.SEARCH", "extras": {"query": "Cowboy Bebob"}} } }
+Android Intent (search app): {"value": {"type": "androidActivity", "data": {"action": "android.intent.action.SEARCH", "extras": {"query": "Cowboy Bebob"}, "component": {"package": "com.netflix.mediaclient", "class": "com.netflix.mediaclient.ui.search.SearchActivity"}} } }
+```
 
 ## Mesh node plugin
 
