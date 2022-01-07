@@ -695,6 +695,10 @@ html.dark-skin #sepiaFW-login-help-btn {
 #sepiaFW-main-window input, #sepiaFW-main-window button, #sepiaFW-main-window article {
 	border-radius: 3px;
 }
+#sepiaFW-main-window input[type="text"],
+#sepiaFW-main-window input[type="url"] {
+	text-overflow: ellipsis;
+}
 
 #sepiaFW-nav-bar {
 	background-color: #ceff1a;
@@ -924,7 +928,7 @@ html.dark-skin #sepiaFW-login-help-btn {
 	float: right;
     height: 28px;
 	min-height: 18px;
-    max-width: 50%;
+    max-width: 58%;
 	min-width: 100px;
     margin: 0px 0px 0px 0px;
     padding: 0px 5px 3px 5px;

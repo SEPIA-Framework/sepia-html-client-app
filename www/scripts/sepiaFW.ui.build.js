@@ -707,7 +707,7 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 					+ "</li>"
 					+ "<li id='sepiaFW-menu-clexi-server-id-li' title='Server ID of Node.js CLEXI. Trust only this connection ID.'>"
 						+ "<span>" + "CLEXI ID" + ": </span>"
-						+ "<input id='sepiaFW-menu-clexi-server-id' type='url' spellcheck='false'>"
+						+ "<input id='sepiaFW-menu-clexi-server-id' type='text' spellcheck='false'>"
 					+ "</li>"
 					+ "<li id='sepiaFW-menu-toggle-remote-terminal-li' title='Connect to remote terminal when CLEXI is running?'><span>Use CLEXI Terminal: </span></li>"
 					+ "<li id='sepiaFW-menu-select-music-app-li' title='Select default music app for search intents.'>"
