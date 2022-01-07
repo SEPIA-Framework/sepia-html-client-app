@@ -1,6 +1,7 @@
 # Example Settings for SEPIA Cross-Platform Client
 
-Here you will find a number of useful setting examples for example to control LED arrays etc..  
+Here you will find a number of useful examples to be used inside the `settings.js` file of the client.  
+The `settings.js` will be used in headless and pseudo-headless setup (DIY client) and can be manually activated via URL parameters `isHeadless=true` or `autoSetup=true`.  
   
 NOTE: You can view your current client setup via settings page `Account -> App settings -> Export`.
 

@@ -1,4 +1,5 @@
 //Settings primarily for headless mode and setup (URL parameter: 'isHeadless=true')
+//Some examples: https://github.com/SEPIA-Framework/sepia-html-client-app/blob/master/Settings.md
 SepiaFW.settings = {
 	headless: {
 		device: {
