@@ -78,7 +78,7 @@ Grasshopper
 Hey SEPIA  
 Computer  
 Jarvis  
-+ custom wake-words  
+...custom wake-words  
 
 #### More
 
