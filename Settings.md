@@ -36,7 +36,7 @@ user: {
 
 - Put your own wake-word file inside the following SEPIA-Home server folder: `SEPIA\sepia-assist-server\Xtensions\WebContent\files\wake-words\porcupine\2.0_en\keywords` (change '2.0_en' as required).
 - Use the tag 'Server: ...' as wake-word name to tell the client it has to be loaded from server, e.g. `Server: Hello World` will reference `hello_world_20_en.js` with the folder given above.
-- Naming convention is `Server: [keyword]` -> `keyword_[version_code]_[language_code].js`. Note: Replace all spaces with '_' in the name, version code is without '.', skip language code if not needed.
+- Check the wake-words [Readme.md](www/xtensions/picovoice/README.md) for more details.
 - Please supply an [access key](https://console.picovoice.ai/access_key) for Porcupine if you want to use v2.0 (or newer) with custom wake-words.
 
 ```
