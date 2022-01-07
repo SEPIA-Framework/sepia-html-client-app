@@ -5,7 +5,11 @@ The `settings.js` will be used in headless and pseudo-headless setup (DIY client
   
 NOTE: You can view your current client setup via settings page `Account -> App settings -> Export`.
 
-## Wake-Word Settings Example
+## Wake-Word Settings
+
+### Two Wake-Words Example
+
+- If you use multiple wake-words make sure they all use the same version
 
 ```
 device: {
@@ -13,7 +17,6 @@ device: {
 	"wakeWordNames": ["Computer", "Jarvis"],
 	"wakeWordVersion": "1.9",
 	"wakeWordRemoteUrl": "<assist_server>/files/wake-words/porcupine/",
-	"wakeWordAccessKeyPorcupine": "",
 	"wakeWordSensitivity": ["0.5", "0.5"],
 	"deviceSounds": {
 		"micConfirm": "sounds/blob.mp3"
@@ -27,6 +30,22 @@ user: {
 	"allowWakeWordDuringStream": false,
 	...
 }
+```
+
+### One Custom Wake-Word
+
+- Put your own wake-word file inside the following SEPIA-Home server folder: `SEPIA\sepia-assist-server\Xtensions\WebContent\files\wake-words\porcupine\2.0_en\keywords` (change '2.0_en' as required).
+- Use the tag 'Server: ...' as wake-word name to tell the client it has to be loaded from server, e.g. `Server: Hello World` will reference `hello_world_20_en.js` with the folder given above.
+- Naming convention is `Server: [keyword]` -> `keyword_[version_code]_[language_code].js`. Note: Replace all spaces with '_' in the name, version code is without '.', skip language code if not needed.
+- Please supply an [access key](https://console.picovoice.ai/access_key) for Porcupine if you want to use v2.0 (or newer) with custom wake-words.
+
+```
+...
+"wakeWordNames": ["Server: Hello World"],
+"wakeWordVersion": "2.0_en",
+"wakeWordAccessKeyPorcupine": "...",
+"wakeWordSensitivity": ["0.5"],
+...
 ```
 
 ## GPIO Interface - LED Controls
