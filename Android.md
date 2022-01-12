@@ -11,6 +11,22 @@ Version 0.24.1:
 - In `build.gradle` (all files) set `classpath 'com.android.tools.build:gradle:3.3.3'` ([visibility in Android 11](https://android-developers.googleblog.com/2020/07/preparing-your-build-for-package-visibility-in-android-11.html))
 - Add `distributionUrl` version in `gradle-wrapper.properties` to `4.10.3-all`
 - Add SEPIA icon in Android Studio again (60% scaling, background black)
+- Fix splashscreen 'navbarColor' in line 323 of `app/src/main/java/org/apache/cordova/splashscreen/SplashScreen.java`:
+  ```
+	}
+	//---NEW---
+	if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
+		try {
+			splashDialog.getWindow().addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+			splashDialog.getWindow().setNavigationBarColor(Color.parseColor(preferences.getString("NavigationBarBackgroundColor", "#000000")));
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	//---NEW END---
+	splashDialog.setContentView(splashImageView);
+	...
+  ```
 - Add to manifest:
   - android:versionCode="11201" (latest 2021.11.21)
   - queries ([use-cases](https://developer.android.com/training/package-visibility/use-cases), [visibility in Android 11](https://medium.com/androiddevelopers/package-visibility-in-android-11-cc857f221cd9))
