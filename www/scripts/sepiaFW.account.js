@@ -1128,7 +1128,7 @@ function sepiaFW_build_account(sepiaSessionId){
 		};
 		$.ajax({
 			url: api_url,
-			timeout: 5000,
+			timeout: 8000,
 			type: "POST",
 			data: JSON.stringify(dataBody),
 			headers: {
@@ -1219,7 +1219,7 @@ function sepiaFW_build_account(sepiaSessionId){
 		dataBody.client = SepiaFW.config.getClientDeviceInfo(); //SepiaFW.config.clientInfo;
 		$.ajax({
 			url: apiUrl,
-			timeout: 5000,
+			timeout: 8000,
 			type: "POST",
 			data: JSON.stringify(dataBody),
 			headers: {

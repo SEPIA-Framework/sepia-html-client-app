@@ -481,13 +481,18 @@ function sepiaFW_build_events(){
 				id: Timer.name,
 				title: (Timer.data? Timer.data.name : Timer.type)
 			});
-		
-		}else if (resyncList){
+		}else{
+			//Check activated timers
 			var activatedTimer = Events.getActivatedTimeEvent(name);
 			if (activatedTimer){
-				//store eventId of deleted timer for resync
-				removedTimerIds.push(activatedTimer.data.eventId);
-				scheduleTimeEventsSync(activatedTimer.type);
+				//clean up
+				delete ActivatedTimers[activatedTimer.name];
+				//this might be set if a timeEvent is removed by a "UI-only-action" (e.g. remove button) and the server needs to get the info as well
+				if (resyncList){
+					//store eventId of deleted timer for resync
+					removedTimerIds.push(activatedTimer.data.eventId);
+					scheduleTimeEventsSync(activatedTimer.type);
+				}
 			}
 		}
 	}
@@ -622,6 +627,10 @@ function sepiaFW_build_events(){
 					Events.triggerAlarm(Timer, '', '', ''); 	//start, end, error
 				});
 				ActivatedTimers[Timer.name] = Timer;
+				//set "activated" state (NOTE: is probably ignored right now or not transferred to server?)
+				if (Timer.data){
+					Timer.data.activated = true;
+				}
 				
 				//graphics
 				var domEles = $(SepiaFW.ui.JQ_RES_VIEW_IDS).find('[data-id="' + Timer.data.eventId + '"]').find(".timeEventCenter");

@@ -729,7 +729,7 @@ function sepiaFW_build_ui(){
 		//Setup headless mode
 		if (SepiaFW.config.isUiHeadless || SepiaFW.config.autoSetup){
 			SepiaFW.config.loadHeadlessModeSetup();
-			//if client not active or in demo-mode after 8s run setup
+			//if client not active or in demo-mode after 10s run setup
 			setTimeout(function(){
 				if (!SepiaFW.client.isActive() && !SepiaFW.client.isDemoMode()){
 					if (SepiaFW.account.getUserId()){
@@ -746,7 +746,7 @@ function sepiaFW_build_ui(){
 						SepiaFW.debug.log("Client will restart automatically in 2s to activate settings!");
 					}
 				}
-			}, 8000);
+			}, 10000);	//NOTE: login timeout is 8s
 		}
 	}
 
