@@ -5,6 +5,33 @@ The `settings.js` will be used in headless and pseudo-headless setup (DIY client
   
 NOTE: You can view your current client setup via settings page `Account -> App settings -> Export`.
 
+## Microphone Settings
+
+Something you can try if you want to use the wake-word and music at the same time is `echoCancellation`. It will try to filter out output audio from input.
+It's not supported on every device and on mobile you might get problems with audio distortion or nasty glitches but on Raspberry Pi 4 DIY client it's worth a try ^^.
+Adjust the gain as needed, but start with 1.0, leave `autoGainControl` off and try to tune it via `pulsemixer` first (DIY client setup). `resamplerQuality` can be between 1 (worst, but fast) to 10 (best but slow).
+
+```
+device: {
+	...
+	"microphoneSettings": {
+		"gain": 1.0,
+		"noiseSuppression": true,
+		"autoGainControl": false,
+		"echoCancellation": true,
+		"resamplerQuality": 3
+	},
+	...
+},
+user: {
+	...
+	"useWakeWord": true,
+	"autoloadWakeWord": true,
+	"allowWakeWordDuringStream": true,
+	...
+}
+```
+
 ## Wake-Word Settings
 
 ### Two Wake-Words Example
@@ -79,7 +106,7 @@ user: {
 			"speaking": [{"ledIndex": 1, "red": 0, "green": 0, "blue": 150}],
 			"awaitDialog": [{"ledIndex": 1, "red": 100, "green": 100, "blue": 0}],
 			"loading": [{"ledIndex": 1, "red": 10, "green": 10, "blue": 10}],
-			"wakeWordActive": [{"ledIndex": 2, "red": 10, "green": 0, "blue": 0}],
+			"wakeWordActive": [{"ledIndex": 2, "red": 5, "green": 0, "blue": 5}],
 			"wakeWordInactive": [{"ledIndex": 2, "red": 0, "green": 0, "blue": 0}]
 		}
 	}]
