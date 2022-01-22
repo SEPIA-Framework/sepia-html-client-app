@@ -82,14 +82,7 @@ function sepiaFW_build_account(sepiaSessionId){
 			$('#sepiaFW-menu-account-preftempunit-dropdown').val(userPreferredTempUnit);
 		}
 		if (sharedAccessPermissions){
-			//set input fields
-			if (sharedAccessPermissions.remoteActions && sharedAccessPermissions.remoteActions.length){
-				var userListAllowRemote = [];
-				sharedAccessPermissions.remoteActions.forEach(function(ara){
-					if (ara.user) userListAllowRemote.push(ara.user);	//NOTE: this might get more complex later
-				});
-				$('#sepiaFW-menu-account-shared-access-remote-actions').val(userListAllowRemote.join(", "));
-			}
+			//NOTE: 'set input fields' moved to shared-access settings view
 		}
 	}
 	
@@ -348,7 +341,7 @@ function sepiaFW_build_account(sepiaSessionId){
 		});
 	}
 	//delete data from account
-	//TODO: test and errorCallback
+	//TODO: test and errorCallback (in many cases this behaves different than expected because it cannot delete objects ... I think)
 	Account.deleteAccountData = function(fieldArray, successCallback, errorCallback){
 		deleteAccountData("", fieldArray, function(data){
 			SepiaFW.debug.log('Account - successfully deleted account data.');
@@ -1319,6 +1312,7 @@ function sepiaFW_build_account(sepiaSessionId){
 		}else if (userId && userToken){
 			data.KEY = getKey();
 		}else{
+			SepiaFW.ui.hideLoader();
 			if (errorCallback) errorCallback("Data transfer failed! Not authorized or missing 'KEY'");
 			return;
 		}

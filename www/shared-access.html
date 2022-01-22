@@ -1,0 +1,217 @@
+<div id='sepiaFW-frame-carousel' class="sepiaFW-inner-container sepiaFW-carousel">
+	<div class='sepiaFW-carousel-pane-container'>
+		<!-- Page 1 -->
+		<div id="sepiaFW-frame-page-1" class='sepiaFW-frames-page sepiaFW-carousel-pane'>
+			<h3>Shared Access Permissions (BETA)</h3>
+			<p class="info-text">Here you can configure shared access permissions to allow other users to send remote actions to your client(s).</p>
+			<p class="info-text">Permissions for each user can be limited to a list of your clients (device IDs). If the list is empty access will be granted to ALL devices (default).</p>
+			<div id="sepiaFW-shared-access-settings" class="group-container">
+				<div class="group wrap">
+					<label>Share with (User IDs):</label>
+					<input id="sepiaFW-shared-access-user-ids" placeholder="uid1009, uid1011, ..." style="flex: 1 0 auto;">
+				</div>
+				<div class="group wrap">
+					<label>My Clients (Device IDs):</label>
+					<input id="sepiaFW-shared-access-my-devices" placeholder="a1, b1, o2, ..." style="flex: 1 0 auto;">
+				</div>
+				<div class="group wrap">
+					<label>Remote Action Types:</label>
+					<p style="width: 100%; margin-top: 8px !important;">Currently ALL types of remote-actions are allowed (hotkeys, media controls, notify, etc.).</p>
+				</div>
+				<div class="group" style="justify-content: center;">
+					<button id="SepiaFW-shared-access-store" onclick="SepiaFW.frames.currentScope.store()">Store settings</button>
+					<button id="SepiaFW-shared-access-show-devices" onclick="SepiaFW.frames.currentScope.showMyActiveClients()">Show my active clients</button>
+					<button id="SepiaFW-shared-access-clear" onclick="SepiaFW.frames.currentScope.clearAll()">Reset all</button>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+<div id="sepiaFW-frames-nav-bar" class='sepiaFW-layer-header'>
+	<button id="sepiaFW-frames-close" class='entry'>
+		<i class="material-icons md-btn2">&#xE5CD;</i>
+	</button>
+	<!--<button id="sepiaFW-frames-show-prev-page" class='entry'>
+		<i class="material-icons md-btn2">keyboard_arrow_left</i><span data-localize="back">back</span>
+	</button>
+	<button id="sepiaFW-frames-show-next-page" class='entry'>
+		<span data-localize="next">next</span><i class="material-icons md-btn2">keyboard_arrow_right</i>
+	</button>-->
+	<div id="sepiaFW-frames-nav-bar-page-indicator"><div>&nbsp;</div></div>
+</div>
+<script>
+	$('#sepiaFW-frame-carousel').find('[data-localize]').each(function(){
+		$(this).html(SepiaFW.local.g(this.dataset.localize));
+	});
+	
+	//Define scope
+	SepiaFW.frames.currentScope = {
+
+		onFinishSetup: function(){},
+		
+		onOpen: function(){
+			$('#sepiaFW-shared-access-user-ids').prop("disabled", true);
+			$('#sepiaFW-shared-access-my-devices').prop("disabled", true);
+			//we load fresh settings because cache might be old, so don't use: 'SepiaFW.account.getSharedAccessPermissions()'
+			var sapPath = SepiaFW.account.INFOS + "." + SepiaFW.account.SHARED_ACCESS_PERMISSIONS;
+			SepiaFW.account.loadAccountData([sapPath], function(res){
+				$('#sepiaFW-shared-access-user-ids').prop("disabled", false);
+				$('#sepiaFW-shared-access-my-devices').prop("disabled", false);
+				var sharedAccessPermissions = res && res[sapPath];
+				//set input fields
+				if (sharedAccessPermissions){
+					if (sharedAccessPermissions.remoteActions && sharedAccessPermissions.remoteActions.length){
+						var userListAllowRemote = {};
+						var allowedDevices = {};
+						//TODO: this will become more complex if we store permissions per user and device (tuples: user + device + details)
+						sharedAccessPermissions.remoteActions.forEach(function(ara){
+							if (ara.user) userListAllowRemote[ara.user] = true;
+							if (ara.device) allowedDevices[ara.device] = true;
+						});
+						$('#sepiaFW-shared-access-user-ids').val(Object.keys(userListAllowRemote).join(", "));
+						$('#sepiaFW-shared-access-my-devices').val(Object.keys(allowedDevices).join(", "));
+					}
+				}
+				//update cache
+				SepiaFW.account.setSharedAccessPermissions(sharedAccessPermissions);
+
+			}, function(err){
+				$('#sepiaFW-shared-access-user-ids').prop("disabled", false);
+				$('#sepiaFW-shared-access-my-devices').prop("disabled", false);
+				SepiaFW.debug.error("Failed to load shared-access settings.", err);
+				SepiaFW.ui.showPopup('Sorry, but something went wrong while loading the settings!');
+			});
+		},
+		
+		onClose: function(){},
+
+		showMyActiveClients: function(){
+			var closeAfterPress = true;
+			var includeSharedFor = false;
+			SepiaFW.client.showConnectedUserClientsAsMenu("My Client Devices", function(deviceInfo){
+				//do nothing?
+			}, closeAfterPress, includeSharedFor, {
+				skipOwnDevice: false
+			});
+		},
+		
+		store: function(){
+			var sharedUserIds = $('#sepiaFW-shared-access-user-ids').val();
+			var myDevicesList = $('#sepiaFW-shared-access-my-devices').val();
+			
+			var allowedUsers = {};
+			var allowedDevices = {};
+			var remoteActions = [];
+			
+			//convert strings to arrays
+			if (sharedUserIds){
+				var ownUser = SepiaFW.account.getUserId();
+				sharedUserIds.split(/\s*,\s*/g).forEach(function(uid){
+					uid = uid.trim();
+					if (uid && uid != ownUser) allowedUsers[uid.trim()] = true;
+				});
+			}
+			if (myDevicesList){
+				myDevicesList.split(/\s*,\s*/g).forEach(function(did){
+					did = did.trim();
+					if (did) allowedDevices[did.trim()] = true;
+				});
+			}
+			//update fields
+			allowedUsers = Object.keys(allowedUsers);	//prevents duplicates
+			allowedDevices = Object.keys(allowedDevices);
+			$('#sepiaFW-shared-access-user-ids').val(allowedUsers.join(", "));
+			$('#sepiaFW-shared-access-my-devices').val(allowedDevices.join(", "));
+			
+			//update account
+			//TODO: this will become more complex if we store permissions per user and device (tuples: user + device + details)
+			allowedUsers.forEach(function(uid){
+				//Format: {user: "...", device: "...", details: {...}}
+				//user: allowed user ID - device: where action is executed - details: action specific details
+				//each field that is not set (null) means no further restriction
+				if (allowedDevices.length){
+					//valid for these devices ONLY
+					allowedDevices.forEach(function(did){
+						//one entry for each user + device tuple:
+						var sharedAccessItem = {user: uid, device: did};	//details: null
+						remoteActions.push(sharedAccessItem);
+					});
+				}else{
+					//valid for all devices
+					var sharedAccessItem = {user: uid};		//device: null, details: null
+					remoteActions.push(sharedAccessItem);
+				}
+			});
+			var sharedAcc = {
+				"remoteActions": remoteActions
+			};
+			var infos = {}; infos[SepiaFW.account.SHARED_ACCESS_PERMISSIONS] = sharedAcc;
+			var data = {}; data[SepiaFW.account.INFOS] = infos;
+			SepiaFW.account.saveAccountData(data, function(){
+				//update account cache
+				SepiaFW.account.setSharedAccessPermissions(sharedAcc);
+				//ask user to reload client (to refresh WebSocket client)
+				SepiaFW.ui.showPopup("Changes stored. Please reconnect every client in your devices list to apply new settings!", {
+					buttonOneName : "Request reconnect of clients",
+					buttonOneAction : function(){
+						setTimeout(function(){
+							//window.location.reload();
+							SepiaFW.frames.currentScope.requestClientReconnect();
+						}, 1000);
+					}
+				});
+			}, function(err){
+				SepiaFW.debug.error("Failed to store shared-access settings.", err);
+				SepiaFW.ui.showPopup('Sorry, but something went wrong!');
+			});
+		},
+
+		requestClientReconnect: function(){
+			SepiaFW.client.refreshClientConnections(function(sessionsClosed){
+				if (sessionsClosed && sessionsClosed.length){
+					var content = document.createElement("div");
+					var info = document.createElement("p");
+					info.textContent = "Reconnect requested for clients:";
+					content.appendChild(info);
+					sessionsClosed.forEach(function(ud){
+						var p = document.createElement("p");
+						p.textContent = "Device ID: " + ud.deviceId;
+						content.appendChild(p);
+					});
+					SepiaFW.ui.showPopup(content);
+				}else{
+					SepiaFW.ui.showPopup('Request sent.');
+				}
+			}, function(err){
+				SepiaFW.debug.error("Failed to store shared-access settings.", err);
+				SepiaFW.ui.showPopup('Sorry, but something went wrong!');
+			});
+		},
+
+		clearAll: function(){
+			var sharedAcc = {};
+			var infos = {}; infos[SepiaFW.account.SHARED_ACCESS_PERMISSIONS] = sharedAcc;
+			var data = {}; data[SepiaFW.account.INFOS] = infos;
+			SepiaFW.account.saveAccountData(data, function(){
+				//update account cache
+				SepiaFW.account.setSharedAccessPermissions(sharedAcc);
+				//update fields
+				$('#sepiaFW-shared-access-user-ids').val('');
+				$('#sepiaFW-shared-access-my-devices').val('');
+				//ask user to reload client (to refresh WebSocket client)
+				SepiaFW.ui.showPopup("Permissions removed. Please reconnect every client in your devices list to apply new settings!", {
+					buttonOneName : "Request reconnect of clients",
+					buttonOneAction : function(){
+						setTimeout(function(){
+							//window.location.reload();
+							SepiaFW.frames.currentScope.requestClientReconnect();
+						}, 1000);
+					}
+				});
+			}, function(err){
+				SepiaFW.debug.error("Failed to remove shared-access settings.", err);
+				SepiaFW.ui.showPopup('Sorry, but something went wrong!');
+			});
+		}
+	}
+</script>

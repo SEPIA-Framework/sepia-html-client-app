@@ -49,6 +49,7 @@ function sepiaFW_build_client_interface(){
 	ClientInterface.refreshChannelList = SepiaFW.webSocket.client.refreshChannelList;			//Note: refreshes UI (not data, see above)
 	ClientInterface.getChannelInviteLink = SepiaFW.webSocket.channels.getChannelInviteLink;
 
+	ClientInterface.refreshClientConnections = SepiaFW.webSocket.client.refreshClientConnections;
 	ClientInterface.getConnectedUserClients = SepiaFW.webSocket.client.getConnectedUserClients;
 	ClientInterface.showConnectedUserClientsAsMenu = SepiaFW.webSocket.client.showConnectedUserClientsAsMenu;
 	ClientInterface.sendRemoteActionToOwnDeviceOrShared = SepiaFW.webSocket.client.sendRemoteActionToOwnDeviceOrShared;
@@ -1101,7 +1102,10 @@ function sepiaFW_build_webSocket_client(sepiaSessionId){
 											type: "assistant_message",
 											text: inputVal1,
 											language: SepiaFW.speech.getLanguage() 		//speech or app lang.?
-										}, deviceInfo.deviceId, sharedReceiver);
+										}, deviceInfo.deviceId, sharedReceiver, undefined, function(err){
+											SepiaFW.debug.error("Failed to send remote action.", err);
+											SepiaFW.ui.showPopup("Failed to send remote action." + (err? (" Error: " + err) : ""));
+										});
 									}, true, includeSharedFor, {
 										skipOwnDevice: true
 									}
@@ -1114,7 +1118,9 @@ function sepiaFW_build_webSocket_client(sepiaSessionId){
 							var inp = document.getElementById("sepiaFW-chat-input");
 							inp.value = SepiaFW.assistant.name + ' ' + CMD_SAYTHIS + ' ' + inputVal1;
 							inp.focus();
-						}
+						},
+						buttonThreeName: "Cancel",
+						buttonThreeAction: function(btn, inputVal1){}
 					});
 				});
 			}
@@ -1438,15 +1444,27 @@ function sepiaFW_build_webSocket_client(sepiaSessionId){
 			Client.handleMessage(msg); 
 		};
 
-		webSocket.onclose = function(){
-			SepiaFW.debug.log("WebSocket: connection closed or lost");
+		webSocket.onclose = function(ev){
+			var closedOnPurpose = false;
+			if (ev && ev.code && ev.code == 1012){
+				closedOnPurpose = true;
+				SepiaFW.debug.log("WebSocket: connection closed with SERVICE RESTART info.");
+			}else{
+				SepiaFW.debug.log("WebSocket: connection closed or lost");
+			}
 			connectionIsOpen = false;
 			isConnecting = false;
 			username = "";
 			activeChannelId = "";
 			activeChatPartner = undefined;
 			SepiaFW.client.broadcastConnectionStatus(SepiaFW.client.STATUS_CLOSED);
-			Client.handleCloseEvent();
+			if (closedOnPurpose){
+				//handle with delay
+				setTimeout(function(){ Client.handleCloseEvent(); }, Math.round(Math.random() * 2000) + 1000);
+			}else{
+				//handle immediately
+				Client.handleCloseEvent();
+			}
 		};
 
 		webSocket.onopen = function(){
@@ -1715,6 +1733,7 @@ function sepiaFW_build_webSocket_client(sepiaSessionId){
 			//console.log('MSG: ' + JSON.stringify(message)); 		//DEBUG
 			observeMessage(message);
 			sendFailedInRow = 0;
+			return true;
 		}
 	}
 	//check if message was successfully received by server and returned with confirmation
@@ -1913,12 +1932,17 @@ function sepiaFW_build_webSocket_client(sepiaSessionId){
 	}
 
 	//Send remote action via client connection
-	Client.sendRemoteActionToOwnDeviceOrShared = function(type, action, deviceId, sharedReceiver){
+	Client.sendRemoteActionToOwnDeviceOrShared = function(type, action, deviceId, sharedReceiver, successCallback, errorCallback){
 		if (!SepiaFW.account.getUserId() || !deviceId) return;	//required
 		//redirect to HTTP call?
 		if (sharedReceiver){
 			//TODO: we currently have to redirect shared-access remote-actions to HTTP for authentication!
-			SepiaFW.assistant.sendHttpRemoteAction(type, action, deviceId, sharedReceiver);
+			SepiaFW.assistant.sendHttpRemoteAction(type, action, deviceId, sharedReceiver, successCallback, function(err){
+				if (errorCallback){
+					var errMsg = err? (err.message || err.name || err.statusText) : undefined;
+					errorCallback(errMsg);
+				}
+			});
 			return;
 		}
 		//build data
@@ -1935,7 +1959,12 @@ function sepiaFW_build_webSocket_client(sepiaSessionId){
 		//msg.data.get("targetChannelId");					//auto
 		var newId = ("remote-act" + "-" + ++msgId);
 		var msg = buildSocketMessage(username, serverName, "", "", data, "", newId, "<auto>");
-		Client.sendMessage(msg);
+		var submitted = Client.sendMessage(msg);
+		if (submitted){
+			if (successCallback) successCallback();
+		}else{
+			if (errorCallback) errorCallback();
+		}
 	}
 	
 	Client.switchChannel = function(channelId, channelKey){
@@ -2249,7 +2278,7 @@ function sepiaFW_build_webSocket_client(sepiaSessionId){
 
 					//user has to be same! (security)
 					if (actionUser !== SepiaFW.account.getUserId()){
-						SepiaFW.debug.error("remoteAction - tried to use type 'hotkey' with wrong user");
+						SepiaFW.debug.error("remoteAction - tried to use type 'sync' with wrong user");
 					}else{
 						//handle sync event
 						if (action.events == "timeEvents" || action.events == SepiaFW.events.TIMER || action.events == SepiaFW.events.ALARM){
@@ -2290,7 +2319,7 @@ function sepiaFW_build_webSocket_client(sepiaSessionId){
 						//TODO: add e.g. "userAddress", "toDoLists", "userData", ...
 					}
 
-				//Music
+				//Media (player controls, streams etc.)
 				}else if (message.data.type === "media"){
 					if (typeof action == "string"){
 						//default is stream
@@ -2304,7 +2333,7 @@ function sepiaFW_build_webSocket_client(sepiaSessionId){
 
 					//user has to be same! (security)
 					if (actionUser !== SepiaFW.account.getUserId()){
-						SepiaFW.debug.error("remoteAction - tried to use type 'music' with wrong user");
+						SepiaFW.debug.error("remoteAction - tried to use type 'media' with wrong user");
 					}else{
 						//handle
 						if (action.type == "audio_stream"){
@@ -2372,7 +2401,8 @@ function sepiaFW_build_webSocket_client(sepiaSessionId){
 						if (action.type == "assistant_message"){
 							if (action.text){
 								if (!action.language) action.language = SepiaFW.speech.getLanguage();
-								action.text = action.text.replace(/\.$/, "") + ".";		//make sure we end with "." (important for some TTS)
+								action.text = action.text.trim();
+								if (!action.text.match(/(!|\?|\.)$/)) action.text = action.text + ".";		//make sure we end with "." (important for some TTS)
 								var orgMsg = action.text;
 								if (!action.skipIntro){
 									action.text = SepiaFW.account.getUserName() + ", " 
@@ -2751,6 +2781,40 @@ function sepiaFW_build_webSocket_client(sepiaSessionId){
 
 	//--- WebSocket server clients endpoint ---//
 
+	//Ask server to close all connections of this user or all (if admin rights available)
+	Client.refreshClientConnections = function(successCallback, errorCallback, refreshAll){
+		SepiaFW.ui.showLoader();
+		var apiUrl = SepiaFW.config.webSocketAPI + "refreshClientConnections";
+		var dataBody = new Object();
+		dataBody.KEY = SepiaFW.account.getKey(sepiaSessionId);
+		dataBody.client = SepiaFW.config.getClientDeviceInfo();
+		if (refreshAll) dataBody.all = true;	//admins can refresh all connections
+		$.ajax({
+			url: apiUrl,
+			timeout: 8000,
+			type: "POST",
+			data: JSON.stringify(dataBody),
+			headers: {
+				"content-type": "application/json",
+				"cache-control": "no-cache"
+			},
+			success: function(data) {
+				SepiaFW.ui.hideLoader();
+				if (data.result && data.result === "fail"){
+					if (errorCallback) errorCallback(data);
+					return;
+				}else{
+					if (successCallback) successCallback(data.sessionsClosed);
+				}
+			},
+			error: function(err) {
+				SepiaFW.ui.hideLoader();
+				if (errorCallback) errorCallback("connection or authentication error");
+			}
+		});
+	}
+
+	//Get connected clients of user from server
 	Client.getConnectedUserClients = function(successCallback, errorCallback, includeSharedFor){
 		if (SepiaFW.client.isDemoMode()){
 			successCallback({clients:[
@@ -2804,7 +2868,7 @@ function sepiaFW_build_webSocket_client(sepiaSessionId){
 				}
 				if (successCallback) successCallback(data);
 			},
-			error: function(data) {
+			error: function(err) {
 				SepiaFW.ui.hideLoader();
 				if (errorCallback) errorCallback("connection or authentication error");
 			}
@@ -2838,6 +2902,7 @@ function sepiaFW_build_webSocket_client(sepiaSessionId){
 		header.textContent = title;
 		menu.appendChild(header);
 		var thisDevice = SepiaFW.config.getDeviceId();
+		var devicesAdded = 0;
 		clients.forEach(function(cl){
 			if (!cl.deviceId) return;	//check 'isActive'?
 			var isThisDevice = (!cl.isShared && cl.deviceId == thisDevice);
@@ -2876,7 +2941,13 @@ function sepiaFW_build_webSocket_client(sepiaSessionId){
 			$(device).on("click", function(){
 				deviceButtonFun(cl);
 			});
+			devicesAdded++;
 		});
+		if (devicesAdded == 0){
+			var noDevicesInfo = document.createElement("p");
+			noDevicesInfo.textContent = "- Found no (other) active client devices -";
+			menu.appendChild(noDevicesInfo);
+		}
 		return menu;
 	}
 	

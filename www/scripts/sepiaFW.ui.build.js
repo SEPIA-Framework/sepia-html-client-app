@@ -744,8 +744,8 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 					+ "<li id='sepiaFW-menu-account-nickname-li'><span>" + SepiaFW.local.g('nickname') + ": </span><input id='sepiaFW-menu-account-nickname' type='text' maxlength='24'></li>"
 					+ "<li id='sepiaFW-menu-account-preftempunit-li'><span>" + SepiaFW.local.g('preferred_temp_unit') + ": </span></li>"
 					+ "<li class='spacer'></li>"
-					+ "<li style='min-height: auto; text-align: left;'>" + SepiaFW.local.g('shared_access_permissions') + ":</li>"
-					+ "<li id='sepiaFW-menu-account-shared-access-remote-actions-li'><span>" + "Remote Actions" + ": </span><input id='sepiaFW-menu-account-shared-access-remote-actions' type='text'></li>"
+					+ "<li style='min-height: auto; text-align: left;'><u>" + SepiaFW.local.g('shared_access_permissions') + "</u></li>"
+					+ "<li id='sepiaFW-menu-account-shared-access-remote-actions-li'><span>Remote Actions:</span></li>"
 					+ "<li class='spacer'></li>"
 					+ "<li id='sepiaFW-menu-store-load-app-settings-li' class='flex'>"
 						+ "<span>App settings: </span>"
@@ -1526,49 +1526,13 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 				SepiaFW.account.setUserPreferredTemperatureUnit(selectedOption.value);
 			}));
 			//Account-Shared Access Permissions (remote-action)
-			document.getElementById("sepiaFW-menu-account-shared-access-remote-actions").addEventListener("change", function(){
-				var allowedUsers = [];
-				var remoteActions = [];
-				//convert string to array
-				if (this.value){
-					var ownUser = SepiaFW.account.getUserId();
-					this.value.split(/\s*,\s*/g).forEach(function(cl){
-						cl = cl.trim();
-						if (cl && cl != ownUser) allowedUsers.push(cl.trim());
+			document.getElementById("sepiaFW-menu-account-shared-access-remote-actions-li").appendChild(Build.inlineActionButton('sepiaFW-menu-input-shared-access-settings', "<i class='material-icons md-inherit'>settings</i>",
+				function(btn){
+					SepiaFW.frames.open({ 
+						pageUrl: "shared-access.html"
 					});
-				}
-				//update field
-				this.value = allowedUsers.join(", ");
-				this.blur();
-				//update account
-				allowedUsers.forEach(function(ac){
-					//Format: {user: "...", device: "...", details: {...}}
-					//user: allowed user ID - device: where action is executed - details: action specific details
-					//each field that is not set (null) means no further restriction
-					remoteActions.push({user: ac});
-				});
-				var sharedAcc = {
-					"remoteActions": remoteActions
-				};
-				var infos = {};		infos[SepiaFW.account.SHARED_ACCESS_PERMISSIONS] = sharedAcc;
-				var data = {};		data[SepiaFW.account.INFOS] = infos;
-				SepiaFW.account.saveAccountData(data, function(){
-					//update account cache
-					SepiaFW.account.setSharedAccessPermissions(sharedAcc);
-					//ask user to reload client (to refresh WebSocket client)
-					SepiaFW.ui.showPopup('Please reload client to apply changes!', {
-						buttonOneName : "Reload",
-						buttonOneAction : function(){
-							setTimeout(function(){
-								window.location.reload();
-							}, 1000);
-						}
-					});
-				}, function(err){
-					SepiaFW.debug.error("Failed to store shared-access setting.", err);
-					SepiaFW.ui.showPopup('Sorry, but something went wrong!');
-				});
-			});
+				})
+			);
 			//Store, load and export app settings
 			document.getElementById("sepiaFW-menu-store-app-settings-btn").addEventListener("click", function(){
 				SepiaFW.account.saveAppSettings();

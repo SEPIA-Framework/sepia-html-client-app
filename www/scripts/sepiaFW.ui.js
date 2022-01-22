@@ -40,7 +40,8 @@ function sepiaFW_build_ui(){
 	//Screen orientation and resize
 	UI.preferredScreenOrientation = SepiaFW.data.getPermanent('screen-orientation') || "";
 	UI.isScreenOrientationSupported = function(){
-		return (window.screen && window.screen.orientation && (typeof window.screen.orientation.lock == "function"));
+		return (window.screen && window.screen.orientation 
+			&& (typeof window.screen.orientation.lock == "function") && (typeof window.screen.orientation.unlock == "function"));
 	}
 	UI.setScreenOrientation = function(or, doneCallback){
 		if (UI.isScreenOrientationSupported()){

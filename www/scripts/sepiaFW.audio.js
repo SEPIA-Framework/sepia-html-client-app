@@ -1197,7 +1197,10 @@ function sepiaFW_build_audio(){
 			function(deviceInfo){
 				var sharedReceiver = deviceInfo.isShared? deviceInfo.id : undefined;
 				SepiaFW.client.sendRemoteActionToOwnDeviceOrShared("media", action, 
-					deviceInfo.deviceId, sharedReceiver);
+					deviceInfo.deviceId, sharedReceiver, undefined, function(err){
+						SepiaFW.debug.error("Failed to send remote action.", err);
+						SepiaFW.ui.showPopup("Failed to send remote action." + (err? (" Error: " + err) : ""));
+					});
 			}, true, includeSharedFor, {
 				skipOwnDevice: true
 			}
