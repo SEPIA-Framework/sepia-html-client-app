@@ -2276,8 +2276,16 @@ html.landscape-small #sepiaFW-main-window.sepiaFW-skin-mod:not(.full-screen) {
 	width: calc(100% - 110px);
 	margin-left: 55px;
 }
+html.landscape-small #sepiaFW-main-window.sepiaFW-skin-mod.full-screen {
+	width: calc(100% - 55px);
+	margin-left: 0px;
+	margin-right: 55px;
+}
 html.landscape-small #sepiaFW-main-window.sepiaFW-skin-mod ~ #sepiaFW-swipeBar-container-left {
 	left: 55px;
+}
+html.landscape-small #sepiaFW-main-window.sepiaFW-skin-mod.full-screen ~ #sepiaFW-swipeBar-container-left {
+	left: 0px;
 }
 html.landscape-small #sepiaFW-main-window.sepiaFW-skin-mod ~ #sepiaFW-swipeBar-container-right {
 	right: 55px;

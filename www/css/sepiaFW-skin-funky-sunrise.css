@@ -1,8 +1,8 @@
 /* Base: Flaming Squirrel (light) - TODO: make stand-alone? */
 html {
-	background-color: #232323;
+	background-color: #171717;
 	background-image: url(../img/blocksAlpha.png);
-    background-size: 600px;
+    background-size: 595px;
 }
 #sepiaFW-main-window {
 	color: #fff;
@@ -44,12 +44,8 @@ html {
 }
 
 #sepiaFW-chat-controls {
-	background: linear-gradient(rgba(26,15,48,0), #1a0f30);
-	border-bottom-color: #1a0f30;
-}
-#sepiaFW-chat-controls {
-    background: linear-gradient(rgba(35,35,35,0), #232323);
-    border-bottom-color: #232323;
+    background: linear-gradient(rgba(23,23,23,0), #171717);
+    border-bottom-color: #171717;
 }
 html.landscape-small #sepiaFW-chat-controls,
 html.landscape-small #sepiaFW-nav-bar {
@@ -92,9 +88,12 @@ html.landscape-small #sepiaFW-nav-bar {
     background: rgba(255, 255, 255, 0.20);
     color: #fff;
 }
+.sepiaFW-toggle-btn .on {
+    background: #ffdd64;
+}
 
 .sepiaFW-results-container .statusUpdate, #sepiaFW-chat-output .statusUpdate {
-	background: rgb(44, 44, 44);
+	background: #222222;
 	color: #fff;
 }
 
@@ -174,6 +173,12 @@ html.landscape-small #sepiaFW-nav-bar {
 	background-color: #de4f1e !important;
 	color: #fff !important;
 }
+#sepiaFW-popup-message i {
+    color: #22b2bf;
+}
+#sepiaFW-popup-message .accent {
+    color: #ffdb5a;
+}
 
 /*----- cards -----*/
 
@@ -184,7 +189,7 @@ html.landscape-small #sepiaFW-nav-bar {
 }
 
 .sepiaFW-cards-flexSize-container {
-    background: #2c2c2c;
+    background: #222222;
 	color: #000;
 }
 
@@ -253,12 +258,16 @@ html.landscape-small #sepiaFW-nav-bar {
 /*----- teachUI -----*/
 
 #sepiaFW-teachUI-view {
-    background: #26676c;
+    background: #2c7a81;
 }
 #sepiaFW-teachUI-view label {
     color: #ffdb5a;
 }
 #sepiaFW-teachUI-editor button, #sepiaFW-teachUI-manager button {
-    background: #fd624a !important;
-    color: #fff !important;
+    background: #ffdb5a !important;
+    color: #000 !important;
+}
+#sepiaFW-teachUI-nav-bar {
+    background: linear-gradient(to right, #df511e 0%, #b2002c 100%);
+    color: #fff;
 }

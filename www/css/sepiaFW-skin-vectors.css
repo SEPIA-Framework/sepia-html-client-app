@@ -25,20 +25,23 @@ html {
 #sepiaFW-statC 	{ background-color: #000; }
 
 #sepiaFW-login-box, #sepiaFW-nav-bar, #sepiaFW-chat-controls-form, #sepiaFW-chat-controls-right {
-    background: rgba(12, 130, 36, 0.66);
+    background: rgba(12, 137, 48, 0.68);
     border: 1px solid #797;
     box-shadow: 0 0 5px #14aa22;
     color: #fff;
 }
 #sepiaFW-chat-controls {
-    background: linear-gradient(rgba(5, 25, 5, 0.0), #000, #000) !important;
+    background: linear-gradient(rgba(0, 0, 0, 0.0), #000, #000) !important;
     border-bottom: 1px solid #000;
 }
+#sepiaFW-chat-controls.full-screen {
+    background: linear-gradient(rgba(0, 0, 0, 0.0), #101010) !important;
+}
 html.landscape-small #sepiaFW-chat-controls {
-    background: rgba(12, 130, 36, 0.66) !important;
+    background: rgba(12, 137, 48, 0.68) !important;
 }
 #sepiaFW-chat-controls-swipe-area .sepiaFW-swipeBar-switchable {
-    background: #073c0a;
+    background: #0b6024;
 }
 #sepiaFW-chat-controls-form.touch-bar-controls #sepiaFW-chat-controls-swipe-area .sepiaFW-swipeBar-switchable {
     color: #797;
@@ -53,7 +56,7 @@ html.landscape-small #sepiaFW-chat-controls {
     color: #fff;
 }
 #sepiaFW-login-form button {
-    background: #7e8;
+    background: #b7ebbe;
     color: #000;
     border: 1px solid #ada !important;
     box-shadow: 0 0 5px #14aa22 !important;
@@ -75,7 +78,7 @@ html.landscape-small #sepiaFW-chat-controls {
 .sepiaFW-notouch-device #sepiaFW-chat-controls button:hover,
 .sepiaFW-notouch-device #sepiaFW-nav-bar button:hover {
     background: transparent;
-    text-shadow: 0px 0px 3px #fff;
+    text-shadow: 0px 0px 5px #fff;
 }
 
 #sepiaFW-main-window .chat-buttons-area button {
@@ -86,17 +89,17 @@ html.landscape-small #sepiaFW-chat-controls {
 }
 .sepiaFW-notouch-device #sepiaFW-main-window .chat-buttons-area button:hover {
     background: rgba(133, 185, 145, 0.55);
-    text-shadow: 0px 0px 3px #fff;
+    text-shadow: 0px 0px 5px #fff;
 }
 #sepiaFW-main-window .chat-buttons-area .my-view-custom-button {
-    background-color: rgba(12, 130, 36, 0.66);
+    background-color: rgba(12, 137, 48, 0.68);
     color: #fff;
     border: 1px solid #797;
     box-shadow: 0 0 5px #14aa22;
 }
 .sepiaFW-notouch-device #sepiaFW-main-window .chat-buttons-area .my-view-custom-button:hover {
-    background-color: rgba(12, 130, 36, 0.80);
-    border: 1px solid #9c9;
+    background-color: rgba(170, 215, 180, 0.86);
+    border: 1px solid #fff;
 }
 
 .sepiaFW-menu {
@@ -105,7 +108,7 @@ html.landscape-small #sepiaFW-chat-controls {
     box-shadow: inset 0 0 3px 1px #9a9;
 }
 #sepiaFW-chat-menu {
-    background: #085518;
+    background: #0a5f23;
 }
 #sepiaFW-chat-channel-view {
     border: 1px solid #797;
@@ -123,7 +126,7 @@ html.landscape-small #sepiaFW-chat-controls {
     box-shadow: none;
 }
 #sepiaFW-chat-controls-more-menu button {
-    background: #7e8;
+    background: #b7ebbe;
     color: #000;
 }
 .sepiaFW-notouch-device #sepiaFW-main-window #sepiaFW-chat-controls-more-menu button:hover {
@@ -134,7 +137,7 @@ html.landscape-small #sepiaFW-chat-controls {
     background: #3b724d;
 }
 .sepiaFW-toggle-btn .on {
-    background: #7e8;
+    background: #b7ebbe;
 }
 
 #sepiaFW-assist-btn-area {
@@ -158,7 +161,7 @@ html.landscape-small #sepiaFW-chat-controls {
     box-shadow: 0 0 5px #565;
 }
 #sepiaFW-chat-output article.chatAssistant {
-    background: rgba(12, 130, 36, 0.66);
+    background: rgba(12, 137, 48, 0.68);
     color: #fff;
     box-shadow: 0 0 5px #14aa22;
     border-color: #797;
@@ -205,7 +208,7 @@ html.landscape-small #sepiaFW-chat-controls {
     color: #aaffaa;
 }
 #sepiaFW-popup-message button {
-    background-color: #7e8 !important;
+    background-color: #b7ebbe !important;
     color: #000 !important;
 }
 .sepiaFW-notouch-device #sepiaFW-popup-message button:hover {
@@ -308,13 +311,13 @@ html.landscape-small #sepiaFW-chat-controls {
 }
 #sepiaFW-frames-nav-bar,
 #sepiaFW-teachUI-nav-bar {
-	background: #085518;
+	background: #0a5f23;
 }
 .sepiaFW-frames-page button,
 .sepiaFW-frames-page.dark button,
 #sepiaFW-teachUI-editor button, 
 #sepiaFW-teachUI-manager button {
-    background: #7e8 !important;
+    background: #b7ebbe !important;
     color: #000 !important;
     border: 1px solid #ada !important;
     box-shadow: 0 0 5px #14aa22;
