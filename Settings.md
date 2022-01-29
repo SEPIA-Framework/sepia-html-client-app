@@ -77,6 +77,14 @@ user: {
 
 ## GPIO Interface - LED Controls
 
+Before you start: Make sure CLEXI (Node.js) can actually **access the device**!  
+For SPI controlled devices (e.g. HATs) add your user to the 'spi' group:
+```
+sudo usermod -a -G spi $USER
+```
+
+For USB devices check the individual comments on how to set vendor/product specific permissions for the user.
+
 ### Seeedstudio Respeaker 2mic Example
 
 - Button pin is 17
@@ -223,3 +231,34 @@ user: {
 }
 ```
 
+### Seeedstudio Respeaker Mic Array v2.0 USB
+
+- 12 LED array controlled via USB
+- Use item file 'respeaker-usb-array-v2'
+- Allow Node.js (CLEXI) access to USB device (adjust group name as it suits you best):
+```
+sudo su -c "echo 'SUBSYSTEMS==\"usb\", ATTRS{idVendor}==\"2886\", ATTRS{idProduct}==\"0018\", GROUP=\"gpio\", MODE=\"0666\"' > /etc/udev/rules.d/99-ReSpeakerUSB.rules"
+sudo usermod -a -G gpio $USER
+```
+
+Settings:
+```
+"clexiGpioInterface": {
+	"items": [{
+		"id": "led-array",
+		"file": "respeaker-usb-array-v2",
+		"options": {
+			"mode": "seeed"
+		},
+		"modes": {
+			"idle": [{"state": "idle"}],
+			"listening": [{"state": "listening"}],
+			"speaking": [{"state": "speaking"}],
+			"awaitDialog": [{"state": "awaitDialog"}],
+			"loading": [{"state": "loading"}],
+			"wakeWordActive": [{"state": "wakeWordActive"}],
+			"wakeWordInactive": [{"state": "wakeWordInactive"}]
+		}
+	}]
+}
+```
