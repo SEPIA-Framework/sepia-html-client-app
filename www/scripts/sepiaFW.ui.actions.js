@@ -264,7 +264,8 @@ function sepiaFW_build_ui_actions(){
 
 		//check URL vor sanity (at least a bit)
 		var hasValidUrlProtocol = SepiaFW.tools.urlHasValidProtocol(url);
-		if (!hasValidUrlProtocol){
+		var isSpecialUrl = (url == "<inappbrowser-last>" || url == '<inappbrowser-home>' || url.indexOf("search.html") == 0);
+		if (!hasValidUrlProtocol && !isSpecialUrl){
 			var question = document.createElement("div");
 			var p = document.createElement("p");
 			p.textContent = "Open URL:";
@@ -525,19 +526,19 @@ function sepiaFW_build_ui_actions(){
 				});
 				var foundRegion = false;
 				if (region){
-					var suppBcp47 = SepiaFW.local.getExperimentalAsrLanguages();
+					var suppBcp47 = SepiaFW.local.getExperimentalAppLanguages();
 					var bcp47 = (lang + "-" + region);
 					suppBcp47.forEach(function(sbcp47){
 						if (sbcp47.value == bcp47){
 							foundRegion = true;
 							SepiaFW.debug.log("language-switch action - speech lang.: " + bcp47);
-							SepiaFW.speech.setCountryCode(bcp47);
+							SepiaFW.config.broadcastRegionCode(bcp47);
 							return;
 						}
 					});
 				}
 				if (foundLang && !foundRegion){
-					SepiaFW.speech.setCountryCode("");
+					SepiaFW.config.broadcastRegionCode("");
 				}
 			}
 		}

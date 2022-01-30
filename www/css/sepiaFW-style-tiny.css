@@ -34,6 +34,10 @@
 
 .sepiaFW-tiny-app #sepiaFW-chat-controls {
 	justify-content: center;
+	pointer-events: none;
+}
+.sepiaFW-tiny-app #sepiaFW-chat-controls > div {
+	pointer-events: auto;
 }
 .sepiaFW-tiny-app #sepiaFW-chat-controls-right {
 	border-radius: 28px;

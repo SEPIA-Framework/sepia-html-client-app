@@ -5,6 +5,7 @@ html {
 }
 #sepiaFW-main-window {
 	border: 0;
+	border-radius: 0;
 	box-shadow: inset 0px 0px 6px 1px #3f51b5;
 }
 @media (min-width: 480px) and (min-height: 481px) {
@@ -77,8 +78,7 @@ html.landscape-small #sepiaFW-chat-controls-right {
 	color: #fff;
 }
 
-#sepiaFW-main-window button,
-.sepiaFW-touch-device #sepiaFW-main-window button:hover {
+#sepiaFW-main-window button {
 	background: transparent;
 	color: #ffffff;
 }

@@ -5,15 +5,12 @@
 			<h3>Wake-Word Settings</h3>
 			<div style="display: flex; flex-direction: column; justify-content: center; align-items: center;">
 				<img id="sepiaFW-wake-word-indicator" src="img/icon-512-w.png" style="border-radius: 50%; overflow: hidden; max-width: 512px; max-height: 18vh;">
-				<p>Press START and say 'Hey SEPIA' to change the logo color. You can play around with the sensitivity as well, but make sure to STOP first.</p>
+				<p>Press LOAD and say 'Hey SEPIA' to trigger a color change of the logo. Enable expert settings to choose a different wake-word. Always press RESET after you've changed anything.<br>
+				<br>Visit the <a href="https://github.com/SEPIA-Framework/sepia-html-client-app/tree/master/www/xtensions/picovoice" target=_blank>help page</a> to find out more.</p>
 			</div>
 			<div class="group-container">
 				<div class="group" style="justify-content: center;">
 					<button id="sepiaFW-wake-word-toggle">START</button>
-				</div>
-				<div class="group">
-					<label>Wake-word sensitivity:</label>
-					<input id="sepiaFW-wake-word-sensitivity" style="width: 56px !important;" onchange="SepiaFW.wakeWordSettings.storeWakeWordSensitivity()">
 				</div>
 				<div class="group">
 					<label>Allow local/remote wake-word:</label>
@@ -27,15 +24,7 @@
 					<label>Allow wake-word during audio output:</label>
 					<div id="sepiaFW-wake-word-during-stream-box"></div>
 				</div>
-				<div class="group">
-					<label>Expert settings:</label>
-					<div id="sepiaFW-wake-word-expert-box"></div>
-				</div>
-				<div class="group">
-					<label>Debug info:</label>
-					<div id="sepiaFW-wake-word-debug-box"></div>
-				</div>
-				<div class="group fit expert-setting" id="sepiaFW-wake-word-engine" style="display: none;">
+				<div class="group fit" id="sepiaFW-wake-word-engine">
 					<div class="entry-content">
 						<label>Engine:</label><!-- TODO: implement when more options are available -->
 						<div style="display: flex;">
@@ -44,10 +33,18 @@
 						</div>
 					</div>
 				</div>
+				<div class="group">
+					<label title="0.1 (harder to trigger) - 1.0 (easier to trigger)">Wake-word sensitivity:</label>
+					<input id="sepiaFW-wake-word-sensitivity" style="width: 56px !important;" onchange="SepiaFW.wakeWordSettings.storeWakeWordSensitivity()">
+				</div>
+				<div class="group">
+					<label>Expert settings:</label>
+					<div id="sepiaFW-wake-word-expert-box"></div>
+				</div>
 				<div class="group fit hidden-expert-setting" style="display: none;">
 					<div class="entry-content">
 						<label style="width: 100%;">URL:</label>
-						<input id="sepiaFW-wake-word-remote-url" placeholder="<sepia_website>/files/porcupine/" value="" spellcheck="false" 
+						<input id="sepiaFW-wake-word-remote-url" type="url" placeholder="<sepia_website>/files/porcupine/" value="" spellcheck="false" 
 							title="Paths you can use: empty or '<assist_server>/files/...' (self-hosted), '<custom_data>/...' (device), '<sepia_website>/files/porcupine/' (remote) as shortcuts.">
 					</div>
 					<button class="trigger-button" onclick="SepiaFW.wakeWordSettings.engineFileUrlPopup()"><i class="material-icons md-txt">search</i></button>
@@ -56,16 +53,23 @@
 				<div class="group fit expert-setting" id="sepiaFW-wake-word-switcher" style="display: none;">
 					<div class="entry-content">
 						<label style="width: 100%;">Wake-word (version + name):</label>
-						<input id="sepiaFW-wake-word-version" style="max-width: 56px !important; margin-right: 0 !important;" placeholder="1.4" value="1.4" spellcheck="false">
-						<input id="sepiaFW-wake-word-name" style="max-width: calc(100% - 80px);" placeholder="Hey SEPIA" value="Hey SEPIA" spellcheck="false">
+						<input id="sepiaFW-wake-word-version" style="max-width: 60px !important; margin-right: 0 !important;" placeholder="1.4" value="1.4" spellcheck="false">
+						<input id="sepiaFW-wake-word-name" style="max-width: calc(100% - 84px);" placeholder="Hey SEPIA" value="Hey SEPIA" type="text" spellcheck="false">
 					</div>
 					<button class="trigger-button" onclick="SepiaFW.wakeWordSettings.keywordSelectPopup()"><i class="material-icons md-txt">search</i></button>
 					<button class="set-button" onclick="SepiaFW.wakeWordSettings.updateWakeWordFile()"><i class="material-icons md-txt">save</i></button>
 				</div>
+				<div class="group fit expert-setting" id="sepiaFW-wake-word-keys" style="display: none;">
+					<div class="entry-content">
+						<label>Key (v2.0+):</label>
+						<input id="sepiaFW-wake-word-access-key" placeholder="Porcupine v2.0+ access key" title="Access key required for Porcupine 2.0 or higher" value="" type="text" spellcheck="false">
+					</div>
+					<button class="set-button" onclick="SepiaFW.wakeWordSettings.updateWakeWordAccessKey()"><i class="material-icons md-txt">save</i></button>
+				</div>
 				<div class="group fit expert-setting" id="sepiaFW-wake-word-confirm-sound" style="display: none;">
 					<div class="entry-content">
 						<label>Confirm sound:</label>
-						<input id="sepiaFW-wake-word-confirm-sound-path" placeholder="<custom_data>/my.mp3" value="" spellcheck="false" 
+						<input id="sepiaFW-wake-word-confirm-sound-path" placeholder="<custom_data>/my.mp3" value="" spellcheck="false" type="url"
 							title="Some options: sounds/bleep.mp3, sounds/blob.mp3, sounds/chirp.mp3 (default: coin.mp3)">
 					</div>
 					<button class="trigger-button" onclick="SepiaFW.wakeWordSettings.testMicConfirmationSound()"><i class="material-icons md-txt">play_arrow</i></button>
@@ -77,6 +81,10 @@
 						<input id="sepiaFW-wake-word-buffer-length" placeholder="512" value="512" spellcheck="false">
 					</div>
 					<button class="set-button" onclick="SepiaFW.wakeWordSettings.setBufferLength()"><i class="material-icons md-txt">save</i></button>
+				</div>
+				<div class="group">
+					<label>Debug info:</label>
+					<div id="sepiaFW-wake-word-debug-box"></div>
 				</div>
 				<div class="group fit debug-setting" style="display: none; flex-direction: column;">
 					<p>Debug Log &nbsp;<button class="trigger-button" onclick="document.getElementById('sepiaFW-wake-word-audio-info').textContent='';"><i class="material-icons md-txt">delete_sweep</i></button></p>

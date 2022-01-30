@@ -47,8 +47,9 @@ function sepiaFW_build_ui_notifications(){
 		options.body = text;
 		options.icon = 'img/icon.png';
 		//options.data = title;
+		options.requireInteraction = false;
 		var notification = new Notification((title || "SepiaFW Notification"), options);
-		//notification.onshow = function(){};
+		//notification.onshow = function(){};	//add auto close?
 		if (pressCallback){
 			notification.onclick = function(){ pressCallback(notification); }; 		//event.preventDefault(); // prevent the browser from focusing the Notification's tab
 		}

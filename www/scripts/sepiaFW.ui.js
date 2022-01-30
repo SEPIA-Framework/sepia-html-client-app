@@ -3,8 +3,8 @@ function sepiaFW_build_ui(){
 	var UI = {};
 	
 	//some constants
-	UI.version = "v0.24.0";
-	UI.requiresServerVersion = "2.5.2";
+	UI.version = "v0.24.1";
+	UI.requiresServerVersion = "2.6.0";
 	UI.JQ_RES_VIEW_IDS = "#sepiaFW-result-view, #sepiaFW-chat-output, #sepiaFW-my-view";	//a selector to get all result views e.g. $(UI.JQ_RES_VIEW_IDS).find(...) - TODO: same as $('.sepiaFW-results-container') ??
 	UI.JQ_ALL_MAIN_VIEWS = "#sepiaFW-result-view, #sepiaFW-chat-output, #sepiaFW-my-view, #sepiaFW-teachUI-editor, #sepiaFW-teachUI-manager, #sepiaFW-frame-page-0, #sepiaFW-frame-page-1, #sepiaFW-frame-page-2, #sepiaFW-frame-page-3"; 	//TODO: frames can have more ...
 	UI.JQ_ALL_SETTINGS_VIEWS = ".sepiaFW-chat-menu-list-container";
@@ -40,7 +40,8 @@ function sepiaFW_build_ui(){
 	//Screen orientation and resize
 	UI.preferredScreenOrientation = SepiaFW.data.getPermanent('screen-orientation') || "";
 	UI.isScreenOrientationSupported = function(){
-		return (window.screen && window.screen.orientation && (typeof window.screen.orientation.lock == "function"));
+		return (window.screen && window.screen.orientation 
+			&& (typeof window.screen.orientation.lock == "function") && (typeof window.screen.orientation.unlock == "function"));
 	}
 	UI.setScreenOrientation = function(or, doneCallback){
 		if (UI.isScreenOrientationSupported()){
@@ -76,7 +77,9 @@ function sepiaFW_build_ui(){
 	});
 	function orientationAndBasicWindowSizeCheck(){
 		//format
+		sepiaFW_scale_viewport();
 		sepiaFW_landscape_check();
+		sepiaFW_border_check();
 
 		//document.getElementById('sepiaFW-chat-output').innerHTML += ('<br>resize, new size: ' + window.innerHeight);
 		var windowSizeDifference = (window.innerHeight - UI.windowExpectedSize);
@@ -653,13 +656,16 @@ function sepiaFW_build_ui(){
 	//setup device properties and stuff
 	UI.beforeSetup = function(){
 		//is touch device?
-		if ("ontouchstart" in document.documentElement){
+		if ("ontouchstart" in document.documentElement || SepiaFW.tools.getURLParameter("hasTouch")){
 			UI.isTouchDevice = true;
-			document.documentElement.className += " sepiaFW-touch-device";
+			document.documentElement.classList.add("sepiaFW-touch-device");
 		}else{
 			UI.isTouchDevice = false;
-			document.documentElement.className += " sepiaFW-notouch-device";
+			document.documentElement.classList.add("sepiaFW-notouch-device");
 		}
+		//win and mac
+		UI.isMacOs = /Mac OS/g.test(navigator.userAgent);
+		UI.isWindows = /Windows/g.test(navigator.userAgent);
 		
 		//is Edge (Chromium based)?
 		UI.isEdge = matchUserAgentBrandOrFallback("Microsoft Edge", function(){ return /Edg/gi.test(navigator.userAgent); });
@@ -668,14 +674,14 @@ function sepiaFW_build_ui(){
 		UI.isChrome = matchUserAgentBrandOrFallback("Google Chrome", function(){ return (/Chrome/gi.test(navigator.userAgent)) && !UI.isEdge; });
 		//is iOS or Safari?
 		UI.isIOS = (UI.isCordova)? (device.platform === "iOS") : (/iPad|iPhone|iPod/g.test(navigator.userAgent) && !window.MSStream);
-		UI.isSafari = /Safari/g.test(navigator.userAgent) && !UI.isAndroid && !UI.isChrome && !UI.isEdge; //exclude iOS chrome (not recommended since its still appleWebKit): && !navigator.userAgent.match('CriOS');
+		UI.isSafari = UI.isIOS || (UI.isMacOs && /Safari/g.test(navigator.userAgent) && !UI.isChrome && !UI.isEdge);  //NOTE: everything on iOS is basically appleWebKit :-/
 		//is Chromium Desktop?
 		UI.isAnyChromium = !!window.chrome;
 		if (UI.isAnyChromium && !(UI.isAndroid || UI.isIOS)){
 			UI.isChromiumDesktop = true;
 		}
 		//is mobile?
-		UI.isMobile = !UI.isChromiumDesktop && (UI.isAndroid || UI.isIOS);
+		UI.isMobile = UI.isAndroid || UI.isIOS;
 		if (UI.isMobile){
 			document.documentElement.className += " sepiaFW-mobile-device";
 		}
@@ -724,7 +730,7 @@ function sepiaFW_build_ui(){
 		//Setup headless mode
 		if (SepiaFW.config.isUiHeadless || SepiaFW.config.autoSetup){
 			SepiaFW.config.loadHeadlessModeSetup();
-			//if client not active or in demo-mode after 8s run setup
+			//if client not active or in demo-mode after 10s run setup
 			setTimeout(function(){
 				if (!SepiaFW.client.isActive() && !SepiaFW.client.isDemoMode()){
 					if (SepiaFW.account.getUserId()){
@@ -741,7 +747,7 @@ function sepiaFW_build_ui(){
 						SepiaFW.debug.log("Client will restart automatically in 2s to activate settings!");
 					}
 				}
-			}, 8000);
+			}, 10000);	//NOTE: login timeout is 8s
 		}
 	}
 
@@ -1074,7 +1080,7 @@ function sepiaFW_build_ui(){
 		var includePastMs = 120*60*60*1000;
 		var nextTimers = SepiaFW.events.getNextTimeEvents(maxTargetTime, '', includePastMs);
 		var myView = document.getElementById('sepiaFW-my-view'); 		//TODO: don't we have a method for this or a permanent variable?
-		//TODO: smart clean-up of old timers - This has to be done before when we get the new list
+		//TODO: smart clean-up of old timers - This has to be done before we get the new list
 		$.each(nextTimers, function(index, Timer){
 			//check if alarm is present in myView 	
 			var timerPresentInMyView = $(myView).find('[data-id="' + Timer.data.eventId + '"]');	//TODO: we don't need this if we clean first

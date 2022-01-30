@@ -22,6 +22,15 @@
     color: #3285ff;
 }
 
+#sepiaFW-alwaysOn-avatar .avatar-ww-indicator {
+    top: 67.1%;
+    width: 6px;
+    height: 6px;
+}
+.wake-word-active #sepiaFW-alwaysOn-avatar .avatar-ww-indicator {
+	background: #b3c8fd;
+}
+
 #sepiaFW-alwaysOn-avatar .avatar-activity {
     top: calc(50% + 3px);
     left: calc(50% - 21px);
@@ -49,6 +58,10 @@
 }
 #sepiaFW-alwaysOn-avatar .avatar-mouth {
     display: none;
+}
+#sepiaFW-alwaysOn-avatar.speaking .avatar-mouth-part-2 {
+	display: none;
+	animation: unset;
 }
 
 /* --- tiny style --- */

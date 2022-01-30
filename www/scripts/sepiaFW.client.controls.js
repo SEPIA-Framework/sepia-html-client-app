@@ -310,8 +310,10 @@ function sepiaFW_build_client_controls(sepiaSessionId){
                     );
                 }
 
-            //NEXT
-            }else if (controlData.action == "next"){
+            //NEXT / PREVIOUS
+            }else if (controlData.action == "next" || controlData.action == "previous"){
+                var isNext = controlData.action == "next";
+
                 //try to find last active player
                 var lastActivePlayer = SepiaFW.audio.getLastActiveAudioSource();
                 var sentEvent = false;
@@ -323,16 +325,21 @@ function sepiaFW_build_client_controls(sepiaSessionId){
                 }else if (lastActivePlayer == "embedded-media-player"){
                     //Embedded media player
                     if (emp && emp.isReady()){
-                        SepiaFW.debug.info("Client controls - Media: triggering 'next' via embedded media player");
+                        SepiaFW.debug.info("Client controls - Media: triggering '" + (isNext? "next" : "previous") + "' via embedded media player");
                         sentEvent = true;
-                        emp.next();
+                        if (isNext){
+                            emp.next();
+                        }else{
+                            emp.previous();
+                        }
                     }
                 
                 }else if (lastActivePlayer == "android-intent" && SepiaFW.ui.isAndroid){
                     //we do this only if we have a recent Android media event - otherwhise it will activate all music apps
-                    SepiaFW.debug.info("Client controls - Media: trying to trigger 'next' via Android media player");
+                    SepiaFW.debug.info("Client controls - Media: trying to trigger '" + (isNext? "next" : "previous") + "' via Android media player");
                     var requireMediaAppPackage = true;
-                    sentEvent = SepiaFW.android.broadcastMediaButtonDownUpIntent(87, requireMediaAppPackage);   //87: KEYCODE_MEDIA_NEXT
+                    var keyCode = isNext? 87 : 88;      //87: KEYCODE_MEDIA_NEXT, 88: KEYCODE_MEDIA_PREVIOUS
+                    sentEvent = SepiaFW.android.broadcastMediaButtonDownUpIntent(keyCode, requireMediaAppPackage);
                 }
                 //TODO: add iOS and Windows?
                 //TODO: we could use a Mesh-Node and the sendMessage API in Windows
@@ -341,7 +348,7 @@ function sepiaFW_build_client_controls(sepiaSessionId){
                     var blockMultiple = true;
                     var source = "controls.media.next";
                     sendFollowUpMessage(
-                        "<default_under_construction_0b>", SepiaFW.local.g('no_client_support') + " Media: NEXT",
+                        "<default_under_construction_0b>", SepiaFW.local.g('no_client_support') + " Media: " + (isNext? "NEXT" : "PREVIOUS"),
                         undefined, undefined, source, blockMultiple
                     );
                     SepiaFW.debug.error("Client controls - Unsupported action in 'media': " + controlData.action);
@@ -495,7 +502,7 @@ function sepiaFW_build_client_controls(sepiaSessionId){
                 }else{
                     SepiaFW.debug.error("Missing 'platformFunction' support for type: " + req.type);
                 }
-            //TODO: iosIntent, windowsIntent, browserIntent (more?)
+            //TODO: iosIntent, windowsIntent (more?)
             }else{
                 SepiaFW.debug.error("Missing 'platformFunction' support or data for: " + req.type);
             }

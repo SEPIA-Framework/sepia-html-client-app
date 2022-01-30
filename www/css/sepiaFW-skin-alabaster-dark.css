@@ -38,6 +38,10 @@ html {
 #sepiaFW-chat-controls {
 	background: linear-gradient(rgba(17, 16, 18, 0), #0c0c0c, #0c0c0c);
 }
+html.landscape-small #sepiaFW-chat-controls {
+    background: rgb(24, 25, 28) !important;
+    color: #eee !important;
+}
 #sepiaFW-main-window button,
 .sepiaFW-touch-device #sepiaFW-main-window button:hover {
 	color: #eee;
@@ -100,6 +104,9 @@ html {
 #sepiaFW-chat-output article.chatAssistant.chatPm {
 	border-left-color: rgb(42, 43, 44);
 }
+#sepiaFW-chat-output article.statusUpdate {
+	color: #eee;
+}
 
 #sepiaFW-main-window .chat-buttons-area button,
 #sepiaFW-main-window .chat-buttons-area .my-view-custom-button,
@@ -111,6 +118,15 @@ html {
 }
 .sepiaFW-notouch-device #sepiaFW-main-window .chat-buttons-area button:hover {
 	background: rgba(46, 51, 53, 0.42);
+}
+
+/*----- details -----*/
+
+#sepiaFW-audio-ctrls-canvas {
+    background: #787878;
+}
+#sepiaFW-chat-controls-more-menu #sepiaFW-more-menu-input-text {
+    background: rgba(120, 120, 120, 0.0);
 }
 
 /*----- cards ------*/

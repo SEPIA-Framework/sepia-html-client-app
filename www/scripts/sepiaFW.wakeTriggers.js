@@ -133,13 +133,20 @@ function sepiaFW_build_wake_triggers() {
 	var rebuildPreviousSepiaWebAudioModule = undefined; 	//will be available after first module creation
 
 	//build SEPIA Web Audio module for Porcupine
-	function buildPorcupineSepiaWebAudioModule(porcupineVersion, wasmFile, keywordsArray, keywordsData, sensitivities){
+	function buildPorcupineSepiaWebAudioModule(porcupineVersion, wasmFile, keywordsArray, keywordsData, sensitivities, accessKey){
 		var preLoad = {};
 		if (wasmFile.match(/.*\.b64$/)){
 			preLoad.wasmBase64 = wasmFile;		//e.g. 'xtensions/picovoice/porcupine-19.b64'
 		}else{
 			preLoad.wasmFile = wasmFile;		//e.g. '<assist_server>/files/wake-words/porcupine/porcupine-14.wasm'
 		}
+		var porcupineLanguage = "";
+		if (porcupineVersion.indexOf("_") > 0){
+			var ppvAndLang = porcupineVersion.split("_");
+			porcupineVersion = ppvAndLang[0];
+			porcupineLanguage = ppvAndLang[1].toLowerCase();
+		}
+		var keywordsRemoteLocation = SepiaFW.config.replacePathTagWithActualPath("<assist_server>/files/wake-words/porcupine/");
 		var porcupineWorker = {
 			name: 'porcupine-wake-word-worker',
 			type: 'worker',
@@ -163,10 +170,13 @@ function sepiaFW_build_wake_triggers() {
 						inputSampleRate: 16000,		//TODO: load from somewhere else
 						inputSampleSize: 512,		//TODO: 	"	  "
 						//bufferSize: 512,			//this has no effect yet (samples will be processed in 'inputSampleSize' chunks)
-						version: porcupineVersion,	//e.g. 14 or 19
-						keywords: keywordsArray, 	//e.g. ["Hey SEPIA"] or ["Computer", "Jarvis", "Picovoice"]
+						version: porcupineVersion,		//e.g. 1.4, 1.5, 1.6, 1.9, 2.0 or 14, 15, ...
+						keywords: keywordsArray, 		//e.g. ["Hey SEPIA"] or ["Computer", "Jarvis", "Picovoice"]
 						keywordsData: keywordsData,
-						sensitivities: sensitivities
+						sensitivities: sensitivities,
+						porcupineLanguage: porcupineLanguage,	//v2.0: "en", "de", "es", "fr"
+						porcupineAccessKey: accessKey,
+						keywordsRemoteLocation: keywordsRemoteLocation	//alternative location for "server: xy" keywords
 					}
 				}
 			}
@@ -176,7 +186,7 @@ function sepiaFW_build_wake_triggers() {
 		logInfo('inputSampleSize: ' + porcupineWorker.settings.options.setup.inputSampleSize);
 		
 		rebuildPreviousSepiaWebAudioModule = function(){
-			return buildPorcupineSepiaWebAudioModule(porcupineVersion, wasmFile, keywordsArray, keywordsData, sensitivities);
+			return buildPorcupineSepiaWebAudioModule(porcupineVersion, wasmFile, keywordsArray, keywordsData, sensitivities, accessKey);
 		}
 		return porcupineWorker;
 	}
@@ -204,6 +214,8 @@ function sepiaFW_build_wake_triggers() {
 				if (porcupineVersionsDownloaded != undefined) WakeTriggers.porcupineVersionsDownloaded = porcupineVersionsDownloaded;
 				var porcupineWasmRemoteUrl = SepiaFW.data.getPermanent('wakeWordRemoteUrl');
 				if (porcupineWasmRemoteUrl) WakeTriggers.porcupineWasmRemoteUrl = porcupineWasmRemoteUrl;
+				var porcupineAccessKey = SepiaFW.data.getPermanent('wakeWordAccessKeyPorcupine');
+				if (porcupineAccessKey) WakeTriggers.porcupineAccessKey = porcupineAccessKey;
 				//load ww and engine
 				if (WakeTriggers.porcupineWakeWords){
 					//version and WASM file
@@ -248,10 +260,10 @@ function sepiaFW_build_wake_triggers() {
 					WakeTriggers.porcupineSensitivities = sanitizeSensitivities(WakeTriggers.porcupineSensitivities, WakeTriggers.porcupineWakeWords.length);
 					//build module
 					WakeTriggers.engineModule = buildPorcupineSepiaWebAudioModule(
-						WakeTriggers.porcupineVersion, wasmFile, WakeTriggers.porcupineWakeWords, keywordsData, WakeTriggers.porcupineSensitivities
+						WakeTriggers.porcupineVersion, wasmFile, WakeTriggers.porcupineWakeWords, keywordsData, WakeTriggers.porcupineSensitivities, WakeTriggers.porcupineAccessKey
 					);
 					//DONE
-					WakeTriggers.engineLoaded = true;
+					WakeTriggers.engineLoaded = true; 	//TODO: This doesn't mean the 'wasmFile' is in cache yet ... the rest can still timeout!
 					SepiaFW.debug.log("WakeTriggers - Picovoice Porcupine engine module setup complete.");
 					SepiaFW.debug.log("WakeTriggers - Set wake words: " + JSON.stringify(WakeTriggers.porcupineWakeWords));
 					SepiaFW.debug.log("WakeTriggers - Wake word sensitivities: [" + WakeTriggers.porcupineSensitivities.toString() + "]");
@@ -320,6 +332,9 @@ function sepiaFW_build_wake_triggers() {
 					//'onProcessorInitError'
 					if (onErrorCallback){
 						onErrorCallback(err);
+					}else{
+						logInfo('INIT-ERROR: ' + (err? (err.message || err.name || err.type) : "unknown"), true);
+						SepiaFW.debug.error("WakeTriggers - onProcessorInitError", err);
 					}
 				}, function(err){
 					//'onProcessorRuntimeError' (with return false/true to stop recorder on error)
@@ -529,6 +544,19 @@ function sepiaFW_build_wake_triggers() {
 			logInfo('ERROR: custom buffer-size not supported yet. Use audio-interface buffer instead.', true);
 			//SepiaFW.data.setPermanent("porcupine-ww-buffer-length", newBufferSize);
 		}
+	}
+
+	WakeTriggers.setWakeWordAccessKey = function(newKey){
+		//Porcupine integration
+		if (newKey === ""){
+			SepiaFW.data.delPermanent('wakeWordAccessKeyPorcupine');
+		}else{
+			SepiaFW.data.setPermanent('wakeWordAccessKeyPorcupine', newKey);
+		}
+	}
+	WakeTriggers.getWakeWordAccessKey = function(){
+		//Porcupine integration
+		return WakeTriggers.porcupineAccessKey;
 	}
 
 	//fill sensitivity array as needed

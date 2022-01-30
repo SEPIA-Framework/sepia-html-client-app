@@ -77,6 +77,9 @@ html {
     min-width: 55px;
     border: 3px solid #191919;
 }
+html.landscape-small #sepiaFW-chat-controls-right {
+	border: 3px solid #191919;
+}
 #sepiaFW-chat-controls {
 	background: linear-gradient(rgba(17, 17, 17, 0), #111111, #111111);
 	border-bottom-color: #111111;

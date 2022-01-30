@@ -5,3 +5,19 @@
 #sepiaFW-alwaysOn-avatar .avatar-mouth {
     top: 61%;
 }
+
+#sepiaFW-alwaysOn-avatar .avatar-ww-indicator {
+    top: 77.2%;
+    left: calc(50% - 3px);
+    width: 6px;
+    height: 6px;
+    border-radius: 0;
+    transform: rotate(45deg);
+}
+#sepiaFW-alwaysOn-avatar .avatar-ww-indicator::after,
+.wake-word-active #sepiaFW-alwaysOn-avatar .avatar-ww-indicator::after {
+    display: none;
+}
+.wake-word-active #sepiaFW-alwaysOn-avatar .avatar-ww-indicator {
+	background: #888;
+}

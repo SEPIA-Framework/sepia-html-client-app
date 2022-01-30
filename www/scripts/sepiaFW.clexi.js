@@ -32,7 +32,9 @@ function sepiaFW_build_clexi(){
         var clexiIdUrlParam = SepiaFW.tools.getURLParameter('clexiId');
         Clexi.socketURI = clexiUrlParam || SepiaFW.data.get('clexiSocketURI') || "";
         Clexi.serverId = clexiIdUrlParam || SepiaFW.data.get('clexiServerId') || "";
+        
         ClexiJS.serverId = Clexi.serverId;
+        ClexiJS.clientBaseId = "SEPIA-" + SepiaFW.config.getDeviceId() + "-";
         
         Clexi.doConnect = doConnect(clexiUrlParam || '', clexiIdUrlParam || '');
         SepiaFW.debug.info("CLEXI support is " + ((Clexi.isSupported && Clexi.doConnect)? "ENABLED" : "DISABLED"));
@@ -116,15 +118,21 @@ function sepiaFW_build_clexi(){
             //welcome-event
             
             //subscribe
-            subscribeToBeaconScanner();                 //TODO: this should be optional
             subscribeToBroadcaster();
             subscribeToHttpEvents();
+            if (Clexi.hasXtension("ble-beacon-scanner")){
+                subscribeToBeaconScanner();
+                //request state
+                Clexi.requestBleBeaconScannerState();       //TODO: repeat from time to time or at least on error?
+            }
             if (Clexi.hasXtension("runtime-commands")){
                 subscribeToRuntimeCommands();
             }
-
-            //request some states
-            Clexi.requestBleBeaconScannerState();       //TODO: repeat from time to time or at least on error?
+            if (Clexi.hasXtension("gpio-interface")){
+                subscribeToGpioInterface();
+                //request registrations
+                Clexi.requestRegisteredGpioObjects();       //TODO: handle refresh
+            }
         });
     }
     Clexi.close = function(){
@@ -247,12 +255,14 @@ function sepiaFW_build_clexi(){
     var expectedBleBeaconScannerState = undefined;
 
     Clexi.startBleBeaconScanner = function(){
+        SepiaFW.debug.log("CLEXI starting BLE Beacon scanner");
         ClexiJS.send('ble-beacon-scanner', {
             ctrl: "start"
         }, Clexi.numOfSendRetries);
         expectedBleBeaconScannerState = "on";
     }
     Clexi.stopBleBeaconScanner = function(){
+        SepiaFW.debug.log("CLEXI stopping BLE Beacon scanner");
         ClexiJS.send('ble-beacon-scanner', {
             ctrl: "stop"
         }, Clexi.numOfSendRetries);
@@ -320,9 +330,9 @@ function sepiaFW_build_clexi(){
     var clexiRuntimeCommandLastIdIndex = 0;
     function getNewClexiRuntimeCmdId(){
         if (!clexiRuntimeCommandBaseId){
-            clexiRuntimeCommandBaseId = "SEPIA-CLIENT-" + Math.abs(sjcl.random.randomWords(1));
+            clexiRuntimeCommandBaseId = "SEPIA-CLIENT-" + Math.abs(sjcl.random.randomWords(1)) + "-RT-" + SepiaFW.config.getDeviceId() + "-";
         }
-        return (clexiRuntimeCommandBaseId + "-" + SepiaFW.config.getDeviceId() + "-" + ++clexiRuntimeCommandLastIdIndex);
+        return (clexiRuntimeCommandBaseId + ++clexiRuntimeCommandLastIdIndex);
     }
 
     Clexi.sendRuntimeCommand = function(cmd, args, maxWait, tryCallback, successCallback, errorCallback){
@@ -434,6 +444,173 @@ function sepiaFW_build_clexi(){
     }
     var runtimeCommandsListenerCallbacks = {};
 
+    //GPIO Interface (e.g. to control hardware LEDs)
+
+    //Register items defined e.g. via settings.js
+    function registerGpioItems(alreadyRegistered){
+        if (SepiaFW.settings && SepiaFW.settings.headless && 
+                SepiaFW.settings.headless.device.clexiGpioInterface){
+            var gpio = SepiaFW.settings.headless.device.clexiGpioInterface;
+            if (gpio.buttons && gpio.buttons.length){
+                if (!alreadyRegistered.buttons) alreadyRegistered.buttons = [];
+                gpio.buttons.forEach(function(button){
+                    if (button.pin != undefined){
+                        var found = alreadyRegistered.buttons.find(function(o){ return (o.pin == button.pin); });
+                        if (found){
+                            SepiaFW.debug.info("CLEXI found GPIO button: " + button.id);
+                        }else{
+                            sendGpioInterfaceRequest("register", "button", button);
+                            SepiaFW.debug.log("CLEXI registered GPIO button: " + button.id);
+                            registeredGpioObjects[button.id] = button; //we assume it worked and can remove later if we get an error
+                        }
+                        //internally supported button IDs:
+                        if (button.id == "hw-mic-button"){
+                            gpioMicButton = button;
+                        }
+                    }
+                });
+            }
+            if (gpio.leds && gpio.leds.length){
+                if (!alreadyRegistered.leds) alreadyRegistered.leds = [];
+                gpio.leds.forEach(function(led){
+                    if (led.pin != undefined){
+                        var found = alreadyRegistered.leds.find(function(o){ return (o.pin == led.pin); });
+                        if (found){
+                            SepiaFW.debug.info("CLEXI found GPIO led: " + led.id);
+                        }else{
+                            sendGpioInterfaceRequest("register", "led", led);
+                            SepiaFW.debug.log("CLEXI registered GPIO led: " + led.id);
+                            registeredGpioObjects[let.id] = led; //we assume it worked and can remove later if we get an error
+                        }
+                        //internally supported LED IDs:
+                        if (led.state && supportedGpioLedStates.indexOf(led.state) >= 0){
+                            if (!gpioStateLeds) gpioStateLeds = {};
+                            gpioStateLeds[led.state] = led;
+                        }
+                    }
+                });
+            }
+            if (gpio.items && gpio.items.length){
+                if (!alreadyRegistered.items) alreadyRegistered.items = [];
+                gpio.items.forEach(function(item){
+                    if (item.file){
+                        var found = alreadyRegistered.items.find(function(o){ return (o.file == item.file); });
+                        if (found){
+                            SepiaFW.debug.info("CLEXI found GPIO item: " + item.id);
+                        }else{
+                            sendGpioInterfaceRequest("register", "item", item);
+                            SepiaFW.debug.log("CLEXI registered GPIO item: " + item.id);
+                            registeredGpioObjects[item.id] = item; //we assume it worked and can remove later if we get an error
+                        }
+                        //internally supported item IDs:
+                        if (item.id == "led-array"){
+                            primaryGpioLedArray = item;
+                        }
+                    }
+                });
+            }
+        }
+    }
+    var registeredGpioObjects = {};
+    var gpioMicButton;
+    var primaryGpioLedArray;
+    var supportedGpioLedStates = ["idle", "listening", "speaking", "awaitDialog", "loading", "wakeWordActive", "wakeWordInactive"];
+    var gpioStateLeds;
+
+    function handleClexiGpioEvent(ev){
+        //Registration info
+        if (ev.type == "getAll"){
+            //register devices
+            registerGpioItems(ev || {});    //NOTE: This will ALWAYS restore registration (on every event)
+        }
+        //Mic button
+        if (gpioMicButton && ev.id && ev.pin != null && ev.id == gpioMicButton.id){
+            if (ev.value == 1){
+                SepiaFW.inputControls.handleClexiHardwareButton("mic");
+            }
+        }
+        //TODO: handle 'release' events
+    }
+
+    //get array of already registered GPIO objects
+    Clexi.requestRegisteredGpioObjects = function(){
+        sendGpioInterfaceRequest("get", "all", {});
+    }
+
+    function sendGpioInterfaceRequest(action, type, config){
+        var msgId = ClexiJS.send('gpio-interface', {
+            action: action,
+            type: type,
+            config: config
+        });
+        return msgId;
+    }
+    function clientStateHandlerForGpio(ev){
+        if (ev && ev.detail && ev.type){
+            var state = ev.detail.state;
+            if (ev.type = "sepia_wake_word"){
+                if (state == "active"){
+                    state = "wakeWordActive";
+                }else if (state == "inactive"){
+                    state = "wakeWordInactive";
+                }
+            }
+            //console.log('state event: ' + state);       //DEBUG
+            //Items - LED array (only supported "state" item so far)
+            if (primaryGpioLedArray && primaryGpioLedArray.modes){
+                var modeAction = primaryGpioLedArray.modes[state];
+                if (modeAction && modeAction.length){
+                    modeAction.forEach(function(data){
+                        //console.error("modeAction - id: " + primaryGpioLedArray.id + " - data:", data);        //DEBUG
+                        sendGpioInterfaceRequest("set", "item", {
+                            id: primaryGpioLedArray.id,
+                            file: primaryGpioLedArray.file,
+                            data: data
+                        });
+                    });
+                }
+            }
+            //LEDs
+            if (gpioStateLeds){
+                //we activate one and switch all other LEDs off
+                Object.keys(gpioStateLeds).forEach(function(stateLabel){
+                    var led = gpioStateLeds[stateLabel];
+                    if (stateLabel == state){
+                        sendGpioInterfaceRequest("set", "led", {id: led.id, pin: led.pin, value: 1});
+                    }else{
+                        sendGpioInterfaceRequest("set", "led", {id: led.id, pin: led.pin, value: 0});
+                    }
+                });
+            }
+        }
+    }
+    document.addEventListener("sepia_state_change", clientStateHandlerForGpio);
+    document.addEventListener("sepia_wake_word", clientStateHandlerForGpio);
+
+    function subscribeToGpioInterface(){
+        ClexiJS.subscribeTo('gpio-interface', function(e){
+            //console.log('GpioInterface event: ' + JSON.stringify(e));       //DEBUG
+            var event = new CustomEvent('gpio-interface-event', {detail: e});
+            document.dispatchEvent(event);
+            if (e && e.gpio){
+                handleClexiGpioEvent(e.gpio);
+            }
+        }, function(e, msgId){
+            //returns: 'sent' if request arrived at CLEXI and was executed (does not mean success!)
+            if (e != "sent"){
+                SepiaFW.debug.error('GpioInterface response:', e);     //DEBUG
+            }
+        }, function(e){
+            SepiaFW.debug.error('GpioInterface error:', e);     //DEBUG
+            var event = new CustomEvent('gpio-interface-error', {detail: e});
+            document.dispatchEvent(event);
+            //TODO: clean up faulty items?
+        });
+    }
+    function removeGpioInterfaceSubscription(){
+        ClexiJS.removeSubscription('gpio-interface');
+    }
+
     //CLEXI all subscriptions
 
     function removeAllSubscriptions(){
@@ -441,6 +618,7 @@ function sepiaFW_build_clexi(){
         removeBroadcasterSubscription();
         removeHttpEventsSubscription();
         removeRuntimeCommandsSubscription();
+        removeGpioInterfaceSubscription();
     }
 
     return Clexi;

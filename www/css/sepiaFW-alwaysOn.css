@@ -22,6 +22,7 @@
 	position: relative;
 	overflow: hidden;
 }
+/* check 'sepiaFW-ao-mode' in frames CSS for landscape adjustment */
 .sepiaFW-alwaysOn-page {
 	padding: 0px !important;
 }
@@ -106,6 +107,9 @@
 	border-radius: 50%;
 	background: #000;
 }
+.wake-word-active #sepiaFW-alwaysOn-avatar .avatar-eye::after {
+	animation: avatar-eye-flash 2.0s 1;
+}
 #sepiaFW-alwaysOn-avatar .avatar-eye.left {
 	left: 10%;
 }
@@ -160,7 +164,7 @@
 	border: 2px solid;
 	border-radius: 35%;
 	border-color: transparent transparent #bbb transparent;
-	transition: border-radius 2s;
+	transition: border-radius 2s, top 0.5s;
 }
 #sepiaFW-alwaysOn-avatar .avatar-mouth.sleep {
 	border-radius: 20%;
@@ -168,8 +172,47 @@
 #sepiaFW-alwaysOn-avatar .avatar-mouth.sad {
 	border-radius: 0%;
 }
-#sepiaFW-alwaysOn-avatar .avatar-mouth.speaking {
+/* #sepiaFW-alwaysOn-avatar .avatar-mouth.speaking {
 	animation: avatar-flicker 1.5s infinite;
+	top: 44%;
+} */
+#sepiaFW-alwaysOn-avatar .avatar-mouth-part-2 {
+	position: absolute;
+    background: transparent;
+    width: 8%;
+    height: 10%;
+    top: 46%;
+	left: 46%;
+	border: 2px solid;
+	border-radius: 35%;
+	border-color: transparent transparent #bbb transparent;
+	transition: border-radius 2s;
+	display: none;
+}
+/* alternative mouth-part-2:
+    top: 49.5%;
+    width: 24%;
+    left: 38%;
+    border-radius: 42%;
+	border-color: #bbb transparent transparent transparent;
+*/
+#sepiaFW-alwaysOn-avatar.speaking .avatar-mouth-part-2 {
+	display: flex;
+	animation: avatar-mouth-oszi 0.5s infinite;
+}
+
+#sepiaFW-alwaysOn-avatar .avatar-ww-indicator {
+	position: absolute;
+    top: 27%;
+    left: calc(50% - 3px);
+    width: 6px;
+    height: 6px;
+	border-radius: 50%;
+	transition: background-color 1s;
+	background: transparent;
+}
+.wake-word-active #sepiaFW-alwaysOn-avatar .avatar-ww-indicator {
+	background: #333;
 }
 
 #sepiaFW-alwaysOn-avatar .avatar-activity {
@@ -235,10 +278,20 @@
 	50% {	  top: 48%;	}
 	50.25% {  top: 23%;	}
 }
+@keyframes avatar-mouth-oszi {
+	0%   { transform: translate(0, 0%); }
+	50%  { transform: translate(0, 11%); }
+	100% { transform: translate(0, 0%); }
+}
 @keyframes avatar-flicker {
-	0%   { opacity:1; }
-	50%  { opacity:0.33; }
-	100% { opacity:1; }
+	0%   { opacity: 1; }
+	50%  { opacity: 0.33; }
+	100% { opacity: 1; }
+}
+@keyframes avatar-eye-flash {
+    from { border-color: #eee; }
+	50%  { border-color: #444; }
+    to { border-color: #eee; } 
 }
 @keyframes avatar-look-around {
 	0% {  	transform: translate3d(0, 0, 0);			}

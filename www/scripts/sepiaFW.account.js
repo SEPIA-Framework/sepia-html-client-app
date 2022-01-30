@@ -7,10 +7,13 @@ function sepiaFW_build_account(sepiaSessionId){
 	var userTokenValidUntil = 0;
 	var userName = "Boss";
 	var language = SepiaFW.config.appLanguage;
+	//TODO: add 'regionCode'?
 	var clientFirstVisit = true;
 
 	var userRoles = undefined;
 	var userPreferredTempUnit = undefined;
+
+	var sharedAccessPermissions = undefined;
 	
 	var pwdIsToken = false;
 	var defaultIdPrefix = "uid";
@@ -49,7 +52,9 @@ function sepiaFW_build_account(sepiaSessionId){
 	Account.BIRTH = "birth";
 	Account.GENDER = "gender";
 	Account.APP_SETTINGS = "app_settings";
-	Account.UNIT_PREF_TEMP = "unit_pref_temp";		
+	Account.UNIT_PREF_TEMP = "unit_pref_temp";
+
+	Account.SHARED_ACCESS_PERMISSIONS = "shared_access";
 	
 	Account.LISTS = "lists";
 	Account.ADDRESSES = "addresses";
@@ -75,6 +80,9 @@ function sepiaFW_build_account(sepiaSessionId){
 		if (userPreferredTempUnit){
 			//set selector
 			$('#sepiaFW-menu-account-preftempunit-dropdown').val(userPreferredTempUnit);
+		}
+		if (sharedAccessPermissions){
+			//NOTE: 'set input fields' moved to shared-access settings view
 		}
 	}
 	
@@ -286,6 +294,17 @@ function sepiaFW_build_account(sepiaSessionId){
 		SepiaFW.data.updateAccount('userPreferredTempUnit', userPreferredTempUnit);
 		SepiaFW.debug.log('Account: set userPreferredTempUnit=' + userPreferredTempUnit);
 	}
+
+	//get shared access permission
+	Account.getSharedAccessPermissions = function(){
+		return sharedAccessPermissions;
+	}
+	Account.setSharedAccessPermissions = function(newValue){
+		//TODO: update or replace?
+		sharedAccessPermissions = newValue;
+		SepiaFW.data.updateAccount('sharedAccessPermissions', sharedAccessPermissions);
+		SepiaFW.debug.log('Account: set sharedAccessPermissions=' + JSON.stringify(sharedAccessPermissions));
+	}
 	
 	//load data from account
 	//TODO: test and errorCallback
@@ -322,7 +341,7 @@ function sepiaFW_build_account(sepiaSessionId){
 		});
 	}
 	//delete data from account
-	//TODO: test and errorCallback
+	//TODO: test and errorCallback (in many cases this behaves different than expected because it cannot delete objects ... I think)
 	Account.deleteAccountData = function(fieldArray, successCallback, errorCallback){
 		deleteAccountData("", fieldArray, function(data){
 			SepiaFW.debug.log('Account - successfully deleted account data.');
@@ -623,6 +642,7 @@ function sepiaFW_build_account(sepiaSessionId){
 			//secondary
 			userRoles = account.userRoles;
 			userPreferredTempUnit = account.userPreferredTempUnit;
+			sharedAccessPermissions = account.sharedAccessPermissions;
 
 			SepiaFW.debug.log('Account: login restored');
 			
@@ -852,6 +872,10 @@ function sepiaFW_build_account(sepiaSessionId){
 		if (data['unit_pref_temp']){
 			userPreferredTempUnit = data['unit_pref_temp'];
 		}
+		//get shared access permissions
+		if (data['shared_access']){
+			sharedAccessPermissions = data['shared_access'];
+		}
 		
 		//store data
 		var account = new Object();
@@ -866,6 +890,7 @@ function sepiaFW_build_account(sepiaSessionId){
 		//secondary infos (not necessarily in login-data)
 		account.userRoles = userRoles;
 		account.userPreferredTempUnit = userPreferredTempUnit;
+		account.sharedAccessPermissions = sharedAccessPermissions;
 
 		//write
 		SepiaFW.data.set('account', account);
@@ -1096,7 +1121,7 @@ function sepiaFW_build_account(sepiaSessionId){
 		};
 		$.ajax({
 			url: api_url,
-			timeout: 5000,
+			timeout: 8000,
 			type: "POST",
 			data: JSON.stringify(dataBody),
 			headers: {
@@ -1187,7 +1212,7 @@ function sepiaFW_build_account(sepiaSessionId){
 		dataBody.client = SepiaFW.config.getClientDeviceInfo(); //SepiaFW.config.clientInfo;
 		$.ajax({
 			url: apiUrl,
-			timeout: 5000,
+			timeout: 8000,
 			type: "POST",
 			data: JSON.stringify(dataBody),
 			headers: {
@@ -1287,6 +1312,7 @@ function sepiaFW_build_account(sepiaSessionId){
 		}else if (userId && userToken){
 			data.KEY = getKey();
 		}else{
+			SepiaFW.ui.hideLoader();
 			if (errorCallback) errorCallback("Data transfer failed! Not authorized or missing 'KEY'");
 			return;
 		}

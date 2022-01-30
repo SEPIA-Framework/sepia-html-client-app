@@ -5,6 +5,7 @@ html {
 }
 #sepiaFW-main-window {
 	border: 0;
+	border-radius: 0;
 	box-shadow: inset 0px 0px 6px 1px #15abc3;
 }
 @media (min-width: 480px) and (min-height: 481px) {
@@ -73,8 +74,7 @@ html.landscape-small #sepiaFW-chat-controls-right {
 	color: #fff;
 }
 
-#sepiaFW-main-window button,
-.sepiaFW-touch-device #sepiaFW-main-window button:hover {
+#sepiaFW-main-window button {
 	background: transparent;
 	color: #15abc3;
 }
@@ -309,6 +309,18 @@ html.landscape-small #sepiaFW-chat-controls-right {
     color: #093b4d;
 }
 
+/*----- Popup -----*/
+
+.dark-skin .sepiaFW-popup-cover-layer {
+    background: rgba(32, 32, 37, 0.94);
+}
+#sepiaFW-popup-message  {
+	background: rgba(16, 32, 48, 0.80);
+    border: 1px solid #15abc3;
+    box-shadow: 0 0 5px #15abc3;
+    color: #fff;
+}
+
 /*----- cards ------*/
 
 .sepiaFW-cards-flexSize-container {
@@ -390,6 +402,18 @@ html.landscape-small #sepiaFW-chat-controls-right {
 }
 .dark-skin .sepiaFW-cards-flexSize-container .cardBodyItem.fullWidthItem .cardItemOverlay {
 	background: rgba(20, 163, 187, 1.0);
+}
+
+/*----- channels -----*/
+
+#sepiaFW-chat-channel-controls button {
+	color: #eee;
+}
+
+/* ---- Details ---- */
+
+.sepiaFW-audio-soundbar {
+    background: #fff;
 }
 
 /*----- Frames ----- */

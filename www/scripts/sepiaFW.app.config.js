@@ -81,6 +81,12 @@ function sepiaFW_build_config(){
 	Config.appLanguage = lang; 
 	SepiaFW.debug.log('Config: language=' + Config.appLanguage);
 
+	//region (Note: account settings will overwrite URL param)
+	var regionCode = SepiaFW.tools.getURLParameter("rc") || SepiaFW.data.get('app-regionCode') || navigator.language || navigator.userLanguage || "";
+	if (!regionCode || regionCode.indexOf("-") < 0 || regionCode.indexOf(Config.appLanguage + "-") < 0) regionCode = "";
+	Config.appRegionCode = regionCode; 
+	SepiaFW.debug.log('Config: regionCode=' + (Config.appRegionCode || "default"));
+
 	//Hard-coded URLs
 	Config.sepiaWebsite = "https://sepia-framework.github.io/";
 	
@@ -193,12 +199,13 @@ function sepiaFW_build_config(){
 	}
 	//add everything here that needs to be refreshed after language change
 	Config.broadcastLanguage = function(language){
+		//NOTE: consider regionCode change as well if you change language
 		//app
 		Config.appLanguage = language; 		//TODO: interface reload to set texts?
 		//speech
-		if (SepiaFW.speech)		SepiaFW.speech.setLanguage(language);
+		if (SepiaFW.speech)	SepiaFW.speech.setLanguage(language);
 		//geocoder
-		if (SepiaFW.geocoder) 	SepiaFW.geocoder.setLanguage(language);
+		if (SepiaFW.geocoder) SepiaFW.geocoder.setLanguage(language);
 		//menue
 		$('#sepiaFW-menu-account-language-li').find('select').val(language);
 		//URL
@@ -210,6 +217,29 @@ function sepiaFW_build_config(){
 		SepiaFW.data.updateAccount('language', language);
 		SepiaFW.data.set('app-language', language);
 		SepiaFW.debug.log('Config: broadcasted language=' + language);
+	}
+	//add everything here that needs to be refreshed after language-region change
+	Config.broadcastRegionCode = function(regionCode){
+		//app
+		Config.appRegionCode = regionCode;
+		//speech
+		if (SepiaFW.speech)	SepiaFW.speech.setCountryCode(regionCode);
+		//menue
+		$('#sepiaFW-menu-account-region-li').find('select').val(regionCode);
+		//URL
+		if (window.history && window.history.replaceState && SepiaFW.tools.getURLParameter("rc")){
+			var url;
+			if (regionCode){
+				url = SepiaFW.tools.setParameterInURL(window.location.href, "rc", regionCode);
+			}else{
+				url = SepiaFW.tools.removeParameterFromURL(window.location.href, "rc");
+			}
+			window.history.replaceState(history.state, document.title, url);
+		}
+		//log and save
+		//SepiaFW.data.updateAccount('regionCode', regionCode);		//TODO: add?
+		SepiaFW.data.set('app-regionCode', regionCode);
+		SepiaFW.debug.log('Config: broadcasted regionCode=' + (regionCode || "default"));
 	}
 	//broadcast-event when userName (really the name not the id) is changed
 	Config.broadcastUserName = function(userName){

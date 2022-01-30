@@ -8,27 +8,42 @@
 	<meta name="viewport" id="sepia-viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=0">
 	<script>
 		function sepiaFW_scale_viewport(refSize){
-			if (!refSize) refSize = 240;
+			var isTiny = (window.SepiaFW == undefined)? (window.location.href.indexOf('isTiny=true') > 0) : SepiaFW.ui.isTinyApp;
+			if (!refSize) refSize = isTiny? 240 : 320;
+			var mvp = document.getElementById('sepia-viewport');
 			if (window.screen.width < refSize && window.matchMedia("(orientation: portrait)").matches){
-				var mvp = document.getElementById('sepia-viewport');
 				//mvp.setAttribute('content','initial-scale=' + screen.width/340);
 				mvp.setAttribute('content','width=' + refSize + ', initial-scale=' + window.screen.width/refSize + ', user-scalable=0');
+			}else{
+				mvp.setAttribute('content','width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=0');
 			}
 		}
-		if (window.location.href.indexOf('isTiny=true') > 0){
-			sepiaFW_scale_viewport(240);
-		}else{
-			sepiaFW_scale_viewport(320);
-		}
 		function sepiaFW_landscape_check(){
+			var isTiny = (window.SepiaFW == undefined)? (window.location.href.indexOf('isTiny=true') > 0) : SepiaFW.ui.isTinyApp;
 			//(max-height: 480px) and (min-aspect-ratio: 13 / 10) and (min-width: 380px)
-			if (window.innerHeight <= 480 && window.innerWidth >= 380 && (window.innerWidth/window.innerHeight > 13/10)){
+			if (!isTiny && window.innerHeight <= 480 && window.innerWidth >= 380 && (window.innerWidth/window.innerHeight > 13/10)){
 				document.documentElement.classList.add("landscape-small");
 			}else{
 				document.documentElement.classList.remove("landscape-small");
 			}
 		}
+		function sepiaFW_border_check(){
+			//frame for larger screens (non-mobile) - (min-width: 480px) and (min-height: 481px)
+			if (window.innerWidth >= 480 && window.innerHeight > 480){
+				document.documentElement.classList.add("framed-view");
+			}else{
+				document.documentElement.classList.remove("framed-view");
+			}
+			//edge-2-edge - (max-width: 768px), (max-height: 768px)
+			if (window.innerWidth <= 768 || window.innerHeight <= 768){
+				document.documentElement.classList.add("edge-2-edge");
+			}else{
+				document.documentElement.classList.remove("edge-2-edge");
+			}
+		}
+		sepiaFW_scale_viewport();
 		sepiaFW_landscape_check();
+		sepiaFW_border_check();
 	</script>
 	<title>S.E.P.I.A.</title>
 	<meta name="application-name" content="S.E.P.I.A."/>
@@ -171,6 +186,7 @@
 					<button id='sepiaFW-audio-ctrls-volup'><i class="material-icons md-24">&#xE050;</i></button>
 					<button id='sepiaFW-audio-ctrls-start'><i class="material-icons md-24">&#xE037;</i></button>
 					<button id='sepiaFW-audio-ctrls-stop'><i class="material-icons md-24">&#xE034;</i></button>
+					<button id='sepiaFW-audio-ctrls-broadcast'><i class="material-icons md-24">settings_remote</i></button>
 				</div>
 			</div>
 			<div id="sepiaFW-more-menu-shortcuts">
@@ -192,6 +208,10 @@
 				<li id='sepiaFW-alwaysOn-btn'>Always On&nbsp;<i class="material-icons md-txt">mobile_friendly</i></li>
 				<!--<li id='sepiaFW-back-btn'><script>SepiaFW.local.w('back')</script>&nbsp;<i class="material-icons md-txt">&#xE408;</i></li>-->
 			</div>
+			<div id="sepiaFW-more-menu-input"><!-- only for landscape mode -->
+				<input id="sepiaFW-more-menu-input-text" aria-label="Message" autocomplete="off">
+				<button id="sepiaFW-more-menu-input-send" class="sButton"><i class="material-icons md-btn">send</i></button>
+			</div>
 		</div>
 		<!-- Nav-Bar -->
 		<div id="sepiaFW-nav-bar">
@@ -199,7 +219,7 @@
 			<button id="sepiaFW-nav-menu-go-left">•</button>
 			<div id="sepiaFW-nav-label-box">
 				<div id="sepiaFW-nav-label">S.E.P.I.A.</div><span id='sepiaFW-nav-label-note' style='display:none;'>...</span>
-				<div id="sepiaFW-nav-label-online-status" class="offline">offline</div>
+				<div id="sepiaFW-nav-label-online-status" class="offline sepiaFW-ww-indicator">offline</div>
 			</div>
 			<button id="sepiaFW-nav-menu-go-right">•</button>
 			<button id="sepiaFW-nav-users-btn"><i class="material-icons md-btn2">&#xE8CD;</i></button>
@@ -327,6 +347,7 @@
 			"Uplink":				{id: 14, css: "css/sepiaFW-skin-uplink.css", 			avatar: "1"},
 			"Tasty":				{id: 15, css: "css/sepiaFW-skin-pizza.css", 			avatar: "1"},
 			"The Grid":				{id: 16, css: "css/sepiaFW-skin-grid.css", 				avatar: "10"},
+			"The Vectors":				{id: 39, css: "css/sepiaFW-skin-vectors.css", avatar: "6", base: 16},
 			"Canny": 				{id: 17, css: "css/sepiaFW-skin-canny.css", 			avatar: "1"},
 			"Essential": 			{id: 18, css: "css/sepiaFW-skin-minimal.css", 			avatar: "1"},
 			"Essential Green": 			{id: 35, css: "css/sepiaFW-skin-minimal-green.css", 	avatar: "1", base: 18},
@@ -344,10 +365,11 @@
 			//"Future Reloaded": 	{id: 29, css: "css/sepiaFW-skin-future-reloaded.css", avatar: "3"},
 			"Flaming Squirrel":			{id: 30, css: "css/sepiaFW-skin-flaming-squirrel.css", 		avatar: "4"},
 			"Flaming Dark Squirrel":	{id: 31, css: "css/sepiaFW-skin-flaming-squirrel-dark.css", avatar: "4", base: 30},
+			"Funky Sunrise":		{id: 38, css: "css/sepiaFW-skin-funky-sunrise.css", avatar: "6", base: 30},
 			"Alabaster Mystical":	{id: 32, css: "css/sepiaFW-skin-alabaster-mystical.css",	avatar: "5"},
 			"Alabaster Motley":		{id: 33, css: "css/sepiaFW-skin-alabaster-motley.css",		avatar: "5", base: 32},
 			"Alabaster Dark":		{id: 34, css: "css/sepiaFW-skin-alabaster-dark.css",		avatar: "5", base: 32}
-			//next: 38
+			//next: 40
 		}
 		var avatars = {
 			"Classic": 				{id:  1, css: "css/sepiaFW-avatar-classic.css"},
@@ -426,7 +448,7 @@
 }</script>
 
 <!-- SEPIA -->
-<script src="scripts/clexi-0.8.2.js"></script>
+<script src="scripts/clexi-0.9.0.js"></script>
 <script src="scripts/sepiaFW.ui.js"></script>
 <script src="scripts/sepiaFW.ui.build.js"></script>
 <script src="scripts/sepiaFW.ui.animate.js"></script>
@@ -445,7 +467,7 @@
 <script src="scripts/sepiaFW.assistant.js"></script>
 <script src="scripts/sepiaFW.geocoder.js"></script>
 <script>if (!SepiaFW.config.uiIsIE11){
-	document.write('<script src="scripts/sepiaFW.webAudio.js?v=0.9.7"><\/script>');
+	document.write('<script src="scripts/sepiaFW.webAudio.js?v=0.9.10"><\/script>');
 }</script>
 <script src="scripts/sepiaFW.audio.js"></script>
 <script src="scripts/sepiaFW.audio.effects.js"></script>

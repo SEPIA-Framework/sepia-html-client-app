@@ -431,6 +431,11 @@ function sepiaFW_build_audio(){
 		});
 		audioVol = document.getElementById('sepiaFW-audio-ctrls-vol');
 		if (audioVol) audioVol.textContent = Math.round(player.volume*10.0);
+		
+		//player remote
+		$("#sepiaFW-audio-ctrls-broadcast").off().on("click", function(){
+			AudioPlayer.openRemoteControl();
+		});
 
 		if (readyCallback) readyCallback();
 	}
@@ -598,10 +603,14 @@ function sepiaFW_build_audio(){
 	TTS.speak = function(message, onStartCallback, onEndCallback, onErrorCallback, options){
 		//NOTE: For the state-ful version of 'speak' (with settings and events) use: 'SepiaFW.speech.speak'
 		//gets URL and calls play(URL)
+		SepiaFW.debug.info("TTS audio requested: " + Date.now());
 		SepiaFW.speech.getTtsStreamURL(message, function(audioUrl){
 			SepiaFW.debug.info("TTS audio url: " + audioUrl);
 			AudioPlayer.playURL(audioUrl, speaker, onStartCallback, onEndCallback, onErrorCallback);
-		}, onErrorCallback, options);
+		}, function(err){
+			SepiaFW.ui.showInfo(SepiaFW.local.g('ttsAudioFailedToCreate'));
+			if (onErrorCallback) onErrorCallback(err);
+		}, options);
 	}
 	TTS.stop = function(){
 		AudioPlayer.stop(speaker);
@@ -897,10 +906,19 @@ function sepiaFW_build_audio(){
 		audioPlayer.preload = 'auto';
 		AudioPlayer.broadcastAudioEvent(sourceName, "prepare", audioPlayer);
 
+		var audioRequestedTime = Date.now();
+		var audioFirstLoadTime = 0;
+		var audioCanPlayTime = 0;
+		SepiaFW.debug.info("AUDIO: pre-loading - " + audioRequestedTime);		//debug
 		//console.log("Audio-URL: " + audioURL); 		//DEBUG
 		audioPlayer.src = audioURL;
+		audioPlayer.onloadedmetadata = function(e){
+			SepiaFW.debug.info("AUDIO: meta data received (onloadedmetadata event)");		//debug
+			audioFirstLoadTime = Date.now();
+		};
 		audioPlayer.oncanplay = function(){
 			SepiaFW.debug.info("AUDIO: can be played now (oncanplay event)");		//debug
+			audioCanPlayTime = Date.now();
 			if (audioPlayer == player){
 				Stream.isPlaying = true;
 				Stream.isLoading = false;
@@ -920,7 +938,11 @@ function sepiaFW_build_audio(){
 		};
 		audioPlayer.onpause = function(){
 			if (!audioOnEndFired){
-				SepiaFW.debug.info("AUDIO: ended (onpause event)");				//debug
+				SepiaFW.debug.info("AUDIO: ended (onpause event)" 	//debug
+					+ " - First load: " + (audioFirstLoadTime - audioRequestedTime)
+					+ " - Time to play: " + (audioCanPlayTime - audioRequestedTime)
+					+ " - Playtime: " + (Date.now() - audioCanPlayTime)
+				);				
 				audioOnEndFired = true;
 				if (audioPlayer == player){
 					Stream.isPlaying = false;
@@ -1135,6 +1157,54 @@ function sepiaFW_build_audio(){
 				Alarm.lastActive = 0;
 			}
 		}
+	}
+
+	//Remote control
+	AudioPlayer.openRemoteControl = function(){
+		var remotePlayer = document.createElement("div");
+		var header = document.createElement("p");
+		header.textContent = "Remote Media Player";
+		var previousBtn = document.createElement("button");
+		previousBtn.innerHTML = '<i class="material-icons md-24">skip_previous</i>';
+		var pauseBtn = document.createElement("button");
+		pauseBtn.innerHTML = '<i class="material-icons md-24">pause</i>';
+		var playBtn = document.createElement("button");
+		playBtn.innerHTML = '<i class="material-icons md-24">play_arrow</i>';
+		var nextBtn = document.createElement("button");
+		nextBtn.innerHTML = '<i class="material-icons md-24">skip_next</i>';
+		$(previousBtn).on("click", function(){
+			sendRemotePlayerAction({type: "control", controlAction: "previous"});
+		});
+		$(pauseBtn).on("click", function(){
+			sendRemotePlayerAction({type: "control", controlAction: "pause"});
+		});
+		$(playBtn).on("click", function(){
+			sendRemotePlayerAction({type: "control", controlAction: "resume"});
+		});
+		$(nextBtn).on("click", function(){
+			sendRemotePlayerAction({type: "control", controlAction: "next"});
+		});
+		remotePlayer.appendChild(header);
+		remotePlayer.appendChild(previousBtn);
+		remotePlayer.appendChild(pauseBtn);
+		remotePlayer.appendChild(playBtn);
+		remotePlayer.appendChild(nextBtn);
+		SepiaFW.ui.showPopup(remotePlayer, {buttonOneName: SepiaFW.local.g("abort"), buttonOneAction: function(){}});
+	}
+	function sendRemotePlayerAction(action){
+		var includeSharedFor = [{dataType: "remoteActions", action: "media", actionType: action.type}];
+		SepiaFW.client.showConnectedUserClientsAsMenu(SepiaFW.local.g('choose_device_for_action'), 
+			function(deviceInfo){
+				var sharedReceiver = deviceInfo.isShared? deviceInfo.id : undefined;
+				SepiaFW.client.sendRemoteActionToOwnDeviceOrShared("media", action, 
+					deviceInfo.deviceId, sharedReceiver, undefined, function(err){
+						SepiaFW.debug.error("Failed to send remote action.", err);
+						SepiaFW.ui.showPopup("Failed to send remote action." + (err? (" Error: " + err) : ""));
+					});
+			}, true, includeSharedFor, {
+				skipOwnDevice: true
+			}
+		);
 	}
 	
 	AudioPlayer.tts = TTS;

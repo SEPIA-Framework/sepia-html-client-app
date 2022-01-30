@@ -124,6 +124,7 @@ html {
 }
 .sepiaFW-menu input {
 	background: transparent !important;
+	color: inherit;
 }
 #sepiaFW-chat-channel-view {
 	border-bottom: 1px solid #2d3034;

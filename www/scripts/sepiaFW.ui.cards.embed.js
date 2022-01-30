@@ -4,8 +4,8 @@ function sepiaFW_build_ui_cards_embed(){
 	
 	//MediaPlayer
 	/* TODO:
-	- Fix link share feature
-	- Add play-on feature
+	- Test link share feature
+	- Test play-on feature
 	- Test controls: start, pause/stop, resume, next, previous, vol...
 	- Implement async. callback with msgId and timeout (doneCallback, errorCallback)?
 	- Improve use of SepiaFW.audio.setPlayerTitle('', '') + setMediaSessionState (SepiaFW.audio)?
@@ -329,6 +329,8 @@ function sepiaFW_build_ui_cards_embed(){
 		function propertiesHandler(props){
 			if (props.size && props.size.height){
 				thisPlayer.iframe.style.height = props.size.height;
+				var $scrollBody = $(thisPlayer.iframe).closest(SepiaFW.ui.JQ_RES_VIEW_IDS);
+				SepiaFW.ui.scrollToElement(thisPlayer.iframe, $scrollBody[0], 300);
 			}
 			if (props.volume != undefined){
 				currentVolume = props.volume;

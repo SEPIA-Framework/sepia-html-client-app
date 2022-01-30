@@ -268,6 +268,14 @@ function sepiaFW_build_input_controls_cmdl() {
         }
     }
 
+    Cmdl.set.microphone = function(ev){
+        if (ev.gain){
+            SepiaFW.audioRecorder.setMicrophoneOption("gain", ev.gain, "processor");
+            broadcastEvent("sepia-info-event", { type: "audio", info: { microphoneGain: ev.gain }});
+        }
+        //TODO: we could check other valid options via 'AudioRecorder.getWebAudioRecorderOptions'
+    }
+
     //---------- GET ------------
 
     Cmdl.get = {};
@@ -299,6 +307,12 @@ function sepiaFW_build_input_controls_cmdl() {
         }, function(err){
             broadcastEvent("sepia-info-event", { type: "audio", error: { message: err.message, name: err.name }});
         });
+    }
+
+    Cmdl.get.microphone = function(){
+        broadcastEvent("sepia-info-event", { type: "audio", info: { 
+            recorderOptions: SepiaFW.audioRecorder.getWebAudioRecorderOptions()
+        }});
     }
 
     //---------- CALL ------------
@@ -374,6 +388,20 @@ function sepiaFW_build_input_controls_cmdl() {
             next: "sending test message now ..."
         });
         SepiaFW.client.sendInputText("test");
+    }
+
+    Cmdl.functions.mictest = function(ev){
+        var play = ev.play;
+        var state = {};
+        var wavHandler = (play && play == "recording")? "player" : undefined;
+        SepiaFW.audioRecorder.testMicrophone(state, 8000, function(res){
+            //broadcast result
+            broadcastEvent("mictest-result", res);
+        }, wavHandler, undefined, undefined, function(logMsg){
+            broadcastEvent("mictest-log", {message: logMsg});
+        }, function(errName, errMsg){
+            broadcastEvent("mictest-error", {name: errName, message: errMsg});
+        });
     }
 
     return Cmdl;

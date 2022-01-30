@@ -19,20 +19,11 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 		var ele = document.createElement("SELECT");
 		if (btnId) ele.id = btnId;
 		optionsObjectArray.forEach(function(option){
-			var opt = document.createElement("OPTION");
-			opt.value = option.value;
-			opt.textContent = option.name;
-			if (option.disabled != undefined) opt.disabled = option.disabled;
+			var opt = buildOptionEle(option);
 			ele.appendChild(opt);
 		});
-		
 		//initialize selected value
-		for(var i, j = 0; i = ele.options[j]; j++) {
-			if(i.value == selectedValue) {
-				ele.selectedIndex = j;
-				break;
-			}
-		}
+		if (selectedValue != undefined) ele.value = selectedValue;
 
 		//change listener
 		$(ele).off().on('change', function(){
@@ -40,16 +31,49 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 		});
 		return ele;
 	}
+	function buildOptionEle(option){
+		var opt = document.createElement("OPTION");
+		opt.value = option.value;
+		opt.textContent = option.name;
+		if (option.disabled != undefined) opt.disabled = option.disabled;
+		return opt;
+	}
 	//build reuseable language selector
-	Build.languageSelector = function(btnId, languageChangeAction){
+	Build.languageSelector = function(btnId, changeAction){
 		return Build.optionSelector(btnId, 
 			SepiaFW.local.getSupportedAppLanguages(), 
 			SepiaFW.config.appLanguage, 
 			function(ele){
 				SepiaFW.config.broadcastLanguage(ele.value);
-				languageChangeAction(ele.value);
+				if (SepiaFW.config.appRegionCode && SepiaFW.config.appRegionCode.indexOf(ele.value + "-") != 0){
+					//reset region
+					SepiaFW.config.broadcastRegionCode("");
+				}
+				//NOTE: we need to add all IDs here manually
+				Build.updateRegionCodeSelector("sepiaFW-menu-account-region-dropdown");		
+				changeAction(ele.value);
 			}
 		);
+	}
+	//build reuseable language-region selector
+	Build.regionCodeSelector = function(btnId, changeAction){
+		return Build.optionSelector(btnId, SepiaFW.local.getRegionCodesForActiveLang(), SepiaFW.config.appRegionCode, 
+			function(ele){
+				SepiaFW.config.broadcastRegionCode(ele.value);
+				changeAction(ele.value);
+			}
+		);
+	}
+	Build.updateRegionCodeSelector = function(btnId){
+		var regions = SepiaFW.local.getRegionCodesForActiveLang();
+		var ele = document.getElementById(btnId);
+		if (ele){
+			ele.innerHTML = "";
+			regions.forEach(function(option){
+				ele.appendChild(buildOptionEle(option));
+			});
+			if (SepiaFW.config.appRegionCode != undefined) ele.value = SepiaFW.config.appRegionCode;
+		}
 	}
 	
 	//toggle button
@@ -535,7 +559,7 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 		SepiaFW.ui.toggleMicButton = function(useConfirmationSound, sourceAction){
 			if (sourceAction == undefined) sourceAction = "";
 			//source actions (so far):
-			//app-button, app-hotkey, controller-button, (remote-input), ble-beacon, clexi-remote, sepia-chat-server, 
+			//app-button, app-hotkey, controller-button, (remote-input), ble-beacon, ble-beacon-registered, clexi-remote, clexi-gpio, sepia-chat-server, 
 			//smart-mic, wake-word, intent-assist, intent-voice-command, 
 			//... more tbd
 			//TODO: at some point we could use the source info to control when voice output should be triggered
@@ -554,7 +578,8 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 				useConfirmationSound = SepiaFW.speech.shouldPlayConfirmation();
 			}
 			//play a sound before activating mic?
-			if (useConfirmationSound && !SepiaFW.speech.isRecognizing()){ 		//&& (SepiaFW.config.clientInfo.indexOf('chrome_')>-1)
+			if (useConfirmationSound && !SepiaFW.speech.isRecognizing()){
+				//TODO: depending on hardware (and browser) there is a gap between sound and record-start that can be to long!
 				SepiaFW.audio.playURL(SepiaFW.audio.micConfirmSound, '2', '', function(){
 					SepiaFW.speech.toggleRecognition(SepiaFW.client.asrCallbackFinal, SepiaFW.client.asrCallbackInterim, SepiaFW.client.asrErrorCallback, SepiaFW.client.asrLogCallback);
 				}, SepiaFW.client.asrErrorCallback);
@@ -682,7 +707,7 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 					+ "</li>"
 					+ "<li id='sepiaFW-menu-clexi-server-id-li' title='Server ID of Node.js CLEXI. Trust only this connection ID.'>"
 						+ "<span>" + "CLEXI ID" + ": </span>"
-						+ "<input id='sepiaFW-menu-clexi-server-id' type='url' spellcheck='false'>"
+						+ "<input id='sepiaFW-menu-clexi-server-id' type='text' spellcheck='false'>"
 					+ "</li>"
 					+ "<li id='sepiaFW-menu-toggle-remote-terminal-li' title='Connect to remote terminal when CLEXI is running?'><span>Use CLEXI Terminal: </span></li>"
 					+ "<li id='sepiaFW-menu-select-music-app-li' title='Select default music app for search intents.'>"
@@ -694,7 +719,6 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 					+ "<li class='spacer'></li>"
 					+ "<li id='sepiaFW-menu-experimental-settings-li'><span>Experimental settings </span></li>"
 						+ "<li class='sepiaFW-menu-experimental'><span><u>Note: Changes will not be permanent</u></span></li>"
-						+ "<li id='sepiaFW-menu-select-stt-language-li' class='sepiaFW-menu-experimental'><span>ASR country </span></li>"
 						+ "<li id='sepiaFW-menu-toggle-youtube-wp-li' class='sepiaFW-menu-experimental'><span>YouTube embedded </span></li>"
 						+ "<li id='sepiaFW-menu-toggle-spotify-wp-li' class='sepiaFW-menu-experimental'><span>Spotify embedded </span></li>"
 						+ "<li id='sepiaFW-menu-toggle-apple-music-wp-li' class='sepiaFW-menu-experimental'><span>Apple Music embedded </span></li>"
@@ -716,8 +740,12 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 				+ "<ul class='sepiaFW-menu-settings-list'>"
 					+ "<li id='sepiaFW-menu-account-my-id-li'><span>" + "User ID" + ": </span><span id='sepiaFW-menu-account-my-id' style='float: right;'></span></li>"
 					+ "<li id='sepiaFW-menu-account-language-li'><span>" + SepiaFW.local.g('language') + ": </span></li>"
+					+ "<li id='sepiaFW-menu-account-region-li'><span>" + SepiaFW.local.g('country') + ": </span></li>"
 					+ "<li id='sepiaFW-menu-account-nickname-li'><span>" + SepiaFW.local.g('nickname') + ": </span><input id='sepiaFW-menu-account-nickname' type='text' maxlength='24'></li>"
 					+ "<li id='sepiaFW-menu-account-preftempunit-li'><span>" + SepiaFW.local.g('preferred_temp_unit') + ": </span></li>"
+					+ "<li class='spacer'></li>"
+					+ "<li style='min-height: auto; text-align: left;'><u>" + SepiaFW.local.g('shared_access_permissions') + "</u></li>"
+					+ "<li id='sepiaFW-menu-account-shared-access-remote-actions-li'><span>Remote Actions:</span></li>"
 					+ "<li class='spacer'></li>"
 					+ "<li id='sepiaFW-menu-store-load-app-settings-li' class='flex'>"
 						+ "<span>App settings: </span>"
@@ -944,13 +972,21 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 					}
 				));
 
-				//add voice select options - delayed due to loading process
+				//add voice select options - delayed due to loading process - SEPIA engine requires active user
 				var voiceSelectorBox = document.getElementById('sepiaFW-menu-select-voice-li');
-				setTimeout(function(){
-					SepiaFW.speech.getVoices(function(voices, voiceSelector){
-						voiceSelectorBox.appendChild(voiceSelector);
-					});
-				}, 1000);
+				if (SepiaFW.speech.getVoiceEngine() == "sepia"){
+					SepiaFW.client.addOnActiveOneTimeAction(function(){
+						SepiaFW.speech.getVoices(function(voices, voiceSelector){
+							voiceSelectorBox.appendChild(voiceSelector);
+						});
+					}, "tts-voice-setup");
+				}else{
+					setTimeout(function(){
+						SepiaFW.speech.getVoices(function(voices, voiceSelector){
+							voiceSelectorBox.appendChild(voiceSelector);
+						});
+					}, 1000);
+				}
 
 				//TTS custom external server
 				var speechSynthServerInput = document.getElementById("sepiaFW-menu-external-tts-url");
@@ -1418,14 +1454,6 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 					$('.sepiaFW-menu-experimental').toggle(300);
 				}
 			));
-			//ASR (STT) voice input language
-			document.getElementById('sepiaFW-menu-select-stt-language-li').appendChild(Build.optionSelector('sepiaFW-menu-select-stt-language', 
-				SepiaFW.local.getExperimentalAsrLanguages(), 
-				"", 
-				function(ele){
-					SepiaFW.speech.setCountryCode(ele.value);
-				}
-			));
 			//Embedded web-players
 			document.getElementById('sepiaFW-menu-toggle-youtube-wp-li').appendChild(Build.toggleButton('sepiaFW-menu-toggle-youtube-wp', 
 				function(){
@@ -1449,14 +1477,27 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 				}, SepiaFW.ui.cards.canEmbedAppleMusic)
 			);
 			//Account-Language
-			document.getElementById("sepiaFW-menu-account-language-li").appendChild(SepiaFW.ui.build.languageSelector("sepiaFW-menu-account-language-dropdown", function(selectedLanguage){
+			document.getElementById("sepiaFW-menu-account-language-li").appendChild(Build.languageSelector("sepiaFW-menu-account-language-dropdown", function(selectedLanguage){
 				//save
 				var lang = {};		lang[SepiaFW.account.LANGUAGE_PREF] = selectedLanguage;
 				var data = {};		data[SepiaFW.account.INFOS] = lang;
 				SepiaFW.account.saveAccountData(data);
 				//change url to reflect change
 				var url = SepiaFW.tools.setParameterInURL(window.location.href, 'lang', selectedLanguage);
-				history.pushState({"language":selectedLanguage}, "", url);
+				history.pushState({"language": selectedLanguage}, "", url);
+			}));
+			//Account-Region - for example used as: ASR (STT) voice input language
+			document.getElementById('sepiaFW-menu-account-region-li').appendChild(Build.regionCodeSelector('sepiaFW-menu-account-region-dropdown', function(selectedRegion){
+				//TODO: save in account?
+				//...
+				//change url to reflect change
+				var url;
+				if (selectedRegion){
+					url = SepiaFW.tools.setParameterInURL(window.location.href, 'rc', selectedRegion);
+				}else{
+					url = SepiaFW.tools.removeParameterFromURL(window.location.href, 'rc');
+				}
+				history.pushState({"rc": selectedRegion}, "", url);
 			}));
 			//Account-Nickname
 			document.getElementById("sepiaFW-menu-account-nickname").addEventListener("change", function(){
@@ -1484,6 +1525,14 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 				//update account cache
 				SepiaFW.account.setUserPreferredTemperatureUnit(selectedOption.value);
 			}));
+			//Account-Shared Access Permissions (remote-action)
+			document.getElementById("sepiaFW-menu-account-shared-access-remote-actions-li").appendChild(Build.inlineActionButton('sepiaFW-menu-input-shared-access-settings', "<i class='material-icons md-inherit'>settings</i>",
+				function(btn){
+					SepiaFW.frames.open({ 
+						pageUrl: "shared-access.html"
+					});
+				})
+			);
 			//Store, load and export app settings
 			document.getElementById("sepiaFW-menu-store-app-settings-btn").addEventListener("click", function(){
 				SepiaFW.account.saveAppSettings();
@@ -2025,7 +2074,6 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 		//add card-data - NOTE: we allow this even if isAssistMsg=false
 		if (msg.data && msg.data.assistAnswer && msg.data.assistAnswer.hasCard){
 			var card = SepiaFW.ui.cards.get(msg.data.assistAnswer, sender, isSafeMsg);
-			//TODO: handle both? Right now its 'take inline if you can and ignore fullscreen'
 			
 			//Inline data
 			if (card.dataInline && card.dataInline.length>0){
@@ -2036,15 +2084,10 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 			//Full screen cards
 			}else if (card.dataFullScreen && card.dataFullScreen.length>0){
 				//This is a bit quirky, since the parent function should decide how to handle the block ...
-				//... but we currently depend on the card-handler method that can overwrite the target-view options
+				//... but the card-handler method can overwrite the target-view
 
-				/* -- this is how it should be, but for big-results there should be no text-message or action-buttons included --
-				for (i=0; i<card.dataFullScreen.length; i++){
-					block.appendChild(card.dataFullScreen[i]);
-				}
-				*/
-				
-				//... this is how we need it currently ... but at least we should check the options.skipInsert
+				//... so we don't add to block but big-results and check 'options.skipInsert' here instead
+				//NOTE: do we need to check more options?
 				if (!options.skipInsert){
 					var bigResultView = document.getElementById('sepiaFW-result-view');
 					bigResultView.innerHTML = '';

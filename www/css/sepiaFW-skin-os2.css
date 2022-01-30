@@ -123,6 +123,10 @@ html.landscape-small #sepiaFW-chat-controls {
 	background: linear-gradient(to right, #f1ccae 0%, #f8ead9 50%, #f1ccae 100%);
 	color: #000;
 }
+#sepiaFW-chat-controls-more-menu #sepiaFW-more-menu-input-text {
+	color: inherit;
+    border: 1px solid;
+}
 
 .sepiaFW-menu,
 .sepiaFW-cards-list-contextMenu,

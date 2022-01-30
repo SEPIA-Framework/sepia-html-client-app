@@ -1,0 +1,337 @@
+/* based on sepiaFW-skin-grid.css */
+html {
+	background-image: url(../img/blocks2_alpha.png);
+    background-color: #000;
+    background-size: 520px;
+    background-repeat: repeat;
+}
+#sepiaFW-main-window {
+    box-shadow: inset 0px 0px 4px 1px #85b987;
+}
+.sepiaFW-results-container {
+	scrollbar-color: rgba(84, 114, 86, 0.15) rgba(84, 114, 86, 0.15);
+}
+
+#sepiaFW-pC 	{ background-color: #000; }
+#sepiaFW-sC 	{ background-color: #14aa22; }
+#sepiaFW-sC2 	{ background-color: #fff; }
+#sepiaFW-aC 	{ background-color: #9f0b00; }
+#sepiaFW-aC2 	{ background-color: #fff; }
+#sepiaFW-asC 	{ background-color: #14aa22; }
+#sepiaFW-adC 	{ background-color: #83c223; }
+#sepiaFW-lC 	{ background-color: #555; }
+
+#sepiaFW-navC 	{ background-color: #000; }
+#sepiaFW-statC 	{ background-color: #000; }
+
+#sepiaFW-login-box, #sepiaFW-nav-bar, #sepiaFW-chat-controls-form, #sepiaFW-chat-controls-right {
+    background: rgba(12, 137, 48, 0.68);
+    border: 1px solid #797;
+    box-shadow: 0 0 5px #14aa22;
+    color: #fff;
+}
+#sepiaFW-chat-controls {
+    background: linear-gradient(rgba(0, 0, 0, 0.0), #000, #000) !important;
+    border-bottom: 1px solid #000;
+}
+#sepiaFW-chat-controls.full-screen {
+    background: linear-gradient(rgba(0, 0, 0, 0.0), #101010) !important;
+}
+html.landscape-small #sepiaFW-chat-controls {
+    background: rgba(12, 137, 48, 0.68) !important;
+}
+#sepiaFW-chat-controls-swipe-area .sepiaFW-swipeBar-switchable {
+    background: #0b6024;
+}
+#sepiaFW-chat-controls-form.touch-bar-controls #sepiaFW-chat-controls-swipe-area .sepiaFW-swipeBar-switchable {
+    color: #797;
+}
+#sepiaFW-main-window input, #sepiaFW-login-box input {
+    background: rgba(0, 0, 0, 0.75);
+    color: #fff;
+	border: 1px solid #797
+}
+#sepiaFW-login-box button {
+    background-color: #0c6c11;
+    color: #fff;
+}
+#sepiaFW-login-form button {
+    background: #b7ebbe;
+    color: #000;
+    border: 1px solid #ada !important;
+    box-shadow: 0 0 5px #14aa22 !important;
+}
+#sepiaFW-login-box #sepiaFW-login-host-details {
+    background-color: #fff;
+    color: #000;
+}
+
+#sepiaFW-main-window button {
+    background: transparent;
+    color: #fff;
+}
+.sepiaFW-notouch-device #sepiaFW-main-window button:hover {
+    background: #797;
+    color: #fff;
+    border-color: #fff;
+}
+.sepiaFW-notouch-device #sepiaFW-chat-controls button:hover,
+.sepiaFW-notouch-device #sepiaFW-nav-bar button:hover {
+    background: transparent;
+    text-shadow: 0px 0px 5px #fff;
+}
+
+#sepiaFW-main-window .chat-buttons-area button {
+    border: 1px solid #565;
+    box-shadow: 0 0 5px #565;
+    color: #fff;
+    background: rgba(18, 18, 18, 0.75);
+}
+.sepiaFW-notouch-device #sepiaFW-main-window .chat-buttons-area button:hover {
+    background: rgba(133, 185, 145, 0.55);
+    text-shadow: 0px 0px 5px #fff;
+}
+#sepiaFW-main-window .chat-buttons-area .my-view-custom-button {
+    background-color: rgba(12, 137, 48, 0.68);
+    color: #fff;
+    border: 1px solid #797;
+    box-shadow: 0 0 5px #14aa22;
+}
+.sepiaFW-notouch-device #sepiaFW-main-window .chat-buttons-area .my-view-custom-button:hover {
+    background-color: rgba(170, 215, 180, 0.86);
+    border: 1px solid #fff;
+}
+
+.sepiaFW-menu {
+    background: rgba(8, 84, 24, 0.97);
+    color: #fff;
+    box-shadow: inset 0 0 3px 1px #9a9;
+}
+#sepiaFW-chat-menu {
+    background: #0a5f23;
+}
+#sepiaFW-chat-channel-view {
+    border: 1px solid #797;
+    box-shadow: 0 0 5px #14aa22;
+}
+#sepiaFW-chat-menu input {
+    background: transparent;
+    border: 0;
+    color: #fff;
+    border-bottom: 1px solid #fff;
+}
+#sepiaFW-chat-menu button {
+    background: #021403;
+    color: #fff;
+    box-shadow: none;
+}
+#sepiaFW-chat-controls-more-menu button {
+    background: #b7ebbe;
+    color: #000;
+}
+.sepiaFW-notouch-device #sepiaFW-main-window #sepiaFW-chat-controls-more-menu button:hover {
+    background: #fff;
+    color: #000;
+}
+.sepiaFW-toggle-btn .off {
+    background: #3b724d;
+}
+.sepiaFW-toggle-btn .on {
+    background: #b7ebbe;
+}
+
+#sepiaFW-assist-btn-area {
+    background-color: #073c10;
+    border: 1px solid #8a8;
+    box-shadow: 0 0 5px #14aa22, inset 0 0 5px #14aa36;
+}
+#sepiaFW-assist-btn-area button {
+    background: #021403 !important;
+}
+#sepiaFW-chat-controls-speech-box {
+    background: rgba(18, 38, 18, 0.96);
+    border: 1px solid #9c9;
+    box-shadow: 0 0 5px #14aa22;
+}
+
+#sepiaFW-chat-output article:not(.statusUpdate) {
+    background: rgba(40, 75, 45, 0.66);
+    color: #beb;
+    border: 1px solid #565;
+    box-shadow: 0 0 5px #565;
+}
+#sepiaFW-chat-output article.chatAssistant {
+    background: rgba(12, 137, 48, 0.68);
+    color: #fff;
+    box-shadow: 0 0 5px #14aa22;
+    border-color: #797;
+}
+#sepiaFW-chat-output article.chatMe {
+    background: rgba(18, 18, 18, 0.75);
+    color: #fff;
+    box-shadow: 0 0 5px #565;
+    border-color: #565;
+}
+#sepiaFW-chat-output article.chatPm,
+#sepiaFW-chat-output article.chatMe.chatPm {
+        border-left-color: #aeb;
+    }
+#sepiaFW-chat-output article.chatAssistant.chatPm {
+    border-left-color: #ced;
+}
+#sepiaFW-chat-output article:not(.statusUpdate) b,
+#sepiaFW-chat-output article:not(.statusUpdate) span,
+#sepiaFW-chat-output article.chatAssistant b,
+#sepiaFW-chat-output article.chatAssistant span,
+#sepiaFW-chat-output article.chatMe b,
+#sepiaFW-chat-output article.chatMe span {
+    color: #9c9;
+    text-shadow: none;
+}
+#sepiaFW-chat-output .statusUpdate {
+    background: rgba(225, 255, 225, 0.07);
+}
+
+/*----- Popup -----*/
+
+.dark-skin .sepiaFW-popup-cover-layer {
+    background: rgba(17, 22, 17, 0.95);
+}
+#sepiaFW-popup-message  {
+	background: rgba(12, 130, 36, 0.52);
+    border: 1px solid #9c9;
+    box-shadow: 0 0 5px #14aa22;
+    color: #fff;
+}
+#sepiaFW-popup-message i,
+#sepiaFW-popup-message .accent {
+    color: #aaffaa;
+}
+#sepiaFW-popup-message button {
+    background-color: #b7ebbe !important;
+    color: #000 !important;
+}
+.sepiaFW-notouch-device #sepiaFW-popup-message button:hover {
+    background: #eee !important;
+    color: #000 !important;
+}
+
+/* ---- Cards ---- */
+
+.sepiaFW-cards-flexSize-container {
+    background: rgba(20, 20, 20, 0.75);
+}
+
+.sepiaFW-cards-list-body .timeEvent > div,
+.sepiaFW-cards-list-body .radioStation > div,
+.sepiaFW-cards-list-body .weatherNowSmall > div,
+.sepiaFW-cards-list-body .linkCard > div,
+.dark-skin .sepiaFW-cards-list-body .fullWidthItem .cardItemBlock {
+    background: rgba(133, 185, 145, 0.55);
+    color: #fff !important;
+    box-shadow: 0 0 5px #154a18;
+    border: 1px solid #9a9;
+}
+.dark-skin .sepiaFW-cards-flexSize-container .cardBodyItem.fullWidthItem .cardItemOverlay {
+	background: #506d51;
+}
+.sepiaFW-cards-list-title {
+    background: rgba(133, 185, 145, 0.55);
+    color: #fff !important;
+    box-shadow: 0 0 5px #154a18;
+    border: 1px solid #9a9;
+}
+.sepiaFW-cards-list-title.newsHeader {
+    background: #fff !important;
+    text-shadow: none;
+}
+.sepiaFW-cards-list-title.newsHeader button {
+    color: #000 !important;
+}
+.sepiaFW-cards-list-body .listElement > div,
+.sepiaFW-cards-list-body .newsArticle .newsCenter,
+.sepiaFW-cards-list-body .weatherNowDetails li {
+    background: rgba(40, 75, 45, 0.58);
+}
+.sepiaFW-cards-list-body .weatherNowSmall .weatherNowSmallImage {
+    background: #000;
+}
+.sepiaFW-cards-list-footer {
+    background: rgba(40, 75, 45, 0.28);
+    color: #fff;
+    box-shadow: none;
+    border: 0;
+}
+.sepiaFW-cards-list-body .listElement .checked {
+    background: #9f0b00;
+}
+.sepiaFW-cards-list-body .listElement .inProgress {
+    background: #1f6ee3;
+}
+.sepiaFW-cards-list-body .listElement .listRight {
+    background: rgba(40, 75, 45, 0.28);
+}
+
+.sepiaFW-cards-button,
+.sepiaFW-notouch-device .sepiaFW-cards-button:hover {
+    background: #760800;
+    box-shadow: 0 0 5px #565;
+    border: 1px solid #9f0b00;
+}
+.sepiaFW-cards-list-contextMenu {
+    box-shadow: none;
+    background: #1d3220;
+}
+
+/* ---- Details ---- */
+
+.sepiaFW-audio-soundbar {
+    background: #7a7;
+}
+/*
+#sepiaFW-main-window #sepiaFW-nav-menu-go-left {
+    color: #9f0b00;
+}
+#sepiaFW-main-window #sepiaFW-nav-menu-go-right {
+    color: #1f6ee3;
+}
+*/
+
+/* ---- Frames + Teach-UI ---- */
+
+#sepiaFW-frames-view,
+#sepiaFW-frames-view.dark,
+#sepiaFW-teachUI-view {
+    background: #042107;
+    color: #b0ffc0;
+}
+#sepiaFW-frames-view:not(.sepiaFW-ao-mode),
+#sepiaFW-teachUI-view {
+    box-shadow: 0 0 5px #14aa22;
+}
+#sepiaFW-frames-nav-bar,
+#sepiaFW-teachUI-nav-bar {
+	background: #0a5f23;
+}
+.sepiaFW-frames-page button,
+.sepiaFW-frames-page.dark button,
+#sepiaFW-teachUI-editor button, 
+#sepiaFW-teachUI-manager button {
+    background: #b7ebbe !important;
+    color: #000 !important;
+    border: 1px solid #ada !important;
+    box-shadow: 0 0 5px #14aa22;
+}
+
+.sepiaFW-frames-page .info-text,
+.sepiaFW-frames-page.dark .info-text {
+    color: #aaffaa;
+}
+.sepiaFW-frames-page.dark .subgroup.menu-button {
+    color: #fff;
+}
+
+#sepiaFW-teachUI-view label {
+    color: #fff;
+	text-shadow: none;
+}

@@ -301,7 +301,7 @@ function sepiaFW_build_events(){
 
 	//--------------------------------------------------
 	
-	//SETUP TimeEvents
+	//SETUP TimeEvents (AND update)
 	Events.setupTimeEvents = function(forceNew){
 		if (!SepiaFW.assistant.id && !SepiaFW.client.isDemoMode()){
 			SepiaFW.debug.err("Events: tried to get time-events before channel-join completed!");
@@ -325,7 +325,9 @@ function sepiaFW_build_events(){
 			Timers = {};
 
 			//NOTE: this will remove all timer cards first
-			SepiaFW.ui.cards.findAllTimeEventCards(false, false).forEach(function(item){ 
+			SepiaFW.ui.cards.findAllTimeEventCards(false, false).forEach(function(item){
+				//var absoluteTargetTime = Date.now() - item.data.targetTimeUnix;
+				//if (absoluteTargetTime > 0 && absoluteTargetTime < 21600000){}
 				item.remove();
 				//more info: SepiaFW.events.getRunningOrActivatedTimeEventById(item.data.eventId)
 			});
@@ -335,7 +337,8 @@ function sepiaFW_build_events(){
 				//reload Timers
 				var options = {};
 					options.loadOnlyData = true;
-					options.updateMyViewTimers = true; 		//update my-view (but only timers) afterwards
+					options.updateMyViewTimers = true; 		//update my-view (but only time events) afterwards
+					//TODO: this will currently trigger update twice, but at least the cards already in my-view will be skipped
 				var dataset = {};	dataset.info = "direct_cmd";
 					dataset.cmd = "timer;;action=<show>;;alarm_type=<timer>;;";			//TODO: make a function for that
 					dataset.newReceiver = SepiaFW.assistant.id;
@@ -368,7 +371,7 @@ function sepiaFW_build_events(){
 			Timer.data = eventData;
 			Timers[Timer.name] = Timer;
 
-			if ((now - targetTimeUnix) < 0){
+			if (now < targetTimeUnix){
 				broadcastAlarmSet({
 					timeUnix: Timer.targetTime,
 					type: Timer.type,
@@ -401,24 +404,28 @@ function sepiaFW_build_events(){
 		var nextTimers = [];
 		//var nearestFuture = Number.MAX_SAFE_INTEGER;
 		var now = new Date().getTime();
+		var timersToCheck = [Timers];
 		if (includePastMs){
 			now = now - includePastMs;
+			timersToCheck.push(ActivatedTimers);	//add past
 		}
-		$.each(Timers, function(timerName, timerObj){
-			if (!excludeName || (excludeName !== timerName)){
-				var isValidTime = (timerObj.targetTime < maxTargetTime) && ((timerObj.targetTime - now) > 0);
-				if (isValidTime){
-					nextTimers.push(timerObj);
+		timersToCheck.forEach(function(T){
+			$.each(T, function(timerName, timerObj){
+				if (!excludeName || (excludeName !== timerName)){
+					var isValidTime = (timerObj.targetTime < maxTargetTime) && (timerObj.targetTime > now);
+					if (isValidTime){
+						nextTimers.push(timerObj);
+					}
+					/*
+					if (isValidTime && timerObj.targetTime < nearestFuture){
+						nearestFuture = timerObj.targetTime;
+						nextTimers = [timerObj];
+					}else if (isValidTime && timerObj.targetTime == nearestFuture){
+						nextTimers.push(timerObj);
+					}
+					*/
 				}
-				/*
-				if (isValidTime && timerObj.targetTime < nearestFuture){
-					nearestFuture = timerObj.targetTime;
-					nextTimers = [timerObj];
-				}else if (isValidTime && timerObj.targetTime == nearestFuture){
-					nextTimers.push(timerObj);
-				}
-				*/
-			}
+			});
 		});
 		return nextTimers;
 	}
@@ -474,13 +481,18 @@ function sepiaFW_build_events(){
 				id: Timer.name,
 				title: (Timer.data? Timer.data.name : Timer.type)
 			});
-		
-		}else if (resyncList){
+		}else{
+			//Check activated timers
 			var activatedTimer = Events.getActivatedTimeEvent(name);
 			if (activatedTimer){
-				//store eventId of deleted timer for resync
-				removedTimerIds.push(activatedTimer.data.eventId);
-				scheduleTimeEventsSync(activatedTimer.type);
+				//clean up
+				delete ActivatedTimers[activatedTimer.name];
+				//this might be set if a timeEvent is removed by a "UI-only-action" (e.g. remove button) and the server needs to get the info as well
+				if (resyncList){
+					//store eventId of deleted timer for resync
+					removedTimerIds.push(activatedTimer.data.eventId);
+					scheduleTimeEventsSync(activatedTimer.type);
+				}
 			}
 		}
 	}
@@ -615,6 +627,10 @@ function sepiaFW_build_events(){
 					Events.triggerAlarm(Timer, '', '', ''); 	//start, end, error
 				});
 				ActivatedTimers[Timer.name] = Timer;
+				//set "activated" state (NOTE: is probably ignored right now or not transferred to server?)
+				if (Timer.data){
+					Timer.data.activated = true;
+				}
 				
 				//graphics
 				var domEles = $(SepiaFW.ui.JQ_RES_VIEW_IDS).find('[data-id="' + Timer.data.eventId + '"]').find(".timeEventCenter");

@@ -302,7 +302,7 @@ function sepiaFW_build_speech_audio_proc(){
 	function onStreamEnd(ev){
 		_asrLogCallback('ASR STREAM-END');
 		if (Recognizer.onend){
-			Recognizer.onend({});
+			Recognizer.onend({}); 	//TODO: this should be called on disconnect according to w3c spec.
 		}
 	}
 	//currently only used for debugging:

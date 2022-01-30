@@ -43,6 +43,21 @@
 				<div id="sepiaFW-stt-settings-info-msg" style="width: 100%; white-space: break-spaces; word-wrap: break-word;"></div>
 			</div>
 		</div>
+		<!-- Page 2 -->
+		<div id="sepiaFW-frame-page-2" class='sepiaFW-frames-page sepiaFW-carousel-pane'>
+			<h3>STT Debugging</h3>
+			<p class="info-text">This page is supposed to help with finding STT issues.</p>
+			<div class="group" style="justify-content: center;">
+				<button id="sepiaFW-stt-settings-record-btn" 
+					onclick="SepiaFW.frames.currentScope.toggleRecordingWithConfirmSound();">Toggle Recording</button>
+				<button onclick="SepiaFW.frames.currentScope.resetRecognizer();">Reset Recognizer</button>
+			</div>
+			<h3>Info <button onclick="SepiaFW.frames.currentScope.clearSttDebugBox();">clear</button></h3>
+			<div id="sepiaFW-stt-settings-debug-log" style="width: 100%; white-space: break-spaces; word-wrap: break-word; 
+				overflow-y: auto; border: 1px solid #aaa; background: #111; color: #eee; 
+				max-height: calc(100% - 200px); min-height: 135px; padding: 0 4px; font-size: 13px;"
+			></div>
+		</div>
 	</div>
 </div>
 <div id="sepiaFW-frames-nav-bar" class='sepiaFW-layer-header'>
@@ -55,7 +70,7 @@
 	<button id="sepiaFW-frames-show-next-page" class='entry'>
 		<span data-localize="next">next</span><i class="material-icons md-btn2">keyboard_arrow_right</i>
 	</button>
-	<div id="sepiaFW-frames-nav-bar-page-indicator"><div>&nbsp;</div></div>
+	<div id="sepiaFW-frames-nav-bar-page-indicator"><div>&nbsp;</div><div>&nbsp;</div></div>
 </div>
 <script>
 	$('#sepiaFW-frame-carousel').find('[data-localize]').each(function(){
@@ -129,11 +144,22 @@
 				$('#sepiaFW-stt-settings-server-info-btn').show();
 				optFinalResToggle.setDisabled(false);
 			}
+			//set global speech listener
+			SepiaFW.speech.setActiveGlobalSpeechEventListener(function(ev){
+				if (SepiaFW.frames.currentScope.speechEvents) SepiaFW.frames.currentScope.speechEvents(ev);
+			});
+			SepiaFW.audioRecorder.debugInterfaces = true;
+			SepiaFW.audioRecorder.debuggerLogFunction = SepiaFW.frames.currentScope.audioRecorderEvents;
+			SepiaFW.frames.currentScope.resetRecognizer();
 		},
 
 		onClose: function(){
 			//Update settings
 			$('#sepiaFW-menu-stt-socket-url').val(SepiaFW.speechAudioProcessor.getSocketURI());
+			//remove global speech listener
+			SepiaFW.speech.setActiveGlobalSpeechEventListener(undefined);
+			SepiaFW.audioRecorder.debugInterfaces = false;
+			SepiaFW.audioRecorder.debuggerLogFunction = undefined;
 		},
 
 		showServerInfo: function(){
@@ -154,6 +180,87 @@
 		},
 		showError: function(msg){
 			$('#sepiaFW-stt-settings-info-msg').css("color", "#f00").text(msg);
+		},
+
+		//Debugger page
+
+		debuggerState: {
+			tic: 0
+		},
+
+		showDebugMsg: function(msg, isError, color){
+			var msgEle = document.createElement("p");
+			msgEle.textContent = (Date.now() - SepiaFW.frames.currentScope.debuggerState.tic) + " - " + msg;
+			msgEle.style.margin = "5px 0";
+			if (color) msgEle.style.color = color;
+			else if (isError) msgEle.style.color = "#f00";
+			var $msgBox = $('#sepiaFW-stt-settings-debug-log');
+			$msgBox.append(msgEle);
+			$msgBox[0].scrollTop = $msgBox[0].scrollHeight;
+		},
+		clearSttDebugBox: function(){
+			$('#sepiaFW-stt-settings-debug-log').html("");
+		},
+		
+		speechEvents: function(ev){
+			console.log("SpeechEvent", ev);		//DEBUG
+		},
+		audioRecorderEvents: function(logTag, args){
+			if (logTag && (!args || !args.length)){
+				SepiaFW.frames.currentScope.showDebugMsg(logTag, false, "#00d4d4");
+				return;
+			}
+			var msg = "";
+			for (let i=0; i<args.length; i++){
+				msg += args[i] + " ";
+			}
+			SepiaFW.frames.currentScope.showDebugMsg(logTag + " " + msg.trim(), false, "#00bcd4");
+		},
+		onAnimationStateChange: function(state){
+			SepiaFW.frames.currentScope.showDebugMsg("AnimationState: " + state, false, "#cddc39");
+		},
+
+		toggleRecordingWithConfirmSound: function(){
+			if (SepiaFW.speech.isRecognizing()){
+				SepiaFW.frames.currentScope.showDebugMsg("---Stop request---");
+				SepiaFW.frames.currentScope.toggleRecording();
+			}else{
+				SepiaFW.frames.currentScope.debuggerState.tic = Date.now();
+				SepiaFW.frames.currentScope.showDebugMsg("---Start request---");
+				SepiaFW.frames.currentScope.showDebugMsg("Engine: " + SepiaFW.speech.getAsrEngine());
+				var useConfirmationSound = SepiaFW.speech.shouldPlayConfirmation();
+				if (useConfirmationSound){
+					SepiaFW.frames.currentScope.showDebugMsg("AUDIO confirm sound play");
+					SepiaFW.audio.playURL(SepiaFW.audio.micConfirmSound, '2', '', function(){
+						SepiaFW.frames.currentScope.showDebugMsg("AUDIO confirm sound end");
+						SepiaFW.frames.currentScope.toggleRecording();
+					}, SepiaFW.client.asrErrorCallback);
+				}else{
+					SepiaFW.frames.currentScope.toggleRecording();
+				}
+			}
+		},
+		toggleRecording: function(){
+			SepiaFW.speech.toggleRecognition(function(finalRes){
+				SepiaFW.frames.currentScope.showDebugMsg("Final res.: " + finalRes);
+			}, function(interimRes){
+				SepiaFW.frames.currentScope.showDebugMsg("Partial res.: " + interimRes);
+			}, function(err){
+				var cleanErr = {message: "undefined error"};
+				if (!err) err = cleanErr;
+				if (typeof err == "string") cleanErr.message = err;
+				else if (err.message) cleanErr.message = err.message;
+				SepiaFW.frames.currentScope.showDebugMsg(cleanErr.message, true);
+			}, function(logMsg){
+				SepiaFW.frames.currentScope.showDebugMsg(logMsg);
+			});
+		},
+		resetRecognizer: function(){
+			if (!SepiaFW.speech.isSpeakingOrListening()){
+				SepiaFW.speech.resetRecognition(undefined, SepiaFW.frames.currentScope.audioRecorderEvents);
+			}else{
+				SepiaFW.speech.stopRecognition();
+			}
 		}
 	}
 </script>

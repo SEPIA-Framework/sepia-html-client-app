@@ -17,6 +17,10 @@ html {
 		border-radius: 28px;
 		/*overflow: hidden;*/ 	/* we can't use this with position fixed children, its buggy */
 	}
+	html.edge-2-edge body.big-screen #sepiaFW-main-window {
+		border-radius: 28px;
+		border: 2px solid #292929;
+	}
 	#sepiaFW-main-output-carousel {
 		border-radius: 0 0 28px 28px;
 	}

@@ -36,6 +36,15 @@
     top: 18% !important;
 }
 
+#sepiaFW-alwaysOn-avatar .avatar-ww-indicator {
+    top: 64%;
+    border-radius: 0;
+    transform: rotate(45deg);
+}
+.wake-word-active #sepiaFW-alwaysOn-avatar .avatar-ww-indicator {
+    background: #444;
+}
+
 @keyframes avatar-check-glasses {
 	0% {	top: 18%;	}
 	65% {	top: 18%;	}

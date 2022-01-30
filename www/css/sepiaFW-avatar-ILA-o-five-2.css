@@ -1,7 +1,24 @@
 #sepiaFW-alwaysOn-avatar {
     background: url(../img/avatars/ILA_v3.svg);
+    background-repeat: no-repeat;
+    background-size: 100%;
 }
 
 #sepiaFW-alwaysOn-avatar .avatar-mouth {
     top: 60.5%;
+}
+
+#sepiaFW-alwaysOn-avatar .avatar-ww-indicator {
+    top: 24.6%;
+    left: 52.0%;
+    height: 7px;
+    width: 7px;
+    border-radius: 0;
+}
+#sepiaFW-alwaysOn-avatar .avatar-ww-indicator::after,
+.wake-word-active #sepiaFW-alwaysOn-avatar .avatar-ww-indicator::after {
+    display: none;
+}
+.wake-word-active #sepiaFW-alwaysOn-avatar .avatar-ww-indicator {
+	background: #3285ff;
 }

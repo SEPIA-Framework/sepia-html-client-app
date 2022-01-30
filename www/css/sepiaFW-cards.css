@@ -35,6 +35,12 @@ article + .sepiaFW-cards-flexSize-container.oneElement,
     min-width: 308px;
     max-width: calc(100% - 10px);
 }
+@media screen and (max-width: 440px) {
+	.sepiaFW-my-view-section .sepiaFW-cards-flexSize-container {
+		flex: 1 0 45%;
+    	min-width: 228px;
+	}
+}
 /*.sepiaFW-my-view-section .sepiaFW-cards-flexSize-container:only-of-type {
 	max-width: calc(100% - 10px);
 }*/

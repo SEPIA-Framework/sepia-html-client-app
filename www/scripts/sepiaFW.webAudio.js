@@ -4,7 +4,7 @@ function sepiaFW_build_web_audio(){
 	
 	//--- START: Copy of SEPIA Web-Audio Lib --->
 	
-	WebAudio.version = "0.9.7";
+	WebAudio.version = "0.9.10";
 	
 	//Preparations
 	var AudioContext = window.AudioContext || window.webkitAudioContext;
@@ -28,7 +28,7 @@ function sepiaFW_build_web_audio(){
 		initErrorCallback: console.error,
 		//modules: [],
 		//onaudiostart: console.log,
-		//onaudioend: console.log,
+		//onaudioend: console.log,		//NOTE: this only triggers if 'stop' is called not if stream ends etc. - compare: 'onEndCallback' of source
 		//onrelease: console.log,
 		onerror: console.error
 		//debugLog: console.log
@@ -325,7 +325,7 @@ function sepiaFW_build_web_audio(){
 						if (!event || event.data == undefined){
 							//TODO: simply ignore?
 						}else if (event.data.moduleState == 1){
-							//STATE
+							//STATE: READY
 							thisProcessNode.isReady = true;
 							completeInitCondition("module-" + i);
 							if (event.data.moduleInfo) thisProcessNode.moduleInfo = event.data.moduleInfo;
@@ -337,6 +337,7 @@ function sepiaFW_build_web_audio(){
 								completeCallback(initInfo);
 							}
 						}else if (event.data.moduleState == 9 && !thisProcessNode.isTerminated){
+							//STATE: READY TO BE TERMINATED
 							if (typeof thisProcessNode.terminate == "function"){
 								try {
 									thisProcessNode.isTerminated = true;
@@ -346,6 +347,11 @@ function sepiaFW_build_web_audio(){
 									onError({name: "TerminateError", message: "Failed to terminate module", info: err});
 								}
 							}
+						}else if (event.data.moduleState == 10){
+							//STATE: CUSTOM INIT. ERROR
+							event.data.error.target = event.target;
+							onError(event.data.error);
+							
 						}else if (event.data.moduleResponse){
 							//RESPONSE to "on-demand" request
 							//TODO: ignore?
@@ -366,7 +372,7 @@ function sepiaFW_build_web_audio(){
 						if (moduleSetup.onmessage){
 							moduleSetup.onmessage(event.data, processNodes);
 						}
-					};
+					}
 					function onError(err){
 						//TODO: do something with 'completeInitCondition("module-" + i)' or abort whole processor?
 						var errorMessage;
@@ -374,6 +380,8 @@ function sepiaFW_build_web_audio(){
 							err.preventDefault();
 							errorMessage = JSON.parse(err.message.replace(/^Uncaught /, ""));
 							err.message = errorMessage;
+						}else{
+							errorMessage = err;
 						}
 						onProcessorError({
 							name: "AudioModuleProcessorException",
@@ -589,7 +597,7 @@ function sepiaFW_build_web_audio(){
 				.then(startCallback)
 				.catch(function(err){
 					onProcessorError({name: "ProcessorStartError", message: (err.name + " - Message: " + (err.message || err))});
-					errorCallback(err);
+					if (errorCallback) errorCallback(err);
 				});
 			}
 			//STOP
@@ -612,7 +620,7 @@ function sepiaFW_build_web_audio(){
 				.then(stopCallback)
 				.catch(function(err){
 					onProcessorError({name: "ProcessorStopError", message: (err.name + " - Message: " + (err.message || err))});
-					errorCallback(err);
+					if (errorCallback) errorCallback(err);
 				});
 			}
 			//RELEASE
@@ -638,7 +646,7 @@ function sepiaFW_build_web_audio(){
 				.then(releaseCallback)
 				.catch(function(err){
 					onProcessorError({name: "ProcessorReleaseError", message: (err.name + " - Message: " + (err.message || err))});
-					errorCallback(err);
+					if (errorCallback) errorCallback(err);
 				});
 			}
 			
@@ -1149,14 +1157,14 @@ function sepiaFW_build_web_audio(){
 	}
 	
 	//White-noise-generator node for testing
-	WebAudio.createWhiteNoiseGeneratorNode = function(noiseGain, options){
-		if (!options) options = {};		//e.g. 'onMessageCallback' and 'targetSampleRate'
-		var moduleFolder = (options.moduleFolder || WebAudio.defaultProcessorOptions.moduleFolder).replace(/\/$/, "") + "/";
+	WebAudio.createWhiteNoiseGeneratorNode = function(noiseGain, ctxOptions, onMessageCallback){
+		if (!ctxOptions) ctxOptions = {};		//e.g. 'targetSampleRate'
+		var moduleFolder = WebAudio.defaultProcessorOptions.moduleFolder.replace(/\/$/, "") + "/";
 		return new Promise(function(resolve, reject){
 			(async function(){
 				try {
 					//Audio context and source node
-					var audioContext = WebAudio.createAudioContext(options);
+					var audioContext = WebAudio.createAudioContext(ctxOptions);
 					try { await audioContext.resume(); } catch(error){};		//TODO: prevent quirky stuff on e.g. iOS
 					await audioContext.suspend();
 					
@@ -1169,9 +1177,9 @@ function sepiaFW_build_web_audio(){
 							gain: (noiseGain || 0.1)
 						}
 					});
-					if (options.onMessageCallback){
+					if (onMessageCallback){
 						//just in case
-						thisProcessNode.port.onmessage = options.onMessageCallback;
+						thisProcessNode.port.onmessage = onMessageCallback;
 					}
 					resolve(thisProcessNode);
 					
@@ -1183,47 +1191,72 @@ function sepiaFW_build_web_audio(){
 	};
 	
 	//File AudioBufferSourceNode with start/stop/release
-	WebAudio.createFileSource = function(fileUrl, options){
-		if (!options) options = {};		//e.g.: 'targetSampleRate'
+	WebAudio.createFileSource = function(fileUrl, ctxOptions, loop, onEndCallback){
+		if (!ctxOptions) ctxOptions = {};		//e.g.: 'targetSampleRate'
+		return new Promise(function(resolve, reject){
+			try {
+				function errorCallback(err){
+					reject(err);
+				}
+				function successCallback(arrayBuffer){
+					WebAudio.createAudioBufferSource(arrayBuffer, ctxOptions, loop, onEndCallback)
+					.then(function(res){
+						res.typeData = {
+							fileUrl: fileUrl
+						}
+						resolve(res);
+					})
+					.catch(errorCallback);
+				}
+				WebAudio.readFileAsBuffer(fileUrl, successCallback, errorCallback);
+				
+			}catch (err){
+				reject(err);
+			}
+		});
+	}
+	//Direct AudioBufferSourceNode with start/stop/release
+	WebAudio.createAudioBufferSource = function(audioBuffer, ctxOptions, loop, onEndCallback){
+		if (!ctxOptions) ctxOptions = {};		//e.g.: 'targetSampleRate'
 		return new Promise(function(resolve, reject){
 			(async function(){
 				try {
 					//AudioContext and AudioBufferSourceNode - NOTE: maybe useful: new OfflineAudioContext(1, 128, 16000);
-					var audioContext = WebAudio.createAudioContext(options);
+					var audioContext = WebAudio.createAudioContext(ctxOptions);
 					try { await audioContext.resume(); } catch(error){};		//TODO: prevent quirky stuff on e.g. iOS
 					await audioContext.suspend();
 					var audioBufferSourceNode = audioContext.createBufferSource();
-					
-					function successCallback(arrayBuffer){
-						audioContext.decodeAudioData(arrayBuffer, function(buffer){
-							audioBufferSourceNode.buffer = buffer;
-							//audioBufferSourceNode.connect(audioContext.destination);
-							audioBufferSourceNode.loop = true;
-							return resolve({
-								node: audioBufferSourceNode,
-								type: "fileAudioBuffer",
-								typeData: {
-									fileUrl: fileUrl
-								},
-								start: function(){ audioBufferSourceNode.start(); },
-								stop: function(){ audioBufferSourceNode.stop(); },
-								release: function(){}	//TODO: ?!?
-							});
-						
-						}, function(err){ 
-							return reject(err);
+					//decode to get buffer
+					audioContext.decodeAudioData(audioBuffer, function(buffer){
+						audioBufferSourceNode.buffer = buffer;
+						audioBufferSourceNode.loop = (loop != undefined)? loop : true;
+						if (onEndCallback) audioBufferSourceNode.onended = onEndCallback;	//NOTE: req. loop=false
+						return resolve({
+							node: audioBufferSourceNode,
+							type: "fileAudioBuffer",
+							typeData: {},
+							start: function(){ audioBufferSourceNode.start(); },
+							stop: function(){ audioBufferSourceNode.stop(); },
+							release: function(){}	//TODO: ?!?
 						});
-					}
-					function errorCallback(err){
+					}, function(err){ 
 						return reject(err);
-					}
-					WebAudio.readFileAsBuffer(fileUrl, successCallback, errorCallback);
-					
+					});
 				}catch (err){
 					return reject(err);
 				}
 			})();
 		});
+	}
+	
+	//Create player for source nodes (e.g. audio URL or buffer nodes)
+	WebAudio.createSourceAudioPlayer = function(source, options, audioModules, onInit, onInitError){
+		if (!options) options = {};
+		options.modules = audioModules || [];
+		options.customSource = source;	//important source prop.: 'loop' and 'onended'
+		if (options.startSuspended == undefined) options.startSuspended = true;
+		var webAudioProcessor = new WebAudio.Processor(options, onInit, onInitError);
+		return webAudioProcessor;
 	}
 	
 	//Encode buffer to wave
@@ -1344,7 +1377,7 @@ function sepiaFW_build_web_audio(){
 	WebAudio.readFileAsBuffer = function(fileUrl, successCallback, errorCallback){
 		if (SepiaFW && SepiaFW.files){
 			//more robust method
-			SepiaFW.files.fetch(fileUrl, successCallback, errorCallback, "arraybuffer");
+			SepiaFW.files.fetch(fileUrl, successCallback, errorCallback, "arraybuffer", WebAudio.contentFetchTimeout);
 		}else{
 			//fallback
 			xmlHttpCall('arraybuffer', fileUrl, successCallback, errorCallback);
@@ -1352,7 +1385,7 @@ function sepiaFW_build_web_audio(){
 	}
 	WebAudio.readFileAsText = function(fileUrl, successCallback, errorCallback){
 		if (SepiaFW && SepiaFW.files){
-			SepiaFW.files.fetch(fileUrl, successCallback, errorCallback);	//default: text
+			SepiaFW.files.fetch(fileUrl, successCallback, errorCallback, undefined, WebAudio.contentFetchTimeout);	//default: text
 		}else{
 			xmlHttpCall('text', fileUrl, successCallback, errorCallback);
 		}
@@ -1385,6 +1418,9 @@ function sepiaFW_build_web_audio(){
 		request.onerror = function(e){
 			errorCallback(e);
 		};
+		request.ontimeout = function(e){
+			errorCallback(e);
+		};
 		request.send();
 	}
 
@@ -1398,8 +1434,20 @@ function sepiaFW_build_web_audio(){
 			}
 			return bytes;
 		}catch (error){
-			throw new Error("Converting base64 string to bytes failed.");
+			throw new Error("Converting base64 string to Uint8Array bytes array failed.");
 		}
+	}
+	function convertUint8ArrayToBase64String(uint8Array){
+		try {
+			return btoa(uint8Array.reduce(function(data, byte){ return data + String.fromCharCode(byte); }, ''));
+		}catch (error){
+			throw new Error("Converting Uint8Array to base64 string failed.");
+		}
+	}
+	//export
+	WebAudio.base64 = {
+		base64StringToUint8Array: convertBase64ToUint8Array,
+		uint8ArrayToBase64String: convertUint8ArrayToBase64String
 	}
 	
 	//Add audio data as audio element to element on page (or body)

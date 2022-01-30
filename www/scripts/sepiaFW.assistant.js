@@ -107,6 +107,7 @@ function sepiaFW_build_assistant(sepiaSessionId){
 		State.time = now;
 		State.time_local = SepiaFW.tools.getLocalDateTime(); 
 		State.lang = SepiaFW.config.appLanguage;
+		//TODO: add region?
 		State.user_location = user_location;
 
 		State.mood = mood;
@@ -305,25 +306,27 @@ function sepiaFW_build_assistant(sepiaSessionId){
 	//------------------- SOME BASIC COMMUNICATION METHODS ---------------------
 	
 	//parameters for e.g. interpret, answer, events, ..?
-	Assistant.getParametersForActionCall = function(){
+	function getParametersForHttpCall(){
 		var parameters = SepiaFW.assistant.getState();
-		
+		//add credentials
+		addCredentialsToPostParameters(parameters);
+		return parameters;
+	}
+	function addCredentialsToPostParameters(parameters){
 		//get credentials
 		var userId = SepiaFW.account.getUserId();
 		var pwd = SepiaFW.account.getToken(sepiaSessionId);
 		parameters.KEY = userId + ";" + pwd;
 		parameters.client = SepiaFW.config.getClientDeviceInfo(); //SepiaFW.config.clientInfo;
-		
-		return parameters;
 	}
 	
 	//Abstract SepiaFW API call
-	Assistant.abstractApiCall = function(apiUrl, parameters, successCallback, errorCallback, maxWait){
+	function sendFormPostRequestToServer(endpoint, parameters, successCallback, errorCallback, maxWait){
 		SepiaFW.ui.showLoader();
-		//SepiaFW.debug.info('URL: ' + apiUrl + ' - parameters: ' + JSON.stringify(parameters));
+		//SepiaFW.debug.info('URL: ' + endpoint + ' - parameters: ' + JSON.stringify(parameters));
 		$.ajax({
-			url: apiUrl,
-			timeout: (maxWait || 5000),
+			url: SepiaFW.config.assistAPI + endpoint,
+			timeout: (maxWait || 6000),
 			type: "POST",
 			data: (parameters || {}),
 			headers: {
@@ -331,53 +334,54 @@ function sepiaFW_build_assistant(sepiaSessionId){
 			},
 			success: function(data) {
 				SepiaFW.ui.hideLoader();
-				if (debugCallback) debugCallback(data);
-				if (data && data.result){
-					var status = data.result;
-					//error 3
-					if (status == "fail"){
-						if (errorCallback) errorCallback(data);
-						return;
-					}
-					//assume success
-					else{
-						if (successCallback) successCallback(data);
-					}		
-				//error 2
-				}else{
+				if (!data || !data.result || data.result != "success"){
 					if (errorCallback) errorCallback(data);
+				}else{
+					if (successCallback) successCallback(data);
 				}
 			},
-			//error 1
-			error: function(data) {
+			error: function(err) {
 				SepiaFW.ui.hideLoader();
-				if (errorCallback) errorCallback(data);
+				if (errorCallback) errorCallback(err);
 			}
 		});
 	}
 	
 	//Call 'interpret' endpoint
 	Assistant.callInterpreter = function(text, successCallback, errorCallback){
-		var parameters = Assistant.getParametersForActionCall();
+		var parameters = getParametersForHttpCall();
 		parameters.text = text;
-		var apiUrl = SepiaFW.config.assistAPI + "interpret";
-		var maxWait = 5000;
-		Assistant.abstractApiCall(apiUrl, parameters, successCallback, errorCallback, maxWait);
+		var endpoint = "interpret";
+		var maxWait = 8000;
+		sendFormPostRequestToServer(endpoint, parameters, successCallback, errorCallback, maxWait);
 	}
 	//Call 'answer' endpoint
 	Assistant.callForAnswer = function(text, successCallback, errorCallback){
-		var parameters = Assistant.getParametersForActionCall();
+		var parameters = getParametersForHttpCall();
 		parameters.text = text;
-		var apiUrl = SepiaFW.config.assistAPI + "answer";
-		var maxWait = 5000;
-		Assistant.abstractApiCall(apiUrl, parameters, successCallback, errorCallback, maxWait);
+		var endpoint = "answer";
+		var maxWait = 8000;
+		sendFormPostRequestToServer(endpoint, parameters, successCallback, errorCallback, maxWait);
 	}
 	//Check 'events' endpoint
-	Assistant.callForAnswer = function(text, successCallback, errorCallback){
-		var parameters = Assistant.getParametersForActionCall();
-		var apiUrl = SepiaFW.config.assistAPI + "events";
-		var maxWait = 5000;
-		Assistant.abstractApiCall(apiUrl, parameters, successCallback, errorCallback, maxWait);
+	Assistant.callEvents = function(text, successCallback, errorCallback){
+		var parameters = getParametersForHttpCall();
+		var endpoint = "events";
+		var maxWait = 8000;
+		sendFormPostRequestToServer(endpoint, parameters, successCallback, errorCallback, maxWait);
+	}
+	//Call 'remote-action' endpoint
+	Assistant.sendHttpRemoteAction = function(type, action, deviceId, sharedReceiver, successCallback, errorCallback){
+		var parameters = {
+			type: type,
+			action: JSON.stringify(action || {}),	//quirky O_o
+			targetDeviceId: deviceId,
+			receiver: sharedReceiver
+		};
+		addCredentialsToPostParameters(parameters);
+		var endpoint = "remote-action";
+		var maxWait = 8000;
+		sendFormPostRequestToServer(endpoint, parameters, successCallback, errorCallback, maxWait);
 	}
 	
 	return Assistant;

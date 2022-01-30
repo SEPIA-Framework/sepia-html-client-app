@@ -213,7 +213,8 @@ function sepiaFW_build_animate(){
 	//wake-word animations:
 
 	Animate.wakeWord.active = function(){
-		$('#sepiaFW-nav-label-online-status').addClass("wake-word-active");
+		$('.sepiaFW-ww-indicator').addClass("wake-word-active");
+		$('#sepiaFW-main-window').addClass("wake-word-active");
 		//dispatch event
 		var event = new CustomEvent('sepia_wake_word', { detail: {
 			state: "active"
@@ -222,7 +223,8 @@ function sepiaFW_build_animate(){
 		SepiaFW.debug.info('Wake-word listener activated'); 		//DEBUG
 	}
 	Animate.wakeWord.inactive = function(){
-		$('#sepiaFW-nav-label-online-status').removeClass("wake-word-active");
+		$('.sepiaFW-ww-indicator').removeClass("wake-word-active");
+		$('#sepiaFW-main-window').removeClass("wake-word-active");
 		//dispatch event
 		var event = new CustomEvent('sepia_wake_word', { detail: {
 			state: "inactive"

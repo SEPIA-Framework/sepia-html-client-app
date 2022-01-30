@@ -117,8 +117,8 @@ function sepiaFW_build_ui_cards(){
 						if (elementType === USER_DATA_LIST){
 							var section = cardInfoI.info[j].section;
 							var dataN = (cardInfoI.info[j].data)? cardInfoI.info[j].data.length : 0;
+							//console.error('card list element info: ' + JSON.stringify(cardInfoI.info[j]));	//DEBUG
 							var cardElement = buildUserDataList(cardInfoI.info[j]);
-							//console.log('card list element info: ' + JSON.stringify(cardInfoI.info[j]));
 							if (N == 1){ 	//one list is shown in-chat
 								if (section === "timeEvents" && dataN > 3){
 									card.dataFullScreen.push(cardElement);
@@ -403,24 +403,26 @@ function sepiaFW_build_ui_cards(){
 		for (i=0; i<N; i++){
 			//note: if you add element types here don't forget to add them in 'getUserDataList' too! (e.g. listElement, timerEvent, ...)
 			//console.log('build card ele: ' + elementsData[i].eleType); 		//DEBUG
+			var listEle;
 			
 			//timer element
 			if (elementsData[i].eleType === "timer"){
-				var listEle = makeTimerElement(elementsData[i], cardElement.id, cardBody);		//make AND add
+				listEle = makeTimerElement(elementsData[i], cardElement.id, cardBody);		//make AND add
 				if (hasTimer === 0) { hasTimer = 1;	cardBody.className = "sepiaFW-cards-list-body sepiaFW-cards-list-timers"; }
 				//refresh interval actions
 				SepiaFW.events.addOrRefreshTimeEvent(elementsData[i].targetTimeUnix, elementsData[i].eleType, elementsData[i]);
+				//console.error("CREATED time event: " + elementsData[i].name, listEle);		//DEBUG
 			
 			//alarm element
 			}else if (elementsData[i].eleType === "alarm"){
-				var listEle = makeAlarmElement(elementsData[i], cardElement.id, cardBody);		//make AND add
+				listEle = makeAlarmElement(elementsData[i], cardElement.id, cardBody);		//make AND add
 				if (hasAlarm === 0) { hasAlarm = 1; cardBody.className = "sepiaFW-cards-list-body sepiaFW-cards-list-alarms"; }
 				//refresh interval actions
 				SepiaFW.events.addOrRefreshTimeEvent(elementsData[i].targetTimeUnix, elementsData[i].eleType, elementsData[i]);
 			
 			//default: checkable element (default list element)
 			}else{
-				var listEle = makeUserDataListElement(elementsData[i], cardElementInfo); 	//just make (add self)
+				listEle = makeUserDataListElement(elementsData[i], cardElementInfo); 	//just make (add self)
 				cardBody.appendChild(listEle);
 				if (hasCheckable === 0) { hasCheckable = 1; cardBody.className = "sepiaFW-cards-list-body sepiaFW-cards-list-checkables"; }
 				setupUserDataListElementButtons(listEle); 		//we do this as last step, after classes are set and ele ist appended!
@@ -712,19 +714,36 @@ function sepiaFW_build_ui_cards(){
 				buttonName: SepiaFW.local.g('playOn'),
 				fun: function(){
 					//play stream on different device
+					var includeSharedFor = [{dataType: "remoteActions", action: "media", actionType: "audio_stream"}];
 					SepiaFW.client.showConnectedUserClientsAsMenu(SepiaFW.local.g('choose_device_for_music'), 
 						function(deviceInfo){
-							SepiaFW.client.sendRemoteActionToOwnDevice("media", {
+							var sharedReceiver = deviceInfo.isShared? deviceInfo.id : undefined;
+							SepiaFW.client.sendRemoteActionToOwnDeviceOrShared("media", {
 								type: "audio_stream",
 								name: radioElementInfo.name,
 								streamURL: radioElementInfo.streamURL,
 								playlistURL: radioElementInfo.playlistURL
-							}, deviceInfo.deviceId);
-						}, true
+							}, deviceInfo.deviceId, sharedReceiver, function(err){
+								SepiaFW.debug.error("Failed to send remote action.", err);
+								SepiaFW.ui.showPopup("Failed to send remote action." + (err? (" Error: " + err) : ""));
+							});
+						}, true, includeSharedFor, {
+							skipOwnDevice: true
+						}
 					);
 				}
 			});
 		}
+		//media control
+		customButtons.push({
+			buttonName: '<i class="material-icons md-inherit">pause</i>',
+			fun: function(){
+				SepiaFW.client.controls.media({
+					action: "stop",
+					skipFollowUp: true
+				});
+			}
+		});
 		//context menu
 		var contextMenu = makeBodyElementContextMenu(flexCardId, cardBody, cardBodyItem, cardBodyItem.id, {
 			toggleButtonSelector: ".radioLeft",
@@ -1427,13 +1446,20 @@ function sepiaFW_build_ui_cards(){
 				buttonName: SepiaFW.local.g('playOn'),
 				fun: function(){
 					//play stream on different device
+					var includeSharedFor = [{dataType: "remoteActions", action: "media", actionType: "embedded_player"}];
 					SepiaFW.client.showConnectedUserClientsAsMenu(SepiaFW.local.g('choose_device_for_music'), 
 						function(deviceInfo){
-							SepiaFW.client.sendRemoteActionToOwnDevice("media", {
+							var sharedReceiver = deviceInfo.isShared? deviceInfo.id : undefined;
+							SepiaFW.client.sendRemoteActionToOwnDeviceOrShared("media", {
 								type: "embedded_player",
 								playerData: exportEmbeddedPlayerDataForRemoteAction(linkElementInfo)
-							}, deviceInfo.deviceId);
-						}, true
+							}, deviceInfo.deviceId, sharedReceiver, function(err){
+								SepiaFW.debug.error("Failed to send remote action.", err);
+								SepiaFW.ui.showPopup("Failed to send remote action." + (err? (" Error: " + err) : ""));
+							});
+						}, true, includeSharedFor, {
+							skipOwnDevice: true
+						}
 					);
 				}
 			},{

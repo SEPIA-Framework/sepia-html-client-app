@@ -2,7 +2,7 @@
 var ClexiJS = (function(){
 	var Clexi = {};
 	
-	Clexi.version = "0.8.2";
+	Clexi.version = "0.9.0";
 	Clexi.serverId = "";		//if you set this the client will check the server ID on welcome event and close connection if not identical
 	
 	//Extension subscriptions
@@ -11,7 +11,13 @@ var ClexiJS = (function(){
 	//Websocket connection
 	var hostURL;
 	var ws;
+	
+	//Client and msg ID(s)
+	Clexi.clientBaseId = "wcl-msg-";
 	var msgId = 0;
+	Clexi.getNewMessageId = function(){
+		return Clexi.clientBaseId + ++msgId;
+	}
 
 	var reconnectBaseDelay = 330;
 	var reconnectMaxDelay = 300000;
@@ -198,28 +204,30 @@ var ClexiJS = (function(){
 		}, delay);
 	}
 	
-	Clexi.send = function(extensionName, data, numOfRetries){
+	Clexi.send = function(extensionName, data, numOfRetries, customMsgId){
+		var id = (customMsgId != undefined)? customMsgId : Clexi.getNewMessageId();
 		if (ws && isConnected){
 			var msg = {
 				type: extensionName,
 				data: data,
-				id: ++msgId,
+				id: id,
 				ts: Date.now()
 			};
 			// Send the msg object as a JSON-formatted string.
 			ws.send(JSON.stringify(msg));
 		}else if (numOfRetries && numOfRetries > 0){
-			Clexi.schedule(extensionName, data, 0, numOfRetries);
+			Clexi.schedule(extensionName, data, 0, numOfRetries, id);
 		}
+		return id;
 	}
-	Clexi.schedule = function(extensionName, data, thisRetry, maxRetries){
+	Clexi.schedule = function(extensionName, data, thisRetry, maxRetries, customMsgId){
 		thisRetry++;
 		if (thisRetry <= maxRetries){
 			setTimeout(function(){
 				if (ws && isConnected){
-					Clexi.send(extensionName, data, maxRetries - thisRetry);
+					Clexi.send(extensionName, data, maxRetries - thisRetry, customMsgId);
 				}else{
-					Clexi.schedule(extensionName, data, thisRetry, maxRetries);
+					Clexi.schedule(extensionName, data, thisRetry, maxRetries, customMsgId);
 				}
 			}, Clexi.scheduleDelay);
 		}else{

@@ -316,6 +316,9 @@ body.limit-size {
 	align-items: center;
 	padding-bottom: 10%;
 }
+.dark-skin .sepiaFW-popup-cover-layer {
+	background: rgba(96, 96, 100, 0.92);
+}
 .sepiaFW-input-popup {
 	position: relative;
 	/*top: 40%;
@@ -460,6 +463,7 @@ body.limit-size {
 
 /* -------------------- MAIN ------------------------- */
 
+/* TODO: replace with html.framed-view ... */
 @media (min-width: 480px) and (min-height: 481px) {
 	body {
 		display: flex;
@@ -475,6 +479,10 @@ body.limit-size {
 	body.limit-size #sepiaFW-main-window {
 		max-height: 820px;
 	}
+}
+html.edge-2-edge body.big-screen #sepiaFW-main-window {
+	border-radius: 0;
+	border-width: 0;
 }
 #sepiaFW-main-window.sepiaFW-skin-mod {
 	/* skins should write main-window modifications to this class so other views like frame or ao-mode stay untouched*/
@@ -686,6 +694,10 @@ html.dark-skin #sepiaFW-login-help-btn {
 
 #sepiaFW-main-window input, #sepiaFW-main-window button, #sepiaFW-main-window article {
 	border-radius: 3px;
+}
+#sepiaFW-main-window input[type="text"],
+#sepiaFW-main-window input[type="url"] {
+	text-overflow: ellipsis;
 }
 
 #sepiaFW-nav-bar {
@@ -916,7 +928,7 @@ html.dark-skin #sepiaFW-login-help-btn {
 	float: right;
     height: 28px;
 	min-height: 18px;
-    max-width: 50%;
+    max-width: 58%;
 	min-width: 100px;
     margin: 0px 0px 0px 0px;
     padding: 0px 5px 3px 5px;
@@ -1435,7 +1447,8 @@ html.dark-skin #sepiaFW-login-help-btn {
     content: "→ ";
 }
 #sepiaFW-chat-userlist .assistant::after { 
-    content: " \2660";
+    content: " \2726";
+    font-size: 13px;
 }
 
 #sepiaFW-chat-channellist {
@@ -1451,7 +1464,9 @@ html.dark-skin #sepiaFW-login-help-btn {
     content: "→ ";
 }
 #sepiaFW-chat-channellist .my-channel::after { 
-    content: " \2660"; /*221E, 00A9*/
+    /*2605, 2660, 221E, 00A9*/
+	content: " \2726";
+    font-size: 13px;
 }
 #sepiaFW-chat-channellist .public::after { 
     content: " \221E"; /*221E, 00A9*/
@@ -1518,10 +1533,19 @@ html.dark-skin #sepiaFW-login-help-btn {
 #sepiaFW-nav-label-online-status.connecting {
 	opacity: 0.50;
 }
-#sepiaFW-nav-label-online-status.wake-word-active:after, 
+#sepiaFW-nav-label-online-status.wake-word-active {
+	animation: sepiaFW-animation-blink 2.0s 1;
+    display: flex;
+    justify-content: space-around;
+    flex-wrap: nowrap;
+	overflow: visible;
+}
 #sepiaFW-nav-label-online-status.wake-word-active:before {
-    content: ' Ξ ';
-    /*color: #ff2550;*/
+    content: 'Ξ ';
+    font-family: monospace;
+}
+#sepiaFW-nav-label-online-status.wake-word-active:after {
+    content: ' Ξ';
     font-family: monospace;
 }
 #sepiaFW-nav-label-note {
@@ -2252,8 +2276,16 @@ html.landscape-small #sepiaFW-main-window.sepiaFW-skin-mod:not(.full-screen) {
 	width: calc(100% - 110px);
 	margin-left: 55px;
 }
+html.landscape-small #sepiaFW-main-window.sepiaFW-skin-mod.full-screen {
+	width: calc(100% - 55px);
+	margin-left: 0px;
+	margin-right: 55px;
+}
 html.landscape-small #sepiaFW-main-window.sepiaFW-skin-mod ~ #sepiaFW-swipeBar-container-left {
 	left: 55px;
+}
+html.landscape-small #sepiaFW-main-window.sepiaFW-skin-mod.full-screen ~ #sepiaFW-swipeBar-container-left {
+	left: 0px;
 }
 html.landscape-small #sepiaFW-main-window.sepiaFW-skin-mod ~ #sepiaFW-swipeBar-container-right {
 	right: 55px;
@@ -2316,6 +2348,29 @@ html.landscape-small #sepiaFW-chat-controls-more-menu {
 	width: 100%;
 	max-width: 100%;
 	max-height: 100%;
+	padding-bottom: 0;
+}
+#sepiaFW-chat-controls-more-menu #sepiaFW-more-menu-input {
+	display: none;
+}
+#sepiaFW-chat-controls-more-menu #sepiaFW-more-menu-input-text {
+	width: calc(100% - 42px);
+}
+.dark-skin #sepiaFW-chat-controls-more-menu #sepiaFW-more-menu-input-text {
+	color: inherit;
+    border: 1px solid;
+}
+#sepiaFW-chat-controls-more-menu #sepiaFW-more-menu-input-send {
+	background: transparent !important;
+    color: currentColor !important;
+    transform: rotate(-90deg);
+    padding: 0;
+    margin: 5px;
+    width: 30px;
+    height: 30px;
+}
+html.landscape-small #sepiaFW-chat-controls-more-menu #sepiaFW-more-menu-input {
+	display: flex;
 }
 html.landscape-small #sepiaFW-chat-controls-right {
 	min-width: 55px;

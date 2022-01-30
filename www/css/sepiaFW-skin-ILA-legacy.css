@@ -33,6 +33,9 @@ html {
 	background: #002d70;
 	color: #fff;
 }
+html.landscape-small #sepiaFW-chat-controls {
+	background: #0057d6 !important
+}
 
 #sepiaFW-main-window button,
 .sepiaFW-notouch-device #sepiaFW-main-window button:hover {

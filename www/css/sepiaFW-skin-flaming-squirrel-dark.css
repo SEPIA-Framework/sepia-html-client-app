@@ -18,6 +18,9 @@ html {
 	background: linear-gradient(rgba(26,15,48,0), #1a0f30);
 	border-bottom-color: #1a0f30;
 }
+.dark-skin #sepiaFW-chat-controls-more-menu #sepiaFW-more-menu-input-text {
+    color: #20123a;
+}
 
 #sepiaFW-chat-menu {
     background: #1a0f30;

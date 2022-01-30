@@ -128,6 +128,9 @@
 	margin: 8px;
 	flex: 1 0 100%;
 }
+.sepiaFW-frames-page .group.wrap {
+	flex-wrap: wrap;
+}
 .sepiaFW-frames-page .group.column {
 	flex-direction: column;
 }
@@ -316,11 +319,13 @@
 
 /*@media (max-height: 480px) and (min-aspect-ratio: 13/10) and (min-width: 380px) {}*/
 
-html.landscape-small #sepiaFW-main-window.sepiaFW-frame-mode {
+html.landscape-small #sepiaFW-main-window.sepiaFW-frame-mode,
+html.landscape-small #sepiaFW-main-window.sepiaFW-ao-mode {
 	width: calc(100% - 55px);
 	margin-left: 55px;
 }
-html.landscape-small #sepiaFW-main-window.sepiaFW-frame-mode ~ #sepiaFW-swipeBar-container-left {
+html.landscape-small #sepiaFW-main-window.sepiaFW-frame-mode ~ #sepiaFW-swipeBar-container-left,
+html.landscape-small #sepiaFW-main-window.sepiaFW-ao-mode ~ #sepiaFW-swipeBar-container-left {
 	left: 55px;
 }
 

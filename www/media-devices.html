@@ -335,110 +335,41 @@
 			var volumeGraph = SepiaFW.ui.plot.createLineSeries(chartEle1, 150);
 			var vadGraph = SepiaFW.ui.plot.createLineSeries(chartEle2, 150);
 			//stop and release existing recorders
-			SepiaFW.frames.currentScope.showMicTestInfo("Stopping existing recorders...");
-			SepiaFW.audioRecorder.stopAndReleaseIfActive(function(){
-				SepiaFW.frames.currentScope.showMicTestInfo("Creating new recorder...");
-				var waveEncModule = SepiaFW.audioRecorder.createDefaultWaveEncoderModule(function(msg){
-					//console.log("DEBUG --- waveEncoderModule msg", msg);			//DEBUG
-					if (msg){
-						if (msg.gate && msg.gate.isOpen == false && state.waveEncoderGateIsOpen){
-							state.waveEncoderGateIsOpen = false;
-							if (state.startedRecording && msg.gate.closedAt){
-								state.recordingDuration = msg.gate.closedAt - state.startedRecording;
-							}
-							SepiaFW.frames.currentScope.showMicTestInfo("Recorder closed. Duration (ms): " + state.recordingDuration + ". Generating wave file.");
-							SepiaFW.audioRecorder.stopIfActive(function(){
-								//stopped
-								state.waveEncModule.handle.sendToModule({request: {get: "wave"}});
-							});
-						}else if (msg.output && msg.output.wav){
-							//add wav to play
-							SepiaFW.frames.currentScope.addWaveToPage(msg.output.wav);
-							//evaluate data
-							if (state.rmsData.points.length){
-								var maxRms = Math.max(...state.rmsData.points).toFixed(4);
-								var minRms = Math.min(...state.rmsData.points).toFixed(4);
-								var avgRms = (state.rmsData.sum/state.rmsData.points.length).toFixed(4);
-								var durationGood = state.recordingDuration < (recLimit*1.1) && state.recordingDuration > (recLimit * 0.9);
-								var maxVolGood = maxRms > 0.1;
-								SepiaFW.frames.currentScope.showMicTestInfo(
-									"Duration is " + (durationGood? "good" : "BAD") + ": " + state.recordingDuration + "ms\n" +
-									"Volume (max) is " + (maxVolGood? "good" : "BAD") + ": " + maxRms + " rms\n" +
-									"Volume (min) is " + (minRms/maxRms < 0.2? "good" : "BAD") + ": " + minRms + " rms\n" +
-									"Volume avg: " + avgRms + " rms\n" +
-									"VAD start: " + (state.vadData.speechStart) + "ms, end: " + (state.vadData.speechEnd) + "ms\n" + 
-									"Notes:\n" +
-									(durationGood? "" : "Try source processor setting.\n") +
-									(maxVolGood? "" : "Try to increase gain.\n") +
-									"Please check audio recording for quality."
-								);
-							}
-							//TODO: mark clipped audio?
-						}
+			SepiaFW.audioRecorder.testMicrophone(state, recLimit, function(res){
+				//show results
+				SepiaFW.frames.currentScope.showMicTestInfo(
+					"Duration is " + (res.durationGood? "good" : "BAD") + ": " + state.recordingDuration + "ms\n" +
+					"Volume (max) is " + (res.maxVolGood? "good" : "BAD") + ": " + res.maxRms + " rms\n" +
+					"Volume (min) is " + (res.minVolGood? "good" : "BAD") + ": " + res.minRms + " rms\n" +
+					"Volume avg: " + res.avgRms + " rms\n" +
+					"VAD start: " + (res.vadSpeechStart) + "ms, end: " + (res.vadSpeechEnd) + "ms\n" + 
+					"Notes:\n" +
+					(res.durationGood? "" : "Try source processor setting.\n") +
+					(res.maxVolGood? "" : "Try to increase gain.\n") +
+					"Please check audio recording for quality."
+				);
+			}, function(wavData){
+				//add wav to play
+				SepiaFW.frames.currentScope.addWaveToPage(wavData);
+			}, function(rmsVol){
+				//plot volume
+				volumeGraph.addValues(rmsVol);
+				volumeGraph.draw();
+			}, function(energy){
+				//plot VAD
+				vadGraph.addValues(energy);
+				vadGraph.draw();
+			},
+				SepiaFW.frames.currentScope.showMicTestInfo, 
+				function(errName, errMessage){
+					if (errName == "InitError"){
+						SepiaFW.debug.error("Media-Devices - Microphone test init. error:", initErr);
+					}else{
+						SepiaFW.debug.error("Media-Devices - Microphone test runtime error:", runtimeErr);
 					}
-				}, {
-					recordBufferLimitMs: recLimit
-				});
-				state.waveEncModule = waveEncModule;
-				SepiaFW.audioRecorder.createWebAudioRecorder({
-					vadModule: SepiaFW.audioRecorder.createDefaultVadModule(undefined, function(energy){
-						if (energy != undefined){
-							//plot
-							vadGraph.addValues(energy);
-							vadGraph.draw();
-							state.vadData.points.push(energy);
-							state.vadData.sum += energy;
-						}
-					}, undefined, function(){
-						SepiaFW.frames.currentScope.showMicTestInfo("VAD - Speech input block detected.");
-						state.vadData.speechStart = new Date().getTime() - state.startedRecording;
-					}, undefined, undefined, function(started, ended){
-						SepiaFW.frames.currentScope.showMicTestInfo("VAD - Speech input block ended.");
-						state.vadData.speechStart = started - state.startedRecording;	//overwrite
-						state.vadData.speechEnd = ended - state.startedRecording;
-					}, {
-						maxSequenceTime: recLimit,
-						minSequenceTime: 600
-					}),
-					wakeWordModule: false,		//block default module
-					waveEncoderModule: waveEncModule,
-					onResamplerMessage: function(msg){
-						//if (msg.rms == undefined) console.log("DEBUG --- onResamplerMessage msg", msg);		//DEBUG
-						if (msg && msg.rms != undefined){
-							//plot
-							volumeGraph.addValues(msg.rms);
-							volumeGraph.draw();
-							state.rmsData.points.push(msg.rms);
-							state.rmsData.sum += msg.rms;
-						}
-					}
-				}, function(audioProcessor, info){
-					//on init
-					SepiaFW.frames.currentScope.showMicTestInfo("Recorder ready. Recording starts in 3s.");
-					//start
-					state.micStartTimer = setTimeout(function(){
-						SepiaFW.audioRecorder.startWebAudioRecorder(function(){
-							state.waveEncModule.handle.sendToModule({gate: "open"});
-							state.waveEncoderGateIsOpen = true;
-							state.startedRecording = new Date().getTime();
-							SepiaFW.frames.currentScope.showMicTestInfo("Recorder started. Please speak for " + Math.round(recLimit/1000) + "s :-)");
-						});
-					}, 3000);
-				}, function(initErr){
-					//on init err.
-					SepiaFW.debug.error("Media-Devices - Microphone test init. error:", initErr);
-					SepiaFW.frames.currentScope.showMicTestError("Recorder init. error!" 
-						+ (initErr && initErr.message? (" - Msg.: " + initErr.message) : "")
-						+ (initErr && initErr.info? (" - Info: " + initErr.info.name + " - " + initErr.info.message) : ""));
-				}, function(runtimeErr){
-					//on runtime err.
-					SepiaFW.debug.error("Media-Devices - Microphone test runtime error:", runtimeErr);
-					SepiaFW.frames.currentScope.showMicTestError("Recorder runtime error."
-						+ (runtimeErr && runtimeErr.message? (" - Msg.: " + runtimeErr.message) : "")
-						+ (runtimeErr && runtimeErr.info? (" - Info: " + runtimeErr.info.name + " - " + runtimeErr.info.message) : ""));
-					return true;
-				});
-			});
+					SepiaFW.frames.currentScope.showMicTestError(errMessage);
+				}
+			);
 		},
 		stopMicrophoneTest: function(){
 			var state = SepiaFW.frames.currentScope.micTestState;

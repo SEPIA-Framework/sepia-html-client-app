@@ -31,6 +31,10 @@ function sepiaFW_build_input_controls() {
             if (typeof InputControls.useBluetoothBeaconsOnlyWithPower == 'undefined') InputControls.useBluetoothBeaconsOnlyWithPower = false;
             SepiaFW.debug.info("Bluetooth Beacons 'only with power plug' is " + ((InputControls.useBluetoothBeaconsOnlyWithPower)? "TRUE" : "FALSE"));
 
+            InputControls.knownBluetoothBeaconAddresses = SepiaFW.data.get('knownBluetoothBeaconAddresses') || [];
+            if (typeof InputControls.knownBluetoothBeaconAddresses.length != 'number') InputControls.knownBluetoothBeaconAddresses = [];
+            SepiaFW.debug.info("Bluetooth Beacons allowed addresses: " + InputControls.knownBluetoothBeaconAddresses.length);
+
             //Add onActive action:
             SepiaFW.client.addOnActiveOneTimeAction(inputControlsOnActiveActionBeacons);
         }
@@ -68,6 +72,7 @@ function sepiaFW_build_input_controls() {
     InputControls.useBluetoothBeacons = false;  //switchable in settings
     InputControls.useBluetoothBeaconsInAoModeOnly = false;  //switchable in settings
     InputControls.useBluetoothBeaconsOnlyWithPower = false; //switchable in settings
+    InputControls.knownBluetoothBeaconAddresses = [];
 
     //Load controls settings view
     InputControls.openSettings = function(){
@@ -167,6 +172,17 @@ function sepiaFW_build_input_controls() {
                 SepiaFW.debug.info("Listening to Bluetooth Beacons with and without power-plug.");
             }, InputControls.useBluetoothBeaconsOnlyWithPower)
         );
+        var beaconKnownAddresses = document.getElementById('sepiaFW-input-controls-beacon-known-addresses');
+        beaconKnownAddresses.value = InputControls.knownBluetoothBeaconAddresses.join(", ");
+        $(beaconKnownAddresses).off().on('change', function(){
+            if (this.value){
+                InputControls.knownBluetoothBeaconAddresses = this.value.trim().split(/\s*,\s*/g);
+            }else{
+                InputControls.knownBluetoothBeaconAddresses = [];
+            }
+            SepiaFW.debug.log("Known BLE Beacons:", InputControls.knownBluetoothBeaconAddresses);
+            SepiaFW.data.set('knownBluetoothBeaconAddresses', InputControls.knownBluetoothBeaconAddresses);
+        });
         //Storage
         $('#SepiaFW-input-controls-store').off().on('click', function(){
             InputControls.storeMappings();
@@ -208,8 +224,10 @@ function sepiaFW_build_input_controls() {
         InputControls.settingsAreOpen = false;
     }
     function settingsAppendDebug(msg){
-        $settingsDebugField.append(SepiaFW.tools.sanitizeHtml("<p>" + msg + "</p>"));
-        $settingsDebugField[0].scrollIntoView(false);
+        if ($settingsDebugField){
+            $settingsDebugField.append(SepiaFW.tools.sanitizeHtml("<p>" + msg + "</p>"));
+            $settingsDebugField[0].scrollIntoView(false);
+        }
     }
 
     //Store and load button and key mappings
@@ -273,59 +291,73 @@ function sepiaFW_build_input_controls() {
 
     //-------------- shared event handler ---------------
 
-    function handleRemoteInputEvent(e, source){
-        //sources: ble-beacon, clexi-remote, sepia-chat-server  - TODO: use for security!
+    function handleRemoteInputEvent(e, source, sourceDetails){
+        //sources: ble-beacon, ble-beacon-registered, clexi-remote, clexi-gpio, sepia-chat-server
         if (!source) source = "remote-input";
+        if (!sourceDetails) sourceDetails = {};
         var isProtectedSource = false;
         if (source && source.indexOf("sepia-chat-server") >= 0){
             isProtectedSource = true;
-        }else if (source && source.indexOf("clexi-remote") >= 0 && SepiaFW.clexi.serverId){
+        }else if (source && SepiaFW.clexi.serverId && (
+            source.indexOf("clexi-remote") >= 0 ||
+            source.indexOf("clexi-gpio") >= 0
+        )){
+            isProtectedSource = true;
+        }else if (source && source.indexOf("ble-beacon-registered") >= 0){
             isProtectedSource = true;
         }
-        if (!e) return;        
-        //MIC with permission check
-        if (e == "F4" || e == "1"){
-            if (SepiaFW.wakeTriggers && SepiaFW.wakeTriggers.useWakeWord){
+        if (!e) return;
+        //Protected events - source must be trusted
+        if (isProtectedSource){
+            //MIC with permission check
+            if (e == "F4" || e == "1"){
+                if (SepiaFW.wakeTriggers && SepiaFW.wakeTriggers.useWakeWord){
+                    toggleMicrophone(source);
+                }else{
+                    SepiaFW.debug.log("InputControls remoteAction - NOT ALLOWED to use remote wake-word! Key:", e);
+                }
+            //MIC
+            }else if (e == "mic"){
                 toggleMicrophone(source);
+            }else if (e == "mr" || e == "micReset"){
+                resetMic();
+            //BACK
+            }else if (e == "back" || e == "2"){
+                backButton();
+            //AO-Mode
+            }else if (e == "ao" || e == "5"){
+                openAlwaysOn();
+            //Next and previous view
+            }else if (e == "next" || e == "3"){
+                nextView();
+            }else if (e == "prev" || e == "4"){
+                previousView();
+            //Client connection
+            }else if (e == "co" || e == "connect"){
+                clientConnect();
+            }else if (e == "dc" || e == "disconnect"){
+                clientDisconnect();
+            //Wake-word
+            }else if (e == "ww" || e == "wakeWordOn"){
+                wakeWordOn();
+            }else if (e == "wm" || e == "wakeWordOff"){
+                wakeWordOff();
+            //Reload client
+            }else if (e == "F5" || e == "reload"){
+                reloadClient();
+            //Unknown
             }else{
-                SepiaFW.debug.log("InputControls remoteAction - NOT ALLOWED to use remote wake-word! Key:", e);
+                SepiaFW.debug.log("InputControls remoteAction - no handler yet for key:", e);
             }
-        //MIC
-        }else if (e == "mic"){
-            if (isProtectedSource) toggleMicrophone(source); else logProtectedRemoteInputFail(e, source);
-        }else if (e == "mr" || e == "micReset"){
-            resetMic();
-        //BACK
-        }else if (e == "back" || e == "2"){
-            backButton();
-        //AO-Mode
-        }else if (e == "ao" || e == "5"){
-            openAlwaysOn();
-        //Next and previous view
-        }else if (e == "next" || e == "3"){
-            nextView();
-        }else if (e == "prev" || e == "4"){
-            previousView();
-        //Client connection
-        }else if (e == "co" || e == "connect"){
-            if (isProtectedSource) clientConnect(); else logProtectedRemoteInputFail(e, source);
-        }else if (e == "dc" || e == "disconnect"){
-            if (isProtectedSource) clientDisconnect(); else logProtectedRemoteInputFail(e, source);
-        //Wake-word
-        }else if (e == "ww" || e == "wakeWordOn"){
-            if (isProtectedSource) wakeWordOn(); else logProtectedRemoteInputFail(e, source);
-        }else if (e == "wm" || e == "wakeWordOff"){
-            if (isProtectedSource) wakeWordOff(); else logProtectedRemoteInputFail(e, source);
-        //Reload client
-        }else if (e == "F5" || e == "reload"){
-            if (isProtectedSource) reloadClient(); else logProtectedRemoteInputFail(e, source);
-        //Unknown
         }else{
-            SepiaFW.debug.log("InputControls remoteAction - no handler yet for key:", e);
+            logProtectedRemoteInputFail(e, source, sourceDetails);
         }
     }
-    function logProtectedRemoteInputFail(e, source){
+    function logProtectedRemoteInputFail(e, source, sourceDetails){
         SepiaFW.debug.error("InputControls remoteAction - failed to call protected action: " + e + " - source: " + source);
+        if (source == "ble-beacon" && sourceDetails && sourceDetails.address){
+            SepiaFW.debug.error("Note: If you want to use BLE beacon '" + sourceDetails.address + "' add it to known devices!");
+        }
     }
 
     //---------------- Bluetooth Beacons ----------------
@@ -353,6 +385,9 @@ function sepiaFW_build_input_controls() {
             if (!isScannigBeacons){
                 //evothings scanner - TODO: what if we want to force CLEXI BLE?
                 if (bleBeaconInterface == "evothings"){
+                    if (InputControls.settingsAreOpen){
+                        settingsAppendDebug("Starting BLE scan via device interface.");
+                    }
                     evothings.eddystone.startScan(function(beaconData){
                         //Found
                         InputControls.handleBluetoothBeaconData(beaconData);
@@ -364,6 +399,9 @@ function sepiaFW_build_input_controls() {
                 
                 //clexi xtension scanner
                 }else if (bleBeaconInterface == "clexi"){
+                    if (InputControls.settingsAreOpen){
+                        settingsAppendDebug("Starting BLE scan via CLEXI interface. Please make sure CLEXI is connected.");
+                    }
                     SepiaFW.clexi.startBleBeaconScanner();
                     SepiaFW.clexi.addBleBeaconEventListener(InputControls.handleBluetoothBeaconData);
                     SepiaFW.clexi.addBleBeaconErrorListener(InputControls.handleBluetoothBeaconError);
@@ -405,19 +443,28 @@ function sepiaFW_build_input_controls() {
 
     InputControls.handleBluetoothBeaconData = function(beaconData){
         if (beaconData && beaconData.detail && beaconData.detail.beacon){
-            beaconData = beaconData.detail.beacon.eddystoneUrl;     //for now we just use eddystone URL
+            let reducedData = beaconData.detail.beacon.eddystoneUrl || {};
+            reducedData.address = beaconData.detail.beacon.address;
+            reducedData.beaconType = beaconData.detail.beacon.beaconType;
+            beaconData = reducedData;     //for now we use eddystone URL, power level, address and beaconType
         }
-        //TODO: we probably need a method to filter duplicated calls ... e.g. an ID of the beacon "session"
-        //console.error("Beacon URL: " + beaconData.url + ", power: " + beaconData.txPower);
+        //console.error("Beacon: " + JSON.stringify(beaconData));
+        var isKnown = false;
+        if (beaconData && beaconData.address){
+            if (InputControls.knownBluetoothBeaconAddresses.indexOf(beaconData.address) >= 0){
+                isKnown = true;
+            }
+        }
         if (InputControls.settingsAreOpen && beaconData){
-            if (bleBeaconInterface == "evothings"){
+            if (!beaconData.url){
+                settingsAppendDebug("Unsupported Beacon signal: " + JSON.stringify(beaconData));
+            }else if (bleBeaconInterface == "evothings"){
                 //debug with distance
                 var distance = evothings.eddystone.calculateAccuracy(beaconData.txPower, beaconData.rssi);
-                settingsAppendDebug("Beacon URL: " + beaconData.url + ", distance: " + distance);
+                settingsAppendDebug("Beacon URL (device: " + (isKnown? "known" : "unknown") + "): " + beaconData.url + ", distance: " + distance + ", address: " + beaconData.address);
             }else if (bleBeaconInterface == "clexi"){
                 //debug
-                //console.log(beaconData);
-                settingsAppendDebug("Beacon URL: " + beaconData.url);
+                settingsAppendDebug("Beacon URL (device: " + (isKnown? "known" : "unknown") + "): " + beaconData.url + ", address: " + beaconData.address);
             }
         }else{
             if (!beaconData || !beaconData.url){
@@ -434,7 +481,8 @@ function sepiaFW_build_input_controls() {
                 blockAllFurtherBeaconEvents = false;
             }
             var e = getBeaconEvent(beaconData);
-            handleRemoteInputEvent(e, "ble-beacon");
+            var source = isKnown? "ble-beacon-registered" : "ble-beacon";
+            handleRemoteInputEvent(e, source, beaconData);
 
             blockAllFurtherBeaconEvents = true;
         }
@@ -514,6 +562,10 @@ function sepiaFW_build_input_controls() {
         }else if (SepiaFW.clexi){
             SepiaFW.clexi.removeHttpEventsListener("remote-button");
         }
+    }
+    //This will be called by CLEXI GPIO hardware buttons/events (the listener is inside clexi module)
+    InputControls.handleClexiHardwareButton = function(eventData){
+        handleRemoteInputEvent(eventData, "clexi-gpio");
     }
 
     //--------------- Keyboard Shortcuts ----------------

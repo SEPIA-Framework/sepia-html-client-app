@@ -12,6 +12,9 @@ html {
 		border: 4px solid transparent;
 		box-shadow: 0 0px 10px 0 rgba(0, 0, 0, 0.30);
 	}
+	html.edge-2-edge body.big-screen #sepiaFW-main-window {
+		border: 4px solid transparent;
+	}
 	#sepiaFW-chat-controls {
 		border: 0 !important;
 		border-bottom: 0 !important;
