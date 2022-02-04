@@ -1249,6 +1249,7 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 					//resize
 					$(window.document.body).removeClass("limit-size");
 					$(window.document.body).addClass("big-screen");
+					$(document.documentElement).addClass("no-size-limit");
 					$(window).trigger('resize');
 				},function(){
 					SepiaFW.ui.useBigScreenMode = false;
@@ -1263,6 +1264,7 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 					//resize
 					$(window.document.body).addClass("limit-size");
 					$(window.document.body).removeClass("big-screen");
+					$(document.documentElement).removeClass("no-size-limit");
 					$(window).trigger('resize');
 				}, SepiaFW.ui.useBigScreenMode)
 			);

@@ -2,7 +2,12 @@
 html {
 	background-color: #171717;
 	background-image: url(../img/blocksAlpha.png);
-    background-size: 595px;
+    background-size: 584px;
+}
+@media (min-width: 800px) {
+	html.no-size-limit {
+		background-size: 70%;
+	}
 }
 #sepiaFW-main-window {
 	color: #fff;
