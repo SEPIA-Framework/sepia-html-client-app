@@ -783,7 +783,7 @@ function sepiaFW_build_ui(){
 		//---------------------- LOAD other SETTINGS before building the UI:
 
 		//load skin and avatar
-		var lastSkin = SepiaFW.data.get('activeSkin');
+		var lastSkin = SepiaFW.tools.getURLParameter("skinId") || SepiaFW.data.get('activeSkin');
 		if (lastSkin){
 			UI.setSkin(lastSkin, false);
 		}else{
