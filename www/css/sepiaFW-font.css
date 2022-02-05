@@ -23,6 +23,10 @@
 .sepia-icon-font * {
   font-weight: normal !important;
 }
+.sepia-icon-font.s14 {
+	font-size: 14px;
+  margin: 0 1px;
+}
 .sepia-icon-font.s18 {
 	font-size: 18px;
 }

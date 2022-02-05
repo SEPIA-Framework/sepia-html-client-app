@@ -111,9 +111,10 @@ html.landscape-small #sepiaFW-chat-controls .eButton {
 	color: #02b3e4;
 }
 
-#sepiaFW-chat-input {
+#sepiaFW-main-window #sepiaFW-chat-input {
 	background: #F4F4F4;
 	border-radius: 18px !important;
+	border: 2px solid #000;
 }
 #sepiaFW-assist-btn-area {
 	border: 2px solid #000;
@@ -167,18 +168,29 @@ html.landscape-small #sepiaFW-chat-controls .eButton {
 }
 #sepiaFW-chat-controls-more-menu button,
 .sepiaFW-touch-device #sepiaFW-chat-controls-more-menu button:hover {
-	background: #f4f4f4;
-	color: #000;
+	background: #000;
+	color: #fff;
+}
+.sepiaFW-notouch-device #sepiaFW-chat-controls-more-menu button:hover {
+	background: linear-gradient(to right, #03a9f4 0%, #00bcd4 100%);
+	color: #fff;
+}
+#sepiaFW-chat-controls-more-menu #sepiaFW-more-menu-input-text {
+	border: 1px solid #000;
+}
+#sepiaFW-chat-controls-more-menu #sepiaFW-audio-ctrls-vol {
+	background: transparent;
+    color: #000;
 }
 #sepiaFW-chat-menu {
 	background: #fff;
 	color: #000;
 }
 #sepiaFW-chat-menu-head-border {
-    background: linear-gradient(to right, rgba(0,0,0,0) 0%,rgba(255,255,255,0.5) 40%,rgba(255,255,255,0.5) 60%,rgba(0,0,0,0) 100%);
+    background: linear-gradient(to right, #fff 0%, #eee 40%, #eee 60%, #fff 100%);
 }
 #sepiaFW-chat-menu-footer-border {
-    background: linear-gradient(to right, rgba(0,0,0,0) 0%,rgba(255,255,255,0.5) 40%,rgba(255,255,255,0.5) 60%,rgba(0,0,0,0) 100%);
+    background: linear-gradient(to right, #fff 0%, #eee 40%, #eee 60%, #fff 100%);
 }
 #sepiaFW-chat-menu li {
 	background: #fdfdfd;
@@ -186,7 +198,8 @@ html.landscape-small #sepiaFW-chat-controls .eButton {
 .sepiaFW-notouch-device .sepiaFW-menu li:not(.sepiaFW-cards-button):hover {
 	background: #fcfcfc !important;
 }
-#sepiaFW-chat-menu button {
+#sepiaFW-chat-menu button,
+.sepiaFW-touch-device #sepiaFW-chat-menu button:hover {
 	border: 1px solid #000;
 	border-radius: 18px;
 	background: linear-gradient(to right, #03a9f4 0%, #00bcd4 100%);
@@ -197,10 +210,6 @@ html.landscape-small #sepiaFW-chat-controls .eButton {
 	background-color: #212121 !important;
 	color: #F4F4F4 !important;
 }
-.sepiaFW-notouch-device #sepiaFW-chat-controls-more-menu button:hover {
-	background-color: #F4F4F4 !important;
-	color: #040404 !important;
-}
 #sepiaFW-chat-channel-view {
     background: linear-gradient(to bottom, #fff 0px, #fafafa 100%) !important;
     color: #000 !important;
@@ -210,6 +219,7 @@ html.landscape-small #sepiaFW-chat-controls .eButton {
     background: linear-gradient(to right, #03a9f4 0%, #00bcd4 100%) !important;
 	color: #fff !important;
 	border-radius: 18px;
+	border: 2px solid #000;
 }
 .sepiaFW-notouch-device #sepiaFW-main-window .chat-buttons-area button:hover {
     background: #02b3e4 !important;
@@ -218,7 +228,7 @@ html.landscape-small #sepiaFW-chat-controls .eButton {
 #sepiaFW-main-window .chat-buttons-area .my-view-custom-button {
 	background: linear-gradient(to right, #03a9f4 0%, #00bcd4 100%) !important;
 	color: #fff !important;
-	border-radius: 36px;
+	border-radius: 38px;
 	max-width: 136px;
     min-height: 42px;
     font-size: 14px;
@@ -227,11 +237,7 @@ html.landscape-small #sepiaFW-chat-controls .eButton {
 #sepiaFW-main-window #sepiaFW-myFirstStart-buttons button {
 	background: #000 !important;
     color: #f4f4f4 !important;
-}
-.sepiaFW-notouch-device #sepiaFW-main-window .chat-buttons-area .my-view-custom-button:hover,
-.sepiaFW-notouch-device #sepiaFW-main-window #sepiaFW-myFirstStart-buttons button:hover {
-	background: #02b3e4 !important;
-    color: #fff !important;
+	border: 0;
 }
 #sepiaFW-main-window #sepiaFW-myEvents-buttons button,
 #sepiaFW-main-window #sepiaFW-myEvents-buttons-replaced button,
@@ -244,9 +250,11 @@ html.landscape-small #sepiaFW-chat-controls .eButton {
     font-size: 14px;
 	border: 2px solid #000;
 }
+.sepiaFW-notouch-device #sepiaFW-main-window .chat-buttons-area .my-view-custom-button:hover,
+.sepiaFW-notouch-device #sepiaFW-main-window #sepiaFW-myFirstStart-buttons button:hover,
 .sepiaFW-notouch-device #sepiaFW-main-window #sepiaFW-myEvents-buttons button:hover {
-	background: #02b3e4 !important;
-	color: #fff !important;
+	background: #03a9f4 !important;
+    color: #fff !important;
 }
 /* special stuff for round buttons */
 #sepiaFW-myEvents-buttons {
@@ -256,33 +264,47 @@ html.landscape-small #sepiaFW-chat-controls .eButton {
     margin: 4px 0 12px 0;
 }
 
+#sepiaFW-chat-output article {
+	background: #fafafa;
+    color: #000;
+}
 #sepiaFW-chat-output .statusUpdate {
     background: rgba(205, 205, 205, 0.05);
     color: #000;
 	border-radius: 18px;
 }
-
-#sepiaFW-chat-output article {
-	background: #fafafa;
-    color: #000;
-}
 #sepiaFW-chat-output article.chatMe {
 	background: linear-gradient(to right, #03a9f4 0%, #00bcd4 100%) !important;
 	color: #fff;
+	border: 2px solid #000;
+	padding-left: 11px;
+    border-radius: 7px 7px 0 7px;
 }
 #sepiaFW-chat-output article.chatMe b, 
 #sepiaFW-chat-output article.chatMe span {
-	color: #040404;
+	color: #000;
+}
+#sepiaFW-chat-output article.chatMe.chatPm {
+	border-left-color: #000;
 }
 #sepiaFW-chat-output article.chatAssistant {
 	background: #000;
 	color: #fff;
+	border-radius: 7px 7px 7px 0;
 }
 #sepiaFW-chat-output article.chatAssistant b {
 	color: #F4F4F4;
 }
 #sepiaFW-chat-output article.chatAssistant.chatPm {
-	border-left-color: rgba(155, 155, 155, 0.10);
+	border-left-color: rgba(255, 255, 255, 0.15);
+}
+#sepiaFW-chat-output article.chatOther {
+	border: 2px solid #000;
+	padding-left: 11px;
+	border-radius: 7px 7px 7px 0;
+}
+#sepiaFW-chat-output article.chatOther.chatPm {
+	border-left-color: #000;
 }
 
 #sepiaFW-chat-controls-swipe-area .sepiaFW-swipeBar-switchable {
@@ -303,6 +325,19 @@ html.landscape-small #sepiaFW-chat-controls .eButton {
 #sepiaFW-loader:after{
 	background:rgba(255, 255, 255, 0.11);
 }
+#sepiaFW-popup-message i {
+    color: #02b3e4;
+}
+#sepiaFW-popup-message .accent {
+    color: #ffeb3b;
+}
+
+/*----- details -----*/
+
+#sepiaFW-nav-label-note {
+	background: #000;
+	color: #fff;
+}
 
 /*----- cards ------*/
 
@@ -310,19 +345,16 @@ html.landscape-small #sepiaFW-chat-controls .eButton {
 	background: #f4f4f4;
 }
 
-.sepiaFW-help-view {
-    background: #121212;
-}
-
 .sepiaFW-cards-button,
 .sepiaFW-notouch-device .sepiaFW-cards-button:hover {
-	background: #02b3e4;
-    color: #fff
+	background: #000;
+    color: #fff;
 }
 
 .sepiaFW-cards-list-title {
 	background: linear-gradient(to right, #03a9f4 0%, #00bcd4 100%);
-    color: #fff
+    color: #fff;
+	border: 2px solid #000;
 }
 .sepiaFW-cards-list-title button {
 	color: #000 !important;
@@ -385,7 +417,7 @@ html.landscape-small #sepiaFW-chat-controls .eButton {
     background: #040404;
 }
 #sepiaFW-teachUI-view label {
-    color: #eded00;
+    color: #02b3e4;
 }
 #sepiaFW-teachUI-editor button, 
 #sepiaFW-teachUI-manager button {
