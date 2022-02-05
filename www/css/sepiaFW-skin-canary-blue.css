@@ -339,6 +339,11 @@ html.landscape-small #sepiaFW-chat-controls .eButton {
 	color: #fff;
 }
 
+#sepiaFW-main-window .chat-buttons-area button.chat-button-custom-fun::after {
+    bottom: 8px;
+    right: 1px;
+}
+
 /*----- cards ------*/
 
 .sepiaFW-cards-flexSize-container {
