@@ -636,6 +636,7 @@ html.edge-2-edge body.big-screen #sepiaFW-main-window {
     /* background: #ddd; */
     /* color: #111; */
     width: 25px;
+	height: 25px;
     margin: 0;
     padding: 4px;
     border-radius: 50%;
