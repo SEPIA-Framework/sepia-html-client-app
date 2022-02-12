@@ -2,13 +2,15 @@
 html {
 	background-image: url(../img/blocks2_alpha.png);
     background-color: #000;
-    background-size: 483px;
+    background-size: 350px;
     background-repeat: repeat;
 }
 #sepiaFW-main-window {
     border: 0;
     border-radius: 0;
     box-shadow: inset 0px 0px 4px 1px #85b987;
+    color: #68fb7c;
+    text-shadow: 0 0 1px #caffd1;
 }
 .sepiaFW-results-container {
 	scrollbar-color: rgba(84, 114, 86, 0.15) rgba(84, 114, 86, 0.15);
@@ -27,10 +29,10 @@ html {
 #sepiaFW-statC 	{ background-color: #000; }
 
 #sepiaFW-login-box, #sepiaFW-nav-bar, #sepiaFW-chat-controls-form, #sepiaFW-chat-controls-right {
-    background: rgba(12, 137, 48, 0.68);
+    background: #0d0d0d;
     border: 1px solid #797;
     box-shadow: 0 0 5px #14aa22;
-    color: #fff;
+    color: #b7ebbe;
 }
 #sepiaFW-chat-controls {
     background: linear-gradient(rgba(0, 0, 0, 0.0), #000, #000) !important;
@@ -50,7 +52,7 @@ html.landscape-small #sepiaFW-chat-controls {
 }
 #sepiaFW-main-window input, #sepiaFW-login-box input {
     background: rgba(0, 0, 0, 0.75);
-    color: #fff;
+    color: #b7ebbe;
 	border: 1px solid #797
 }
 #sepiaFW-login-box button {
@@ -70,7 +72,8 @@ html.landscape-small #sepiaFW-chat-controls {
 
 #sepiaFW-main-window button {
     background: transparent;
-    color: #fff;
+    color: #68fb7c;
+    text-shadow: 0 0 1px #caffd1;
 }
 .sepiaFW-notouch-device #sepiaFW-main-window button:hover {
     background: #797;
@@ -86,7 +89,8 @@ html.landscape-small #sepiaFW-chat-controls {
 #sepiaFW-main-window .chat-buttons-area button {
     border: 1px solid #565;
     box-shadow: 0 0 5px #565;
-    color: #fff;
+    color: #68fb7c;
+    text-shadow: 0 0 1px #ffffff;
     background: rgba(18, 18, 18, 0.75);
 }
 .sepiaFW-notouch-device #sepiaFW-main-window .chat-buttons-area button:hover {
@@ -94,7 +98,7 @@ html.landscape-small #sepiaFW-chat-controls {
     text-shadow: 0px 0px 5px #fff;
 }
 #sepiaFW-main-window .chat-buttons-area .my-view-custom-button {
-    background-color: rgba(12, 137, 48, 0.68);
+    background-color: rgba(98, 255, 120, 0.45);
     color: #fff;
     border: 1px solid #797;
     box-shadow: 0 0 5px #14aa22;
@@ -145,12 +149,28 @@ html.landscape-small #sepiaFW-chat-controls {
 #sepiaFW-assist-btn-area {
     background-color: #073c10;
     border: 1px solid #8a8;
-    box-shadow: 0 0 5px #14aa22, inset 0 0 5px #14aa36;
+    box-shadow: 0 0 5px #2c7336, inset 0 0 5px #2c7336;
 }
 #sepiaFW-assist-btn-area button {
     background: #021403 !important;
-    border: 1px solid #fff;
+    border: 1px solid #68fb7c;
     box-shadow: 0 0 5px #caffd1, inset 0 0 5px #caffd1;
+    color: #fff;
+}
+#sepiaFW-assist-btn-orbiters {
+    top: 2px;
+    left: 16px;
+    width: 20px;
+    height: 49px;
+}
+#sepiaFW-assist-btn-orbiter1 {
+    box-shadow: inset 0 0 2px #fff;
+    right: 8px;
+    bottom: 1px;
+    height: 11px;
+    width: 3px;
+    border: 1px solid #638613;
+    border-radius: 3px;
 }
 #sepiaFW-chat-controls-speech-box {
     background: rgba(18, 38, 18, 0.96);
