@@ -723,7 +723,7 @@ function sepiaFW_build_ui_cards(){
 								name: radioElementInfo.name,
 								streamURL: radioElementInfo.streamURL,
 								playlistURL: radioElementInfo.playlistURL
-							}, deviceInfo.deviceId, sharedReceiver, function(err){
+							}, deviceInfo.deviceId, sharedReceiver, undefined, function(err){
 								SepiaFW.debug.error("Failed to send remote action.", err);
 								SepiaFW.ui.showPopup("Failed to send remote action." + (err? (" Error: " + err) : ""));
 							});
@@ -1453,7 +1453,7 @@ function sepiaFW_build_ui_cards(){
 							SepiaFW.client.sendRemoteActionToOwnDeviceOrShared("media", {
 								type: "embedded_player",
 								playerData: exportEmbeddedPlayerDataForRemoteAction(linkElementInfo)
-							}, deviceInfo.deviceId, sharedReceiver, function(err){
+							}, deviceInfo.deviceId, sharedReceiver, undefined, function(err){
 								SepiaFW.debug.error("Failed to send remote action.", err);
 								SepiaFW.ui.showPopup("Failed to send remote action." + (err? (" Error: " + err) : ""));
 							});
