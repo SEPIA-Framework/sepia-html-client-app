@@ -165,7 +165,8 @@ html.landscape-small #sepiaFW-chat-controls {
 	background: #181a1d;
 	max-width: none;
 }
-#sepiaFW-chat-controls-more-menu button {
+#sepiaFW-chat-controls-more-menu button,
+.sepiaFW-touch-device #sepiaFW-chat-controls-more-menu button:hover {
 	background: #1fe0ff;
     color: #121415;
 }
@@ -188,7 +189,8 @@ html.landscape-small #sepiaFW-chat-controls {
 .sepiaFW-notouch-device .sepiaFW-menu li:not(.sepiaFW-cards-button):hover {
     background: rgba(61, 67, 74, 0.33) !important;
 }
-#sepiaFW-chat-menu button {
+#sepiaFW-chat-menu button,
+.sepiaFW-touch-device #sepiaFW-chat-menu button:hover {
 	border: 0;
 	background-color: #1fe0ff;
 	color: #121415;
@@ -232,7 +234,7 @@ html.landscape-small #sepiaFW-chat-controls {
 }
 
 #sepiaFW-chat-output article {
-    background: #6E7A82;
+    background: #4a5358;
 	color: #fff;
 }
 #sepiaFW-chat-output article.chatOther {
@@ -250,7 +252,7 @@ html.landscape-small #sepiaFW-chat-controls {
     box-shadow: 0 0 0px 2px #1fe0ff, 0 0 8px 1px #1fe0ff;
 }
 #sepiaFW-chat-output article.chatAssistant {
-	background: #fff;
+	background: #f4f4f4;
     color: #121415;
     padding-left: 11px;
 	margin-left: 4px;
@@ -301,8 +303,11 @@ html.landscape-small #sepiaFW-chat-controls {
 /*----- cards ------*/
 
 .sepiaFW-cards-flexSize-container {
-	background: rgba(24, 26, 30, 0.55);
-	border-radius: 0;
+	background: #181a1d;
+	border-radius: 5px;
+}
+.sepiaFW-cards-list-contextMenu {
+	background: #202426;
 }
 
 .sepiaFW-cards-list-body .itemLeft,
@@ -336,6 +341,9 @@ html.landscape-small #sepiaFW-chat-controls {
     background: #1fe0ff;
     border-radius: 5px;
 }
+.sepiaFW-cards-list-title button:hover {
+	color: #202426 !important;
+}
 .sepiaFW-cards-list-body .listElement .checked {
     background: #1fe0ff;
 }
@@ -347,7 +355,8 @@ html.landscape-small #sepiaFW-chat-controls {
 	background: #e72134;
 	color: #f4f4f4;
 }
-.sepiaFW-cards-list-footer {
+.sepiaFW-cards-list-footer,
+.sepiaFW-cards-list-footer.newsFooter {
 	background: #202426;
     border-radius: 5px;
 }
