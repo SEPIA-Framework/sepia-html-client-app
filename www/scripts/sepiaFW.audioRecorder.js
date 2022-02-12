@@ -678,7 +678,7 @@ function sepiaFW_build_audio_recorder(){
 				waveEncoderModule: waveEncModule,
 				onResamplerMessage: function(msg){
 					//if (msg.rms == undefined) console.log("DEBUG --- onResamplerMessage msg", msg);		//DEBUG
-					if (msg && msg.rms != undefined){
+					if (msg && msg.rms != undefined && Number.isFinite(msg.rms)){
 						state.rmsData.points.push(msg.rms);
 						state.rmsData.sum += msg.rms;
 						if (volumeHandler) volumeHandler(msg.rms);
