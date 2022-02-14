@@ -157,6 +157,10 @@ html.landscape-small #sepiaFW-chat-controls {
     border: 1px solid #9c9;
     box-shadow: 0 0 5px #14aa22;
 }
+#sepiaFW-chat-controls-speech-box > div {
+    background: transparent;
+    color: #b7ebbe;
+}
 
 #sepiaFW-chat-output article:not(.statusUpdate) {
     background: rgba(40, 75, 45, 0.66);

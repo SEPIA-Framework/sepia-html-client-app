@@ -60,7 +60,7 @@ html {
 
 #sepiaFW-login-box input, #sepiaFW-login-box button,
 #sepiaFW-main-window input, #sepiaFW-main-window button, #sepiaFW-main-window article,
-#sepiaFW-chat-menu select, .sepiaFW-toggle-btn, .sepiaFW-toggle-btn .on {
+#sepiaFW-chat-menu select, .sepiaFW-toggle-btn {
     border-radius: 5px;
 }
 
@@ -373,20 +373,31 @@ html.landscape-small #sepiaFW-chat-controls {
 	color: #121415;
 }
 
-/*----- teachUI -----*/
+/* ---- Frames + Teach-UI ---- */
 
+#sepiaFW-frames-nav-bar,
 #sepiaFW-teachUI-nav-bar {
     background: #121415;
     color: #f4f4f4;
 }
+#sepiaFW-frames-view,
+#sepiaFW-frames-view.dark,
 #sepiaFW-teachUI-view {
     background: #121415;
 }
+#sepiaFW-frames-view .sepiaFW-frames-page a,
+.sepiaFW-frames-page .info-text,
+.sepiaFW-frames-page.dark .info-text,
 #sepiaFW-teachUI-view label {
     color: #1fe0ff;
 }
+.sepiaFW-frames-page button,
+.sepiaFW-frames-page.dark button,
 #sepiaFW-teachUI-editor button, 
 #sepiaFW-teachUI-manager button {
     background: #1fe0ff !important;
     color: #121415 !important;
+}
+#sepiaFW-frames-view .sepiaFW-toggle-btn .on {
+    background: #ffeb3b;
 }

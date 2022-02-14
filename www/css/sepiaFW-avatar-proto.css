@@ -42,7 +42,7 @@
     border-radius: 50%;
     background: linear-gradient(to bottom, #1abbd5 50%, rgba(0, 188, 212, 0) 50%);
     background-size: 100% 5px;
-    animation: avatar-look-around 10s infinite;
+    animation: avatar-look-around 15s infinite;
 }
 
 @keyframes avatar-look-around {
@@ -52,5 +52,10 @@
 	15% { 	transform: translate3d(-50%, -25%, 0);		}
 	20% { 	transform: translate3d(-50%, -25%, 0);		}
 	25% { 	transform: translate3d(0, 0, 0);			}
-	100% {	transform: translate3d(0, 0, 0);			}
+	95% {   height: 50%; top: 50%;  }
+	96% {	height: 2%;  top: 74%;  }
+	97% {	height: 50%; top: 50%;  }
+	98% {	height: 2%;  top: 74%;  }
+    99% {	height: 50%; top: 50%;  }
+	100% {	transform: translate3d(0, 0, 0); }
 }
