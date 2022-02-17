@@ -198,7 +198,7 @@
 */
 #sepiaFW-alwaysOn-avatar.speaking .avatar-mouth-part-2 {
 	display: flex;
-	animation: avatar-mouth-oszi 0.5s infinite;
+	animation: avatar-mouth-oszi 0.45s infinite;
 }
 
 #sepiaFW-alwaysOn-avatar .avatar-ww-indicator {
