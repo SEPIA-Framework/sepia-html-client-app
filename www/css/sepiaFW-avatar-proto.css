@@ -63,20 +63,34 @@
     background: linear-gradient(to bottom, #1abbd5 50%, #093c44 50%);
     background-size: 100% 4px;
     box-shadow: 0 0 6px 0px #1abbd5, inset 0 0 10px 2px #1abbd5;
+    transition: background 0.3s;
     animation: proto-look-around-and-blink 15s infinite;
 }
 
 #sepiaFW-alwaysOn-info-box {
-    top: 56%;
+    top: 54%;
+    height: 28%;
     bottom: unset;
     flex-direction: column;
     color: #1abbd5;
     /*font-size: 12px;*/
+    justify-content: center;
     text-shadow: 0 0 4px #1abbd5;
+    transition: color 0.5s, text-shadow 0.5s;
 }
-#sepiaFW-alwaysOn-info-box > div {
+div#sepiaFW-alwaysOn-info-box.single-child {
+    padding-bottom: 12px;
+}
+#sepiaFW-alwaysOn-info-box #sepiaFW-alwaysOn-clock {
     display: flex !important;
     opacity: 1 !important;
+}
+#sepiaFW-alwaysOn-info-box #sepiaFW-alwaysOn-battery {
+    display: flex !important;
+    opacity: 1 !important;
+    font-size: 12px;
+}
+#sepiaFW-alwaysOn-info-box > div {
     align-items: center;
 }
 
@@ -87,45 +101,78 @@
     animation: unset;
 }
 #sepiaFW-alwaysOn-avatar .avatar-activity {
-    z-index: 10;
-    width: 10%;
-    height: 10%;
-    top: -15%;
-    left: 45%;
-    border: 1px solid transparent;
+    width: 12%;
+    height: 12%;
+    top: 57%;
+    left: 44%;
+    border: 2px solid transparent;
     transition: border-color 0.5s;
     z-index: 10;
 }
-#sepiaFW-alwaysOn-avatar.speaking .avatar-eye {
+#sepiaFW-alwaysOn-avatar.speaking #sepiaFW-alwaysOn-info-box,
+#sepiaFW-alwaysOn-avatar.loading #sepiaFW-alwaysOn-info-box,
+#sepiaFW-alwaysOn-avatar.listening #sepiaFW-alwaysOn-info-box,
+#sepiaFW-alwaysOn-avatar.waiting #sepiaFW-alwaysOn-info-box,
+#sepiaFW-alwaysOn-avatar.speaking #sepiaFW-alwaysOn-info-box {
+    color: transparent !important;
+    text-shadow: 0 0 4px transparent !important;
+}
+#sepiaFW-alwaysOn-avatar.speaking .avatar-eye,
+#sepiaFW-alwaysOn-avatar.loading .avatar-eye {
     animation: proto-suspicious 5s infinite;
 }
-#sepiaFW-alwaysOn-avatar.speaking .avatar-pupil {
+#sepiaFW-alwaysOn-avatar.speaking .avatar-pupil,
+#sepiaFW-alwaysOn-avatar.loading .avatar-pupil {
     animation: unset;
 }
 #sepiaFW-alwaysOn-avatar.speaking .avatar-mouth-part-2 {
     display: none;
 }
+#sepiaFW-alwaysOn-avatar.speaking::after {
+    box-shadow: inset 0 0 3px 1px #1fe0ff;
+}
 #sepiaFW-alwaysOn-avatar .avatar-activity.speaking {
-    animation: avatar-mouth-oszi 1.5s infinite;
+    animation: avatar-flicker 1.5s infinite;
     box-shadow: 0 0 4px 1px #128091, inset 0 0 4px 1px #128091;
     border-color: #1fe0ff;
     background: transparent;
 }
-#sepiaFW-alwaysOn-avatar.listening .avatar-eye.left {
+#sepiaFW-alwaysOn-avatar.listening .avatar-eye.left,
+#sepiaFW-alwaysOn-avatar.waiting .avatar-eye.left {
     left: 26%;
     animation: proto-frown-left 5s infinite;
 }
-#sepiaFW-alwaysOn-avatar.listening .avatar-eye.right {
+#sepiaFW-alwaysOn-avatar.listening .avatar-eye.right,
+#sepiaFW-alwaysOn-avatar.waiting .avatar-eye.right {
     right: 26%;
     animation: proto-frown-right 5s infinite;
 }
-#sepiaFW-alwaysOn-avatar.listening .avatar-pupil {
+#sepiaFW-alwaysOn-avatar.listening .avatar-pupil,
+#sepiaFW-alwaysOn-avatar.waiting .avatar-pupil {
     animation: proto-blink 5s infinite;
 }
+#sepiaFW-alwaysOn-avatar.listening::after {
+    box-shadow: inset 0 0 3px 1px #e72134;
+}
 #sepiaFW-alwaysOn-avatar .avatar-activity.listening {
-    animation: avatar-mouth-oszi 1.5s infinite;
+    animation: avatar-flicker 2.5s infinite;
     box-shadow: 0 0 4px 1px #750510, inset 0 0 4px 1px #750510;
     border-color: #e72134;
+    background: transparent;
+}
+#sepiaFW-alwaysOn-avatar .avatar-activity.waiting {
+    animation: avatar-mouth-oszi 1.5s infinite;
+    box-shadow: 0 0 4px 1px #a39726, inset 0 0 4px 1px #a39726;
+    border-color: #ffeb3b;
+    background: transparent;
+}
+#sepiaFW-alwaysOn-avatar.waiting::after {
+    box-shadow: inset 0 0 3px 1px #ffeb3b;
+}
+#sepiaFW-alwaysOn-avatar .avatar-activity.loading {
+    animation: avatar-mouth-oszi 1.5s infinite;
+    box-shadow: 0 0 4px 1px #888, inset 0 0 4px 1px #888;
+    border-color: #aaa;
     background: transparent;
 }
 #sepiaFW-alwaysOn-avatar .avatar-ww-indicator {
@@ -135,6 +182,34 @@
 .wake-word-active #sepiaFW-alwaysOn-avatar .avatar-ww-indicator {
     background: #b11322;
     box-shadow: 0 0 6px 2px #b11322;
+}
+
+#sepiaFW-alwaysOn-stt-out {
+    color: #ffeb3b;
+}
+#sepiaFW-alwaysOn-tts-out {
+    color: #1fe0ff;
+}
+
+#sepiaFW-frames-nav-bar.sepiaFW-alwaysOn-navbar.sepiaFW-alwaysOn-alarm-anim {
+	animation: proto-alarm 1s infinite ease-in;
+}
+#sepiaFW-alwaysOn-avatar.alarm::after {
+    box-shadow: inset 0 0 16px 0px #750510;
+}
+#sepiaFW-alwaysOn-avatar.alarm .avatar-pupil {
+    background: linear-gradient(to bottom, #b11322 50%, #750510 50%);
+    box-shadow: 0 0 6px 0px #b11322, inset 0 0 10px 2px #b11322;
+    background-size: 100%;  /*100% 4px*/
+}
+#sepiaFW-alwaysOn-avatar.alarm #sepiaFW-alwaysOn-info-box {
+    color: #e72134;
+    text-shadow: 0 0 4px #e72134;
+}
+@keyframes proto-alarm {
+	0% {	  background-color: #000;		}
+	50% {	  background-color: #b11322;	}
+	100% {	  background-color: #000;		}
 }
 
 @keyframes proto-look-around-and-blink {
