@@ -85,6 +85,32 @@ sudo usermod -a -G spi $USER
 
 For USB devices check the individual comments on how to set vendor/product specific permissions for the user.
 
+### IQAudio Codec Zero
+
+- Button pin is 27
+- Green LED is pin 23
+- Red LED is pin 24
+- Power LED is ?
+
+```
+"clexiGpioInterface": {
+	"buttons": [{
+		"id": "hw-mic-button",
+		"pin": 27
+	}],
+	"leds": [{
+		"id": "state-led-1",
+		"pin": 23,
+		"state": "wakeWordActive"
+	},{
+		"id": "state-led-2",
+		"pin": 24,
+		"state": "listening"
+	}],
+	"items": [{}]
+}
+```
+
 ### Seeedstudio Respeaker 2mic Example
 
 - Button pin is 17
