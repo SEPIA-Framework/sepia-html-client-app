@@ -2,7 +2,7 @@
 var ClexiJS = (function(){
 	var Clexi = {};
 	
-	Clexi.version = "0.9.0";
+	Clexi.version = "0.9.1";
 	Clexi.serverId = "";		//if you set this the client will check the server ID on welcome event and close connection if not identical
 	
 	//Extension subscriptions
@@ -251,6 +251,9 @@ var ClexiJS = (function(){
 	}
 	Clexi.removeSubscription = function(extensionName){
 		delete subscriptions[extensionName];
+	}
+	Clexi.hasSubscription = function(extensionName){
+		return !!subscriptions[extensionName];
 	}
 	
 	/**

@@ -48,6 +48,8 @@ function sepiaFW_build_clexi(){
                 //check first if already running
                 if (!Clexi.isConnected()){
                     Clexi.setup();
+                }else{
+                    SepiaFW.clexi.requestStateRefresh();
                 }
             }, 500);
         }
@@ -138,6 +140,14 @@ function sepiaFW_build_clexi(){
     Clexi.close = function(){
         ClexiJS.close();
         Clexi.doConnect = doConnect();
+    }
+    Clexi.requestStateRefresh = function(){
+        if (Clexi.hasXtension("ble-beacon-scanner") && ClexiJS.hasSubscription("ble-beacon-scanner")){
+            Clexi.requestBleBeaconScannerState();
+        }
+        if (Clexi.hasXtension("gpio-interface") && ClexiJS.hasSubscription("gpio-interface")){
+            Clexi.requestRegisteredGpioObjects();
+        }
     }
 
     Clexi.send = function(extensionName, data, numOfRetries){
