@@ -9,6 +9,7 @@ html {
     border: 0;
     border-radius: 0;
     box-shadow: inset 0px 0px 4px 1px #85b987;
+    color: #fff;
 }
 .sepiaFW-results-container {
 	scrollbar-color: rgba(84, 114, 86, 0.15) rgba(84, 114, 86, 0.15);
@@ -20,7 +21,7 @@ html {
 #sepiaFW-aC 	{ background-color: #9f0b00; }
 #sepiaFW-aC2 	{ background-color: #fff; }
 #sepiaFW-asC 	{ background-color: #14aa22; }
-#sepiaFW-adC 	{ background-color: #83c223; }
+#sepiaFW-adC 	{ background-color: #1f6ee3; }
 #sepiaFW-lC 	{ background-color: #555; }
 
 #sepiaFW-navC 	{ background-color: #000; }
@@ -35,12 +36,20 @@ html {
 #sepiaFW-chat-controls {
     background: linear-gradient(rgba(0, 0, 0, 0.0), #000, #000) !important;
     border-bottom: 1px solid #000;
+    overflow: visible;
 }
 #sepiaFW-chat-controls.full-screen {
     background: linear-gradient(rgba(0, 0, 0, 0.0), #101010) !important;
 }
 html.landscape-small #sepiaFW-chat-controls {
     background: rgba(12, 137, 48, 0.68) !important;
+}
+html.landscape-small #sepiaFW-chat-controls-right {
+    box-shadow: none;
+    background: transparent;
+}
+.sepiaFW-tiny-app #sepiaFW-chat-controls > div {
+    border: 1px solid #797;
 }
 #sepiaFW-chat-controls-swipe-area .sepiaFW-swipeBar-switchable {
     background: #0b6024;
@@ -49,19 +58,17 @@ html.landscape-small #sepiaFW-chat-controls {
     color: #797;
 }
 #sepiaFW-main-window input, #sepiaFW-login-box input {
-    background: rgba(0, 0, 0, 0.75);
+    background: #172419;
     color: #fff;
-	border: 1px solid #797
+	border: 1px solid #797;
 }
 #sepiaFW-login-box button {
-    background-color: #0c6c11;
-    color: #fff;
+    background-color: #eee;
+    color: #000;
 }
 #sepiaFW-login-form button {
-    background: #b7ebbe;
+    background-color: #eee;
     color: #000;
-    border: 1px solid #ada !important;
-    box-shadow: 0 0 5px #14aa22 !important;
 }
 #sepiaFW-login-box #sepiaFW-login-host-details {
     background-color: #fff;
@@ -163,7 +170,7 @@ html.landscape-small #sepiaFW-chat-controls {
 }
 
 #sepiaFW-chat-output article:not(.statusUpdate) {
-    background: rgba(40, 75, 45, 0.66);
+    background: rgba(28, 44, 31, 0.82);
     color: #beb;
     border: 1px solid #565;
     box-shadow: 0 0 5px #565;
@@ -198,6 +205,7 @@ html.landscape-small #sepiaFW-chat-controls {
 }
 #sepiaFW-chat-output .statusUpdate {
     background: rgba(225, 255, 225, 0.07);
+    color: #9c9;
 }
 
 /*----- Popup -----*/
@@ -235,7 +243,7 @@ html.landscape-small #sepiaFW-chat-controls {
 .sepiaFW-cards-list-body .weatherNowSmall > div,
 .sepiaFW-cards-list-body .linkCard > div,
 .dark-skin .sepiaFW-cards-list-body .fullWidthItem .cardItemBlock {
-    background: rgba(133, 185, 145, 0.55);
+    background: rgba(18, 18, 18, 0.75);
     color: #fff !important;
     box-shadow: 0 0 5px #154a18;
     border: 1px solid #9a9;
@@ -244,10 +252,10 @@ html.landscape-small #sepiaFW-chat-controls {
 	background: #506d51;
 }
 .sepiaFW-cards-list-title {
-    background: rgba(133, 185, 145, 0.55);
+    background: rgba(40, 75, 45, 0.28);
     color: #fff !important;
     box-shadow: 0 0 5px #154a18;
-    border: 1px solid #9a9;
+    border: 1px solid #565;
 }
 .sepiaFW-cards-list-title.newsHeader {
     background: #fff !important;
@@ -259,7 +267,7 @@ html.landscape-small #sepiaFW-chat-controls {
 .sepiaFW-cards-list-body .listElement > div,
 .sepiaFW-cards-list-body .newsArticle .newsCenter,
 .sepiaFW-cards-list-body .weatherNowDetails li {
-    background: rgba(40, 75, 45, 0.58);
+    background: rgba(12, 137, 48, 0.55);
 }
 .sepiaFW-cards-list-body .weatherNowSmall .weatherNowSmallImage {
     background: #000;
@@ -312,6 +320,7 @@ html.landscape-small #sepiaFW-chat-controls {
 #sepiaFW-teachUI-view {
     background: #042107;
     color: #b0ffc0;
+    border-radius: 0;
 }
 #sepiaFW-frames-view:not(.sepiaFW-ao-mode),
 #sepiaFW-teachUI-view {
@@ -320,6 +329,7 @@ html.landscape-small #sepiaFW-chat-controls {
 #sepiaFW-frames-nav-bar,
 #sepiaFW-teachUI-nav-bar {
 	background: #0a5f23;
+    color: #b7ebbe;
 }
 .sepiaFW-frames-page button,
 .sepiaFW-frames-page.dark button,

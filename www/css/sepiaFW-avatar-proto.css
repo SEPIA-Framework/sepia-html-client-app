@@ -176,7 +176,7 @@ div#sepiaFW-alwaysOn-info-box.single-child {
     background: transparent;
 }
 #sepiaFW-alwaysOn-avatar .avatar-ww-indicator {
-    top: -10%;
+    top: -7%;
     z-index: 10;
 }
 .wake-word-active #sepiaFW-alwaysOn-avatar .avatar-ww-indicator {
