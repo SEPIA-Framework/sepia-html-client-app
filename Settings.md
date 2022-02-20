@@ -32,6 +32,12 @@ user: {
 }
 ```
 
+### Recommendations
+
+- IQAudio Codec Zero: `"noiseSuppression": false`, `"autoGainControl": false`, `"echoCancellation": false`, `"gain": 2.0`, `"resamplerQuality": 4`
+- Respeaker Mic Array v2.0 USB: `"noiseSuppression": false`, `"autoGainControl": false`, `"echoCancellation": false`, `"gain": 1.0`, `"resamplerQuality": 5`
+
+
 ## Wake-Word Settings
 
 ### Two Wake-Words Example
