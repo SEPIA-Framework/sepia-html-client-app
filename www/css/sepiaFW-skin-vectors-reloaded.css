@@ -47,7 +47,7 @@ html.landscape-small #sepiaFW-main-window {
 }
 html.landscape-small #sepiaFW-chat-controls,
 html.landscape-small #sepiaFW-nav-bar {
-    background: transparent !important;
+    background: #000 !important;
     border: 0;
     box-shadow: none;
 }
