@@ -9,7 +9,7 @@ function sepiaFW_build_assistant(sepiaSessionId){
 
 	//control settings
 	Assistant.autoCloseAwaitDialog = true;
-	Assistant.autoCloseAwaitDialogDelay = 15000; 	//15s
+	Assistant.autoCloseAwaitDialogDelay = 20000; 	//20s
 	var autoCloseAwaitDialogTimer;
 	
 	//set assistant info received from server
