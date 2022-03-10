@@ -490,7 +490,7 @@ function sepiaFW_build_clexi(){
                         }else{
                             sendGpioInterfaceRequest("register", "led", led);
                             SepiaFW.debug.log("CLEXI registered GPIO led: " + led.id);
-                            registeredGpioObjects[let.id] = led; //we assume it worked and can remove later if we get an error
+                            registeredGpioObjects[led.id] = led; //we assume it worked and can remove later if we get an error
                         }
                         //internally supported LED IDs:
                         if (led.state && supportedGpioLedStates.indexOf(led.state) >= 0){
