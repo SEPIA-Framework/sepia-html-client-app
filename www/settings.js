@@ -6,9 +6,9 @@ SepiaFW.settings = {
 			"host-name": "localhost",
 			"deviceId": "o1",
 			"deviceLocalSiteData": {
-				"location": "home", 
-				"type": "room", 
-				"name": "unassigned", 
+				"location": "home",
+				"type": "room",
+				"name": "unassigned",
 				"index": ""
 			},
 			"mediaDevices": {
@@ -18,7 +18,12 @@ SepiaFW.settings = {
 				"fx": {}
 			},
 			"microphoneSettings": {
-				"gain": 1.0
+				"gain": 1.0,
+				"noiseSuppression": true,
+				"autoGainControl": false,
+				"echoCancellation": false,
+				"resamplerQuality": 3,
+				"tryNativeResampling": false
 			},
 			"deviceSounds": {
 				"micConfirm": "sounds/coin.mp3",
