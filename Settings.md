@@ -201,6 +201,23 @@ For USB devices check the individual comments on how to set vendor/product speci
 }
 ```
 
+### Seeedstudio Respeaker 4mic Array Example
+
+- No button
+- 1 LED powered by pin 5
+
+```
+"clexiGpioInterface": {
+	"buttons": [{}],
+	"leds": [{
+			"id": "state-led-1",
+			"pin": 5,
+			"state": "listening"
+	}],
+	"items": [{}]
+}
+```
+
 ### Seeedstudio Respeaker 6mic Array Example
 
 - Button pin is 26
@@ -292,5 +309,25 @@ Settings:
 			"wakeWordInactive": [{"state": "wakeWordInactive"}]
 		}
 	}]
+}
+```
+
+### Raspiaudio Mic+
+
+- Button pin is 23
+- LED is pin 25
+
+```
+"clexiGpioInterface": {
+	"buttons": [{
+		"id": "hw-mic-button",
+		"pin": 23
+	}],
+	"leds": [{
+		"id": "state-led-1",
+		"pin": 25,
+		"state": "listening"
+	}],
+	"items": [{}]
 }
 ```
