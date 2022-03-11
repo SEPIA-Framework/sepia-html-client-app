@@ -10,7 +10,11 @@ var PorcupineKeywords = {
 	v20_en: {},
 	v20_de: {},
 	v20_es: {},
-	v20_fr: {}
+	v20_fr: {},
+	v21_en: {},
+	v21_de: {},
+	v21_es: {},
+	v21_fr: {}
 }
 
 onmessage = function(e){
