@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset='utf-8'>
+    <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+    <title>Porcupine Conversion</title>
+    <meta name='viewport' content='width=device-width, initial-scale=1'>
+    <style>
+        body {
+            font-family: sans-serif;
+            padding: 0 16px 16px 16px;
+        }
+		#drop-zone {
+			position: relative;
+		}
+		#drop-zone-overlay {
+			position: absolute;
+			top: 0;
+			left: 0;
+			width: 100%;
+			height: 100%;
+			background: #fff;
+			color: #000;
+			border: 2px dashed;
+			display: none;
+			justify-content: center;
+			align-items: center;
+			z-index: 2;
+		}
+		#drop-zone.drag-active > #drop-zone-overlay {
+            display: flex;
+        }
+		#drop-zone-overlay > span {
+			font-weight: bold;
+			pointer-events: none;
+		}
+		#base64-input {
+            box-sizing: border-box;
+            width: 100%;
+            height: 75px;
+        }
+		#result {
+			position: relative;
+            box-sizing: border-box;
+            width: 100%;
+            height: 75px;
+        }
+        input, select {
+            margin: 8px;
+        }
+        li {
+            font-size: 15px;
+            margin: 8px 0;
+        }
+    </style>
+</head>
+<body>
+    <div>
+        <h2>Porcupine Wake-Word Conversion</h2>
+        <p>How to:</p>
+        <ul>
+            <li>Create a new Porcupine wake-word via <a href='https://console.picovoice.ai' target=_blank>https://console.picovoice.ai</a>.</li>
+            <li>Choose <b>'WebAssembly (WASM)'</b> as target platform.</li>
+            <li>Download and extract the ZIP file.</li>
+			<li>Look for the file named '..._b64.txt' and drag it over the drop-zone (or copy content).</li>
+			<li>Press 'Convert' to get array representation.</li>
+			<li>Check/adjust automatically generated download parameters and press 'Download as SEPIA file'.</li>
+			<li>Follow <a href='https://github.com/SEPIA-Framework/sepia-html-client-app/blob/master/www/xtensions/picovoice/README.md#adding-a-custom-wake-word' target=_blank>these instructions</a> to import the file into SEPIA.
+        </ul>
+		<h3>Drop-Zone</h3>
+		<div id="drop-zone">
+			<div id="drop-zone-overlay"><span>DROP FILE HERE</span></div>
+			<label>Select:<input type="file" id="file-input" name="file-input" accept=".txt"></label>
+			<textarea id="base64-input">- base64 wake word data -</textarea>
+		</div>
+		<br>
+        <div>
+            <button onclick="convert();">Convert</button>
+        </div>
+		<h3>Result</h3>
+        <textarea id="result">- wake word array data -</textarea>
+		<h3>Download</h3>
+		<div>
+			<label>Wake word:<input id="wwname" placeholder="Hey SEPIA"></label><br>
+            <label>Porcupine version:<select id="ppversion">
+				<option selected value="">--</option>
+				<option value="20">v2.0</option>
+				<option value="21">v2.1</option>
+			</select></label>
+			<label>Porcupine language:<select id="pplang">
+				<option selected value="">--</option>
+				<option value="en">EN</option>
+				<option value="de">DE</option>
+				<option value="es">ES</option>
+				<option value="fr">FR</option>
+			</select></label>
+        </div>
+		<br>
+        <div>
+			<button onclick="download();">Download as SEPIA file</button>
+        </div>
+    </div>
+    <script>
+        var ppversion = document.getElementById("ppversion");
+        var pplang = document.getElementById("pplang");
+		var wwname = document.getElementById("wwname");
+		var dropZone = document.getElementById("drop-zone");
+		var dropZoneOverlay = document.getElementById("drop-zone-overlay");
+		var fileSelect = document.getElementById("file-input");
+        var base64Input = document.getElementById("base64-input");
+		var result = document.getElementById("result");
+		
+		function convert(){
+			var b64input = base64Input.value;
+			console.log("base64 input:", b64input);
+			result.value = "";
+			if (b64input){
+				var arrayAsString = convertUint8ArrayToString(convertBase64ToUint8Array(b64input));
+				console.log("array:", arrayAsString);
+				result.value = arrayAsString;
+			}
+		}
+		
+		function download(){
+			if (!result.value){
+				alert("Get result first!");
+				return;
+			}
+			if (!wwname.value || !pplang.value || !ppversion.value){
+				alert("Check export options first!");
+				return;
+			}
+			//Format: [key_word]_wasm_[version_code]_[language_code].js
+			var exportFileName = wwname.value.toLowerCase().replace(/\s+/g, "_") 
+				+ "_wasm_" + ppversion.value + "_" + pplang.value + ".js";
+			var sepiaJs = "PorcupineKeywords.v" + ppversion.value + "_" + pplang.value 
+				+ "." + wwname.value.replace(/\s+/g, "_") + "=new Uint8Array(" + result.value + ");";
+			//trigger
+			createFileAndTriggerDownload(sepiaJs, exportFileName);
+		}
+		function createFileAndTriggerDownload(dataString, fileName){
+			var file = new File([dataString], fileName, {type: "text/javascript"});
+			var exportUrl = URL.createObjectURL(file);
+			const a = document.createElement('a');
+			document.body.appendChild(a);
+			a.href = exportUrl;
+			a.download = fileName;
+			a.click();
+			setTimeout(function(){
+				window.URL.revokeObjectURL(exportUrl);
+				document.body.removeChild(a);
+			}, 10);
+		}
+		
+		//file and drag-drop handling
+		fileSelect.addEventListener('change', function(ev){
+			if (fileSelect.files && fileSelect.files.length){
+				var file = fileSelect.files[0];
+				readFile(file);
+			}
+		});
+		function dropHandler(ev){
+			//console.log('File drop', ev);
+			ev.preventDefault();
+			dropZone.classList.remove("drag-active");
+			var file;
+			if (ev.dataTransfer.items && ev.dataTransfer.items.length){
+				//get first file via 'items'
+				for (var i = 0; i < ev.dataTransfer.items.length; i++){
+					if (ev.dataTransfer.items[i].kind === 'file') {
+						file = ev.dataTransfer.items[i].getAsFile();
+						break;
+					}
+				}
+			}else if (ev.dataTransfer.files && ev.dataTransfer.files.length){
+				//get first file via 'files'
+				file = ev.dataTransfer.files[0];
+			}
+			if (file){
+				readFile(file);
+			}
+		}
+		function dragEnter(ev){
+			//console.log('File entered drop zone');
+			ev.preventDefault();
+			dropZone.classList.add("drag-active");
+		}
+		function dragLeave(ev){
+			//console.log('File left drop zone');
+			ev.preventDefault();
+			dropZone.classList.remove("drag-active");
+		}
+		dropZone.addEventListener('dragenter', dragEnter);
+		dropZone.addEventListener('dragover', function(ev){ ev.preventDefault(); });
+		dropZoneOverlay.addEventListener('dragover', function(ev){ ev.preventDefault(); });
+		dropZoneOverlay.addEventListener('dragleave', dragLeave);
+		dropZoneOverlay.addEventListener('drop', dropHandler);
+		
+		//read file
+		function readFile(file){
+			console.log('Reading file: ' + file.name);
+			result.value = "";
+			
+			//extract info from file name
+			var fileInfo = file.name.split(/_/g);
+			if (fileInfo.length > 4){
+				var ending = fileInfo.pop();
+				if (ending == "b64.txt"){
+					var name = fileInfo.shift().replace(/-/g, " ");
+					wwname.value = name;
+					var lang = fileInfo.shift();
+					pplang.value = lang.toLowerCase();
+					var type = fileInfo.shift();	//wasm?
+					var version = fileInfo.shift().replace("v", "") + fileInfo.shift();
+					ppversion.value = +version;
+					console.log("Info from file name:", name, lang, version);
+				}
+			}
+			
+			//read file
+			const reader = new FileReader();
+			reader.addEventListener("load", function(){
+				base64Input.value = reader.result;
+			}, false);
+			reader.addEventListener("error", function(){
+				base64Input.value = "ERROR";
+			}, false);
+			reader.readAsText(file);
+		}
+
+        //convert base64 to Uint8Array		
+		function convertBase64ToUint8Array(s){
+			try {
+				var decoded = atob(s);
+				var bytes = new Uint8Array(decoded.length);
+				for (var i = 0; i < decoded.length; ++i){
+					bytes[i] = decoded.charCodeAt(i);
+				}
+				return bytes;
+			}catch (error){
+				console.error("Converting base64 string to Uint8Array bytes array failed", error);
+				base64Input.value = "ERROR: " + (error && error.message);
+			}
+		}
+		//convert Uint8Array to string
+		function convertUint8ArrayToString(a){
+			if (a) return JSON.stringify(Array.from(a));
+		}
+		
+    </script>
+</body>
+</html>

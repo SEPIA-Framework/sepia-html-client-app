@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset='utf-8'>
+    <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+    <title>Porcupine Activation</title>
+    <meta name='viewport' content='width=device-width, initial-scale=1'>
+    <style>
+        body {
+            font-family: sans-serif;
+            padding: 0 16px 16px 16px;
+        }
+        #results {
+            box-sizing: border-box;
+            width: 100%;
+            height: 250px;
+        }
+        input {
+            margin: 8px;
+        }
+        li {
+            font-size: 15px;
+            margin: 8px 0;
+        }
+    </style>
+</head>
+<body>
+    <div>
+        <h2>Porcupine Activation Manager</h2>
+        <p>How to:</p>
+        <ul>
+            <li>'Export' your IndexDB when your client is activated and write down key-value pairs.</li>
+            <li>When your client deleted the IndexDB 'create' a new one on the SAME device + browser ...</li>
+            <li>... and 'import' previously exported key-value pairs.</li>
+        </ul>
+        <br>
+        <div>
+            <button onclick="picovoiceDbExport();">Export</button>
+            <button onclick="picovoiceDbCreate();">Create DB</button>
+            <button onclick="importAllKeyValuePairs();">Import Key-Value Pairs</button>
+        </div>
+        <br>
+        <div>
+            <label>Key 1:<input id="key1"></label>
+            <label>Value 1:<input id="val1"></label>
+        </div>
+        <div>
+            <label>Key 2:<input id="key2"></label>
+            <label>Value 2:<input id="val2"></label>
+        </div>
+        <br>
+        <textarea id="results">- events -</textarea>
+    </div>
+    <script>
+        var key1 = document.getElementById("key1");
+        var val1 = document.getElementById("val1");
+        var key2 = document.getElementById("key2");
+        var val2 = document.getElementById("val2");
+        var results = document.getElementById("results");
+
+        //Porcupine import/export
+        function picovoiceDbExport(){
+            var requestDb = window.indexedDB.open("pv_db");
+            requestDb.onerror = function(err){
+                console.error("IndexDB error opening 'pv_db'", err);
+                results.value = "IndexDB error opening 'pv_db'";
+            };
+            requestDb.onsuccess = function(ev){
+                var indexDbPp = ev.target.result;
+                indexDbPp.onerror = function(ev){
+                    console.error("IndexDB error: " + ev.target.errorCode);
+                    results.value = "IndexDB error: " + ev.target.errorCode;
+                };
+                //read
+                var pvStore = indexDbPp.transaction(["pv_store"]).objectStore("pv_store");
+                results.value = "pv_store data\n\n";
+                console.log("pv_store indexNames:", pvStore.indexNames);
+                console.log("pv_store keyPath:", pvStore.keyPath);
+                console.log("pv_store autoIncrement:", pvStore.autoIncrement);
+                results.value += "pv_store indexNames: " + pvStore.indexNames.length + "\n";
+                results.value += "pv_store keyPath: " + pvStore.keyPath + "\n";
+                results.value += "pv_store autoIncrement: " + pvStore.autoIncrement + "\n\n";
+                var n = 0;
+                pvStore.openCursor().onsuccess = function(ev2){
+                    n++;
+                    var cursor = ev2.target.result;
+                    if (cursor) {
+                        console.log("pv_store key " + n + ": " + cursor.key + ", value " + n + ":" + cursor.value);
+                        results.value += "pv_store key " + n + ": " + cursor.key + "\n";
+                        results.value += "pv_store value " + n + ": " + cursor.value + "\n\n";
+                        cursor.continue();
+                    }
+                };
+            };
+        }
+        function picovoiceDbCreate(){
+            var requestDb = window.indexedDB.open("pv_db");
+            requestDb.onerror = function(err){
+                console.error("IndexDB error opening 'pv_db'", err);
+                results.value = "IndexDB error opening 'pv_db'";
+            };
+            requestDb.onupgradeneeded = function(ev){
+                console.log("IndexDB 'pv_db' upgrade needed");
+                results.value = "IndexDB 'pv_db' upgrade needed. \n\n";
+                var indexDbPp = ev.target.result;
+                if (indexDbPp.objectStoreNames.contains('pv_store')) return;
+                indexDbPp.onerror = function(ev){
+                    console.error("IndexDB error: " + ev.target.errorCode);
+                    results.value = "IndexDB error: " + ev.target.errorCode;
+                };
+                //create
+                var pvStore = indexDbPp.createObjectStore("pv_store");
+                pvStore.transaction.oncomplete = function(ev2){
+                    console.log("Created object store 'pv_store'");
+                    results.value += "Created object store 'pv_store'";
+                };
+            };
+        }
+        function importAllKeyValuePairs(){
+            results.value = "Importing\n";
+            if (key1.value && val1.value) picovoiceDbImport(key1.value, val1.value);
+            if (key2.value && val2.value) picovoiceDbImport(key2.value, val2.value);
+        }
+        function picovoiceDbImport(key, value){
+            var requestDb = window.indexedDB.open("pv_db");
+            requestDb.onerror = function(err){
+                console.error("IndexDB error opening 'pv_db'", err);
+                results.value = "IndexDB error opening 'pv_db'";
+            };
+            requestDb.onsuccess = function(ev){
+                var indexDbPp = ev.target.result;
+                indexDbPp.onerror = function(ev){
+                    console.error("IndexDB error: " + ev.target.errorCode);
+                    results.value = "IndexDB error: " + ev.target.errorCode;
+                };
+                //write
+                results.value += "\npv_store write:\n";
+                var pvStore = indexDbPp.transaction(["pv_store"], "readwrite").objectStore("pv_store");
+                pvStore.put(value, key).onsuccess = function(ev2){
+                    console.log("set key: " + key + " to value: " + value);
+                    results.value += "set key: " + key + "\n";
+                    results.value += "to value: " + value + "\n";
+                };
+            };
+        }
+    </script>
+</body>
+</html>
