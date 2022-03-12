@@ -17,6 +17,7 @@ SepiaFW.settings = {
 				"tts": {},
 				"fx": {}
 			},
+			"playerVolume": 7.0,
 			"microphoneSettings": {
 				"gain": 1.0,
 				"noiseSuppression": true,

@@ -5,8 +5,6 @@ function sepiaFW_build_ui_cards_embed(){
 	//MediaPlayer
 	/* TODO:
 	- Test link share feature
-	- Test play-on feature
-	- Test controls: start, pause/stop, resume, next, previous, vol...
 	- Implement async. callback with msgId and timeout (doneCallback, errorCallback)?
 	- Improve use of SepiaFW.audio.setPlayerTitle('', '') + setMediaSessionState (SepiaFW.audio)?
 	*/
@@ -335,8 +333,7 @@ function sepiaFW_build_ui_cards_embed(){
 			if (props.volume != undefined){
 				currentVolume = props.volume;
 				if (thisPlayer.isPlaying() || thisPlayer.isActive){
-					$('#sepiaFW-audio-ctrls-vol').text(currentVolume);	
-					//TODO: this should be replaced with a proper function
+					SepiaFW.audio.setPlayerVolumeIndicator(currentVolume, props.rememberVolume);
 				}
 			}
 		}
@@ -363,6 +360,8 @@ function sepiaFW_build_ui_cards_embed(){
 				if (widgetSettings){
 					thisPlayer.restoreSettings(widgetSettings);
 				}
+				//set initial volume
+				thisPlayer.volumeSet(SepiaFW.audio.getGlobalMediaPlayerVolume(), false);
 				//callback (only once)
 				if (options.onready){
 					options.onready();
@@ -376,9 +375,9 @@ function sepiaFW_build_ui_cards_embed(){
 				lastActiveMediaPlayer = thisPlayer;
 				SepiaFW.debug.info("Embedded MediaPlayer - Last active player switched to: " + playerId);
 				//Embed.stopAllMediaPlayers(thisPlayer)	//this should be handled globally for ALL media
-				if (ev.data && ev.data.meta){
-					if (ev.data.meta.title) onTitleSubmit(ev.data.meta.title);
-					if (ev.data.meta.url) onUrlSubmit(ev.data.meta.url);
+				if (data.meta){
+					if (data.meta.title) onTitleSubmit(data.meta.title);
+					if (data.meta.url) onUrlSubmit(data.meta.url);
 				}
 
 			//on-pause
@@ -464,10 +463,10 @@ function sepiaFW_build_ui_cards_embed(){
 			//SepiaFW.audio.broadcastAudioEvent("embedded-media-player", "resume");	//TODO: wait for something before sending?
 			SepiaFW.audio.broadcastAudioEvent("embedded-media-player", "fadeIn");	//TODO: what is correct???
 		}
+		//TODO: implement callbacks?! more?
 		thisPlayer.next = function(doneCallback, errorCallback){
 			sendEvent({controls: "next"});
 		}
-		//TODO: implement callbacks?! more?
 		thisPlayer.previous = function(doneCallback, errorCallback){
 			sendEvent({controls: "previous"});
 		}
@@ -477,8 +476,9 @@ function sepiaFW_build_ui_cards_embed(){
 		thisPlayer.volumeDown = function(doneCallback, errorCallback){
 			sendEvent({controls: "volumeDown"});
 		}
-		thisPlayer.volumeSet = function(vol, doneCallback, errorCallback){
-			sendEvent({controls: "volumeSet", data: vol});
+		thisPlayer.volumeSet = function(vol, remember, doneCallback, errorCallback){
+			if (remember == undefined) remember = true;		//NOTE: in this case we assume it should be stored by default
+			sendEvent({controls: "volumeSet", data: vol, remember: remember});
 		}
 
 		//get properties

@@ -5,6 +5,16 @@ function sepiaFW_build_audio(){
 	var TTS = {};			//TTS parameters for SepiaFW external TTS like Acapela. I've tried to seperate TTS and AudioPlayer as good as possible, but there might be some bugs using both
 	var Alarm = {};
 
+	//Global volume (0.0 - 10.0)
+	AudioPlayer.storeGlobalMediaPlayerVolume = function(setVol){
+		var goodVol = Math.min(10.0, Math.max(0.0, setVol));
+		SepiaFW.data.setPermanent("playerVolume", goodVol);
+		return goodVol;
+	}
+	AudioPlayer.getGlobalMediaPlayerVolume = function(){
+		return Math.min(10.0, Math.max(0.0, (SepiaFW.data.getPermanent("playerVolume") || 7.0)));
+	}
+
 	//Sounds
 	AudioPlayer.micConfirmSound = 'sounds/coin.mp3';	//might change for mobile (see below)
 	AudioPlayer.alarmSound = 'sounds/alarm.mp3'; 		//please NOTE: UI.events is using 'file://sounds/alarm.mp3' for 'cordova.plugins.notification' (is it wokring? Idk)
@@ -265,8 +275,8 @@ function sepiaFW_build_audio(){
 	var lastAudioPlayerEventSource = '';		//Note: this does not include TTS and effects player
 	var mainAudioIsOnHold = false;
 	var mainAudioStopRequested = false;
-	var orgVolume = 1.0;
-	var FADE_OUT_VOL = 0.05; 	//note: on some devices audio is actually stopped so this value does not apply
+	var orgVolume = AudioPlayer.getGlobalMediaPlayerVolume() / 10.0;
+	var FADE_OUT_VOL = 0.03; 	//note: on some devices audio is actually stopped so this value does not apply
 
 	//MediaSession Interface
 	if (isMediaSessionSupported){
@@ -429,8 +439,9 @@ function sepiaFW_build_audio(){
 				action: "down"
 			});
 		});
-		audioVol = document.getElementById('sepiaFW-audio-ctrls-vol');
-		if (audioVol) audioVol.textContent = Math.round(player.volume*10.0);
+		//set stored volume
+		player.volume = orgVolume;
+		AudioPlayer.setPlayerVolumeIndicator(Math.round(player.volume*10.0), false);
 		
 		//player remote
 		$("#sepiaFW-audio-ctrls-broadcast").off().on("click", function(){
@@ -656,7 +667,6 @@ function sepiaFW_build_audio(){
 				SepiaFW.debug.info('AUDIO: instant fadeOutMain');
 				player.pause(); 		//<-- try without broadcasting, is it save?
 			}
-			//orgVolume = (player.volume < orgVolume)? orgVolume : player.volume;
 			SepiaFW.debug.info('AUDIO: fadeOutMain orgVol=' + orgVolume);
 			$(player).stop(); 	//note: this is an animation stop
 			$(player).animate({volume: FADE_OUT_VOL}, 300);
@@ -752,7 +762,8 @@ function sepiaFW_build_audio(){
 		var setVol = getValidVolume(newVol)/10.0;
 		player.volume = setVol;
 		orgVolume = setVol;
-		$('#sepiaFW-audio-ctrls-vol').text(Math.floor(setVol*10.0));
+		AudioPlayer.storeGlobalMediaPlayerVolume
+		AudioPlayer.setPlayerVolumeIndicator(Math.floor(setVol*10.0), true);
 		SepiaFW.debug.info('AUDIO: volume set (and stored) to ' + setVol);
 		broadcastPlayerVolumeSet();
 	}
@@ -762,13 +773,10 @@ function sepiaFW_build_audio(){
 		SepiaFW.debug.info('AUDIO: volume set temporary (till next fadeIn) to ' + setVol);
 	}
 	function getValidVolume(volumeIn){
-		var vol = 0.5;
-		if (volumeIn > 10.0) vol = 10.0;
-		else if (volumeIn < 0.0) vol = 0.0;
-		else vol = volumeIn;
-		return vol;
+		if (volumeIn > 10.0) volumeIn = 10.0;
+		else if (volumeIn < 0.0) volumeIn = 0.0;
+		return volumeIn;
 	}
-	AudioPlayer.playerSetVolume = playerSetVolume;
 	AudioPlayer.playerSetVolumeTemporary = playerSetVolumeTemporary;
 	
 	//Set volume safely by checking if its currently faded and set either org. volume only or current AND org.
@@ -776,7 +784,7 @@ function sepiaFW_build_audio(){
 		if (mainAudioIsOnHold || (SepiaFW.speech.isSpeakingOrListening())){
 			var setVol = getValidVolume(newVol)/10.0;
 			orgVolume = setVol;
-			$('#sepiaFW-audio-ctrls-vol').text(Math.floor(setVol*10.0));
+			AudioPlayer.setPlayerVolumeIndicator(Math.floor(setVol*10.0), true);
 			SepiaFW.debug.info('AUDIO: unfaded volume set to ' + setVol);
 			broadcastPlayerVolumeSet();
 		}else{
@@ -824,6 +832,13 @@ function sepiaFW_build_audio(){
 			currentAudioTitleBelongsToStreamPlayer = false;
 		}
 		if (audioTitle) audioTitle.textContent = newTitle || "SEPIA Audio Player";
+	}
+	//set volume indicator of player - NOTE: use 0-10 (or '?'), not limited to "stream" player, only visual indicator!
+	AudioPlayer.setPlayerVolumeIndicator = function(vol, remember){
+		$('#sepiaFW-audio-ctrls-vol').text(vol);
+		if (remember){
+			AudioPlayer.storeGlobalMediaPlayerVolume(vol);
+		}
 	}
 
 	//get the stream last played

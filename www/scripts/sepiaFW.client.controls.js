@@ -165,10 +165,10 @@ function sepiaFW_build_client_controls(sepiaSessionId){
             SepiaFW.audio.playerSetCurrentOrTargetVolume(SepiaFW.audio.getOriginalVolume() + 1.0);
         }, function(emp){
             emp.volumeUp();
-            $('#sepiaFW-audio-ctrls-vol').text("?");
+            SepiaFW.audio.setPlayerVolumeIndicator("?");    //will auto-update later?
         }, function(){
             //TODO: not supported yet
-            $('#sepiaFW-audio-ctrls-vol').text("?");
+            SepiaFW.audio.setPlayerVolumeIndicator("?");
         });
     }
     function volumeDown(){
@@ -176,10 +176,10 @@ function sepiaFW_build_client_controls(sepiaSessionId){
             SepiaFW.audio.playerSetCurrentOrTargetVolume(SepiaFW.audio.getOriginalVolume() - 1.0);
         }, function(emp){
             emp.volumeDown();
-            $('#sepiaFW-audio-ctrls-vol').text("?");
+            SepiaFW.audio.setPlayerVolumeIndicator("?");    //will auto-update later?
         }, function(){
             //TODO: not supported yet
-            $('#sepiaFW-audio-ctrls-vol').text("?");
+            SepiaFW.audio.setPlayerVolumeIndicator("?");
         });
     }
     function volumeSet(newVol){
@@ -188,10 +188,10 @@ function sepiaFW_build_client_controls(sepiaSessionId){
             SepiaFW.audio.playerSetCurrentOrTargetVolume(newVol);
         }, function(emp){
             emp.volumeSet(newVol);
-            $('#sepiaFW-audio-ctrls-vol').text("?");
+            SepiaFW.audio.setPlayerVolumeIndicator("?");    //will auto-update later?
         }, function(){
             //TODO: not supported yet
-            $('#sepiaFW-audio-ctrls-vol').text("?");
+            SepiaFW.audio.setPlayerVolumeIndicator("?");
         });
     }
     function volumeAction(streamPlayerFun, embeddedPlayerFun, androidFun){
