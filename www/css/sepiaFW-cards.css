@@ -734,6 +734,7 @@ article + .sepiaFW-cards-flexSize-container.oneElement,
 	text-align: center;
 	/*background: transparent;*/
 	/*color: #fff;*/
+	overflow: hidden;
 }
 .sepiaFW-cards-list-body .linkCard .linkCardLogo img {
 	max-width: 50px;
