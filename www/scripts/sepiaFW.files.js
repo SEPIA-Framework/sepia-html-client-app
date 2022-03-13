@@ -166,5 +166,74 @@ function sepiaFW_build_files(){
 		//TODO: what about timeout?
 	}
 		
+	//Download button for blobs
+	Files.saveBlobAs = function(filename, blob, parentViewEle){
+		if (!filename || !blob) return;
+		if (navigator.msSaveBlob) return navigator.msSaveBlob(blob, filename);
+		var dummyEle = parentViewEle || document.body;
+		var a = document.createElement('a');
+		a.style.cssText = "max-width: 0px; max-height: 0px; margin: 0; padding: 0;";
+		dummyEle.appendChild(a);
+		var url = window.URL.createObjectURL(blob);
+		a.href = url;
+		a.download = filename;
+		a.click();
+		setTimeout(function(){
+			window.URL.revokeObjectURL(url);
+			dummyEle.removeChild(a);
+		}, 0);
+	}
+
+	//Make element a file drop zone
+	Files.makeDropZone = function(dropZoneEle, readSuccessCallback, readErrorCallback){
+		if (dropZoneEle){
+			dropZoneEle.classList.add("file-drop-zone");
+			var $fdzOverlay = $(dropZoneEle).find(".file-drop-zone-overlay");
+			var fdzOverlay;
+			if ($fdzOverlay.length == 0){
+				fdzOverlay = document.createElement("div");
+				fdzOverlay.classList.add("file-drop-zone-overlay");
+				fdzOverlay.innerHTML = "<span>DROP FILE HERE</span>";
+				dropZoneEle.appendChild(fdzOverlay);
+			}else{
+				fdzOverlay = $fdzOverlay[0];
+			}
+			function dropHandler(ev){
+				//console.log('File drop', ev);
+				ev.preventDefault();
+				dropZoneEle.classList.remove("drag-active");
+				var file;
+				if (ev.dataTransfer.items && ev.dataTransfer.items.length){
+					//get first file via 'items'
+					for (var i = 0; i < ev.dataTransfer.items.length; i++){
+						if (ev.dataTransfer.items[i].kind === 'file') {
+							file = ev.dataTransfer.items[i].getAsFile();
+							break;
+						}
+					}
+				}else if (ev.dataTransfer.files && ev.dataTransfer.files.length){
+					//get first file via 'files'
+					file = ev.dataTransfer.files[0];
+				}
+				if (file){
+					readFileAsText(file, readSuccessCallback, readErrorCallback);
+				}
+			}
+			function dragEnter(ev){
+				ev.preventDefault();
+				dropZoneEle.classList.add("drag-active");
+			}
+			function dragLeave(ev){
+				ev.preventDefault();
+				dropZoneEle.classList.remove("drag-active");
+			}
+			dropZoneEle.addEventListener('dragenter', dragEnter);
+			dropZoneEle.addEventListener('dragover', function(ev){ ev.preventDefault(); });
+			fdzOverlay.addEventListener('dragover', function(ev){ ev.preventDefault(); });
+			fdzOverlay.addEventListener('dragleave', dragLeave);
+			fdzOverlay.addEventListener('drop', dropHandler);
+		}
+	}
+
 	return Files;
 }

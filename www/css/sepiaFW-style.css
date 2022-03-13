@@ -1260,6 +1260,7 @@ html.dark-skin #sepiaFW-login-help-btn {
 }
 #sepiaFW-more-menu-actions > li {
 	display: inline-block;
+	flex: 0 0 auto;
 }
 #sepiaFW-audio-ctrls {
     position: relative;
@@ -2423,6 +2424,33 @@ html.landscape-small #sepiaFW-chat-controls .eButton {
 @keyframes sepiaFW-assist-btn-orbiters-rotate {
     from {transform: rotate(0deg); transform-origin: 50% 50%;}
     to {transform: rotate(360deg); transform-origin: 50% 50%;}
+}
+
+/* ------- Additional overlays ------- */
+
+.file-drop-zone {
+	position: relative;
+}
+.file-drop-zone-overlay {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	background: #fff;
+	color: #000;
+	border: 2px dashed;
+	display: none;
+	justify-content: center;
+	align-items: center;
+	z-index: 2;
+}
+.file-drop-zone.drag-active > .file-drop-zone-overlay {
+	display: flex;
+}
+.file-drop-zone-overlay > span {
+	font-weight: bold;
+	pointer-events: none;
 }
 
 /* ------- Layers on top of main ------- */
