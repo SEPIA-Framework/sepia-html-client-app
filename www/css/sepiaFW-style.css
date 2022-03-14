@@ -244,6 +244,7 @@ body.limit-size {
 	margin-top: -50px;
 }
 
+/* TODO: replace all '#sepiaFW-popup-message' with '.sepiaFW-input-popup' styles */
 #sepiaFW-popup-message-content {
 	margin: 8px 0 12px 0;
 	flex: 1 1 auto;
@@ -254,20 +255,6 @@ body.limit-size {
 #sepiaFW-popup-message-controls {
 	margin: 4px 0 6px 0;
 	flex: 1 0 auto;
-}
-#sepiaFW-popup-message button {
-	background-color: #eee !important;
-	color: #111 !important;
-}
-#sepiaFW-popup-message button:hover {
-	background-color: #888 !important;
-	color: #fff !important;
-}
-#sepiaFW-popup-message input {
-	width: 100% !important;
-    background: #222;
-    color: #eee;
-    border-bottom: 1px solid #eee !important;
 }
 #sepiaFW-popup-message i {
 	color: #ceff1a;
@@ -389,6 +376,10 @@ body.limit-size {
 .sepiaFW-input-popup button {
 	background-color: #eee !important;
 	color: #111 !important;
+}
+.sepiaFW-input-popup button:hover {
+	background-color: #888 !important;
+	color: #fff !important;
 }
 
 #sepiaFW-loader {
@@ -1153,6 +1144,51 @@ html.dark-skin #sepiaFW-login-help-btn {
     margin: 0px;
     padding: 0px;
 	float: left;
+}
+.sepiaFW-value-slider {
+	display: inline-flex;
+	height: 20px;
+	margin: 5px 5px !important;
+}
+.sepiaFW-value-slider input[type="range"] {
+	appearance: none;
+    -webkit-appearance: none;
+	flex: 1 1 auto;
+    padding: 0 !important;
+    margin: 0 !important;
+    border: 0 !important;
+    border-bottom: 0 !important;
+    min-height: unset !important;
+	background: rgba(100, 100, 100, 0.4) !important;
+}
+.sepiaFW-value-slider input[type="range"]::-webkit-slider-thumb {
+	-webkit-appearance: none;
+    appearance: none;
+    width: 12px;
+    height: 24px;
+    background: currentColor;
+    cursor: pointer;
+}
+.sepiaFW-value-slider input[type="range"]::-moz-range-thumb {
+    width: 12px;
+    height: 24px;
+    background: currentColor;
+    cursor: pointer;
+	border: 0;
+	border-radius: 0;
+}
+.sepiaFW-slider-indicator-type-1 {
+	flex: 0 0 auto;
+	width: 34px;
+    height: 34px;
+    margin: 5px !important;
+    padding: 0 !important;
+    font-size: 14px;
+    border: 1px solid;
+    border-radius: 17px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 .sepiaFW-indicator-rgy {
 	background: #888;
