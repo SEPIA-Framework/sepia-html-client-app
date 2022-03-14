@@ -1177,8 +1177,9 @@ function sepiaFW_build_audio(){
 	//Remote control
 	AudioPlayer.openRemoteControl = function(){
 		var remotePlayer = document.createElement("div");
-		var header = document.createElement("p");
+		var header = document.createElement("h3");
 		header.textContent = "Remote Media Player";
+		header.style.marginBottom = "32px";
 		var previousBtn = document.createElement("button");
 		previousBtn.innerHTML = '<i class="material-icons md-24">skip_previous</i>';
 		var pauseBtn = document.createElement("button");
@@ -1187,6 +1188,22 @@ function sepiaFW_build_audio(){
 		playBtn.innerHTML = '<i class="material-icons md-24">play_arrow</i>';
 		var nextBtn = document.createElement("button");
 		nextBtn.innerHTML = '<i class="material-icons md-24">skip_next</i>';
+		//volume box + slider
+		var volBox = document.createElement("div");
+		volBox.style.cssText = "display: flex; justify-content: center; align-items: center; margin: 8px";
+		var volValueLabel = document.createElement("label");
+		volValueLabel.className = "sepiaFW-slider-indicator-type-1";
+		var volSlider = SepiaFW.ui.build.slider("remote-mp-volume-slider", function(newVol){
+			volValueLabel.textContent = newVol;
+		}, undefined, SepiaFW.audio.getGlobalMediaPlayerVolume(), [0, 10], 1);
+		volSlider.style.cssText = "flex: 0 1 198px;"
+		volValueLabel.textContent = volSlider.getValue();
+		var setVolBtn = document.createElement("button");
+		setVolBtn.innerHTML = '<i class="material-icons md-24">volume_up</i>';	//equalizer
+		volBox.appendChild(volValueLabel);
+		volBox.appendChild(volSlider);
+		volBox.appendChild(setVolBtn);
+		//button fun
 		$(previousBtn).on("click", function(){
 			sendRemotePlayerAction({type: "control", controlAction: "previous"});
 		});
@@ -1199,11 +1216,16 @@ function sepiaFW_build_audio(){
 		$(nextBtn).on("click", function(){
 			sendRemotePlayerAction({type: "control", controlAction: "next"});
 		});
+		$(setVolBtn).on("click", function(){
+			var newVol = volSlider.getValue();
+			sendRemotePlayerAction({type: "volume", volumeAction: ("volume;;" + newVol)});
+		});
 		remotePlayer.appendChild(header);
 		remotePlayer.appendChild(previousBtn);
 		remotePlayer.appendChild(pauseBtn);
 		remotePlayer.appendChild(playBtn);
 		remotePlayer.appendChild(nextBtn);
+		remotePlayer.appendChild(volBox);
 		SepiaFW.ui.showPopup(remotePlayer, {buttonOneName: SepiaFW.local.g("abort"), buttonOneAction: function(){}});
 	}
 	function sendRemotePlayerAction(action){
