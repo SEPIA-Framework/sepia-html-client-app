@@ -66,7 +66,9 @@ SepiaFW.settings = {
 						"awaitDialog": [{"ledIndex": 1, "red": 100, "green": 100, "blue": 0}],
 						"loading": [{"ledIndex": 1, "red": 10, "green": 10, "blue": 10}],
 						"wakeWordActive": [{"ledIndex": 2, "red": 10, "green": 0, "blue": 0}],
-						"wakeWordInactive": [{"ledIndex": 2, "red": 0, "green": 0, "blue": 0}]
+						"wakeWordInactive": [{"ledIndex": 2, "red": 0, "green": 0, "blue": 0}],
+						"eventEffectsOn": [],
+						"eventEffectsOff": []
 					}
 				}]
 			}

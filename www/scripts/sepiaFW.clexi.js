@@ -524,7 +524,11 @@ function sepiaFW_build_clexi(){
     var registeredGpioObjects = {};
     var gpioMicButton;
     var primaryGpioLedArray;
-    var supportedGpioLedStates = ["idle", "listening", "speaking", "awaitDialog", "loading", "wakeWordActive", "wakeWordInactive"];
+    var supportedGpioLedStates = [
+        "idle", "listening", "speaking", "awaitDialog", "loading",
+        "wakeWordActive", "wakeWordInactive",
+        "eventEffectsOn", "eventEffectsOff"
+    ];
     var gpioStateLeds;
 
     function handleClexiGpioEvent(ev){
@@ -558,14 +562,21 @@ function sepiaFW_build_clexi(){
     function clientStateHandlerForGpio(ev){
         if (ev && ev.detail && ev.type){
             var state = ev.detail.state;
-            if (ev.type = "sepia_wake_word"){
+            if (ev.type == "sepia_wake_word"){
                 if (state == "active"){
                     state = "wakeWordActive";
                 }else if (state == "inactive"){
                     state = "wakeWordInactive";
                 }
+            }else if (ev.type == "sepia_audio_player_event" && ev.detail.source == "effects"){
+                if (ev.detail.action == "start"){
+                    state = "eventEffectsOn";
+                }else if (ev.detail.action == "stop"){
+                    state = "eventEffectsOff";
+                }
             }
             //console.log('state event: ' + state);       //DEBUG
+            if (state == undefined) return;
             //Items - LED array (only supported "state" item so far)
             if (primaryGpioLedArray && primaryGpioLedArray.modes){
                 var modeAction = primaryGpioLedArray.modes[state];
@@ -596,6 +607,7 @@ function sepiaFW_build_clexi(){
     }
     document.addEventListener("sepia_state_change", clientStateHandlerForGpio);
     document.addEventListener("sepia_wake_word", clientStateHandlerForGpio);
+    document.addEventListener("sepia_audio_player_event", clientStateHandlerForGpio);   //includes alarm
 
     function subscribeToGpioInterface(){
         ClexiJS.subscribeTo('gpio-interface', function(e){
