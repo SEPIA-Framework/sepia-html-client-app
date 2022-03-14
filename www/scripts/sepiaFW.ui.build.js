@@ -145,6 +145,46 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 		}
 	}
 
+	Build.slider = function(sliderId, onInputCallback, onChangeCallback, initialValue, range, step, disabled){
+		var sliderBox = document.createElement('DIV');
+		var slider = document.createElement('INPUT');
+		sliderBox.appendChild(slider);
+		slider.type = "range";
+		slider.value = (initialValue != undefined)? initialValue : 0;
+		if (range && range.length == 2){
+			slider.min = range[0];
+			slider.max = range[1];
+		}else{
+			slider.min = 0;
+			slider.max = 100;
+		}
+		slider.step = step || 1;
+		sliderBox.className = "sepiaFW-value-slider";
+		if (disabled){
+			sliderBox.classList.add("disabled");
+			slider.disabled = disabled;
+		}
+		if (sliderId) sliderBox.id = sliderId;
+		$(slider).on('input', function(){
+			if (onInputCallback) onInputCallback(slider.value);
+		});
+		$(slider).on('change', function(){
+			if (onChangeCallback) onChangeCallback(slider.value);
+		});
+		sliderBox.getValue = function(){
+			return slider.value;
+		}
+		sliderBox.setValue = function(val){
+			slider.value = val;
+		}
+		sliderBox.setDisabled = function(isDisabled){
+			slider.disabled = isDisabled;
+			if (isDisabled) sliderBox.classList.add("disabled");
+			else sliderBox.classList.remove("disabled");
+		}
+		return sliderBox;
+	}
+
 	//state indicator
 	Build.stateIndicatorRGY = function(indicatorId, initialState, onGreenCallback, onYellowCallback, onRedCallback){
 		var Indicator = {};
