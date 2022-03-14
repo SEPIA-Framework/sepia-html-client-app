@@ -2360,6 +2360,14 @@ function sepiaFW_build_webSocket_client(sepiaSessionId){
 									action: action.controlAction
 								});
 							}
+						}else if (action.type == "volume"){
+							//control audio volume
+							if (action.volumeAction){
+								SepiaFW.ui.showInfo(SepiaFW.local.g('remote_action') + " - Volume: " + action.volumeAction.replace("volume;;", ""), false);
+								SepiaFW.client.controls.volume({
+									action: action.volumeAction
+								});
+							}
 						}else if (action.type == "embedded_player"){
 							//embedded media-player
 							if (action.playerData){
