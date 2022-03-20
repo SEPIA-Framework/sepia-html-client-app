@@ -104,18 +104,46 @@ function sepiaFW_build_ui(){
 					}
 				}
 				*/
-			},100);
+			}, 100);
 		}
 	}
 
-	//Listen to change of active element (Note: not very reliable)
+	//Focus events (e.g. for virtual keyboards)
+	UI.listenGloballyToFocusEvents = function(){
+		//TODO: what about iframes
+		if (!listenToAllFocusEvents){
+			document.body.addEventListener('focusin', function(ev){
+				//console.error("focusin", ev.target);	//DEBUG
+				if (broadcastActiveElement){
+					dispatchActiveElementChangeEvent();
+				}
+				if (SepiaFW.ui.virtualKeyboard.isEnabled()){
+					if (ev.target && (ev.target.tagName == "INPUT" || ev.target.tagName == "TEXTAREA" || 
+							(ev.target.contentEditable && ev.target.contentEditable == "true"))){	//NOTE: there is 'plaintext-only' and 'inherit' as well
+						SepiaFW.ui.virtualKeyboard.onInputFocus(ev.target);
+					}
+				}
+			});
+			document.body.addEventListener('focusout', function(ev){
+				//console.error("focusout", ev.target);	//DEBUG
+				if (broadcastActiveElement){
+					dispatchActiveElementChangeEvent();
+				}
+				if (SepiaFW.ui.virtualKeyboard.isEnabled() && SepiaFW.ui.virtualKeyboard.isOpen()){
+					SepiaFW.ui.virtualKeyboard.onInputBlur();
+				}
+			});
+			listenToAllFocusEvents = true;
+		}
+	}
+	var listenToAllFocusEvents = false;
+
+	//Listen to change of active element
 	UI.listenToActiveElementChange = function(){
-		window.addEventListener('focus', function(e){
-			dispatchActiveElementChangeEvent();
-		}, true);
-		window.addEventListener('blur', function(e){
-			dispatchActiveElementChangeEvent();
-		}, true);
+		broadcastActiveElement = true;
+		if (!listenToAllFocusEvents){
+			UI.listenGloballyToFocusEvents();
+		}
 	}
 	function dispatchActiveElementChangeEvent(){
 		clearTimeout(activeElementChangeBuffer);
@@ -128,10 +156,11 @@ function sepiaFW_build_ui(){
 					tagName: document.activeElement.tagName
 				}});
 				document.dispatchEvent(event);
-				//console.error("new active ele.: " + (document.activeElement.id || document.activeElement.className || document.activeElement.tagName));
+				//console.error("new active ele.:", document.activeElement.id, document.activeElement.className, document.activeElement.tagName);
 			}
 		}, 100);
 	}
+	var broadcastActiveElement = false;
 	var activeElementChangeBuffer = undefined;
 
 	//Open a view or frame by key (e.g. for URL parameter 'view=xy')

@@ -22,6 +22,7 @@ SepiaFW.buildSepiaFwPlugins = function(){
 	SepiaFW.ui.cards = sepiaFW_build_ui_cards();
 	SepiaFW.ui.actions = sepiaFW_build_ui_actions();
 	SepiaFW.ui.plot = ('sepiaFW_build_ui_plot' in window)? sepiaFW_build_ui_plot() : {};
+	SepiaFW.ui.virtualKeyboard = ('sepiaFW_build_ui_virtual_keyboard' in window)? sepiaFW_build_ui_virtual_keyboard() : {};
 	SepiaFW.ui.customButtons = sepiaFW_build_ui_custom_buttons(sepiaSessionId);
 	SepiaFW.events = sepiaFW_build_events();
 	SepiaFW.geocoder = sepiaFW_build_geocoder();

@@ -178,6 +178,24 @@ body.limit-size {
 	overflow: hidden;
 	z-index: 99;
 }
+#sepiaFW-virtual-keyboard-box {
+	position: fixed;
+	display: none;
+	left: 0px;
+	bottom: -250px;
+	min-height: 50px;
+	width: 100%;
+	background: transparent;
+	transition: bottom .5s;
+	z-index: 50;
+}
+#sepiaFW-virtual-keyboard-toolbar {
+	min-height: 50px;
+	width: 100%;
+	background: #222;
+    color: #eee;
+    border-radius: 3px;
+}
 #sepiaFW-audio-players-box {
 	display: none;
 	position: fixed;
@@ -186,7 +204,7 @@ body.limit-size {
 	left: 8px;
 	width: 250px;
 }
-#sepiaFW-audio-players-box audio{
+#sepiaFW-audio-players-box audio {
 	width: 100%;
 }
 @media screen and (max-width: 1099px) {
