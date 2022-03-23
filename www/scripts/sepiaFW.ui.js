@@ -1262,7 +1262,7 @@ function sepiaFW_build_ui(){
 			lastDomEventTS = new Date().getTime();
 		}
 		//DOM Events
-		document.addEventListener("keypress", resetTimer);
+		document.addEventListener("keydown", resetTimer);
 		document.addEventListener("mousemove", resetTimer);
 		document.addEventListener("mousedown", resetTimer);		// touchscreen presses
 		document.addEventListener("click", resetTimer);			// touchpad clicks

@@ -409,23 +409,19 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 		if (chatInput){
 			chatInput.placeholder = SepiaFW.local.g('chatInputPlaceholder');
 			$(chatInput).off()
-			//pressed RETURN
-			.on("keypress", function(e){
-				if (e.keyCode === 13){
+			//pressed RETURN etc.
+			.on("keydown", function(e){
+				if (e.key == "Enter"){
 					//Return-Key
 					if (SepiaFW.audio && SepiaFW.audio.initAudio(SepiaFW.client.sendInputText)){
 						//skip because of callback
 					}else{
 						SepiaFW.client.sendInputText();
 					}
-				}
-			})
-			//press UP
-			.on("keydown", function(e){
-				if (e.keyCode === 38){
+				}else if (e.key == "ArrowUp"){
 					//Up
 					chatInput.value = SepiaFW.ui.lastInput;
-				}else if (e.keyCode === 40){
+				}else if (e.key == "ArrowDown"){
 					//Down
 					chatInput.value = '';
 				}
@@ -501,8 +497,8 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 		var speechInputBubble = document.getElementById("sepiaFW-chat-controls-speech-box-bubble");
 		if (speechInputBubble){
 			$(speechInputBubble).off();
-			$(speechInputBubble).on("keypress", function(e){
-				if (e.keyCode === 13){
+			$(speechInputBubble).on("keydown", function(e){
+				if (e.key == "Enter"){
 					//Return-Key
 					SepiaFW.client.sendInputText();
 				}

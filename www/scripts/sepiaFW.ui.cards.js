@@ -650,9 +650,8 @@ function sepiaFW_build_ui_cards(){
 					$(this).text(eleData.name);
 				}
 			});
-			$(this).keypress(function(event){
-				var keycode = event.keyCode || event.which;
-				if(keycode == '13') {
+			$(this).keydown(function(event){
+				if(event.key == 'Enter'){
 					$(this).blur();
 				}
 			});
@@ -876,9 +875,8 @@ function sepiaFW_build_ui_cards(){
 				}
 			}
 		});
-		timerEventName.keypress(function(event){
-			var keycode = event.keyCode || event.which;
-			if(keycode == '13'){
+		timerEventName.keydown(function(event){
+			if(event.key == 'Enter'){
 				//$(this).blur();
 				$('#sepiaFW-chat-input').focus().blur(); 	//workaround since it can't be blurred
 			}
@@ -1560,12 +1558,10 @@ function sepiaFW_build_ui_cards(){
 				var saveButton = $(this).closest('.sepiaFW-cards-flexSize-container').find('.sepiaFW-cards-list-saveBtn');
 				saveButton.addClass('active');		//saveBtn.css({"opacity": 0.92, "color": saveBtn.parent().css("color")});
 			});
-			titleSpan.keypress(function(event){
-				var keycode = event.keyCode || event.which;
-				if(keycode == '13'){
+			titleSpan.keydown(function(event){
+				if(event.key == 'Enter'){
 					$('#sepiaFW-chat-input').focus().blur(); 	//workaround since SPAN can't be blurred
 				}
-				event.preventDefault;
 			});
 		}
 		//-context menu

@@ -363,8 +363,8 @@ function sepiaFW_build_teach(sepiaSessionId){
 					}, '');
 				}
 			}
-			$cmdSearchInput.keypress(function(event){
-				if (event.key === "Enter"){
+			$cmdSearchInput.keydown(function(event){
+				if (event.key == "Enter"){
 					searchCommands();
 				}
 			});

@@ -1326,8 +1326,8 @@ function sepiaFW_build_webSocket_client(sepiaSessionId){
 			//-landscape input field and button (simple input, no extra logic, no audio init. or ASR updates)		
 			var landscapeInputText = document.getElementById("sepiaFW-more-menu-input-text");
 			if (landscapeInputText){
-				$(landscapeInputText).on("keypress", function(e){
-					if (e.keyCode === 13 && landscapeInputText.value){
+				$(landscapeInputText).on("keydown", function(e){
+					if (e.key == "Enter" && landscapeInputText.value){
 						//Return-Key
 						SepiaFW.client.sendInputText(landscapeInputText.value);
 						landscapeInputText.value = "";
@@ -2070,8 +2070,8 @@ function sepiaFW_build_webSocket_client(sepiaSessionId){
 		var refreshUsers = false;
 		var notAnsweredYet = true;
 		
-		//console.log(msg);
-		//console.log(JSON.stringify(message));
+		//console.log("handleMessage", msg);
+		//console.log(JSON.stringify(message, null, 2));
 		if (message.msgId){
 			delete messageQueue[message.msgId];
 			SepiaFW.client.isMessagePending = false;
@@ -2544,6 +2544,8 @@ function sepiaFW_build_webSocket_client(sepiaSessionId){
 				SepiaFW.ui.showInfo(weekdayName, false, customTag, true, message.channelId);
 			}
 		}
+
+		//TODO: check for language and set 'oneTimeLanguage'?
 
 		//publish
 		var chatMessageEntry;
