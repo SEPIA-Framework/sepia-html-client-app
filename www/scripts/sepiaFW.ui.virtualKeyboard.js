@@ -3,6 +3,9 @@ function sepiaFW_build_ui_virtual_keyboard(){
 	var VirtualKeyboard = {};
 
 	var vkContainer = document.getElementById("sepiaFW-virtual-keyboard-box");
+	var vkToolbar = document.getElementById("sepiaFW-virtual-keyboard-toolbar");
+	var inputPreview;
+
 	var vkAnimTime = 500;
 
 	var isEnabled = false;
@@ -28,7 +31,11 @@ function sepiaFW_build_ui_virtual_keyboard(){
 			var l = document.createElement("link");
 			l.rel = "stylesheet";
 			l.href = "css/simple-keyboard.css";
+			var l2 = document.createElement("link");
+			l2.rel = "stylesheet";
+			l2.href = "css/sepiaFW-style-virtual-keyboard.css";
 			document.body.appendChild(l);
+			document.body.appendChild(l2);
 			//load script
 			var s = document.createElement("script");
 			s.src ="scripts/simple-keyboard.modern.min.js";
@@ -60,6 +67,26 @@ function sepiaFW_build_ui_virtual_keyboard(){
 				console.error("'simple-keyboard' setup done");	//DEBUG
 				doneCallback();
 			});
+			//build toolbar
+			if (vkToolbar){
+				var inputPreviewDiv = document.createElement("div");
+				inputPreviewDiv.className = "vk-toolbar-input-box";
+				inputPreview = buildInputPreview(inputPreviewDiv);
+				var closeBtnDiv = document.createElement("div");
+				closeBtnDiv.className = "vk-toolbar-btn-box";
+				var closeBtn = document.createElement("button");
+				closeBtn.innerHTML = "<i class='material-icons'>cancel</i>";
+				closeBtnDiv.appendChild(closeBtn);
+				var dummyDiv = document.createElement("div");
+				dummyDiv.className = "vk-toolbar-btn-box";
+				vkToolbar.appendChild(dummyDiv);
+				vkToolbar.appendChild(inputPreviewDiv);
+				vkToolbar.appendChild(closeBtnDiv);
+				//close
+				$(closeBtn).on("click", function(){
+					VirtualKeyboard.close();
+				});
+			}
 		}else{
 			console.error("VirtualKeyboard - ERROR: No virtual keyboard found!");
 			doneCallback();
@@ -103,12 +130,14 @@ function sepiaFW_build_ui_virtual_keyboard(){
 	}
 	VirtualKeyboard.onInputBlur = function(){
 		//console.error("vk onInputBlur");				//DEBUG
-		VirtualKeyboard.close();
+		//VirtualKeyboard.close();
+		keyboardInterface.setInputValue("");
 	}
 
 	//Simple-Keyboard interface
 	var SimpleKeyboard = function(onInit){
 
+		var that = this;
 		var activeInputElement = undefined;
 
 		this.setInputElement = function(ele){
@@ -116,10 +145,10 @@ function sepiaFW_build_ui_virtual_keyboard(){
 			if (!ele) return;
 			//keyboard.setOptions({inputName: ele.id});
 			if (ele.value != undefined){
-				keyboard.setInput(ele.value);
+				that.setInputValue(ele.value);
 				if (ele.selectionStart) keyboard.setCaretPosition(ele.selectionStart);
 			}else{
-				keyboard.setInput(ele.textContent);
+				that.setInputValue(ele.textContent);
 				//TODO: fix caret position
 				if (window.getSelection() && window.getSelection().anchorOffset){
 					keyboard.setCaretPosition(window.getSelection().anchorOffset);
@@ -128,6 +157,7 @@ function sepiaFW_build_ui_virtual_keyboard(){
 		}
 		this.setInputValue = function(value){
 			keyboard.setInput(value);
+			if (inputPreview) inputPreview.setInput(value);
 		}
 		this.setCaretPosition = function(posStart, posEnd){
 			if (posEnd){
@@ -140,9 +170,12 @@ function sepiaFW_build_ui_virtual_keyboard(){
 		function onChange(inputVal){
 			//console.log("Input changed", inputVal);		//DEBUG
 			if (activeInputElement){
+				if (inputPreview) inputPreview.setInput(inputVal);
 				if (activeInputElement.value != undefined){
 					activeInputElement.value = inputVal;
-					activeInputElement.setSelectionRange(keyboard.getCaretPosition(), keyboard.getCaretPositionEnd());
+					if (!activeInputElement.type || activeInputElement.type == "text"){
+						activeInputElement.setSelectionRange(keyboard.getCaretPosition(), keyboard.getCaretPositionEnd());
+					}
 				}else{
 					//if (activeInputElement.contentEditable && activeInputElement.contentEditable == "true") ...
 					activeInputElement.textContent = inputVal;
@@ -157,8 +190,21 @@ function sepiaFW_build_ui_virtual_keyboard(){
 
 		function onKeyPress(button){
 			//console.log("Button pressed", button);		//DEBUG
-			if (button === "{shift}" || button === "{lock}") handleShift();
-  			if (button === "{numbers}" || button === "{abc}") handleNumbers();
+			switch (button) {
+				case "{shift}":
+				case "{lock}":
+					handleShift();
+					break;
+				case "{numbers}":
+				case "{abc}":
+					handleNumbers();
+					break;
+				case "{enter}":
+					pressKey(activeInputElement, "Enter", 13, true);
+					break;
+				default:
+					break;
+			}
 		}
 		function handleShift() {
 			var currentLayout = keyboard.options.layoutName;
@@ -179,20 +225,22 @@ function sepiaFW_build_ui_virtual_keyboard(){
 			onChange: onChange,
 			onKeyPress: onKeyPress,
 			preventMouseDownDefault: true,	//prevent loss of input focus
+			physicalKeyboardHighlight: true,
+			physicalKeyboardHighlightPress: true,
 			mergeDisplay: true,
 			layoutName: "default",
 			layout: {
 				default: [
-					"q w e r t y u i o p",
-					"a s d f g h j k l",
-					"{shift} z x c v b n m {backspace}",
-					"{numbers} {space} {ent}"
+					"q w e r t y u i o p {backspace}",
+					"a s d f g h j k l {enter}",
+					"{shift} z x c v b n m {arrowleft} {arrowright}",
+					"{numbers} {space}"
 				],
 				shift: [
-					"Q W E R T Y U I O P",
-					"A S D F G H J K L",
-					"{shift} Z X C V B N M {backspace}",
-					"{numbers} {space} {ent}"
+					"Q W E R T Y U I O P {backspace}",
+					"A S D F G H J K L {enter}",
+					"{shift} Z X C V B N M {arrowleft} {arrowright}",
+					"{numbers} {space}"
 				],
 				numbers: [
 					"1 2 3", 
@@ -203,7 +251,7 @@ function sepiaFW_build_ui_virtual_keyboard(){
 			},
 			display: {
 				"{numbers}": "123",
-				"{ent}": "return",
+				"{enter}": "↵",
 				"{escape}": "esc ⎋",
 				"{tab}": "tab ⇥",
 				"{backspace}": "⌫",
@@ -219,6 +267,56 @@ function sepiaFW_build_ui_virtual_keyboard(){
 			},
 			onInit: onInit
 		});
+	}
+
+	//special input preview
+	function buildInputPreview(parentEle){
+		var InputPrev = {};
+
+		var lettersBox = document.createElement("div");
+		lettersBox.className = "vk-input-preview";
+		parentEle.appendChild(lettersBox);
+
+		lettersBox.addEventListener('pointerdown', function(e){
+			//some action ...
+			e.preventDefault();		//prevent input focus loss
+			return false;
+		});
+
+		InputPrev.setInput = function(val, caretPos){
+			lettersBox.textContent = val;
+			if (caretPos == undefined){
+				parentEle.scrollLeft = parentEle.scrollWidth;
+			}			
+		}
+		InputPrev.getElement = function(){
+			return lettersBox;
+		}
+
+		return InputPrev;
+	}
+
+	//key dispatcher
+	function pressKey(ele, keyName, keyCode, release){
+		if (!ele) return;
+		var keyboardEvent = new KeyboardEvent('keydown', {
+			code: keyName,	//e.g. 'Enter'
+			key: keyName,	//e.g. 'Enter'
+			charKode: keyCode,	//e.g. 13
+			keyCode: keyCode	//e.g. 13
+		});
+		ele.dispatchEvent(keyboardEvent);
+		if (release) releaseKey(ele, keyName, keyCode);
+	}
+	function releaseKey(ele, keyName, keyCode){
+		if (!ele) return;
+		var keyboardEvent = new KeyboardEvent('keyup', {
+			code: keyName,
+			key: keyName,
+			charKode: keyCode,
+			keyCode: keyCode
+		});
+		ele.dispatchEvent(keyboardEvent);
 	}
 
 	return VirtualKeyboard;

@@ -1,0 +1,57 @@
+#sepiaFW-virtual-keyboard-box {
+	position: fixed;
+	display: none;
+	left: 0px;
+	bottom: -250px;
+	min-height: 50px;
+	width: 100%;
+	background: transparent;
+	transition: bottom .5s;
+	z-index: 50;
+}
+#sepiaFW-virtual-keyboard-toolbar {
+	min-height: 42px;
+	width: 100%;
+	background: #222;
+    color: #e9e9e9;
+    border-radius: 3px;
+	padding: 5px;
+	display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+#sepiaFW-virtual-keyboard-toolbar .vk-toolbar-input-box {
+	flex: 1 1 auto;
+	overflow-x: auto;
+    text-align: center;
+	-ms-overflow-style: none;
+	scrollbar-width: none;
+}
+#sepiaFW-virtual-keyboard-toolbar .vk-toolbar-input-box::-webkit-scrollbar {
+	display: none;
+}
+#sepiaFW-virtual-keyboard-toolbar .vk-input-preview {
+    background: transparent;
+	color: currentColor;
+    border: 0px solid;
+    border-radius: 3px;
+	margin: 0;
+	padding: 5px;
+}
+#sepiaFW-virtual-keyboard-toolbar .vk-toolbar-btn-box {
+	flex: 0 0 auto;
+	display: flex;
+    justify-content: center;
+    align-items: center;
+	min-width: 36px;
+    min-height: 36px;
+}
+#sepiaFW-virtual-keyboard-toolbar button {
+	background: transparent;
+	color: inherit;
+    border: 0;
+	cursor: pointer;
+}
+
+/* Themes */
+

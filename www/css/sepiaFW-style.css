@@ -181,20 +181,7 @@ body.limit-size {
 #sepiaFW-virtual-keyboard-box {
 	position: fixed;
 	display: none;
-	left: 0px;
-	bottom: -250px;
-	min-height: 50px;
-	width: 100%;
-	background: transparent;
-	transition: bottom .5s;
 	z-index: 50;
-}
-#sepiaFW-virtual-keyboard-toolbar {
-	min-height: 50px;
-	width: 100%;
-	background: #222;
-    color: #eee;
-    border-radius: 3px;
 }
 #sepiaFW-audio-players-box {
 	display: none;
