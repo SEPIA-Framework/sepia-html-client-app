@@ -1461,6 +1461,7 @@ function sepiaFW_build_ui(){
 		//open
 		$('#sepiaFW-cover-layer').stop().fadeIn(200);
 		//$('#sepiaFW-popup-message').fadeIn(300);
+		return;		//TODO: nothing to return yet
 	}
 	UI.hidePopup = function(){
 		//$('#sepiaFW-popup-message').fadeOut(300);
@@ -1499,7 +1500,7 @@ function sepiaFW_build_ui(){
 			unsafeContent.textContent = unsafeString;
 			content.appendChild(unsafeContent);
 		}
-		SepiaFW.ui.showPopup(content);
+		return UI.showPopup(content);
 	}
 
 	//Create basic input popup
@@ -1545,7 +1546,7 @@ function sepiaFW_build_ui(){
         var content = document.createElement("div");
         content.appendChild(text);
         content.appendChild(selector);
-        return SepiaFW.ui.showPopup(content, config);
+        return UI.showPopup(content, config);
     }
 
 	//Use pop-up to ask for permission
@@ -1560,7 +1561,7 @@ function sepiaFW_build_ui(){
 		}else{
 			content = SepiaFW.local.g('allowedToExecuteThisCommand') + "<br>" + question;
 		}
-		UI.showPopup(content, {
+		return UI.showPopup(content, {
 			buttonOneName: SepiaFW.local.g('looksGood'),
 			buttonOneAction: function(){
 				//yes
@@ -1592,7 +1593,50 @@ function sepiaFW_build_ui(){
 				if (alternativeCallback) alternativeCallback();
 			}
 		}
-		UI.showPopup(question, config);
+		return UI.showPopup(question, config);
+	}
+
+	//Show pop-up to import single file (via drag n drop or input) and show content
+	UI.showFileImportAndViewPopup = function(infoTextOrEle, options, readCallback, confirmCallback, errorCallback){
+		if (!options) options = {};
+		var content = document.createElement("div");
+		content.style.cssText = "width: 100%;";
+		if (typeof infoTextOrEle == "string"){
+			var info = document.createElement("p");
+			info.textContent = infoTextOrEle;
+			content.appendChild(info);
+		}else{
+			content.appendChild(infoTextOrEle);
+		}
+		if (options.addFileSelect){
+			var fileInputEle = SepiaFW.files.createFileInputElement(options.accept, function(readRes){
+				if (readCallback) readCallback(readRes, txtArea);
+			}, function(err){
+				if (errorCallback) errorCallback(err, txtArea);
+				else txtArea.value = "- ERROR -";
+			}, false);
+			content.appendChild(fileInputEle);
+		}
+		var txtArea = document.createElement("textarea");
+		txtArea.style.cssText = "width: 100%; height: 150px; white-space: pre; border: 1px solid;";
+		txtArea.value = options.initialPreviewValue || "- Import data -";
+		content.appendChild(txtArea);
+		var pop = UI.showPopup(content, {
+			buttonOneName: options.buttonOneName || "Import",
+			buttonOneAction: function(){
+				if (confirmCallback) confirmCallback(txtArea.value);
+			},
+			buttonTwoName: options.buttonTwoName || "Abort",
+			buttonTwoAction: function(){}
+		});
+		//make drop-zone
+		SepiaFW.files.makeDropZone(content, function(readRes){
+			if (readCallback) readCallback(readRes, txtArea);
+		}, function(err){
+			if (errorCallback) errorCallback(err, txtArea);
+			else txtArea.value = "- ERROR -";
+		});
+		return pop;
 	}
 
 	//----

@@ -436,19 +436,72 @@ function sepiaFW_build_config(){
 		delete headlessConfigJson.headless.user["account"];
 		delete headlessConfigJson.headless.user["contacts-from-chat"];
 		delete headlessConfigJson.headless.user["lastChannelMessageTimestamps"];
+		delete headlessConfigJson.headless.user["isDemoLogin"];
 		//... more?
 		//show
 		var msgBox = document.createElement("div");
 		var titleBox = document.createElement("div");
-		titleBox.innerHTML = "<h3>Client Settings</h3><p>Copy this to your SEPIA client settings.js file:</p>";
+		titleBox.innerHTML = "<h3>Client Settings JSON</h3><p>Download as file or copy JSON to your SEPIA client settings.js:</p>";
 		var jsonBox = document.createElement("textarea");
 		jsonBox.value = JSON.stringify(headlessConfigJson, null, 4);
 		jsonBox.style.whiteSpace = "pre";
 		msgBox.appendChild(titleBox);
 		msgBox.appendChild(jsonBox);
-		SepiaFW.ui.showPopup(msgBox);
+		SepiaFW.ui.showPopup(msgBox, {
+			buttonOneName: "Download",
+			buttonOneAction: function(){
+				//download as file
+				JSON.parse(jsonBox.value);	//just to validate JSON
+				var blob = new Blob([jsonBox.value], {type: "application/json"});
+				var filename = "settings-export.json";
+				SepiaFW.files.saveBlobAs(filename, blob, msgBox);
+			},
+			buttonTwoName: SepiaFW.local.g("close"),
+			buttonTwoAction: function(){},
+		});
 		//adjust size
 		jsonBox.style.height = jsonBox.scrollHeight + 32 + "px";
+	}
+	Config.showHeadlessModeSettingsImportPopup = function(){
+		SepiaFW.ui.showFileImportAndViewPopup(
+			"Drag & drop settings, load file or copy JSON data:", {
+				addFileSelect: true,
+				accept: ".json",
+				buttonOneName: "Import",
+				buttonTwoName: "Abort",
+				initialPreviewValue: "- Settings JSON -"
+			}, 
+			function(readRes, viewTxtArea){
+				//read
+				if (readRes){
+					var parsedData = JSON.parse(readRes);
+					viewTxtArea.value = JSON.stringify(parsedData, null, 4);
+				}
+			}, function(viewTxtAreaValue){
+				//confirm and close
+				if (viewTxtAreaValue){
+					try {
+						var parsedData = JSON.parse(viewTxtAreaValue);
+						//use headless settings import feature
+						if (!SepiaFW.settings) SepiaFW.settings = {};
+						SepiaFW.settings.headless = parsedData.headless;
+						Config.loadSettingsForHeadlessMode();
+						//TODO: show confirm message
+						setTimeout(function(){
+							SepiaFW.ui.showPopup("Imported 'device' and 'user' settings. Please reload app to refresh settings.");
+						}, 300);
+					}catch(err){
+						viewTxtArea.value = "ERROR - Failed to import: " 
+							+ (err? (err.message || err.name || err) : "?");
+						throw err;
+					}
+				}
+			}, function(err, viewTxtArea){
+				//read error
+				viewTxtArea.value = "ERROR - Failed to read: " 
+					+ (err? (err.message || err.name || err) : "?");
+			}
+		);
 	}
 
 	Config.loadAppSettings = function(readyCallback){

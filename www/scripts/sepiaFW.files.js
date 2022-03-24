@@ -145,7 +145,7 @@ function sepiaFW_build_files(){
 	
 	//Convert file-object to text
 	function readFileAsText(file, successCallback, errorCallback, timeout){
-		//NOTE: only works inside Cordova, outside FileReader requires user interaction
+		//NOTE: only works without user interaction if inside Cordova
 		var reader = new FileReader();
 		reader.onload = function(e){
 			successCallback(e.target.result);
@@ -156,7 +156,7 @@ function sepiaFW_build_files(){
 	}
 	//Convert file-object to arraybuffer
 	function readFileAsArrayBuffer(file, successCallback, errorCallback, timeout){
-		//NOTE: only works inside Cordova, outside FileReader requires user interaction
+		//NOTE: only works without user interaction if inside Cordova
 		var reader = new FileReader();
 		reader.onload = function(e){
 			successCallback(e.target.result);
@@ -182,6 +182,27 @@ function sepiaFW_build_files(){
 			window.URL.revokeObjectURL(url);
 			dummyEle.removeChild(a);
 		}, 0);
+	}
+
+	//Create file input element
+	Files.createFileInputElement = function(accept, readSuccessCallback, readErrorCallback, readAsArrayBuffer){
+		var fileInputEle = document.createElement("input");
+		fileInputEle.type = "file";
+		if (accept){
+			fileInputEle.accept = accept;
+		}
+		fileInputEle.addEventListener("change", function(){
+			var fileList = this.files;
+			//console.error("Files", fileList);	//DEBUG
+			if (fileList && fileList.length){
+				if (readAsArrayBuffer){
+					readFileAsArrayBuffer(fileList[0], readSuccessCallback, readErrorCallback);
+				}else{
+					readFileAsText(fileList[0], readSuccessCallback, readErrorCallback);
+				}
+			}
+		}, false);
+		return fileInputEle;
 	}
 
 	//Make element a file drop zone

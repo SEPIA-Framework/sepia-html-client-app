@@ -788,8 +788,14 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 						+ "<div>"
 							+ "<button id='sepiaFW-menu-load-app-settings-btn' class='sepiaFW-button-inline'>" + SepiaFW.local.g('load') + "</button>"
 							+ "<button id='sepiaFW-menu-store-app-settings-btn' class='sepiaFW-button-inline'>" + SepiaFW.local.g('save') + "</button>"
-							+ "<button id='sepiaFW-menu-export-app-settings-btn' class='sepiaFW-button-inline'>" + SepiaFW.local.g('export') + "</button>"
 							//TODO: add delete button
+						+ "</div>"
+					+ "</li>"
+					+ "<li id='sepiaFW-menu-backup-restore-app-settings-li' class='flex'>"
+						+ "<span>Settings backup: </span>"
+						+ "<div>"
+							+ "<button id='sepiaFW-menu-export-app-settings-btn' class='sepiaFW-button-inline'>" + SepiaFW.local.g('export') + "</button>"
+							+ "<button id='sepiaFW-menu-import-app-settings-btn' class='sepiaFW-button-inline'>" + SepiaFW.local.g('import') + "</button>"
 						+ "</div>"
 					+ "</li>"
 					+ "<li class='spacer'></li>"
@@ -1580,6 +1586,9 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 			});
 			document.getElementById("sepiaFW-menu-export-app-settings-btn").addEventListener("click", function(){
 				SepiaFW.config.exportSettingsForHeadlessMode();
+			});
+			document.getElementById("sepiaFW-menu-import-app-settings-btn").addEventListener("click", function(){
+				SepiaFW.config.showHeadlessModeSettingsImportPopup();
 			});
 			//Sign-out all clients
 			document.getElementById("sepiaFW-menu-ui-signoutall-btn").addEventListener("click", function(){

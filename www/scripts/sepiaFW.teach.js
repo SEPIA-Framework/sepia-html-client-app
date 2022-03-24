@@ -278,36 +278,32 @@ function sepiaFW_build_teach(sepiaSessionId){
 			});
 			//-IMPORT COMMAND
 			$('#sepiaFW-teachUI-import').on('click', function(){
-				var content = document.createElement("div");
-				content.style.cssText = "width: 100%;";
-				var info = document.createElement("p");
-				info.textContent = "Dran & drop command file here or add data:";
-				var txtArea = document.createElement("textarea");
-				txtArea.style.cssText = "width: 100%; height: 150px; white-space: pre; border: 1px solid;";
-				txtArea.value = "- Import data -";
-				content.appendChild(info);
-				content.appendChild(txtArea);
-				SepiaFW.ui.showPopup(content, {
-					buttonOneName: "Import",
-					buttonOneAction: function(){
-						if (txtArea.value){
-							var parsedData = JSON.parse(txtArea.value);
+				SepiaFW.ui.showFileImportAndViewPopup(
+					"Drag & drop command file here or add data:", {
+						addFileSelect: false,
+						//accept: ".json",
+						buttonOneName: "Import",
+						buttonTwoName: "Abort",
+						initialPreviewValue: "- Import data -"
+					}, 
+					function(readRes, viewTxtArea){
+						//read
+						if (readRes){
+							var parsedData = JSON.parse(readRes);
+							viewTxtArea.value = JSON.stringify(parsedData, null, 2);
+						}
+					}, function(viewTxtAreaValue){
+						//confirm and close
+						if (viewTxtAreaValue){
+							var parsedData = JSON.parse(viewTxtAreaValue);
 							loadCommandToEditor(parsedData);
 							Teach.uic.showPane(0);
 						}
-					},
-					buttonTwoName: "Abort",
-					buttonTwoAction: function(){}
-				});
-				//make drop-zone
-				SepiaFW.files.makeDropZone(content, function(readRes){
-					if (readRes){
-						var parsedData = JSON.parse(readRes);
-						txtArea.value = JSON.stringify(parsedData, null, 2);
+					}, function(err, viewTxtArea){
+						//read error
+						viewTxtArea.value = "- ERROR -";
 					}
-				}, function(err){
-					txtArea.value = "- ERROR -";
-				});
+				);
 			});
 			//-SELECT SERVICE
 			$('#sepiaFW-teach-commands').on('change', function(){
