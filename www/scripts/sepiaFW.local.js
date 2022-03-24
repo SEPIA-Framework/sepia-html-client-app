@@ -92,6 +92,7 @@ function sepiaFW_build_strings(){
 	StringsDE.wait = 'Warten';
 	StringsDE.forget = 'Vergessen';
 	StringsDE.abort = 'Abbrechen';
+	StringsDE.chooseFile = 'Datei auswählen';
 	StringsDE.continueOffline = 'Offline weiter';
 	StringsDE.locateMe = 'Standort bestimmen';
 	StringsDE.serverConnections = 'Server Verbindungen';
@@ -314,6 +315,7 @@ function sepiaFW_build_strings(){
 	StringsEN.wait = 'Wait';
 	StringsEN.forget = 'Forget';
 	StringsEN.abort = 'Abort';
+	StringsEN.chooseFile = 'Choose File';
 	StringsEN.continueOffline = 'Continue offline';
 	StringsEN.locateMe = 'Refresh my location';
 	StringsEN.serverConnections = 'Server connections';

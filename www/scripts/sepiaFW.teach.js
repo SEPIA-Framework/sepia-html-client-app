@@ -280,8 +280,8 @@ function sepiaFW_build_teach(sepiaSessionId){
 			$('#sepiaFW-teachUI-import').on('click', function(){
 				SepiaFW.ui.showFileImportAndViewPopup(
 					"Drag & drop command file here or add data:", {
-						addFileSelect: false,
-						//accept: ".json",
+						addFileSelect: true,
+						accept: ".json",
 						buttonOneName: "Import",
 						buttonTwoName: "Abort",
 						initialPreviewValue: "- Import data -"

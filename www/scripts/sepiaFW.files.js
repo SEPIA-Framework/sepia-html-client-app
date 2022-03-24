@@ -186,6 +186,9 @@ function sepiaFW_build_files(){
 
 	//Create file input element
 	Files.createFileInputElement = function(accept, readSuccessCallback, readErrorCallback, readAsArrayBuffer){
+		var container = document.createElement("label");
+		container.className = "file-input-box"
+		container.textContent = SepiaFW.local.g("chooseFile");
 		var fileInputEle = document.createElement("input");
 		fileInputEle.type = "file";
 		if (accept){
@@ -202,7 +205,8 @@ function sepiaFW_build_files(){
 				}
 			}
 		}, false);
-		return fileInputEle;
+		container.appendChild(fileInputEle);
+		return container;
 	}
 
 	//Make element a file drop zone
