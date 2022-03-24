@@ -97,11 +97,11 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 			if (tglBtn.getAttribute("data-toggle-state") === "on"){
 				tglBtn.setAttribute("data-toggle-state", "off");
 				tglBtn.firstChild.className = "off";
-				if (offCallback) offCallback();
+				if (offCallback) offCallback(tglBtn);
 			}else{
 				tglBtn.setAttribute("data-toggle-state", "on");
 				tglBtn.firstChild.className = "on";
-				if (onCallback) onCallback();
+				if (onCallback) onCallback(tglBtn);
 			}
 		});
 		tglBtn.getValue = function(){
@@ -755,6 +755,7 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 					+ "<li class='spacer'></li>"
 					+ "<li id='sepiaFW-menu-experimental-settings-li'><span>Experimental settings </span></li>"
 						+ "<li class='sepiaFW-menu-experimental'><span><u>Note: Changes will not be permanent</u></span></li>"
+						+ "<li id='sepiaFW-menu-toggle-virtual-keyboard-li' class='sepiaFW-menu-experimental'><span>Virtual Keyboard </span></li>"
 						+ "<li id='sepiaFW-menu-toggle-youtube-wp-li' class='sepiaFW-menu-experimental'><span>YouTube embedded </span></li>"
 						+ "<li id='sepiaFW-menu-toggle-spotify-wp-li' class='sepiaFW-menu-experimental'><span>Spotify embedded </span></li>"
 						+ "<li id='sepiaFW-menu-toggle-apple-music-wp-li' class='sepiaFW-menu-experimental'><span>Apple Music embedded </span></li>"
@@ -1355,6 +1356,30 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 					});
 				}, SepiaFW.ui.useTouchBarControls)
 			);
+			//toggle virtual keyboard
+			if (!SepiaFW.ui.virtualKeyboard){
+				$('#sepiaFW-menu-toggle-virtual-keyboard-li').remove();
+			}else{
+				document.getElementById('sepiaFW-menu-toggle-virtual-keyboard-li').appendChild(Build.toggleButton('sepiaFW-menu-toggle-virtualKeyboard',
+					function(toggleBtn){
+						SepiaFW.ui.virtualKeyboard.setup(function(isEnabled){
+							if (!isEnabled){
+								//reset button
+								toggleBtn.setDisabled(true);
+								SepiaFW.debug.error("Failed to enable virtual keyboard.");
+							}else{
+								SepiaFW.debug.info("Virtual keyboard is enabled.");
+							}
+						});
+					},function(){
+						SepiaFW.ui.virtualKeyboard.disable();
+						SepiaFW.debug.info("Virtual keyboard is disabled.");
+					}, SepiaFW.ui.virtualKeyboard.isEnabled())
+				);
+				addOnMainMenuOpenAction("virtual-keyboard", function(){
+					$('#sepiaFW-menu-toggle-virtualKeyboard').get(0).setValue(SepiaFW.ui.virtualKeyboard.isEnabled());
+				});
+			}
 			//Android only stuff
 			if (!SepiaFW.ui.isAndroid){
 				$('#sepiaFW-menu-toggle-runBackgroundConnection-li').remove();

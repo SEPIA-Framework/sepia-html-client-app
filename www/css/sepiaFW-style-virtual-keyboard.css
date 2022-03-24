@@ -1,18 +1,23 @@
 #sepiaFW-virtual-keyboard-box {
 	position: fixed;
-	display: none;
 	left: 0px;
 	bottom: -250px;
 	min-height: 50px;
 	width: 100%;
-	background: transparent;
+	background: #222;
+	color: #e9e9e9;
+	border-radius: 3px 3px 0 0;
 	transition: bottom .5s;
+	display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
 	z-index: 50;
 }
 #sepiaFW-virtual-keyboard-toolbar {
 	min-height: 42px;
 	width: 100%;
-	background: #222;
+	background: #202020;
     color: #e9e9e9;
     border-radius: 3px;
 	padding: 5px;
@@ -55,3 +60,13 @@
 
 /* Themes */
 
+.simple-keyboard.hg-theme-default {
+	background-color: #ececec;
+    color: #000;
+}
+.simple-keyboard.hg-layout-numbers {
+	max-width: 480px;
+}
+.simple-keyboard .hg-greedy {
+	flex-grow: 15;
+}

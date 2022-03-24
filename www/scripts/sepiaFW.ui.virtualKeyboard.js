@@ -7,26 +7,34 @@ function sepiaFW_build_ui_virtual_keyboard(){
 	var inputPreview;
 
 	var vkAnimTime = 500;
+	var autoHide = false;
 
 	var isEnabled = false;
 	var isOpen = false;
 
 	var keyboardInterface;
 
+	//states
 	VirtualKeyboard.isEnabled = function(){
 		return isEnabled;
 	}
 	VirtualKeyboard.isOpen = function(){
 		return isOpen;
 	}
+	//disable
+	VirtualKeyboard.disable = function(){
+		isEnabled = false;
+	}
 
 	//setup
 	VirtualKeyboard.setup = function(doneCallback){
 		//Implementation: custom
-		//isEnabled = true; doneCallback(); return;
+		//isEnabled = true; doneCallback(isEnabled); return;
 		//Implementation: simple-keyboard
 		if (!window.SimpleKeyboard && !triedToLoad){
 			triedToLoad = true;
+			//make sure events listener is enabled
+			SepiaFW.ui.listenGloballyToFocusEvents();
 			//load css
 			var l = document.createElement("link");
 			l.rel = "stylesheet";
@@ -64,8 +72,7 @@ function sepiaFW_build_ui_virtual_keyboard(){
 			keyboardInterface = new SimpleKeyboard(function(){
 				//ready
 				isEnabled = true;
-				console.error("'simple-keyboard' setup done");	//DEBUG
-				doneCallback();
+				doneCallback(isEnabled);
 			});
 			//build toolbar
 			if (vkToolbar){
@@ -89,7 +96,7 @@ function sepiaFW_build_ui_virtual_keyboard(){
 			}
 		}else{
 			console.error("VirtualKeyboard - ERROR: No virtual keyboard found!");
-			doneCallback();
+			doneCallback(isEnabled);
 		}
 	}
 	var triedToLoad = false;
@@ -98,7 +105,7 @@ function sepiaFW_build_ui_virtual_keyboard(){
 	VirtualKeyboard.open = function(openCallback){
 		if (isEnabled){
 			clearTimeout(showHideTimer);
-			vkContainer.style.display = "block";
+			vkContainer.style.display = "flex";
 			setTimeout(function(){
 				vkContainer.style.bottom = "0px";
 				isOpen = true;
@@ -130,8 +137,11 @@ function sepiaFW_build_ui_virtual_keyboard(){
 	}
 	VirtualKeyboard.onInputBlur = function(){
 		//console.error("vk onInputBlur");				//DEBUG
-		//VirtualKeyboard.close();
-		keyboardInterface.setInputValue("");
+		if (autoHide){
+			VirtualKeyboard.close();
+		}else{
+			keyboardInterface.setInputElement(undefined);
+		}
 	}
 
 	//Simple-Keyboard interface
@@ -142,6 +152,7 @@ function sepiaFW_build_ui_virtual_keyboard(){
 
 		this.setInputElement = function(ele){
 			activeInputElement = ele;
+			//console.error("activeInputElement", activeInputElement);		//DEBUG
 			if (!ele) return;
 			//keyboard.setOptions({inputName: ele.id});
 			if (ele.value != undefined){
@@ -189,7 +200,7 @@ function sepiaFW_build_ui_virtual_keyboard(){
 		}
 
 		function onKeyPress(button){
-			//console.log("Button pressed", button);		//DEBUG
+			//console.error("Button pressed", button);		//DEBUG
 			switch (button) {
 				case "{shift}":
 				case "{lock}":
@@ -231,16 +242,16 @@ function sepiaFW_build_ui_virtual_keyboard(){
 			layoutName: "default",
 			layout: {
 				default: [
-					"q w e r t y u i o p {backspace}",
-					"a s d f g h j k l {enter}",
-					"{shift} z x c v b n m {arrowleft} {arrowright}",
-					"{numbers} {space}"
+					"q w e r t y u i o p",
+					"a s d f g h j k l",
+					"{shift} z x c v b n m {backspace}",
+					"{numbers} , {arrowleft} {space} {arrowright} . {enter}"
 				],
 				shift: [
-					"Q W E R T Y U I O P {backspace}",
-					"A S D F G H J K L {enter}",
-					"{shift} Z X C V B N M {arrowleft} {arrowright}",
-					"{numbers} {space}"
+					"Q W E R T Y U I O P",
+					"A S D F G H J K L",
+					"{shift} Z X C V B N M {backspace}",
+					"{numbers} , {arrowleft} {space} {arrowright} . {enter}"
 				],
 				numbers: [
 					"1 2 3", 
@@ -249,6 +260,10 @@ function sepiaFW_build_ui_virtual_keyboard(){
 					"{abc} 0 {backspace}"
 				]
 			},
+			buttonTheme: [{
+				class: "hg-greedy",
+				buttons: "{space}"
+			}],
 			display: {
 				"{numbers}": "123",
 				"{enter}": "↵",
