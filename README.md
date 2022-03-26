@@ -55,6 +55,7 @@ You can modify the client configuration via several URL parameters:
 * `isTiny` - 'true' will optimize the UI and controls to support small displays (e.g. Apple Watch or 240x240px screens)
 * `isHeadless` or `autoSetup` - Load client settings from file (settings.js) and trigger setup mode if no user is logged in. 'isHeadless' will set some supported client features as well (e.g. don't open browser tabs etc.).
 * `hasTouch` - 'true' will set touch-screen mode (tweaked UI hover effects etc.) if screen itself is "emulating" touch and client does not properly detect mode.
+* `virtualKeyboard` - 'true' will enable an experimental, virtual keyboard that can be used for example for DIY client "kiosk"-mode apps with touch-screen.
 * `skinId` - Number (ID) of skin to use at start. Will overwrite user preference.
 * `env` - 'environment' setting for client
 * `q` - Question that will be triggered when client is connected

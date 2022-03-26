@@ -199,13 +199,21 @@ function sepiaFW_build_ui(){
 	UI.navBarColor = '';
 	UI.statusBarColor = '';
 
-	UI.useBigScreenMode = SepiaFW.data.getPermanent('big-screen-mode') || false;
-	if (UI.useBigScreenMode){
-		$(window.document.body).addClass("big-screen");
-		$(document.documentElement).addClass("no-size-limit");
-	}else{
-		$(window.document.body).addClass("limit-size");
+	UI.setBigScreenMode = function(enable, triggerResize){
+		if (enable){
+			UI.useBigScreenMode = true;
+			$(window.document.body).addClass("big-screen");
+			$(document.documentElement).addClass("no-size-limit");
+			$(window.document.body).removeClass("limit-size");
+		}else{
+			UI.useBigScreenMode = false;
+			$(window.document.body).addClass("limit-size");
+			$(window.document.body).removeClass("big-screen");
+			$(document.documentElement).removeClass("no-size-limit");
+		}
+		if (triggerResize) $(window).trigger('resize');
 	}
+	UI.setBigScreenMode(SepiaFW.data.getPermanent('big-screen-mode') || UI.isCordova, false);
 	UI.useTouchBarControls = SepiaFW.data.getPermanent('touch-bar-controls') || false;
 	UI.hideSideSwipeForTouchBarControls = true;
 		
@@ -822,6 +830,18 @@ function sepiaFW_build_ui(){
 			}
 			//get skin colors
 			UI.refreshSkinColors();
+		}
+
+		//virtual keyboard
+		var loadVirtualKeyboard = SepiaFW.tools.getURLParameter("virtualKeyboard") || SepiaFW.data.getPermanent('virtualKeyboard');
+		if (loadVirtualKeyboard && loadVirtualKeyboard !== "false" && SepiaFW.ui.virtualKeyboard){
+			addSetupReadyCondition("load-virtual-keyboard");
+			SepiaFW.ui.virtualKeyboard.setup(function(isEnabled){
+				if (isEnabled){
+					SepiaFW.debug.info("Virtual keyboard is enabled.");
+				}
+				finishSetupConditionAndCheckReadyState("load-virtual-keyboard");
+			});
 		}
 		
 		//module specific settings

@@ -43,6 +43,7 @@ SepiaFW.settings = {
 			"en-asrModel": "",
 			"de-asrModel": "",
 			"big-screen-mode": true,
+			"virtualKeyboard": false,
 			"clexiGpioInterface": {
 				"buttons": [{
 					"id": "hw-mic-button",
