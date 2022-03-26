@@ -153,7 +153,10 @@ function sepiaFW_build_ui_virtual_keyboard(){
 		this.setInputElement = function(ele){
 			activeInputElement = ele;
 			//console.error("activeInputElement", activeInputElement);		//DEBUG
-			if (!ele) return;
+			if (!ele){
+				that.setInputValue("");
+				return;
+			}
 			//keyboard.setOptions({inputName: ele.id});
 			if (ele.value != undefined){
 				that.setInputValue(ele.value);
@@ -206,30 +209,43 @@ function sepiaFW_build_ui_virtual_keyboard(){
 				case "{lock}":
 					handleShift();
 					break;
-				case "{numbers}":
+				case "{special1}":
 				case "{abc}":
-					handleNumbers();
+					handleSpecials();
 					break;
 				case "{enter}":
 					pressKey(activeInputElement, "Enter", 13, true);
 					break;
+					//TODO: add more buttons
 				default:
 					break;
 			}
 		}
-		function handleShift() {
-			var currentLayout = keyboard.options.layoutName;
-			var shiftToggle = currentLayout === "default" ? "shift" : "default";
+		function handleShift(){
+			var shiftLayout = getShiftLayout();
 			keyboard.setOptions({
-				layoutName: shiftToggle
+				layoutName: (keyboard.options.layoutName != shiftLayout)? shiftLayout : getDefaultLayout()
 			});
 		}
-		function handleNumbers() {
-			var currentLayout = keyboard.options.layoutName;
-			var numbersToggle = currentLayout !== "numbers" ? "numbers" : "default";
+		function handleSpecials(){
 			keyboard.setOptions({
-				layoutName: numbersToggle
+				layoutName: (keyboard.options.layoutName != "special1")? "special1" : getDefaultLayout()
 			});
+		}
+
+		function getDefaultLayout(){
+			if (vkContainer.getBoundingClientRect().width < 1280){
+				return "mobile";
+			}else{
+				return "mobile";		//TODO: add big layout
+			}
+		}
+		function getShiftLayout(){
+			if (vkContainer.getBoundingClientRect().width < 1280){
+				return "mobileshift";
+			}else{
+				return "mobileshift";		//TODO: add big layout
+			}
 		}
 		
 		var keyboard = new window.SimpleKeyboard.default({
@@ -239,25 +255,25 @@ function sepiaFW_build_ui_virtual_keyboard(){
 			physicalKeyboardHighlight: true,
 			physicalKeyboardHighlightPress: true,
 			mergeDisplay: true,
-			layoutName: "default",
+			layoutName: getDefaultLayout(),
 			layout: {
-				default: [
+				mobile: [
 					"q w e r t y u i o p",
 					"a s d f g h j k l",
 					"{shift} z x c v b n m {backspace}",
-					"{numbers} , {arrowleft} {space} {arrowright} . {enter}"
+					"{special1} , {arrowleft} {space} {arrowright} . {enter}"
 				],
-				shift: [
+				mobileshift: [
 					"Q W E R T Y U I O P",
 					"A S D F G H J K L",
 					"{shift} Z X C V B N M {backspace}",
-					"{numbers} , {arrowleft} {space} {arrowright} . {enter}"
+					"{special1} , {arrowleft} {space} {arrowright} . {enter}"
 				],
-				numbers: [
-					"1 2 3", 
-					"4 5 6", 
-					"7 8 9", 
-					"{abc} 0 {backspace}"
+				special1: [
+					"1 2 3 4 5 6 7 8 9 0 = +", 
+					"! @ # $ % ^ & * ( ) < >", 
+					"_ - ' \" : ; , ? / [ ] {backspace}", 
+					"{abc} , {space} . {enter}"
 				]
 			},
 			buttonTheme: [{
@@ -265,7 +281,8 @@ function sepiaFW_build_ui_virtual_keyboard(){
 				buttons: "{space}"
 			}],
 			display: {
-				"{numbers}": "123",
+				"{abc}": "ABC",
+				"{special1}": "!#1",
 				"{enter}": "↵",
 				"{escape}": "esc ⎋",
 				"{tab}": "tab ⇥",
@@ -277,8 +294,7 @@ function sepiaFW_build_ui_virtual_keyboard(){
 				"{altleft}": "alt ⌥",
 				"{altright}": "alt ⌥",
 				"{metaleft}": "cmd ⌘",
-				"{metaright}": "cmd ⌘",
-				"{abc}": "ABC"
+				"{metaright}": "cmd ⌘"
 			},
 			onInit: onInit
 		});

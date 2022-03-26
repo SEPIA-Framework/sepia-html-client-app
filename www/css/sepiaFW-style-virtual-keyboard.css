@@ -64,6 +64,14 @@
 	background-color: #ececec;
     color: #000;
 }
+.simple-keyboard.hg-layout-mobile,
+.simple-keyboard.hg-layout-mobileshift {
+	max-width: 1024px;
+}
+.simple-keyboard.hg-layout-special1,
+.simple-keyboard.hg-layout-special2 {
+	max-width: 1024px;
+}
 .simple-keyboard.hg-layout-numbers {
 	max-width: 480px;
 }
