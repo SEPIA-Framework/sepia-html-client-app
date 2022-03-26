@@ -970,10 +970,10 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 			//device ID
 			var deviceIdInput = document.getElementById("sepiaFW-menu-deviceId");
 			deviceIdInput.value = SepiaFW.config.getDeviceId();
-			deviceIdInput.addEventListener("change", function(){
-				var newDeviceId = this.value;
-				SepiaFW.config.setDeviceId(newDeviceId);
-				this.blur();
+			$(deviceIdInput).on("keyup", function(ev){
+				if (ev.key == "Enter") this.blur();
+			}).on("change", function(){
+				SepiaFW.config.setDeviceId(deviceIdInput.value);
 			});
 			//device site settings
 			var deviceSite = document.getElementById('sepiaFW-menu-device-site-li');
@@ -1035,10 +1035,10 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 				var speechSynthServerInput = document.getElementById("sepiaFW-menu-external-tts-url");
 				speechSynthServerInput.placeholder = "http://my-tts.local:59125";
 				speechSynthServerInput.value = SepiaFW.speech.voiceCustomServer || "";
-				speechSynthServerInput.addEventListener("change", function(){
-					var newHost = this.value;
-					this.blur();
-					SepiaFW.speech.setVoiceCustomServer(newHost);
+				$(speechSynthServerInput).on("keyup", function(ev){
+					if (ev.key == "Enter") this.blur();
+				}).on("change", function(){
+					SepiaFW.speech.setVoiceCustomServer(speechSynthServerInput.value);
 					//refresh voices
 					SepiaFW.speech.getVoices(function(voices, voiceSelector){
 						voiceSelectorBox.appendChild(voiceSelector);
@@ -1070,10 +1070,10 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 				var speechRecoServerInput = document.getElementById("sepiaFW-menu-stt-socket-url");
 				speechRecoServerInput.placeholder = "wss://my-sepia-asr.example/socket";
 				speechRecoServerInput.value = SepiaFW.speechAudioProcessor.getSocketURI() || "";
-				speechRecoServerInput.addEventListener("change", function(){
-					var newHost = this.value;
-					this.blur();
-					SepiaFW.speechAudioProcessor.setSocketURI(newHost);
+				$(speechRecoServerInput).on("keyup", function(ev){
+					if (ev.key == "Enter") this.blur();
+				}).on("change", function(){
+					SepiaFW.speechAudioProcessor.setSocketURI(speechRecoServerInput.value);
 				});
 				if (!SepiaFW.speechAudioProcessor || !SepiaFW.speechAudioProcessor.isAsrSupported){
 					$("#sepiaFW-menu-stt-socket-url-li").hide();
@@ -1168,19 +1168,19 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 				var clexiServerInput = document.getElementById("sepiaFW-menu-clexi-socket-url");
 				clexiServerInput.placeholder = "wss://raspberrypi.local:8443";
 				clexiServerInput.value = SepiaFW.clexi.socketURI || "";
-				clexiServerInput.addEventListener("change", function(){
-					var newHost = this.value;
-					this.blur();
-					SepiaFW.clexi.setSocketURI(newHost);
+				$(clexiServerInput).on("keyup", function(ev){
+					if (ev.key == "Enter") this.blur();
+				}).on("change", function(){
+					SepiaFW.clexi.setSocketURI(clexiServerInput.value);
 				});
 				//CLEXI server ID
 				var clexiServerId = document.getElementById("sepiaFW-menu-clexi-server-id");
 				clexiServerId.placeholder = "clexi-123";
 				clexiServerId.value = SepiaFW.clexi.serverId || "";
-				clexiServerId.addEventListener("change", function(){
-					var newId = this.value;
-					this.blur();
-					SepiaFW.clexi.setServerId(newId);
+				$(clexiServerId).on("keyup", function(ev){
+					if (ev.key == "Enter") this.blur();
+				}).on("change", function(){
+					SepiaFW.clexi.setServerId(clexiServerId.value);
 				});
 
 				//CLEXI Remote Terminal
@@ -1558,19 +1558,19 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 				history.pushState({"rc": selectedRegion}, "", url);
 			}));
 			//Account-Nickname
-			document.getElementById("sepiaFW-menu-account-nickname").addEventListener("change", function(){
-				var newName = this.value;
-				//if (newName !== SepiaFW.account.getUserName()){
-					var name = {};		name[SepiaFW.account.NICK_NAME] = newName;
-					var data = {};		data[SepiaFW.account.USER_NAME] = name;
-					SepiaFW.account.saveAccountData(data);
-					/* ES6 (no IE11 support)
-					SepiaFW.account.saveAccountData({
-						[SepiaFW.account.USER_NAME] : { [SepiaFW.account.NICK_NAME] : newName }
-					}); */
-					SepiaFW.config.broadcastUserName(newName);
-					this.blur();
-				//}
+			var accountNickNameInput = document.getElementById("sepiaFW-menu-account-nickname");
+			$(accountNickNameInput).on("keyup", function(ev){
+				if (ev.key == "Enter") this.blur();
+			}).on("change", function(){
+				var newName = accountNickNameInput.value;
+				var name = {};		name[SepiaFW.account.NICK_NAME] = newName;
+				var data = {};		data[SepiaFW.account.USER_NAME] = name;
+				SepiaFW.account.saveAccountData(data);
+				/* ES6 (no IE11 support)
+				SepiaFW.account.saveAccountData({
+					[SepiaFW.account.USER_NAME] : { [SepiaFW.account.NICK_NAME] : newName }
+				}); */
+				SepiaFW.config.broadcastUserName(newName);
 			});
 			//Account-Preferred Temperature Unit
 			document.getElementById("sepiaFW-menu-account-preftempunit-li").appendChild(SepiaFW.ui.build.optionSelector(

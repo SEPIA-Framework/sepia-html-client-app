@@ -753,10 +753,10 @@ function sepiaFW_build_account(sepiaSessionId){
 		//hostname input field
 		var $hostInput = $("#sepiaFW-login-host-name");
 		$hostInput.val(SepiaFW.config.host);
-		$hostInput.off().on("change", function(){
-			var newHost = this.value;
-			this.blur();
-			SepiaFW.config.setHostName(newHost);
+		$hostInput.off().on("keyup", function(ev){
+			if (ev.key == "Enter") this.blur();
+		}).on("change", function(){
+			SepiaFW.config.setHostName($hostInput.val());
 			setTimeout(function(){
 				Account.toggleLoginBox();
 			}, 450);
