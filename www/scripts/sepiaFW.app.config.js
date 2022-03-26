@@ -31,6 +31,7 @@ function sepiaFW_build_config(){
 			SepiaFW.ui.showPopup("Please note: Your device ID has been modified due to new format conventions. Your new ID is: " + deviceId
 				+ ". If you plan to change your ID please use only lower-case letters, numbers, '-' and keep it short (2-8 characters)!"); 		//TODO: translate
 		}
+		//NOTE: because deviceId is used to store app settings some values are not allowed like 'commonSettings'
 		SepiaFW.data.setPermanent('deviceId', deviceId);
 		Config.broadcastDeviceId(deviceId);
 		if (!skipReload){
@@ -441,7 +442,7 @@ function sepiaFW_build_config(){
 		//show
 		var msgBox = document.createElement("div");
 		var titleBox = document.createElement("div");
-		titleBox.innerHTML = "<h3>Client Settings JSON</h3><p>Download as file or copy JSON to your SEPIA client settings.js:</p>";
+		titleBox.innerHTML = "<h3>Device Settings JSON</h3><p>Download as file or copy JSON to your SEPIA client settings.js:</p>";
 		var jsonBox = document.createElement("textarea");
 		jsonBox.value = JSON.stringify(headlessConfigJson, null, 4);
 		jsonBox.style.whiteSpace = "pre";
@@ -463,8 +464,9 @@ function sepiaFW_build_config(){
 		jsonBox.style.height = jsonBox.scrollHeight + 32 + "px";
 	}
 	Config.showHeadlessModeSettingsImportPopup = function(){
-		SepiaFW.ui.showFileImportAndViewPopup(
-			"Drag & drop settings, load file or copy JSON data:", {
+		var titleBox = document.createElement("div");
+		titleBox.innerHTML = "<h3>Device Settings JSON</h3><p>Load previously exported settings file (drag & drop/select) or copy JSON data:</p>";
+		SepiaFW.ui.showFileImportAndViewPopup(titleBox, {
 				addFileSelect: true,
 				accept: ".json",
 				buttonOneName: "Import",

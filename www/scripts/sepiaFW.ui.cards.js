@@ -877,8 +877,7 @@ function sepiaFW_build_ui_cards(){
 		});
 		timerEventName.keydown(function(event){
 			if(event.key == 'Enter'){
-				//$(this).blur();
-				$('#sepiaFW-chat-input').focus().blur(); 	//workaround since it can't be blurred
+				$(this).blur();
 			}
 		});
 	}
@@ -1560,7 +1559,7 @@ function sepiaFW_build_ui_cards(){
 			});
 			titleSpan.keydown(function(event){
 				if(event.key == 'Enter'){
-					$('#sepiaFW-chat-input').focus().blur(); 	//workaround since SPAN can't be blurred
+					$(this).blur();
 				}
 			});
 		}
