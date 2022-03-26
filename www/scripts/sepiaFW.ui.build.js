@@ -785,15 +785,15 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 					+ "<li id='sepiaFW-menu-account-shared-access-remote-actions-li'><span>Remote Actions:</span></li>"
 					+ "<li class='spacer'></li>"
 					+ "<li id='sepiaFW-menu-store-load-app-settings-li' class='flex'>"
-						+ "<span>App Settings: </span>"
+						+ "<span>User Settings: </span>"
 						+ "<div>"
-							+ "<button id='sepiaFW-menu-load-app-settings-btn' class='sepiaFW-button-inline'>" + SepiaFW.local.g('load') + "</button>"
 							+ "<button id='sepiaFW-menu-store-app-settings-btn' class='sepiaFW-button-inline'>" + SepiaFW.local.g('save') + "</button>"
+							+ "<button id='sepiaFW-menu-load-app-settings-btn' class='sepiaFW-button-inline'>" + SepiaFW.local.g('load') + "</button>"
 							//TODO: add delete button
 						+ "</div>"
 					+ "</li>"
 					+ "<li id='sepiaFW-menu-backup-restore-app-settings-li' class='flex'>"
-						+ "<span>Settings Backup: </span>"
+						+ "<span>Device & App Settings: </span>"
 						+ "<div>"
 							+ "<button id='sepiaFW-menu-export-app-settings-btn' class='sepiaFW-button-inline'>" + SepiaFW.local.g('export') + "</button>"
 							+ "<button id='sepiaFW-menu-import-app-settings-btn' class='sepiaFW-button-inline'>" + SepiaFW.local.g('import') + "</button>"
@@ -1280,7 +1280,6 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 			//toggle big-screen mode
 			document.getElementById('sepiaFW-menu-toggle-bigScreenMode-li').appendChild(Build.toggleButton('sepiaFW-menu-toggle-bigScreenMode', 
 				function(){
-					SepiaFW.ui.useBigScreenMode = true;
 					SepiaFW.data.setPermanent('big-screen-mode', true);
 					SepiaFW.debug.info("Big-screen mode activated, please reload client.");
 					SepiaFW.ui.showPopup("Please reload the interface to fully activate alternative controls.", {
@@ -1289,13 +1288,8 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 						buttonTwoName : "Later",
 						buttonTwoAction : function(){}
 					});
-					//resize
-					$(window.document.body).removeClass("limit-size");
-					$(window.document.body).addClass("big-screen");
-					$(document.documentElement).addClass("no-size-limit");
-					$(window).trigger('resize');
+					SepiaFW.ui.setBigScreenMode(true, true);
 				},function(){
-					SepiaFW.ui.useBigScreenMode = false;
 					SepiaFW.data.setPermanent('big-screen-mode', false);
 					SepiaFW.debug.info("Big-screen mode deactivated, please reload client.");
 					SepiaFW.ui.showPopup("Please reload the interface to fully activate alternative controls.", {
@@ -1304,11 +1298,7 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 						buttonTwoName : "Later",
 						buttonTwoAction : function(){}
 					});
-					//resize
-					$(window.document.body).addClass("limit-size");
-					$(window.document.body).removeClass("big-screen");
-					$(document.documentElement).removeClass("no-size-limit");
-					$(window).trigger('resize');
+					SepiaFW.ui.setBigScreenMode(false, true);
 				}, SepiaFW.ui.useBigScreenMode)
 			);
 			//set screen orientation mode
@@ -1432,7 +1422,6 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 						buttonOneName : SepiaFW.local.g('reload'),
 						buttonOneAction : function(){ setTimeout(function(){ window.location.reload(); }, 1000); }
 					};
-					var keepPermanent = true;
 					var localDataStatus = "---";
 					SepiaFW.data.clearAppCache(function(status){
 						//Success
@@ -1604,10 +1593,10 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 			);
 			//Store, load and export app settings
 			document.getElementById("sepiaFW-menu-store-app-settings-btn").addEventListener("click", function(){
-				SepiaFW.account.saveAppSettings();
+				SepiaFW.account.encryptAndSaveAppSettings();
 			});
 			document.getElementById("sepiaFW-menu-load-app-settings-btn").addEventListener("click", function(){
-				SepiaFW.account.loadAppSettings();
+				SepiaFW.account.loadAndDecryptAppSettings();
 			});
 			document.getElementById("sepiaFW-menu-export-app-settings-btn").addEventListener("click", function(){
 				SepiaFW.config.exportSettingsForHeadlessMode();
