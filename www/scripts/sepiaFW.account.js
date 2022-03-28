@@ -727,7 +727,7 @@ function sepiaFW_build_account(sepiaSessionId){
 		var idInput = document.getElementById("sepiaFW-login-id");
 		idInput.placeholder = SepiaFW.local.g('username');
 		$(idInput).off().on("keydown", function(e){
-			if (e.key == "Enter") { sendLoginFromBox(); }
+			if (e.key == "Enter") { pwdInput.focus(); }
 		});
 		//keypress on pwd
 		var pwdInput = document.getElementById("sepiaFW-login-pwd");
@@ -755,7 +755,7 @@ function sepiaFW_build_account(sepiaSessionId){
 		$hostInput.val(SepiaFW.config.host);
 		$hostInput.off().on("keyup", function(ev){
 			if (ev.key == "Enter") this.blur();
-		}).on("change", function(){
+		}).on("focusout", function(){
 			SepiaFW.config.setHostName($hostInput.val());
 			setTimeout(function(){
 				Account.toggleLoginBox();

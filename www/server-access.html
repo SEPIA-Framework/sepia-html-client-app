@@ -58,11 +58,15 @@
 	SepiaFW.frames.currentScope = {
 
 		onFinishSetup: function(){
-			$('#sepiaFW-server-access-hostname').off().on('change', function(){
+			$('#sepiaFW-server-access-hostname').off().on("keyup", function(ev){
+				if (ev.key == "Enter") this.blur();
+			}).on("focusout", function(){
 				//reset all other URLs
 				SepiaFW.frames.currentScope.refresh();
 			});
-			$('#sepiaFW-server-access-chat').off().on('change', function(){
+			$('#sepiaFW-server-access-chat').off().on("keyup", function(ev){
+				if (ev.key == "Enter") this.blur();
+			}).on("focusout", function(){
 				//update WebSocket
 				$('#sepiaFW-server-access-chat-ws').val(this.value.replace(/^http/,'ws') + "messages/");
 			});

@@ -157,7 +157,9 @@
 		//Load scope (default method)
 		load: function(){
 			//Input handling
-			$('#sepiaFW-channel-manager-cname').off().on("change", function(){
+			$('#sepiaFW-channel-manager-cname').off().on("keyup", function(ev){
+				if (ev.key == "Enter") this.blur();
+			}).on("focusout", function(){
 				if (this.value){
 					this.value = this.value.replace(/[^\w\s#\-\+&\?!\.]/gi,"").replace(/\s+/gi, " ").substring(0, 26);
 				}
@@ -249,7 +251,9 @@
 			//Edit and Delete channel
 			
 			//reload channel name when ID changes
-			$('#sepiaFW-channel-manager-cid-edit').off().on('change', function(){
+			$('#sepiaFW-channel-manager-cid-edit').off().on("keyup", function(ev){
+				if (ev.key == "Enter") this.blur();
+			}).on("focusout", function(){
 				//reset name
 				$('#sepiaFW-channel-manager-cname-edit').val('');
 				//load channel name

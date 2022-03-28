@@ -95,7 +95,9 @@ function sepiaFW_build_input_controls() {
             InputControls.defineHotkeyFunction(backButton);
         });
         //Ignore keys
-        $('#SepiaFW-hotkeys-ignore-key1').off().on('change', function(){
+        $('#SepiaFW-hotkeys-ignore-key1').off().on("keyup", function(ev){
+            if (ev.key == "Enter") this.blur();
+        }).on("focusout", function(){
             if (this.value){
                 ignoreKeys = JSON.parse("[" + this.value + "]");
                 settingsAppendDebug("New ignore keys: " + JSON.stringify(ignoreKeys));
@@ -174,7 +176,9 @@ function sepiaFW_build_input_controls() {
         );
         var beaconKnownAddresses = document.getElementById('sepiaFW-input-controls-beacon-known-addresses');
         beaconKnownAddresses.value = InputControls.knownBluetoothBeaconAddresses.join(", ");
-        $(beaconKnownAddresses).off().on('change', function(){
+        $(beaconKnownAddresses).off().on("keyup", function(ev){
+            if (ev.key == "Enter") this.blur();
+        }).on("focusout", function(){
             if (this.value){
                 InputControls.knownBluetoothBeaconAddresses = this.value.trim().split(/\s*,\s*/g);
             }else{

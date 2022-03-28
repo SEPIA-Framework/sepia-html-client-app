@@ -25,7 +25,11 @@ function sepiaFW_build_config(){
 	}
 	//set device ID			
 	Config.setDeviceId = function(newDeviceId, skipReload){
-		deviceId = newDeviceId.replace(/[\W]+/g, " ").replace(/\s+/g, " ").trim().split(" ").join("-").toLowerCase();
+		newDeviceId = newDeviceId.replace(/[\W]+/g, " ").replace(/\s+/g, " ").trim().split(" ").join("-").toLowerCase();
+		if (deviceId == newDeviceId){
+			return;
+		}
+		deviceId = newDeviceId;
 		if (deviceId.length > 8) deviceId = deviceId.substring(0, 8);
 		if (newDeviceId != deviceId){
 			SepiaFW.ui.showPopup("Please note: Your device ID has been modified due to new format conventions. Your new ID is: " + deviceId

@@ -81,15 +81,21 @@
 	SepiaFW.frames.currentScope = {
 
 		onFinishSetup: function(){
-			$('#sepiaFW-stt-settings-server-url').off().on("blur", function(){
+			$('#sepiaFW-stt-settings-server-url').off().on("keyup", function(ev){
+				if (ev.key == "Enter") this.blur();
+			}).on("focusout", function(){
 				SepiaFW.speechAudioProcessor.setSocketURI(this.value);
 				SepiaFW.debug.info("STT Server URL: " + this.value);
 			});
-			$('#sepiaFW-stt-settings-server-user').off().on("blur", function(){
+			$('#sepiaFW-stt-settings-server-user').off().on("keyup", function(ev){
+				if (ev.key == "Enter") this.blur();
+			}).on("focusout", function(){
 				SepiaFW.speechAudioProcessor.setServerUser(this.value);
 				SepiaFW.debug.info("STT Server user: " + this.value);
 			});
-			$('#sepiaFW-stt-settings-server-token').off().on("blur", function(){
+			$('#sepiaFW-stt-settings-server-token').off().on("keyup", function(ev){
+				if (ev.key == "Enter") this.blur();
+			}).on("focusout", function(){
 				SepiaFW.speechAudioProcessor.setServerToken(this.value);
 				SepiaFW.debug.info("STT Server token set");
 			});

@@ -972,7 +972,7 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 			deviceIdInput.value = SepiaFW.config.getDeviceId();
 			$(deviceIdInput).on("keyup", function(ev){
 				if (ev.key == "Enter") this.blur();
-			}).on("change", function(){
+			}).on("focusout", function(){
 				SepiaFW.config.setDeviceId(deviceIdInput.value);
 			});
 			//device site settings
@@ -1037,7 +1037,7 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 				speechSynthServerInput.value = SepiaFW.speech.voiceCustomServer || "";
 				$(speechSynthServerInput).on("keyup", function(ev){
 					if (ev.key == "Enter") this.blur();
-				}).on("change", function(){
+				}).on("focusout", function(){
 					SepiaFW.speech.setVoiceCustomServer(speechSynthServerInput.value);
 					//refresh voices
 					SepiaFW.speech.getVoices(function(voices, voiceSelector){
@@ -1072,7 +1072,7 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 				speechRecoServerInput.value = SepiaFW.speechAudioProcessor.getSocketURI() || "";
 				$(speechRecoServerInput).on("keyup", function(ev){
 					if (ev.key == "Enter") this.blur();
-				}).on("change", function(){
+				}).on("focusout", function(){
 					SepiaFW.speechAudioProcessor.setSocketURI(speechRecoServerInput.value);
 				});
 				if (!SepiaFW.speechAudioProcessor || !SepiaFW.speechAudioProcessor.isAsrSupported){
@@ -1170,7 +1170,7 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 				clexiServerInput.value = SepiaFW.clexi.socketURI || "";
 				$(clexiServerInput).on("keyup", function(ev){
 					if (ev.key == "Enter") this.blur();
-				}).on("change", function(){
+				}).on("focusout", function(){
 					SepiaFW.clexi.setSocketURI(clexiServerInput.value);
 				});
 				//CLEXI server ID
@@ -1179,7 +1179,7 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 				clexiServerId.value = SepiaFW.clexi.serverId || "";
 				$(clexiServerId).on("keyup", function(ev){
 					if (ev.key == "Enter") this.blur();
-				}).on("change", function(){
+				}).on("focusout", function(){
 					SepiaFW.clexi.setServerId(clexiServerId.value);
 				});
 
@@ -1561,7 +1561,7 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 			var accountNickNameInput = document.getElementById("sepiaFW-menu-account-nickname");
 			$(accountNickNameInput).on("keyup", function(ev){
 				if (ev.key == "Enter") this.blur();
-			}).on("change", function(){
+			}).on("focusout", function(){
 				var newName = accountNickNameInput.value;
 				var name = {};		name[SepiaFW.account.NICK_NAME] = newName;
 				var data = {};		data[SepiaFW.account.USER_NAME] = name;
