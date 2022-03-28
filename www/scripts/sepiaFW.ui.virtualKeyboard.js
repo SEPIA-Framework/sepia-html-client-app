@@ -7,7 +7,8 @@ function sepiaFW_build_ui_virtual_keyboard(){
 	var inputPreview;
 
 	var vkAnimTime = 500;
-	var autoHide = false;
+	var autoHide = true;
+	var debug = false;
 
 	var isEnabled = false;
 	var isOpen = false;
@@ -149,6 +150,7 @@ function sepiaFW_build_ui_virtual_keyboard(){
 
 		var that = this;
 		var activeInputElement = undefined;
+		var currentCaretPos = 0;
 
 		this.setInputElement = function(ele){
 			activeInputElement = ele;
@@ -160,14 +162,14 @@ function sepiaFW_build_ui_virtual_keyboard(){
 			//keyboard.setOptions({inputName: ele.id});
 			if (ele.value != undefined){
 				that.setInputValue(ele.value);
-				if (ele.selectionStart) keyboard.setCaretPosition(ele.selectionStart);
+				currentCaretPos = getElementCaretPosition(activeInputElement);
 			}else{
 				that.setInputValue(ele.textContent);
-				//TODO: fix caret position
-				if (window.getSelection() && window.getSelection().anchorOffset){
-					keyboard.setCaretPosition(window.getSelection().anchorOffset);
-				}
+				//TODO: we can't handle the caret-change event of 'activeInputElement' properly yet so we start at the end
+				currentCaretPos = activeInputElement.textContent.length;
 			}
+			setElementCaretPosition(activeInputElement, currentCaretPos);
+			that.setCaretPosition(currentCaretPos);
 		}
 		this.setInputValue = function(value){
 			keyboard.setInput(value);
@@ -184,26 +186,25 @@ function sepiaFW_build_ui_virtual_keyboard(){
 		function onChange(inputVal){
 			//console.log("Input changed", inputVal);		//DEBUG
 			if (activeInputElement){
-				if (inputPreview) inputPreview.setInput(inputVal);
-				if (activeInputElement.value != undefined){
-					activeInputElement.value = inputVal;
-					if (!activeInputElement.type || activeInputElement.type == "text"){
-						activeInputElement.setSelectionRange(keyboard.getCaretPosition(), keyboard.getCaretPositionEnd());
-					}
-				}else{
-					//if (activeInputElement.contentEditable && activeInputElement.contentEditable == "true") ...
-					activeInputElement.textContent = inputVal;
-					var sel = window.getSelection();
-					//TODO: fix caret position
-					if (sel){
-						sel.collapse(activeInputElement, keyboard.getCaretPosition());
-					}
+				if (keyboard.getCaretPosition() == null){
+					keyboard.setCaretPosition(inputVal.length);
 				}
+				if (inputPreview) inputPreview.setInput(inputVal);
+				setElementValue(activeInputElement, inputVal);
+				currentCaretPos = keyboard.getCaretPosition();
+				setElementCaretPosition(activeInputElement, currentCaretPos);
 			}
 		}
 
 		function onKeyPress(button){
 			//console.error("Button pressed", button);		//DEBUG
+			//dispatch key press events
+			var keyPressEv = keyPressEventsMap[button];
+			if (keyPressEv){
+				pressKey(activeInputElement, keyPressEv.key, keyPressEv.keyCode, true);
+				return;
+			}
+			//internal
 			switch (button) {
 				case "{shift}":
 				case "{lock}":
@@ -213,10 +214,16 @@ function sepiaFW_build_ui_virtual_keyboard(){
 				case "{abc}":
 					handleSpecials();
 					break;
-				case "{enter}":
-					pressKey(activeInputElement, "Enter", 13, true);
+				case "{arrowleft}":
+					currentCaretPos = Math.max(0, keyboard.getCaretPosition() - 1);
+					setElementCaretPosition(activeInputElement, currentCaretPos);
+					keyboard.setCaretPosition(currentCaretPos);
 					break;
-					//TODO: add more buttons
+				case "{arrowright}":
+					currentCaretPos = Math.min(getElementValue(activeInputElement).length, keyboard.getCaretPosition() + 1);
+					setElementCaretPosition(activeInputElement, currentCaretPos);
+					keyboard.setCaretPosition(currentCaretPos);
+					break;
 				default:
 					break;
 			}
@@ -252,28 +259,29 @@ function sepiaFW_build_ui_virtual_keyboard(){
 			onChange: onChange,
 			onKeyPress: onKeyPress,
 			preventMouseDownDefault: true,	//prevent loss of input focus
+			disableCaretPositioning: false,
 			physicalKeyboardHighlight: true,
 			physicalKeyboardHighlightPress: true,
 			mergeDisplay: true,
 			layoutName: getDefaultLayout(),
 			layout: {
 				mobile: [
-					"q w e r t y u i o p",
-					"a s d f g h j k l",
-					"{shift} z x c v b n m {backspace}",
-					"{special1} , {arrowleft} {space} {arrowright} . {enter}"
+					"q w e r t y u i o p ü",
+					"a s d f g h j k l ö ä",
+					"{shift} z x c v b n m _ - {backspace}",
+					"{special1} , . {arrowleft} {space} {arrowright} : / {enter}"
 				],
 				mobileshift: [
-					"Q W E R T Y U I O P",
-					"A S D F G H J K L",
-					"{shift} Z X C V B N M {backspace}",
-					"{special1} , {arrowleft} {space} {arrowright} . {enter}"
+					"Q W E R T Y U I O P Ü",
+					"A S D F G H J K L Ö Ä",
+					"{shift} Z X C V B N M _ - {backspace}",
+					"{special1} , . {arrowleft} {space} {arrowright} : / {enter}"
 				],
 				special1: [
-					"1 2 3 4 5 6 7 8 9 0 = +", 
-					"! @ # $ % ^ & * ( ) < >", 
-					"_ - ' \" : ; , ? / [ ] {backspace}", 
-					"{abc} , {space} . {enter}"
+					"^ 1 2 3 4 5 6 7 8 9 0 =", 
+					"? ! @ # % & $ € ( ) < >", 
+					"+ * ' \" ; [ ] { } \\ | {backspace}", 
+					"{abc} _ , . {space} - : / {enter}"
 				]
 			},
 			buttonTheme: [{
@@ -296,7 +304,8 @@ function sepiaFW_build_ui_virtual_keyboard(){
 				"{metaleft}": "cmd ⌘",
 				"{metaright}": "cmd ⌘"
 			},
-			onInit: onInit
+			onInit: onInit,
+			debug: debug
 		});
 	}
 
@@ -327,14 +336,20 @@ function sepiaFW_build_ui_virtual_keyboard(){
 		return InputPrev;
 	}
 
-	//key dispatcher
+	//key events and dispatcher
+	var keyPressEventsMap = {
+		"{enter}": {key: "Enter", keyCode: 13}
+		//"{arrowleft}": {key: "ArrowLeft", keyCode: 37},
+		//"{arrowright}": {key: "ArrowRight", keyCode: 39}
+	}
 	function pressKey(ele, keyName, keyCode, release){
 		if (!ele) return;
 		var keyboardEvent = new KeyboardEvent('keydown', {
 			code: keyName,	//e.g. 'Enter'
 			key: keyName,	//e.g. 'Enter'
-			charKode: keyCode,	//e.g. 13
-			keyCode: keyCode	//e.g. 13
+			charCode: keyCode,	//e.g. 13 (deprecated)
+			keyCode: keyCode,	//e.g. 13 (deprecated)
+			which: keyCode		//e.g. 13 (deprecated)
 		});
 		ele.dispatchEvent(keyboardEvent);
 		if (release) releaseKey(ele, keyName, keyCode);
@@ -344,10 +359,63 @@ function sepiaFW_build_ui_virtual_keyboard(){
 		var keyboardEvent = new KeyboardEvent('keyup', {
 			code: keyName,
 			key: keyName,
-			charKode: keyCode,
-			keyCode: keyCode
+			charCode: keyCode,
+			keyCode: keyCode,
+			which: keyCode
 		});
 		ele.dispatchEvent(keyboardEvent);
+	}
+
+	//element value
+	function setElementValue(ele, val){
+		if (ele.value != undefined){
+			ele.value = val;
+		}else{
+			//if (activeInputElement.contentEditable && activeInputElement.contentEditable == "true") ...
+			ele.textContent = val;
+		}
+	}
+	function getElementValue(ele){
+		if (ele.value != undefined){
+			return ele.value;
+		}else{
+			//if (activeInputElement.contentEditable && activeInputElement.contentEditable == "true") ...
+			return ele.textContent;
+		}
+	}
+
+	//caret position
+	function setElementCaretPosition(ele, pos){
+		if (ele.value != undefined){
+			if (!ele.type || ele.type == "text" || ele.type == "password"){
+				ele.setSelectionRange(pos, pos);
+			}
+		}else{
+			var setpos = document.createRange();
+			var set = window.getSelection();
+			setpos.setStart(ele.childNodes[0], pos);
+			setpos.collapse(true);
+			set.removeAllRanges();
+			set.addRange(setpos);
+		}
+		//console.error("setElementCaretPosition", pos);		//DEBUG
+	}
+	function getElementCaretPosition(ele){
+		var pos = 0;
+		if (ele.value != undefined){
+			if (ele.selectionStart) pos = ele.selectionStart;
+		}else{
+			pos = window.getSelection().anchorOffset;
+			/*
+			var range = window.getSelection().getRangeAt(0);
+			var preCaretRange = range.cloneRange();
+			preCaretRange.selectNodeContents(ele);
+			preCaretRange.setEnd(range.endContainer, range.endOffset);
+			pos = preCaretRange.toString().length;
+			*/
+		}
+		//console.error("getElementCaretPosition", pos);		//DEBUG
+		return pos;
 	}
 
 	return VirtualKeyboard;
