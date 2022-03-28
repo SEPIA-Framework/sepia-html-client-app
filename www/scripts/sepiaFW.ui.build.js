@@ -751,6 +751,10 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 						//+ "<span id='sepiaFW-menu-toggle-music-cards-btn'><i class='material-icons'>art_track</i></span>"
 					+ "<li id='sepiaFW-menu-select-search-engine-li' title='Select preferred search engine for search intents.'>"
 						+ "<span>Default search engine: </span></li>"
+					+ "<li id='sepiaFW-menu-news-region-li' title='Select preferred news region.'>"
+						+ "<span>Default news region: </span>"
+						+ "<input id='sepiaFW-menu-news-region' type='text' spellcheck='false'>"
+					+ "</li>"
 					+ "<li id='sepiaFW-menu-clear-app-cache-li'><span>Clear app data: </span></li>"
 					+ "<li class='spacer'></li>"
 					+ "<li id='sepiaFW-menu-experimental-settings-li'><span>Experimental settings </span></li>"
@@ -1216,6 +1220,16 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 
 			//Search engine selector
 			document.getElementById('sepiaFW-menu-select-search-engine-li').appendChild(Build.searchEngineSelector(SepiaFW.config.webSearchEngines));
+
+			//News region (free text, usually bcp47, but can be anything used as 'region' in news-outlets.json on server)
+			var newsRegionTag = document.getElementById("sepiaFW-menu-news-region");
+			newsRegionTag.placeholder = "e.g.: de-DE, en-US";
+			newsRegionTag.value = SepiaFW.config.getDefaultNewsRegion() || "";
+			$(newsRegionTag).on("keyup", function(ev){
+				if (ev.key == "Enter") this.blur();
+			}).on("focusout", function(){
+				SepiaFW.config.setDefaultNewsRegion(newsRegionTag.value);
+			});
 
 			//Wake-word stuff - Hey SEPIA
 			if (!SepiaFW.wakeTriggers){

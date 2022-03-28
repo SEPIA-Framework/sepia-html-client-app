@@ -369,6 +369,17 @@ function sepiaFW_build_config(){
     Config.getDefaultMusicApp = function(){
         return defaultMusicApp;
 	}
+
+	//Preferred news region
+	Config.getDefaultNewsRegion = function(){
+		return defaultNewsRegion;
+	}
+	Config.setDefaultNewsRegion = function(region){
+		defaultNewsRegion = region;
+		SepiaFW.debug.info("Default new region set to " + region);
+		SepiaFW.data.set('defaultNewsRegion', region);
+	}
+	var defaultNewsRegion = "";
 	
 	//----------------------------------------------
 
@@ -607,6 +618,12 @@ function sepiaFW_build_config(){
 		var prefSearchEngineStored = SepiaFW.data.get('prefSearchEngine');
 		if (prefSearchEngineStored){
 			Config.setPreferredSearchEngine(prefSearchEngineStored);
+		}
+
+		//Default news region
+		var defaultNewsRegionStored = SepiaFW.data.get('defaultNewsRegion');
+		if (defaultNewsRegionStored){
+			Config.setDefaultNewsRegion(defaultNewsRegionStored);
 		}
 
 		finishAppSettingsConditionAndCheckReadyState("app-settings-tasks");

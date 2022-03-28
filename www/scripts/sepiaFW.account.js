@@ -7,7 +7,7 @@ function sepiaFW_build_account(sepiaSessionId){
 	var userTokenValidUntil = 0;
 	var userName = "Boss";
 	var language = SepiaFW.config.appLanguage;
-	//TODO: add 'regionCode'?
+	//TODO: add 'regionCode'?	currently an app-settings property: SepiaFW.config.appRegionCode
 	var clientFirstVisit = true;
 
 	var userRoles = undefined;
