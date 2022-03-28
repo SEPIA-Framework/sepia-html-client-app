@@ -124,12 +124,14 @@ function sepiaFW_build_assistant(sepiaSessionId){
 
 		//custom data
 		var cd = {
+			appRegionCode: SepiaFW.config.appRegionCode,
 			defaultMusicApp: SepiaFW.config.getDefaultMusicApp(),
-			recentPAE: ((SepiaFW.events)? SepiaFW.events.getRecentProActiveEventsReduced() : ""),
 			embeddedPlayers: SepiaFW.ui.cards.getSupportedWebPlayers(),
 			prefTempUnit: (SepiaFW.account.getUserPreferredTemperatureUnit() || "C"),
 			prefSearchEngine: (SepiaFW.config.getPreferredSearchEngine() || "google"),
-			deviceLocalSite: SepiaFW.config.getDeviceLocalSiteData()
+			defaultNewsRegion: SepiaFW.config.getDefaultNewsRegion(),
+			deviceLocalSite: SepiaFW.config.getDeviceLocalSiteData(),
+			recentPAE: ((SepiaFW.events)? SepiaFW.events.getRecentProActiveEventsReduced() : "")
 			//TODO: add 'SepiaFW.config.isUiHeadless' info ? Or rely on 'env' parameter?
 			//TODO: add region parameter for language
 		};
