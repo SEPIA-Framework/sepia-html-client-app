@@ -26,11 +26,14 @@ cordova plugin add cordova-plugin-inappbrowser
 #cordova plugin add cordova-plugin-wkwebview-engine
 cordova plugin add cordova-plugin-tts
 cordova plugin add cordova-plugin-whitelist
-cordova plugin add cordova-universal-links-plugin
+#cordova plugin add cordova-universal-links-plugin
+cordova plugin add https://github.com/flipflopapp/cordova-universal-links-plugin
 cordova plugin add cordova-plugin-statusbar
 #cordova plugin add cordova-plugin-splashscreen		#is now part of platform
 #cordova plugin add https://github.com/apache/cordova-plugin-splashscreen.git -- NOTE: use this in case releases are too old
+#https://github.com/mgatto/cordova-plugin-wkwebview-clearcache
 cordova plugin add cordova-plugin-cache-clear
+cordova plugin add https://github.com/AraHovakimyan/cordova-plugin-wkwebviewxhrfix
 #TODO: needs complete remake
 #cordova plugin add plugin_mods/speechrecognition/org.apache.cordova.speech.speechrecognition
 #cordova plugin add de.appplant.cordova.plugin.local-notification
@@ -39,7 +42,7 @@ cordova plugin add cordova-plugin-cache-clear
 cordova plugin add https://github.com/timkellypa/cordova-plugin-local-notifications
 cordova plugin add cordova-plugin-file
 cordova plugin add cordova-plugin-nativestorage
-cordova plugin add cordova-plugin-audioinput
+#cordova plugin add cordova-plugin-audioinput
 cordova plugin add plugin_mods/iosbackgroundaudio/nl.kingsquare.cordova.background-audio
 #cordova plugin add https://github.com/EddyVerbruggen/Insomnia-PhoneGap-Plugin.git
 cordova plugin add https://github.com/tombolaltd/cordova-plugin-insomnia.git
@@ -49,7 +52,7 @@ cordova plugin add cordova-plugin-eddystone
 # overwrite plugin mods
 sleep 2
 echo "#Updating plugins ..."
-cp "plugin_mods/universallinks/xcodePreferences.js" "plugins/cordova-universal-links-plugin/hooks/lib/ios/xcodePreferences.js"
+#cp "plugin_mods/universallinks/xcodePreferences.js" "plugins/cordova-universal-links-plugin/hooks/lib/ios/xcodePreferences.js"
 #TODO: Update WkWebView version
 #cp "plugin_mods/inappbrowser/ios/CDVInAppBrowser_wkwv.m" "plugins/cordova-plugin-inappbrowser-wkwebview/src/ios/CDVInAppBrowser.m"
 #cp "plugin_mods/inappbrowser/ios/CDVInAppBrowser_wkwv.h" "plugins/cordova-plugin-inappbrowser-wkwebview/src/ios/CDVInAppBrowser.h"
@@ -64,7 +67,7 @@ npm install xcode
 # add ios platform
 sleep 2
 echo "#Adding platform ..."
-cordova platform add ios@6.1.1
+cordova platform add ios@6.2.0
 #
 # prepare build
 echo "#Preparing build ..."
