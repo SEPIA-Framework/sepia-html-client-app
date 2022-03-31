@@ -383,7 +383,7 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 			SepiaFW.ui.longPressShortPressDoubleTap(chatSendBtn, function(){
 				//long-press - clear input
 				$('#sepiaFW-chat-input').val('');
-			},'',function(){
+			},'',function(ev){
 				//short press - send action
 				if (SepiaFW.speech.isRecognizing()){
 					SepiaFW.speech.stopRecognition();
@@ -404,6 +404,10 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 					//$('#sepiaFW-chat-controls-swipe-area').css({'background-color': SepiaFW.ui.secondaryColor}).fadeIn(300);
 				}
 			}, true);
+			//prevent focus loss when input is active
+			$(chatSendBtn).on("mousedown", function(ev){ 
+				ev.preventDefault();
+			});
 		}
 		//Send message if enter is pressed in the input field
 		var chatInput = document.getElementById("sepiaFW-chat-input");
@@ -429,18 +433,17 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 			})
 			//prevent input blur by send button (on mobile)
 			.on('focusout', function(e){
-				if (e.relatedTarget && (e.relatedTarget.id == 'sepiaFW-chat-send')){	// || e.relatedTarget.id == 'sepiaFW-assist-btn'
-					//if (SepiaFW.ui.isMobile){
-						setTimeout(function(){
-							$('#sepiaFW-chat-input').get(0).focus();
-						}, 0);
-					//}
-				}else{
+				//if (e.relatedTarget && (e.relatedTarget.id == 'sepiaFW-chat-send')){	// || e.relatedTarget.id == 'sepiaFW-assist-btn'
+				//	//NOTE: got rid of this via ev.preventDefault() on send-button mouse-down
+				//	setTimeout(function(){
+				//		$('#sepiaFW-chat-input').get(0).focus();
+				//	}, 0);
+				//}else{
 					if (SepiaFW.ui.useTouchBarControls){
 						$('#sepiaFW-chat-input').addClass("no-focus");
 						$('#sepiaFW-chat-send').addClass("no-focus");
 					}
-				}
+				//}
 			})
 			.on('focusin', function(e){
 				if (SepiaFW.ui.useTouchBarControls){
@@ -975,9 +978,7 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 			//device ID
 			var deviceIdInput = document.getElementById("sepiaFW-menu-deviceId");
 			deviceIdInput.value = SepiaFW.config.getDeviceId();
-			$(deviceIdInput).on("keyup", function(ev){
-				if (ev.key == "Enter") this.blur();
-			}).on("focusout", function(){
+			SepiaFW.ui.onKeyboardInput(deviceIdInput, undefined, function(ele){ 
 				SepiaFW.config.setDeviceId(deviceIdInput.value);
 			});
 			//device site settings
@@ -1040,9 +1041,7 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 				var speechSynthServerInput = document.getElementById("sepiaFW-menu-external-tts-url");
 				speechSynthServerInput.placeholder = "http://my-tts.local:59125";
 				speechSynthServerInput.value = SepiaFW.speech.voiceCustomServer || "";
-				$(speechSynthServerInput).on("keyup", function(ev){
-					if (ev.key == "Enter") this.blur();
-				}).on("focusout", function(){
+				SepiaFW.ui.onKeyboardInput(speechSynthServerInput, undefined, function(ele){ 
 					SepiaFW.speech.setVoiceCustomServer(speechSynthServerInput.value);
 					//refresh voices
 					SepiaFW.speech.getVoices(function(voices, voiceSelector){
@@ -1075,9 +1074,7 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 				var speechRecoServerInput = document.getElementById("sepiaFW-menu-stt-socket-url");
 				speechRecoServerInput.placeholder = "wss://my-sepia-asr.example/socket";
 				speechRecoServerInput.value = SepiaFW.speechAudioProcessor.getSocketURI() || "";
-				$(speechRecoServerInput).on("keyup", function(ev){
-					if (ev.key == "Enter") this.blur();
-				}).on("focusout", function(){
+				SepiaFW.ui.onKeyboardInput(speechRecoServerInput, undefined, function(ele){ 
 					SepiaFW.speechAudioProcessor.setSocketURI(speechRecoServerInput.value);
 				});
 				if (!SepiaFW.speechAudioProcessor || !SepiaFW.speechAudioProcessor.isAsrSupported){
@@ -1173,18 +1170,14 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 				var clexiServerInput = document.getElementById("sepiaFW-menu-clexi-socket-url");
 				clexiServerInput.placeholder = "wss://raspberrypi.local:8443";
 				clexiServerInput.value = SepiaFW.clexi.socketURI || "";
-				$(clexiServerInput).on("keyup", function(ev){
-					if (ev.key == "Enter") this.blur();
-				}).on("focusout", function(){
+				SepiaFW.ui.onKeyboardInput(clexiServerInput, undefined, function(ele){ 
 					SepiaFW.clexi.setSocketURI(clexiServerInput.value);
 				});
 				//CLEXI server ID
 				var clexiServerId = document.getElementById("sepiaFW-menu-clexi-server-id");
 				clexiServerId.placeholder = "clexi-123";
 				clexiServerId.value = SepiaFW.clexi.serverId || "";
-				$(clexiServerId).on("keyup", function(ev){
-					if (ev.key == "Enter") this.blur();
-				}).on("focusout", function(){
+				SepiaFW.ui.onKeyboardInput(clexiServerId, undefined, function(ele){ 
 					SepiaFW.clexi.setServerId(clexiServerId.value);
 				});
 
@@ -1226,9 +1219,7 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 			var newsRegionTag = document.getElementById("sepiaFW-menu-news-region");
 			newsRegionTag.placeholder = "e.g.: de-DE, en-US";
 			newsRegionTag.value = SepiaFW.config.getDefaultNewsRegion() || "";
-			$(newsRegionTag).on("keyup", function(ev){
-				if (ev.key == "Enter") this.blur();
-			}).on("focusout", function(){
+			SepiaFW.ui.onKeyboardInput(newsRegionTag, undefined, function(ele){ 
 				SepiaFW.config.setDefaultNewsRegion(newsRegionTag.value);
 			});
 
@@ -1574,9 +1565,7 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 			}));
 			//Account-Nickname
 			var accountNickNameInput = document.getElementById("sepiaFW-menu-account-nickname");
-			$(accountNickNameInput).on("keyup", function(ev){
-				if (ev.key == "Enter") this.blur();
-			}).on("focusout", function(){
+			SepiaFW.ui.onKeyboardInput(accountNickNameInput, undefined, function(ele){ 
 				var newName = accountNickNameInput.value;
 				var name = {};		name[SepiaFW.account.NICK_NAME] = newName;
 				var data = {};		data[SepiaFW.account.USER_NAME] = name;
