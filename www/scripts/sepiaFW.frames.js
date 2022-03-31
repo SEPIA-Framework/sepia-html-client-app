@@ -349,11 +349,7 @@ function sepiaFW_build_frames(){
 			cVal.type = type;
 			cVal.value = value;
 			cVal.disabled = disabled;
-			$(cVal).on("keyup", function(ev){
-				if (ev.key == "Enter") this.blur();
-			}).on("focusout", function(){
-				onInputChange(cVal.value);
-			});
+			SepiaFW.ui.onKeyboardInput(cVal, undefined, function(){ onInputChange(cVal.value); });
 		}
 		c.appendChild(cVal);
 		return {

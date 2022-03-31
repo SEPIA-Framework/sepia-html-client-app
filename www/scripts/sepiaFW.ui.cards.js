@@ -634,25 +634,21 @@ function sepiaFW_build_ui_cards(){
 		});
 		//center
 		$listEle.find('.listCenter').each(function(){
-			$(this).on('focusout', function(){
+			SepiaFW.ui.onKeyboardInput(this, undefined, function(ele){
 				//update data
-				var newName = $(this).text().trim();
+				var $ele = $(ele);
+				var newName = $ele.text().trim();
 				var eleData = JSON.parse($listEle.attr('data-element'));
 				if (newName){
 					newName = (newName.length > 320)? (newName.substring(0,319) + "...") : newName; 	//brutally shorten name - TODO: improve
 					eleData.name = newName;
-					$(this).text(eleData.name);
+					$ele.text(eleData.name);
 					$listEle.attr('data-element', JSON.stringify(eleData));
 					//activate save button
 					var $saveBtn = $listBody.parent().find('.sepiaFW-cards-list-saveBtn'); 	//note: we need to load the button here
 					$saveBtn.addClass('active');		//saveBtn.css({"opacity": 0.92, "color": saveBtn.parent().css("color")});
 				}else{
-					$(this).text(eleData.name);
-				}
-			});
-			$(this).keydown(function(event){
-				if(event.key == 'Enter'){
-					$(this).blur();
+					$ele.text(eleData.name);
 				}
 			});
 		});
@@ -847,17 +843,18 @@ function sepiaFW_build_ui_cards(){
 	//buttons
 	function makeTimeEventNameEditable(timeEvent){
 		var timerEventName = $(timeEvent).find(".sepiaFW-timer-name");
-		timerEventName.on('focusout', function(){
+		SepiaFW.ui.onKeyboardInput(timerEventName, undefined, function(ele){
 			//update data
+			var $ele = $(ele);
 			var dataString = $(timeEvent).attr('data-element');
 			if (dataString){
 				var eleData = JSON.parse(dataString);
-				var newName = $(this).text().trim();
+				var newName = $ele.text().trim();
 				if (newName){
 					//newName = newName.replace(/-|_|!|\?|,|\.|'/g, " ").trim();			//remove some special chars (?)
 					newName = (newName.length > 100)? (newName.substring(0,99) + "..."): newName; 	//brutally shorten name - TODO: improve
 					eleData.name = newName.trim();
-					$(this).text(eleData.name);
+					$ele.text(eleData.name);
 					$(timeEvent).attr('data-element', JSON.stringify(eleData));
 					//update stored TIMER
 					var Timer = SepiaFW.events.getRunningOrActivatedTimeEventById(eleData.eventId);
@@ -868,16 +865,11 @@ function sepiaFW_build_ui_cards(){
 						SepiaFW.events.scheduleTimeEventsSync(eleData.eleType);
 					}
 					//activate save button
-					var saveBtn = $(this).closest('.sepiaFW-cards-flexSize-container').find('.sepiaFW-cards-list-saveBtn');
+					var saveBtn = $ele.closest('.sepiaFW-cards-flexSize-container').find('.sepiaFW-cards-list-saveBtn');
 					saveBtn.addClass('active');
 				}else{
-					$(this).text(eleData.name);
+					$ele.text(eleData.name);
 				}
-			}
-		});
-		timerEventName.keydown(function(event){
-			if(event.key == 'Enter'){
-				$(this).blur();
 			}
 		});
 	}
@@ -1542,25 +1534,21 @@ function sepiaFW_build_ui_cards(){
 				$(title).find('.sepiaFW-title-span').focus();
 			});
 			var titleSpan = $(title).find("span");
-			titleSpan.on('focusout', function(){
+			SepiaFW.ui.onKeyboardInput(titleSpan, undefined, function(ele){
+				var $ele = $(ele);
 				//update data
-				var listEle = $(this).parent().parent();
+				var listEle = $ele.parent().parent();
 				var eleData = JSON.parse(listEle.attr('data-list'));
-				var newTitle = $(this).text();
+				var newTitle = $ele.text();
 				newTitle = newTitle.replace(/<br>|<div>|<\/div>/g, "").trim(); 		//happens when the user presses enter(?)
 				newTitle = newTitle.replace(/!|\?|,|\.|'/g, " ").trim();			//remove some special chars
 				newTitle = (newTitle.length > 25)? newTitle.substring(0,24) : newTitle; //brutally shorten title - TODO: improve
 				eleData.title = newTitle;
-				$(this).text(newTitle);
+				$ele.text(newTitle);
 				listEle.attr('data-list', JSON.stringify(eleData));
 				//activate save button
-				var saveButton = $(this).closest('.sepiaFW-cards-flexSize-container').find('.sepiaFW-cards-list-saveBtn');
+				var saveButton = $ele.closest('.sepiaFW-cards-flexSize-container').find('.sepiaFW-cards-list-saveBtn');
 				saveButton.addClass('active');		//saveBtn.css({"opacity": 0.92, "color": saveBtn.parent().css("color")});
-			});
-			titleSpan.keydown(function(event){
-				if(event.key == 'Enter'){
-					$(this).blur();
-				}
 			});
 		}
 		//-context menu

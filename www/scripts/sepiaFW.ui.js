@@ -1674,7 +1674,6 @@ function sepiaFW_build_ui(){
 		var $ele = $(eleOrSelector);
 		var valueOnFocusIn;
 		$ele.on("keyup", function(ev){
-			console.error("key", ev.key);				//DEBUG
 			if (ev.key == "Enter"){
 				var doBlur = (onEnterKeyCallback == undefined)? true : onEnterKeyCallback(this);
 				if (doBlur){
@@ -1684,13 +1683,15 @@ function sepiaFW_build_ui(){
 			}
 		}).on("focusin", function(ev){
 			valueOnFocusIn = (this.value == undefined)? this.textContent : this.value;
-			console.error("focusin", valueOnFocusIn, ev);			//DEBUG
-		}).on("change", function(ev){
-			console.error("change", this.value, ev);			//DEBUG
+		//}).on("change", function(ev){
+		//	console.error("change", this.value, ev);			//DEBUG
 		}).on("focusout", function(ev){
+			if (valueOnFocusIn == undefined) return;
 			var currentVal = (this.value == undefined)? this.textContent : this.value;
-			console.error("focusout", currentVal, valueOnFocusIn, ev);		//DEBUG
-			if (onChange && valueOnFocusIn != currentVal) onChange(this, currentVal);
+			if (onChange && valueOnFocusIn != currentVal){
+				onChange(this, currentVal);
+			}
+			valueOnFocusIn = undefined;
 		});
 	}
 

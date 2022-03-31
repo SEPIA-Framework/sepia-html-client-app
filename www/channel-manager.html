@@ -140,11 +140,9 @@
 		//Setup
 		onFinishSetup: function(){
 			//Input handling
-			$('#sepiaFW-channel-manager-cname').off().on("keyup", function(ev){
-				if (ev.key == "Enter") this.blur();
-			}).on("focusout", function(){
-				if (this.value){
-					this.value = this.value.replace(/[^\w\s#\-\+&\?!\.]/gi,"").replace(/\s+/gi, " ").substring(0, 26);
+			SepiaFW.ui.onKeyboardInput('#sepiaFW-channel-manager-cname', undefined, function(ele){ 
+				if (ele.value){
+					ele.value = ele.value.replace(/[^\w\s#\-\+&\?!\.]/gi,"").replace(/\s+/gi, " ").substring(0, 26);
 				}
 			});
 			
@@ -234,14 +232,12 @@
 			//Edit and Delete channel
 			
 			//reload channel name when ID changes
-			$('#sepiaFW-channel-manager-cid-edit').off().on("keyup", function(ev){
-				if (ev.key == "Enter") this.blur();
-			}).on("focusout", function(){
+			SepiaFW.ui.onKeyboardInput('#sepiaFW-channel-manager-cid-edit', undefined, function(ele){
 				//reset name
 				$('#sepiaFW-channel-manager-cname-edit').val('');
 				//load channel name
-				if (this.value){
-					var channelData = SepiaFW.client.getChannelDataById(this.value);
+				if (ele.value){
+					var channelData = SepiaFW.client.getChannelDataById(ele.value);
 					if (channelData && channelData.name){
 						$('#sepiaFW-channel-manager-cname-edit').val(channelData.name);
 					}
