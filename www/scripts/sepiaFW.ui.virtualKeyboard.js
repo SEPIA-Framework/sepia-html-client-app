@@ -392,7 +392,9 @@ function sepiaFW_build_ui_virtual_keyboard(){
 
 	//element value
 	function setElementValue(ele, val){
-		if (ele.value != undefined){
+		if (!ele){
+			return;
+		}else if (ele.value != undefined){
 			ele.value = val;
 		}else{
 			//if (activeInputElement.contentEditable && activeInputElement.contentEditable == "true") ...
@@ -400,7 +402,9 @@ function sepiaFW_build_ui_virtual_keyboard(){
 		}
 	}
 	function getElementValue(ele){
-		if (ele.value != undefined){
+		if (!ele){
+			return "";
+		}else if (ele.value != undefined){
 			return ele.value;
 		}else{
 			//if (activeInputElement.contentEditable && activeInputElement.contentEditable == "true") ...
