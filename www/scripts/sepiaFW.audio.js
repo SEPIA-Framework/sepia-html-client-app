@@ -873,6 +873,7 @@ function sepiaFW_build_audio(){
 		}
 		var sourceName = "unknown";
 		var audioOnEndFired = false;			//prevent doublefireing of audio onend onpause
+		var audioOnErrorFired = false;			//prevent doublefireing of audio onerror
 
 		if (audioURL) audioURL = SepiaFW.config.replacePathTagWithActualPath(audioURL);
 
@@ -991,37 +992,40 @@ function sepiaFW_build_audio(){
 			}
 		};
 		audioPlayer.onerror = function(error){
-			SepiaFW.debug.info("AUDIO: error occured! - code: " + (audioPlayer.error? audioPlayer.error.code : error.name));			//debug
-			if (audioPlayer.error && audioPlayer.error.code === 4){
-				SepiaFW.ui.showInfo("Cannot play the selected audio stream. Sorry!");		//TODO: localize
-			}else if (error && error.name && error.name == "NotAllowedError"){
-				SepiaFW.ui.showInfo("Cannot play audio because access was denied! This can happen if the user didn't interact with the client first.");
-			}else if (error && error.name){
-				SepiaFW.ui.showInfo("Cannot play audio - Error: " + error.name + " (see console for details).");
+			if (!audioOnErrorFired){
+				audioOnErrorFired = true;
+				SepiaFW.debug.info("AUDIO: error occured! - code: " + (audioPlayer.error? audioPlayer.error.code : error.name));			//debug
+				if (audioPlayer.error && audioPlayer.error.code === 4){
+					SepiaFW.ui.showInfo("Cannot play the selected audio stream. Sorry!");		//TODO: localize
+				}else if (error && error.name && error.name == "NotAllowedError"){
+					SepiaFW.ui.showInfo("Cannot play audio because access was denied! This can happen if the user didn't interact with the client first.");
+				}else if (error && error.name){
+					SepiaFW.ui.showInfo("Cannot play audio - Error: " + error.name + " (see console for details).");
+				}
+				if (audioPlayer == player){
+					broadcastAudioError();
+					mainAudioIsOnHold = false;
+					mainAudioStopRequested = false;
+					Stream.isPlaying = false;
+					Stream.isLoading = false;
+				}else if (audioPlayer == player2){
+					//TODO: ?
+				}else if (audioPlayer == speaker){
+					TTS.isSpeaking = false;
+					TTS.isLoading = false;
+				}
+				//callback
+				if (onErrorCallback) onErrorCallback();
+				var sourceName = "unknown";
+				if (audioPlayer == player){
+					sourceName = "stream";
+				}else if (audioPlayer == player2){
+					sourceName = "effects";
+				}else if (audioPlayer == speaker){
+					sourceName = "tts-player";
+				}
+				AudioPlayer.broadcastAudioEvent(sourceName, "error", audioPlayer);
 			}
-			if (audioPlayer == player){
-				broadcastAudioError();
-				mainAudioIsOnHold = false;
-				mainAudioStopRequested = false;
-				Stream.isPlaying = false;
-				Stream.isLoading = false;
-			}else if (audioPlayer == player2){
-				//TODO: ?
-			}else if (audioPlayer == speaker){
-				TTS.isSpeaking = false;
-				TTS.isLoading = false;
-			}
-			//callback
-			if (onErrorCallback) onErrorCallback();
-			var sourceName = "unknown";
-			if (audioPlayer == player){
-				sourceName = "stream";
-			}else if (audioPlayer == player2){
-				sourceName = "effects";
-			}else if (audioPlayer == speaker){
-				sourceName = "tts-player";
-			}
-			AudioPlayer.broadcastAudioEvent(sourceName, "error", audioPlayer);
 		};
 		var p = audioPlayer.play();	
 		if (p && ('catch' in p)){
@@ -1037,6 +1041,8 @@ function sepiaFW_build_audio(){
 		if (skippedN == undefined) skippedN = 0;
 
 		var audioPlayer = player2;
+		var audioOnErrorFired = false;			//prevent doublefireing of audio onerror
+		
 		var alarmSound = AudioPlayer.alarmSound;
 		//var emptySound = "sounds/empty.mp3";
 		/*
@@ -1132,23 +1138,26 @@ function sepiaFW_build_audio(){
 			}
 		};
 		audioPlayer.onerror = function(error){
-			SepiaFW.debug.info("AUDIO: error occured! - code: " + (audioPlayer.error? audioPlayer.error.code : error.name));			//debug
-			if (error && error.name && error.name == "NotAllowedError"){
-				SepiaFW.ui.showInfo("Cannot play audio because access was denied! This can happen if the user didn't interact with the client first.");
-			}else if (error && error.name){
-				SepiaFW.ui.showInfo("Cannot play audio - Error: " + error.name + " (see console for details).");
+			if (!audioOnErrorFired){
+				audioOnErrorFired = true;
+				SepiaFW.debug.info("AUDIO: error occured! - code: " + (audioPlayer.error? audioPlayer.error.code : error.name));			//debug
+				if (error && error.name && error.name == "NotAllowedError"){
+					SepiaFW.ui.showInfo("Cannot play audio because access was denied! This can happen if the user didn't interact with the client first.");
+				}else if (error && error.name){
+					SepiaFW.ui.showInfo("Cannot play audio - Error: " + error.name + " (see console for details).");
+				}
+				Alarm.isPlaying = false;
+				Alarm.isLoading = false;
+				//reset audio URL
+				/*
+				audioPlayer.preload = 'none';
+				audioPlayer.src = emptySound;
+				*/
+				//callback
+				if (onErrorCallback) onErrorCallback();
+				AudioPlayer.broadcastAudioEvent("effects", "error", audioPlayer);
+				SepiaFW.animate.assistant.idle();
 			}
-			Alarm.isPlaying = false;
-			Alarm.isLoading = false;
-			//reset audio URL
-			/*
-			audioPlayer.preload = 'none';
-			audioPlayer.src = emptySound;
-			*/
-			//callback
-			if (onErrorCallback) onErrorCallback();
-			AudioPlayer.broadcastAudioEvent("effects", "error", audioPlayer);
-			SepiaFW.animate.assistant.idle();
 		};
 		var p = audioPlayer.play();
 		if (p && ('catch' in p)){

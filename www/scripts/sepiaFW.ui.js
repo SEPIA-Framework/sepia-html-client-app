@@ -67,10 +67,12 @@ function sepiaFW_build_ui(){
 	UI.windowExpectedSize = window.innerHeight;
 	window.addEventListener('orientationchange', function(){
 		//document.getElementById('sepiaFW-chat-output').innerHTML += ('<br>orientationchange, new size: ' + window.innerHeight);
-		$('input').blur();
+		if (document.activeElement && typeof document.activeElement.blur == "function"){
+			document.activeElement.blur();
+		}
 		setTimeout(function(){
 			UI.windowExpectedSize = window.innerHeight;
-		},100);
+		}, 100);
 	});
 	window.addEventListener('resize', function(){
 		orientationAndBasicWindowSizeCheck();
@@ -1667,6 +1669,31 @@ function sepiaFW_build_ui(){
 		return (eventsListeners && !!eventsListeners['sepiaFW-events']);
 	}
 
+	//Input listener with ENTER key support and 'focusout' as "change" event - works with virtual keyboard
+	UI.onKeyboardInput = function(eleOrSelector, onEnterKeyCallback, onChange){
+		var $ele = $(eleOrSelector);
+		var valueOnFocusIn;
+		$ele.on("keyup", function(ev){
+			console.error("key", ev.key);				//DEBUG
+			if (ev.key == "Enter"){
+				var doBlur = (onEnterKeyCallback == undefined)? true : onEnterKeyCallback(this);
+				if (doBlur){
+					this.blur();	//if you 'return false;' in callback this is skipped
+				}
+				//TODO: else trigger onChange?
+			}
+		}).on("focusin", function(ev){
+			valueOnFocusIn = (this.value == undefined)? this.textContent : this.value;
+			console.error("focusin", valueOnFocusIn, ev);			//DEBUG
+		}).on("change", function(ev){
+			console.error("change", this.value, ev);			//DEBUG
+		}).on("focusout", function(ev){
+			var currentVal = (this.value == undefined)? this.textContent : this.value;
+			console.error("focusout", currentVal, valueOnFocusIn, ev);		//DEBUG
+			if (onChange && valueOnFocusIn != currentVal) onChange(this, currentVal);
+		});
+	}
+
 	//Simple double-tap
 	UI.simpleDoubleTab = function(ele, callback){
 		var delay = 333;
@@ -1722,7 +1749,7 @@ function sepiaFW_build_ui(){
 			return false;
 		});
 	}
-	//Default on-click method with optional haptik press-feedback
+	//Default on-click method with optional haptic press-feedback
 	UI.useFastTouch = false; 	//reduced delay for e.g. iOS' UIWebView (basically deprecated, not needed anymore since use of WKWebview)
 	UI.onclick = function(ele, callback, animatePress){
 		if (UI.useFastTouch){

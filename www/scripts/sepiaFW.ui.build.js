@@ -145,6 +145,7 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 		}
 	}
 
+	//build slider
 	Build.slider = function(sliderId, onInputCallback, onChangeCallback, initialValue, range, step, disabled){
 		var sliderBox = document.createElement('DIV');
 		var slider = document.createElement('INPUT');
@@ -183,6 +184,18 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 			else sliderBox.classList.remove("disabled");
 		}
 		return sliderBox;
+	}
+
+	//simple action button
+	Build.inlineActionButton = function(btnId, btnName, callback){
+		var btn = document.createElement('BUTTON');
+		btn.className = "sepiaFW-button-inline";
+		if (btnName) btn.innerHTML = SepiaFW.tools.sanitizeHtml(btnName);
+		if (btnId) btn.id = btnId;
+		SepiaFW.ui.onclick(btn, function(){
+			callback(this);
+		}, true);
+		return btn;
 	}
 
 	//state indicator
@@ -228,18 +241,6 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 		}
 		
 		return Indicator;
-	}
-	
-	//simple action button
-	Build.inlineActionButton = function(btnId, btnName, callback){
-		var btn = document.createElement('BUTTON');
-		btn.className = "sepiaFW-button-inline";
-		if (btnName) btn.innerHTML = SepiaFW.tools.sanitizeHtml(btnName);
-		if (btnId) btn.id = btnId;
-		SepiaFW.ui.onclick(btn, function(){
-			callback(this);
-		}, true);
-		return btn;
 	}
 	
 	//Confirm box
@@ -1628,14 +1629,7 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 			});
 			//Account Password reset
 			document.getElementById("sepiaFW-menu-account-pwd-reset-btn").addEventListener("click", function(){
-				SepiaFW.frames.open({
-					pageUrl: "password-reset.html",
-					onOpen: function(){ 
-						$('#sepiaFW-pwd-reset-view').find('input').val(''); 
-						$('#sepiaFW-pwd-reset-uid').val(SepiaFW.account.getUserId());
-					},
-					onClose: function(){ $('#sepiaFW-pwd-reset-view').find('input').val(''); }
-				});
+				SepiaFW.frames.open({pageUrl: "password-reset.html"});
 			});
 			//Reload app
 			document.getElementById("sepiaFW-menu-ui-refresh-btn").addEventListener("click", function(){
