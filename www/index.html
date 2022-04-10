@@ -712,6 +712,7 @@
 						$('#sepiaFW-colorRefBox').hide();
 						//TODO: startClient is a required method, maybe move it to core and replace it with 'client.onActive'?
 						SepiaFW.client.startClient(); 		//includes: buildUI, onActive and welcomeActions
+						connectionFailAutoActionTime = 10000;
 					},
 					//fail: no connection to chat-server - note: on mobile this might trigger although network in general is down
 					function(data){ doThisOnConnectionFail(data) },
@@ -738,10 +739,16 @@
 				},
 				autoAction: true,
 				autoActionIndex: 1,
-				autoActionTargetTime: 45000,
+				autoActionTargetTime: connectionFailAutoActionTime,
 				popupId: "afterLoginConnectionFail"
 			});
+			//increase each time until max.
+			if (connectionFailAutoActionTime < maxConnectionFailAutoActionTime){
+				connectionFailAutoActionTime += 5000;
+			}
 		}
+		var connectionFailAutoActionTime = 10000;
+		var maxConnectionFailAutoActionTime = 45000;
 		
 		//load UI
 		SepiaFW.ui.setup(function(){
