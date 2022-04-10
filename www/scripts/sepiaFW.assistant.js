@@ -81,6 +81,8 @@ function sepiaFW_build_assistant(sepiaSessionId){
 		//EXAMPLE:
 		SepiaFW.animate.assistant.awaitDialog(); 		
 		//Note: possible follow-up actions moved to 'animate.assistant.awaitDialog' function (since it can be triggered from elsewhere too)
+		//activate auto-close timer?
+		//Assistant.activateOrRefreshAwaitDialogTimer();	//NOTE: moved inside animation state
 	}
 	function broadcastDialogFinished(returnToIdle){
 		//EXAMPLE:
@@ -215,20 +217,6 @@ function sepiaFW_build_assistant(sepiaSessionId){
 				//broadcast
 				Assistant.isWaitingForDialog = true;
 				broadcastAwaitDialog();
-
-				//activate auto-close timer?
-				if (Assistant.autoCloseAwaitDialog){
-					autoCloseAwaitDialogTimer = setTimeout(function(){
-						input_type = "question";
-						input_miss = "";
-						dialog_stage = 0;
-						last_command = '';
-						last_command_N = 0;
-						//broadcast
-						Assistant.isWaitingForDialog = false;
-						broadcastDialogTimeout();
-					}, Assistant.autoCloseAwaitDialogDelay);
-				}
 			}
 		}else{
 			input_type = "question";
@@ -243,16 +231,29 @@ function sepiaFW_build_assistant(sepiaSessionId){
 		Assistant.lastInteractionTS = new Date().getTime();
 	}
 	
-	//reset state
+	//reset state(s)
 	Assistant.resetState = function(){
+		resetDialogState();
+		//broadcast
+		broadcastDialogFinished(true);
+	}
+	Assistant.activateOrRefreshAwaitDialogTimer = function(){
+		if (Assistant.autoCloseAwaitDialog){
+			clearTimeout(autoCloseAwaitDialogTimer);
+			autoCloseAwaitDialogTimer = setTimeout(function(){
+				resetDialogState();
+				//broadcast
+				broadcastDialogTimeout();
+			}, Assistant.autoCloseAwaitDialogDelay);
+		}
+	}
+	function resetDialogState(){
 		input_type = "question";
 		input_miss = "";
 		dialog_stage = 0;
 		last_command = '';
 		last_command_N = 0;
-		//broadcast
 		Assistant.isWaitingForDialog = false;
-		broadcastDialogFinished(true);
 	}
 
 	//------------------ SOME METHODS TO ENGAGE USER ------------------

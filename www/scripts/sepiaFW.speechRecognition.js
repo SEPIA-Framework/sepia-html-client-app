@@ -705,6 +705,9 @@ function sepiaFW_build_speech_recognition(Speech){
 				}else{
 					log_callback('STT REC. END - sending final result');
 					if (!abortRecognition){
+						if (lastResultType == "final" && !final_transcript){	//!onErrorWasAlreadyCalled
+							SepiaFW.debug.error("WARNING - ASR result was empty but no error was thrown! Expected: 'nomatch' or 'no-speech'");
+						}
 						broadcastAsrFinished();
 						var final_fixed = postProcessTranscription(final_transcript);
 						callback_final(final_fixed);

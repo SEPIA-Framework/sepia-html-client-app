@@ -183,6 +183,8 @@ function sepiaFW_build_animate(){
 		if (!didTriggerMic){
 			possibilityToSwitchOnWakeWordListener(source);
 		}
+		//refresh wait timer
+		SepiaFW.assistant.activateOrRefreshAwaitDialogTimer();
 	}
 
 	//animation state dispatcher
