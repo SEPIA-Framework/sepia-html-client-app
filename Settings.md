@@ -147,7 +147,9 @@ For USB devices check the individual comments on how to set vendor/product speci
 			"awaitDialog": [{"ledIndex": 1, "red": 100, "green": 100, "blue": 0}],
 			"loading": [{"ledIndex": 1, "red": 10, "green": 10, "blue": 10}],
 			"wakeWordActive": [{"ledIndex": 2, "red": 5, "green": 0, "blue": 5}],
-			"wakeWordInactive": [{"ledIndex": 2, "red": 0, "green": 0, "blue": 0}]
+			"wakeWordInactive": [{"ledIndex": 2, "red": 0, "green": 0, "blue": 0}],
+			"eventEffectsOn": [],
+			"eventEffectsOff": []
 		}
 	}]
 }
@@ -195,7 +197,9 @@ For USB devices check the individual comments on how to set vendor/product speci
 			"wakeWordInactive": [
 				{"ledIndex": 4, "red": 0, "green": 0, "blue": 0},
 				{"ledIndex": 10, "red": 0, "green": 0, "blue": 0}
-			]
+			],
+			"eventEffectsOn": [],
+			"eventEffectsOff": []
 		}
 	}]
 }
@@ -274,7 +278,9 @@ For USB devices check the individual comments on how to set vendor/product speci
 			"wakeWordInactive": [
 				{"ledIndex": 6, "red": 0, "green": 0, "blue": 0},
 				{"ledIndex": 12, "red": 0, "green": 0, "blue": 0}
-			]
+			],
+			"eventEffectsOn": [],
+			"eventEffectsOff": []
 		}
 	}]
 }
@@ -306,7 +312,9 @@ Settings:
 			"awaitDialog": [{"state": "awaitDialog"}],
 			"loading": [{"state": "loading"}],
 			"wakeWordActive": [{"state": "wakeWordActive"}],
-			"wakeWordInactive": [{"state": "wakeWordInactive"}]
+			"wakeWordInactive": [{"state": "wakeWordInactive"}],
+			"eventEffectsOn": [],
+			"eventEffectsOff": []
 		}
 	}]
 }
