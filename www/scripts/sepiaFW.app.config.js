@@ -4,7 +4,9 @@ function sepiaFW_build_config(){
 	
 	Config.clientInfo = "web_app_v1.0.0";	//defined by client properties
 	var deviceId = "";						//set in settings and chosen by user to address his devices directly (only numbers and letters, space is replaced by '-', lower-case)
-	Config.environment = SepiaFW.tools.getURLParameter("env") || "default";		//'default' supports all features, other options: 'speaker', 'smart_display', 'silent_display', 'car_display'
+	
+	Config.environment = SepiaFW.tools.getURLParameter("env") || SepiaFW.data.getPermanent("environment") || "default";		
+	//'default' supports all features, other options: 'speaker', 'smart_display', 'silent_display', 'car_display'
 	//NOTE: switches to "avatar_display" in AO-Mode !
 
 	function isIE11(){return!(!(0<window.navigator.userAgent.indexOf("MSIE "))&&!navigator.userAgent.match(/Trident.*rv\:11\./))}

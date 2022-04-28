@@ -5,6 +5,7 @@ SepiaFW.settings = {
 		device: {
 			"host-name": "localhost",
 			"deviceId": "o1",
+			"environment": "default",	//e.g.: default, speaker, smart_display
 			"deviceLocalSiteData": {
 				"location": "home",
 				"type": "room",

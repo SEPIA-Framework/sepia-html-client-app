@@ -57,7 +57,7 @@ You can modify the client configuration via several URL parameters:
 * `hasTouch` - 'true' will set touch-screen mode (tweaked UI hover effects etc.) if screen itself is "emulating" touch and client does not properly detect mode.
 * `virtualKeyboard` - 'true' will enable an experimental, virtual keyboard that can be used for example for DIY client "kiosk"-mode apps with touch-screen.
 * `skinId` - Number (ID) of skin to use at start. Will overwrite user preference.
-* `env` - 'environment' setting for client
+* `env` - 'environment' setting for client (e.g.: default, speaker, smart_display)
 * `q` - Question that will be triggered when client is connected
 * `share` - Shared data e.g. via deeplinks
 * `view` - Switch to specific view on start for example always-on mode (e.g.: aomode, teachui, <custom_data>/views/demo-view, <assist_server>/views/demo-view)
