@@ -91,6 +91,36 @@ sudo usermod -a -G spi $USER
 
 For USB devices check the individual comments on how to set vendor/product specific permissions for the user.
 
+### SEPIA custom Proto Voice HAT
+
+- 1 ws281x RGB LED via SPI bus
+
+```
+"clexiGpioInterface": {
+	"buttons": [{}],
+	"leds": [{}],
+	"items": [{
+			"id": "led-array",
+			"file": "rpi-spi-rgb-leds",
+			"options": {
+					"numOfLeds": 1,
+					"ledType": "ws281x"
+			},
+			"modes": {
+					"idle": [{"ledIndex": 1, "red": 0, "green": 0, "blue": 0}],
+					"listening": [{"ledIndex": 1, "red": 80, "green": 0, "blue": 0}],
+					"speaking": [{"ledIndex": 1, "red": 0, "green": 0, "blue": 80}],
+					"awaitDialog": [{"ledIndex": 1, "red": 60, "green": 60, "blue": 0}],
+					"loading": [{"ledIndex": 1, "red": 10, "green": 10, "blue": 10}],
+					"wakeWordActive": [{"ledIndex": 1, "red": 10, "green": 0, "blue": 0}],
+					"wakeWordInactive": [{"ledIndex": 1, "red": 0, "green": 0, "blue": 0}],
+					"eventEffectsOn": [],
+					"eventEffectsOff": []
+			}
+	}]
+}
+```
+
 ### IQAudio Codec Zero
 
 - Button pin is 27
