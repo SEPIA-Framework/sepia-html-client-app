@@ -76,6 +76,7 @@ function sepiaFW_build_strings(){
 	StringsDE.store = 'Speichern';
 	StringsDE.load = 'Laden';
 	StringsDE.export = 'Exportieren';
+	StringsDE.import = 'Importieren';
 	StringsDE.edit = 'Bearbeiten';
 	StringsDE.copy = 'Kopieren';
 	StringsDE.show = 'Anzeigen';
@@ -91,6 +92,7 @@ function sepiaFW_build_strings(){
 	StringsDE.wait = 'Warten';
 	StringsDE.forget = 'Vergessen';
 	StringsDE.abort = 'Abbrechen';
+	StringsDE.chooseFile = 'Datei auswählen';
 	StringsDE.continueOffline = 'Offline weiter';
 	StringsDE.locateMe = 'Standort bestimmen';
 	StringsDE.serverConnections = 'Server Verbindungen';
@@ -297,6 +299,7 @@ function sepiaFW_build_strings(){
 	StringsEN.store = 'Store';
 	StringsEN.load = 'Load';
 	StringsEN.export = 'Export';
+	StringsEN.import = 'Import';
 	StringsEN.edit = 'Edit';
 	StringsEN.copy = 'Copy';
 	StringsEN.show = 'Show';
@@ -312,6 +315,7 @@ function sepiaFW_build_strings(){
 	StringsEN.wait = 'Wait';
 	StringsEN.forget = 'Forget';
 	StringsEN.abort = 'Abort';
+	StringsEN.chooseFile = 'Choose File';
 	StringsEN.continueOffline = 'Continue offline';
 	StringsEN.locateMe = 'Refresh my location';
 	StringsEN.serverConnections = 'Server connections';

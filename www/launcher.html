@@ -246,7 +246,10 @@ function ready(){
 	view.addEventListener("change", function(){
 		storeValue('view', view.value);
 	});
-	customView.addEventListener("change", function(){
+	customView.addEventListener("keyup", function(ev){
+		if (ev.key == "Enter") this.blur();
+	});
+	customView.addEventListener("focusout", function(){
 		storeValue('customView', customView.value);
 		if (customView.value){
 			view.value = "_custom_";
@@ -257,7 +260,10 @@ function ready(){
 	newWindow.addEventListener("change", function(){
 		storeValue('newWindow', newWindow.checked);
 	});
-	customEnv.addEventListener("change", function(){
+	customEnv.addEventListener("keyup", function(ev){
+		if (ev.key == "Enter") this.blur();
+	});
+	customEnv.addEventListener("focusout", function(){
 		storeValue('customEnv', customEnv.value);
 	});
 	preLoadTts.addEventListener("change", function(){

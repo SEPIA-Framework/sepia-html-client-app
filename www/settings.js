@@ -5,10 +5,11 @@ SepiaFW.settings = {
 		device: {
 			"host-name": "localhost",
 			"deviceId": "o1",
+			"environment": "default",	//e.g.: default, speaker, smart_display
 			"deviceLocalSiteData": {
-				"location": "home", 
-				"type": "room", 
-				"name": "unassigned", 
+				"location": "home",
+				"type": "room",
+				"name": "unassigned",
 				"index": ""
 			},
 			"mediaDevices": {
@@ -17,8 +18,14 @@ SepiaFW.settings = {
 				"tts": {},
 				"fx": {}
 			},
+			"playerVolume": 7.0,
 			"microphoneSettings": {
-				"gain": 1.0
+				"gain": 1.0,
+				"noiseSuppression": true,
+				"autoGainControl": false,
+				"echoCancellation": false,
+				"resamplerQuality": 3,
+				"tryNativeResampling": false
 			},
 			"deviceSounds": {
 				"micConfirm": "sounds/coin.mp3",
@@ -37,6 +44,7 @@ SepiaFW.settings = {
 			"en-asrModel": "",
 			"de-asrModel": "",
 			"big-screen-mode": true,
+			"virtualKeyboard": false,
 			"clexiGpioInterface": {
 				"buttons": [{
 					"id": "hw-mic-button",
@@ -60,7 +68,9 @@ SepiaFW.settings = {
 						"awaitDialog": [{"ledIndex": 1, "red": 100, "green": 100, "blue": 0}],
 						"loading": [{"ledIndex": 1, "red": 10, "green": 10, "blue": 10}],
 						"wakeWordActive": [{"ledIndex": 2, "red": 10, "green": 0, "blue": 0}],
-						"wakeWordInactive": [{"ledIndex": 2, "red": 0, "green": 0, "blue": 0}]
+						"wakeWordInactive": [{"ledIndex": 2, "red": 0, "green": 0, "blue": 0}],
+						"eventEffectsOn": [],
+						"eventEffectsOff": []
 					}
 				}]
 			}

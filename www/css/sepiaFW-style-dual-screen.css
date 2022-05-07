@@ -1,26 +1,70 @@
-@media (screen-spanning: single-fold-vertical) {
+/* info: https://devblogs.microsoft.com/surface-duo/dual-screen-web-edge/ */
+
+/* additional screens hidden by default */
+#sepiaFW-window-2 {
+	display: none;
+	flex-direction: column;
+	position: fixed;
+	padding: 0;
+	margin: 0;
+}
+
+/* left - right */
+@media (horizontal-viewport-segments: 2) {
+	/* main */
 	body.limit-size {
 		max-width: none;
 	}
 	#sepiaFW-main-window {
-		width: calc(50% - env(fold-width)/2);
+		width: env(viewport-segment-width 0 0) !important;
 	}
 	.sepiaFW-popup-cover-layer {
-		padding-right: calc(50% + env(fold-width)/2);
+		padding-right: env(viewport-segment-left 1 0);
 	}
 	#sepiaFW-login-box {
-		left: calc(25% - env(fold-width)/4);
+		left: calc(env(viewport-segment-width 0 0)/2);
 	}
 	#sepiaFW-swipeBar-container-right {
-		right: calc(50% + env(fold-width)/2);
+		right: env(viewport-segment-left 1 0);
+	}
+	#sepiaFW-virtual-keyboard-box {
+		width: env(viewport-segment-width 0 0);
+	}
+	/* additional screens */
+	#sepiaFW-window-2 {
+		display: flex;
+		right: 0;
+		top: 0;
+		width: env(viewport-segment-width 1 0);
+		height: 100%;
+		background: center no-repeat #000 url(../img/icon-512.png);
+		background-size: 60%;
+		z-index: 2;
 	}
 }
-@media (screen-spanning: single-fold-horizontal) {
+
+/* top - bottom */
+@media (vertical-viewport-segments: 2) {
 	#sepiaFW-main-window {
-		height: env(fold-top);
-		margin-bottom: calc(env(fold-top) + env(fold-height));
+		height: env(viewport-segment-height 0 1) !important;
+		margin-top: env(viewport-segment-top 0 1) !important;
 	}
 	.sepiaFW-popup-cover-layer {
-		padding-bottom: calc(env(fold-top) + env(fold-height));
+		padding-top: env(viewport-segment-top 0 1);
+	}
+	#sepiaFW-login-box {
+		margin-top: env(viewport-segment-top 0 1);
+		top: 5%;
+	}
+	/* additional screens */
+	#sepiaFW-window-2 {
+		display: flex;
+		left: 0;
+		top: 0;
+		width: 100%;
+		height: env(viewport-segment-height 0 0);
+		background: center no-repeat #000 url(../img/icon-512.png);
+		background-size: 40%;
+		z-index: 2;
 	}
 }

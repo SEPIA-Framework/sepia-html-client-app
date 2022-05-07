@@ -112,7 +112,7 @@
 		<div id="sepiaFW-login-box-menu-btn"><i class="material-icons md-18">&#xE5D2;</i></div>
 		<h2><!--Welcome--><script>SepiaFW.local.w('welcome')</script></h2>
 		<div id="sepiaFW-login-form" style="display: none">
-			<input id="sepiaFW-login-id" type="email" placeholder="Username" aria-label="Username" spellcheck="false" autocomplete="username">
+			<input id="sepiaFW-login-id" type="text" placeholder="Username" aria-label="Username" spellcheck="false" autocomplete="username">
 			<input id="sepiaFW-login-pwd" type="password" placeholder="Password" aria-label="Password">
 			<button id="sepiaFW-login-send"><script>SepiaFW.local.w('sendLogin')</script></button><br>
 			<button id="sepiaFW-login-create" class="extended-controls" style="display:none;"><script>SepiaFW.local.w('createAccount')</script></button><br>
@@ -205,7 +205,7 @@
 				<li id='sepiaFW-saythis-btn'>Broadcast&nbsp;<i class="material-icons md-txt">record_voice_over</i></li>
 				<li id='sepiaFW-teachUI-open'>Teach&nbsp;<i class="material-icons md-txt">&#xE87B;</i></li>
 				<li id='sepiaFW-fullsize-btn'>Screen&nbsp;<i class="material-icons md-txt">&#xE56B;</i></li>
-				<li id='sepiaFW-alwaysOn-btn'>Always On&nbsp;<i class="material-icons md-txt">mobile_friendly</i></li>
+				<li id='sepiaFW-alwaysOn-btn'>Always On&nbsp;<span class="sepia-icon-font s14 sepia-icon-sepia_bw"><span class="path1"></span><span class="path2"></span></span></li>
 				<!--<li id='sepiaFW-back-btn'><script>SepiaFW.local.w('back')</script>&nbsp;<i class="material-icons md-txt">&#xE408;</i></li>-->
 			</div>
 			<div id="sepiaFW-more-menu-input"><!-- only for landscape mode -->
@@ -283,6 +283,8 @@
 			</div>
 		</div>
 	</div>
+	<!-- Dual-Screens etc. -->
+	<div id="sepiaFW-window-2"></div>
 	<!-- Swipe bars -->
 	<div id='sepiaFW-swipeBar-container-left' class='sepiaFW-swipeBar-container'>
 		<div id='sepiaFW-swipeBar-chat-left' class='sepiaFW-swipeBar-switchable' oncontextmenu='return false;'></div>
@@ -300,6 +302,10 @@
 	<div id="sepiaFW-swipeBar-container-top" class='sepiaFW-swipeBar-container'></div>
 	<div id="sepiaFW-swipeBar-container-bottom" class='sepiaFW-swipeBar-container'></div>
 	-->
+	<!-- Virtual keyboard -->
+	<div id='sepiaFW-virtual-keyboard-box' style="display: none;">
+		<div id='sepiaFW-virtual-keyboard-toolbar'></div>
+	</div>
 	<!-- Overlay elements -->
 	<div id='sepiaFW-overlay-elements'>
 		<!-- color refs -->
@@ -347,7 +353,8 @@
 			"Uplink":				{id: 14, css: "css/sepiaFW-skin-uplink.css", 			avatar: "1"},
 			"Tasty":				{id: 15, css: "css/sepiaFW-skin-pizza.css", 			avatar: "1"},
 			"The Grid":				{id: 16, css: "css/sepiaFW-skin-grid.css", 				avatar: "10"},
-			"The Vectors":				{id: 39, css: "css/sepiaFW-skin-vectors.css", avatar: "6", base: 16},
+			"The Vectors":			{id: 39, css: "css/sepiaFW-skin-vectors.css", 			avatar: "6"},
+			"Vectors Reloaded":		{id: 42, css: "css/sepiaFW-skin-vectors-reloaded.css", 	avatar: "6"},
 			"Canny": 				{id: 17, css: "css/sepiaFW-skin-canny.css", 			avatar: "1"},
 			"Essential": 			{id: 18, css: "css/sepiaFW-skin-minimal.css", 			avatar: "1"},
 			"Essential Green": 			{id: 35, css: "css/sepiaFW-skin-minimal-green.css", 	avatar: "1", base: 18},
@@ -356,10 +363,12 @@
 			"Professional": 		{id: 20, css: "css/sepiaFW-skin-professional.css", 		avatar: "1"},
 			"Odyssey Explorer":		{id: 21, css: "css/sepiaFW-skin-odyssey1.css", 			avatar: "3"},
 			"Odyssey Conqueror":	{id: 22, css: "css/sepiaFW-skin-odyssey2.css", 			avatar: "10"},
+			"Odyssey AI":			{id: 41, css: "css/sepiaFW-skin-odyssey3.css", 			avatar: "11"},
 			"Malachite": 			{id: 23, css: "css/sepiaFW-skin-malachite.css", 		avatar: "1"},
 			"Nightlife": 			{id: 24, css: "css/sepiaFW-skin-neon.css", 				avatar: "1"},
 			"Spots": 				{id: 25, css: "css/sepiaFW-skin-spot.css", 				avatar: "1"},
 			"Dark Canary": 			{id: 26, css: "css/sepiaFW-skin-canary-dark.css", 		avatar: "1"},
+			"Blue Canary": 			{id: 40, css: "css/sepiaFW-skin-canary-blue.css", 		avatar: "6"},
 			"ILA Legacy": 			{id: 27, css: "css/sepiaFW-skin-ILA-legacy.css", 		avatar: "2"},
 			"Historic Future": 		{id: 28, css: "css/sepiaFW-skin-history-of-future.css", avatar: "3"},
 			//"Future Reloaded": 	{id: 29, css: "css/sepiaFW-skin-future-reloaded.css", avatar: "3"},
@@ -369,7 +378,7 @@
 			"Alabaster Mystical":	{id: 32, css: "css/sepiaFW-skin-alabaster-mystical.css",	avatar: "5"},
 			"Alabaster Motley":		{id: 33, css: "css/sepiaFW-skin-alabaster-motley.css",		avatar: "5", base: 32},
 			"Alabaster Dark":		{id: 34, css: "css/sepiaFW-skin-alabaster-dark.css",		avatar: "5", base: 32}
-			//next: 40
+			//next: 43
 		}
 		var avatars = {
 			"Classic": 				{id:  1, css: "css/sepiaFW-avatar-classic.css"},
@@ -381,11 +390,12 @@
 			"Star Control": 		{id:  3, css: "css/sepiaFW-avatar-star-control.css"},
 			"S-Tech":				{id:  10, css: "css/sepiaFW-avatar-s-tech.css"},
 			"Flaming Squirrel":		{id:  4, css: "css/sepiaFW-avatar-flaming-squirrel.css"},
-			"The Dots":				{id:  5, css: "css/sepiaFW-avatar-dots.css"}
-			//next: 11
+			"The Dots":				{id:  5, css: "css/sepiaFW-avatar-dots.css"},
+			"Proto v1.0":			{id:  11, css: "css/sepiaFW-avatar-proto.css"}
+			//next: 12
 		}
 		var skinNames = Object.keys(skins);
-		var askin = SepiaFW.data.get("activeSkin") || "1";
+		var askin = SepiaFW.tools.getURLParameter("skinId") || SepiaFW.data.get("activeSkin") || "1";
 		var defaultAvatar = "1";
 		if (!isNaN(+askin)) askin = +askin;
 		else askin = skins[askin].id;
@@ -448,7 +458,7 @@
 }</script>
 
 <!-- SEPIA -->
-<script src="scripts/clexi-0.9.0.js"></script>
+<script src="scripts/clexi-0.9.1.js"></script>
 <script src="scripts/sepiaFW.ui.js"></script>
 <script src="scripts/sepiaFW.ui.build.js"></script>
 <script src="scripts/sepiaFW.ui.animate.js"></script>
@@ -462,12 +472,13 @@
 <script src="scripts/sepiaFW.ui.cards.js"></script>
 <script src="scripts/sepiaFW.ui.plot.js"></script>
 <script src="scripts/sepiaFW.ui.customButtons.js"></script>
+<script src="scripts/sepiaFW.ui.virtualKeyboard.js"></script>
 <script src="scripts/sepiaFW.account.js"></script>
 <script src="scripts/sepiaFW.account.contacts.js"></script>
 <script src="scripts/sepiaFW.assistant.js"></script>
 <script src="scripts/sepiaFW.geocoder.js"></script>
 <script>if (!SepiaFW.config.uiIsIE11){
-	document.write('<script src="scripts/sepiaFW.webAudio.js?v=0.9.10"><\/script>');
+	document.write('<script src="scripts/sepiaFW.webAudio.js?v=0.9.11"><\/script>');
 }</script>
 <script src="scripts/sepiaFW.audio.js"></script>
 <script src="scripts/sepiaFW.audio.effects.js"></script>
@@ -701,6 +712,7 @@
 						$('#sepiaFW-colorRefBox').hide();
 						//TODO: startClient is a required method, maybe move it to core and replace it with 'client.onActive'?
 						SepiaFW.client.startClient(); 		//includes: buildUI, onActive and welcomeActions
+						connectionFailAutoActionTime = 10000;
 					},
 					//fail: no connection to chat-server - note: on mobile this might trigger although network in general is down
 					function(data){ doThisOnConnectionFail(data) },
@@ -727,10 +739,16 @@
 				},
 				autoAction: true,
 				autoActionIndex: 1,
-				autoActionTargetTime: 45000,
+				autoActionTargetTime: connectionFailAutoActionTime,
 				popupId: "afterLoginConnectionFail"
 			});
+			//increase each time until max.
+			if (connectionFailAutoActionTime < maxConnectionFailAutoActionTime){
+				connectionFailAutoActionTime += 5000;
+			}
 		}
+		var connectionFailAutoActionTime = 10000;
+		var maxConnectionFailAutoActionTime = 45000;
 		
 		//load UI
 		SepiaFW.ui.setup(function(){

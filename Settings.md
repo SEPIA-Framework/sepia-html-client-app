@@ -32,6 +32,12 @@ user: {
 }
 ```
 
+### Recommendations
+
+- IQAudio Codec Zero: `"noiseSuppression": false`, `"autoGainControl": false`, `"echoCancellation": false`, `"gain": 2.0`, `"resamplerQuality": 4`
+- Respeaker Mic Array v2.0 USB: `"noiseSuppression": false`, `"autoGainControl": false`, `"echoCancellation": false`, `"gain": 1.0`, `"resamplerQuality": 5`
+
+
 ## Wake-Word Settings
 
 ### Two Wake-Words Example
@@ -85,6 +91,62 @@ sudo usermod -a -G spi $USER
 
 For USB devices check the individual comments on how to set vendor/product specific permissions for the user.
 
+### SEPIA custom Proto Voice HAT
+
+- 1 ws281x RGB LED via SPI bus
+
+```
+"clexiGpioInterface": {
+	"buttons": [{}],
+	"leds": [{}],
+	"items": [{
+			"id": "led-array",
+			"file": "rpi-spi-rgb-leds",
+			"options": {
+					"numOfLeds": 1,
+					"ledType": "ws281x"
+			},
+			"modes": {
+					"idle": [{"ledIndex": 1, "red": 0, "green": 0, "blue": 0}],
+					"listening": [{"ledIndex": 1, "red": 80, "green": 0, "blue": 0}],
+					"speaking": [{"ledIndex": 1, "red": 0, "green": 0, "blue": 80}],
+					"awaitDialog": [{"ledIndex": 1, "red": 60, "green": 60, "blue": 0}],
+					"loading": [{"ledIndex": 1, "red": 10, "green": 10, "blue": 10}],
+					"wakeWordActive": [{"ledIndex": 1, "red": 10, "green": 0, "blue": 0}],
+					"wakeWordInactive": [{"ledIndex": 1, "red": 0, "green": 0, "blue": 0}],
+					"eventEffectsOn": [],
+					"eventEffectsOff": []
+			}
+	}]
+}
+```
+
+### IQAudio Codec Zero
+
+- Button pin is 27
+- Green LED is pin 23
+- Red LED is pin 24
+- Power LED is ?
+
+```
+"clexiGpioInterface": {
+	"buttons": [{
+		"id": "hw-mic-button",
+		"pin": 27
+	}],
+	"leds": [{
+		"id": "state-led-1",
+		"pin": 23,
+		"state": "wakeWordActive"
+	},{
+		"id": "state-led-2",
+		"pin": 24,
+		"state": "listening"
+	}],
+	"items": [{}]
+}
+```
+
 ### Seeedstudio Respeaker 2mic Example
 
 - Button pin is 17
@@ -115,7 +177,9 @@ For USB devices check the individual comments on how to set vendor/product speci
 			"awaitDialog": [{"ledIndex": 1, "red": 100, "green": 100, "blue": 0}],
 			"loading": [{"ledIndex": 1, "red": 10, "green": 10, "blue": 10}],
 			"wakeWordActive": [{"ledIndex": 2, "red": 5, "green": 0, "blue": 5}],
-			"wakeWordInactive": [{"ledIndex": 2, "red": 0, "green": 0, "blue": 0}]
+			"wakeWordInactive": [{"ledIndex": 2, "red": 0, "green": 0, "blue": 0}],
+			"eventEffectsOn": [],
+			"eventEffectsOff": []
 		}
 	}]
 }
@@ -163,9 +227,28 @@ For USB devices check the individual comments on how to set vendor/product speci
 			"wakeWordInactive": [
 				{"ledIndex": 4, "red": 0, "green": 0, "blue": 0},
 				{"ledIndex": 10, "red": 0, "green": 0, "blue": 0}
-			]
+			],
+			"eventEffectsOn": [],
+			"eventEffectsOff": []
 		}
 	}]
+}
+```
+
+### Seeedstudio Respeaker 4mic Array Example
+
+- No button
+- 1 LED powered by pin 5
+
+```
+"clexiGpioInterface": {
+	"buttons": [{}],
+	"leds": [{
+			"id": "state-led-1",
+			"pin": 5,
+			"state": "listening"
+	}],
+	"items": [{}]
 }
 ```
 
@@ -225,7 +308,9 @@ For USB devices check the individual comments on how to set vendor/product speci
 			"wakeWordInactive": [
 				{"ledIndex": 6, "red": 0, "green": 0, "blue": 0},
 				{"ledIndex": 12, "red": 0, "green": 0, "blue": 0}
-			]
+			],
+			"eventEffectsOn": [],
+			"eventEffectsOff": []
 		}
 	}]
 }
@@ -257,8 +342,30 @@ Settings:
 			"awaitDialog": [{"state": "awaitDialog"}],
 			"loading": [{"state": "loading"}],
 			"wakeWordActive": [{"state": "wakeWordActive"}],
-			"wakeWordInactive": [{"state": "wakeWordInactive"}]
+			"wakeWordInactive": [{"state": "wakeWordInactive"}],
+			"eventEffectsOn": [],
+			"eventEffectsOff": []
 		}
 	}]
+}
+```
+
+### Raspiaudio Mic+
+
+- Button pin is 23
+- LED is pin 25
+
+```
+"clexiGpioInterface": {
+	"buttons": [{
+		"id": "hw-mic-button",
+		"pin": 23
+	}],
+	"leds": [{
+		"id": "state-led-1",
+		"pin": 25,
+		"state": "listening"
+	}],
+	"items": [{}]
 }
 ```

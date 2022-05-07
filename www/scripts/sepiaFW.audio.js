@@ -5,6 +5,16 @@ function sepiaFW_build_audio(){
 	var TTS = {};			//TTS parameters for SepiaFW external TTS like Acapela. I've tried to seperate TTS and AudioPlayer as good as possible, but there might be some bugs using both
 	var Alarm = {};
 
+	//Global volume (0.0 - 10.0)
+	AudioPlayer.storeGlobalMediaPlayerVolume = function(setVol){
+		var goodVol = Math.min(10.0, Math.max(0.0, setVol));
+		SepiaFW.data.setPermanent("playerVolume", goodVol);
+		return goodVol;
+	}
+	AudioPlayer.getGlobalMediaPlayerVolume = function(){
+		return Math.min(10.0, Math.max(0.0, (SepiaFW.data.getPermanent("playerVolume") || 7.0)));
+	}
+
 	//Sounds
 	AudioPlayer.micConfirmSound = 'sounds/coin.mp3';	//might change for mobile (see below)
 	AudioPlayer.alarmSound = 'sounds/alarm.mp3'; 		//please NOTE: UI.events is using 'file://sounds/alarm.mp3' for 'cordova.plugins.notification' (is it wokring? Idk)
@@ -265,8 +275,8 @@ function sepiaFW_build_audio(){
 	var lastAudioPlayerEventSource = '';		//Note: this does not include TTS and effects player
 	var mainAudioIsOnHold = false;
 	var mainAudioStopRequested = false;
-	var orgVolume = 1.0;
-	var FADE_OUT_VOL = 0.05; 	//note: on some devices audio is actually stopped so this value does not apply
+	var orgVolume = AudioPlayer.getGlobalMediaPlayerVolume() / 10.0;
+	var FADE_OUT_VOL = 0.03; 	//note: on some devices audio is actually stopped so this value does not apply
 
 	//MediaSession Interface
 	if (isMediaSessionSupported){
@@ -429,8 +439,9 @@ function sepiaFW_build_audio(){
 				action: "down"
 			});
 		});
-		audioVol = document.getElementById('sepiaFW-audio-ctrls-vol');
-		if (audioVol) audioVol.textContent = Math.round(player.volume*10.0);
+		//set stored volume
+		player.volume = orgVolume;
+		AudioPlayer.setPlayerVolumeIndicator(Math.round(player.volume*10.0), false);
 		
 		//player remote
 		$("#sepiaFW-audio-ctrls-broadcast").off().on("click", function(){
@@ -656,7 +667,6 @@ function sepiaFW_build_audio(){
 				SepiaFW.debug.info('AUDIO: instant fadeOutMain');
 				player.pause(); 		//<-- try without broadcasting, is it save?
 			}
-			//orgVolume = (player.volume < orgVolume)? orgVolume : player.volume;
 			SepiaFW.debug.info('AUDIO: fadeOutMain orgVol=' + orgVolume);
 			$(player).stop(); 	//note: this is an animation stop
 			$(player).animate({volume: FADE_OUT_VOL}, 300);
@@ -752,7 +762,8 @@ function sepiaFW_build_audio(){
 		var setVol = getValidVolume(newVol)/10.0;
 		player.volume = setVol;
 		orgVolume = setVol;
-		$('#sepiaFW-audio-ctrls-vol').text(Math.floor(setVol*10.0));
+		AudioPlayer.storeGlobalMediaPlayerVolume
+		AudioPlayer.setPlayerVolumeIndicator(Math.floor(setVol*10.0), true);
 		SepiaFW.debug.info('AUDIO: volume set (and stored) to ' + setVol);
 		broadcastPlayerVolumeSet();
 	}
@@ -762,13 +773,10 @@ function sepiaFW_build_audio(){
 		SepiaFW.debug.info('AUDIO: volume set temporary (till next fadeIn) to ' + setVol);
 	}
 	function getValidVolume(volumeIn){
-		var vol = 0.5;
-		if (volumeIn > 10.0) vol = 10.0;
-		else if (volumeIn < 0.0) vol = 0.0;
-		else vol = volumeIn;
-		return vol;
+		if (volumeIn > 10.0) volumeIn = 10.0;
+		else if (volumeIn < 0.0) volumeIn = 0.0;
+		return volumeIn;
 	}
-	AudioPlayer.playerSetVolume = playerSetVolume;
 	AudioPlayer.playerSetVolumeTemporary = playerSetVolumeTemporary;
 	
 	//Set volume safely by checking if its currently faded and set either org. volume only or current AND org.
@@ -776,7 +784,7 @@ function sepiaFW_build_audio(){
 		if (mainAudioIsOnHold || (SepiaFW.speech.isSpeakingOrListening())){
 			var setVol = getValidVolume(newVol)/10.0;
 			orgVolume = setVol;
-			$('#sepiaFW-audio-ctrls-vol').text(Math.floor(setVol*10.0));
+			AudioPlayer.setPlayerVolumeIndicator(Math.floor(setVol*10.0), true);
 			SepiaFW.debug.info('AUDIO: unfaded volume set to ' + setVol);
 			broadcastPlayerVolumeSet();
 		}else{
@@ -825,6 +833,13 @@ function sepiaFW_build_audio(){
 		}
 		if (audioTitle) audioTitle.textContent = newTitle || "SEPIA Audio Player";
 	}
+	//set volume indicator of player - NOTE: use 0-10 (or '?'), not limited to "stream" player, only visual indicator!
+	AudioPlayer.setPlayerVolumeIndicator = function(vol, remember){
+		$('#sepiaFW-audio-ctrls-vol').text(vol);
+		if (remember){
+			AudioPlayer.storeGlobalMediaPlayerVolume(vol);
+		}
+	}
 
 	//get the stream last played
 	AudioPlayer.getLastAudioStream = function(){
@@ -858,6 +873,7 @@ function sepiaFW_build_audio(){
 		}
 		var sourceName = "unknown";
 		var audioOnEndFired = false;			//prevent doublefireing of audio onend onpause
+		var audioOnErrorFired = false;			//prevent doublefireing of audio onerror
 
 		if (audioURL) audioURL = SepiaFW.config.replacePathTagWithActualPath(audioURL);
 
@@ -976,37 +992,40 @@ function sepiaFW_build_audio(){
 			}
 		};
 		audioPlayer.onerror = function(error){
-			SepiaFW.debug.info("AUDIO: error occured! - code: " + (audioPlayer.error? audioPlayer.error.code : error.name));			//debug
-			if (audioPlayer.error && audioPlayer.error.code === 4){
-				SepiaFW.ui.showInfo("Cannot play the selected audio stream. Sorry!");		//TODO: localize
-			}else if (error && error.name && error.name == "NotAllowedError"){
-				SepiaFW.ui.showInfo("Cannot play audio because access was denied! This can happen if the user didn't interact with the client first.");
-			}else if (error && error.name){
-				SepiaFW.ui.showInfo("Cannot play audio - Error: " + error.name + " (see console for details).");
+			if (!audioOnErrorFired){
+				audioOnErrorFired = true;
+				SepiaFW.debug.info("AUDIO: error occured! - code: " + (audioPlayer.error? audioPlayer.error.code : error.name));			//debug
+				if (audioPlayer.error && audioPlayer.error.code === 4){
+					SepiaFW.ui.showInfo("Cannot play the selected audio stream. Sorry!");		//TODO: localize
+				}else if (error && error.name && error.name == "NotAllowedError"){
+					SepiaFW.ui.showInfo("Cannot play audio because access was denied! This can happen if the user didn't interact with the client first.");
+				}else if (error && error.name){
+					SepiaFW.ui.showInfo("Cannot play audio - Error: " + error.name + " (see console for details).");
+				}
+				if (audioPlayer == player){
+					broadcastAudioError();
+					mainAudioIsOnHold = false;
+					mainAudioStopRequested = false;
+					Stream.isPlaying = false;
+					Stream.isLoading = false;
+				}else if (audioPlayer == player2){
+					//TODO: ?
+				}else if (audioPlayer == speaker){
+					TTS.isSpeaking = false;
+					TTS.isLoading = false;
+				}
+				//callback
+				if (onErrorCallback) onErrorCallback();
+				var sourceName = "unknown";
+				if (audioPlayer == player){
+					sourceName = "stream";
+				}else if (audioPlayer == player2){
+					sourceName = "effects";
+				}else if (audioPlayer == speaker){
+					sourceName = "tts-player";
+				}
+				AudioPlayer.broadcastAudioEvent(sourceName, "error", audioPlayer);
 			}
-			if (audioPlayer == player){
-				broadcastAudioError();
-				mainAudioIsOnHold = false;
-				mainAudioStopRequested = false;
-				Stream.isPlaying = false;
-				Stream.isLoading = false;
-			}else if (audioPlayer == player2){
-				//TODO: ?
-			}else if (audioPlayer == speaker){
-				TTS.isSpeaking = false;
-				TTS.isLoading = false;
-			}
-			//callback
-			if (onErrorCallback) onErrorCallback();
-			var sourceName = "unknown";
-			if (audioPlayer == player){
-				sourceName = "stream";
-			}else if (audioPlayer == player2){
-				sourceName = "effects";
-			}else if (audioPlayer == speaker){
-				sourceName = "tts-player";
-			}
-			AudioPlayer.broadcastAudioEvent(sourceName, "error", audioPlayer);
 		};
 		var p = audioPlayer.play();	
 		if (p && ('catch' in p)){
@@ -1022,6 +1041,8 @@ function sepiaFW_build_audio(){
 		if (skippedN == undefined) skippedN = 0;
 
 		var audioPlayer = player2;
+		var audioOnErrorFired = false;			//prevent doublefireing of audio onerror
+		
 		var alarmSound = AudioPlayer.alarmSound;
 		//var emptySound = "sounds/empty.mp3";
 		/*
@@ -1117,23 +1138,26 @@ function sepiaFW_build_audio(){
 			}
 		};
 		audioPlayer.onerror = function(error){
-			SepiaFW.debug.info("AUDIO: error occured! - code: " + (audioPlayer.error? audioPlayer.error.code : error.name));			//debug
-			if (error && error.name && error.name == "NotAllowedError"){
-				SepiaFW.ui.showInfo("Cannot play audio because access was denied! This can happen if the user didn't interact with the client first.");
-			}else if (error && error.name){
-				SepiaFW.ui.showInfo("Cannot play audio - Error: " + error.name + " (see console for details).");
+			if (!audioOnErrorFired){
+				audioOnErrorFired = true;
+				SepiaFW.debug.info("AUDIO: error occured! - code: " + (audioPlayer.error? audioPlayer.error.code : error.name));			//debug
+				if (error && error.name && error.name == "NotAllowedError"){
+					SepiaFW.ui.showInfo("Cannot play audio because access was denied! This can happen if the user didn't interact with the client first.");
+				}else if (error && error.name){
+					SepiaFW.ui.showInfo("Cannot play audio - Error: " + error.name + " (see console for details).");
+				}
+				Alarm.isPlaying = false;
+				Alarm.isLoading = false;
+				//reset audio URL
+				/*
+				audioPlayer.preload = 'none';
+				audioPlayer.src = emptySound;
+				*/
+				//callback
+				if (onErrorCallback) onErrorCallback();
+				AudioPlayer.broadcastAudioEvent("effects", "error", audioPlayer);
+				SepiaFW.animate.assistant.idle();
 			}
-			Alarm.isPlaying = false;
-			Alarm.isLoading = false;
-			//reset audio URL
-			/*
-			audioPlayer.preload = 'none';
-			audioPlayer.src = emptySound;
-			*/
-			//callback
-			if (onErrorCallback) onErrorCallback();
-			AudioPlayer.broadcastAudioEvent("effects", "error", audioPlayer);
-			SepiaFW.animate.assistant.idle();
 		};
 		var p = audioPlayer.play();
 		if (p && ('catch' in p)){
@@ -1162,8 +1186,9 @@ function sepiaFW_build_audio(){
 	//Remote control
 	AudioPlayer.openRemoteControl = function(){
 		var remotePlayer = document.createElement("div");
-		var header = document.createElement("p");
+		var header = document.createElement("h3");
 		header.textContent = "Remote Media Player";
+		header.style.marginBottom = "32px";
 		var previousBtn = document.createElement("button");
 		previousBtn.innerHTML = '<i class="material-icons md-24">skip_previous</i>';
 		var pauseBtn = document.createElement("button");
@@ -1172,6 +1197,22 @@ function sepiaFW_build_audio(){
 		playBtn.innerHTML = '<i class="material-icons md-24">play_arrow</i>';
 		var nextBtn = document.createElement("button");
 		nextBtn.innerHTML = '<i class="material-icons md-24">skip_next</i>';
+		//volume box + slider
+		var volBox = document.createElement("div");
+		volBox.style.cssText = "display: flex; justify-content: center; align-items: center; margin: 8px";
+		var volValueLabel = document.createElement("label");
+		volValueLabel.className = "sepiaFW-slider-indicator-type-1";
+		var volSlider = SepiaFW.ui.build.slider("remote-mp-volume-slider", function(newVol){
+			volValueLabel.textContent = newVol;
+		}, undefined, SepiaFW.audio.getGlobalMediaPlayerVolume(), [0, 10], 1);
+		volSlider.style.cssText = "flex: 0 1 198px;"
+		volValueLabel.textContent = volSlider.getValue();
+		var setVolBtn = document.createElement("button");
+		setVolBtn.innerHTML = '<i class="material-icons md-24">volume_up</i>';	//equalizer
+		volBox.appendChild(volValueLabel);
+		volBox.appendChild(volSlider);
+		volBox.appendChild(setVolBtn);
+		//button fun
 		$(previousBtn).on("click", function(){
 			sendRemotePlayerAction({type: "control", controlAction: "previous"});
 		});
@@ -1184,11 +1225,16 @@ function sepiaFW_build_audio(){
 		$(nextBtn).on("click", function(){
 			sendRemotePlayerAction({type: "control", controlAction: "next"});
 		});
+		$(setVolBtn).on("click", function(){
+			var newVol = volSlider.getValue();
+			sendRemotePlayerAction({type: "volume", volumeAction: ("volume;;" + newVol)});
+		});
 		remotePlayer.appendChild(header);
 		remotePlayer.appendChild(previousBtn);
 		remotePlayer.appendChild(pauseBtn);
 		remotePlayer.appendChild(playBtn);
 		remotePlayer.appendChild(nextBtn);
+		remotePlayer.appendChild(volBox);
 		SepiaFW.ui.showPopup(remotePlayer, {buttonOneName: SepiaFW.local.g("abort"), buttonOneAction: function(){}});
 	}
 	function sendRemotePlayerAction(action){

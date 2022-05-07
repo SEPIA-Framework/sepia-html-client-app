@@ -7,7 +7,7 @@ function sepiaFW_build_account(sepiaSessionId){
 	var userTokenValidUntil = 0;
 	var userName = "Boss";
 	var language = SepiaFW.config.appLanguage;
-	//TODO: add 'regionCode'?
+	//TODO: add 'regionCode'?	currently an app-settings property: SepiaFW.config.appRegionCode
 	var clientFirstVisit = true;
 
 	var userRoles = undefined;
@@ -359,29 +359,23 @@ function sepiaFW_build_account(sepiaSessionId){
 	}
 	
 	//Store and load app settings from account
-	Account.saveAppSettings = function(){
+	Account.encryptAndSaveAppSettings = function(){
 		var deviceId = SepiaFW.config.getDeviceId();
 		var appData = SepiaFW.data.getAll();
 		delete appData["account"];
-		SepiaFW.ui.showPopup("Please define a security PIN", {
-			inputLabelOne: "PIN",
+		SepiaFW.ui.showPopup("This will store your custom settings for this device (ID) on the server.<br><br>"
+				+ "Please define a security key or PIN to encrypt the data.", {
+			inputLabelOne: "Key or PIN",
 			buttonOneName: "OK",
 			buttonOneAction: function(btn, pwd){
 				if (pwd){
 					var encryptedData = SepiaFW.tools.encryptBasic(pwd, appData);
 					if (encryptedData){
-						var data = {};
-						data[deviceId] = encryptedData;
-						var infos = {};		//Account.INFOS
-						infos[Account.APP_SETTINGS] = data;
-						Account.saveAccountData({
-							infos: infos
-						}, function(){
+						saveAppSettings(deviceId, encryptedData, function(){
 							SepiaFW.ui.showPopup('Successfully stored app settings.');
 						}, function(msg){
 							SepiaFW.ui.showPopup('Error while trying to store app settings: ' + msg);
 						});
-						//console.log(data);
 					}
 				}
 			},
@@ -389,16 +383,15 @@ function sepiaFW_build_account(sepiaSessionId){
 			buttonTwoAction: function(btn, input1){}
 		});
 	}
-	Account.loadAppSettings = function(){
+	Account.loadAndDecryptAppSettings = function(){
 		var deviceId = SepiaFW.config.getDeviceId();
-		SepiaFW.ui.showPopup("Please enter the security PIN", {
-			inputLabelOne: "PIN",
+		SepiaFW.ui.showPopup("This will load your custom settings for this device (ID) from the server.<br><br>"
+				+ "Please enter the security key or PIN to decrypt the data.", {
+			inputLabelOne: "Key or PIN",
 			buttonOneName: "OK",
 			buttonOneAction: function(btn, pwd){
 				if (pwd){
-					var appSettingsPath = Account.INFOS + "." + Account.APP_SETTINGS + "." + deviceId;
-					Account.loadAccountData([appSettingsPath], function(data){
-						var res = data[appSettingsPath];
+					loadAppSettings(deviceId, function(res){
 						if (res){
 							//Success
 							var decryptedData = SepiaFW.tools.decryptBasic(pwd, res);
@@ -412,20 +405,45 @@ function sepiaFW_build_account(sepiaSessionId){
 								SepiaFW.ui.showPopup('Successfully loaded app settings. Please reload interface to see effects.');
 							}else{
 								//Error
-								SepiaFW.ui.showPopup("Sorry, could not load app settings, wrong PIN or corrupted data!");
+								SepiaFW.ui.showPopup("Sorry, could not load app settings, wrong key/PIN or corrupted data!");
 							}
 						}else{
 							//Error
 							SepiaFW.ui.showPopup("Sorry, could not load app settings, there seems to be no data or data was not accessible!");
 						}
-					}, function(e){
+					}, function(err){
 						//Error
-						SepiaFW.ui.showPopup("Sorry, could not load app settings! Error: " + e);
+						SepiaFW.ui.showPopup("Sorry, could not load app settings! Error: " + err);
 					});
 				}
 			},
 			buttonTwoName: "ABORT",
 			buttonTwoAction: function(btn, input1){}
+		});
+	}
+	function saveAppSettings(deviceIdOrNull, settingsData, successCallback, errorCallback){
+		if (!deviceIdOrNull) deviceIdOrNull = "commonSettings";
+		//Account.INFOS -> Account.APP_SETTINGS -> deviceIdOrNull
+		var data = {}; data[deviceIdOrNull] = settingsData;
+		var infos = {}; infos[Account.APP_SETTINGS] = data;
+		Account.saveAccountData({
+			infos: infos
+		}, function(){
+			if (successCallback) successCallback();
+		}, function(msg){
+			if (errorCallback) errorCallback(msg);
+		});
+	}
+	function loadAppSettings(deviceIdOrNull, successCallback, errorCallback){
+		if (!deviceIdOrNull) deviceIdOrNull = "commonSettings";
+		var appSettingsPath = Account.INFOS + "." + Account.APP_SETTINGS + "." + deviceIdOrNull;
+		Account.loadAccountData([appSettingsPath], function(data){
+			//Success
+			var res = data[appSettingsPath];
+			if (successCallback) successCallback(res);
+		}, function(e){
+			//Error
+			if (errorCallback) errorCallback(e);
 		});
 	}
 
@@ -708,14 +726,14 @@ function sepiaFW_build_account(sepiaSessionId){
 		//id placeholder
 		var idInput = document.getElementById("sepiaFW-login-id");
 		idInput.placeholder = SepiaFW.local.g('username');
-		$(idInput).off().on("keypress", function(e){
-			if (e.keyCode === 13) { sendLoginFromBox(); }
+		$(idInput).off().on("keydown", function(e){
+			if (e.key == "Enter") { pwdInput.focus(); }
 		});
 		//keypress on pwd
 		var pwdInput = document.getElementById("sepiaFW-login-pwd");
 		pwdInput.placeholder = SepiaFW.local.g('password');
-		$(pwdInput).off().on("keypress", function (e) {
-			if (e.keyCode === 13) { sendLoginFromBox(); }
+		$(pwdInput).off().on("keydown", function (e) {
+			if (e.key == "Enter") { sendLoginFromBox(); }
 		});
 		//create-account-button
 		var $createAccBtn = $('#sepiaFW-login-create').off().on("click", function(){
@@ -735,10 +753,8 @@ function sepiaFW_build_account(sepiaSessionId){
 		//hostname input field
 		var $hostInput = $("#sepiaFW-login-host-name");
 		$hostInput.val(SepiaFW.config.host);
-		$hostInput.off().on("change", function(){
-			var newHost = this.value;
-			this.blur();
-			SepiaFW.config.setHostName(newHost);
+		SepiaFW.ui.onKeyboardInput($hostInput.get(0), undefined, function(ele){
+			SepiaFW.config.setHostName($hostInput.val());
 			setTimeout(function(){
 				Account.toggleLoginBox();
 			}, 450);

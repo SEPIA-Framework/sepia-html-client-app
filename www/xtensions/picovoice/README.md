@@ -22,15 +22,23 @@ SepiaFW.wakeTriggers.porcupineWakeWords = ["Raspberry"];
 This will automaticall load the file: `audio-modules/picovoice/porcupine-keywords/raspberry_wasm_15.js`.  
 Since SEPIA client v0.24.0 the Porcupine integration is handled by the [SEPIA Web Audio Processor](https://github.com/SEPIA-Framework/sepia-web-audio) (see folder: 'audio-modules').  
   
-The library for Porcupine engine v1.4 is included in the client by default since this is the version "Hey SEPIA" was created for. v1.5, v1.6, v1.9, v2.0_en and v2.0_de are available via the SEPIA server or SEPIA's GitHub repository.
+The library for Porcupine engine v1.4 is included in the client by default since this is the version "Hey SEPIA" was created for. v1.5, v1.6, v1.9, v2+ are available via the SEPIA server or SEPIA's GitHub repository.
 You can use the `download_wasm.sh` or `download_wasm.bat` file to download them directly to your folder, by default they will be loaded to browser cache at first start of the Porcupine engine.  
 After you've downloaded the files set `SepiaFW.wakeTriggers.porcupineVersionsDownloaded = true;` in your `wakeWords.js`.
 
 ### Adding a custom wake-word
 
-- Put your own wake-word file inside the following SEPIA-Home server folder: `SEPIA\sepia-assist-server\Xtensions\WebContent\files\wake-words\porcupine\2.0_en\keywords` (change '2.0_en' as required).
-- Use the tag 'Server: ...' as wake-word name to tell the client it has to be loaded from server. The naming convention is `Server: [Key Word]` -> `...\[key_word]_[version_code]_[language_code].js`.
-- Example: `"Server: Hello World"` for v2.0_en will reference `hello_world_20_en.js` inside the folder given above.
+#### Create
+
+First you need to create your custom wake-word. To do so please follow the instructions on: https://sepia-framework.github.io/files/porcupine/convert.html
+
+#### Import
+
+After you've create and downloaded your file follow these steps:
+
+- Put your own wake-word file inside the following SEPIA-Home server folder: `SEPIA\sepia-assist-server\Xtensions\WebContent\files\wake-words\porcupine\2.1_en\keywords` (change '2.1_en' as required).
+- Use the tag 'Server: ...' as wake-word name to tell the client it has to be loaded from server. The naming convention is `Server: [Key Word]` -> `...\[key_word]_wasm_[version_code]_[language_code].js`.
+- Example: `"Server: Hello World"` for v2.1_en will reference `hello_world_wasm_21_en.js` inside the folder given above.
 - Note: Replace all spaces of the name with '_' for the file and convert everything to lower-case ("Hello World" -> "hello_world"), the version code is version without '.', add language code only for v2.0 (and newer).
 - Please supply an [access key](https://console.picovoice.ai/access_key) for Porcupine if you want to use v2.0 (or newer) with custom wake-words.
 
@@ -73,11 +81,9 @@ Porcupine
 Bumblebee  
 Grasshopper  
 
-#### v2.0_en (requires Porcupine access key)
+#### v2+ (requires Porcupine access key)
 
 Hey SEPIA  
-Computer  
-Jarvis  
 ...custom wake-words  
 
 #### More

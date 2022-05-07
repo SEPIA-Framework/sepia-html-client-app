@@ -1,0 +1,80 @@
+#sepiaFW-virtual-keyboard-box {
+	position: fixed;
+	left: 0px;
+	bottom: -250px;
+	min-height: 50px;
+	width: 100%;
+	background: #222;
+	color: #e9e9e9;
+	border-radius: 3px 3px 0 0;
+	transition: bottom .5s;
+	display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+	z-index: 90;	/*note: pop-up is 89 */
+}
+#sepiaFW-virtual-keyboard-toolbar {
+	min-height: 42px;
+	width: 100%;
+	background: #202020;
+    color: #e9e9e9;
+    border-radius: 3px;
+	padding: 5px;
+	display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+#sepiaFW-virtual-keyboard-toolbar .vk-toolbar-input-box {
+	flex: 1 1 auto;
+	overflow-x: auto;
+    text-align: center;
+	-ms-overflow-style: none;
+	scrollbar-width: none;
+}
+#sepiaFW-virtual-keyboard-toolbar .vk-toolbar-input-box::-webkit-scrollbar {
+	display: none;
+}
+#sepiaFW-virtual-keyboard-toolbar .vk-input-preview {
+    background: transparent;
+	color: currentColor;
+    border: 0px solid;
+    border-radius: 3px;
+	margin: 0;
+	padding: 5px;
+}
+#sepiaFW-virtual-keyboard-toolbar .vk-toolbar-btn-box {
+	flex: 0 0 auto;
+	display: flex;
+    justify-content: center;
+    align-items: center;
+	min-width: 36px;
+    min-height: 36px;
+}
+#sepiaFW-virtual-keyboard-toolbar button {
+	background: transparent;
+	color: inherit;
+    border: 0;
+	cursor: pointer;
+}
+
+/* Themes */
+
+.simple-keyboard.hg-theme-default {
+	background-color: #ececec;
+    color: #000;
+}
+.simple-keyboard.hg-layout-mobile,
+.simple-keyboard.hg-layout-mobileshift {
+	max-width: 1024px;
+}
+.simple-keyboard.hg-layout-special1,
+.simple-keyboard.hg-layout-special2 {
+	max-width: 1024px;
+}
+.simple-keyboard.hg-layout-numbers {
+	max-width: 480px;
+}
+.simple-keyboard .hg-greedy {
+	flex-grow: 15;
+}

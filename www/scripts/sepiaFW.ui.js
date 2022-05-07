@@ -3,7 +3,7 @@ function sepiaFW_build_ui(){
 	var UI = {};
 	
 	//some constants
-	UI.version = "v0.24.1";
+	UI.version = "v0.24.2";
 	UI.requiresServerVersion = "2.6.0";
 	UI.JQ_RES_VIEW_IDS = "#sepiaFW-result-view, #sepiaFW-chat-output, #sepiaFW-my-view";	//a selector to get all result views e.g. $(UI.JQ_RES_VIEW_IDS).find(...) - TODO: same as $('.sepiaFW-results-container') ??
 	UI.JQ_ALL_MAIN_VIEWS = "#sepiaFW-result-view, #sepiaFW-chat-output, #sepiaFW-my-view, #sepiaFW-teachUI-editor, #sepiaFW-teachUI-manager, #sepiaFW-frame-page-0, #sepiaFW-frame-page-1, #sepiaFW-frame-page-2, #sepiaFW-frame-page-3"; 	//TODO: frames can have more ...
@@ -67,10 +67,12 @@ function sepiaFW_build_ui(){
 	UI.windowExpectedSize = window.innerHeight;
 	window.addEventListener('orientationchange', function(){
 		//document.getElementById('sepiaFW-chat-output').innerHTML += ('<br>orientationchange, new size: ' + window.innerHeight);
-		$('input').blur();
+		if (document.activeElement && typeof document.activeElement.blur == "function"){
+			document.activeElement.blur();
+		}
 		setTimeout(function(){
 			UI.windowExpectedSize = window.innerHeight;
-		},100);
+		}, 100);
 	});
 	window.addEventListener('resize', function(){
 		orientationAndBasicWindowSizeCheck();
@@ -104,18 +106,46 @@ function sepiaFW_build_ui(){
 					}
 				}
 				*/
-			},100);
+			}, 100);
 		}
 	}
 
-	//Listen to change of active element (Note: not very reliable)
+	//Focus events (e.g. for virtual keyboards)
+	UI.listenGloballyToFocusEvents = function(){
+		//TODO: what about iframes
+		if (!listenToAllFocusEvents){
+			document.body.addEventListener('focusin', function(ev){
+				//console.error("focusin", ev.target);	//DEBUG
+				if (broadcastActiveElement){
+					dispatchActiveElementChangeEvent();
+				}
+				if (SepiaFW.ui.virtualKeyboard.isEnabled()){
+					if (ev.target && (ev.target.tagName == "INPUT" || ev.target.tagName == "TEXTAREA" || 
+							(ev.target.contentEditable && ev.target.contentEditable == "true"))){	//NOTE: there is 'plaintext-only' and 'inherit' as well
+						SepiaFW.ui.virtualKeyboard.onInputFocus(ev.target);
+					}
+				}
+			});
+			document.body.addEventListener('focusout', function(ev){
+				//console.error("focusout", ev.target);	//DEBUG
+				if (broadcastActiveElement){
+					dispatchActiveElementChangeEvent();
+				}
+				if (SepiaFW.ui.virtualKeyboard.isEnabled() && SepiaFW.ui.virtualKeyboard.isOpen()){
+					SepiaFW.ui.virtualKeyboard.onInputBlur();
+				}
+			});
+			listenToAllFocusEvents = true;
+		}
+	}
+	var listenToAllFocusEvents = false;
+
+	//Listen to change of active element
 	UI.listenToActiveElementChange = function(){
-		window.addEventListener('focus', function(e){
-			dispatchActiveElementChangeEvent();
-		}, true);
-		window.addEventListener('blur', function(e){
-			dispatchActiveElementChangeEvent();
-		}, true);
+		broadcastActiveElement = true;
+		if (!listenToAllFocusEvents){
+			UI.listenGloballyToFocusEvents();
+		}
 	}
 	function dispatchActiveElementChangeEvent(){
 		clearTimeout(activeElementChangeBuffer);
@@ -128,10 +158,11 @@ function sepiaFW_build_ui(){
 					tagName: document.activeElement.tagName
 				}});
 				document.dispatchEvent(event);
-				//console.error("new active ele.: " + (document.activeElement.id || document.activeElement.className || document.activeElement.tagName));
+				//console.error("new active ele.:", document.activeElement.id, document.activeElement.className, document.activeElement.tagName);
 			}
 		}, 100);
 	}
+	var broadcastActiveElement = false;
 	var activeElementChangeBuffer = undefined;
 
 	//Open a view or frame by key (e.g. for URL parameter 'view=xy')
@@ -170,12 +201,21 @@ function sepiaFW_build_ui(){
 	UI.navBarColor = '';
 	UI.statusBarColor = '';
 
-	UI.useBigScreenMode = SepiaFW.data.getPermanent('big-screen-mode') || false;
-	if (UI.useBigScreenMode){
-		$(window.document.body).addClass("big-screen");
-	}else{
-		$(window.document.body).addClass("limit-size");
+	UI.setBigScreenMode = function(enable, triggerResize){
+		if (enable){
+			UI.useBigScreenMode = true;
+			$(window.document.body).addClass("big-screen");
+			$(document.documentElement).addClass("no-size-limit");
+			$(window.document.body).removeClass("limit-size");
+		}else{
+			UI.useBigScreenMode = false;
+			$(window.document.body).addClass("limit-size");
+			$(window.document.body).removeClass("big-screen");
+			$(document.documentElement).removeClass("no-size-limit");
+		}
+		if (triggerResize) $(window).trigger('resize');
 	}
+	UI.setBigScreenMode(SepiaFW.data.getPermanent('big-screen-mode') || UI.isCordova, false);
 	UI.useTouchBarControls = SepiaFW.data.getPermanent('touch-bar-controls') || false;
 	UI.hideSideSwipeForTouchBarControls = true;
 		
@@ -782,7 +822,7 @@ function sepiaFW_build_ui(){
 		//---------------------- LOAD other SETTINGS before building the UI:
 
 		//load skin and avatar
-		var lastSkin = SepiaFW.data.get('activeSkin');
+		var lastSkin = SepiaFW.tools.getURLParameter("skinId") || SepiaFW.data.get('activeSkin');
 		if (lastSkin){
 			UI.setSkin(lastSkin, false);
 		}else{
@@ -792,6 +832,18 @@ function sepiaFW_build_ui(){
 			}
 			//get skin colors
 			UI.refreshSkinColors();
+		}
+
+		//virtual keyboard
+		var loadVirtualKeyboard = SepiaFW.tools.getURLParameter("virtualKeyboard") || SepiaFW.data.getPermanent('virtualKeyboard');
+		if (loadVirtualKeyboard && loadVirtualKeyboard !== "false" && SepiaFW.ui.virtualKeyboard){
+			addSetupReadyCondition("load-virtual-keyboard");
+			SepiaFW.ui.virtualKeyboard.setup(function(isEnabled){
+				if (isEnabled){
+					SepiaFW.debug.info("Virtual keyboard is enabled.");
+				}
+				finishSetupConditionAndCheckReadyState("load-virtual-keyboard");
+			});
 		}
 		
 		//module specific settings
@@ -1232,7 +1284,7 @@ function sepiaFW_build_ui(){
 			lastDomEventTS = new Date().getTime();
 		}
 		//DOM Events
-		document.addEventListener("keypress", resetTimer);
+		document.addEventListener("keydown", resetTimer);
 		document.addEventListener("mousemove", resetTimer);
 		document.addEventListener("mousedown", resetTimer);		// touchscreen presses
 		document.addEventListener("click", resetTimer);			// touchpad clicks
@@ -1431,6 +1483,7 @@ function sepiaFW_build_ui(){
 		//open
 		$('#sepiaFW-cover-layer').stop().fadeIn(200);
 		//$('#sepiaFW-popup-message').fadeIn(300);
+		return;		//TODO: nothing to return yet
 	}
 	UI.hidePopup = function(){
 		//$('#sepiaFW-popup-message').fadeOut(300);
@@ -1469,7 +1522,7 @@ function sepiaFW_build_ui(){
 			unsafeContent.textContent = unsafeString;
 			content.appendChild(unsafeContent);
 		}
-		SepiaFW.ui.showPopup(content);
+		return UI.showPopup(content);
 	}
 
 	//Create basic input popup
@@ -1515,7 +1568,7 @@ function sepiaFW_build_ui(){
         var content = document.createElement("div");
         content.appendChild(text);
         content.appendChild(selector);
-        return SepiaFW.ui.showPopup(content, config);
+        return UI.showPopup(content, config);
     }
 
 	//Use pop-up to ask for permission
@@ -1530,7 +1583,7 @@ function sepiaFW_build_ui(){
 		}else{
 			content = SepiaFW.local.g('allowedToExecuteThisCommand') + "<br>" + question;
 		}
-		UI.showPopup(content, {
+		return UI.showPopup(content, {
 			buttonOneName: SepiaFW.local.g('looksGood'),
 			buttonOneAction: function(){
 				//yes
@@ -1562,7 +1615,50 @@ function sepiaFW_build_ui(){
 				if (alternativeCallback) alternativeCallback();
 			}
 		}
-		UI.showPopup(question, config);
+		return UI.showPopup(question, config);
+	}
+
+	//Show pop-up to import single file (via drag n drop or input) and show content
+	UI.showFileImportAndViewPopup = function(infoTextOrEle, options, readCallback, confirmCallback, errorCallback){
+		if (!options) options = {};
+		var content = document.createElement("div");
+		content.style.cssText = "width: 100%;";
+		if (typeof infoTextOrEle == "string"){
+			var info = document.createElement("p");
+			info.textContent = infoTextOrEle;
+			content.appendChild(info);
+		}else{
+			content.appendChild(infoTextOrEle);
+		}
+		if (options.addFileSelect){
+			var fileInputEle = SepiaFW.files.createFileInputElement(options.accept, function(readRes){
+				if (readCallback) readCallback(readRes, txtArea);
+			}, function(err){
+				if (errorCallback) errorCallback(err, txtArea);
+				else txtArea.value = "- ERROR -";
+			}, false);
+			content.appendChild(fileInputEle);
+		}
+		var txtArea = document.createElement("textarea");
+		txtArea.style.cssText = "width: 100%; height: 150px; white-space: pre; border: 1px solid;";
+		txtArea.value = options.initialPreviewValue || "- Import data -";
+		content.appendChild(txtArea);
+		var pop = UI.showPopup(content, {
+			buttonOneName: options.buttonOneName || "Import",
+			buttonOneAction: function(){
+				if (confirmCallback) confirmCallback(txtArea.value);
+			},
+			buttonTwoName: options.buttonTwoName || "Abort",
+			buttonTwoAction: function(){}
+		});
+		//make drop-zone
+		SepiaFW.files.makeDropZone(content, function(readRes){
+			if (readCallback) readCallback(readRes, txtArea);
+		}, function(err){
+			if (errorCallback) errorCallback(err, txtArea);
+			else txtArea.value = "- ERROR -";
+		});
+		return pop;
 	}
 
 	//----
@@ -1571,6 +1667,32 @@ function sepiaFW_build_ui(){
 	UI.elementSupportsCustomTriggers = function(ele){
 		var eventsListeners = $._data(ele, "events");
 		return (eventsListeners && !!eventsListeners['sepiaFW-events']);
+	}
+
+	//Input listener with ENTER key support and 'focusout' as "change" event - works with virtual keyboard
+	UI.onKeyboardInput = function(eleOrSelector, onEnterKeyCallback, onChange){
+		var $ele = $(eleOrSelector);
+		var valueOnFocusIn;
+		$ele.on("keyup", function(ev){
+			if (ev.key == "Enter"){
+				var doBlur = (onEnterKeyCallback == undefined)? true : onEnterKeyCallback(this);
+				if (doBlur){
+					this.blur();	//if you 'return false;' in callback this is skipped
+				}
+				//TODO: else trigger onChange?
+			}
+		}).on("focusin", function(ev){
+			valueOnFocusIn = (this.value == undefined)? this.textContent : this.value;
+		//}).on("change", function(ev){
+		//	console.error("change", this.value, ev);			//DEBUG
+		}).on("focusout", function(ev){
+			if (valueOnFocusIn == undefined) return;
+			var currentVal = (this.value == undefined)? this.textContent : this.value;
+			if (onChange && valueOnFocusIn != currentVal){
+				onChange(this, currentVal);
+			}
+			valueOnFocusIn = undefined;
+		});
 	}
 
 	//Simple double-tap
@@ -1628,7 +1750,7 @@ function sepiaFW_build_ui(){
 			return false;
 		});
 	}
-	//Default on-click method with optional haptik press-feedback
+	//Default on-click method with optional haptic press-feedback
 	UI.useFastTouch = false; 	//reduced delay for e.g. iOS' UIWebView (basically deprecated, not needed anymore since use of WKWebview)
 	UI.onclick = function(ele, callback, animatePress){
 		if (UI.useFastTouch){

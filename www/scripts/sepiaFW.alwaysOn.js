@@ -16,6 +16,7 @@ function sepiaFW_build_always_on(){
     var $activityArea = undefined;
     var $avatarEyelid = undefined;
     var $avatarMouth = undefined;
+    var $infoBox = undefined;
     var $clock = undefined;
     var $notes = undefined;
     var $battery = undefined;
@@ -78,6 +79,7 @@ function sepiaFW_build_always_on(){
         $activityArea = $avatar.find('.avatar-activity');
         $avatarEyelid = $avatar.find(".avatar-eyelid");
         $avatarMouth = $avatar.find(".avatar-mouth");
+        $infoBox = $avatar.find("#sepiaFW-alwaysOn-info-box");
         $clock = $('#sepiaFW-alwaysOn-clock');
         $notes = $('#sepiaFW-alwaysOn-notifications');
         $battery = $('#sepiaFW-alwaysOn-battery');
@@ -477,38 +479,60 @@ function sepiaFW_build_always_on(){
         return (Math.floor(Math.random() * Math.floor(max))) + offset + "px";
     }
 
+    //General show-fade function
+    function showInfoElementAndFade($ele, fadeOutAfterDelay, timerName, keepVisible){
+        checkInfoBoxStyle(1);
+        $ele.stop().addClass("visible").fadeIn(500, function(){
+            if (fadeOutAfterDelay == undefined) fadeOutAfterDelay = INFO_FADE_DELAY;
+            if (fadeTimers[timerName]) clearTimeout(fadeTimers[timerName]);
+            fadeTimers[timerName] = setTimeout(function(){
+                if (!keepVisible){
+                    $ele.fadeOut(3000, function(){
+                        if ($ele.css("display") == "none"){
+                            //NOTE: this can trigger if CSS was overwritten with "important"
+                            $ele.removeClass("visible");
+                            checkInfoBoxStyle(0);
+                        }
+                    });
+                }
+            }, fadeOutAfterDelay);
+        });
+    }
+    var fadeTimers = {
+        clock: undefined,
+        notes: undefined,
+        battery: undefined
+    }
+    function checkInfoBoxStyle(childsOffset){
+        var visibleElements = $infoBox.find(".visible").length + childsOffset;
+        if (visibleElements == 0){
+            $infoBox.removeClass("single-child");
+            $infoBox.addClass("empty");
+        }else if (visibleElements == 1){
+            $infoBox.addClass("single-child");
+            $infoBox.removeClass("empty");
+        }else{
+            $infoBox.removeClass("single-child");
+            $infoBox.removeClass("empty");
+        }
+    }
+
     //Show a clock with local time for a while
     function showLocalTimeAndFade(fadeOutAfterDelay){
         var short = true;
         var timeWithIcon = 
             '<i class="material-icons md-txt">access_time</i>&nbsp;' + SepiaFW.tools.getLocalTime(short);
         $clock.html(timeWithIcon);
-        $clock.stop().fadeIn(500, function(){
-            if (fadeOutAfterDelay == undefined) fadeOutAfterDelay = INFO_FADE_DELAY;
-            if (fadeClockTimer) clearTimeout(fadeClockTimer);
-            fadeClockTimer = setTimeout(function(){
-                $clock.fadeOut(3000);
-            }, fadeOutAfterDelay);
-        });
+        showInfoElementAndFade($clock, fadeOutAfterDelay, "clock", false);
     }
-    var fadeClockTimer;
 
     //Show missed notifications for a while
     function showNotificationsAndFade(fadeOutAfterDelay, keepIfNotZero){
         var missedNotesWithIcon = 
             '<i class="material-icons md-txt">notifications_none</i>&nbsp;' + SepiaFW.ui.getNumberOfMissedMessages();
         $notes.html(missedNotesWithIcon);
-        $notes.stop().fadeIn(500, function(){
-            if (fadeOutAfterDelay == undefined) fadeOutAfterDelay = INFO_FADE_DELAY;
-            if (fadeNotificationsTimer) clearTimeout(fadeNotificationsTimer);
-            fadeNotificationsTimer = setTimeout(function(){
-                if (!keepIfNotZero || SepiaFW.ui.getNumberOfMissedMessages() <= 0){
-                    $notes.fadeOut(3000);
-                }
-            }, fadeOutAfterDelay);
-        });
+        showInfoElementAndFade($notes, fadeOutAfterDelay, "notes", keepIfNotZero && SepiaFW.ui.getNumberOfMissedMessages() > 0);
     }
-    var fadeNotificationsTimer;
 
     //Show battery status for a while
     function showBatteryAndFade(fadeOutAfterDelay){
@@ -528,18 +552,11 @@ function sepiaFW_build_always_on(){
             var batteryWithIcon = 
                 '<i class="material-icons md-txt">' + batteryIcon + '</i>&nbsp;' + AlwaysOn.batteryPercentage;
             $battery.html(batteryWithIcon);
-            $battery.stop().fadeIn(500, function(){
-                if (fadeOutAfterDelay == undefined) fadeOutAfterDelay = INFO_FADE_DELAY;
-                if (fadeBatteryTimer) clearTimeout(fadeBatteryTimer);
-                fadeBatteryTimer = setTimeout(function(){
-                    $battery.fadeOut(3000);
-                }, fadeOutAfterDelay);
-            });
+            showInfoElementAndFade($battery, fadeOutAfterDelay, "battery", AlwaysOn.batteryLevel < 0.2);
         }else{
             $battery.hide();
         }
     }
-    var fadeBatteryTimer;
 
     //---------- Bluetooth LE Beacon support -----------
 
@@ -556,7 +573,7 @@ function sepiaFW_build_always_on(){
     //---------- Battery status API -----------
 
     var battery = undefined;
-    AlwaysOn.trackPowerStatus = false;       //TODO: switchable in settings
+    AlwaysOn.trackPowerStatus = false;       //Note: switchable in settings
 
     AlwaysOn.batteryLevel = undefined;
     AlwaysOn.batteryPercentage = undefined;

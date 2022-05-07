@@ -276,6 +276,35 @@ function sepiaFW_build_teach(sepiaSessionId){
 			$('#sepiaFW-teachUI-show-optionals').on('click', function(){
 				$('#sepiaFW-teach-parameters').find('.optional').fadeToggle(300);
 			});
+			//-IMPORT COMMAND
+			$('#sepiaFW-teachUI-import').on('click', function(){
+				SepiaFW.ui.showFileImportAndViewPopup(
+					"Drag & drop command file here or add data:", {
+						addFileSelect: true,
+						accept: ".json",
+						buttonOneName: "Import",
+						buttonTwoName: "Abort",
+						initialPreviewValue: "- Import data -"
+					}, 
+					function(readRes, viewTxtArea){
+						//read
+						if (readRes){
+							var parsedData = JSON.parse(readRes);
+							viewTxtArea.value = JSON.stringify(parsedData, null, 2);
+						}
+					}, function(viewTxtAreaValue){
+						//confirm and close
+						if (viewTxtAreaValue){
+							var parsedData = JSON.parse(viewTxtAreaValue);
+							loadCommandToEditor(parsedData);
+							Teach.uic.showPane(0);
+						}
+					}, function(err, viewTxtArea){
+						//read error
+						viewTxtArea.value = "- ERROR -";
+					}
+				);
+			});
 			//-SELECT SERVICE
 			$('#sepiaFW-teach-commands').on('change', function(){
 				populateParameterBox(this.value);
@@ -330,8 +359,8 @@ function sepiaFW_build_teach(sepiaSessionId){
 					}, '');
 				}
 			}
-			$cmdSearchInput.keypress(function(event){
-				if (event.key === "Enter"){
+			$cmdSearchInput.keydown(function(event){
+				if (event.key == "Enter"){
 					searchCommands();
 				}
 			});
@@ -661,21 +690,30 @@ function sepiaFW_build_teach(sepiaSessionId){
 				var newCmdCard = makeCmdCard(sentence, id);
 				cmdCardsBox.append(newCmdCard);
 				(function(card){
-					$(card).find('.cmdLabel').on('click', function(){
+					var $card = $(card);
+					$card.find('.cmdDownloadBtn').on('click', function(){
+						//on download click
+						var data = JSON.parse(card.dataset.sentence);
+						var blob = new Blob([card.dataset.sentence], {type: "application/json"});
+						var filename = data.text || "command";
+						filename = filename.toLowerCase().replace(/\s+/g, "-").replace(/(\?|!|,|;|\.)/g, "") + ".json";
+						SepiaFW.files.saveBlobAs(filename, blob, cmdCardsBox[0]);
+					});
+					$card.find('.cmdLabel').on('click', function(){
 						//on label click
 						//console.log('sentence: ' + card.dataset.sentence);
 						loadCommandToEditor(JSON.parse(card.dataset.sentence));
 						Teach.uic.showPane(0);
 					});
-					$(card).find('.cmdRemoveBtn').on('click', function(){
+					$card.find('.cmdRemoveBtn').on('click', function(){
 						//on remove click
 						SepiaFW.animate.flashObj(this);
 						var cmdId = card.dataset.id;
 						Teach.removePersonalCommand(SepiaFW.account.getKey(sepiaSessionId), cmdId, function(){
 							//success
 							//SepiaFW.ui.showPopup('This personal command has been deleted!');
-							$(card).fadeOut(300, function(){
-								$(card).remove();
+							$card.fadeOut(300, function(){
+								$card.remove();
 							});
 						}, function(msg){
 							//error
@@ -689,12 +727,16 @@ function sepiaFW_build_teach(sepiaSessionId){
 	function makeCmdCard(sentence, cmdId){
 		var newCard = document.createElement('DIV');
 		newCard.className = 'sepiaFW-command-card';
-		newCard.innerHTML = "<div class='cmdLabel'>"
-								+ "<span>" + SepiaFW.tools.escapeHtml(sentence.text || sentence.tagged_text) + "</span>"
-							+ "</div>"
-							+ "<div class='cmdRemoveBtn'>"
-								+ "<span>" + "<i class='material-icons md-24'>&#xE15B;</i>" + "</span>"
-							+ "</div>"
+		newCard.innerHTML = ""
+			+ "<div class='cmdCardButton cmdDownloadBtn'>"
+				+ "<span>" + "<i class='material-icons md-24'>download_for_offline</i>" + "</span>"
+			+ "</div>"
+			+ "<div class='cmdLabel'>"
+				+ "<span>" + SepiaFW.tools.escapeHtml(sentence.text || sentence.tagged_text) + "</span>"
+			+ "</div>"
+			+ "<div class='cmdCardButton cmdRemoveBtn'>"
+				+ "<span>" + "<i class='material-icons md-24'>remove</i>" + "</span>"
+			+ "</div>"
 		newCard.dataset.id = cmdId;
 		newCard.dataset.sentence = JSON.stringify(sentence);
 		return newCard;

@@ -29,10 +29,10 @@ SepiaFW.wakeTriggers.porcupineAvailableKeywords = {
     "Dragonfly": "1.5",
     "Francesca": "1.5",
     "Ok Lamp": "1.4",
-    "Hey SEPIA (v2)": "2.0_en",
-    "Computer (v2)": "2.0_en",
-    "Jarvis (v2)": "2.0_en",
-    "Server: Stachelschwein": "2.0_de",
+    "Hey SEPIA (v2)": "2.1_en",
+    "Computer (v2)": "2.1_en",
+    "Jarvis (v2)": "2.1_en",
+    "Server: Stachelschwein": "2.1_de",
 };
 //For Porcupine v2.0+ an access key is required:
 SepiaFW.wakeTriggers.porcupineAccessKey = "";

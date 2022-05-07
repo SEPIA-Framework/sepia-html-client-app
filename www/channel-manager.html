@@ -137,29 +137,12 @@
 	//Define scope
 	SepiaFW.frames.currentScope = {
 
-		//Load data to edit page
-		loadEditData: function(channel){
-			if (channel.owner == SepiaFW.account.getUserId()){
-				$('#sepiaFW-channel-manager-cid-edit').val(channel.id);
-				$('#sepiaFW-channel-manager-cname-edit').val(channel.name);
-			}
-		},
-		clearEditData: function(channel){
-			$('#sepiaFW-channel-manager-cid-edit').val("");
-			$('#sepiaFW-channel-manager-cname-edit').val("");
-		},
-
-		//Open certain pages
-		openInvitePage: function(){
-			SepiaFW.frames.uic.showPane(3);
-		},
-
-		//Load scope (default method)
-		load: function(){
+		//Setup
+		onFinishSetup: function(){
 			//Input handling
-			$('#sepiaFW-channel-manager-cname').off().on("change", function(){
-				if (this.value){
-					this.value = this.value.replace(/[^\w\s#\-\+&\?!\.]/gi,"").replace(/\s+/gi, " ").substring(0, 26);
+			SepiaFW.ui.onKeyboardInput('#sepiaFW-channel-manager-cname', undefined, function(ele){ 
+				if (ele.value){
+					ele.value = ele.value.replace(/[^\w\s#\-\+&\?!\.]/gi,"").replace(/\s+/gi, " ").substring(0, 26);
 				}
 			});
 			
@@ -249,12 +232,12 @@
 			//Edit and Delete channel
 			
 			//reload channel name when ID changes
-			$('#sepiaFW-channel-manager-cid-edit').off().on('change', function(){
+			SepiaFW.ui.onKeyboardInput('#sepiaFW-channel-manager-cid-edit', undefined, function(ele){
 				//reset name
 				$('#sepiaFW-channel-manager-cname-edit').val('');
 				//load channel name
-				if (this.value){
-					var channelData = SepiaFW.client.getChannelDataById(this.value);
+				if (ele.value){
+					var channelData = SepiaFW.client.getChannelDataById(ele.value);
 					if (channelData && channelData.name){
 						$('#sepiaFW-channel-manager-cname-edit').val(channelData.name);
 					}
@@ -380,7 +363,27 @@
 			$("#sepiaFW-channel-manager-edit-btn").off().on("click", function(){
 				SepiaFW.ui.showPopup("Under construction");
 			});
+		},
+
+		//Open/close - NOTE: assigned in SepiaFW.client
+		//onOpen: function(){},
+		//onClose: function(){},
+
+		//Load data to edit page
+		loadEditData: function(channel){
+			if (channel.owner == SepiaFW.account.getUserId()){
+				$('#sepiaFW-channel-manager-cid-edit').val(channel.id);
+				$('#sepiaFW-channel-manager-cname-edit').val(channel.name);
+			}
+		},
+		clearEditData: function(channel){
+			$('#sepiaFW-channel-manager-cid-edit').val("");
+			$('#sepiaFW-channel-manager-cname-edit').val("");
+		},
+
+		//Open certain pages
+		openInvitePage: function(){
+			SepiaFW.frames.uic.showPane(3);
 		}
 	}
-	SepiaFW.frames.currentScope.load();
 </script>

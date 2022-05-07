@@ -178,6 +178,11 @@ body.limit-size {
 	overflow: hidden;
 	z-index: 99;
 }
+#sepiaFW-virtual-keyboard-box {
+	position: fixed;
+	display: none;
+	z-index: 50;
+}
 #sepiaFW-audio-players-box {
 	display: none;
 	position: fixed;
@@ -186,7 +191,7 @@ body.limit-size {
 	left: 8px;
 	width: 250px;
 }
-#sepiaFW-audio-players-box audio{
+#sepiaFW-audio-players-box audio {
 	width: 100%;
 }
 @media screen and (max-width: 1099px) {
@@ -244,6 +249,7 @@ body.limit-size {
 	margin-top: -50px;
 }
 
+/* TODO: replace all '#sepiaFW-popup-message' with '.sepiaFW-input-popup' styles */
 #sepiaFW-popup-message-content {
 	margin: 8px 0 12px 0;
 	flex: 1 1 auto;
@@ -254,20 +260,6 @@ body.limit-size {
 #sepiaFW-popup-message-controls {
 	margin: 4px 0 6px 0;
 	flex: 1 0 auto;
-}
-#sepiaFW-popup-message button {
-	background-color: #eee !important;
-	color: #111 !important;
-}
-#sepiaFW-popup-message button:hover {
-	background-color: #888 !important;
-	color: #fff !important;
-}
-#sepiaFW-popup-message input {
-	width: 100% !important;
-    background: #222;
-    color: #eee;
-    border-bottom: 1px solid #eee !important;
 }
 #sepiaFW-popup-message i {
 	color: #ceff1a;
@@ -389,6 +381,25 @@ body.limit-size {
 .sepiaFW-input-popup button {
 	background-color: #eee !important;
 	color: #111 !important;
+}
+.sepiaFW-input-popup button:hover {
+	background-color: #888 !important;
+	color: #fff !important;
+}
+.sepiaFW-input-popup .file-input-box {
+	display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 4px 0;
+    padding: 4px;
+    width: 100%;
+    height: 32px;
+    color: inherit;
+    border: 1px solid;
+    cursor: pointer;
+}
+.sepiaFW-input-popup .file-input-box > input[type="file"] {
+	display: none;
 }
 
 #sepiaFW-loader {
@@ -636,6 +647,7 @@ html.edge-2-edge body.big-screen #sepiaFW-main-window {
     /* background: #ddd; */
     /* color: #111; */
     width: 25px;
+	height: 25px;
     margin: 0;
     padding: 4px;
     border-radius: 50%;
@@ -776,7 +788,7 @@ html.dark-skin #sepiaFW-login-help-btn {
     flex-direction: column;
     justify-content: center;
     align-items: center;
-	flex: 1 0 auto;
+	flex: 1 0 142px;
 	padding: 8px;
 	display: flex;
 	/*max-width: 160px;*/
@@ -1153,6 +1165,51 @@ html.dark-skin #sepiaFW-login-help-btn {
     padding: 0px;
 	float: left;
 }
+.sepiaFW-value-slider {
+	display: inline-flex;
+	height: 20px;
+	margin: 5px 5px !important;
+}
+.sepiaFW-value-slider input[type="range"] {
+	appearance: none;
+    -webkit-appearance: none;
+	flex: 1 1 auto;
+    padding: 0 !important;
+    margin: 0 !important;
+    border: 0 !important;
+    border-bottom: 0 !important;
+    min-height: unset !important;
+	background: rgba(100, 100, 100, 0.4) !important;
+}
+.sepiaFW-value-slider input[type="range"]::-webkit-slider-thumb {
+	-webkit-appearance: none;
+    appearance: none;
+    width: 12px;
+    height: 24px;
+    background: currentColor;
+    cursor: pointer;
+}
+.sepiaFW-value-slider input[type="range"]::-moz-range-thumb {
+    width: 12px;
+    height: 24px;
+    background: currentColor;
+    cursor: pointer;
+	border: 0;
+	border-radius: 0;
+}
+.sepiaFW-slider-indicator-type-1 {
+	flex: 0 0 auto;
+	width: 34px;
+    height: 34px;
+    margin: 5px !important;
+    padding: 0 !important;
+    font-size: 14px;
+    border: 1px solid;
+    border-radius: 17px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
 .sepiaFW-indicator-rgy {
 	background: #888;
 	border-radius: 10px;
@@ -1259,6 +1316,7 @@ html.dark-skin #sepiaFW-login-help-btn {
 }
 #sepiaFW-more-menu-actions > li {
 	display: inline-block;
+	flex: 0 0 auto;
 }
 #sepiaFW-audio-ctrls {
     position: relative;
@@ -2422,6 +2480,33 @@ html.landscape-small #sepiaFW-chat-controls .eButton {
 @keyframes sepiaFW-assist-btn-orbiters-rotate {
     from {transform: rotate(0deg); transform-origin: 50% 50%;}
     to {transform: rotate(360deg); transform-origin: 50% 50%;}
+}
+
+/* ------- Additional overlays ------- */
+
+.file-drop-zone {
+	position: relative;
+}
+.file-drop-zone-overlay {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	background: #fff;
+	color: #000;
+	border: 2px dashed;
+	display: none;
+	justify-content: center;
+	align-items: center;
+	z-index: 2;
+}
+.file-drop-zone.drag-active > .file-drop-zone-overlay {
+	display: flex;
+}
+.file-drop-zone-overlay > span {
+	font-weight: bold;
+	pointer-events: none;
 }
 
 /* ------- Layers on top of main ------- */

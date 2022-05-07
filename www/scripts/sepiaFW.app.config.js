@@ -4,7 +4,9 @@ function sepiaFW_build_config(){
 	
 	Config.clientInfo = "web_app_v1.0.0";	//defined by client properties
 	var deviceId = "";						//set in settings and chosen by user to address his devices directly (only numbers and letters, space is replaced by '-', lower-case)
-	Config.environment = SepiaFW.tools.getURLParameter("env") || "default";		//'default' supports all features, other options: 'speaker', 'smart_display', 'silent_display', 'car_display'
+	
+	Config.environment = SepiaFW.tools.getURLParameter("env") || SepiaFW.data.getPermanent("environment") || "default";		
+	//'default' supports all features, other options: 'speaker', 'smart_display', 'silent_display', 'car_display'
 	//NOTE: switches to "avatar_display" in AO-Mode !
 
 	function isIE11(){return!(!(0<window.navigator.userAgent.indexOf("MSIE "))&&!navigator.userAgent.match(/Trident.*rv\:11\./))}
@@ -25,12 +27,17 @@ function sepiaFW_build_config(){
 	}
 	//set device ID			
 	Config.setDeviceId = function(newDeviceId, skipReload){
-		deviceId = newDeviceId.replace(/[\W]+/g, " ").replace(/\s+/g, " ").trim().split(" ").join("-").toLowerCase();
+		newDeviceId = newDeviceId.replace(/[\W]+/g, " ").replace(/\s+/g, " ").trim().split(" ").join("-").toLowerCase();
+		if (deviceId == newDeviceId){
+			return;
+		}
+		deviceId = newDeviceId;
 		if (deviceId.length > 8) deviceId = deviceId.substring(0, 8);
 		if (newDeviceId != deviceId){
 			SepiaFW.ui.showPopup("Please note: Your device ID has been modified due to new format conventions. Your new ID is: " + deviceId
 				+ ". If you plan to change your ID please use only lower-case letters, numbers, '-' and keep it short (2-8 characters)!"); 		//TODO: translate
 		}
+		//NOTE: because deviceId is used to store app settings some values are not allowed like 'commonSettings'
 		SepiaFW.data.setPermanent('deviceId', deviceId);
 		Config.broadcastDeviceId(deviceId);
 		if (!skipReload){
@@ -364,6 +371,17 @@ function sepiaFW_build_config(){
     Config.getDefaultMusicApp = function(){
         return defaultMusicApp;
 	}
+
+	//Preferred news region
+	Config.getDefaultNewsRegion = function(){
+		return defaultNewsRegion;
+	}
+	Config.setDefaultNewsRegion = function(region){
+		defaultNewsRegion = region;
+		SepiaFW.debug.info("Default new region set to " + region);
+		SepiaFW.data.set('defaultNewsRegion', region);
+	}
+	var defaultNewsRegion = "";
 	
 	//----------------------------------------------
 
@@ -436,19 +454,73 @@ function sepiaFW_build_config(){
 		delete headlessConfigJson.headless.user["account"];
 		delete headlessConfigJson.headless.user["contacts-from-chat"];
 		delete headlessConfigJson.headless.user["lastChannelMessageTimestamps"];
+		delete headlessConfigJson.headless.user["isDemoLogin"];
 		//... more?
 		//show
 		var msgBox = document.createElement("div");
 		var titleBox = document.createElement("div");
-		titleBox.innerHTML = "<h3>Client Settings</h3><p>Copy this to your SEPIA client settings.js file:</p>";
+		titleBox.innerHTML = "<h3>Device Settings JSON</h3><p>Download as file or copy JSON to your SEPIA client settings.js:</p>";
 		var jsonBox = document.createElement("textarea");
 		jsonBox.value = JSON.stringify(headlessConfigJson, null, 4);
 		jsonBox.style.whiteSpace = "pre";
 		msgBox.appendChild(titleBox);
 		msgBox.appendChild(jsonBox);
-		SepiaFW.ui.showPopup(msgBox);
+		SepiaFW.ui.showPopup(msgBox, {
+			buttonOneName: "Download",
+			buttonOneAction: function(){
+				//download as file
+				JSON.parse(jsonBox.value);	//just to validate JSON
+				var blob = new Blob([jsonBox.value], {type: "application/json"});
+				var filename = "settings-export.json";
+				SepiaFW.files.saveBlobAs(filename, blob, msgBox);
+			},
+			buttonTwoName: SepiaFW.local.g("close"),
+			buttonTwoAction: function(){},
+		});
 		//adjust size
 		jsonBox.style.height = jsonBox.scrollHeight + 32 + "px";
+	}
+	Config.showHeadlessModeSettingsImportPopup = function(){
+		var titleBox = document.createElement("div");
+		titleBox.innerHTML = "<h3>Device Settings JSON</h3><p>Load previously exported settings file (drag & drop/select) or copy JSON data:</p>";
+		SepiaFW.ui.showFileImportAndViewPopup(titleBox, {
+				addFileSelect: true,
+				accept: ".json",
+				buttonOneName: "Import",
+				buttonTwoName: "Abort",
+				initialPreviewValue: "- Settings JSON -"
+			}, 
+			function(readRes, viewTxtArea){
+				//read
+				if (readRes){
+					var parsedData = JSON.parse(readRes);
+					viewTxtArea.value = JSON.stringify(parsedData, null, 4);
+				}
+			}, function(viewTxtAreaValue){
+				//confirm and close
+				if (viewTxtAreaValue){
+					try {
+						var parsedData = JSON.parse(viewTxtAreaValue);
+						//use headless settings import feature
+						if (!SepiaFW.settings) SepiaFW.settings = {};
+						SepiaFW.settings.headless = parsedData.headless;
+						Config.loadSettingsForHeadlessMode();
+						//TODO: show confirm message
+						setTimeout(function(){
+							SepiaFW.ui.showPopup("Imported 'device' and 'user' settings. Please reload app to refresh settings.");
+						}, 300);
+					}catch(err){
+						viewTxtArea.value = "ERROR - Failed to import: " 
+							+ (err? (err.message || err.name || err) : "?");
+						throw err;
+					}
+				}
+			}, function(err, viewTxtArea){
+				//read error
+				viewTxtArea.value = "ERROR - Failed to read: " 
+					+ (err? (err.message || err.name || err) : "?");
+			}
+		);
 	}
 
 	Config.loadAppSettings = function(readyCallback){
@@ -548,6 +620,12 @@ function sepiaFW_build_config(){
 		var prefSearchEngineStored = SepiaFW.data.get('prefSearchEngine');
 		if (prefSearchEngineStored){
 			Config.setPreferredSearchEngine(prefSearchEngineStored);
+		}
+
+		//Default news region
+		var defaultNewsRegionStored = SepiaFW.data.get('defaultNewsRegion');
+		if (defaultNewsRegionStored){
+			Config.setDefaultNewsRegion(defaultNewsRegionStored);
 		}
 
 		finishAppSettingsConditionAndCheckReadyState("app-settings-tasks");

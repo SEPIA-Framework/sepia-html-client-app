@@ -303,6 +303,7 @@ function sepiaFW_build_frames(){
 			cVal.disabled = disabled;
 		
 		}else if (type == "range" && typeof value == "object"){
+			//TODO: replace with SepiaFW.ui.build slider?
 			var groupDiv = document.createElement("div");
 			groupDiv.className = "action-group";
 
@@ -348,7 +349,7 @@ function sepiaFW_build_frames(){
 			cVal.type = type;
 			cVal.value = value;
 			cVal.disabled = disabled;
-			cVal.onchange = function(){ onInputChange(cVal.value) };
+			SepiaFW.ui.onKeyboardInput(cVal, undefined, function(){ onInputChange(cVal.value); });
 		}
 		c.appendChild(cVal);
 		return {

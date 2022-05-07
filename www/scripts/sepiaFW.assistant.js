@@ -9,7 +9,7 @@ function sepiaFW_build_assistant(sepiaSessionId){
 
 	//control settings
 	Assistant.autoCloseAwaitDialog = true;
-	Assistant.autoCloseAwaitDialogDelay = 15000; 	//15s
+	Assistant.autoCloseAwaitDialogDelay = 20000; 	//20s
 	var autoCloseAwaitDialogTimer;
 	
 	//set assistant info received from server
@@ -81,6 +81,8 @@ function sepiaFW_build_assistant(sepiaSessionId){
 		//EXAMPLE:
 		SepiaFW.animate.assistant.awaitDialog(); 		
 		//Note: possible follow-up actions moved to 'animate.assistant.awaitDialog' function (since it can be triggered from elsewhere too)
+		//activate auto-close timer?
+		//Assistant.activateOrRefreshAwaitDialogTimer();	//NOTE: moved inside animation state
 	}
 	function broadcastDialogFinished(returnToIdle){
 		//EXAMPLE:
@@ -124,12 +126,14 @@ function sepiaFW_build_assistant(sepiaSessionId){
 
 		//custom data
 		var cd = {
+			appRegionCode: SepiaFW.config.appRegionCode,
 			defaultMusicApp: SepiaFW.config.getDefaultMusicApp(),
-			recentPAE: ((SepiaFW.events)? SepiaFW.events.getRecentProActiveEventsReduced() : ""),
 			embeddedPlayers: SepiaFW.ui.cards.getSupportedWebPlayers(),
 			prefTempUnit: (SepiaFW.account.getUserPreferredTemperatureUnit() || "C"),
 			prefSearchEngine: (SepiaFW.config.getPreferredSearchEngine() || "google"),
-			deviceLocalSite: SepiaFW.config.getDeviceLocalSiteData()
+			defaultNewsRegion: SepiaFW.config.getDefaultNewsRegion(),
+			deviceLocalSite: SepiaFW.config.getDeviceLocalSiteData(),
+			recentPAE: ((SepiaFW.events)? SepiaFW.events.getRecentProActiveEventsReduced() : "")
 			//TODO: add 'SepiaFW.config.isUiHeadless' info ? Or rely on 'env' parameter?
 			//TODO: add region parameter for language
 		};
@@ -213,20 +217,6 @@ function sepiaFW_build_assistant(sepiaSessionId){
 				//broadcast
 				Assistant.isWaitingForDialog = true;
 				broadcastAwaitDialog();
-
-				//activate auto-close timer?
-				if (Assistant.autoCloseAwaitDialog){
-					autoCloseAwaitDialogTimer = setTimeout(function(){
-						input_type = "question";
-						input_miss = "";
-						dialog_stage = 0;
-						last_command = '';
-						last_command_N = 0;
-						//broadcast
-						Assistant.isWaitingForDialog = false;
-						broadcastDialogTimeout();
-					}, Assistant.autoCloseAwaitDialogDelay);
-				}
 			}
 		}else{
 			input_type = "question";
@@ -241,16 +231,29 @@ function sepiaFW_build_assistant(sepiaSessionId){
 		Assistant.lastInteractionTS = new Date().getTime();
 	}
 	
-	//reset state
+	//reset state(s)
 	Assistant.resetState = function(){
+		resetDialogState();
+		//broadcast
+		broadcastDialogFinished(true);
+	}
+	Assistant.activateOrRefreshAwaitDialogTimer = function(){
+		if (Assistant.autoCloseAwaitDialog){
+			clearTimeout(autoCloseAwaitDialogTimer);
+			autoCloseAwaitDialogTimer = setTimeout(function(){
+				resetDialogState();
+				//broadcast
+				broadcastDialogTimeout();
+			}, Assistant.autoCloseAwaitDialogDelay);
+		}
+	}
+	function resetDialogState(){
 		input_type = "question";
 		input_miss = "";
 		dialog_stage = 0;
 		last_command = '';
 		last_command_N = 0;
-		//broadcast
 		Assistant.isWaitingForDialog = false;
-		broadcastDialogFinished(true);
 	}
 
 	//------------------ SOME METHODS TO ENGAGE USER ------------------

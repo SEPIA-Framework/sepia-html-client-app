@@ -166,7 +166,8 @@ html.landscape-small #sepiaFW-chat-controls-right {
 #sepiaFW-chat-menu li {
 	background: rgba(75, 75, 75, 0.14);
 }
-#sepiaFW-chat-menu button {
+#sepiaFW-chat-menu button,
+.sepiaFW-touch-device #sepiaFW-chat-menu button:hover {
 	border: 1px solid #F4F4F4;
 	border-radius: 18px;
 	background-color: #eded00;
@@ -235,6 +236,7 @@ html.landscape-small #sepiaFW-chat-controls-right {
 #sepiaFW-chat-output .statusUpdate {
     background: rgba(255, 255, 255, 0.05);
     color: #F4F4F4;
+	border-radius: 18px;
 }
 
 #sepiaFW-chat-output article {
@@ -292,12 +294,12 @@ html.landscape-small #sepiaFW-chat-controls-right {
 .sepiaFW-cards-button,
 .sepiaFW-notouch-device .sepiaFW-cards-button:hover {
 	background: #eded00;
-    color: #040404
+    color: #040404;
 }
 
 .sepiaFW-cards-list-title {
 	background: linear-gradient(to right, #eded00 0%, #d0ed00 100%);
-    color: #040404
+    color: #040404;
 }
 .sepiaFW-cards-list-title button {
 	color: #111111 !important;
@@ -312,12 +314,12 @@ html.landscape-small #sepiaFW-chat-controls-right {
 	background: #282828;
 	color: #ECEBE7;
 }
-.sepiaFW-cards-list-body .listElement div,
+.sepiaFW-cards-list-body .listElement > div,
 .sepiaFW-cards-list-body .weatherNowSmall > div,
 .sepiaFW-cards-list-body .linkCard > div,
-.sepiaFW-cards-list-body .timeEvent div,
+.sepiaFW-cards-list-body .timeEvent > div,
 .sepiaFW-cards-list-body .newsArticle .newsCenter,
-.sepiaFW-cards-list-body .radioStation div,
+.sepiaFW-cards-list-body .radioStation > div,
 .dark-skin .sepiaFW-cards-list-body .fullWidthItem .cardItemBlock {
 	background: #212121;
 	color: #ECEBE7;

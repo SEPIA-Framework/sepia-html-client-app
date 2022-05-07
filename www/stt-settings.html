@@ -81,16 +81,16 @@
 	SepiaFW.frames.currentScope = {
 
 		onFinishSetup: function(){
-			$('#sepiaFW-stt-settings-server-url').off().on("blur", function(){
-				SepiaFW.speechAudioProcessor.setSocketURI(this.value);
-				SepiaFW.debug.info("STT Server URL: " + this.value);
+			SepiaFW.ui.onKeyboardInput('#sepiaFW-stt-settings-server-url', undefined, function(ele){
+				SepiaFW.speechAudioProcessor.setSocketURI(ele.value);
+				SepiaFW.debug.info("STT Server URL: " + ele.value);
 			});
-			$('#sepiaFW-stt-settings-server-user').off().on("blur", function(){
-				SepiaFW.speechAudioProcessor.setServerUser(this.value);
-				SepiaFW.debug.info("STT Server user: " + this.value);
+			SepiaFW.ui.onKeyboardInput('#sepiaFW-stt-settings-server-user', undefined, function(ele){
+				SepiaFW.speechAudioProcessor.setServerUser(ele.value);
+				SepiaFW.debug.info("STT Server user: " + ele.value);
 			});
-			$('#sepiaFW-stt-settings-server-token').off().on("blur", function(){
-				SepiaFW.speechAudioProcessor.setServerToken(this.value);
+			SepiaFW.ui.onKeyboardInput('#sepiaFW-stt-settings-server-token', undefined, function(ele){
+				SepiaFW.speechAudioProcessor.setServerToken(ele.value);
 				SepiaFW.debug.info("STT Server token set");
 			});
 			$('#sepiaFW-stt-settings-asr-model').off().on("change", function(){

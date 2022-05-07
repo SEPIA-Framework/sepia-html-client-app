@@ -38,7 +38,7 @@
 					<input id="sepiaFW-wake-word-sensitivity" style="width: 56px !important;" onchange="SepiaFW.wakeWordSettings.storeWakeWordSensitivity()">
 				</div>
 				<div class="group">
-					<label>Expert settings:</label>
+					<label style="cursor: grab;">Expert settings:</label>
 					<div id="sepiaFW-wake-word-expert-box"></div>
 				</div>
 				<div class="group fit hidden-expert-setting" style="display: none;">
@@ -61,7 +61,7 @@
 				</div>
 				<div class="group fit expert-setting" id="sepiaFW-wake-word-keys" style="display: none;">
 					<div class="entry-content">
-						<label>Key (v2.0+):</label>
+						<label>Key (v2+):</label>
 						<input id="sepiaFW-wake-word-access-key" placeholder="Porcupine v2.0+ access key" title="Access key required for Porcupine 2.0 or higher" value="" type="text" spellcheck="false">
 					</div>
 					<button class="set-button" onclick="SepiaFW.wakeWordSettings.updateWakeWordAccessKey()"><i class="material-icons md-txt">save</i></button>

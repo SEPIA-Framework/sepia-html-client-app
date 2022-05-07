@@ -469,20 +469,25 @@ function maxLengthReached(){
 
 //send result message (partial or final)
 function sendWebSpeechCompatibleRecognitionResult(isFinal, transcript){
-	postMessage({
-		recognitionEvent: {
-			type: "result",
-			resultIndex: 0,
-			results: [{
-				isFinal: isFinal,
-				"0": {
-					transcript: transcript
-				}
-			}],
-			timeStamp: Date.now()
-		},
-		eventFormat: "webSpeechApi"
-	});
+	if (isFinal && !transcript){
+		//this is actually a 'nomatch'/'no-speech' error (no-speech fails more gently)
+		sendWebSpeechCompatibleError("no-speech", "Final result was empty");
+	}else{
+		postMessage({
+			recognitionEvent: {
+				type: "result",
+				resultIndex: 0,
+				results: [{
+					isFinal: isFinal,
+					"0": {
+						transcript: transcript
+					}
+				}],
+				timeStamp: Date.now()
+			},
+			eventFormat: "webSpeechApi"
+		});
+	}
 }
 function sendDefaultRecognitionResult(event){
 	if (event && !event.type) event.type = "result";

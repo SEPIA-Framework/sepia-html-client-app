@@ -4,7 +4,7 @@ function sepiaFW_build_web_audio(){
 	
 	//--- START: Copy of SEPIA Web-Audio Lib --->
 	
-	WebAudio.version = "0.9.10";
+	WebAudio.version = "0.9.11";
 	
 	//Preparations
 	var AudioContext = window.AudioContext || window.webkitAudioContext;
@@ -32,6 +32,13 @@ function sepiaFW_build_web_audio(){
 		//onrelease: console.log,
 		onerror: console.error
 		//debugLog: console.log
+	}
+
+	//Cache
+	var preLoadCache = {};
+	
+	WebAudio.clearPreLoadCache = function(){
+		preLoadCache = {};
 	}
 
 	//Media constraints
@@ -274,6 +281,10 @@ function sepiaFW_build_web_audio(){
 				var initInfo = new Array(options.modules.length);
 				var N = options.modules.length;
 				options.modules.forEach(async function(module, i){
+					if (!isInitPending){
+						//already failed so ignore rest
+						return;
+					}
 					addInitCondition("module-" + i);
 					
 					var info = getModuleInfo(module);
@@ -284,37 +295,47 @@ function sepiaFW_build_web_audio(){
 					//pre-loads - NOTE: there might be room for optimizations here ... - TODO: can/should we cache preloads globally?
 					var preLoads = {};
 					var preLoadKeys = Object.keys(info.modulePreLoads);
-					await Promise.all(preLoadKeys.map(async function(plKey, j){
-						var plPath = info.modulePreLoads[plKey];	//NOTE: this can be a string or an object ({type: 2, path: 'url'})
-						var plType = 1;		//1: text, 2: arraybuffer
-						var convert = undefined;
-						if (typeof plPath == "object"){
-							plType = (plPath.type && (plPath.type == 2 || plPath.type.toLowerCase() == "arraybuffer"))? 2 : 1;
-							plPath = plPath.path || plPath.url;
-						}else if (plKey.indexOf("wasmFile") == 0){
-							plType = 2;
-						}else if (plKey.indexOf("wasmBase64") == 0){
-							plType = 1;
-							convert = convertBase64ToUint8Array;
-						}
-						try{
-							var data;
-							if (!plPath || plType > 2){
-								throw {name: "PreLoadError", message: "Missing 'path' (url) or unsupported type (use 1=text or 2=arraybuffer)"};
-							}else if (plType == 1){
-								data = await textLoaderPromise(plPath);
-							}else if (plType == 2){
-								data = await arrayBufferLoaderPromise(plPath);
+					try{
+						await Promise.all(preLoadKeys.map(async function(plKey, j){
+							var plPath = info.modulePreLoads[plKey];	//NOTE: this can be a string or an object ({type: 2, path: 'url'})
+							var plType = 1;		//1: text, 2: arraybuffer
+							var convert = undefined;
+							if (typeof plPath == "object"){
+								plType = (plPath.type && (plPath.type == 2 || plPath.type.toLowerCase() == "arraybuffer"))? 2 : 1;
+								plPath = plPath.path || plPath.url;
+							}else if (plKey.indexOf("wasmFile") == 0){
+								plType = 2;
+							}else if (plKey.indexOf("wasmBase64") == 0){
+								plType = 1;
+								convert = convertBase64ToUint8Array;
 							}
-							if (typeof convert == "function"){
-								data = convert(data);
+							var cachePath = plKey + "_" + plPath;
+							if (preLoadCache[cachePath]){
+								preLoads[plKey] = preLoadCache[cachePath];
+							}else{
+								try{
+									var data;
+									if (!plPath || plType > 2){
+										throw {name: "PreLoadError", message: "Missing 'path' (url) or unsupported type (use 1=text or 2=arraybuffer)"};
+									}else if (plType == 1){
+										data = await textLoaderPromise(plPath);
+									}else if (plType == 2){
+										data = await arrayBufferLoaderPromise(plPath);
+									}
+									if (typeof convert == "function"){
+										data = convert(data);
+									}
+									preLoads[plKey] = data;
+									preLoadCache[cachePath] = data;
+								}catch (err){
+									throw {name: "AddModuleError", message: ("Failed to pre-load data: " + plKey + " - name: " + moduleName), info: err};
+								}
 							}
-							preLoads[plKey] = data;
-						}catch (err){
-							throw {name: "AddModuleError", message: ("Failed to pre-load data: " + plKey + " - name: " + moduleName), info: err};
-						}
-					}));
-					
+						}));
+					}catch (err){
+						initializerError(err);
+						return;
+					}
 					//add some context info
 					var fullOptions =  moduleSetup.options || {};
 					fullOptions.preLoadResults = preLoads;
@@ -390,7 +411,7 @@ function sepiaFW_build_web_audio(){
 							info: errorMessage
 						});
 						if (isInitPending && !isInitialized){
-							completeInitCondition("module-" + i);
+							//completeInitCondition("module-" + i);
 							initializerError({message: "Error during setup of module: " + thisProcessNode.moduleName, name: "ProcessorInitError", info: errorMessage});
 						}
 						if (moduleSetup.onerror){
@@ -401,7 +422,8 @@ function sepiaFW_build_web_audio(){
 					//AudioWorkletProcessor
 					if (moduleType == 1){
 						if (!sourceHasWorkletSupport){
-							throw {name: "AddModuleError", message: ("Source does not support 'AudioWorkletProcessor' (use only workers instead) - name: " + moduleName)};
+							initializerError({name: "AddModuleError", message: ("Source does not support 'AudioWorkletProcessor' (use only workers instead) - name: " + moduleName)});
+							return;
 						}
 						if (!fullOptions.processorOptions) fullOptions.processorOptions = fullOptions.setup || {};	//common field is "setup"
 						if (!fullOptions.processorOptions.ctxInfo){
@@ -457,14 +479,17 @@ function sepiaFW_build_web_audio(){
 					
 					//Script Processor
 					}else if (moduleType == 3){
-						throw {name: "AddModuleError", message: "ScriptProcessor nodes are currently not supported as modules (only source)."};
+						initializerError({name: "AddModuleError", message: "ScriptProcessor nodes are currently not supported as modules (only source)."});
+						return;
 					
 					//Audio Node
 					}else if (moduleType == 4){
-						throw {name: "AddModuleError", message: "AudioNodes are currently not supported as modules (you can use them as custom source)."};
-						
+						initializerError({name: "AddModuleError", message: "AudioNodes are currently not supported as modules (you can use them as custom source)."});
+						return;
+					
 					}else{
-						throw {name: "AddModuleError", message: "Unknown module type."};
+						initializerError({name: "AddModuleError", message: "Unknown module type."});
+						return;
 					}
 					thisProcessNode.moduleType = moduleType;
 					thisProcessNode.ignoreSendToModules = false;	//this is most useful for workers to prevent serialization if message is not processed anyway
@@ -489,7 +514,8 @@ function sepiaFW_build_web_audio(){
 					if (!sourceHasWorkletSupport && i == 0){
 						var source = processNodes[0];
 						if (!source.onmessage){
-							throw {name: "AddModuleError", message: "If source is not compatible to 'AudioWorklet' it has to have a 'onmessage' event to get the processed data."};
+							initializerError({name: "AddModuleError", message: "If source is not compatible to 'AudioWorklet' it has to have a 'onmessage' event to get the processed data."});
+							return;
 						}
 						source.onmessage = function(e){
 							//like 'sendToModules' this can be event or data for processing

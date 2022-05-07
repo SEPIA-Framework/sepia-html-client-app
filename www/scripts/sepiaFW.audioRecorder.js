@@ -658,7 +658,8 @@ function sepiaFW_build_audio_recorder(){
 			state.waveEncModule = waveEncModule;
 			SepiaFW.audioRecorder.createWebAudioRecorder({
 				vadModule: SepiaFW.audioRecorder.createDefaultVadModule(undefined, function(energy){
-					if (energy != undefined){
+					//VAD data
+					if (energy != undefined && Number.isFinite(energy)){
 						state.vadData.points.push(energy);
 						state.vadData.sum += energy;
 						if (vadDataHandler) vadDataHandler(energy);
@@ -677,12 +678,13 @@ function sepiaFW_build_audio_recorder(){
 				wakeWordModule: false,		//block default module
 				waveEncoderModule: waveEncModule,
 				onResamplerMessage: function(msg){
-					//if (msg.rms == undefined) console.log("DEBUG --- onResamplerMessage msg", msg);		//DEBUG
-					if (msg && msg.rms != undefined){
+					//RMS data
+					if (msg && msg.rms != undefined && Number.isFinite(msg.rms)){
 						state.rmsData.points.push(msg.rms);
 						state.rmsData.sum += msg.rms;
 						if (volumeHandler) volumeHandler(msg.rms);
 					}
+					//if (msg.rms == undefined) console.log("DEBUG --- onResamplerMessage msg", msg);		//DEBUG
 				}
 			}, function(audioProcessor, info){
 				//on init
@@ -692,6 +694,7 @@ function sepiaFW_build_audio_recorder(){
 				//start
 				state.micStartTimer = setTimeout(function(){
 					SepiaFW.audioRecorder.startWebAudioRecorder(function(){
+						//NOTE: if we want to start rec but delay data collection we can setTimeout here and check 'state.waveEncoderGateIsOpen' above
 						state.waveEncModule.handle.sendToModule({gate: "open"});
 						state.waveEncoderGateIsOpen = true;
 						state.startedRecording = new Date().getTime();
