@@ -6,7 +6,7 @@ function sepiaFW_build_speech(sepiaSessionId){
 	
 	//Common
 	var speechLanguage = SepiaFW.config.appLanguage;
-	var speechCountryCode = SepiaFW.config.appRegionCode;
+	var speechCountryCode = (SepiaFW.config.appRegionCode.indexOf(speechLanguage) == 0)? SepiaFW.config.appRegionCode : "";
 	Speech.getLanguage = function(){
 		return speechLanguage;
 	}
@@ -16,14 +16,21 @@ function sepiaFW_build_speech(sepiaSessionId){
 		if (SepiaFW.speechAudioProcessor){
 			SepiaFW.speechAudioProcessor.refreshEngineSettings(Speech.getAsrEngine(), newLang);
 		}
+		//speechCountryCode
+		if (speechCountryCode && speechCountryCode.indexOf(speechLanguage) != 0){
+			speechCountryCode = "";
+		}
 	}
 	Speech.setCountryCode = function(countryCode){
 		speechCountryCode = countryCode;
 	}
 	//it might be necessary to use the long codes
 	function getLongLanguageCode(langCodeShort){
-		if (!langCodeShort && speechCountryCode) return speechCountryCode;
-		else if (!langCodeShort) langCodeShort = speechLanguage;
+		if (!langCodeShort && speechCountryCode){
+			return speechCountryCode;
+		}else if (!langCodeShort){
+			langCodeShort = speechLanguage;
+		}
 		return SepiaFW.local.getDefaultBcp47LanguageCode(langCodeShort) || "en-US";
 	}
 	Speech.getLongLanguageCode = getLongLanguageCode;

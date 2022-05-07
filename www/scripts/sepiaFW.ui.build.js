@@ -45,12 +45,6 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 			SepiaFW.config.appLanguage, 
 			function(ele){
 				SepiaFW.config.broadcastLanguage(ele.value);
-				if (SepiaFW.config.appRegionCode && SepiaFW.config.appRegionCode.indexOf(ele.value + "-") != 0){
-					//reset region
-					SepiaFW.config.broadcastRegionCode("");
-				}
-				//NOTE: we need to add all IDs here manually
-				Build.updateRegionCodeSelector("sepiaFW-menu-account-region-dropdown");		
 				changeAction(ele.value);
 			}
 		);

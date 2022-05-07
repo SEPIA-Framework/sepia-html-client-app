@@ -515,31 +515,21 @@ function sepiaFW_build_ui_actions(){
 			}
 			//TODO: should we delay this until the answer is finished?
 			if (lang){
-				var suppLangs = SepiaFW.local.getSupportedAppLanguages();
-				var foundLang = false;
-				suppLangs.forEach(function(sl){
-					if (!sl.disabled && sl.value == lang){
-						foundLang = true;
-						SepiaFW.debug.log("language-switch action - app lang.: " + lang);
-						SepiaFW.config.broadcastLanguage(lang);
-						return;
-					}
-				});
-				var foundRegion = false;
-				if (region){
-					var suppBcp47 = SepiaFW.local.getExperimentalAppLanguages();
-					var bcp47 = (lang + "-" + region);
-					suppBcp47.forEach(function(sbcp47){
-						if (sbcp47.value == bcp47){
-							foundRegion = true;
-							SepiaFW.debug.log("language-switch action - speech lang.: " + bcp47);
-							SepiaFW.config.broadcastRegionCode(bcp47);
-							return;
-						}
-					});
+				var foundLang = SepiaFW.local.getSupportedAppLanguages()
+					.filter(function(sl){ return !sl.disabled && sl.value == lang; }).length;
+				var foundRegion;
+				var bcp47;
+				if (foundLang && region){
+					bcp47 = (lang + "-" + region);
+					foundRegion = SepiaFW.local.getExperimentalAppLanguages()
+						.filter(function(reg){ return reg.value == bcp47; }).length;
 				}
-				if (foundLang && !foundRegion){
-					SepiaFW.config.broadcastRegionCode("");
+				if (foundRegion){
+					SepiaFW.debug.log("language-switch action - app lang.: " + lang + " - speech lang.: " + bcp47);
+					SepiaFW.config.broadcastLanguage(lang, bcp47);
+				}else if (foundLang){
+					SepiaFW.debug.log("language-switch action - app lang.: " + lang + " - speech lang.: default");
+					SepiaFW.config.broadcastLanguage(lang);
 				}
 			}
 		}

@@ -654,8 +654,10 @@ function sepiaFW_build_account(sepiaSessionId){
 			userId = account.userId;
 			userToken = account.userToken;
 			userTokenValidUntil = account.userTokenValidUntil;
-			userName = account.userName;	if (userName)	SepiaFW.config.broadcastUserName(userName);
-			language = account.language;	if (language)	SepiaFW.config.broadcastLanguage(language);
+			userName = account.userName;	
+			if (userName) SepiaFW.config.broadcastUserName(userName);
+			language = account.language;
+			if (language) SepiaFW.config.broadcastLanguage(language);	//TODO: add region?
 
 			//secondary
 			userRoles = account.userRoles;
@@ -880,7 +882,7 @@ function sepiaFW_build_account(sepiaSessionId){
 		//get preferred language
 		if (data['user_lang_code'] && data['user_lang_code'].length > 1){
 			language = data['user_lang_code'];
-			SepiaFW.config.broadcastLanguage(language);
+			SepiaFW.config.broadcastLanguage(language);		//TODO: add region?
 		}
 		//get user roles
 		userRoles = data['user_roles'];

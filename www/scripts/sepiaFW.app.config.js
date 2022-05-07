@@ -205,8 +205,7 @@ function sepiaFW_build_config(){
 		SepiaFW.debug.log('Config: broadcasted host=' + hostName);
 	}
 	//add everything here that needs to be refreshed after language change
-	Config.broadcastLanguage = function(language){
-		//NOTE: consider regionCode change as well if you change language
+	Config.broadcastLanguage = function(language, region){
 		//app
 		Config.appLanguage = language; 		//TODO: interface reload to set texts?
 		//speech
@@ -215,6 +214,16 @@ function sepiaFW_build_config(){
 		if (SepiaFW.geocoder) SepiaFW.geocoder.setLanguage(language);
 		//menue
 		$('#sepiaFW-menu-account-language-li').find('select').val(language);
+		//consider regionCode change as well if you change language
+		if (region && region.indexOf(language) == 0){
+			//set region
+			Config.broadcastRegionCode(region);
+		}else if (Config.appRegionCode && Config.appRegionCode.indexOf(language) != 0){
+			//reset region
+			Config.broadcastRegionCode("");
+		}
+		//NOTE: does this need to be somwhere else? - ps.: we need to add all IDs here manually
+		SepiaFW.ui.build.updateRegionCodeSelector("sepiaFW-menu-account-region-dropdown");
 		//URL
 		if (window.history && window.history.replaceState && SepiaFW.tools.getURLParameter("lang")){
 			var url = SepiaFW.tools.setParameterInURL(window.location.href, "lang", language);
