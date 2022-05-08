@@ -186,6 +186,9 @@ function sepiaFW_build_ui_cards(){
 		});
 		//move:
 		ele.fadeOut(duration, function(){
+		//var lastRight = ele[0].style.right;
+		//ele.animate({right: ele.width()}, duration, function(){
+		//	ele[0].style.right = lastRight;
 			//remove
 			if (!isAlreadyHidden){
 				//ele.remove();		//removes all event handlers too
