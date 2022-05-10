@@ -15,6 +15,10 @@ Check out **some** of the SEPIA client skins and avatars:
     <img src="mobile-flaming-sqr-dark.png" alt="SEPIA app" height="280px"/>
     <img src="avatar-s-tech.png" alt="SEPIA avatar" height="280px"/>
     <img src="mobile-odyssey-cq.png" alt="SEPIA app" height="280px"/>
+	<img src="avatar-proto.png" alt="SEPIA avatar" height="280px"/>
+    <img src="mobile-odyssey-ai.png" alt="SEPIA app" height="280px"/>
+	<img src="mobile-blue-canary.png" alt="SEPIA app" height="280px"/>
+	<img src="mobile-vectors-reloaded.png" alt="SEPIA app" height="280px"/>
 </p>
   
 Skins in big-screen mode:
