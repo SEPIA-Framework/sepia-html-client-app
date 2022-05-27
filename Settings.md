@@ -178,8 +178,8 @@ For USB devices check the individual comments on how to set vendor/product speci
 			"loading": [{"ledIndex": 1, "red": 10, "green": 10, "blue": 10}],
 			"wakeWordActive": [{"ledIndex": 2, "red": 5, "green": 0, "blue": 5}],
 			"wakeWordInactive": [{"ledIndex": 2, "red": 0, "green": 0, "blue": 0}],
-			"eventEffectsOn": [],
-			"eventEffectsOff": []
+			"eventEffectsOn": [{"ledIndex": 3, "red": 80, "green": 100, "blue": 20}],
+			"eventEffectsOff": [{"ledIndex": 3, "red": 0, "green": 0, "blue": 0}]
 		}
 	}]
 }

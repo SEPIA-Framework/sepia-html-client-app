@@ -167,9 +167,34 @@
 			SepiaFW.speechAudioProcessor.getServerSettings(function(settings){
 				var msg = "Server info:\n\n";
 				Object.keys(settings).forEach(function(k){
-					msg += k + " = " + settings[k] + "\n";
+					//show some selected info
+					if (k == "version" || k == "engine"){
+						msg += k + " = " + settings[k] + "\n\n";
+					}else if (k == "languages"){
+						var uniqueLang = settings[k].filter(function (x, i, a){ 
+    						return a.indexOf(x) === i; 
+						});
+						msg += k + " = [ " + uniqueLang.join(", ") + " ]\n\n";
+					}else if (k == "models"){
+						msg += k + " = [ " + settings[k].join(", ") + " ]\n\n";
+					}else if (k == "modelProperties"){
+						var uniqueTasks = {};
+						settings[k].forEach(function(prop){
+							if (prop.task) uniqueTasks[prop.task] = 1;
+						});
+						msg += "tasks = [ " + Object.keys(uniqueTasks).join(", ") + " ]\n\n";
+					}
 				});
 				SepiaFW.frames.currentScope.showInfo(msg);
+				var buttonBox = document.createElement("div");
+				buttonBox.style.cssText = "text-align: center; margin-bottom: 32px;";
+				var showAllButton = document.createElement("button");
+				showAllButton.textContent = "Show Full JSON Info";
+				$(showAllButton).on("click", function(){
+					SepiaFW.ui.showJsonInfoPopup("STT Server Info", undefined, settings);
+				});
+				buttonBox.appendChild(showAllButton);
+				SepiaFW.frames.currentScope.appendToInfo(buttonBox);
 			}, function(err){
 				SepiaFW.frames.currentScope.showError("Failed to load server info.");
 			});
@@ -180,6 +205,9 @@
 		},
 		showError: function(msg){
 			$('#sepiaFW-stt-settings-info-msg').css("color", "#f00").text(msg);
+		},
+		appendToInfo: function(content){
+			$('#sepiaFW-stt-settings-info-msg').append(content);
 		},
 
 		//Debugger page

@@ -466,28 +466,21 @@ function sepiaFW_build_config(){
 		delete headlessConfigJson.headless.user["isDemoLogin"];
 		//... more?
 		//show
-		var msgBox = document.createElement("div");
-		var titleBox = document.createElement("div");
-		titleBox.innerHTML = "<h3>Device Settings JSON</h3><p>Download as file or copy JSON to your SEPIA client settings.js:</p>";
-		var jsonBox = document.createElement("textarea");
-		jsonBox.value = JSON.stringify(headlessConfigJson, null, 4);
-		jsonBox.style.whiteSpace = "pre";
-		msgBox.appendChild(titleBox);
-		msgBox.appendChild(jsonBox);
-		SepiaFW.ui.showPopup(msgBox, {
-			buttonOneName: "Download",
-			buttonOneAction: function(){
-				//download as file
-				JSON.parse(jsonBox.value);	//just to validate JSON
-				var blob = new Blob([jsonBox.value], {type: "application/json"});
-				var filename = "settings-export.json";
-				SepiaFW.files.saveBlobAs(filename, blob, msgBox);
-			},
-			buttonTwoName: SepiaFW.local.g("close"),
-			buttonTwoAction: function(){},
-		});
-		//adjust size
-		jsonBox.style.height = jsonBox.scrollHeight + 32 + "px";
+		var jsonBox = SepiaFW.ui.showJsonInfoPopup("Device Settings JSON",
+			"Download as file or copy JSON to your SEPIA client settings.js:",
+			headlessConfigJson, {
+				buttonOneName: "Download",
+				buttonOneAction: function(){
+					//download as file
+					JSON.parse(jsonBox.value);	//just to validate JSON
+					var blob = new Blob([jsonBox.value], {type: "application/json"});
+					var filename = "settings-export.json";
+					SepiaFW.files.saveBlobAs(filename, blob, jsonBox.parentElement);
+				},
+				buttonTwoName: SepiaFW.local.g("close"),
+				buttonTwoAction: function(){},
+			}
+		);
 	}
 	Config.showHeadlessModeSettingsImportPopup = function(){
 		var titleBox = document.createElement("div");

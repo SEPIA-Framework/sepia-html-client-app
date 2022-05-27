@@ -3,8 +3,8 @@ function sepiaFW_build_ui(){
 	var UI = {};
 	
 	//some constants
-	UI.version = "v0.24.2";
-	UI.requiresServerVersion = "2.6.0";
+	UI.version = "v0.25.0";
+	UI.requiresServerVersion = "2.7.0";
 	UI.JQ_RES_VIEW_IDS = "#sepiaFW-result-view, #sepiaFW-chat-output, #sepiaFW-my-view";	//a selector to get all result views e.g. $(UI.JQ_RES_VIEW_IDS).find(...) - TODO: same as $('.sepiaFW-results-container') ??
 	UI.JQ_ALL_MAIN_VIEWS = "#sepiaFW-result-view, #sepiaFW-chat-output, #sepiaFW-my-view, #sepiaFW-teachUI-editor, #sepiaFW-teachUI-manager, #sepiaFW-frame-page-0, #sepiaFW-frame-page-1, #sepiaFW-frame-page-2, #sepiaFW-frame-page-3"; 	//TODO: frames can have more ...
 	UI.JQ_ALL_SETTINGS_VIEWS = ".sepiaFW-chat-menu-list-container";
@@ -1616,6 +1616,31 @@ function sepiaFW_build_ui(){
 			}
 		}
 		return UI.showPopup(question, config);
+	}
+
+	//A pop-up to show JSON objects
+	UI.showJsonInfoPopup = function(titleHeadline, titleText, json, config){
+		var msgBox = document.createElement("div");
+		var titleBox = document.createElement("div");
+		if (titleHeadline){
+			var titleHeadlineEle = document.createElement("h3");
+			titleHeadlineEle.textContent = titleHeadline;
+			titleBox.appendChild(titleHeadlineEle);
+		}
+		if (titleText){
+			var titleTextEle = document.createElement("p");
+			titleTextEle.textContent = titleText;
+			titleBox.appendChild(titleTextEle);
+		}
+		var jsonBox = document.createElement("textarea");
+		jsonBox.value = JSON.stringify(json, null, 4);
+		jsonBox.style.whiteSpace = "pre";
+		msgBox.appendChild(titleBox);
+		msgBox.appendChild(jsonBox);
+		UI.showPopup(msgBox, config);
+		//adjust size
+		jsonBox.style.height = jsonBox.scrollHeight + 32 + "px";
+		return jsonBox;
 	}
 
 	//Show pop-up to import single file (via drag n drop or input) and show content
