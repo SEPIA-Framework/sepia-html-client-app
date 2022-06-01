@@ -1,5 +1,6 @@
 * {
     box-sizing: border-box;
+	font-family: sans-serif;
 	-webkit-tap-highlight-color: transparent;
 	scrollbar-width: thin;
 	/* note: we keep the default color just adapt .sepiaFW-results-container (due to background) */
@@ -1127,6 +1128,7 @@ html.dark-skin #sepiaFW-login-help-btn {
 .sepiaFW-toggle-btn {
 	background: transparent;
 	border-radius: 3px;
+	overflow: hidden;
 	border: 1px solid rgba(255, 255, 255, 0.85);
 	height: 28px;
     width: 56px;
@@ -1143,7 +1145,6 @@ html.dark-skin #sepiaFW-login-help-btn {
   	user-select: none;
     pointer-events: none;
 	background: rgba(0, 255, 0, 0.55);
-	border-radius: 3px;
 	border: 0px;
 	height: 100%;
     width: 50%;
@@ -1157,7 +1158,6 @@ html.dark-skin #sepiaFW-login-help-btn {
   	user-select: none;
     pointer-events: none;
 	background: rgba(72, 72, 72, 0.25);
-	border-radius: 3px;
 	border: 0px;
 	height: 100%;
     width: 50%;

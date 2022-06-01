@@ -46,7 +46,7 @@ html {
 
 #sepiaFW-login-box input, #sepiaFW-login-box button,
 #sepiaFW-main-window input, #sepiaFW-main-window button, #sepiaFW-main-window article,
-#sepiaFW-chat-menu select, .sepiaFW-toggle-btn, .sepiaFW-toggle-btn .on {
+#sepiaFW-chat-menu select, .sepiaFW-toggle-btn {
     border-radius: 0;
 }
 
