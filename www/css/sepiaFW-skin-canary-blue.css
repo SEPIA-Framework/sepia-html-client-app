@@ -154,9 +154,12 @@ html.landscape-small #sepiaFW-chat-controls .eButton {
 }
 .sepiaFW-menu input {
 	background: transparent !important;
+	border: 1px solid #000;
 }
 .sepiaFW-menu .sepiaFW-toggle-btn {
 	border: 1px solid rgba(0, 0, 0, 0.25);
+	border: 1px solid #000;
+    border-radius: 18px;
 }
 .sepiaFW-menu .sepiaFW-toggle-btn .on {
     background: #ffdd64;

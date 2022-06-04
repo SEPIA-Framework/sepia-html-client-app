@@ -131,6 +131,9 @@
 .sepiaFW-frames-page .group.wrap {
 	flex-wrap: wrap;
 }
+.sepiaFW-frames-page .group.limit-512 {
+	max-width: 512px;
+}
 .sepiaFW-frames-page .group.column {
 	flex-direction: column;
 }
@@ -220,11 +223,23 @@
 }
 
 .sepiaFW-frames-page .subgroup {
-	display: flex; 
-	justify-content: space-between; 
+	display: flex;
+	justify-content: space-between;
 	align-items: center;
 	padding: 4px;
     min-width: 160px;
+}
+.sepiaFW-frames-page .subgroup.inline {
+	display: inline-flex;
+}
+.sepiaFW-frames-page .subgroup.fill {
+	flex: 1 1 auto;
+}
+.sepiaFW-frames-page .subgroup.center {
+	justify-content: center;
+}
+.sepiaFW-frames-page .subgroup.align-start {
+	justify-content: start;
 }
 .sepiaFW-frames-page .subgroup.menu-button {
 	font-size: 21px;
@@ -254,6 +269,7 @@
 	background: transparent;
 	border: 1px solid transparent;
     border-bottom: 1px solid #000;
+	border-radius: 0;
     color: inherit;
     text-align: center;
 }

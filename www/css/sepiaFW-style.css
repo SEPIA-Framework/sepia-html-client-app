@@ -516,6 +516,16 @@ html.edge-2-edge body.big-screen #sepiaFW-main-window {
 	-webkit-appearance: none;
 	appearance: none;
 }
+#sepiaFW-main-window input[type='color'], 
+#sepiaFW-login-box input[type='color'] {
+	appearance: auto !important;
+    border: 0 !important;
+    margin: 4px;
+    padding: 0 !important;
+    min-height: 25px;
+    min-width: 25px;
+	cursor: pointer;
+}
 #sepiaFW-main-window b, #sepiaFW-login-box b, #sepiaFW-main-window strong, #sepiaFW-login-box strong {
 	font-weight: 600;
 }
@@ -932,7 +942,7 @@ html.dark-skin #sepiaFW-login-help-btn {
 	float: right;
     height: 28px;
     max-width: 150px;
-	min-width: 100px;
+	min-width: 125px;
     margin: 0px 0px 0px 0px;
     padding: 0px 5px 0px 5px;
 	cursor: pointer;
@@ -948,6 +958,7 @@ html.dark-skin #sepiaFW-login-help-btn {
 	cursor: pointer;
 	background: transparent;
     border-bottom: 1px solid;
+	border-radius: 0;
     color: inherit;
     text-align: center;
     font-size: 15px;

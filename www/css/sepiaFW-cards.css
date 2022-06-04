@@ -1,5 +1,5 @@
 .sepiaFW-cards-flexSize-container {
-    background: #e5e5e5; /*rgba(0, 0, 0, 0.10);*/
+    background: #e5e5e5;
 	position: relative;
 	margin: 5px 0px;
 	border-radius: 3px;
@@ -258,7 +258,7 @@ article + .sepiaFW-cards-flexSize-container.oneElement,
 	100% {	opacity: 1.0;	}
 }
 .sepiaFW-cards-list-body .listElement div {
-	background: rgba(255, 255, 255, 0.90);
+	background: #fcfcfc;
 	border-radius: 3px;
 	display: inline-block;
 	vertical-align: top;
@@ -397,7 +397,7 @@ article + .sepiaFW-cards-flexSize-container.oneElement,
 	display: flex;
 }
 .sepiaFW-cards-list-body .radioStation div {
-	background: rgba(255, 255, 255, 0.90);
+	background: #fcfcfc;
 	border-radius: 3px;
 	display: inline-block;
 	vertical-align: top;
@@ -470,7 +470,7 @@ article + .sepiaFW-cards-flexSize-container.oneElement,
 	display: flex;
 }
 .sepiaFW-cards-list-body .timeEvent div {
-	background: rgba(255, 255, 255, 0.90);
+	background: #fcfcfc;
 	border-radius: 3px;
 	display: inline-block;
 	vertical-align: top;
@@ -505,9 +505,9 @@ article + .sepiaFW-cards-flexSize-container.oneElement,
     animation: sepiaFW-timeEvent-card-signal 3s linear infinite;
 }
 @keyframes sepiaFW-timeEvent-card-signal {
-    from {background: rgba(255, 255, 255, 0.90); color: #000;}
+    from {background: #fcfcfc; color: #000;}
 	75% {background: rgba(255, 0, 0, 0.50); color: #fff;}
-    to {background: rgba(255, 255, 255, 0.90); color: #000;}
+    to {background: #fcfcfc; color: #000;}
 }
 .sepiaFW-cards-list-body .timeEvent .timeEventCenter .sepiaFW-timer-name {
 	font-weight: bold;
@@ -537,7 +537,7 @@ article + .sepiaFW-cards-flexSize-container.oneElement,
 /* ---- News ---- */
 
 .sepiaFW-cards-list-title.newsHeader {
-	background: rgba(255, 255, 255, 0.90);
+	background: #fcfcfc;
 	border-radius: 0;
 	font-weight: normal;
 }
@@ -549,7 +549,7 @@ article + .sepiaFW-cards-flexSize-container.oneElement,
 	display: flex;
 }
 .sepiaFW-cards-list-body .newsArticle .newsCenter {
-	background: rgba(255, 255, 255, 0.90);
+	background: #fcfcfc;
 	border-radius: 0px;
 	display: inline-block;
 	vertical-align: top;
@@ -584,7 +584,7 @@ article + .sepiaFW-cards-flexSize-container.oneElement,
 	display: flex;
 }
 .sepiaFW-cards-list-body .weatherNowSmall > div {
-	background: rgba(255, 255, 255, 0.90);
+	background: #fcfcfc;
 	border-radius: 3px;
 	display: inline-block;
 	vertical-align: top;
@@ -661,7 +661,7 @@ article + .sepiaFW-cards-flexSize-container.oneElement,
 	padding: 0px 5px;
 }
 .sepiaFW-cards-list-body .weatherNowDetails li {
-	background: rgba(255, 255, 255, 0.90);
+	background: #fcfcfc;
 	margin: 2px 0px 0px 0px;
 	padding: 0px;
 	text-align: center;
@@ -711,7 +711,7 @@ article + .sepiaFW-cards-flexSize-container.oneElement,
 	display: flex;
 }
 .sepiaFW-cards-list-body .linkCard > div {
-	background: rgba(255, 255, 255, 0.90);
+	background: #fcfcfc;
 	border-radius: 3px;
 	display: inline-block;
 	vertical-align: top;
