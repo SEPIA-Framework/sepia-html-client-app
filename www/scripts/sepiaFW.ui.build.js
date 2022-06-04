@@ -146,6 +146,7 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 		sliderBox.appendChild(slider);
 		slider.type = "range";
 		slider.value = (initialValue != undefined)? initialValue : 0;
+		slider.title = slider.value;
 		if (range && range.length == 2){
 			slider.min = range[0];
 			slider.max = range[1];
@@ -161,9 +162,11 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 		}
 		if (sliderId) sliderBox.id = sliderId;
 		$(slider).on('input', function(){
+			slider.title = slider.value;
 			if (onInputCallback) onInputCallback(slider.value);
 		});
 		$(slider).on('change', function(){
+			slider.title = slider.value;
 			if (onChangeCallback) onChangeCallback(slider.value);
 		});
 		sliderBox.getValue = function(){
@@ -171,6 +174,7 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 		}
 		sliderBox.setValue = function(val){
 			slider.value = val;
+			slider.title = slider.value;
 		}
 		sliderBox.setDisabled = function(isDisabled){
 			slider.disabled = isDisabled;
@@ -904,6 +908,7 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 							page1.innerHTML = "";
 							var hubIframe = document.createElement('iframe');
 							hubIframe.className = "full-size";
+							//TODO: add '<iframe src="https://example.com" allow="fullscreen; camera 'none'; microphone https://example.com"/>'
 							var triedLogin = false;
 							hubIframe.onload = function(){
 								//login - TODO: potential race condition?
@@ -944,6 +949,14 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 			$('#sepiaFW-menu-select-skin').off().on('change', function(){
 				SepiaFW.ui.setSkin($('#sepiaFW-menu-select-skin').val());
 			});
+			$('#sepiaFW-menu-select-skin-li').prepend(Build.inlineActionButton(
+				'sepiaFW-menu-theme-editor', "<i class='material-icons md-inherit'>palette</i>",
+				function(btn){
+					SepiaFW.frames.open({ 
+						pageUrl: "theme-editor.html"
+					});
+				})
+			);
 			var avatars = $('.sepiaFW-style-avatar');
 			var defaultAvatarOption = document.createElement('OPTION');
 				defaultAvatarOption.textContent = "Let skin choose";

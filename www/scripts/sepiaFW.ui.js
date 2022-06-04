@@ -391,6 +391,99 @@ function sepiaFW_build_ui(){
 	UI.getAvatar = function(){
 		return activeAvatar;
 	}
+	UI.setCustomSkinTheme = function(theme, store){
+		if (!theme) theme = {};
+		//page
+		setOrRemoveCustomSkinProperty("app-back", theme.appBackground);
+		setOrRemoveCustomSkinProperty("app-color", theme.appColor);
+		setOrRemoveCustomSkinProperty("app-controls-back", theme.appControlsBackground);
+		setOrRemoveCustomSkinProperty("app-controls-back-2", theme.appControlsBackground2 || theme.appControlsBackground);
+		setOrRemoveCustomSkinProperty("app-controls-color", theme.appControlsColor);
+		//look and style
+		setOrRemoveCustomSkinProperty("default-border-radius", theme.defaultBorderRadius);
+		//assistant
+		setOrRemoveCustomSkinProperty("assistant", theme.assistantMain);
+		setOrRemoveCustomSkinProperty("assistant-2", theme.assistantMain2 || theme.assistantMain);
+		setOrRemoveCustomSkinProperty("assistant-text", theme.assistantText);
+		//buttons
+		setOrRemoveCustomSkinProperty("default-button-back", theme.defaultButtonBackground);
+		setOrRemoveCustomSkinProperty("default-button-back-2", theme.defaultButtonBackground2 || theme.defaultButtonBackground);
+		setOrRemoveCustomSkinProperty("default-button-color", theme.defaultButtonColor);
+		setOrRemoveCustomSkinProperty("custom-button-back", theme.customButtonBackground);
+		setOrRemoveCustomSkinProperty("custom-button-back-2", theme.customButtonBackground2 || theme.customButtonBackground);
+		setOrRemoveCustomSkinProperty("custom-button-color", theme.customButtonColor);
+		//cards
+		setOrRemoveCustomSkinProperty("card-container-back", theme.cardContainerBackground);
+		setOrRemoveCustomSkinProperty("card-back", theme.cardBackground);
+		setOrRemoveCustomSkinProperty("card-back-2", theme.cardBackground2 || theme.cardBackground);
+		setOrRemoveCustomSkinProperty("card-color", theme.cardColor);
+		//chat - NOTE: last chat is 'assistant'
+		setOrRemoveCustomSkinProperty("chat-msg-back", theme.chatMsgBackground);
+		setOrRemoveCustomSkinProperty("chat-msg-back-2", theme.chatMsgBackground2 || theme.chatMsgBackground);
+		setOrRemoveCustomSkinProperty("chat-msg-color", theme.chatMsgColor);
+		setOrRemoveCustomSkinProperty("chat-msg-user-back", theme.chatMsgUserBackground);
+		setOrRemoveCustomSkinProperty("chat-msg-user-back-2", theme.chatMsgUserBackground2 || theme.chatMsgUserBackground);
+		setOrRemoveCustomSkinProperty("chat-msg-user-color", theme.chatMsgUserColor);
+		//store?
+		if (store){
+			//TODO: store
+		}
+	}
+	UI.getCustomSkinTheme = function(){
+		return {
+			//page
+			appBackground: getCustomSkinProperty("app-back"),
+			appColor: getCustomSkinProperty("app-color"),
+			appControlsBackground: getCustomSkinProperty("app-controls-back"),
+			appControlsBackground2: getCustomSkinProperty("app-controls-back-2"),
+			appControlsColor: getCustomSkinProperty("app-controls-color"),
+			//look and style
+			defaultBorderRadius: getCustomSkinProperty("default-border-radius"),
+			//assistant
+			assistantMain: getCustomSkinProperty("assistant"),
+			assistantMain2: getCustomSkinProperty("assistant-2"),
+			assistantText: getCustomSkinProperty("assistant-text"),
+			//buttons
+			defaultButtonBackground: getCustomSkinProperty("default-button-back"),
+			defaultButtonBackground2: getCustomSkinProperty("default-button-back-2"),
+			defaultButtonColor: getCustomSkinProperty("default-button-color"),
+			customButtonBackground: getCustomSkinProperty("custom-button-back"),
+			customButtonBackground2: getCustomSkinProperty("custom-button-back-2"),
+			customButtonColor: getCustomSkinProperty("custom-button-color"),
+			//cards
+			cardContainerBackground: getCustomSkinProperty("card-container-back"),
+			cardBackground: getCustomSkinProperty("card-back"),
+			cardBackground2: getCustomSkinProperty("card-back-2"),
+			cardColor: getCustomSkinProperty("card-color"),
+			//chat - NOTE: last chat is 'assistant'
+			chatMsgBackground: getCustomSkinProperty("chat-msg-back"),
+			chatMsgBackground2: getCustomSkinProperty("chat-msg-back-2"),
+			chatMsgColor: getCustomSkinProperty("chat-msg-color"),
+			chatMsgUserBackground: getCustomSkinProperty("chat-msg-user-back"),
+			chatMsgUserBackground2: getCustomSkinProperty("chat-msg-user-back-2"),
+			chatMsgUserColor: getCustomSkinProperty("chat-msg-user-color")
+		};
+	}
+	function setOrRemoveCustomSkinProperty(propName, propValue){
+		var fullPropName = "--scs-" + propName;
+		if (propValue != undefined){
+			document.documentElement.style.setProperty(fullPropName, propValue);
+		}else{
+			document.documentElement.style.removeProperty(fullPropName);
+		}
+	}
+	function getCustomSkinProperty(propName){
+		var fullPropName = "--scs-" + propName;
+		var propValue = document.documentElement.style.getPropertyValue(fullPropName);
+		if (propValue == ''){
+			propValue = window.getComputedStyle(document.documentElement)
+				.getPropertyValue(fullPropName);
+		}
+		if (propValue == '' && SepiaFW.tools.endsWith(propName, "-2")){
+			propValue = getCustomSkinProperty(propName.replace(/-2$/, ""));
+		}
+		return propValue.trim();
+	}
 	
 	//setup dynamic label
 	var defaultLabel = $('#sepiaFW-nav-label').html();

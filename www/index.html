@@ -357,8 +357,8 @@
 			"Vectors Reloaded":		{id: 42, css: "css/sepiaFW-skin-vectors-reloaded.css", 	avatar: "6"},
 			"Canny": 				{id: 17, css: "css/sepiaFW-skin-canny.css", 			avatar: "1"},
 			"Essential": 			{id: 18, css: "css/sepiaFW-skin-minimal.css", 			avatar: "1"},
-			"Essential Green": 			{id: 35, css: "css/sepiaFW-skin-minimal-green.css", 	avatar: "1", base: 18},
-			"Essential Orange":			{id: 36, css: "css/sepiaFW-skin-minimal-orange.css", 	avatar: "1", base: 18},
+			"Essential Green": 		{id: 35, css: "css/sepiaFW-skin-minimal-green.css", 	avatar: "1", base: 18},
+			"Essential Orange":		{id: 36, css: "css/sepiaFW-skin-minimal-orange.css", 	avatar: "1", base: 18},
 			"Study": 				{id: 19, css: "css/sepiaFW-skin-study.css", 			avatar: "1"},
 			"Professional": 		{id: 20, css: "css/sepiaFW-skin-professional.css", 		avatar: "1"},
 			"Odyssey Explorer":		{id: 21, css: "css/sepiaFW-skin-odyssey1.css", 			avatar: "3"},
@@ -374,11 +374,12 @@
 			//"Future Reloaded": 	{id: 29, css: "css/sepiaFW-skin-future-reloaded.css", avatar: "3"},
 			"Flaming Squirrel":			{id: 30, css: "css/sepiaFW-skin-flaming-squirrel.css", 		avatar: "4"},
 			"Flaming Dark Squirrel":	{id: 31, css: "css/sepiaFW-skin-flaming-squirrel-dark.css", avatar: "4", base: 30},
-			"Funky Sunrise":		{id: 38, css: "css/sepiaFW-skin-funky-sunrise.css", avatar: "6", base: 30},
+			"Funky Sunrise":		{id: 38, css: "css/sepiaFW-skin-funky-sunrise.css", 		avatar: "6", base: 30},
 			"Alabaster Mystical":	{id: 32, css: "css/sepiaFW-skin-alabaster-mystical.css",	avatar: "5"},
 			"Alabaster Motley":		{id: 33, css: "css/sepiaFW-skin-alabaster-motley.css",		avatar: "5", base: 32},
-			"Alabaster Dark":		{id: 34, css: "css/sepiaFW-skin-alabaster-dark.css",		avatar: "5", base: 32}
-			//next: 43
+			"Alabaster Dark":		{id: 34, css: "css/sepiaFW-skin-alabaster-dark.css",		avatar: "5", base: 32},
+			"Custom Light Basic":	{id: 44, css: "css/sepiaFW-skin-custom-light-basic.css",	avatar: "1", customizable: true}
+			//next: 44
 		}
 		var avatars = {
 			"Classic": 				{id:  1, css: "css/sepiaFW-avatar-classic.css"},
@@ -415,7 +416,9 @@
 			var d = (askin == id || id == aSkinBase)? "" : "disabled";
 			if (askin == id) defaultAvatar = skins[skinNames[i]].avatar;
 			document.write("<link rel='" + r + "' href='" + skins[skinNames[i]].css + "' class='sepiaFW-style-skin' title='" + t + "' "
-				+ "data-id='" + id + "' " + "data-base='" + baseId + "' " + "data-name='" + skinNames[i] + "' " 
+				+ "data-id='" + id + "' " + "data-base='" + baseId + "' "
+				+ "data-name='" + skinNames[i] + "' "
+				+ "data-customizable='" + (skins[skinNames[i]].customizable || "false") + "' "
 				+ "data-avatar='" + skins[skinNames[i]].avatar + "' " + d + ">");
 		}
 		var avatarNames = Object.keys(avatars);

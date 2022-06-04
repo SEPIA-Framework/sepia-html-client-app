@@ -1,0 +1,368 @@
+<div id='sepiaFW-frame-carousel' class="sepiaFW-inner-container sepiaFW-carousel">
+	<style>
+		.scs-prop-group {
+			min-width: 100px !important;
+			padding: 2px 4px !important;
+			margin: 4px;
+			border: 1px solid currentColor;
+			border-radius: 5px;
+		}
+		.scs-demo-main {
+			flex: 1 1 160px;
+			margin: 4px;
+			max-width: 320px;
+			border: 1px solid currentColor;
+			background: #fff;
+			color: #000;
+			display: flex;
+    		flex-direction: column;
+		}
+		.scs-demo-topBar,
+		.scs-demo-controls {
+			width: 100%;
+			background: #000;
+			color: #fff;
+			padding: 6px;
+			text-align: center;
+			font-size: 14px;
+		}
+		.scs-demo-section {
+			width: calc(100% - 8px);
+			display: flex;
+    		justify-content: space-around;
+    		margin: 4px;
+		}
+		.scs-demo-button {
+			width: 40%;
+			background: #0ff;
+			color: #000;
+			margin: 4px;
+			padding: 2px;
+			text-align: center;
+			font-size: 11px;
+		}
+		.scs-demo-custom-button {
+			width: 24%;
+			height: 42px;
+			background: #ceff1a;
+			color: #000;
+			margin: 4px;
+			padding: 2px;
+			text-align: center;
+			font-size: 10px;
+			display: flex;
+			flex-direction: column;
+			justify-content: center;
+			align-items: center;
+		}
+		.scs-demo-card {
+			width: calc(100% - 8px);
+			margin: 4px;
+			background: #eee;
+			display: flex;
+		}
+		.scs-demo-card > div {
+			margin: 4px;
+			padding: 4px;
+			background: #fff;
+			color: #000;
+			text-align: center;
+			font-size: 12px;
+			min-width: 26px;
+			display: flex;
+			justify-content: center;
+			align-items: center;
+		}
+		.scs-demo-chat {
+			width: calc(100% - 10px);
+			background: #eee;
+			color: #000;
+			margin: 4px;
+			padding: 4px;
+			font-size: 11px;
+		}
+		.scs-demo-chat-user {
+			background: #000;
+			color: #fff;
+			max-width: 80%;
+		}
+		.scs-demo-chat-assi {
+			background: #ceff1a;
+			color: #000;
+			max-width: 80%;
+		}
+	</style>
+	<div class='sepiaFW-carousel-pane-container'>
+		<!-- Page 1 -->
+		<div id="sepiaFW-frame-page-1" class='sepiaFW-frames-page sepiaFW-carousel-pane'>
+			<h3>Custom Theme Editor</h3>
+			<p class="info-text">The theme editor can be used to create custom designs for specific skins.</p>
+			<div id="sepiaFW-theme-editor-controls" class="group-container">
+				<div class="group">
+					<label>Customizable skin:</label>
+					<select name="skins" style="max-width: unset;">
+						<option value="">- Select -</option>
+					</select>
+				</div>
+				<div class="group" name="border-slider">
+					<label>Border radius (<span name="border-slider-value">0</span>px):</label>
+					<!-- slider added on start -->
+				</div>
+				<div class="group">
+					<label>Theme property:</label>
+					<select name="properties-select" style="max-width: unset;">
+						<option value="">- Select -</option>
+					</select>
+				</div>
+				<div class="group wrap limit-512 center" name="properties-box">
+					<!-- color inputs will appear here -->
+				</div>
+				<div class="group" style="justify-content: center; margin: 16px 8px;">
+					<button id="sepiaFW-theme-editor-apply" onclick="SepiaFW.frames.currentScope.applyTheme()">Apply</button>
+					<button id="sepiaFW-theme-editor-apply" onclick="SepiaFW.frames.currentScope.resetTheme()">Reset</button>
+					<button id="sepiaFW-theme-editor-store" onclick="SepiaFW.frames.currentScope.storeTheme()">Store theme</button>
+				</div>
+			</div>
+			<div id="sepiaFW-theme-editor-view" class="group-container">
+				<div class="scs-demo-main">
+					<div class="scs-demo-topBar" name="scs-prop-1">My View</div>
+					<div class="scs-demo-section" name="scs-prop-3">
+						<div class="scs-demo-button">Button A</div>
+						<div class="scs-demo-button">Button B</div>
+					</div>
+					<div class="scs-demo-section" name="scs-prop-5">
+						<div class="scs-demo-card">
+							<div>&#x2600;</div><div style="flex: 1 1 auto; margin: 4px 0;">Card</div><div>&#x2103;</div>
+						</div>
+					</div>
+					<div class="scs-demo-section" name="scs-prop-4">
+						<div class="scs-demo-custom-button"><span>&#x266B;</span><span>Music</span></div>
+						<div class="scs-demo-custom-button"><span>&#x2692;</span><span>Tools</span></div>
+						<div class="scs-demo-custom-button"><span>&#x262F;</span><span>Chill</span></div>
+					</div>
+					<div class="scs-demo-section" style="flex: 1 1 auto;" name="scs-prop-0"></div>
+					<div class="scs-demo-controls" name="scs-prop-1">Controls</div>
+				</div>
+				<div class="scs-demo-main">
+					<div class="scs-demo-topBar" name="scs-prop-1">Chat</div>
+					<div class="scs-demo-section" name="scs-prop-6">
+						<div class="scs-demo-chat scs-demo-chat">
+							<span>Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy.</span>
+						</div>
+					</div>
+					<div class="scs-demo-section" style="justify-content: end;" name="scs-prop-7">
+						<div class="scs-demo-chat scs-demo-chat-user">
+							<span>At vero eos et accusam et justo duo dolores.</span>
+						</div>
+					</div>
+					<div class="scs-demo-section" style="justify-content: start;" name="scs-prop-2">
+						<div class="scs-demo-chat scs-demo-chat-assi">
+							<span>Stet clita kasd gubergren, no sea takimata.</span>
+						</div>
+					</div>
+					<div class="scs-demo-section" style="flex: 1 1 auto;" name="scs-prop-0"></div>
+					<div class="scs-demo-controls" name="scs-prop-1">Controls</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+<div id="sepiaFW-frames-nav-bar" class='sepiaFW-layer-header'>
+	<button id="sepiaFW-frames-close" class='entry'>
+		<i class="material-icons md-btn2">&#xE5CD;</i>
+	</button>
+	<!--<button id="sepiaFW-frames-show-prev-page" class='entry'>
+		<i class="material-icons md-btn2">keyboard_arrow_left</i><span data-localize="back">back</span>
+	</button>
+	<button id="sepiaFW-frames-show-next-page" class='entry'>
+		<span data-localize="next">next</span><i class="material-icons md-btn2">keyboard_arrow_right</i>
+	</button>-->
+	<div id="sepiaFW-frames-nav-bar-page-indicator"><div>&nbsp;</div></div>
+</div>
+<script>
+	$('#sepiaFW-frame-carousel').find('[data-localize]').each(function(){
+		$(this).html(SepiaFW.local.g(this.dataset.localize));
+	});
+		
+	//Define scope
+	SepiaFW.frames.currentScope = {
+
+		//Data
+		previousTheme: {},
+		currentTheme: {},
+		customSkins: [],
+		$skinSelector: undefined,
+		$propSelector: undefined,
+		$propBox: undefined,
+		borderSlider: undefined,
+		themeProps: [
+			{id: 0, name: "App",
+				colors: [{k: "Background", v: "appBackground"},
+					{k: "Text", v: "appColor"}]},
+			{id: 1, name: "Top/bottom controls",
+				colors: [{k: "Main", v: "appControlsBackground"},
+					{k: "Variant", v: "appControlsBackground2"}, {k: "Text", v: "appControlsColor"}]},
+			{id: 2, name: "Assistant",
+				colors: [{k: "Main", v: "assistantMain"},
+					{k: "Variant", v: "assistantMain2"}, {k: "Text", v: "assistantText"}]},
+			{id: 3, name: "Common buttons",
+				colors: [{k: "Main", v: "defaultButtonBackground"},
+					{k: "Variant", v: "defaultButtonBackground2"}, {k: "Text", v: "defaultButtonColor"}]},
+			{id: 4, name: "Custom buttons",
+				colors: [{k: "Main", v: "customButtonBackground"}, 
+					{k: "Variant", v: "customButtonBackground2"}, {k: "Text", v: "customButtonColor"}]},
+			{id: 5, name: "Cards",
+				colors: [{k: "Container", v: "cardContainerBackground"}, 
+					{k: "Main", v: "cardBackground"}, {k: "Variant", v: "cardBackground2"},
+					{k: "Text", v: "cardColor"}]},
+			{id: 6, name: "Default Chat Messages",
+				colors: [{k: "Default main", v: "chatMsgBackground"},
+					{k: "Default variant", v: "chatMsgBackground2"}, {k: "Default text", v: "chatMsgColor"}]},
+			{id: 7, name: "User Chat Messages",
+				colors: [{k: "User main", v: "chatMsgUserBackground"}, 
+					{k: "User variant", v: "chatMsgUserBackground2"}, {k: "User text", v: "chatMsgUserColor"}]}
+		],
+		colorPropBuilder: function(prop){
+			var scope = SepiaFW.frames.currentScope;
+			scope.$propBox.fadeOut(300, function(){
+				scope.$propBox.html("");
+				prop.colors.forEach(function(cp){
+					var propGroup = document.createElement("div");
+					propGroup.className = "subgroup center scs-prop-group";
+					var propIn = document.createElement("input");
+					propIn.type = "color";
+					propIn.dataset.name = cp.v;
+					var propVal = scope.currentTheme[cp.v];
+					if (propVal != undefined && propVal.length == 4){
+						//e.g.: #fff -> #ffffff
+						propVal = propVal[0] + propVal[1] + propVal[1] + propVal[2] 
+							+ propVal[2] + propVal[3] + propVal[3];
+					}
+					//console.error("propName:", cp.v, "propVal:", propVal);	//DEBUG
+					if (propVal){
+						propIn.value = propVal;
+					}
+					var propLabel = document.createElement("label");
+					propLabel.textContent = cp.k;
+					propGroup.appendChild(propIn);
+					propGroup.appendChild(propLabel);
+					scope.$propBox.append(propGroup);
+					//action
+					$(propIn).on("change", function(){
+						scope.currentTheme[cp.v] = propIn.value;
+					});
+				});
+				scope.$propBox.fadeIn(300);
+			});
+		},
+
+		//Interface
+		onFinishSetup: function(){
+			var scope = SepiaFW.frames.currentScope;
+
+			//get all custom themes
+			scope.customSkins = [];
+			document.body.querySelectorAll(".sepiaFW-style-skin").forEach(function(linkEle){
+				if (linkEle.dataset.customizable == "true"){
+					scope.customSkins.push({
+						id: linkEle.dataset.id,
+						name: linkEle.dataset.name
+					});
+				}
+			});
+			//get active theme
+			var themeData = SepiaFW.ui.getCustomSkinTheme();
+			scope.previousTheme = JSON.parse(JSON.stringify(themeData));
+			scope.currentTheme = themeData;
+
+			//build selector
+			scope.$skinSelector = $("#sepiaFW-theme-editor-controls").find("[name='skins']");
+			scope.customSkins.forEach(function(skin){
+				var opt = document.createElement("option");
+				opt.value = skin.id;
+				opt.textContent = skin.name;
+				scope.$skinSelector.append(opt);
+			});
+			scope.$skinSelector.on("change", function(opt){
+				//TODO: implement
+			});
+
+			//build other components
+			var borderInit = +(scope.currentTheme["defaultBorderRadius"] || "0px").replace("px", "");
+			var borderRange = [0, 18];
+			var $borderSliderVal = $("#sepiaFW-theme-editor-controls").find("[name='border-slider-value']");
+			scope.borderSlider = SepiaFW.ui.build.slider(
+					"sepiaFW-theme-editor-border-slider", function(newBorder){
+				$borderSliderVal.text(newBorder);
+				scope.currentTheme["defaultBorderRadius"] = newBorder + "px";
+			}, undefined, borderInit, borderRange, 1);
+			$borderSliderVal.text(borderInit);
+			$("#sepiaFW-theme-editor-controls").find("[name='border-slider']").first()
+				.append(scope.borderSlider);
+
+			//build properties selector
+			scope.$propSelector = $("#sepiaFW-theme-editor-controls").find("[name='properties-select']");
+			scope.$propBox = $("#sepiaFW-theme-editor-controls").find("[name='properties-box']");
+			scope.themeProps.forEach(function(prop){
+				var opt = document.createElement("option");
+				opt.value = prop.id;
+				opt.textContent = prop.name;
+				scope.$propSelector.append(opt);
+			});
+			scope.$propSelector.on("change", function(opt){
+				if (opt.target.value !== ""){
+					var prop = scope.themeProps[+opt.target.value];
+					scope.colorPropBuilder(prop);
+				}else{
+					scope.colorPropBuilder({colors: []});
+				}
+			});
+
+			//build preview buttons
+			$("#sepiaFW-theme-editor-view").find("[name^='scs-prop-']").each(function(){
+				this.style.cursor = "pointer";
+				var id = +this.getAttribute("name").replace("scs-prop-", "");
+				var prop = scope.themeProps[id];
+				this.title = prop.name;
+				//action
+				$(this).on("click", function(){
+					scope.$propSelector.val(prop.id);
+					scope.colorPropBuilder(prop);
+				});
+			});
+		},
+		
+		onOpen: function(){
+			var scope = SepiaFW.frames.currentScope;
+
+			//set skin selector
+			var activeSkinId = SepiaFW.ui.getSkin();
+			var skinMatch = scope.customSkins
+				.filter(function(s){ return s.id == activeSkinId; });
+			if (skinMatch && skinMatch.length){
+				scope.$skinSelector.val(activeSkinId);
+			}else{
+				scope.$skinSelector.val("");
+			}
+			//var skinStyle = SepiaFW.ui.getSkinStyle();
+		},
+		
+		applyTheme: function(){
+			var themeData = SepiaFW.frames.currentScope.currentTheme;
+			//console.log(themeData);
+			SepiaFW.ui.setCustomSkinTheme(themeData, false);
+			SepiaFW.ui.showPopup("Theme applied");
+		},
+		resetTheme: function(){
+			var themeData = SepiaFW.frames.currentScope.previousTheme;
+			SepiaFW.ui.setCustomSkinTheme(themeData, false);
+			SepiaFW.ui.showPopup("Theme reset");
+			//TODO: reload stuff
+		},
+		storeTheme: function(){
+			var themeData = SepiaFW.frames.currentScope.currentTheme;
+			SepiaFW.ui.setCustomSkinTheme(themeData, true);
+			SepiaFW.ui.showPopup(SepiaFW.local.g("done"));
+		}
+	}
+</script>
