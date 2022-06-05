@@ -10,12 +10,23 @@
 		.scs-demo-main {
 			flex: 1 1 160px;
 			margin: 4px;
-			max-width: 320px;
+			min-width: 140px;
+    		max-width: 256px;
 			border: 1px solid currentColor;
 			background: #fff;
 			color: #000;
 			display: flex;
     		flex-direction: column;
+		}
+		.scs-demo-menu {
+			flex: 0 0 auto;
+			width: auto;
+			max-width: 256px;
+			border: 1px solid currentColor;
+			background: #000;
+			color: #fff;
+			padding: 8px;
+			margin: 4px;
 		}
 		.scs-demo-topBar,
 		.scs-demo-controls {
@@ -41,6 +52,12 @@
 			text-align: center;
 			font-size: 11px;
 		}
+		.scs-demo-menu .scs-demo-button {
+			width: 23px;
+			height: 23px;
+			padding: 3px;
+			font-size: 12px;
+		}
 		.scs-demo-custom-button {
 			width: 24%;
 			height: 42px;
@@ -61,7 +78,7 @@
 			background: #eee;
 			display: flex;
 		}
-		.scs-demo-card > div {
+		.scs-demo-card-div {
 			margin: 4px;
 			padding: 4px;
 			background: #fff;
@@ -96,7 +113,7 @@
 		<!-- Page 1 -->
 		<div id="sepiaFW-frame-page-1" class='sepiaFW-frames-page sepiaFW-carousel-pane'>
 			<h3>Custom Theme Editor</h3>
-			<p class="info-text">The theme editor can be used to create custom designs for specific skins.</p>
+			<p class="info-text">The theme editor can be used to create custom designs for specific skins. You can select properties via the drop-down menu or by clicking on the preview elements.</p>
 			<div id="sepiaFW-theme-editor-controls" class="group-container">
 				<div class="group">
 					<label>Customizable skin:</label>
@@ -123,22 +140,24 @@
 					<button id="sepiaFW-theme-editor-store" onclick="SepiaFW.frames.currentScope.storeTheme()">Store theme</button>
 				</div>
 			</div>
-			<div id="sepiaFW-theme-editor-view" class="group-container">
+			<div id="sepiaFW-theme-editor-view" class="group-container" style="max-width: 512px;">
 				<div class="scs-demo-main">
 					<div class="scs-demo-topBar" name="scs-prop-1">My View</div>
 					<div class="scs-demo-section" name="scs-prop-3">
-						<div class="scs-demo-button">Button A</div>
-						<div class="scs-demo-button">Button B</div>
+						<div class="scs-demo-button scs-look">Button A</div>
+						<div class="scs-demo-button scs-look">Button B</div>
 					</div>
 					<div class="scs-demo-section" name="scs-prop-5">
-						<div class="scs-demo-card">
-							<div>&#x2600;</div><div style="flex: 1 1 auto; margin: 4px 0;">Card</div><div>&#x2103;</div>
+						<div class="scs-demo-card scs-look">
+							<div class="scs-demo-card-div scs-look">&#x2600;</div>
+							<div class="scs-demo-card-div scs-look" style="flex: 1 1 auto; margin: 4px 0;">Card</div>
+							<div class="scs-demo-card-div scs-look">&#x2103;</div>
 						</div>
 					</div>
 					<div class="scs-demo-section" name="scs-prop-4">
-						<div class="scs-demo-custom-button"><span>&#x266B;</span><span>Music</span></div>
-						<div class="scs-demo-custom-button"><span>&#x2692;</span><span>Tools</span></div>
-						<div class="scs-demo-custom-button"><span>&#x262F;</span><span>Chill</span></div>
+						<div class="scs-demo-custom-button scs-look"><span>&#x266B;</span><span>Music</span></div>
+						<div class="scs-demo-custom-button scs-look"><span>&#x2692;</span><span>Tools</span></div>
+						<div class="scs-demo-custom-button scs-look"><span>&#x262F;</span><span>Chill</span></div>
 					</div>
 					<div class="scs-demo-section" style="flex: 1 1 auto;" name="scs-prop-0"></div>
 					<div class="scs-demo-controls" name="scs-prop-1">Controls</div>
@@ -146,22 +165,30 @@
 				<div class="scs-demo-main">
 					<div class="scs-demo-topBar" name="scs-prop-1">Chat</div>
 					<div class="scs-demo-section" name="scs-prop-6">
-						<div class="scs-demo-chat scs-demo-chat">
+						<div class="scs-demo-chat scs-demo-chat-other scs-look">
 							<span>Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy.</span>
 						</div>
 					</div>
 					<div class="scs-demo-section" style="justify-content: end;" name="scs-prop-7">
-						<div class="scs-demo-chat scs-demo-chat-user">
+						<div class="scs-demo-chat scs-demo-chat-user scs-look">
 							<span>At vero eos et accusam et justo duo dolores.</span>
 						</div>
 					</div>
 					<div class="scs-demo-section" style="justify-content: start;" name="scs-prop-2">
-						<div class="scs-demo-chat scs-demo-chat-assi">
+						<div class="scs-demo-chat scs-demo-chat-assi scs-look">
 							<span>Stet clita kasd gubergren, no sea takimata.</span>
 						</div>
 					</div>
 					<div class="scs-demo-section" style="flex: 1 1 auto;" name="scs-prop-0"></div>
 					<div class="scs-demo-controls" name="scs-prop-1">Controls</div>
+				</div>
+				<div class="scs-demo-menu" name="scs-prop-1">
+					<div class="scs-demo-section" name="scs-prop-3">
+						<div class="scs-demo-button scs-look">&#x266B;</div>
+						<div class="scs-demo-button scs-look">&#x2600;</div>
+						<div class="scs-demo-button scs-look">&#x2637;</div>
+						<div class="scs-demo-button scs-look">&#x2611;</div>
+					</div>
 				</div>
 			</div>
 		</div>
@@ -197,31 +224,51 @@
 		borderSlider: undefined,
 		themeProps: [
 			{id: 0, name: "App",
-				colors: [{k: "Background", v: "appBackground"},
-					{k: "Text", v: "appColor"}]},
+				pvSelector: [".scs-demo-main"],
+				colors: [{k: "Background", v: "appBackground", p: "m1"},
+					{k: "Text", v: "appColor", p: "t1"}]},
 			{id: 1, name: "Top/bottom controls",
-				colors: [{k: "Main", v: "appControlsBackground"},
-					{k: "Variant", v: "appControlsBackground2"}, {k: "Text", v: "appControlsColor"}]},
+				pvSelector: [".scs-demo-topBar, .scs-demo-controls, .scs-demo-menu"],
+				colors: [{k: "Main", v: "appControlsBackground", p: "m1"},
+					{k: "Variant", v: "appControlsBackground2", p: "v1"},
+					{k: "Text", v: "appControlsColor", p: "t1"}]},
 			{id: 2, name: "Assistant",
-				colors: [{k: "Main", v: "assistantMain"},
-					{k: "Variant", v: "assistantMain2"}, {k: "Text", v: "assistantText"}]},
+				pvSelector: [".scs-demo-chat-assi"],
+				colors: [{k: "Main", v: "assistantMain", p: "m1"},
+					{k: "Variant", v: "assistantMain2", p: "v1"},
+					{k: "Text", v: "assistantText", p: "t1"}]},
 			{id: 3, name: "Common buttons",
-				colors: [{k: "Main", v: "defaultButtonBackground"},
-					{k: "Variant", v: "defaultButtonBackground2"}, {k: "Text", v: "defaultButtonColor"}]},
+				pvSelector: [".scs-demo-button"],
+				colors: [{k: "Main", v: "defaultButtonBackground", p: "m1"},
+					{k: "Variant", v: "defaultButtonBackground2", p: "v1"},
+					{k: "Text", v: "defaultButtonColor", p: "t1"}]},
 			{id: 4, name: "Custom buttons",
-				colors: [{k: "Main", v: "customButtonBackground"}, 
-					{k: "Variant", v: "customButtonBackground2"}, {k: "Text", v: "customButtonColor"}]},
+				pvSelector: [".scs-demo-custom-button"],
+				colors: [{k: "Main", v: "customButtonBackground", p: "m1"}, 
+					{k: "Variant", v: "customButtonBackground2", p: "v1"},
+					{k: "Text", v: "customButtonColor", p: "t1"}]},
 			{id: 5, name: "Cards",
-				colors: [{k: "Container", v: "cardContainerBackground"}, 
-					{k: "Main", v: "cardBackground"}, {k: "Variant", v: "cardBackground2"},
-					{k: "Text", v: "cardColor"}]},
+				pvSelector: [".scs-demo-card", ".scs-demo-card-div"],
+				colors: [{k: "Container", v: "cardContainerBackground", p: "m1"}, 
+					{k: "Main", v: "cardBackground", p: "m2"},
+					{k: "Variant", v: "cardBackground2", p: "v2"},
+					{k: "Text", v: "cardColor", p: "t2"}]},
 			{id: 6, name: "Default Chat Messages",
-				colors: [{k: "Default main", v: "chatMsgBackground"},
-					{k: "Default variant", v: "chatMsgBackground2"}, {k: "Default text", v: "chatMsgColor"}]},
+				pvSelector: [".scs-demo-chat-other"],
+				colors: [{k: "Default main", v: "chatMsgBackground", p: "m1"},
+					{k: "Default variant", v: "chatMsgBackground2", p: "v1"},
+					{k: "Default text", v: "chatMsgColor", p: "t1"}]},
 			{id: 7, name: "User Chat Messages",
-				colors: [{k: "User main", v: "chatMsgUserBackground"}, 
-					{k: "User variant", v: "chatMsgUserBackground2"}, {k: "User text", v: "chatMsgUserColor"}]}
+				pvSelector: [".scs-demo-chat-user"],
+				colors: [{k: "User main", v: "chatMsgUserBackground", p: "m1"}, 
+					{k: "User variant", v: "chatMsgUserBackground2", p: "v1"},
+					{k: "User text", v: "chatMsgUserColor", p: "t1"}]}
 		],
+		getTheme: function(){
+			var themeData = SepiaFW.ui.getCustomSkinTheme();
+			SepiaFW.frames.currentScope.previousTheme = JSON.parse(JSON.stringify(themeData));
+			SepiaFW.frames.currentScope.currentTheme = themeData;
+		},
 		colorPropBuilder: function(prop){
 			var scope = SepiaFW.frames.currentScope;
 			scope.$propBox.fadeOut(300, function(){
@@ -250,9 +297,49 @@
 					//action
 					$(propIn).on("change", function(){
 						scope.currentTheme[cp.v] = propIn.value;
+						scope.updateSkinPreview(prop);
 					});
 				});
 				scope.$propBox.fadeIn(300);
+			});
+		},
+		updateSkinPreview: function(prop){
+			//general look (only when all props are selected)
+			if (!prop){
+				var br = SepiaFW.frames.currentScope.currentTheme["defaultBorderRadius"] || "0px";
+				var brScalFactor = 1.8;		//size scaling for preview-to-real
+				br = Math.round((+br.replace("px", ""))/brScalFactor) + "px";
+				$("#sepiaFW-theme-editor-view").find(".scs-look").css({"border-radius": br});
+			}
+			var propArray = prop? [prop] : SepiaFW.frames.currentScope.themeProps;
+			//colors
+			propArray.forEach(function(pr){
+				var col = [], back1 = [], back2 = [];
+				var parts = 0;
+				pr.colors.forEach(function(c){
+					//check available types (expect: main, variant, text -> next)
+					if (c.p.indexOf("m") == 0){
+						parts++;
+						back1[parts-1] = c.v;
+					}else if (c.p.indexOf("v") == 0){
+						back2[parts-1] = c.v;
+					}else if (c.p.indexOf("t") == 0){
+						col[parts-1] = c.v;
+					}
+				});
+				for (let i=0; i<parts; i++){
+					let $eles = $("#sepiaFW-theme-editor-view").find(pr.pvSelector[i]);
+					let cv = col[i]? SepiaFW.frames.currentScope.currentTheme[col[i]] : undefined;
+					let bv1 = back1[i]? SepiaFW.frames.currentScope.currentTheme[back1[i]] :undefined;
+					let bv2 = back2[i]? SepiaFW.frames.currentScope.currentTheme[back2[i]] :undefined;
+					$eles.css({"color": cv || ""});
+					if (bv1 && bv2){
+						var lg = "linear-gradient(to right, " + bv1 + " 0%, " + bv2 + " 100%)";
+						$eles.css({"background": lg});
+					}else{
+						$eles.css({"background": bv1 || ""});
+					}
+				}
 			});
 		},
 
@@ -271,9 +358,7 @@
 				}
 			});
 			//get active theme
-			var themeData = SepiaFW.ui.getCustomSkinTheme();
-			scope.previousTheme = JSON.parse(JSON.stringify(themeData));
-			scope.currentTheme = themeData;
+			scope.getTheme();
 
 			//build selector
 			scope.$skinSelector = $("#sepiaFW-theme-editor-controls").find("[name='skins']");
@@ -284,18 +369,33 @@
 				scope.$skinSelector.append(opt);
 			});
 			scope.$skinSelector.on("change", function(opt){
-				//TODO: implement
+				//set skin and update preview
+				SepiaFW.ui.setSkin(scope.$skinSelector.val());
+				setTimeout(function(){
+					//try fast load
+					scope.getTheme();
+					scope.updateSkinPreview();
+				}, 100);
+				setTimeout(function(){
+					//slow load refresh
+					scope.getTheme();
+					scope.updateSkinPreview();
+				}, 2500);
 			});
 
-			//build other components
+			//build "look"" components
 			var borderInit = +(scope.currentTheme["defaultBorderRadius"] || "0px").replace("px", "");
 			var borderRange = [0, 18];
 			var $borderSliderVal = $("#sepiaFW-theme-editor-controls").find("[name='border-slider-value']");
 			scope.borderSlider = SepiaFW.ui.build.slider(
 					"sepiaFW-theme-editor-border-slider", function(newBorder){
+				//border radius change:
 				$borderSliderVal.text(newBorder);
 				scope.currentTheme["defaultBorderRadius"] = newBorder + "px";
-			}, undefined, borderInit, borderRange, 1);
+			}, function(){
+				//refresh
+				scope.updateSkinPreview();
+			}, borderInit, borderRange, 1);
 			$borderSliderVal.text(borderInit);
 			$("#sepiaFW-theme-editor-controls").find("[name='border-slider']").first()
 				.append(scope.borderSlider);
@@ -345,9 +445,15 @@
 				scope.$skinSelector.val("");
 			}
 			//var skinStyle = SepiaFW.ui.getSkinStyle();
+
+			//update preview
+			scope.updateSkinPreview();
 		},
 		
 		applyTheme: function(){
+			//refresh preview once more
+			SepiaFW.frames.currentScope.updateSkinPreview();
+			//apply
 			var themeData = SepiaFW.frames.currentScope.currentTheme;
 			//console.log(themeData);
 			SepiaFW.ui.setCustomSkinTheme(themeData, false);
@@ -355,11 +461,18 @@
 		},
 		resetTheme: function(){
 			var themeData = SepiaFW.frames.currentScope.previousTheme;
+			//set
 			SepiaFW.ui.setCustomSkinTheme(themeData, false);
+			SepiaFW.frames.currentScope.currentTheme = JSON.parse(JSON.stringify(themeData));
+			//refresh preview
+			SepiaFW.frames.currentScope.updateSkinPreview();
+			//TODO: reload more stuff
 			SepiaFW.ui.showPopup("Theme reset");
-			//TODO: reload stuff
 		},
 		storeTheme: function(){
+			//refresh preview once more
+			SepiaFW.frames.currentScope.updateSkinPreview();
+			//apply and store
 			var themeData = SepiaFW.frames.currentScope.currentTheme;
 			SepiaFW.ui.setCustomSkinTheme(themeData, true);
 			SepiaFW.ui.showPopup(SepiaFW.local.g("done"));

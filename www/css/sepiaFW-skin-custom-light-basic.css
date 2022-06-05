@@ -65,6 +65,7 @@ html {
 #sepiaFW-main-window .sepiaFW-menu li,
 #sepiaFW-login-box,
 #sepiaFW-login-box button,
+#sepiaFW-login-box input,
 .sepiaFW-input-popup {
 	border-radius: var(--scs-default-border-radius);
 }
@@ -105,6 +106,19 @@ html.landscape-small #sepiaFW-chat-controls {
 }
 #sepiaFW-chat-menu li {
     background: rgba(128, 128, 128, 0.05);
+}
+
+#sepiaFW-login-box {
+	background: linear-gradient(to right, var(--scs-default-button-back) 0%, var(--scs-default-button-back-2) 100%);
+	color: var(--scs-default-button-color);
+}
+#sepiaFW-login-box button {
+	background: linear-gradient(to right, var(--scs-app-controls-back) 0%, var(--scs-app-controls-back-2) 100%);
+	color: var(--scs-app-controls-color);
+}
+.sepiaFW-notouch-device #sepiaFW-login-box button:hover {
+	background: var(--scs-app-controls-back);
+	color: var(--scs-app-controls-color);
 }
 
 /* BUTTONS/INPUT */
@@ -195,8 +209,12 @@ html.landscape-small #sepiaFW-chat-controls {
 }
 .sepiaFW-cards-list-body .weatherNowSmall > .itemLeft {
 	background: var(--scs-default-button-back);
-	color: var(--scs-default-button-color);	
+	color: var(--scs-default-button-color);
 	/* TODO: the icon is always white! */
+}
+.sepiaFW-cards-list-body .sepiaFW-cards-list-body .weatherNowDetails li {
+	background: var(--scs-card-back-2);
+	color: var(--scs-card-color);
 }
 .sepiaFW-cards-list-title {
 	border-radius: var(--scs-default-border-radius);
@@ -215,7 +233,7 @@ html.landscape-small #sepiaFW-chat-controls {
 	color: #000;
 }
 .sepiaFW-cards-list-body .listElement .listRight {
-    background: var(--scs-card-back);
+    background: var(--scs-card-back-2);
 	color: var(--scs-card-color);
 	opacity: 0.75;
 }
@@ -253,16 +271,19 @@ html.landscape-small #sepiaFW-chat-controls {
 #sepiaFW-chat-output .chatMsg article {
     /*background: var(--scs-chat-msg-back);*/
 	background: linear-gradient(to right, var(--scs-chat-msg-back) 0%, var(--scs-chat-msg-back-2) 100%);
+	border-left-color: var(--scs-chat-msg-back);
 	color: var(--scs-chat-msg-color);
 }
 #sepiaFW-chat-output .chatMsg article.chatMe {
 	/*background: var(--scs-chat-msg-user-back);*/
 	background: linear-gradient(to right, var(--scs-chat-msg-user-back) 0%, var(--scs-chat-msg-user-back-2) 100%);
+	border-left-color: var(--scs-chat-msg-user-back);
 	color: var(--scs-chat-msg-user-color);
 }
 #sepiaFW-chat-output .chatMsg article.chatAssistant {
 	/*background: var(--scs-assistant);*/
 	background: linear-gradient(to right, var(--scs-assistant) 0%, var(--scs-assistant-2) 100%);
+	border-left-color: var(--scs-assistant);
 	color: var(--scs-assistant-text);
 }
 #sepiaFW-chat-output .chatMsg article.chatPm {

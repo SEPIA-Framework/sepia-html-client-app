@@ -572,7 +572,7 @@ html.edge-2-edge body.big-screen #sepiaFW-main-window {
 	appearance: none;
 	border: 0px;
 	background: transparent;
-	color: #fff;
+	color: inherit;
 	width: 32px;
 }
 #sepiaFW-language-selector option {

@@ -338,12 +338,16 @@ function sepiaFW_build_ui(){
 		var avatar = SepiaFW.data.get('activeAvatar') || defaultAvatar || "0";
 		UI.setAvatar(avatar, false);
 
-		UI.refreshSkinColors();
-		$(window).trigger('resize'); 	//this might not work on IE
 		setTimeout(function(){
+			//TODO: this should be triggered on CSS load I guess
 			UI.refreshSkinColors();
-			$(window).trigger('resize'); 	//this might not work on IE
-		}, 2500);		//safety refresh for slow connection, TODO: will still fail on very slow connection
+			$(window).trigger('resize');
+		}, 100);
+		setTimeout(function(){
+			//safety refresh for slow connection, TODO: will still fail on very slow connection
+			UI.refreshSkinColors();
+			$(window).trigger('resize');
+		}, 2500);
 	}
 	UI.getSkin = function(){
 		return activeSkin;
