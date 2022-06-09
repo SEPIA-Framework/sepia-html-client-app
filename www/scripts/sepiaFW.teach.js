@@ -292,7 +292,7 @@ function sepiaFW_build_teach(sepiaSessionId){
 							var parsedData = JSON.parse(readRes);
 							viewTxtArea.value = JSON.stringify(parsedData, null, 2);
 						}
-					}, function(viewTxtAreaValue){
+					}, function(viewTxtAreaValue, viewTxtArea){
 						//confirm and close
 						if (viewTxtAreaValue){
 							var parsedData = JSON.parse(viewTxtAreaValue);

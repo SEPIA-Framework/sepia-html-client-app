@@ -1730,6 +1730,7 @@ function sepiaFW_build_ui(){
 			titleBox.appendChild(titleTextEle);
 		}
 		var jsonBox = document.createElement("textarea");
+		jsonBox.spellcheck = false;
 		jsonBox.value = JSON.stringify(json, null, 4);
 		jsonBox.style.whiteSpace = "pre";
 		msgBox.appendChild(titleBox);
@@ -1763,12 +1764,13 @@ function sepiaFW_build_ui(){
 		}
 		var txtArea = document.createElement("textarea");
 		txtArea.style.cssText = "width: 100%; height: 150px; white-space: pre; border: 1px solid;";
+		txtArea.spellcheck = false;
 		txtArea.value = options.initialPreviewValue || "- Import data -";
 		content.appendChild(txtArea);
 		var pop = UI.showPopup(content, {
 			buttonOneName: options.buttonOneName || "Import",
 			buttonOneAction: function(){
-				if (confirmCallback) confirmCallback(txtArea.value);
+				if (confirmCallback) confirmCallback(txtArea.value, txtArea);
 			},
 			buttonTwoName: options.buttonTwoName || "Abort",
 			buttonTwoAction: function(){}

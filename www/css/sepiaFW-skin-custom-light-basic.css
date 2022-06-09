@@ -88,8 +88,11 @@ html {
 	color: var(--scs-app-controls-color);
 }
 html.landscape-small #sepiaFW-chat-controls {
-	background-color: var(--scs-app-controls-back) !important;
+	background: linear-gradient(to right, var(--scs-app-controls-back) 0%, var(--scs-app-controls-back-2) 100%) !important;
 	color: var(--scs-app-controls-color);
+}
+html.landscape-small #sepiaFW-chat-controls-right {
+	background: transparent;
 }
 #sepiaFW-chat-controls {
     background: linear-gradient(transparent, var(--scs-app-back));

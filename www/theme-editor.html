@@ -8,7 +8,7 @@
 			border-radius: 5px;
 		}
 		.scs-demo-main {
-			flex: 1 1 160px;
+			flex: 1 1 170px;
 			margin: 4px;
 			min-width: 140px;
     		max-width: 256px;
@@ -20,6 +20,7 @@
 		}
 		.scs-demo-menu {
 			flex: 0 0 auto;
+			/*align-self: start;*/
 			width: auto;
 			max-width: 256px;
 			border: 1px solid currentColor;
@@ -53,10 +54,13 @@
 			font-size: 11px;
 		}
 		.scs-demo-menu .scs-demo-button {
-			width: 23px;
-			height: 23px;
+			width: 24px;
+			height: 24px;
 			padding: 3px;
 			font-size: 12px;
+			display: flex;
+    		justify-content: center;
+    		align-items: center;
 		}
 		.scs-demo-custom-button {
 			width: 24%;
@@ -136,11 +140,13 @@
 				</div>
 				<div class="group" style="justify-content: center; margin: 16px 8px;">
 					<button id="sepiaFW-theme-editor-apply" onclick="SepiaFW.frames.currentScope.applyTheme()">Apply</button>
-					<button id="sepiaFW-theme-editor-apply" onclick="SepiaFW.frames.currentScope.resetTheme()">Reset</button>
-					<button id="sepiaFW-theme-editor-store" onclick="SepiaFW.frames.currentScope.storeTheme()">Store theme</button>
+					<button id="sepiaFW-theme-editor-reset" onclick="SepiaFW.frames.currentScope.resetTheme()">Reset</button>
+					<button id="sepiaFW-theme-editor-store" onclick="SepiaFW.frames.currentScope.storeTheme()">Store</button>
+					<button id="sepiaFW-theme-editor-export" onclick="SepiaFW.frames.currentScope.showThemeExporter()">Export</button>
+					<button id="sepiaFW-theme-editor-import" onclick="SepiaFW.frames.currentScope.showThemeImporter()">Import</button>
 				</div>
 			</div>
-			<div id="sepiaFW-theme-editor-view" class="group-container" style="max-width: 512px;">
+			<div id="sepiaFW-theme-editor-view" class="group-container">
 				<div class="scs-demo-main">
 					<div class="scs-demo-topBar" name="scs-prop-1">My View</div>
 					<div class="scs-demo-section" name="scs-prop-3">
@@ -149,15 +155,15 @@
 					</div>
 					<div class="scs-demo-section" name="scs-prop-5">
 						<div class="scs-demo-card scs-look">
-							<div class="scs-demo-card-div scs-look">&#x2600;</div>
+							<div class="scs-demo-card-div scs-look">&#x263C;</div>
 							<div class="scs-demo-card-div scs-look" style="flex: 1 1 auto; margin: 4px 0;">Card</div>
 							<div class="scs-demo-card-div scs-look">&#x2103;</div>
 						</div>
 					</div>
 					<div class="scs-demo-section" name="scs-prop-4">
 						<div class="scs-demo-custom-button scs-look"><span>&#x266B;</span><span>Music</span></div>
-						<div class="scs-demo-custom-button scs-look"><span>&#x2692;</span><span>Tools</span></div>
-						<div class="scs-demo-custom-button scs-look"><span>&#x262F;</span><span>Chill</span></div>
+						<div class="scs-demo-custom-button scs-look"><span>&#x260F;</span><span>Call</span></div>
+						<div class="scs-demo-custom-button scs-look"><span>&#x272A;</span><span>Chill</span></div>
 					</div>
 					<div class="scs-demo-section" style="flex: 1 1 auto;" name="scs-prop-0"></div>
 					<div class="scs-demo-controls" name="scs-prop-1">Controls</div>
@@ -185,9 +191,9 @@
 				<div class="scs-demo-menu" name="scs-prop-1">
 					<div class="scs-demo-section" name="scs-prop-3">
 						<div class="scs-demo-button scs-look">&#x266B;</div>
-						<div class="scs-demo-button scs-look">&#x2600;</div>
+						<div class="scs-demo-button scs-look">&#x263C;</div>
 						<div class="scs-demo-button scs-look">&#x2637;</div>
-						<div class="scs-demo-button scs-look">&#x2611;</div>
+						<div class="scs-demo-button scs-look">&#x2713;</div>
 					</div>
 				</div>
 			</div>
@@ -342,6 +348,18 @@
 				}
 			});
 		},
+		resetUi: function(){
+			var scope = SepiaFW.frames.currentScope;
+			//update border
+			var borderVal = +(scope.currentTheme["defaultBorderRadius"] || "0px").replace("px", "");
+			scope.borderSlider.setValue(borderVal);
+			$("#sepiaFW-theme-editor-controls").find("[name='border-slider-value']").text(borderVal);
+			//reset prop selector
+			scope.$propSelector.val("");
+			scope.colorPropBuilder({colors: []});
+			//update preview
+			scope.updateSkinPreview();
+		},
 
 		//Interface
 		onFinishSetup: function(){
@@ -360,7 +378,7 @@
 			//get active theme
 			scope.getTheme();
 
-			//build selector
+			//build skin selector
 			scope.$skinSelector = $("#sepiaFW-theme-editor-controls").find("[name='skins']");
 			scope.customSkins.forEach(function(skin){
 				var opt = document.createElement("option");
@@ -374,12 +392,12 @@
 				setTimeout(function(){
 					//try fast load
 					scope.getTheme();
-					scope.updateSkinPreview();
+					scope.resetUi();
 				}, 100);
 				setTimeout(function(){
 					//slow load refresh
 					scope.getTheme();
-					scope.updateSkinPreview();
+					scope.resetUi();
 				}, 2500);
 			});
 
@@ -464,8 +482,8 @@
 			//set
 			SepiaFW.ui.setCustomSkinTheme(themeData, false);
 			SepiaFW.frames.currentScope.currentTheme = JSON.parse(JSON.stringify(themeData));
-			//refresh preview
-			SepiaFW.frames.currentScope.updateSkinPreview();
+			//refresh stuff
+			SepiaFW.frames.currentScope.resetUi();
 			//TODO: reload more stuff
 			SepiaFW.ui.showPopup("Theme reset");
 		},
@@ -476,6 +494,63 @@
 			var themeData = SepiaFW.frames.currentScope.currentTheme;
 			SepiaFW.ui.setCustomSkinTheme(themeData, true);
 			SepiaFW.ui.showPopup(SepiaFW.local.g("done"));
+		},
+		showThemeExporter: function(){
+			var jsonBox = SepiaFW.ui.showJsonInfoPopup("Custom Theme JSON",
+				"Download as file or copy the JSON data:",
+				SepiaFW.frames.currentScope.currentTheme, {
+					buttonOneName: "Download",
+					buttonOneAction: function(){
+						//download as file
+						JSON.parse(jsonBox.value);	//just to validate JSON
+						var blob = new Blob([jsonBox.value], {type: "application/json"});
+						var filename = "sepia-custom-theme.json";
+						SepiaFW.files.saveBlobAs(filename, blob, jsonBox.parentElement);
+					},
+					buttonTwoName: SepiaFW.local.g("close"),
+					buttonTwoAction: function(){},
+				}
+			);
+		},
+		showThemeImporter: function(){
+			var titleBox = document.createElement("div");
+			titleBox.innerHTML = "<h3>Custom Theme JSON</h3><p>Load previously exported theme files (drag & drop/select) or copy JSON data:</p>";
+			SepiaFW.ui.showFileImportAndViewPopup(titleBox, {
+					addFileSelect: true,
+					accept: ".json",
+					buttonOneName: "Import",
+					buttonTwoName: "Abort",
+					initialPreviewValue: "- Theme JSON -"
+				}, 
+				function(readRes, viewTxtArea){
+					//read
+					if (readRes){
+						var parsedData = JSON.parse(readRes);
+						viewTxtArea.value = JSON.stringify(parsedData, null, 4);
+					}
+				}, function(viewTxtAreaValue, viewTxtArea){
+					//confirm and close
+					if (viewTxtAreaValue){
+						try {
+							//set
+							SepiaFW.frames.currentScope.currentTheme = JSON.parse(viewTxtAreaValue);
+							SepiaFW.frames.currentScope.resetUi();
+							//show confirm message
+							setTimeout(function(){
+								SepiaFW.ui.showPopup("Theme imported");
+							}, 300);
+						}catch(err){
+							viewTxtArea.value = "ERROR - Failed to import: " 
+								+ (err? (err.message || err.name || err) : "?");
+							throw err;
+						}
+					}
+				}, function(err, viewTxtArea){
+					//read error
+					viewTxtArea.value = "ERROR - Failed to read: " 
+						+ (err? (err.message || err.name || err) : "?");
+				}
+			);
 		}
 	}
 </script>

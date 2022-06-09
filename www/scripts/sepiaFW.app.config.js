@@ -498,7 +498,7 @@ function sepiaFW_build_config(){
 					var parsedData = JSON.parse(readRes);
 					viewTxtArea.value = JSON.stringify(parsedData, null, 4);
 				}
-			}, function(viewTxtAreaValue){
+			}, function(viewTxtAreaValue, viewTxtArea){
 				//confirm and close
 				if (viewTxtAreaValue){
 					try {
