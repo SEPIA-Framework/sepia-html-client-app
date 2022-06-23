@@ -147,45 +147,43 @@
 	$('#sepiaFW-frame-carousel').find('[data-localize]').each(function(){
 		$(this).html(SepiaFW.local.g(this.dataset.localize));
 	});
+	
 	//Define scope
 	SepiaFW.frames.currentScope = {
-		//Load scope (default method)
-		load: function(){
+		//setup
+		onFinishSetup: function(){
 			$('#sepiaFW-frame-carousel').find('[data-proceed-btn]').each(function(){
+				//inline "next" buttons
 				$(this).css({"cursor":"pointer"});
 				$(this).off().on('click', function(){
 					SepiaFW.frames.uic.next();
 				});
 			});
 			$('#sepiaFW-frame-carousel').find('#tutorial-test-mic').off().on('click', function(){
-				if (SepiaFW.speech){
-					SepiaFW.ui.showPopup('Sag etwas...');
-					SepiaFW.speech.toggleRecognition(
-						function(msg){ SepiaFW.ui.showPopup('Du hast gesagt: <br>' + msg); }, 
-						function(msg){ /*interrim result*/ }, 
-						function(msg){ SepiaFW.ui.showPopup('Sieht so aus als hätte es nicht funktioniert: <br>' + msg); }
-					);
-				}
+				SepiaFW.ui.showPopup('Sag etwas...');
+				SepiaFW.speech.toggleRecognition(
+					function(msg){ SepiaFW.ui.showPopup('Du hast gesagt: <br>' + msg); }, 
+					function(msg){ /*interrim result*/ }, 
+					function(msg){ SepiaFW.ui.showPopup('Sieht so aus als hätte es nicht funktioniert: <br>' + msg); }
+				);
 			});
 			$('#sepiaFW-frame-carousel').find('#tutorial-test-note').off().on('click', function(){
-				//simulate 'untrusted' event
 				var msg = "Hello World! Dies ist eine lokale (offline) Notification die z.B. für Nachrichten und Timer genutzt werden kann.";
-				SepiaFW.files.fetch('credits.html', function(){
-					if (SepiaFW.events) SepiaFW.events.showSimpleSilentNotification("S.E.P.I.A. sagt:", msg, {
-						type: "entertainWhileIdle",
-						data: {
-							message: msg
-						}
-					});
+				SepiaFW.events.showSimpleSilentNotification("S.E.P.I.A. sagt:", msg, {
+					type: "entertainWhileIdle",
+					data: {
+						message: msg
+					}
+				}, function(reqInfo){
+					//request status?
+					if (reqInfo && reqInfo.error){
+						SepiaFW.ui.showPopup('Notification Error: ' + reqInfo.error);
+					}
 				});
 			});
 			$('#sepiaFW-frame-carousel').find('#tutorial-test-popup').off().on('click', function(){
-				//simulate 'untrusted' event
-				SepiaFW.files.fetch('credits.html', function(){
-					if (SepiaFW.ui.actions) SepiaFW.ui.actions.openUrlAutoTarget("https://sepia-framework.github.io", true);
-				});
+				SepiaFW.ui.actions.openUrlAutoTarget("https://sepia-framework.github.io", true);
 			});
 		}
 	}
-	SepiaFW.frames.currentScope.load();
 </script>

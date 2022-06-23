@@ -150,43 +150,40 @@
 
 	//Define scope
 	SepiaFW.frames.currentScope = {
-		//Load scope (default method)
-		load: function(){
+		//setup
+		onFinishSetup: function(){
 			$('#sepiaFW-frame-carousel').find('[data-proceed-btn]').each(function(){
+				//inline "next" buttons
 				$(this).css({"cursor":"pointer"});
 				$(this).off().on('click', function(){
 					SepiaFW.frames.uic.next();
 				});
 			});
 			$('#sepiaFW-frame-carousel').find('#tutorial-test-mic').off().on('click', function(){
-				if (SepiaFW.speech){
-					SepiaFW.ui.showPopup('Start speaking...');
-					SepiaFW.speech.toggleRecognition(
-						function(msg){ SepiaFW.ui.showPopup('You said: <br>' + msg); }, 
-						function(msg){ /*interrim result*/ }, 
-						function(msg){ SepiaFW.ui.showPopup('Seems it did not work: <br>' + msg); }
-					);
-				}
+				SepiaFW.ui.showPopup('Start speaking...');
+				SepiaFW.speech.toggleRecognition(
+					function(msg){ SepiaFW.ui.showPopup('You said: <br>' + msg); }, 
+					function(msg){ /*interrim result*/ }, 
+					function(msg){ SepiaFW.ui.showPopup('Seems it did not work: <br>' + msg); }
+				);
 			});
 			$('#sepiaFW-frame-carousel').find('#tutorial-test-note').off().on('click', function(){
-				//simulate 'untrusted' event
 				var msg = "Hello World! This is a local (offline) notification that can be used for things like messages and alarms.";
-				SepiaFW.files.fetch('credits.html', function(){
-					if (SepiaFW.events) SepiaFW.events.showSimpleSilentNotification("S.E.P.I.A. says:", msg, {
-						type: "entertainWhileIdle",
-						data: {
-							message: msg
-						}
-					});
+				SepiaFW.events.showSimpleSilentNotification("S.E.P.I.A. says:", msg, {
+					type: "entertainWhileIdle",
+					data: {
+						message: msg
+					}
+				}, function(reqInfo){
+					//request status?
+					if (reqInfo && reqInfo.error){
+						SepiaFW.ui.showPopup('Notification Error: ' + reqInfo.error);
+					}
 				});
 			});
 			$('#sepiaFW-frame-carousel').find('#tutorial-test-popup').off().on('click', function(){
-				//simulate 'untrusted' event
-				SepiaFW.files.fetch('credits.html', function(){
-					if (SepiaFW.ui.actions) SepiaFW.ui.actions.openUrlAutoTarget("https://sepia-framework.github.io", true);
-				});
+				SepiaFW.ui.actions.openUrlAutoTarget("https://sepia-framework.github.io", true);
 			});
 		}
 	}
-	SepiaFW.frames.currentScope.load();
 </script>
