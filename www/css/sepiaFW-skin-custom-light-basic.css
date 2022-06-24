@@ -219,8 +219,18 @@ html.landscape-small #sepiaFW-chat-controls-right {
 	background: var(--scs-card-back-2);
 	color: var(--scs-card-color);
 }
-.sepiaFW-cards-list-title {
+.sepiaFW-cards-list-body .weatherNowDetails li:first-of-type {
+	border-radius: var(--scs-default-border-radius) var(--scs-default-border-radius) 0 0;
+}
+.sepiaFW-cards-list-body .weatherNowDetails li:last-of-type {
+    border-radius: 0 0 var(--scs-default-border-radius) var(--scs-default-border-radius);
+}
+.sepiaFW-cards-list-title,
+.sepiaFW-cards-list-title.newsHeader {
 	border-radius: var(--scs-default-border-radius);
+}
+.sepiaFW-cards-list-title.newsHeader button {
+    color: #000 !important;
 }
 .sepiaFW-cards-list-title:not(.newsHeader) {
 	/*background: var(--scs-default-button-back);*/
@@ -234,6 +244,9 @@ html.landscape-small #sepiaFW-chat-controls-right {
 .sepiaFW-cards-list-body .newsArticle .newsCenter {
 	background: #fcfcfc;
 	color: #000;
+}
+.sepiaFW-cards-list-body .newsArticle:first-child .newsCenter {
+    border-radius: var(--scs-default-border-radius) var(--scs-default-border-radius) 0 0;
 }
 .sepiaFW-cards-list-body .listElement .listRight {
     background: var(--scs-card-back-2);
@@ -258,6 +271,9 @@ html.landscape-small #sepiaFW-chat-controls-right {
     background: var(--scs-assistant);
 	color: var(--scs-assistant-text);
 	border-radius: var(--scs-default-border-radius);
+}
+.sepiaFW-cards-list-footer.newsFooter {
+    border-radius: 0 0 var(--scs-default-border-radius) var(--scs-default-border-radius);
 }
 
 @keyframes sepiaFW-timeEvent-card-signal {

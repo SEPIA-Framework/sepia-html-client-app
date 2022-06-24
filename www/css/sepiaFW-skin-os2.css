@@ -216,9 +216,10 @@ html.landscape-small #sepiaFW-chat-controls {
 }
 .chatMsg > .sepiaFW-cards-flexSize-container.oneElement {
 	margin-top: -3px;
+	margin-bottom: 2px;
 }
 .chatMsg > .sepiaFW-cards-flexSize-container.oneElement:first-of-type {
-	margin-top: 0px;
+	margin-top: 2px;
 }
 
 .sepiaFW-cards-list-body .cardBodyItem .itemLeft,

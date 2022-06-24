@@ -2242,7 +2242,7 @@ body.big-screen #sepiaFW-chat-output .chatMsg {
 	width: calc(100% + 10px);
     margin-left: -5px;
     margin-right: -5px;
-	margin-bottom: 5px;
+	margin-bottom: 10px;
 	padding-bottom: 5px !important;
 	display: flex;
 	flex-wrap: wrap;
@@ -2264,23 +2264,6 @@ body.big-screen #sepiaFW-chat-output .chatMsg {
     font-weight: bold;
     margin: 4px 10px 6px 10px;
 	min-width: calc(100% - 20px);
-}
-.sepiaFW-my-view-section > .sepiaFW-cards-flexSize-container,
-#sepiaFW-my-view > .sepiaFW-cards-flexSize-container {
-	padding-bottom: 5px !important;
-	margin-bottom: 5px; /* we make this smaller (prev. it was 10px ...) */
-}
-.sepiaFW-my-view-section > .sepiaFW-cards-flexSize-container + div:not(.sepiaFW-cards-flexSize-container),
-#sepiaFW-my-view > .sepiaFW-cards-flexSize-container + div:not(.sepiaFW-cards-flexSize-container) {
-	margin-top: 10px;	/* ... and we add it here on every direct sibling that is not a card container */
-}
-.sepiaFW-my-view-section > .sepiaFW-cards-flexSize-container > :last-child,
-#sepiaFW-my-view > .sepiaFW-cards-flexSize-container > :last-child {
-	margin-bottom: 0px !important;
-}
-.sepiaFW-my-view-section > .sepiaFW-cards-flexSize-container > :last-child:not(.sepiaFW-cards-list-footer),
-#sepiaFW-my-view > .sepiaFW-cards-flexSize-container > :last-child:not(.sepiaFW-cards-list-footer) {
-	padding-bottom: 0px !important;
 }
 
 #sepiaFW-result-view {

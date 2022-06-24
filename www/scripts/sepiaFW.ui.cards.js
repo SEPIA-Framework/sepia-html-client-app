@@ -132,7 +132,6 @@ function sepiaFW_build_ui_cards(){
 						//Radio
 						else if (elementType === RADIO_CARD_ELE){
 							var cardElement = buildRadioElement(cardInfoI.info[j]);
-							if (j==N-1) cardElement.style.paddingBottom = '5px'; 	//TODO: convert to CSS
 							card.dataInline.push(cardElement);
 						}
 						//News
