@@ -7,27 +7,37 @@
 			border: 1px solid currentColor;
 			border-radius: 5px;
 		}
-		.scs-demo-main {
+		.scs-demo-main,
+		.scs-demo-menu,
+		.scs-demo-teach-ui {
 			flex: 1 1 170px;
 			margin: 4px;
 			min-width: 140px;
     		max-width: 256px;
-			border: 1px solid currentColor;
+			border: 1px solid #000;
+    		outline: 1px solid #fff;
 			background: #fff;
 			color: #000;
 			display: flex;
     		flex-direction: column;
+			font-size: 12px;
 		}
-		.scs-demo-menu {
-			flex: 0 0 auto;
-			/*align-self: start;*/
-			width: auto;
-			max-width: 256px;
-			border: 1px solid currentColor;
+		.scs-demo-main p,
+		.scs-demo-teach-ui p {
+			font-weight: bold;
+			width: 100%;
+			margin: 6px 0 0 0;
+			display: flex;
+    		justify-content: space-evenly;
+    		text-align: center;
+		}
+		.scs-demo-main p span,
+		.scs-demo-teach-ui p span {
+			flex: 1 1 50%;
+		}
+		.scs-demo-teach-ui {
 			background: #000;
 			color: #fff;
-			padding: 8px;
-			margin: 4px;
 		}
 		.scs-demo-topBar,
 		.scs-demo-controls {
@@ -38,13 +48,22 @@
 			text-align: center;
 			font-size: 14px;
 		}
+		.scs-demo-tui-navbar {
+			width: 100%;
+			background: #0ff;
+			color: #000;
+			padding: 6px;
+			text-align: center;
+			font-size: 14px;
+		}
 		.scs-demo-section {
 			width: calc(100% - 8px);
 			display: flex;
     		justify-content: space-around;
     		margin: 4px;
 		}
-		.scs-demo-button {
+		.scs-demo-button,
+		.scs-demo-tui-actions {
 			width: 40%;
 			background: #0ff;
 			color: #000;
@@ -149,6 +168,9 @@
 			<div id="sepiaFW-theme-editor-view" class="group-container">
 				<div class="scs-demo-main">
 					<div class="scs-demo-topBar" name="scs-prop-1">My View</div>
+					<div class="scs-demo-section" name="scs-prop-0">
+						<p><span>Header text</span><span class="scs-text-acc">Info text</span></p>
+					</div>
 					<div class="scs-demo-section" name="scs-prop-3">
 						<div class="scs-demo-button scs-look">Button A</div>
 						<div class="scs-demo-button scs-look">Button B</div>
@@ -196,6 +218,15 @@
 						<div class="scs-demo-button scs-look">&#x2713;</div>
 					</div>
 				</div>
+				<div class="scs-demo-teach-ui" name="scs-prop-8">
+					<div class="scs-demo-section" style="padding: 4px;">
+						<p><span>Default Text</span><span class="scs-text-acc">Info text</span></p>
+					</div>
+					<div class="scs-demo-section" name="scs-prop-9">
+						<div class="scs-demo-tui-actions scs-look">Button</div>
+					</div>
+					<div class="scs-demo-tui-navbar" name="scs-prop-9">Teach-UI</div>
+				</div>
 			</div>
 		</div>
 	</div>
@@ -232,7 +263,8 @@
 			{id: 0, name: "App",
 				pvSelector: [".scs-demo-main"],
 				colors: [{k: "Background", v: "appBackground", p: "m1"},
-					{k: "Text", v: "appColor", p: "t1"}]},
+					{k: "Text", v: "appColor", p: "t1"},
+					{k: "Text accent", v: "appColorAccent", p: "a1"}]},
 			{id: 1, name: "Top/bottom controls",
 				pvSelector: [".scs-demo-topBar, .scs-demo-controls, .scs-demo-menu"],
 				colors: [{k: "Main", v: "appControlsBackground", p: "m1"},
@@ -268,7 +300,17 @@
 				pvSelector: [".scs-demo-chat-user"],
 				colors: [{k: "User main", v: "chatMsgUserBackground", p: "m1"}, 
 					{k: "User variant", v: "chatMsgUserBackground2", p: "v1"},
-					{k: "User text", v: "chatMsgUserColor", p: "t1"}]}
+					{k: "User text", v: "chatMsgUserColor", p: "t1"}]},
+			{id: 8, name: "Teach-UI View",
+				pvSelector: [".scs-demo-teach-ui"],
+				colors: [{k: "Background", v: "teachUiBackground", p: "m1"},
+					{k: "Text", v: "teachUiColor", p: "t1"},
+					{k: "Text accent", v: "teachUiColorAccent", p: "a1"}]},
+			{id: 9, name: "Teach-UI Actions",
+				pvSelector: [".scs-demo-tui-actions, .scs-demo-tui-navbar"],
+				colors: [{k: "Main", v: "teachUiActionsBackground", p: "m1"}, 
+					{k: "Variant", v: "teachUiActionsBackground2", p: "v1"},
+					{k: "Text", v: "teachUiActionsColor", p: "t1"}]}
 		],
 		getTheme: function(){
 			var themeData = SepiaFW.ui.getCustomSkinTheme();
@@ -320,7 +362,7 @@
 			var propArray = prop? [prop] : SepiaFW.frames.currentScope.themeProps;
 			//colors
 			propArray.forEach(function(pr){
-				var col = [], back1 = [], back2 = [];
+				var col = [], colAcc = [], back1 = [], back2 = [];
 				var parts = 0;
 				pr.colors.forEach(function(c){
 					//check available types (expect: main, variant, text -> next)
@@ -331,14 +373,18 @@
 						back2[parts-1] = c.v;
 					}else if (c.p.indexOf("t") == 0){
 						col[parts-1] = c.v;
+					}else if (c.p.indexOf("a") == 0){
+						colAcc[parts-1] = c.v;
 					}
 				});
 				for (let i=0; i<parts; i++){
 					let $eles = $("#sepiaFW-theme-editor-view").find(pr.pvSelector[i]);
 					let cv = col[i]? SepiaFW.frames.currentScope.currentTheme[col[i]] : undefined;
+					let cav = colAcc[i]? SepiaFW.frames.currentScope.currentTheme[colAcc[i]] : undefined;
 					let bv1 = back1[i]? SepiaFW.frames.currentScope.currentTheme[back1[i]] :undefined;
 					let bv2 = back2[i]? SepiaFW.frames.currentScope.currentTheme[back2[i]] :undefined;
 					$eles.css({"color": cv || ""});
+					$eles.find(".scs-text-acc").css({"color": cav || ""});
 					if (bv1 && bv2){
 						var lg = "linear-gradient(to right, " + bv1 + " 0%, " + bv2 + " 100%)";
 						$eles.css({"background": lg});
@@ -401,7 +447,7 @@
 				}, 2500);
 			});
 
-			//build "look"" components
+			//build "look" components
 			var borderInit = +(scope.currentTheme["defaultBorderRadius"] || "0px").replace("px", "");
 			var borderRange = [0, 18];
 			var $borderSliderVal = $("#sepiaFW-theme-editor-controls").find("[name='border-slider-value']");
@@ -443,7 +489,8 @@
 				var prop = scope.themeProps[id];
 				this.title = prop.name;
 				//action
-				$(this).on("click", function(){
+				$(this).on("click", function(ev){
+					ev.stopPropagation();
 					scope.$propSelector.val(prop.id);
 					scope.colorPropBuilder(prop);
 				});

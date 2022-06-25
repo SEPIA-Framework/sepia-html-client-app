@@ -370,6 +370,7 @@ body.limit-size {
 	background: #222 !important;
 	color: #eee !important;
 	border-bottom: 1px solid #fff !important;
+	border-radius: 0 !important;
 }
 /*.sepiaFW-input-popup .sepiaFW-input-popup-select-box::after {
     content: '▼';

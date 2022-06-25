@@ -399,7 +399,9 @@ function sepiaFW_build_ui(){
 		if (!theme) theme = {};
 		//page
 		setOrRemoveCustomSkinProperty("app-back", theme.appBackground);
+		setOrRemoveCustomSkinProperty("app-image", theme.appImage);
 		setOrRemoveCustomSkinProperty("app-color", theme.appColor);
+		setOrRemoveCustomSkinProperty("app-color-accent", theme.appColorAccent);
 		setOrRemoveCustomSkinProperty("app-controls-back", theme.appControlsBackground);
 		setOrRemoveCustomSkinProperty("app-controls-back-2", theme.appControlsBackground2 || theme.appControlsBackground);
 		setOrRemoveCustomSkinProperty("app-controls-color", theme.appControlsColor);
@@ -428,6 +430,13 @@ function sepiaFW_build_ui(){
 		setOrRemoveCustomSkinProperty("chat-msg-user-back", theme.chatMsgUserBackground);
 		setOrRemoveCustomSkinProperty("chat-msg-user-back-2", theme.chatMsgUserBackground2 || theme.chatMsgUserBackground);
 		setOrRemoveCustomSkinProperty("chat-msg-user-color", theme.chatMsgUserColor);
+		//teach.ui
+		setOrRemoveCustomSkinProperty("teach-ui-back", theme.teachUiBackground);
+		setOrRemoveCustomSkinProperty("teach-ui-color", theme.teachUiColor);
+		setOrRemoveCustomSkinProperty("teach-ui-color-accent", theme.teachUiColorAccent);
+		setOrRemoveCustomSkinProperty("teach-ui-actions-back", theme.teachUiActionsBackground);
+		setOrRemoveCustomSkinProperty("teach-ui-actions-back-2", theme.teachUiActionsBackground2 || theme.teachUiActionsBackground);
+		setOrRemoveCustomSkinProperty("teach-ui-actions-color", theme.teachUiActionsColor);
 		//store?
 		if (store){
 			//TODO: store
@@ -437,7 +446,9 @@ function sepiaFW_build_ui(){
 		return {
 			//page
 			appBackground: getCustomSkinProperty("app-back"),
+			appImage: getCustomSkinProperty("app-image"),
 			appColor: getCustomSkinProperty("app-color"),
+			appColorAccent: getCustomSkinProperty("app-color-accent"),
 			appControlsBackground: getCustomSkinProperty("app-controls-back"),
 			appControlsBackground2: getCustomSkinProperty("app-controls-back-2"),
 			appControlsColor: getCustomSkinProperty("app-controls-color"),
@@ -465,7 +476,14 @@ function sepiaFW_build_ui(){
 			chatMsgColor: getCustomSkinProperty("chat-msg-color"),
 			chatMsgUserBackground: getCustomSkinProperty("chat-msg-user-back"),
 			chatMsgUserBackground2: getCustomSkinProperty("chat-msg-user-back-2"),
-			chatMsgUserColor: getCustomSkinProperty("chat-msg-user-color")
+			chatMsgUserColor: getCustomSkinProperty("chat-msg-user-color"),
+			//teach-UI
+			teachUiBackground: getCustomSkinProperty("teach-ui-back"),
+			teachUiColor: getCustomSkinProperty("teach-ui-color"),
+			teachUiColorAccent: getCustomSkinProperty("teach-ui-color-accent"),
+			teachUiActionsBackground: getCustomSkinProperty("teach-ui-actions-back"),
+			teachUiActionsBackground2: getCustomSkinProperty("teach-ui-actions-back-2"),
+			teachUiActionsColor: getCustomSkinProperty("teach-ui-actions-color")
 		};
 	}
 	function setOrRemoveCustomSkinProperty(propName, propValue){

@@ -397,7 +397,8 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 				if (!SepiaFW.ui.useTouchBarControls){
 					$('#sepiaFW-chat-controls-swipe-area').fadeIn(300, function(){
 						//workaround to prevent ugly glitches at the frame
-						$('#sepiaFW-chat-controls-form').css({"background-color" : $('#sepiaFW-chat-controls-swipe-area').find('.sepiaFW-swipeBar-switchable').css('background-color')});
+						var bgc = $('#sepiaFW-chat-controls-swipe-area').find('.sepiaFW-swipeBar-switchable').css('background-color');
+						$('#sepiaFW-chat-controls-form').css({"background": bgc});
 					});
 					//$('#sepiaFW-chat-controls-swipe-area').css({'background-color': SepiaFW.ui.secondaryColor}).fadeIn(300);
 				}
@@ -516,7 +517,7 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 					//TODO: make configurable?
 					SepiaFW.ui.backButtonAction();
 				}else{
-					$('#sepiaFW-chat-controls-form').css({"background-color" : ""});	//$('#sepiaFW-chat-controls-right').css('background-color')
+					$('#sepiaFW-chat-controls-form').css({"background" : ""});	//$('#sepiaFW-chat-controls-right').css('background-color')
 					$('#sepiaFW-chat-controls-swipe-area').fadeOut(300);
 				}
 			});
