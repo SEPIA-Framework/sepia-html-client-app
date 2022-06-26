@@ -19,7 +19,7 @@
 }
 .sepiaFW-cards-flexSize-container.oneElement {
 	margin: 0px 0px;
-	padding: 0px 0px 5px 0px;
+	padding: 0px 0px 0px 0px;
 }
 article + .sepiaFW-cards-flexSize-container.oneElement,
 .sepiaFW-cards-flexSize-container.oneElement.addSpacer {
@@ -288,6 +288,7 @@ article + .sepiaFW-cards-flexSize-container.oneElement,
 	display: flex;
     align-items: center;
     justify-content: center;
+	flex: 0 0 auto;
 	width: 44px;
     /*border-right: 3px solid #e5e5e5;*/
 	margin: 0px 3px 0px 5px;
@@ -300,7 +301,8 @@ article + .sepiaFW-cards-flexSize-container.oneElement,
 	display: flex;
 	align-items: center;
 	justify-content: left;
-	width: calc(100% - 101px);
+	flex: 1 1 auto;
+	/*width: calc(100% - 101px);*/
 	margin: 0px 0px 0px 0px;
 	padding: 5px 8px;
 }
@@ -308,6 +310,7 @@ article + .sepiaFW-cards-flexSize-container.oneElement,
 	display: flex;
     align-items: center;
     justify-content: center;
+	flex: 0 0 auto;
 	width: 44px;
 	/*border-left: 2px solid #545454;*/
 	/*background: #bcbebe;*/
@@ -410,9 +413,6 @@ article + .sepiaFW-cards-flexSize-container.oneElement,
 
 /* --- Radio --- */
 
-.sepiaFW-cards-list-body.sepiaFW-cards-list-radioStations {
-	padding-bottom: 0px;
-}
 .sepiaFW-cards-list-body .radioStation {
 	display: flex;
 }
