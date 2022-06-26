@@ -326,6 +326,14 @@ function sepiaFW_build_ui(){
 					SepiaFW.data.set('activeSkin', activeSkin);
 				}
 				defaultAvatar = this.dataset.avatar;
+				//custom theme?
+				var customizable = this.dataset.customizable || false;
+				if (customizable){
+					var customTheme = UI.loadCustomSkinTheme();
+					if (customTheme){
+						UI.setCustomSkinTheme(customTheme, false);
+					}
+				}
 			}else if (base && id == base){
 				$(that).prop('title', 'main');
 				$(that).prop('disabled', false);
@@ -337,6 +345,9 @@ function sepiaFW_build_ui(){
 		});
 		var avatar = SepiaFW.data.get('activeAvatar') || defaultAvatar || "0";
 		UI.setAvatar(avatar, false);
+
+		//if exists update selector
+		$('#sepiaFW-menu-select-skin').val(activeSkin);
 
 		setTimeout(function(){
 			//TODO: this should be triggered on CSS load I guess
@@ -400,6 +411,7 @@ function sepiaFW_build_ui(){
 		//page
 		setOrRemoveCustomSkinProperty("app-back", theme.appBackground);
 		setOrRemoveCustomSkinProperty("app-image", theme.appImage);
+		setOrRemoveCustomSkinProperty("app-image-size", theme.appImageSize);
 		setOrRemoveCustomSkinProperty("app-color", theme.appColor);
 		setOrRemoveCustomSkinProperty("app-color-accent", theme.appColorAccent);
 		setOrRemoveCustomSkinProperty("app-controls-back", theme.appControlsBackground);
@@ -439,14 +451,20 @@ function sepiaFW_build_ui(){
 		setOrRemoveCustomSkinProperty("teach-ui-actions-color", theme.teachUiActionsColor);
 		//store?
 		if (store){
-			//TODO: store
+			//store as user-property
+			SepiaFW.data.set('customSkinTheme', theme);
 		}
 	}
+	UI.loadCustomSkinTheme = function(){
+		return SepiaFW.data.get('customSkinTheme');
+	}
 	UI.getCustomSkinTheme = function(){
+		//NOTE: we don't load 'customSkinTheme' from data here but in setSkin before
 		return {
 			//page
 			appBackground: getCustomSkinProperty("app-back"),
 			appImage: getCustomSkinProperty("app-image"),
+			appImageSize: getCustomSkinProperty("app-image-size"),
 			appColor: getCustomSkinProperty("app-color"),
 			appColorAccent: getCustomSkinProperty("app-color-accent"),
 			appControlsBackground: getCustomSkinProperty("app-controls-back"),

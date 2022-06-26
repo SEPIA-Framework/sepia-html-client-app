@@ -4,7 +4,7 @@ html {
 	--scs-app-color: #000;
 	--scs-app-color-accent: #12aec3;
 	--scs-app-color-accent-dark: #02b3e4;
-	--scs-app-image: url(../img/SEPIA_back.png);
+	--scs-app-image: url("../img/SEPIA_back.png");
 	--scs-app-image-size: auto 50%;
 	--scs-default-border-radius: 5px;
 	--scs-app-controls-back: #f2f2f2;
@@ -219,7 +219,7 @@ html.landscape-small #sepiaFW-chat-controls-right {
 	color: var(--scs-assistant-text);
 }
 
-/* POP-UP */
+/* POP-UP and INDICATORS */
 
 #sepiaFW-popup-message button,
 .sepiaFW-notouch-device #sepiaFW-popup-message button:hover {
@@ -229,6 +229,11 @@ html.landscape-small #sepiaFW-chat-controls-right {
 }
 #sepiaFW-popup-message .accent {
     color: var(--scs-app-color-accent-dark);
+}
+
+#sepiaFW-nav-label-note {
+    background: var(--scs-app-controls-color);
+    color: var(--scs-app-controls-back);
 }
 
 /* CARDS */
@@ -291,6 +296,9 @@ html.landscape-small #sepiaFW-chat-controls-right {
 }
 .sepiaFW-cards-list-body .newsArticle:first-child .newsCenter {
     border-radius: var(--scs-default-border-radius) var(--scs-default-border-radius) 0 0;
+}
+.sepiaFW-cards-flexSize-container.oneElement .sepiaFW-cards-list-body .newsCenter {
+    border-radius: var(--scs-default-border-radius);
 }
 .sepiaFW-cards-list-body .listElement .listRight {
     background: var(--scs-card-back-2);
