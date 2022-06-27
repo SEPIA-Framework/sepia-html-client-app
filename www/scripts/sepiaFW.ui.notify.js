@@ -48,9 +48,15 @@ function sepiaFW_build_ui_notifications(){
 		}
 		return msg;
 	}
+
+	//random tag
+	var sessionTagCounter = 1;
+	function getRandomTag(){
+		return (sessionTagCounter++ + "-" + Date.now());
+	}
 	
 	//send a note
-	Notify.send = function(text, title, options, pressCallback, closeCallback, requestCallback){
+	Notify.send = function(text, title, options, onClickData, onCloseData, requestCallback){
 		//return codes - 0: not supported, 1: success, 2: permission requested, 3: permission denied, 4: internal error
 		if (!Notify.isSupported){
 			if (requestCallback) requestCallback({error: "NotSupported"});
@@ -58,7 +64,7 @@ function sepiaFW_build_ui_notifications(){
 		}
 		//permission check
 		if (Notification.permission === "granted"){
-			makeNote(text, title, options, pressCallback, closeCallback);
+			makeNote(text, title, options, onClickData, onCloseData);
 			if (requestCallback) requestCallback({info: "NoteCreated"});
 			return 1;
 		}
@@ -66,7 +72,7 @@ function sepiaFW_build_ui_notifications(){
 		else if (Notification.permission !== 'denied'){
 			Notify.requestPermission(function(){
 				//granted
-				makeNote(text, title, options, pressCallback, closeCallback);
+				makeNote(text, title, options, onClickData, onCloseData);
 				if (requestCallback) requestCallback({info: "NoteCreated", askedPermission: true});
 			}, function(){
 				//refused or error
@@ -89,25 +95,103 @@ function sepiaFW_build_ui_notifications(){
 			return 3;
 		}
 	}
-	function makeNote(text, title, options, pressCallback, closeCallback){
+	function makeNote(text, title, options, onClickData, onCloseData){
 		var options = options || new Object();
 		//dir, lang, body, tag, icon, data
 		options.body = text;
 		options.icon = 'img/icon.png';
-		//options.data = title;
+		options.tag = (options.id != undefined)? options.id : getRandomTag();
 		options.requireInteraction = false;
-		var notification = new Notification((title || "SepiaFW Notification"), options);
-		//notification.onshow = function(){};	//add auto close?
-		if (pressCallback){
-			notification.onclick = function(){ pressCallback(notification); }; 		//event.preventDefault(); // prevent the browser from focusing the Notification's tab
+		try {
+			//Mobile notification via service worker
+			if (SepiaFW.ui.isMobile && 'sepiaClientSwRegistration' in window){
+				//add click data to options.data
+				var noteData = options.data;
+				options.data = {
+					noteData: noteData,
+					onClickData: onClickData,
+					onCloseData: onCloseData
+				};
+				window.sepiaClientSwRegistration.showNotification(title || "SepiaFW Notification", options);
+			//Default desktop notification
+			}else{
+				var notification = new Notification(title || "SepiaFW Notification", options);
+				//notification.onshow = function(){};	//add auto close?
+				if (onClickData){
+					notification.onclick = function(){
+						onPressAction(notification, onClickData, options.data);
+					};
+					//event.preventDefault(); // ??prevent the browser from focusing the Notification's tab
+				}
+				if (onCloseData){
+					notification.onclose = function(){
+						onCloseAction(notification, onCloseData, options.data);
+					};
+				}
+			}
+		}catch (error){
+			var msg = SepiaFW.local.g("notification_error");
+			SepiaFW.debug.log(msg);
+			SepiaFW.ui.showInfo(msg);
 		}
-		if (closeCallback){
-			notification.onclose = function(){ closeCallback(notification); };
+	}
+	function onPressAction(notification, onClickData, noteData){
+		//.focusApp and .closeNote
+		if (onClickData.focusApp){
+			window.focus();
+		}
+		if (onClickData.closeNote){
+			notification.close();
+		}
+		handleNoteInteraction(onClickData);
+		if (noteData) SepiaFW.events.handleLocalNotificationClick(noteData);
+	}
+	function onCloseAction(notification, onCloseData, noteData){
+		//.focusApp
+		if (onCloseData.focusApp){
+			window.focus();
+		}
+		handleNoteInteraction(onCloseData);
+		if (noteData) SepiaFW.events.handleLocalNotificationClose(noteData);
+	}
+	function handleNoteInteraction(interactionData){
+		if (interactionData.updateMyView){
+			handleUpdateMyView(interactionData.updateMyView);
+		}
+	}
+	function handleUpdateMyView(data){
+		SepiaFW.ui.updateMyView(data.forceUpdate, data.checkGeolocationFirst, data.updateSource);
+	}
+	//pre-defined actions for 'onClickData'/'onCloseData' (to be extended):
+	/* {
+		focusApp: true,		//window.focus();
+		closeNote: true,	//notification.close();
+		updateMyView: {		//SepiaFW.ui.updateMyView(false, true, 'localNotificationClick');
+			forceUpdate: false,
+			checkGeolocationFirst: true,
+			updateSource: "localNotificationClick"
+		}
+	} */
+
+	//handle notification data from service worker
+	Notify.handleServiceWorkerMessage = function(msg){
+		//TODO: buffer if client not active yet?
+		/* {
+			onClickData: ...,
+			onCloseData: ...,
+			noteData: ...
+		} */
+		if (msg.onClickData){
+			handleNoteInteraction(msg.onClickData);
+			if (msg.noteData) SepiaFW.events.handleLocalNotificationClick(msg.noteData);
+		}else if (msg.onCloseData){
+			handleNoteInteraction(msg.onCloseData);
+			if (msg.noteData) SepiaFW.events.handleLocalNotificationClose(msg.noteData);
 		}
 	}
 
 	//schedule a note (TODO: currently only works if browser is open)
-	Notify.schedule = function(text, title, options, pressCallback, closeCallback, triggerCallback){
+	Notify.schedule = function(text, title, options, onClickData, onCloseData, triggerCallback){
 		if (!options || options.id == undefined){
 			SepiaFW.debug.error("Notify.schedule - Missing 'options.id'.");
 			if (triggerCallback) triggerCallback()
@@ -125,7 +209,7 @@ function sepiaFW_build_ui_notifications(){
 		var nid = options.id;	//NOTE: required!
 		clearTimeout(browserNotificationTimers[nid]);
 		browserNotificationTimers[nid] = setTimeout(function(){
-			var returnCode = Notify.send(text, title, options, pressCallback, closeCallback);
+			var returnCode = Notify.send(text, title, options, onClickData, onCloseData);
 			//sound
 			if (options.sound){
 				//TODO: add sound (but prevent conflict with app alarm sound)

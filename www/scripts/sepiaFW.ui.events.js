@@ -247,12 +247,18 @@ function sepiaFW_build_events(){
 			}
 			proActiveMessageTimers[action.eventId] = setTimeout(function(){
 				if (!SepiaFW.ui.isVisible()){
-					SepiaFW.ui.notification.send(action.text, SepiaFW.assistant.name, '', function(note){
-						window.focus();
-						note.close();
-						Events.handleLocalNotificationClick(noteData);
-						SepiaFW.ui.updateMyView(false, true, 'localNotificationClick');
-					});
+					var onClickData = {
+						focusApp: true,
+						closeNote: true,
+						updateMyView: {
+							forceUpdate: false,
+							checkGeolocationFirst: true,
+							updateSource: "localNotificationClick"
+						}
+					};
+					SepiaFW.ui.notification.send(action.text, SepiaFW.assistant.name, {
+						data: noteData
+					}, onClickData);
 					//trigger event
 					Events.trackLocalNotificationTrigger(noteData);
 				}else{
@@ -934,15 +940,18 @@ function sepiaFW_build_events(){
 				noteRequestCallback = requestCallback;
 				requestCallback = undefined;
 			}
-			SepiaFW.ui.notification.schedule(textS, titleS, options, function(note){
-				//on press
-				window.focus();
-				note.close();
-				Events.handleLocalNotificationClick(data);
-			}, function(note){
-				//on close
-				Events.handleLocalNotificationClose(data);
-			}, function(returnCode){
+			var onClickData = {
+				focusApp: true,
+				closeNote: true,
+				updateMyView: {
+					forceUpdate: false,
+					checkGeolocationFirst: true,
+					updateSource: "localNotificationClick"
+				}
+			};
+			var onCloseData = {};
+			SepiaFW.ui.notification.schedule(textS, titleS, options, 
+					onClickData, onCloseData, function(returnCode){
 				//trigger event
 				Events.trackLocalNotificationTrigger(data);
 				//callback

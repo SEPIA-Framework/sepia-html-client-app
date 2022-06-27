@@ -70,3 +70,56 @@ self.addEventListener('fetch', function(e){
 		}
 	}());
 });
+
+//Notification listener
+self.addEventListener('notificationclick', function(event){
+	//NOTE: see sepiaFW.ui.notify for data description
+	//console.error('On notification click:', event.notification.tag, 'Data:', event.notification.data);	//DEBUG
+	var data = event.notification.data;
+	var noteData = data.noteData;
+	var onClickData = data.onClickData;
+	//close note?
+	if (onClickData && onClickData.closeNote){
+		event.notification.close();
+		delete onClickData.closeNote;
+	}
+	getPrimaryClient(event, function(windowClient){
+		//focus window?
+		if (onClickData && onClickData.focusApp){
+			//if (windowClient.visibilityState === 'hidden')
+			windowClient.focus();
+			delete onClickData.focusApp;
+		}
+		windowClient.postMessage({
+			onClickData: onClickData,
+			noteData: noteData
+		});
+	});
+});
+self.addEventListener('notificationclose', function(event){
+	//console.error('On notification close:', event.notification.tag, 'Data:', event.notification.data);	//DEBUG
+	var data = event.notification.data;
+	var noteData = data.noteData;
+	var onCloseData = data.onCloseData;
+	getPrimaryClient(event, function(windowClient){
+		//focus window?
+		if (onCloseData && onCloseData.focusApp){
+			//if (windowClient.visibilityState === 'hidden')
+			windowClient.focus();
+			delete onCloseData.focusApp;
+		}
+		windowClient.postMessage({
+			onCloseData: onCloseData,
+			noteData: noteData
+		});
+	});
+});
+function getPrimaryClient(event, successCallback){
+	event.waitUntil(clients.matchAll({
+		type: "window"
+	}).then(function(clientList){
+		if (clientList && clientList.length){
+			successCallback(clientList[0]);
+		}
+	}));
+}

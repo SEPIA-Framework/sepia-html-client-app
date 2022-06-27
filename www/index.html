@@ -790,6 +790,14 @@
 						.then(function(registration){ 
 							SepiaFW.debug.log('Service Worker: Registered for scope: ' + scope);
 							window.sepiaClientSwRegistration = registration;
+							//register notification listener
+							navigator.serviceWorker.addEventListener("message", function(ev){
+								if (SepiaFW.ui.notification && SepiaFW.events){
+									SepiaFW.ui.notification.handleServiceWorkerMessage(ev.data);
+								}else{
+									SepiaFW.debug.error("Service Worker: Missed notification action. App not ready yet?");
+								}
+							});
 						}, function(err){
 							SepiaFW.debug.error('Service Worker: Failed to register for scope: ' + scope, err);
 						});
