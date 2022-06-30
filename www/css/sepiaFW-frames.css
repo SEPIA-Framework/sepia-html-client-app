@@ -88,6 +88,10 @@
 	border: 1px solid #000;
 	background: #fff;
 }
+.sepiaFW-tutorial-page.dark img {
+    border: 1px solid #eee;
+    background: #000;
+}
 
 .sepiaFW-frames-page iframe {
 	border: 0;

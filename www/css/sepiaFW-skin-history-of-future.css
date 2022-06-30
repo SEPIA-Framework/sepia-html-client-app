@@ -268,6 +268,14 @@ html.landscape-small #sepiaFW-assist-btn-area {
     color: #111111;
 	margin: 4px;
 }
+.sepiaFW-touch-device #sepiaFW-chat-menu button:hover {
+	background-color: #df616d;
+    color: #111111;
+}
+#sepiaFW-chat-menu select,
+#sepiaFW-frames-view select {
+	border-radius: 18px;
+}
 #sepiaFW-frames-view button {
 	border-radius: 18px;
 }
@@ -589,6 +597,21 @@ html.landscape-small #sepiaFW-assist-btn-area {
 	border-radius: 0 28px 28px 0;
 	border: 2px solid #111;
 	border-left: 1px solid #111;
+}
+
+/*----- frames view -----*/
+
+.sepiaFW-frames-page.dark .info-text {
+    color: #b3c8fd;
+}
+.sepiaFW-frames-page a,
+.sepiaFW-frames-page a:visited {
+    color: #ffad01;
+}
+
+.sepiaFW-frames-page.dark button {
+    background: #df616d !important;
+    color: #000 !important;
 }
 
 /*----- teachUI -----*/
