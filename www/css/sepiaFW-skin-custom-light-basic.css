@@ -131,6 +131,9 @@ html.landscape-small #sepiaFW-chat-controls-right {
 	background: var(--scs-app-controls-back);
 	color: var(--scs-app-controls-color);
 }
+#sepiaFW-login-box p {
+	color: var(--scs-default-button-color);
+}
 
 /* BUTTONS/INPUT */
 
