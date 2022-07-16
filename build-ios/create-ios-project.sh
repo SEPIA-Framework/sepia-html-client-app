@@ -8,11 +8,11 @@ cordova create $APP_NAME de.bytemind.sepia.app.web $APP_NAME
 # copy folders
 sleep 2
 echo "#Transfering code ..."
-cp -r www $APP_NAME
+cp -r ../www $APP_NAME
 cp -r plugin_mods $APP_NAME
 cp -r resources $APP_NAME
 cp -r hooks $APP_NAME
-cp config.xml $APP_NAME/config.xml
+cp ../config.xml $APP_NAME/config.xml
 cd $APP_NAME
 #
 # add plugins
