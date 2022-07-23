@@ -949,7 +949,7 @@ function sepiaFW_build_events(){
 					updateSource: "localNotificationClick"
 				}
 			};
-			var onCloseData = {};
+			var onCloseData = {};	//nothing specific yet (most is handled via options.data)
 			SepiaFW.ui.notification.schedule(textS, titleS, options, 
 					onClickData, onCloseData, function(returnCode){
 				//trigger event
@@ -984,12 +984,7 @@ function sepiaFW_build_events(){
 		
 		//alarm trigger
 		}else if (data && data.type == "alarm"){
-			if (data.onClickType == "stopAlarmSound"){
-				//stop alarm
-				if (SepiaFW.audio && SepiaFW.audio.alarm.isPlaying){
-					SepiaFW.audio.stopAlarmSound("notificationClick");
-				}
-			}
+			handleLocalNotificationAlarmActions(data.onClickType, "notificationClick");
 		
 		//pro-active chat message
 		}else if (data && (data.type === "entertainWhileIdle" || data.type === "proActiveNote") && data.data){
@@ -1009,11 +1004,14 @@ function sepiaFW_build_events(){
 	Events.handleLocalNotificationClose = function(data){
 		//alarm trigger
 		if (data && data.type == "alarm"){
-			if (data.onCloseType == "stopAlarmSound"){
-				//stop alarm
-				if (SepiaFW.audio && SepiaFW.audio.alarm.isPlaying){
-					SepiaFW.audio.stopAlarmSound("notificationClose");
-				}
+			handleLocalNotificationAlarmActions(data.onCloseType, "notificationClose");
+		}
+	}
+	function handleLocalNotificationAlarmActions(actionType, source){
+		if (actionType == "stopAlarmSound"){
+			//stop alarm
+			if (SepiaFW.audio && SepiaFW.audio.alarm.isPlaying){
+				SepiaFW.audio.stopAlarmSound("notificationClose");
 			}
 		}
 	}
