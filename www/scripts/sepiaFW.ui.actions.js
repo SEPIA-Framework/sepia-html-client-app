@@ -248,7 +248,30 @@ function sepiaFW_build_ui_actions(){
 		}
 		Actions.openUrlAutoTarget(action.url, forceExternal);
 	}
-	var inAppBrowserOptions = 'location=yes,toolbar=yes,mediaPlaybackRequiresUserAction=yes,allowInlineMediaPlayback=yes,hardwareback=yes,disableswipenavigation=no,clearsessioncache=no,clearcache=no';
+	var inAppBrowserDefaultOptions = [
+		'location=yes', 'toolbar=yes', 'hidenavigationbuttons=no', 'hardwareback=yes', 'disableswipenavigation=no',
+		'footer=no', 'mediaPlaybackRequiresUserAction=yes', 'allowInlineMediaPlayback=yes',
+		'enablethirdpartycookies=no', 'clearsessioncache=no', 'clearcache=no'
+	].join(",");
+	function getInAppBrowserOptions(){
+		var toolbarColor = "#000000";
+		var toolbarAccent = "#ceff1a";
+		var toolbarText = "#eeeeee";
+		if (SepiaFW.ui.statusBarColor && SepiaFW.ui.statusBarColorContrast){
+			toolbarColor = SepiaFW.ui.statusBarColor;
+			if (SepiaFW.ui.statusBarColorContrast == "black"){
+				toolbarAccent = "#000000";
+				toolbarText = "#222222";
+			}
+			//does assistant color fit to status bar?
+			if (SepiaFW.ui.statusBarColorContrast != SepiaFW.ui.assistantColorContrast){
+				toolbarAccent = SepiaFW.ui.assistantColorPlainHex;
+			}
+		}
+		return [inAppBrowserDefaultOptions,
+			'toolbarcolor=' + toolbarColor, 'toolbaraccentcolor=' + toolbarAccent, 'toolbartextcolor=' + toolbarText
+		].join(",");
+	}
 	Actions.openUrlAutoTarget = function(url, forceExternal){
 		if (!url) return;
 
@@ -297,7 +320,7 @@ function sepiaFW_build_ui_actions(){
 				){
 				cordova.InAppBrowser.open(url, '_system');
 			}else{
-				cordova.InAppBrowser.open(url, '_blank', inAppBrowserOptions);
+				cordova.InAppBrowser.open(url, '_blank', getInAppBrowserOptions());
 				//some special 'links': <inappbrowser-last>, <inappbrowser-home>, search.html
 			}
 		}else{
