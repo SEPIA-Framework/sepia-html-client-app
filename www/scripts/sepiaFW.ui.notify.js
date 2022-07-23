@@ -102,9 +102,10 @@ function sepiaFW_build_ui_notifications(){
 		options.icon = 'img/icon.png';
 		options.tag = (options.id != undefined)? options.id : getRandomTag();
 		options.requireInteraction = false;
+		//options.actions = [...];	//works only in SW!
 		try {
 			//Mobile notification via service worker
-			if (SepiaFW.ui.isMobile && 'sepiaClientSwRegistration' in window){
+			if ('sepiaClientSwRegistration' in window){
 				//add click data to options.data
 				var noteData = options.data;
 				options.data = {
@@ -112,6 +113,7 @@ function sepiaFW_build_ui_notifications(){
 					onClickData: onClickData,
 					onCloseData: onCloseData
 				};
+				options.actions = [{action: "dismiss", title: SepiaFW.local.g("close")}];
 				window.sepiaClientSwRegistration.showNotification(title || "SepiaFW Notification", options);
 			//Default desktop notification
 			}else{
@@ -124,6 +126,7 @@ function sepiaFW_build_ui_notifications(){
 					//event.preventDefault(); // ??prevent the browser from focusing the Notification's tab
 				}
 				if (onCloseData){
+					//TODO: not working anymore in Chrome for Windows 11?
 					notification.onclose = function(){
 						onCloseAction(notification, onCloseData, options.data);
 					};
@@ -131,7 +134,7 @@ function sepiaFW_build_ui_notifications(){
 			}
 		}catch (error){
 			var msg = SepiaFW.local.g("notification_error");
-			SepiaFW.debug.log(msg);
+			SepiaFW.debug.error(msg, ".", error);
 			SepiaFW.ui.showInfo(msg);
 		}
 	}
@@ -143,7 +146,7 @@ function sepiaFW_build_ui_notifications(){
 		if (onClickData.closeNote){
 			notification.close();
 		}
-		handleNoteInteraction(onClickData);
+		handleNoteInteraction(onClickData, "click");
 		if (noteData) SepiaFW.events.handleLocalNotificationClick(noteData);
 	}
 	function onCloseAction(notification, onCloseData, noteData){
@@ -151,10 +154,10 @@ function sepiaFW_build_ui_notifications(){
 		if (onCloseData.focusApp){
 			window.focus();
 		}
-		handleNoteInteraction(onCloseData);
+		handleNoteInteraction(onCloseData, "close");
 		if (noteData) SepiaFW.events.handleLocalNotificationClose(noteData);
 	}
-	function handleNoteInteraction(interactionData){
+	function handleNoteInteraction(interactionData, source){
 		if (interactionData.updateMyView){
 			handleUpdateMyView(interactionData.updateMyView);
 		}
@@ -177,15 +180,17 @@ function sepiaFW_build_ui_notifications(){
 	Notify.handleServiceWorkerMessage = function(msg){
 		//TODO: buffer if client not active yet?
 		/* {
+			action: ...,
 			onClickData: ...,
 			onCloseData: ...,
 			noteData: ...
 		} */
+		//console.error("handleServiceWorkerMessage:", msg);	//DEBUG
 		if (msg.onClickData){
-			handleNoteInteraction(msg.onClickData);
+			handleNoteInteraction(msg.onClickData, "click");
 			if (msg.noteData) SepiaFW.events.handleLocalNotificationClick(msg.noteData);
-		}else if (msg.onCloseData){
-			handleNoteInteraction(msg.onCloseData);
+		}else if (msg.onCloseData || action == "dismiss"){
+			handleNoteInteraction(msg.onCloseData || {}, "close");
 			if (msg.noteData) SepiaFW.events.handleLocalNotificationClose(msg.noteData);
 		}
 	}
