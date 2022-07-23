@@ -601,7 +601,7 @@ html.edge-2-edge body.big-screen #sepiaFW-main-window {
 
 #sepiaFW-login-box {
 	position: absolute;
-	background-color: rgba(33, 33, 33, 0.94);
+	background-color: rgba(33, 33, 33, 1.0);
 	width: 290px;
 	top: 10%;
 	left: 50%;
@@ -867,7 +867,7 @@ html.dark-skin #sepiaFW-login-help-btn {
 
 .sepiaFW-menu {
 	border-radius: 0px;
-	background: rgba(33, 33, 33, 0.98); /*rgba(166, 58, 80, 0.95);*/
+	background: rgba(33, 33, 33, 1.0); /*rgba(166, 58, 80, 0.95);*/
 	color: #fff;
 	list-style: none;
 	margin: 0px;
@@ -2184,13 +2184,13 @@ body.big-screen #sepiaFW-chat-output .chatMsg {
 	padding: 0px 0px 0px 4px !important;
 }
 .sepiaFW-results-container article.chatMe,
-#sepiaFW-chat-output article.chatMe{
+#sepiaFW-chat-output article.chatMe {
 	background: #ceff1a;
 	color: #2f3035;
 	margin: 0 2px 4px 30px;
 }
 .sepiaFW-results-container article.chatMe b,
-#sepiaFW-chat-output article.chatMe b{
+#sepiaFW-chat-output article.chatMe b {
 	color: #2f3035;
 }
 .sepiaFW-results-container article.chatMe span,
@@ -2198,24 +2198,24 @@ body.big-screen #sepiaFW-chat-output .chatMsg {
 	color: #2f3035;
 }
 .sepiaFW-results-container article.chatAssistant,
-#sepiaFW-chat-output article.chatAssistant{
-	background: rgba(33, 33, 33, 0.94);
+#sepiaFW-chat-output article.chatAssistant {
+	background: rgba(33, 33, 33, 1.0);
 	color: #fff;
 }
 .sepiaFW-results-container article.chatAssistant b,
-#sepiaFW-chat-output article.chatAssistant b{
+#sepiaFW-chat-output article.chatAssistant b {
 	color: #ceff1a;
 }
 .sepiaFW-results-container article.chatAssistant.chatPm,
-#sepiaFW-chat-output article.chatAssistant.chatPm{
+#sepiaFW-chat-output article.chatAssistant.chatPm {
 	border-left-color: rgba(255, 0, 85, 0.40);
 }
 .sepiaFW-results-container article.chatMe.chatPm,
-#sepiaFW-chat-output article.chatMe.chatPm{
+#sepiaFW-chat-output article.chatMe.chatPm {
 	border-left-color: rgba(0, 0, 0, 0.15);
 }
 .sepiaFW-results-container article.chatOther.chatPm,
-#sepiaFW-chat-output article.chatOther.chatPm{
+#sepiaFW-chat-output article.chatOther.chatPm {
 	border-left-color: rgba(255, 255, 255, 0.40);
 }
 /*
