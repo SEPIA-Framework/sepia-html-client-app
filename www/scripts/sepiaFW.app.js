@@ -637,15 +637,16 @@ function sepiaFW_build_tools(){
 		}
 	}
 	
-	//get best color contrast - returns values 'black' or 'white' - accepts #333333, 333333 and rgb(33,33,33) (rgba is trated as rgb)
+	//get best color contrast - returns values 'black' or 'white' - accepts #333333, 333333 and rgb(33,33,33) (rgba is treated as rgb)
 	Tools.getBestContrast = function(hexcolor){
-		if (hexcolor === '#000') return 'white';
-		if (hexcolor === '#fff') return 'black';
-		if ((hexcolor + '').indexOf('rgb') === 0){
+		if (!hexcolor) return;
+		if (hexcolor == '#000') return 'white';
+		if (hexcolor == '#fff') return 'black';
+		if (hexcolor.indexOf('rgb') === 0){
 			var rgb = Tools.convertRgbColorStringToRgbArray(hexcolor);
 			hexcolor = Tools.rgbToHex(rgb[0], rgb[1], rgb[2]);
 		}
-		if ((hexcolor + '').indexOf('#') === 0) hexcolor = hexcolor.replace(/^#/,'');
+		if (hexcolor.indexOf('#') == 0) hexcolor = hexcolor.replace(/^#/,'');
 		//console.log(hexcolor);
 		var r = parseInt(hexcolor.substr(0,2), 16);
 		var g = parseInt(hexcolor.substr(2,2), 16);
@@ -653,14 +654,41 @@ function sepiaFW_build_tools(){
 		var yiq = ((r*299)+(g*587)+(b*114))/1000;
 		return (yiq >= 128) ? 'black' : 'white';
 	}
+	Tools.getBestContrastHexOrRgb = function(hexOrRgb){
+		if (!hexOrRgb) return;
+		if (hexOrRgb.indexOf('rgb') == 0){
+			var rgb = Tools.convertRgbColorStringToRgbArray(hexOrRgb);
+			hexOrRgb = Tools.rgbToHex(rgb[0], rgb[1], rgb[2]);
+		}
+		return Tools.getBestContrast(hexOrRgb);
+	}
 	//get RGB from RGB-stringify
 	Tools.convertRgbColorStringToRgbArray = function(rgbColorString){
+		if (!rgbColorString) return;
 		rgbColorString = rgbColorString.replace(/rgb(a|)\(/,'').replace(/\)/,'');
 		var rgb = rgbColorString.split(',');
 		var r = parseInt(rgb[0]);
 		var g = parseInt(rgb[1]);
 		var b = parseInt(rgb[2]);
 		return [r, g, b];
+	}
+	//convert HEX or RGB color to no-alpha HEX value
+	Tools.hexOrRgbToNoAlphaHexColor = function(col){
+		if (!col) return "";
+		if (col.indexOf('rgb') == 0){
+			var rgb = Tools.convertRgbColorStringToRgbArray(col);
+			return Tools.rgbToHex(rgb[0], rgb[1], rgb[2]);
+		}else{
+			if (col.indexOf('#') == 0){
+				col = col.substring(1, 7);
+			}else{
+				col = col.substring(0, 6);
+			}
+			if (col.length == 3){
+				col = col[0] + col[0] + col[1] + col[1] + col[2] + col[2];
+			}
+			return "#" + col;
+		}
 	}
 	//convert RGB color value to HEX
 	Tools.rgbToHex = function(r, g, b){

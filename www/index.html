@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="app-loading">
 <head>
 	<meta http-equiv="content-type" content="text/html; charset=UTF-8">
 	<!-- web app settings -->
@@ -76,6 +76,21 @@
 	<!-- PWA manifest -->
 	<link rel="manifest" href="sepia.webmanifest">
 	
+	<!-- loading style -->
+	<style>
+		html.app-loading {
+			background-color: black;
+			width: 100%;
+			height: 100%;
+			transition: background-color 0.0s;
+		}
+		#sepiaFW-main-window.app-loading {
+			opacity: 0.0;
+		}
+		#sepiaFW-login-box.app-loading {
+			border: 1px solid #555;
+		}
+	</style>
 	<!-- imports -->
 	<link rel="stylesheet" href="css/sepiaFW-style.css" title='main'>
 	<link rel="stylesheet" href="css/sepiaFW-style-tiny.css" title='main'>	<!-- TODO: we should load this only when needed -->
@@ -107,7 +122,7 @@
 	<!-- Scroll-to-hide area for web-apps --><!--<div id="sepiaFW-minimal-ui-sa" style="min-height:100px; background-color:#000; color:#fff;">Scroll to hide</div>
 	-->
 	<!-- Login -->
-	<div id="sepiaFW-login-box">
+	<div id="sepiaFW-login-box" class="app-loading">
 		<div id="sepiaFW-language-selector"></div>
 		<div id="sepiaFW-login-box-menu-btn"><i class="material-icons md-18">&#xE5D2;</i></div>
 		<h2><!--Welcome--><script>SepiaFW.local.w('welcome')</script></h2>
@@ -142,7 +157,7 @@
 		<button id="sepiaFW-login-help-btn" onclick="SepiaFW.ui.actions.openUrlAutoTarget('https://github.com/SEPIA-Framework/sepia-docs#welcome-to-the-documentation-page-for-sepia');"><i class="material-icons md-inherit">help</i></button>
 	</div>
 	<!-- Main -->
-	<div id="sepiaFW-main-window" class="sepiaFW-translucent-10 no-interaction sepiaFW-skin-mod">
+	<div id="sepiaFW-main-window" class="app-loading sepiaFW-translucent-10 no-interaction sepiaFW-skin-mod">
 		<!-- Menues -->
 		<div id="sepiaFW-chat-menu" class="sepiaFW-menu" style="display:none;"><!-- Dynamic content --></div>
 		<div id="sepiaFW-chat-channel-view" class="sepiaFW-menu" style="display:none;">
@@ -324,7 +339,8 @@
 		<audio id="sepiaFW-audio-player2" src="sounds/empty.mp3" controls="controls" title="SepiaFW Sound2"></audio>
 		<audio id="sepiaFW-audio-speaker" src="sounds/empty.mp3" controls="controls" title="SepiaFW TTS"></audio>
 	</div>
-<!-- LOW PRIO STYLESHEETS -->
+<!-- UI END -->
+<!-- LOW PRIO STYLESHEETS (load before skins) -->
 <link rel="stylesheet" href="css/googleMaterialIcons.css">
 <link rel="stylesheet" href="css/sepiaFW-font.css">
 <link rel="stylesheet" href="css/sepiaFW-cards.css">
@@ -332,6 +348,7 @@
 <link rel="stylesheet" href="css/sepiaFW-frames.css">
 <link rel="stylesheet" href="css/sepiaFW-alwaysOn.css">
 <link rel="stylesheet" href="css/sepiaFW-plots.css">
+<!-- SKINS -->
 <script>
 	//Optimized skin loader
 	(function(){
@@ -829,8 +846,13 @@
 	appStart();
 
 </script>
-<!-- Resources for later -->
 <script src="css/googleMaterialIcons.js"></script> <!-- glyph table for icons -->
 <!-- Plugins -->
+<!-- Remove inline styles for loading -->
+<script>
+	document.documentElement.classList.remove("app-loading");
+	document.getElementById("sepiaFW-main-window").classList.remove("app-loading");
+	document.getElementById("sepiaFW-login-box").classList.remove("app-loading");
+</script>
 </body>
 </html>
