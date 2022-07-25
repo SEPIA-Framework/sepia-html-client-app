@@ -17,7 +17,7 @@ function sepiaFW_build_audio(){
 
 	//Sounds
 	AudioPlayer.micConfirmSound = 'sounds/coin.mp3';	//might change for mobile (see below)
-	AudioPlayer.alarmSound = 'sounds/alarm.mp3'; 		//please NOTE: UI.events is using 'file://sounds/alarm.mp3' for 'cordova.plugins.notification' (is it wokring? Idk)
+	AudioPlayer.alarmSound = 'sounds/alarm.mp3'; 		//NOTE: UI.events is using 'file:// + AudioPlayer.alarmSound' for cordova.plugins.notification
 	AudioPlayer.setCustomSound = function(name, path){
 		//system: 'micConfirm', 'alarm'
 		var customSounds = SepiaFW.data.getPermanent("deviceSounds") || {};

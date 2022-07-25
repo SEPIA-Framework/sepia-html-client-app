@@ -2699,9 +2699,9 @@ function sepiaFW_build_webSocket_client(sepiaSessionId){
 			if ($(cEntry).children().not('.chatMe').hasClass('chatPm') && (!SepiaFW.ui.isVisible() || (SepiaFW.ui.getIdleTime() > (5*60*1000)))){
 				if (SepiaFW.events){
 					var noteData = {
-						type : "chat",
-						onClickType : "replySender",
-						sender : message.sender
+						type: "chat",
+						onClickType: "replySender",
+						sender: message.sender
 					}
 					var msgTitle = SepiaFW.webSocket.client.getNameFromUserList(message.sender);
 					SepiaFW.events.showSimpleNotification(msgTitle, messageTextSpeak, 'null', noteData);

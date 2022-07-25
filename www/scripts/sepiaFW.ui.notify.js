@@ -113,10 +113,19 @@ function sepiaFW_build_ui_notifications(){
 					onClickData: onClickData,
 					onCloseData: onCloseData
 				};
-				options.actions = [{action: "dismiss", title: SepiaFW.local.g("close")}];
+				//check actions array
+				if (!options.actions || !options.actions.length){
+					options.actions = [{action: "dismiss", title: SepiaFW.local.g("close")}];
+				}
+				//create in SW
 				window.sepiaClientSwRegistration.showNotification(title || "SepiaFW Notification", options);
 			//Default desktop notification
 			}else{
+				//check actions array
+				if (options.actions){
+					delete options.actions;		//either not shown or even crashing non-SW notifications :-/
+				}
+				//create
 				var notification = new Notification(title || "SepiaFW Notification", options);
 				//notification.onshow = function(){};	//add auto close?
 				if (onClickData){

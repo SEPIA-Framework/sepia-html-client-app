@@ -485,6 +485,7 @@ function sepiaFW_build_embedded_services(){
 				"time": timeString1,
 				"day": day1,
 				"targetTimeUnix": time1
+				//"targetTimeUnix": (new Date().getTime() + 1000*20)
 			}, {
 				"name": "24h Alarm", "eleType": "alarm", "repeat": "onetime", "activated": false,
 				"date": dateString2,
@@ -530,6 +531,7 @@ function sepiaFW_build_embedded_services(){
 				"info": "set",
 				"lastChange": now,
 				"targetTimeUnix": (!isTestUser1? (now + 1000*60*60*5) : (now + 1000*60*30)),
+				//"targetTimeUnix": (now + 1000*10),
 				"activated": false
 			}];
 		}

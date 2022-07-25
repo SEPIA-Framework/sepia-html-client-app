@@ -195,9 +195,9 @@ function sepiaFW_build_events(){
 		or e.g.: "info": "proActiveNote"
 		*/
 		var noteData = {
-			"type": action.info,
-			"action": "triggered",
-			"data": {"message": action.text, "eventId": action.eventId, "created": action.created}
+			type: action.info,	//e.g.: "entertainWhileIdle", "proActiveNote"
+			action: "triggered",
+			data: {"message": action.text, "eventId": action.eventId, "created": action.created}
 		};
 		if (SepiaFW.ui.isCordova){
 			var d = new Date((new Date().getTime() + action.triggerIn) + 1500);		//note: the delay is to handle the foreground activity (see below, 2nd timer)
@@ -723,15 +723,15 @@ function sepiaFW_build_events(){
 	
 	//Background notification 
 	Events.setTimeEventBackgroundNotification = function(Timer){
-		//console.log('setTimeEventBackgroundNotification'); 		//DEBUG
+		//console.error('setTimeEventBackgroundNotification', Timer); 		//DEBUG
 		if (!Timer || (Timer.targetTime - new Date().getTime())<0){
 			//timers of the past are rejected
 			return;
 		}
 		var noteData = {
-			"type": Timer.type, 
-			"action": "triggered", 
-			"data": Timer.data
+			type: Timer.type, 	//e.g.: Events.TIMER, Events.ALARM
+			action: "triggered", 
+			data: Timer.data
 		};
 		if (SepiaFW.ui.isCordova){
 			var d = new Date(Timer.targetTime + 500);
@@ -743,7 +743,7 @@ function sepiaFW_build_events(){
 				trigger: {
 					at: (d)
 				},
-				sound: "file://sounds/alarm.mp3", 		//TODO: is this path working at all?? Its not really a typical valid path :-/
+				sound: "file://" + SepiaFW.audio.alarmSound,
 				smallIcon: "res://ic_popup_reminder",
 				color: "303030",
 				data: noteData,
@@ -834,9 +834,9 @@ function sepiaFW_build_events(){
 		if (showSimpleNote){
 			setTimeout(function(){
 				var noteData = {
-					type : "alarm",
-					onClickType : "stopAlarmSound",
-					onCloseType : "stopAlarmSound"
+					type: Events.ALARM,
+					onClickType: "stopAlarmSound",
+					onCloseType: "stopAlarmSound"
 				};
 				Events.showSimpleSilentNotification(titleS, textS, noteData);
 			}, 50);
@@ -885,9 +885,22 @@ function sepiaFW_build_events(){
 	}
 	Events.showSimpleNotification = function(titleS, textS, soundFile, data, requestCallback){
 		//console.log("actions: " + JSON.stringify(data)); 		//DEBUG
-		return Events.scheduleSimpleNotification(titleS, textS, soundFile, data, undefined, undefined, requestCallback);
+		return Events.scheduleSimpleNotification({
+			id: undefined,
+			title: titleS,
+			text: textS,
+			sound: soundFile,
+			data: data,
+			date: undefined
+		}, requestCallback);
 	}
-	Events.scheduleSimpleNotification = function(titleS, textS, soundFile, data, date, msgId, requestCallback){
+	Events.scheduleSimpleNotification = function(commonOptions, requestCallback){
+		var msgId = commonOptions.id;
+		var textS = commonOptions.text || "";
+		var titleS = commonOptions.title || "";
+		var soundFile = commonOptions.sound;
+		var data = commonOptions.data;
+		var date = commonOptions.date;
 		var nid = -1;
 		if (date && (date.getTime() - new Date().getTime()) < 0){
 			//timers of the past are rejected
@@ -969,9 +982,30 @@ function sepiaFW_build_events(){
 		if (requestCallback) requestCallback({message: "note scheduled"});	//NOTE: best guess
 		return nid;
 	}
+
+	//music player notification
+	/*
+	Events.showOrUpdateMusicPlayerNotification = function(mediaText, mediaTitle, requestCallback){
+		if (SepiaFW.ui.isCordova){
+			//TODO: check https://github.com/ghenry22/cordova-plugin-music-controls2
+			Events.scheduleSimpleNotification({
+				id: mediaPlayerNotificationId,
+				title: mediaTitle || "S.E.P.I.A. Media Player",
+				text: mediaText || "Media",
+				sound: 'null',
+				data: {}
+			}, requestCallback);
+
+		}else if (SepiaFW.ui.notification){
+			//TODO: implement? - Skip for now
+		}
+	}
+	var mediaPlayerNotificationId = "sepia-media-player-note-1";
+	*/
 	
 	//handle click events on simple notifications
 	Events.handleLocalNotificationClick = function(data){
+		//console.error("handleLocalNotificationClick", data.type, data);	//DEBUG
 		//reply sender
 		if (data && data.onClickType && data.onClickType == "replySender" && data.sender){
 			var chatInput = document.getElementById("sepiaFW-chat-input");
@@ -983,7 +1017,7 @@ function sepiaFW_build_events(){
 			}
 		
 		//alarm trigger
-		}else if (data && data.type == "alarm"){
+		}else if (data && (data.type == Events.ALARM || data.type == Events.TIMER)){
 			handleLocalNotificationAlarmActions(data.onClickType, "notificationClick");
 		
 		//pro-active chat message
@@ -998,12 +1032,11 @@ function sepiaFW_build_events(){
 				SepiaFW.ui.showCustomChatMessage(msg, dataOut);
 			}, 300);
 		}
-		
 	}
 	//handle close events on simple notifications
 	Events.handleLocalNotificationClose = function(data){
 		//alarm trigger
-		if (data && data.type == "alarm"){
+		if (data && (data.type == Events.ALARM || data.type == Events.TIMER)){
 			handleLocalNotificationAlarmActions(data.onCloseType, "notificationClose");
 		}
 	}
