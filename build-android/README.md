@@ -1,61 +1,36 @@
-# Build
+# SEPIA Android App
 
-- `npm install -g cordova@9.0.0`
-- Adjust `config.xml` and build scripts to set your package name
-- Call one of the `create-android-...` scripts
+## Requirements
+
+- Install at least **Node.js 14**
+- Install **Android Studio and SDK**
+- Make sure `ANDROID_HOME` is defined in your OS (or scope)
+- Use Debian **Linux** or a compatible system. In Windows you can use WSL2 for example. Mac OS should work as well.
+
+## Build App
+
+- Edit `package.json` to add correct package and author name
+- Edit `config.xml` to add correct package and author name
+- Adjust 'universal-links' section and `assetlinks.json` ([universal links](https://developer.android.com/training/app-links/verify-site-associations))
+- Run the build script `bash build.sh`
 - Fix the build with the info below O_o
 
-# Manual Build Fixes
+## Manual Build Fixes
 
-Version 0.24.1:
-- In `build.gradle` (all files) set `classpath 'com.android.tools.build:gradle:3.3.3'` ([visibility in Android 11](https://android-developers.googleblog.com/2020/07/preparing-your-build-for-package-visibility-in-android-11.html))
-- Add `distributionUrl` version in `gradle-wrapper.properties` to `4.10.3-all`
-- Add SEPIA icon in Android Studio again (60% scaling, background black)
-- Fix splashscreen 'navbarColor' in line 323 of `app/src/main/java/org/apache/cordova/splashscreen/SplashScreen.java`:
-  ```
-	}
-	//---NEW---
-	if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
-		try {
-			splashDialog.getWindow().addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
-			splashDialog.getWindow().setNavigationBarColor(Color.parseColor(preferences.getString("NavigationBarBackgroundColor", "#000000")));
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
-	//---NEW END---
-	splashDialog.setContentView(splashImageView);
-	...
-  ```
-- Add to manifest:
-  - android:versionCode="11201" (latest 2021.11.21)
-  - queries ([use-cases](https://developer.android.com/training/package-visibility/use-cases), [visibility in Android 11](https://medium.com/androiddevelopers/package-visibility-in-android-11-cc857f221cd9))
-  ```
-  <queries>
-    <intent>
-      <action android:name="android.speech.RecognitionService" />
-    </intent>
-    <intent>
-      <action android:name="android.intent.action.TTS_SERVICE" />
-    </intent>
-    <intent>
-      <action android:name="android.intent.action.MEDIA_BUTTON" />
-    </intent>
-    <intent>
-      <action android:name="android.media.action.MEDIA_PLAY_FROM_SEARCH" />
-    </intent>
-    <intent>
-      <action android:name="android.intent.action.VIEW" />
-      <data android:scheme="*" />
-    </intent>
-  </queries>
-  ```
+Version 0.25.0:
+- Open the project in Android Studio
+- Open `AndroidManifest.xml` and:
+  - Check that minSdk is 22 (Android 5.1)
+  - Adjust `android:versionCode`, latest release was: 11401 (2022.07.28)
+  - Check `queries` ([use-cases](https://developer.android.com/training/package-visibility/use-cases))
+- Install Gradle 7.4.2 (create wrapper if necessary)
+- Fix errors in 'Problems' tab, e.g. replace 'GradleException' with 'RuntimeException'?
+- Run app and test on device/emulator
 
-## Cordova Plugins Used (tested: 2021.11.21)
+## Cordova Plugins Used (tested: 2022.07.28)
 
-- Cordova version: `9.0.0`
-- Cordova platform version: `android@8.1.0`
-- `cordova-plugin-inappbrowser`: custom version from plugin_mods folder
+- Cordova version: `11.0.0`
+- Cordova platform version: `android@11.0.0`
 - `org.apache.cordova.speech.speechrecognition`: custom version from plugin_mods folder
 
 ```
