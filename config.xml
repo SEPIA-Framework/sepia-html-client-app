@@ -108,6 +108,7 @@
         <!-- use hook instead to check duplicates? -->
         <config-file target="AndroidManifest.xml" parent="/manifest">
             <uses-permission android:name="com.android.alarm.permission.SET_ALARM" />
+            <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
         </config-file>
 
         <!--intent filter-->
@@ -136,6 +137,15 @@
                 </intent>
                 <intent>
                     <action android:name="android.media.action.MEDIA_PLAY_FROM_SEARCH" />
+                </intent>
+                <intent>
+                    <action android:name="android.intent.action.SET_ALARM" />
+                </intent>
+                <intent>
+                    <action android:name="android.intent.action.SET_TIMER" />
+                </intent>
+                <intent>
+                    <action android:name="android.intent.action.INSERT" />
                 </intent>
                 <intent>
                     <action android:name="android.intent.action.VIEW" />

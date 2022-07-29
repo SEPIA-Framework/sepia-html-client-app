@@ -36,9 +36,9 @@ fi
 # get Cordova
 CORDOVA_VERSION="11.0.0"
 CORDOVA_ANDROID="11.0.0"
-#echo ""
-#echo "Loading the right Cordova version ..."
-#npm install cordova@"$CORDOVA_VERSION"
+echo ""
+echo "Loading the right Cordova version ..."
+npm install cordova@"$CORDOVA_VERSION"
 #
 # get Plugins
 echo ""

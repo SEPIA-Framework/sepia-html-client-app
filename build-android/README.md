@@ -17,15 +17,20 @@
 
 ## Manual Build Fixes
 
-Version 0.25.0:
+There are currently a number of issues with the Cordova 11.0.0 build that need to be fixed manually :-/:
+
 - Open `[build-folder]/platforms/android` in Android Studio
+- Open `cdv-gradle-name.gradle` and "fix" name
 - Open `app/src/main/AndroidManifest.xml` and:
   - Check that minSdk is 22 (Android 5.1)
   - Adjust `android:versionCode`, latest release was: 11401 (2022.07.28)
+  - Remove permission `REQUEST_INSTALL_PACKAGES` (from intent plugin) and `WRITE_EXTERNAL_STORAGE`
   - Check `queries` if you need to add stuff ([use-cases](https://developer.android.com/training/package-visibility/use-cases))
 - Install Gradle wrapper. Tested with: 7.4.2
 - Fix errors in 'Problems' tab, e.g. replace 'GradleException' with 'RuntimeException'?
-- Fix `cordova-plugin-local-notification/web-localnotification.gradle` by replacing `compile` with `implementation` (until plugin is officially fixed)
+- Fix `cordova-plugin-badge/web-badge.gradle` by replacing `compile` with `implementation` (until plugin is officially fixed)
+- If `app/src/main/res` resources folder got messed up restore from root folder
+- If plugin is not fixed yet apply changes from `https://github.com/fquirin/cordova-plugin-statusbar`
 - Run app and test on device/emulator
 
 ## Cordova Plugins Used (tested: 2022.07.28)
@@ -36,31 +41,30 @@ Version 0.25.0:
 
 ```
 "dependencies": {
-	"com-darryncampbell-cordova-plugin-intent": "^2.1.0",
-	"cordova-android": "^8.1.0",
-	"cordova-android-support-gradle-release": "^3.0.1",
-	"cordova-custom-config": "^5.1.0",
-	"cordova-plugin-badge": "^0.8.8",
-	"cordova-plugin-ble": "^2.0.1",
-	"cordova-plugin-cache-clear": "^1.3.8",
-	"cordova-plugin-compat": "^1.2.0",
-	"cordova-plugin-device": "^2.0.3",
-	"cordova-plugin-eddystone": "^1.3.0",
-	"cordova-plugin-file": "^6.0.2",
-	"cordova-plugin-geolocation": "^4.1.0",
-	"cordova-plugin-inappbrowser": "^5.0.0",
-	"cordova-plugin-insomnia": "git+https://github.com/tombolaltd/cordova-plugin-insomnia.git",
-	"cordova-plugin-local-notification": "git+https://github.com/timkellypa/cordova-plugin-local-notifications.git",
-	"cordova-plugin-nativestorage": "^2.3.2",
-	"cordova-plugin-navigationbar-color": "^0.1.0",
-	"cordova-plugin-screen-orientation": "^3.0.2",
-	"cordova-plugin-splashscreen": "^6.0.0",
-	"cordova-plugin-statusbar": "^2.4.3",
-	"cordova-plugin-tts": "^0.2.3",
-	"cordova-plugin-whitelist": "^1.3.5",
-	"cordova-universal-links-plugin": "git+https://github.com/sepia-assistant/cordova-universal-links-plugin.git",
-	"es6-promise-plugin": "^4.2.2",
-	"phonegap-plugin-media-stream": "^1.2.1",
-	"speechrecognition": "file:plugin_mods/speechrecognition/org.apache.cordova.speech.speechrecognition"
+    "com-darryncampbell-cordova-plugin-intent": "^2.2.0",
+    "cordova-android": "^11.0.0",
+    "cordova-custom-config": "^5.1.1",
+    "cordova-plugin-androidx-adapter": "^1.1.3",
+    "cordova-plugin-ble": "^2.0.1",
+    "cordova-plugin-cache-clear": "^1.3.8",
+    "cordova-plugin-compat": "^1.2.0",
+    "cordova-plugin-device": "^2.1.0",
+    "cordova-plugin-eddystone": "^1.3.0",
+    "cordova-plugin-badge": "^0.8.8",
+    "cordova-plugin-file": "^6.0.2",
+    "cordova-plugin-geolocation": "^4.1.0",
+    "cordova-plugin-inappbrowser": "git+https://github.com/fquirin/cordova-plugin-inappbrowser.git",
+    "cordova-plugin-insomnia": "^4.3.0",
+    "cordova-plugin-local-notification": "git+https://github.com/fquirin/cordova-plugin-local-notifications.git",
+    "cordova-plugin-nativestorage": "^2.3.2",
+    "cordova-plugin-navigationbar-color": "^0.1.0",
+    "cordova-plugin-screen-orientation": "^3.0.2",
+    "cordova-plugin-statusbar": "^3.0.0",
+    "cordova-plugin-tts-advanced": "^0.5.2",
+    "cordova-plugin-whitelist": "^1.3.5",
+    "cordova-universal-links-plugin": "git+https://github.com/sepia-assistant/cordova-universal-links-plugin.git",
+    "es6-promise-plugin": "^4.2.2",
+    "phonegap-plugin-media-stream": "^1.2.1",
+    "speechrecognition": "file:plugin_mods/speechrecognition/org.apache.cordova.speech.speechrecognition"
 }
 ```

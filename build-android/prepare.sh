@@ -34,6 +34,7 @@ cp -r plugin_mods "$BUILD_FOLDER"
 cp -r resources "$BUILD_FOLDER"
 cp -r hooks "$BUILD_FOLDER"
 cp ../config.xml "$BUILD_FOLDER/"
+cp package.json "$BUILD_FOLDER/"
 cp build.sh "$BUILD_FOLDER/"
 echo "Build path: $(realpath $BUILD_FOLDER)"
 #
