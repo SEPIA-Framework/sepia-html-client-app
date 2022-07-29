@@ -1,13 +1,10 @@
 #!/bin/sh
 set -e
 autoconfirm=
-APP_PACKAGE=
-BUILD_FOLDER="SepiaFW-P4"
-while getopts yp:h? opt; do
+while getopts yh? opt; do
 	case $opt in
 		y) autoconfirm=1;;
-		p) APP_PACKAGE="$OPTARG";;
-		?|h) printf "Usage: %s [-y] [-p package_name]\n" $0; exit 2;;
+		?|h) printf "Usage: %s [-y]\n" $0; exit 2;;
 	esac
 done
 echo ""
@@ -36,36 +33,12 @@ if [ -z "$autoconfirm" ]; then
 	fi
 fi
 #
-# create build folder
-if [ -d "$BUILD_FOLDER" ]; then
-	echo ""
-	if [ -z "$autoconfirm" ]; then
-		echo "Old files will be removed!"
-		read -p "Press any key to continue (CTRL+C to abort)."
-	fi
-	echo "Removing old project folder ..."
-	rm -r "$BUILD_FOLDER"
-else
-	mkdir -p "$BUILD_FOLDER"
-fi
-#
-# get config.xml and app folder
-echo ""
-echo "Copying data to '$BUILD_FOLDER' ..."
-cp -r ../www "$BUILD_FOLDER"
-cp -r plugin_mods "$BUILD_FOLDER"
-cp -r resources "$BUILD_FOLDER"
-cp -r hooks "$BUILD_FOLDER"
-cp ../config.xml "$BUILD_FOLDER/"
-cd "$BUILD_FOLDER"
-echo "Path: $(pwd)"
-#
 # get Cordova
 CORDOVA_VERSION="11.0.0"
 CORDOVA_ANDROID="11.0.0"
-echo ""
-echo "Loading the right Cordova version ..."
-npm install cordova@"$CORDOVA_VERSION"
+#echo ""
+#echo "Loading the right Cordova version ..."
+#npm install cordova@"$CORDOVA_VERSION"
 #
 # get Plugins
 echo ""

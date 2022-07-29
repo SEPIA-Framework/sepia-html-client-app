@@ -18,13 +18,14 @@
 ## Manual Build Fixes
 
 Version 0.25.0:
-- Open the project in Android Studio
-- Open `AndroidManifest.xml` and:
+- Open `[build-folder]/platforms/android` in Android Studio
+- Open `app/src/main/AndroidManifest.xml` and:
   - Check that minSdk is 22 (Android 5.1)
   - Adjust `android:versionCode`, latest release was: 11401 (2022.07.28)
-  - Check `queries` ([use-cases](https://developer.android.com/training/package-visibility/use-cases))
-- Install Gradle 7.4.2 (create wrapper if necessary)
+  - Check `queries` if you need to add stuff ([use-cases](https://developer.android.com/training/package-visibility/use-cases))
+- Install Gradle wrapper. Tested with: 7.4.2
 - Fix errors in 'Problems' tab, e.g. replace 'GradleException' with 'RuntimeException'?
+- Fix `cordova-plugin-local-notification/web-localnotification.gradle` by replacing `compile` with `implementation` (until plugin is officially fixed)
 - Run app and test on device/emulator
 
 ## Cordova Plugins Used (tested: 2022.07.28)
