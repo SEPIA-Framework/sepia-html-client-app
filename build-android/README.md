@@ -25,6 +25,8 @@ There are currently a number of issues with the Cordova 11.0.0 build that need t
   - Remove permission `REQUEST_INSTALL_PACKAGES` (from intent plugin) and `WRITE_EXTERNAL_STORAGE`
   - Check `queries` if you need to add stuff ([use-cases](https://developer.android.com/training/package-visibility/use-cases))
 - If plugin is not fixed yet apply changes from `https://github.com/fquirin/cordova-plugin-statusbar`
+- If plugin is not fixed yet apply changes from `https://github.com/fquirin/cordova-plugin-navigationbar`
+- One thing I currently can't seem to fix in new builds: 'http' radio streams (non-SSL) O_o
 - Run app and test on device/emulator
 
 Some things that should be fixed automatically but keep an eye on it:

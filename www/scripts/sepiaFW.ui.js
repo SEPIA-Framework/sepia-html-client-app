@@ -249,6 +249,7 @@ function sepiaFW_build_ui(){
 		UI.htmlBackgroundColor = window.getComputedStyle(document.documentElement).getPropertyValue("background-color") || "#fff";
 		//UI.assistantColor = $('#sepiaFW-chat-output').find('article.chatAssistant').first().css("background-color");
 		UI.navBarColor = navB?  window.getComputedStyle(navB, null).getPropertyValue("background-color") : UI.navBarColor;
+		UI.navBarColorContrast = "";
 		UI.statusBarColor = statB?  window.getComputedStyle(statB, null).getPropertyValue("background-color") : UI.statusBarColor;
 		UI.statusBarColorContrast = "";
 		//update statusbar and navbar
@@ -275,9 +276,10 @@ function sepiaFW_build_ui(){
 			UI.statusBarColorContrast = SepiaFW.tools.getBestContrastHexOrRgb(UI.statusBarColor);
 		}
 		UI.navBarColor = SepiaFW.tools.hexOrRgbToNoAlphaHexColor(UI.navBarColor || UI.primaryColor);
+		UI.navBarColorContrast = SepiaFW.tools.getBestContrast(UI.navBarColor);
 		if ('NavigationBar' in window){
 			//console.log('UI.navBarColor: ' + UI.navBarColor + " - contrast: " + SepiaFW.tools.getBestContrast(UI.navBarColor));
-            NavigationBar.backgroundColorByHexString(UI.navBarColor);
+            NavigationBar.backgroundColorByHexString(UI.navBarColor, UI.navBarColorContrast == "black");
 		}
 		//set general skin style
 		if (SepiaFW.tools.getBestContrastHexOrRgb(UI.htmlBackgroundColor || "") == 'white'){
