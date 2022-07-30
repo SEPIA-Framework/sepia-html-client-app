@@ -20,18 +20,20 @@
 There are currently a number of issues with the Cordova 11.0.0 build that need to be fixed manually :-/:
 
 - Open `[build-folder]/platforms/android` in Android Studio
-- Open `cdv-gradle-name.gradle` and "fix" name
 - Open `app/src/main/AndroidManifest.xml` and:
-  - Check that minSdk is 22 (Android 5.1)
   - Adjust `android:versionCode`, latest release was: 11401 (2022.07.28)
   - Remove permission `REQUEST_INSTALL_PACKAGES` (from intent plugin) and `WRITE_EXTERNAL_STORAGE`
   - Check `queries` if you need to add stuff ([use-cases](https://developer.android.com/training/package-visibility/use-cases))
-- Install Gradle wrapper. Tested with: 7.4.2
-- Fix errors in 'Problems' tab, e.g. replace 'GradleException' with 'RuntimeException'?
-- Fix `cordova-plugin-badge/web-badge.gradle` by replacing `compile` with `implementation` (until plugin is officially fixed)
-- If `app/src/main/res` resources folder got messed up restore from root folder
 - If plugin is not fixed yet apply changes from `https://github.com/fquirin/cordova-plugin-statusbar`
 - Run app and test on device/emulator
+
+Some things that should be fixed automatically but keep an eye on it:
+
+- If `app/src/main/res` resources folder got messed up restore from root folder
+- Open `cdv-gradle-name.gradle` and "fix" name
+- Install Gradle wrapper. Tested with: 7.4.2
+- Fix `cordova-plugin-badge/web-badge.gradle` by replacing `compile` with `implementation` (until plugin is officially fixed)
+- (optional) Fix errors in 'Problems' tab, e.g. replace 'GradleException' with 'RuntimeException'?
 
 ## Cordova Plugins Used (tested: 2022.07.28)
 

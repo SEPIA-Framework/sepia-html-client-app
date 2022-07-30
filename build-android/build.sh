@@ -22,7 +22,8 @@ if [ -z "$autoconfirm" ]; then
 	echo "Before you continue please complete the following steps:"
 	echo "- Edit package.json to add correct package and author name"
 	echo "- Edit config.xml to add correct package and author name"
-	echo "- Adjust 'universal-links' section and assetlinks.json" 
+	echo "- Adjust 'universal-links' section and assetlinks.json"
+	echo "- Make sure there is no 'config.xml' in any parent directory (BUG)"
 	echo ""
 	read -p "Enter 'ok' to continue: " okabort
 	if [ -n "$okabort" ] && [ $okabort = "ok" ]; then
@@ -76,15 +77,34 @@ npx cordova plugin add cordova-plugin-androidx-adapter
 #
 # add android platform
 echo ""
-echo "#Adding platform ..."
+echo "Adding platform ..."
 npx cordova platform add android@"$CORDOVA_ANDROID"
 #
 # prepare build
 echo ""
-echo "#Preparing build ..."
+echo "Preparing build ..."
 npx cordova prepare android
+#
+# copy gradle wrapper
+echo ""
+echo "Copying Gradle wrapper ..."
+cp -r gradle platforms/android/
+# rename "S.E.P.I.A" in Gradle project name file
+cd platforms/android
+if [ -n "$(cat cdv-gradle-name.gradle | grep \"S.E.P.I.A.\")" ]; then
+	echo "Fixing cdv-gradle-name.gradle ..."
+	sed -i 's/S.E.P.I.A./SEPIA/g' cdv-gradle-name.gradle
+fi
+if [ -d "cordova-plugin-badge" ] && [ -f "cordova-plugin-badge/web-badge.gradle" ]; then
+	cd cordova-plugin-badge
+	if [ -n "$(cat web-badge.gradle | grep compile)" ]; then
+		echo "Fixing cordova-plugin-badge/web-badge.gradle ..."
+		sed -i 's/compile /implementation /g' web-badge.gradle
+	fi
+	cd ..
+fi
 #
 # DONE
 echo ""
-echo "#DONE"
+echo "DONE"
 echo "You can now open the project in Android Studio and finish your build. Check 'README.md' to fix build errors."

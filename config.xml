@@ -51,25 +51,25 @@
         <edit-config file="AndroidManifest.xml" mode="merge" target="/manifest/application">
             <application android:icon="@mipmap/ic_launcher" android:roundIcon="@mipmap/ic_launcher_round" />
         </edit-config>
-        <resource-file src="resources/res/values/colors.xml" target="res/values/colors.xml" />
-        <resource-file src="resources/res/values/ic_launcher_background.xml" target="res/values/ic_launcher_background.xml" />
-        <resource-file src="resources/res/mipmap-anydpi-v26/ic_launcher.xml" target="res/mipmap-anydpi-v26/ic_launcher.xml" />
-        <resource-file src="resources/res/mipmap-anydpi-v26/ic_launcher_round.xml" target="res/mipmap-anydpi-v26/ic_launcher_round.xml" />
-        <resource-file src="resources/res/mipmap-ldpi/ic_launcher.png" target="res/mipmap-ldpi/ic_launcher.png" />
-        <resource-file src="resources/res/mipmap-mdpi/ic_launcher.png" target="res/mipmap-mdpi/ic_launcher.png" />
-        <resource-file src="resources/res/mipmap-mdpi/ic_launcher_round.png" target="res/mipmap-mdpi/ic_launcher_round.png" />
-        <resource-file src="resources/res/mipmap-hdpi/ic_launcher.png" target="res/mipmap-hdpi/ic_launcher.png" />
-        <resource-file src="resources/res/mipmap-hdpi/ic_launcher_round.png" target="res/mipmap-hdpi/ic_launcher_round.png" />
-        <resource-file src="resources/res/mipmap-hdpi/ic_launcher_foreground.png" target="res/mipmap-hdpi/ic_launcher_foreground.png" />
-        <resource-file src="resources/res/mipmap-xhdpi/ic_launcher.png" target="res/mipmap-xhdpi/ic_launcher.png" />
-        <resource-file src="resources/res/mipmap-xhdpi/ic_launcher_round.png" target="res/mipmap-xhdpi/ic_launcher_round.png" />
-        <resource-file src="resources/res/mipmap-xhdpi/ic_launcher_foreground.png" target="res/mipmap-xhdpi/ic_launcher_foreground.png" />
-        <resource-file src="resources/res/mipmap-xxhdpi/ic_launcher.png" target="res/mipmap-xxhdpi/ic_launcher.png" />
-        <resource-file src="resources/res/mipmap-xxhdpi/ic_launcher_round.png" target="res/mipmap-xxhdpi/ic_launcher_round.png" />
-        <resource-file src="resources/res/mipmap-xxhdpi/ic_launcher_foreground.png" target="res/mipmap-xxhdpi/ic_launcher_foreground.png" />
-        <resource-file src="resources/res/mipmap-xxxhdpi/ic_launcher.png" target="res/mipmap-xxxhdpi/ic_launcher.png" />
-        <resource-file src="resources/res/mipmap-xxxhdpi/ic_launcher_round.png" target="res/mipmap-xxxhdpi/ic_launcher_round.png" />
-        <resource-file src="resources/res/mipmap-xxxhdpi/ic_launcher_foreground.png" target="res/mipmap-xxxhdpi/ic_launcher_foreground.png" />
+        <resource-file src="resources/res/values/colors.xml" target="app/src/main/res/values/colors.xml" />
+        <resource-file src="resources/res/values/ic_launcher_background.xml" target="app/src/main/res/values/ic_launcher_background.xml" />
+        <resource-file src="resources/res/mipmap-anydpi-v26/ic_launcher.xml" target="app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml" />
+        <resource-file src="resources/res/mipmap-anydpi-v26/ic_launcher_round.xml" target="app/src/main/res/mipmap-anydpi-v26/ic_launcher_round.xml" />
+        <resource-file src="resources/res/mipmap-ldpi/ic_launcher.png" target="app/src/main/res/mipmap-ldpi/ic_launcher.png" />
+        <resource-file src="resources/res/mipmap-mdpi/ic_launcher.png" target="app/src/main/res/mipmap-mdpi/ic_launcher.png" />
+        <resource-file src="resources/res/mipmap-mdpi/ic_launcher_round.png" target="app/src/main/res/mipmap-mdpi/ic_launcher_round.png" />
+        <resource-file src="resources/res/mipmap-hdpi/ic_launcher.png" target="app/src/main/res/mipmap-hdpi/ic_launcher.png" />
+        <resource-file src="resources/res/mipmap-hdpi/ic_launcher_round.png" target="app/src/main/res/mipmap-hdpi/ic_launcher_round.png" />
+        <resource-file src="resources/res/mipmap-hdpi/ic_launcher_foreground.png" target="app/src/main/res/mipmap-hdpi/ic_launcher_foreground.png" />
+        <resource-file src="resources/res/mipmap-xhdpi/ic_launcher.png" target="app/src/main/res/mipmap-xhdpi/ic_launcher.png" />
+        <resource-file src="resources/res/mipmap-xhdpi/ic_launcher_round.png" target="app/src/main//mipmap-xhdpi/ic_launcher_round.png" />
+        <resource-file src="resources/res/mipmap-xhdpi/ic_launcher_foreground.png" target="app/src/main/res/mipmap-xhdpi/ic_launcher_foreground.png" />
+        <resource-file src="resources/res/mipmap-xxhdpi/ic_launcher.png" target="app/src/main/res/mipmap-xxhdpi/ic_launcher.png" />
+        <resource-file src="resources/res/mipmap-xxhdpi/ic_launcher_round.png" target="app/src/main/res/mipmap-xxhdpi/ic_launcher_round.png" />
+        <resource-file src="resources/res/mipmap-xxhdpi/ic_launcher_foreground.png" target="app/src/main/res/mipmap-xxhdpi/ic_launcher_foreground.png" />
+        <resource-file src="resources/res/mipmap-xxxhdpi/ic_launcher.png" target="app/src/main/res/mipmap-xxxhdpi/ic_launcher.png" />
+        <resource-file src="resources/res/mipmap-xxxhdpi/ic_launcher_round.png" target="app/src/main/res/mipmap-xxxhdpi/ic_launcher_round.png" />
+        <resource-file src="resources/res/mipmap-xxxhdpi/ic_launcher_foreground.png" target="app/src/main/res/mipmap-xxxhdpi/ic_launcher_foreground.png" />
 
         <!--splash screen-->
         <edit-config file="AndroidManifest.xml" mode="merge" target="/manifest/application/activity[@android:name='MainActivity']">
@@ -80,18 +80,18 @@
         <preference name="AndroidWindowSplashScreenBackground" value="#000000" />
         <preference name="AutoHideSplashScreen" value="true" />
         <preference name="SplashScreenDelay" value="2500" /><!-- -1 for page ready -->
-        <resource-file src="resources/res/drawable/ic_sepia_col_512.xml" target="res/drawable/ic_sepia_col_512.xml" />
-        <resource-file src="resources/res/values/themes.xml" target="res/values/themes.xml" /><!-- is this written automatically ? -->
+        <resource-file src="resources/res/drawable/ic_sepia_col_512.xml" target="app/src/main/res/drawable/ic_sepia_col_512.xml" />
+        <resource-file src="resources/res/values/themes.xml" target="app/src/main/res/values/themes.xml" /><!-- is this written automatically ? -->
 
         <!--local notifications-->
-        <resource-file src="resources/res/drawable-mdpi/ic_popup_reminder.png" target="res/drawable-mdpi/ic_popup_reminder.png" />
-        <resource-file src="resources/res/drawable-hdpi/ic_popup_reminder.png" target="res/drawable-hdpi/ic_popup_reminder.png" />
-        <resource-file src="resources/res/drawable-xhdpi/ic_popup_reminder.png" target="res/drawable-xhdpi/ic_popup_reminder.png" />
-        <resource-file src="resources/res/drawable-xxhdpi/ic_popup_reminder.png" target="res/drawable-xxhdpi/ic_popup_reminder.png" />
-        <resource-file src="resources/res/drawable-xxxhdpi/ic_popup_reminder.png" target="res/drawable-xxxhdpi/ic_popup_reminder.png" />
+        <resource-file src="resources/res/drawable-mdpi/ic_popup_reminder.png" target="app/src/main/res/drawable-mdpi/ic_popup_reminder.png" />
+        <resource-file src="resources/res/drawable-hdpi/ic_popup_reminder.png" target="app/src/main/res/drawable-hdpi/ic_popup_reminder.png" />
+        <resource-file src="resources/res/drawable-xhdpi/ic_popup_reminder.png" target="app/src/main/res/drawable-xhdpi/ic_popup_reminder.png" />
+        <resource-file src="resources/res/drawable-xxhdpi/ic_popup_reminder.png" target="app/src/main/res/drawable-xxhdpi/ic_popup_reminder.png" />
+        <resource-file src="resources/res/drawable-xxxhdpi/ic_popup_reminder.png" target="app/src/main/res/drawable-xxxhdpi/ic_popup_reminder.png" />
 
         <!--other resources and config tweaks-->
-        <resource-file src="resources/res/xml/network_security_config.xml" target="res/xml/network_security_config.xml" />
+        <resource-file src="resources/res/xml/network_security_config.xml" target="app/src/main/res/xml/network_security_config.xml" />
         <edit-config file="AndroidManifest.xml" mode="merge" target="/manifest/application/activity[@android:name='MainActivity']">
             <activity 
 				android:networkSecurityConfig="@xml/network_security_config" 
