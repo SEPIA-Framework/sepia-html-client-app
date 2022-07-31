@@ -13,27 +13,25 @@
 - Edit `config.xml` to add correct package and author name
 - Adjust 'universal-links' section and `assetlinks.json` ([universal links](https://developer.android.com/training/app-links/verify-site-associations))
 - Run the build script `bash build.sh`
-- Fix the build with the info below O_o
+- Fix the build with the info below
 
 ## Manual Build Fixes
 
-There are currently a number of issues with the Cordova 11.0.0 build that need to be fixed manually :-/:
+Some things that need to be fixed manually:
 
 - Open `[build-folder]/platforms/android` in Android Studio
 - Open `app/src/main/AndroidManifest.xml` and:
-  - Adjust `android:versionCode`, latest release was: 11401 (2022.07.28)
+  - Adjust `android:versionCode` for new release, latest was: 11401 (2022.07.28)
   - Remove permission `REQUEST_INSTALL_PACKAGES` (from intent plugin) and `WRITE_EXTERNAL_STORAGE`
-  - Check `queries` if you need to add stuff ([use-cases](https://developer.android.com/training/package-visibility/use-cases))
-- If plugin is not fixed yet apply changes from `https://github.com/fquirin/cordova-plugin-statusbar`
-- If plugin is not fixed yet apply changes from `https://github.com/fquirin/cordova-plugin-navigationbar`
-- One thing I currently can't seem to fix in new builds: 'http' radio streams (non-SSL) O_o
+- Delete unnecessary 'v26' icons (except 'anydpi' ^^)
 - Run app and test on device/emulator
 
-Some things that should be fixed automatically but keep an eye on it:
+Some things that should be OK or fixed automatically but keep an eye on it:
 
 - If `app/src/main/res` resources folder got messed up restore from root folder
-- Open `cdv-gradle-name.gradle` and "fix" name
 - Install Gradle wrapper. Tested with: 7.4.2
+- Edit `queries` in manifest if you need more stuff ([use-cases](https://developer.android.com/training/package-visibility/use-cases))
+- Open `cdv-gradle-name.gradle` and "fix" name
 - Fix `cordova-plugin-badge/web-badge.gradle` by replacing `compile` with `implementation` (until plugin is officially fixed)
 - (optional) Fix errors in 'Problems' tab, e.g. replace 'GradleException' with 'RuntimeException'?
 
@@ -61,9 +59,9 @@ Some things that should be fixed automatically but keep an eye on it:
     "cordova-plugin-insomnia": "^4.3.0",
     "cordova-plugin-local-notification": "git+https://github.com/fquirin/cordova-plugin-local-notifications.git",
     "cordova-plugin-nativestorage": "^2.3.2",
-    "cordova-plugin-navigationbar-color": "^0.1.0",
+    "cordova-plugin-navigationbar-color": "git+https://github.com/fquirin/cordova-plugin-navigationbar",
     "cordova-plugin-screen-orientation": "^3.0.2",
-    "cordova-plugin-statusbar": "^3.0.0",
+    "cordova-plugin-statusbar": "git+https://github.com/fquirin/cordova-plugin-statusbar.git",
     "cordova-plugin-tts-advanced": "^0.5.2",
     "cordova-plugin-whitelist": "^1.3.5",
     "cordova-universal-links-plugin": "git+https://github.com/sepia-assistant/cordova-universal-links-plugin.git",

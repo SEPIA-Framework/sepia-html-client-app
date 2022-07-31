@@ -53,8 +53,10 @@ npx cordova plugin add https://github.com/fquirin/cordova-plugin-inappbrowser
 #npx cordova plugin add cordova-plugin-whitelist
 #npx cordova plugin add cordova-universal-links-plugin #alternative: cordova-plugin-universal-links
 npx cordova plugin add https://github.com/sepia-assistant/cordova-universal-links-plugin.git
-npx cordova plugin add cordova-plugin-statusbar
-npx cordova plugin add cordova-plugin-navigationbar-color
+#npx cordova plugin add cordova-plugin-statusbar
+npx cordova plugin add https://github.com/fquirin/cordova-plugin-statusbar
+#npx cordova plugin add cordova-plugin-navigationbar-color
+npx cordova plugin add https://github.com/fquirin/cordova-plugin-navigationbar
 #npx cordova plugin add cordova-plugin-splashscreen
 #cordova plugin add https://github.com/apache/cordova-plugin-splashscreen.git -- NOTE: use this in case releases are too old
 npx cordova plugin add cordova-plugin-cache-clear
