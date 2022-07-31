@@ -345,6 +345,7 @@ function sepiaFW_build_speech_synthesis(Speech, sepiaSessionId){
 				});
 				//restore voice effects
 				SepiaFW.audio.tts.restoreVoiceEffect(selectedVoice, function(){});
+				return selectedVoiceObject.name;
 
 			}else if (Speech.voiceEngine == 'custom-mary-api'){
 				//custom voices
@@ -362,6 +363,7 @@ function sepiaFW_build_speech_synthesis(Speech, sepiaSessionId){
 				});
 				//restore voice effects
 				SepiaFW.audio.tts.restoreVoiceEffect(selectedVoice, function(){});
+				return selectedVoiceObject.name;
 
 			}else if (SepiaFW.ui.isCordova){
 				//native voices (Android, iOS)
@@ -379,6 +381,12 @@ function sepiaFW_build_speech_synthesis(Speech, sepiaSessionId){
 					selectedVoice = "";
 					selectedVoiceObject = {};
 				}
+				//store if deliberately empty or match
+				if (!selectedVoice || selectedVoiceObject.name){
+					$('#sepiaFW-menu-select-voice').val(selectedVoice);
+					SepiaFW.data.setPermanent(Speech.getLanguage() + "-voice", selectedVoice);
+				}
+				return selectedVoiceObject.name;
 			}else{
 				//native voices (web-speech-API)
 				selectedVoice = newVoice;
@@ -396,6 +404,7 @@ function sepiaFW_build_speech_synthesis(Speech, sepiaSessionId){
 					$('#sepiaFW-menu-select-voice').val(selectedVoice);
 					SepiaFW.data.setPermanent(Speech.getLanguage() + "-voice", selectedVoice);
 				}
+				return selectedVoiceObject.name;
 			}
 		}
 	}
