@@ -19,6 +19,7 @@
     <preference name="StatusBarOverlaysWebView" value="false" />
     <preference name="StatusBarBackgroundColor" value="#000000" />
     <preference name="NavigationBarBackgroundColor" value="#000000" />
+	<preference name="NavigationBarLight" value="false" />
 
     <plugin name="cordova-plugin-whitelist" spec="1" />
     <access origin="*" />
@@ -73,8 +74,7 @@
 
         <!--splash screen-->
         <edit-config file="AndroidManifest.xml" mode="merge" target="/manifest/application/activity[@android:name='MainActivity']">
-            <activity 
-				android:theme="@style/Theme.App.SplashScreen" />
+            <activity android:theme="@style/Theme.App.SplashScreen" />
         </edit-config>
         <preference name="AndroidWindowSplashScreenAnimatedIcon" value="res/drawable/ic_sepia_col_512.xml" />
         <preference name="AndroidWindowSplashScreenBackground" value="#000000" />
@@ -92,12 +92,13 @@
 
         <!--other resources and config tweaks-->
         <resource-file src="resources/res/xml/network_security_config.xml" target="app/src/main/res/xml/network_security_config.xml" />
+		<!-- Network security config (e.g. to whitelist non-SSL domains for audio stream) -->
+		<edit-config file="AndroidManifest.xml" mode="merge" target="/manifest/application">
+            <application android:networkSecurityConfig="@xml/network_security_config" />
+        </edit-config>
         <edit-config file="AndroidManifest.xml" mode="merge" target="/manifest/application/activity[@android:name='MainActivity']">
-            <activity 
-				android:networkSecurityConfig="@xml/network_security_config" 
-				android:configChanges="orientation|keyboardHidden|keyboard|screenSize|locale|navigation" />
-            <!-- Network security config (e.g. to whitelist non-SSL domains for audio stream) -->
             <!-- configChanges 'navigation' is for bluetooth restart! -->
+            <activity android:configChanges="orientation|keyboardHidden|keyboard|screenSize|locale|navigation" />
         </edit-config>
         <!-- custom manifest changes -->
         <!--
