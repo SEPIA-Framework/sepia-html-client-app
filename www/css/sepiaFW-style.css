@@ -497,6 +497,10 @@ html.edge-2-edge body.big-screen #sepiaFW-main-window {
 	border-radius: 0;
 	border-width: 0;
 }
+.sepiaFW-standalone-app.no-size-limit #sepiaFW-main-window {
+	border-radius: 0;
+	box-shadow: none;
+}
 #sepiaFW-main-window.sepiaFW-skin-mod {
 	/* skins should write main-window modifications to this class so other views like frame or ao-mode stay untouched*/
 }
@@ -912,17 +916,13 @@ html.dark-skin #sepiaFW-login-help-btn {
 #sepiaFW-chat-menu {
 	background: rgba(33, 33, 33, 1.00);
 	color: #fff;
-	display: -webkit-flex;
-	display: -ms-flexbox;
 	display: flex;
-	-webkit-flex-direction: column;
-	    -ms-flex-direction: column;
-	        flex-direction: column;
+	flex-direction: column;
     position: absolute;
     left: 0px;
-	top: 50px;
+	top: var(--sepia-nav-bar-height);
     padding: 4px 8px 59px 8px;
-    height: calc(100% - 50px);
+    height: calc(100% - var(--sepia-nav-bar-height));
 	width: calc(100% - 0px);
 	overflow: hidden; /*scrolling happens inside the carousel*/
 	-webkit-overflow-scrolling: touch;
@@ -1554,7 +1554,10 @@ html.dark-skin #sepiaFW-login-help-btn {
 	padding: 8px 5px;
 	text-align: center;
 	min-height: 50px;
-	max-height: 50px;
+	/*max-height: 50px;*/
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
 }
 #sepiaFW-nav-bar button {
 	margin: 0px 5px 0px 5px;
@@ -1676,17 +1679,15 @@ html.dark-skin #sepiaFW-login-help-btn {
 	transition: background 275ms;
     transition-timing-function: ease-in-out;
 	position: absolute;
-    bottom: 0px;			/* note that 'sepiaFW-chat-controls-speech-box' depends on that as well */
+    bottom: 0px;				/* note that 'sepiaFW-chat-controls-speech-box' depends on that as well */
     z-index: 5;
 	border: 0px;
 	padding: 0px; 
     margin: 0px 0 0px 0;
-	min-height: 55px;
-	max-height: 57px; 		/* note that 'sepiaFW-chat-controls-speech-box' depends on that as well */
+	min-height: 56px;
+	/*max-height: 57px;*/ 		/* note that 'sepiaFW-chat-controls-speech-box' depends on that as well */
 	/*border-bottom: 2px solid #fff;*/ /*if you change this, check: #sepiaFW-chat-controls-more-menu (bottom), #sepiaFW-chat-menu (height)*/
 	width: calc(100% - 0px);
-	display: -webkit-flex;
-	display: -ms-flexbox;
 	display: flex;
 	overflow: hidden;		/* better dont use position fixed inside */
 }
@@ -1740,7 +1741,7 @@ html.dark-skin #sepiaFW-login-help-btn {
 	padding: 10px 8px 10px 6px; 
     margin: 0px;
 	min-height: 55px;
-	max-height: 55px;
+	/*max-height: 55px;*/
 	/*width: calc(100% - 59px);*/
 	display: -webkit-flex;
 	display: -ms-flexbox;
@@ -1833,7 +1834,7 @@ html.dark-skin #sepiaFW-login-help-btn {
     margin: 0px;
 	min-width: 61px;
 	/*max-width: 63px;*/
-	max-height: 55px;
+	/*max-height: 55px;*/
 	min-height: 55px;
 	display: -webkit-flex;
 	display: -ms-flexbox;
@@ -1912,7 +1913,7 @@ html.dark-skin #sepiaFW-login-help-btn {
 	/*background: rgba(189, 189, 189, 0.66);*/
 	background: linear-gradient(to right, #CEFF1A 0%, #16ABC3 100%);
     border-radius: 3px;
-    bottom: 58px;
+    bottom: calc(var(--sepia-chat-ctrl-height) + 2px);
     z-index: 6;
     left: 4px;
     width: calc(100% - 12px);

@@ -103,7 +103,7 @@ html.landscape-small #sepiaFW-chat-controls-right {
 	background: transparent;
 }
 #sepiaFW-chat-controls {
-    background: linear-gradient(transparent, var(--scs-app-back));
+    background: linear-gradient(transparent 0%, var(--scs-app-back) 80%);
 }
 #sepiaFW-main-window #sepiaFW-nav-bar button,
 #sepiaFW-main-window #sepiaFW-chat-controls button {

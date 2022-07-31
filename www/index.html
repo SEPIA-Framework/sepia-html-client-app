@@ -41,6 +41,10 @@
 				document.documentElement.classList.remove("edge-2-edge");
 			}
 		}
+		function sepiaFW_set_default_css(){
+			document.documentElement.style.setProperty("--sepia-nav-bar-height", "50px");
+			document.documentElement.style.setProperty("--sepia-chat-ctrl-height", "56px");
+		}
 		sepiaFW_scale_viewport();
 		sepiaFW_landscape_check();
 		sepiaFW_border_check();
@@ -80,6 +84,7 @@
 	<style>
 		html.app-loading {
 			background-color: black;
+			background-image: unset;
 			width: 100%;
 			height: 100%;
 			transition: background-color 0.0s;

@@ -952,6 +952,26 @@ function sepiaFW_build_ui(){
 		
 		//---------------------- LOAD other SETTINGS before building the UI:
 
+		//observe header and control bar size
+		var mainNavBar = document.getElementById("sepiaFW-nav-bar");
+		var mainChatCtrls = document.getElementById("sepiaFW-chat-controls");
+		function setMainNavBarCssProps(){
+			var navBarHeight = mainNavBar.getBoundingClientRect().height;
+			document.documentElement.style.setProperty("--sepia-nav-bar-height", navBarHeight + "px");
+		}
+		function setMainChatControlsCssProps(){
+			var chatControlsHeight = mainChatCtrls.getBoundingClientRect().height;
+			document.documentElement.style.setProperty("--sepia-chat-ctrl-height", chatControlsHeight + "px");
+		}
+		UI.addResizeObserverWithBuffer(mainNavBar, function(){
+			setMainNavBarCssProps();
+		});
+		UI.addResizeObserverWithBuffer(mainChatCtrls, function(){
+			setMainChatControlsCssProps();
+		});
+		setMainNavBarCssProps();
+		setMainChatControlsCssProps();
+
 		//load skin and avatar
 		var lastSkin = SepiaFW.tools.getURLParameter("skinId") || SepiaFW.data.get('activeSkin');
 		if (lastSkin){
@@ -2440,7 +2460,7 @@ function sepiaFW_build_ui(){
 		var ro = new ResizeObserver(function(entries){
 			clearTimeout(roBuffer);
 			roBuffer = setTimeout(function(){
-				resizeCallback();
+				resizeCallback(elem);
 			}, bufferTime);
 		});
 		ro.observe(elem);

@@ -254,19 +254,15 @@ function sepiaFW_build_ui_actions(){
 		'enablethirdpartycookies=no', 'clearsessioncache=no', 'clearcache=no'
 	].join(",");
 	function getInAppBrowserOptions(){
+		//we keep a dark style because the nav-bar is dark
 		var toolbarColor = "#000000";
 		var toolbarAccent = "#ceff1a";
 		var toolbarText = "#eeeeee";
-		if (SepiaFW.ui.statusBarColor && SepiaFW.ui.statusBarColorContrast){
-			toolbarColor = SepiaFW.ui.statusBarColor;
-			if (SepiaFW.ui.statusBarColorContrast == "black"){
-				toolbarAccent = "#000000";
-				toolbarText = "#222222";
-			}
-			//does assistant color fit to status bar?
-			if (SepiaFW.ui.statusBarColorContrast != SepiaFW.ui.assistantColorContrast){
-				toolbarAccent = SepiaFW.ui.assistantColorPlainHex;
-			}
+		//we try to set a custom accent if it fits to black
+		if (SepiaFW.ui.assistantColorPlainHex && SepiaFW.ui.assistantColorContrast == "black"){
+			toolbarAccent = SepiaFW.ui.assistantColorPlainHex;
+		}else if (SepiaFW.ui.navBarColor && SepiaFW.ui.navBarColorContrast && SepiaFW.ui.navBarColorContrast == "black"){
+			toolbarAccent = SepiaFW.ui.navBarColor;
 		}
 		return [inAppBrowserDefaultOptions,
 			'toolbarcolor=' + toolbarColor, 'toolbaraccentcolor=' + toolbarAccent, 'toolbartextcolor=' + toolbarText
