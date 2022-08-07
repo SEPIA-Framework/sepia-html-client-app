@@ -7,6 +7,10 @@ html {
 	/*color: #F4F4F4;*/
 	color: #ffad01;
 }
+.sepiaFW-standalone-app.no-size-limit #sepiaFW-main-window {
+    border-width: 2px;
+	border-radius: 28px;
+}
 .sepiaFW-results-container {
 	scrollbar-color: #252525 #191919;
 }

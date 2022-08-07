@@ -7,6 +7,10 @@ html {
 #sepiaFW-main-window {
 	color: #000;
 }
+.sepiaFW-standalone-app.no-size-limit #sepiaFW-main-window {
+    border-width: 4px;
+	border-color: #fff;
+}
 .sepiaFW-results-container {
 	scrollbar-color: #eee #fcfcfc;
 }
@@ -80,6 +84,8 @@ html {
     color: #fff;
     border-radius: 28px;
     padding: 0;
+	width: 55px;
+    height: 55px;
     min-width: 55px;
     border: 2px solid #000;
 }

@@ -499,6 +499,7 @@ html.edge-2-edge body.big-screen #sepiaFW-main-window {
 }
 .sepiaFW-standalone-app.no-size-limit #sepiaFW-main-window {
 	border-radius: 0;
+	border-width: 0;
 	box-shadow: none;
 }
 #sepiaFW-main-window.sepiaFW-skin-mod {
@@ -1445,7 +1446,7 @@ html.dark-skin #sepiaFW-login-help-btn {
 	border-radius: 0px 0px 3px 3px;
 	position: absolute;
 	left: 0px;
-	top: 50px;
+	top: var(--sepia-nav-bar-height);
     padding: 0;
 	margin: 0;
     width: calc(100% - 0px);
@@ -1743,8 +1744,6 @@ html.dark-skin #sepiaFW-login-help-btn {
 	min-height: 55px;
 	/*max-height: 55px;*/
 	/*width: calc(100% - 59px);*/
-	display: -webkit-flex;
-	display: -ms-flexbox;
 	display: flex;
 	transition: opacity 0.4s;
 }

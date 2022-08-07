@@ -2407,10 +2407,10 @@ function sepiaFW_build_ui(){
 			$('#sepiaFW-main-window').removeClass('full-screen');
 			/*if ('StatusBar' in window){
                 StatusBar.show();
-            }*/
+            }
             if ('NavigationBar' in window){
                 NavigationBar.show();
-			}
+			}*/
 			UI.isInterfaceFullscreen = false;
 		}else{
 			$navBar.fadeOut(300);
@@ -2420,10 +2420,10 @@ function sepiaFW_build_ui(){
 			$('#sepiaFW-main-window').addClass('full-screen');
 			/*if ('StatusBar' in window){
                 StatusBar.hide();
-            }*/
-            if ('NavigationBar' in window){
-                NavigationBar.hide();
             }
+            if ('NavigationBar' in window){
+                NavigationBar.hide();	//TODO: is buggy?
+            }*/
 			UI.isInterfaceFullscreen = true;
 		}
 		setTimeout(function(){
