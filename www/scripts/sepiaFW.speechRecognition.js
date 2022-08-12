@@ -308,6 +308,7 @@ function sepiaFW_build_speech_recognition(Speech){
 			broadcastNoAsrSupport();
 			broadcastAsrNoResult();
 			error_callback("E00 - Speech recognition not supported by your client :-(");
+			return;
 		}
 		var quit_on_final_result = true;
 		if (!isRecognizing && !recognizerWaitingForResult){
