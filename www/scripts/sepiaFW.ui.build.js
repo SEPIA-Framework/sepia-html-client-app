@@ -196,6 +196,19 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 		return btn;
 	}
 
+	//a help-text button
+	Build.helpButton = function(helpTextOrEle){
+		var btn = document.createElement('BUTTON');
+		btn.className = "sepiaFW-button-inline round icon-only";
+		btn.innerHTML = "<i class='material-icons md-inherit'>help</i>";
+		SepiaFW.ui.onclick(btn, function(){
+			SepiaFW.ui.showPopup(helpTextOrEle, {
+				textAlign: "left"
+			});
+		}, true);
+		return btn;
+	}
+
 	//state indicator
 	Build.stateIndicatorRGY = function(indicatorId, initialState, onGreenCallback, onYellowCallback, onRedCallback){
 		var Indicator = {};

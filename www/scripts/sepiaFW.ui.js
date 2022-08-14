@@ -199,7 +199,7 @@ function sepiaFW_build_ui(){
 	UI.assistantColorPlainHex = '';
 	UI.assistantColorContrast = 'black';
 	UI.micBackgroundColor = '#fff';  //reassigned during UI setup
-	UI.htmlBackgroundColor = window.getComputedStyle(document.documentElement).getPropertyValue("background-color") || "#fff";
+	UI.htmlBackgroundColor = '#fff';
 	UI.navBarColor = '';
 	UI.statusBarColor = '';
 
@@ -348,10 +348,10 @@ function sepiaFW_build_ui(){
 		$('#sepiaFW-menu-select-skin').val(activeSkin);
 
 		setTimeout(function(){
-			//TODO: this should be triggered on CSS load I guess
+			//NOTE: this should be triggered on CSS load but onload will only ever trigger once per skin
 			UI.refreshSkinColors();
 			$(window).trigger('resize');
-		}, 100);
+		}, 330);	//TODO: 300ms is background transition effect messing with 'getComputedStyle' :-/
 		setTimeout(function(){
 			//safety refresh for slow connection, TODO: will still fail on very slow connection
 			UI.refreshSkinColors();
@@ -1597,6 +1597,9 @@ function sepiaFW_build_ui(){
 				SepiaFW.debug.info("UI.showPopup - Changed:", saferContent);
 			}
 			$('#sepiaFW-popup-message-content').html(saferContent); 		//TODO: what if e.g. an error message contains stuff that disappears ?? (XSS)
+		}
+		if (config.textAlign){
+			$('#sepiaFW-popup-message-content').css({textAlign: config.textAlign});
 		}
 		//optional auto-action - NOTE: requires ID
 		if (config.popupId && config.autoAction){

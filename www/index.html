@@ -98,8 +98,8 @@
 	</style>
 	<!-- imports -->
 	<link rel="stylesheet" href="css/sepiaFW-style.css" title='main'>
-	<link rel="stylesheet" href="css/sepiaFW-style-tiny.css" title='main'>	<!-- TODO: we should load this only when needed -->
-	<link rel="stylesheet" href="css/sepiaFW-style-dual-screen.css" title='main'>
+	<link rel="stylesheet" href="css/sepiaFW-style-tiny.css" title='main'><!-- TODO: we should load this only when needed... -->
+	<link rel="stylesheet" href="css/sepiaFW-style-dual-screen.css" title='main'><!-- ...maybe use 'media' property -->
 	<!-- FOR MORE STYLESHEETS SEE END-OF-BODY -->
 	<script src="scripts/sepiaFW.app.config.js"></script>
 	<script src="scripts/sepiaFW.app.js"></script>
@@ -442,7 +442,8 @@
 				+ "data-name='" + skinNames[i] + "' "
 				+ "data-customizable='" + (skins[skinNames[i]].customizable || "false") + "' "
 				+ "data-skin-style='" + (skins[skinNames[i]].skinStyle || "auto") + "' "
-				+ "data-avatar='" + skins[skinNames[i]].avatar + "' " + d + ">");
+				+ "data-avatar='" + skins[skinNames[i]].avatar + "' "
+				+ d + ">");
 		}
 		var avatarNames = Object.keys(avatars);
 		var aav = SepiaFW.data.get("activeAvatar") || defaultAvatar;

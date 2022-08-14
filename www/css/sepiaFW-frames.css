@@ -124,6 +124,7 @@
 	display: flex; 
 	justify-content: center;
 	flex-wrap: wrap;
+	max-width: 100%;
 }
 .sepiaFW-frames-page .group {
 	display: flex;
@@ -131,6 +132,8 @@
 	align-items: center;
 	margin: 8px;
 	flex: 1 0 100%;
+	max-width: 100%;
+	overflow: hidden;
 }
 .sepiaFW-frames-page .group.wrap {
 	flex-wrap: wrap;
@@ -148,8 +151,21 @@
 	margin-top: 16px; 
 	margin-bottom: 16px;
 }
+.sepiaFW-frames-page .inner-group {
+	display: flex;
+	justify-content: space-between; 
+	align-items: center;
+	margin: 4px 0;
+	flex: 1 1 100%;
+	max-width: 100%;
+	overflow: hidden;
+	font-size: 14px;
+}
 #sepiaFW-frames-view .sepiaFW-frames-page .group label {
 	margin: 4px 8px;
+	display: flex;
+    justify-content: flex-start;
+    align-items: center;
 }
 .sepiaFW-frames-page .group label + * {
 	margin: 0 8px !important;
@@ -162,12 +178,14 @@
 	min-width: 50px;
 }
 .sepiaFW-frames-page .group .string-value {
-	width: 204px;
+	/*width: 204px;*/
+	width: auto;
 	padding: 4px;
     min-height: 33px;
 	display: flex;
 	justify-content: center;
 	align-items: center;
+	cursor: default;
 }
 .sepiaFW-frames-page .group.fill {
 	flex-wrap: wrap;
@@ -203,8 +221,35 @@
 	margin: 0 8px !important;
 	width: 180px !important; /* idk why but this fixes it for <=320px width screens */
 }
+.sepiaFW-frames-page .group button {
+	min-width: 28px;
+	min-height: 28px;
+}
+.sepiaFW-frames-page .group button.round {
+	border-radius: 14px !important;
+}
+.sepiaFW-frames-page .group button.icon-only {
+	background: transparent !important;
+    color: currentColor !important;
+    padding: 0 !important;
+	font-size: 26px !important;
+}
+.sepiaFW-frames-page .group button.icon-only:hover {
+	background: transparent !important;
+    color: currentColor !important;
+}
+.sepiaFW-frames-page .group label > button.icon-only {
+	min-height: auto !important;
+	font-size: 24px !important;
+}
+.sepiaFW-frames-page .group .sepiaFW-button-inline {
+	display: flex;
+    justify-content: center;
+    align-items: center;
+	margin: 0 8px !important;
+}
 .sepiaFW-frames-page .group .set-button {
-	margin: 0 8px !important; 
+	margin: 0 8px !important;
 	min-width: 36px;
 	flex: 0 0 auto;
 }
