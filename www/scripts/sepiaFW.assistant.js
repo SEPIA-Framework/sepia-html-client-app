@@ -28,7 +28,7 @@ function sepiaFW_build_assistant(sepiaSessionId){
 		defaultTask = "default";
 	}
 	Assistant.getCurrentTask = function(){
-		return dialog_task;
+		return (!dialog_task || dialog_task == "default")? defaultTask : dialog_task;
 	}
 	
 	//set assistant info received from server
@@ -73,7 +73,7 @@ function sepiaFW_build_assistant(sepiaSessionId){
 	var input_type = "question";
 	var input_miss = "";
 	var dialog_stage = 0;
-	var dialog_task = defaultTask;
+	var dialog_task = "default";
 	
 	//other
 	var user_location = ""; //new: JSON, old: "<city>Berlin City<latitude>52.518616<longitude>13.404636";
@@ -143,7 +143,7 @@ function sepiaFW_build_assistant(sepiaSessionId){
 		State.input_type = input_type;
 		State.input_miss = input_miss;
 		State.dialog_stage = dialog_stage;
-		State.dialog_task = dialog_task;
+		State.dialog_task = Assistant.getCurrentTask();
 
 		//custom data
 		var cd = {
@@ -253,14 +253,14 @@ function sepiaFW_build_assistant(sepiaSessionId){
 		if (result.more.dialog_task){
 			dialog_task = result.more.dialog_task;
 			if (!dialog_task || (dialog_task && dialog_task == "default")){
-				dialog_task = defaultTask;
+				dialog_task = "default";
 			}else{
 				if (tasksSubmitted.indexOf(dialog_task) < 0){
 					tasksSubmitted.push(dialog_task);
 				}
 			}
 		}else{
-			dialog_task = defaultTask;
+			dialog_task = "default";
 		}
 		
 		//time stamp last feedback to handle answer to questions 
@@ -287,7 +287,7 @@ function sepiaFW_build_assistant(sepiaSessionId){
 		input_type = "question";
 		input_miss = "";
 		dialog_stage = 0;
-		dialog_task = defaultTask;
+		dialog_task = "default";
 		last_command = '';
 		last_command_N = 0;
 		Assistant.isWaitingForDialog = false;

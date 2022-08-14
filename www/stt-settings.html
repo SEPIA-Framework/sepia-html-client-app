@@ -442,7 +442,8 @@
 		},
 		resetRecognizer: function(){
 			if (!SepiaFW.speech.isSpeakingOrListening()){
-				SepiaFW.speech.resetRecognition(undefined, SepiaFW.frames.currentScope.audioRecorderEvents);
+				var logFun = undefined;		//defaults to 'SepiaFW.audioRecorder.debuggerLogFunction' (see above -> audioRecorderEvents)
+				SepiaFW.speech.resetRecognition(undefined, logFun);
 			}else{
 				SepiaFW.speech.stopRecognition();
 			}

@@ -158,7 +158,12 @@ function sepiaFW_build_speech_audio_proc(){
 		//-> speechend (client or server VAD) -> soundend -> audioend -> result (final) -> end
 
 		_asrLogCallback = logCallback || function(msg){
-			if (SepiaFW.audioRecorder.debugInterfaces) console.error("STT - LOG -", msg);
+			if (SepiaFW.audioRecorder.debugInterfaces){
+				console.log("STT - LOG -", msg);
+				if (SepiaFW.audioRecorder.debuggerLogFunction){
+					SepiaFW.audioRecorder.debuggerLogFunction(msg);
+				}
+			}
 		}
 		
 		//Common WebSpeechAPI settings
@@ -336,6 +341,8 @@ function sepiaFW_build_speech_audio_proc(){
 	//currently only used for debugging:
 	function onConnected(data){
 		_asrLogCallback('ASR SERVICE CONNECTED');
+		_asrLogCallback('ASR LANG.: ' + (data && data.language));
+		_asrLogCallback('ASR MODEL: ' + (data && data.model));
 	}
 	function onDisconnected(data){
 		_asrLogCallback('ASR SERVICE DISCONNECTED');
