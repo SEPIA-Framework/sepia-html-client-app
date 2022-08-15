@@ -54,6 +54,12 @@
 	SepiaFW.frames.currentScope = {
 		//Theme (frame: light, dark, mod.: flat, screen: dark_full)
 		theme: "light",		//e.g.: "dark_full flat"
+
+		//Activity settings can be used to temporarily switch language, default task (e.g. for ASR) etc.
+		activitySettings: {
+			language: "en-US",
+			defaultTask: "test"
+		},
 		
 		//You can use the NLU-prefix to redirect input to this custom view frame via SDK or Teach-UI commands (make sure to use _..._ format)
 		nluPrefix: "_demo_frame_",
@@ -62,7 +68,7 @@
 		load: function(){
 			$('#sepiaFW-frames-mic').attr('class', 'entry icon-button');
 		},
-		onOpen: function(){
+		onOpen: function(data, view, scope){
 			//we use '$('#sepiaFW-frame-page-...')' to avoid conflicts with global ID:
 			$('#sepiaFW-frame-page-1 #sepiaFW-frame-c-hello').html(
 				"<p>Welcome to the Demo-View frame.</p>" 
@@ -70,10 +76,10 @@
 				+ "<p>This type of frames can only be used when loaded from safe origins (e.g. app folder, or SEPIA server).</p>"
 			);
 		},
-		onClose: function(){
+		onClose: function(view, scope){
 			console.log("BYE BYE");
 		},
-		onSpeechToTextInputHandler: function(data){
+		onSpeechToTextInputHandler: function(data, scope){
 			$('#sepiaFW-frame-page-2 #sepiaFW-frame-c-stt-data').val(JSON.stringify(data, "", 2));
 			//modify text to include custom tag (can be used to redirect all input to a custom service for example)
 			if (data.text && data.isFinal){
@@ -81,7 +87,7 @@
 				return textWithPrefix;	//<-- return the data to actually modify it
 			}
 		},
-		onChatOutputHandler: function(data){
+		onChatOutputHandler: function(data, scope){
 			$('#sepiaFW-frame-page-2').find('#sepiaFW-frame-c-chat-data').val(JSON.stringify(data, "", 2));
 		},
 		

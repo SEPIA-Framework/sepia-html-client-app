@@ -24,6 +24,9 @@ function sepiaFW_build_assistant(sepiaSessionId){
 			tasksSubmitted.push(defaultTask);
 		}
 	}
+	Assistant.getDefaultTask = function(){
+		return defaultTask;
+	}
 	Assistant.resetDefaultTask = function(){
 		defaultTask = "default";
 	}
