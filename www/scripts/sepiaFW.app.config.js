@@ -205,7 +205,7 @@ function sepiaFW_build_config(){
 		SepiaFW.debug.log('Config: broadcasted host=' + hostName);
 	}
 	//add everything here that needs to be refreshed after language change
-	Config.broadcastLanguage = function(language, region){
+	Config.broadcastLanguage = function(language, region, skipSave){
 		//app
 		Config.appLanguage = language; 		//TODO: interface reload to set texts?
 		//speech
@@ -217,10 +217,10 @@ function sepiaFW_build_config(){
 		//consider regionCode change as well if you change language
 		if (region && region.indexOf(language) == 0){
 			//set region
-			Config.broadcastRegionCode(region);
+			Config.broadcastRegionCode(region, skipSave);
 		}else if (Config.appRegionCode && Config.appRegionCode.indexOf(language) != 0){
 			//reset region
-			Config.broadcastRegionCode("");
+			Config.broadcastRegionCode("", skipSave);
 		}
 		//NOTE: does this need to be somwhere else? - ps.: we need to add all IDs here manually
 		SepiaFW.ui.build.updateRegionCodeSelector("sepiaFW-menu-account-region-dropdown");
@@ -230,12 +230,14 @@ function sepiaFW_build_config(){
 			window.history.replaceState(history.state, document.title, url);
 		}
 		//log and save
-		SepiaFW.data.updateAccount('language', language);
-		SepiaFW.data.set('app-language', language);
+		if (!skipSave){
+			SepiaFW.data.updateAccount('language', language);
+			SepiaFW.data.set('app-language', language);
+		}
 		SepiaFW.debug.log('Config: broadcasted language=' + language);
 	}
 	//add everything here that needs to be refreshed after language-region change
-	Config.broadcastRegionCode = function(regionCode){
+	Config.broadcastRegionCode = function(regionCode, skipSave){
 		//app
 		Config.appRegionCode = regionCode;
 		//speech
@@ -253,8 +255,10 @@ function sepiaFW_build_config(){
 			window.history.replaceState(history.state, document.title, url);
 		}
 		//log and save
-		//SepiaFW.data.updateAccount('regionCode', regionCode);		//TODO: add?
-		SepiaFW.data.set('app-regionCode', regionCode);
+		if (!skipSave){
+			//SepiaFW.data.updateAccount('regionCode', regionCode);		//TODO: add?
+			SepiaFW.data.set('app-regionCode', regionCode);
+		}
 		SepiaFW.debug.log('Config: broadcasted regionCode=' + (regionCode || "default"));
 	}
 	//broadcast-event when userName (really the name not the id) is changed

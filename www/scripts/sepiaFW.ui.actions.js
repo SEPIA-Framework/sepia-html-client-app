@@ -545,10 +545,10 @@ function sepiaFW_build_ui_actions(){
 				}
 				if (foundRegion){
 					SepiaFW.debug.log("language-switch action - app lang.: " + lang + " - speech lang.: " + bcp47);
-					SepiaFW.config.broadcastLanguage(lang, bcp47);
+					SepiaFW.config.broadcastLanguage(lang, bcp47, action.skip_save);
 				}else if (foundLang){
 					SepiaFW.debug.log("language-switch action - app lang.: " + lang + " - speech lang.: default");
-					SepiaFW.config.broadcastLanguage(lang);
+					SepiaFW.config.broadcastLanguage(lang, undefined, action.skip_save);
 				}
 			}
 		}
