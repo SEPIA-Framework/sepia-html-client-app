@@ -406,6 +406,12 @@ function sepiaFW_build_config(){
 
 	Config.autoSetup = false;		//set by URL parameter 'autoSetup=true'
 	Config.isUiHeadless = false;	//set by URL parameter 'isHeadless=true'
+	Config.setupModeDelay = 10000;	//delay in ms until client jumps into setup mode (auto or headless)
+
+	//is one of the automatic setup modes enabled?
+	Config.isAutoSetupModeEnabled = function(){
+		return Config.autoSetup || Config.isUiHeadless;
+	}
 
 	//load headless settings
 	Config.loadSettingsForHeadlessMode = function(){

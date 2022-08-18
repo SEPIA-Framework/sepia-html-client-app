@@ -21,6 +21,7 @@ function sepiaFW_build_strings(){
 	StringsDE.sendLogin = 'Login';
 	StringsDE.sign_out = 'Abmelden';
 	StringsDE.sign_out_all = 'Alle abmelden';
+	StringsDE.autoSetupIn = 'Setup-Modus wird gestartet in';
 	StringsDE.apps_admin = 'Verwalten';
 	StringsDE.account = 'Account';
 	StringsDE.addresses = 'Adressen';
@@ -244,6 +245,7 @@ function sepiaFW_build_strings(){
 	StringsEN.sendLogin = 'Login';
 	StringsEN.sign_out = 'Sign out';
 	StringsEN.sign_out_all = 'Sign out all';
+	StringsEN.autoSetupIn = 'Starting setup-mode in';
 	StringsEN.apps_admin = 'Manage';
 	StringsEN.account = 'Account';
 	StringsEN.addresses = 'Addresses';

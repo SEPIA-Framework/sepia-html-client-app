@@ -134,10 +134,10 @@
 		<div id="sepiaFW-login-form" style="display: none">
 			<input id="sepiaFW-login-id" type="text" placeholder="Username" aria-label="Username" spellcheck="false" autocomplete="username">
 			<input id="sepiaFW-login-pwd" type="password" placeholder="Password" aria-label="Password">
-			<button id="sepiaFW-login-send"><script>SepiaFW.local.w('sendLogin')</script></button><br>
-			<button id="sepiaFW-login-create" class="extended-controls" style="display:none;"><script>SepiaFW.local.w('createAccount')</script></button><br>
-			<button id="sepiaFW-login-close" class="extended-controls" style="display:none;"><script>SepiaFW.local.w('offlineTestMode')</script></button><br>
-			<button id="sepiaFW-login-retry" style="display:none;"><script>SepiaFW.local.w('retry')</script></button><br>
+			<button id="sepiaFW-login-send"><script>SepiaFW.local.w('sendLogin')</script></button>
+			<button id="sepiaFW-login-create" class="extended-controls" style="display:none;"><script>SepiaFW.local.w('createAccount')</script></button>
+			<button id="sepiaFW-login-close" class="extended-controls" style="display:none;"><script>SepiaFW.local.w('offlineTestMode')</script></button>
+			<button id="sepiaFW-login-retry" style="display:none;"><script>SepiaFW.local.w('retry')</script></button>
 		</div>
 		<!-- Host-name pre-login box -->
 		<div id="sepiaFW-host-name-box" class="extended-controls" style="display:none;">
@@ -150,13 +150,14 @@
 			<button><script>SepiaFW.local.w('connecting')</script></button>
 		</div>
 		<p id="sepiaFW-login-status"></p>
+		<p id="sepiaFW-login-extra-info"></p>
 		<div id="sepiaFW-login-links" style="display: none">
 			<a id="sepiaFW-login-license-btn" href="license.html" target="_blank"><script>SepiaFW.local.w('license')</script></a>
 			<a id="sepiaFW-login-policy-btn" href="https://sepia-framework.github.io/privacy-policy.html" target="_blank"><script>SepiaFW.local.w('data_privacy')</script></a>
 		</div>
 		<!-- extend button -->
-		<div id="sepiaFW-login-extend-box" style="visibility: hidden;">
-			<button id="sepiaFW-login-extend-btn"><i class="material-icons md-btn2">&#xE5C5;</i></button>
+		<div id="sepiaFW-login-extend-box">
+			<button id="sepiaFW-login-extend-btn" style="display: none;"><i class="material-icons md-btn2">&#xE5C5;</i></button>
 		</div>
 		<!-- help button -->
 		<button id="sepiaFW-login-help-btn" onclick="SepiaFW.ui.actions.openUrlAutoTarget('https://github.com/SEPIA-Framework/sepia-docs#welcome-to-the-documentation-page-for-sepia');"><i class="material-icons md-inherit">help</i></button>

@@ -228,7 +228,16 @@ function sepiaFW_build_ui(){
 	var activeAvatar = 0;
 	
 	//get/refresh skin colors
-	UI.refreshSkinColors = function(){
+	UI.refreshSkinColors = function(doneCallback){
+		//NOTE: this is async. because we need to wait for transition effects etc. :-/
+		//		If we can improve backgound calc. we might switch back to sync.
+		var syncDelay = 330;
+		setTimeout(function(){
+			refreshSkinColorsSync();
+			if (doneCallback) doneCallback();
+		}, syncDelay);
+	}
+	function refreshSkinColorsSync(){
 		var pC = document.getElementById('sepiaFW-pC');
 		var sC = document.getElementById('sepiaFW-sC');		var sC2 = document.getElementById('sepiaFW-sC2');
 		var aC = document.getElementById('sepiaFW-aC');		var aC2 = document.getElementById('sepiaFW-aC2');
@@ -347,16 +356,14 @@ function sepiaFW_build_ui(){
 		//if exists update selector
 		$('#sepiaFW-menu-select-skin').val(activeSkin);
 
-		setTimeout(function(){
-			//NOTE: this should be triggered on CSS load but onload will only ever trigger once per skin
-			UI.refreshSkinColors();
+		//NOTE: this should be triggered on CSS load but onload will only ever trigger once per skin
+		UI.refreshSkinColors(function(){
 			$(window).trigger('resize');
-		}, 330);	//TODO: 300ms is background transition effect messing with 'getComputedStyle' :-/
+		});
+		//another safety refresh for slow connection, TODO: will still fail on very slow connection
 		setTimeout(function(){
-			//safety refresh for slow connection, TODO: will still fail on very slow connection
-			UI.refreshSkinColors();
-			$(window).trigger('resize');
-		}, 2500);
+			UI.refreshSkinColors(function(){ $(window).trigger('resize'); });
+		}, 2200);
 	}
 	UI.getSkin = function(){
 		return activeSkin;
@@ -899,16 +906,42 @@ function sepiaFW_build_ui(){
 		UI.isTinyApp = isTinyApp();
 
 		//Setup headless mode
-		if (SepiaFW.config.isUiHeadless || SepiaFW.config.autoSetup){
+		if (SepiaFW.config.isAutoSetupModeEnabled()){
 			SepiaFW.config.loadHeadlessModeSetup();
-			//if client not active or in demo-mode after 10s run setup
-			setTimeout(function(){
+			//modify login box
+			$('#sepiaFW-login-box').addClass("pending-setup-mode");
+			var clearSetupMode = function(){
+				$('#sepiaFW-login-box').removeClass("pending-setup-mode");
+				clearInterval(autoSetupCountdown);
+				clearTimeout(autoSetupTimer);
+				$("#sepiaFW-login-extra-info").html("");
+			}
+			//add countdown
+			var timeLeft = SepiaFW.config.setupModeDelay;
+			var setupModeInfo = document.createElement("span");
+			var setupModeAbort = document.createElement("button");
+			setupModeAbort.textContent = SepiaFW.local.g("abort");
+			setupModeAbort.onclick = function(){
+				clearSetupMode();
+			}
+			$("#sepiaFW-login-extra-info").html("").append(setupModeInfo).append(setupModeAbort);
+			var autoSetupCountdown = setInterval(function(){
+				timeLeft -= 1000;
+				setupModeInfo.textContent = SepiaFW.local.g("autoSetupIn") + ' ' + Math.round(timeLeft/1000) + 's';
+			}, 1000);
+			//abort after login
+			SepiaFW.client.addOnActivePreUpdateOneTimeAction(function(){
+				clearSetupMode();
+			}, "setup-mode");
+			//if client not active or in demo-mode after N seconds run setup
+			var autoSetupTimer = setTimeout(function(){
 				if (!SepiaFW.client.isActive() && !SepiaFW.client.isDemoMode()){
 					if (SepiaFW.account.getUserId()){
 						//client is most likely trying to restore login and connection fails - we need to restore CLEXI connection
 						SepiaFW.debug.log("Client auto-setup was skipped because client still tries to restore old login. CLEXI connection will be restored.");
 						SepiaFW.clexi.setup(); 
 						SepiaFW.inputControls.cmdl.setup();
+						clearSetupMode();
 					}else{
 						//free for auto-setup
 						SepiaFW.data.set('isDemoLogin', 'setup');
@@ -917,8 +950,10 @@ function sepiaFW_build_ui(){
 						}, 2000);
 						SepiaFW.debug.log("Client will restart automatically in 2s to activate settings!");
 					}
+				}else{
+					clearSetupMode();
 				}
-			}, 10000);	//NOTE: login timeout is 8s
+			}, SepiaFW.config.setupModeDelay);	//NOTE: login-call timeout is 8s (if server does not answer)
 		}
 	}
 
@@ -981,7 +1016,7 @@ function sepiaFW_build_ui(){
 			if (UI.preferredColorScheme == "dark"){
 				UI.setSkin(2, false);
 			}
-			//get skin colors
+			//get skin colors (async)
 			UI.refreshSkinColors();
 		}
 

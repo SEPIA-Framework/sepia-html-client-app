@@ -765,6 +765,12 @@ function sepiaFW_build_webSocket_client(sepiaSessionId){
 			}
 			var actionsArray = [];
 			actionsArray.push({type: "first_visit_info_start"});
+			if (SepiaFW.config.isAutoSetupModeEnabled()){
+				actionsArray.push({type: "button_custom_fun", title: SepiaFW.local.g('reloadApp'), fun: function(){
+					SepiaFW.account.logoutAction();
+					//TODO: replace with custom login?
+				}});
+			}
 			actionsArray.push(SepiaFW.offline.getFrameViewButtonAction("tutorial.html", SepiaFW.local.g("tutorial")));
 			actionsArray.push(SepiaFW.offline.getUrlButtonAction("https://github.com/SEPIA-Framework/sepia-docs", "S.E.P.I.A. Docs"));
 			actionsArray.push(SepiaFW.offline.getUrlButtonAction(SepiaFW.config.clientLicenseUrl, SepiaFW.local.g("license")));
@@ -2960,6 +2966,5 @@ function sepiaFW_build_webSocket_client(sepiaSessionId){
 		}
 		return menu;
 	}
-	
 	return Client;
 }

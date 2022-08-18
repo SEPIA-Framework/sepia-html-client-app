@@ -70,7 +70,7 @@ button i {
 html {
 	width: 100%;
 	height: 100%;
-	background-image: url(../img/blocks.png);
+	background-image: url(../img/blocks.svg);
 	background-color: #fff;
 	background-size: 818px;
     background-repeat: no-repeat;
@@ -600,7 +600,7 @@ html.edge-2-edge body.big-screen #sepiaFW-main-window {
 	/*opacity: 1.0;*/
 }
 
-#sepiaFW-login-box, #sepiaFW-login-box input, #sepiaFW-login-box button{
+#sepiaFW-login-box, #sepiaFW-login-box input, #sepiaFW-login-box button {
 	border-radius: 3px;
 }
 
@@ -636,7 +636,6 @@ html.edge-2-edge body.big-screen #sepiaFW-main-window {
 #sepiaFW-login-box button {
 	cursor: pointer;
 	border: 0px;
-    float: right;
 	width: 100%;
 	margin: 10px 0px 10px 0px;
 	padding: 7px 10px;
@@ -651,9 +650,7 @@ html.edge-2-edge body.big-screen #sepiaFW-main-window {
 	background-color: #fff;
 	color: #222;
 }
-#sepiaFW-login-box, #sepiaFW-login-close, #sepiaFW-login-retry {
-	float: left;
-}
+
 #sepiaFW-login-box #sepiaFW-host-name-box {
 	position: relative;
 }
@@ -675,10 +672,13 @@ html.edge-2-edge body.big-screen #sepiaFW-main-window {
 	overflow: hidden;
 	padding-bottom: 4px;
 }
+#sepiaFW-login-box.pending-setup-mode #sepiaFW-login-form {
+	display: none !important;
+}
 #sepiaFW-login-links {
 	display: flex;
 	justify-content: space-around;
-	padding-top: 4px;
+	padding: 6px 0 4px 0;
 }
 #sepiaFW-login-links a {
 	color: inherit;
@@ -691,11 +691,15 @@ html.edge-2-edge body.big-screen #sepiaFW-main-window {
 }
 #sepiaFW-login-extend-box {
     width: 100%;
+	min-height: 10px;
 }
 #sepiaFW-login-extend-btn {
 	background: transparent !important;
     color: inherit !important;
 	margin: 4px 0 0 0 !important;
+}
+#sepiaFW-login-box.pending-setup-mode #sepiaFW-login-extend-btn {
+	display: none !important;
 }
 #sepiaFW-login-help-btn {
 	position: absolute;

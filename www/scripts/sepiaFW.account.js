@@ -615,7 +615,8 @@ function sepiaFW_build_account(sepiaSessionId){
 		$('#sepiaFW-login-wait').hide();
 		$('#sepiaFW-login-form').fadeIn(aniTime);
 		$('#sepiaFW-login-links').fadeIn(aniTime);
-		$('#sepiaFW-login-extend-box').css({visibility: "visible"});
+		//$('#sepiaFW-login-extend-box').css({visibility: "visible"});
+		$('#sepiaFW-login-extend-btn').show();
 		clearInterval(loginRetryIntervalTimer);
 	}
 	
@@ -781,7 +782,6 @@ function sepiaFW_build_account(sepiaSessionId){
 		
 		//extend button
 		var $extendBtn = $('#sepiaFW-login-extend-btn');
-		//$extendBtn.find('i').html('arrow_drop_down');
 		$extendBtn.off().on("click", function(){
 			var isVisible = ($extendBtn.find('i').html() == 'arrow_drop_up');
 			$('#sepiaFW-login-box').find('.extended-controls').each(function(){
@@ -976,21 +976,23 @@ function sepiaFW_build_account(sepiaSessionId){
 		Account.hideSplashscreen();
 		clearInterval(loginRetryIntervalTimer);
 		$('#sepiaFW-login-retry').off().hide();		//prevent abuse of retry button!
-		//reset status text
-		var lBoxError = document.getElementById("sepiaFW-login-status");
-		if (lBoxError){
-			lBoxError.innerHTML = '';
-		}
+		//reset status text and auto-setup
+		$("#sepiaFW-login-status").html("");
+		//reset extra info block
+		$("#sepiaFW-login-extra-info").html("");
+		//reset auto-setup
 		var box = document.getElementById("sepiaFW-login-box");
+		box.classList.remove("pending-setup-mode");
+		//toggle
 		if (box && box.style.display == 'none'){
 			$("#sepiaFW-main-window").addClass("sepiaFW-translucent-10 no-interaction");
 			$(box).fadeIn(300, function(){
-				$(box).css({'opacity':1.0}); 		//strange bug here sometimes leaves the box translucent
+				$(box).css({'opacity': 1.0});
 			});
 		}else if (box){
 			//box.style.display = 'none';
 			$(box).stop().fadeOut(300, function(){
-				$(box).css({'opacity':1.0}); 		//strange bug here sometimes leaves the box translucent
+				$(box).css({'opacity': 1.0});
 			});
 			$("#sepiaFW-main-window").removeClass("sepiaFW-translucent-10 no-interaction");
 		}
@@ -1007,11 +1009,11 @@ function sepiaFW_build_account(sepiaSessionId){
 		listenForLogoutActions = true;
 		//info message
 		var config = {
-				buttonOneName : "Ok I will wait",
-				buttonOneAction : function(){},
-				buttonTwoName : "Skip (unsafe)",
-				buttonTwoAction : function(){ location.reload(); },
-			};
+			buttonOneName : "Ok I will wait",
+			buttonOneAction : function(){},
+			buttonTwoName : "Skip (unsafe)",
+			buttonTwoAction : function(){ location.reload(); },
+		};
 		SepiaFW.ui.showPopup('Signing out ...', config);
 
 		//stop some running stuff

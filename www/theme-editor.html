@@ -649,9 +649,7 @@
 			SepiaFW.ui.setCustomSkinTheme(themeData, false);
 			//refresh stuff
 			SepiaFW.frames.currentScope.resetUi();
-			setTimeout(function(){
-				SepiaFW.ui.refreshSkinColors();
-			}, 300);
+			SepiaFW.ui.refreshSkinColors();
 			SepiaFW.ui.showPopup("Applied current theme settings. Press store button to make changes permanent.");
 		},
 		resetTheme: function(){
