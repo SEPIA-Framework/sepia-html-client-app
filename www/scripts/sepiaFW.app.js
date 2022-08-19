@@ -411,46 +411,25 @@ function sepiaFW_build_tools(){
 	
 	//get URL parameters
 	Tools.getURLParameter = function(name){
-		return decodeURIComponent((new RegExp('[?|&]' + name + '=' + '([^&;]+?)(&|#|;|$)').exec(location.search)||[,""])[1].replace(/\+/g, '%20'))||null
-		//TODO: if we drop IE11 "support" we can use 'new URL(..).searchParams'
+		//NOTE: IE11 "support" has officially been dropped
+		//return decodeURIComponent((new RegExp('[?|&]' + name + '=' + '([^&;]+?)(&|#|;|$)').exec(location.search)||[,""])[1].replace(/\+/g, '%20'))||null;
+		return (new URL(window.location)).searchParams.get(name);
 	}
 	Tools.getURLParameterFromUrl = function(url, name){
-		if (url.indexOf("?") < 0){
-			return;
-		}else{
-			var search = url.replace(/.*?(\?.*)/, "$1");
-			return decodeURIComponent((new RegExp('[?|&]' + name + '=' + '([^&;]+?)(&|#|;|$)').exec(search)||[,""])[1].replace(/\+/g, '%20'))||null
-		}
+		if (typeof url == "string") url = new URL(url);
+		return url.searchParams.get(name);
 	}
 	//set or add a parameter of a given URL with encoding and return modified url
 	Tools.setParameterInURL = function(url, parameter, value){
-		//prevent insert after '#'
-		var hashMatch = url.match("#.*");
-		var hash = hashMatch? hashMatch[0] : "";
-		if (hash) url = url.replace(/#.*/, "").trim();
-
-		if ((url.indexOf('?' + parameter + '=') > -1) || (url.indexOf('&' + parameter + '=') > -1)){
-			url = url.replace(new RegExp("(\\?|&)(" + parameter + "=.*?)(&|$)"), "$1" + parameter + "=" + encodeURIComponent(value) + "$3");
-		}else{
-			if (url.indexOf('?') > -1){
-				url += '&' + parameter + "=" + encodeURIComponent(value);
-			}else{
-				url += '?' + parameter + "=" + encodeURIComponent(value);
-			}
-		}
-		url = url + hash;
-		return url;
+		if (typeof url == "string") url = new URL(url);
+		url.searchParams.set(parameter, value);		//NOTE: this will give you "+" as space, the old one gave "%20"
+		return url.href;
 	}
-	//remove a parameter of a given URL (parameter has to contain a '=' e.g. x=1)
+	//remove a parameter from a given URL
 	Tools.removeParameterFromURL = function(url, parameter){
-		if (!!url.match(new RegExp("(\\?)(" + parameter + "=.*?)(&)"))){
-			url = url.replace(new RegExp("(\\?)(" + parameter + "=.*?)(&)"), "?");
-		}else if (url.indexOf('&' + parameter + '=') > -1){
-			url = url.replace(new RegExp("(&)(" + parameter + "=.*?)(&|$)"), "$3");
-		}else{
-			url = url.replace(new RegExp("(\\?)(" + parameter + "=.*?)($)"), "");
-		}
-		return url;
+		if (typeof url == "string") url = new URL(url);
+		url.searchParams.delete(parameter);
+		return url.href;
 	}
 	Tools.isURLParameterTrue = function(name){
 		var urlParam = Tools.getURLParameter(name);
