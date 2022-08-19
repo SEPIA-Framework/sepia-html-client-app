@@ -80,16 +80,16 @@ var app = {
 			group: "sepia-open-assistant",
 			wakeup: false
 		});
+
+		//disable splash-screen after certain time (if setup does not)
+        if ("splashscreen" in navigator){
+            setTimeout(function(){ navigator.splashscreen.hide(); }, 10000);
+        }
 		
 		//load setup function from index.html
 		appSetup();		//NOTE: supports additional 'readyCallback'
 		
 		//document.getElementById('sepiaFW-login-box').innerHTML += 'login box ready<br>'; 		//DEBUG
-		/* moved to login box action:
-		if ("splashscreen" in navigator){
-			navigator.splashscreen.hide();
-		}
-		*/
 	},
 	
 	//universal link events

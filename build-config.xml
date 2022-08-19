@@ -78,8 +78,8 @@
         </edit-config>
         <preference name="AndroidWindowSplashScreenAnimatedIcon" value="res/drawable/ic_sepia_col_512.xml" />
         <preference name="AndroidWindowSplashScreenBackground" value="#000000" />
-        <preference name="AutoHideSplashScreen" value="true" />
-        <preference name="SplashScreenDelay" value="2500" /><!-- -1 for page ready -->
+        <preference name="AutoHideSplashScreen" value="false" /><!-- NOTE: manual hide currently only works if auto is false -->
+        <preference name="SplashScreenDelay" value="10000" /><!-- INFO: use -1 for page ready | NOTE: auto moved to index.js -->
         <resource-file src="resources/res/drawable/ic_sepia_col_512.xml" target="app/src/main/res/drawable/ic_sepia_col_512.xml" />
         <resource-file src="resources/res/values/themes.xml" target="app/src/main/res/values/themes.xml" /><!-- is this written automatically ? -->
 
