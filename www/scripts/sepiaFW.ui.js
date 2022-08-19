@@ -919,6 +919,7 @@ function sepiaFW_build_ui(){
 			//add countdown
 			var timeLeft = SepiaFW.config.setupModeDelay;
 			var setupModeInfo = document.createElement("span");
+			setupModeInfo.textContent = SepiaFW.local.g("autoSetupIn") + ' ...';
 			var setupModeAbort = document.createElement("button");
 			setupModeAbort.textContent = SepiaFW.local.g("abort");
 			setupModeAbort.onclick = function(){
@@ -927,6 +928,7 @@ function sepiaFW_build_ui(){
 			$("#sepiaFW-login-extra-info").html("").append(setupModeInfo).append(setupModeAbort);
 			var autoSetupCountdown = setInterval(function(){
 				timeLeft -= 1000;
+				if (timeLeft < 0) timeLeft = 0;
 				setupModeInfo.textContent = SepiaFW.local.g("autoSetupIn") + ' ' + Math.round(timeLeft/1000) + 's';
 			}, 1000);
 			//abort after login
@@ -935,6 +937,7 @@ function sepiaFW_build_ui(){
 			}, "setup-mode");
 			//if client not active or in demo-mode after N seconds run setup
 			var autoSetupTimer = setTimeout(function(){
+				setupModeAbort.onclick = function(){};	//disable to prevent spaghetti actions
 				if (!SepiaFW.client.isActive() && !SepiaFW.client.isDemoMode()){
 					if (SepiaFW.account.getUserId()){
 						//client is most likely trying to restore login and connection fails - we need to restore CLEXI connection
