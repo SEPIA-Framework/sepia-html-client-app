@@ -40,6 +40,7 @@ html {
 	background: rgba(255, 255, 255, 0.85);
 	color: #000;
 	border: 1px solid #eee;
+	-webkit-backdrop-filter: blur(5px);
 	backdrop-filter: blur(5px);
 }
 #sepiaFW-chat-controls {
@@ -84,6 +85,7 @@ html {
 	border-color: #027BFF;
 	background: rgba(255, 255, 255, 0.85) !important;
 	color: #000 !important;
+	-webkit-backdrop-filter: blur(5px);
 	backdrop-filter: blur(5px);
 }
 .sepiaFW-notouch-device #sepiaFW-assist-btn-area button:hover {
@@ -101,6 +103,7 @@ html {
 
 #sepiaFW-chat-controls-speech-box {
 	background: rgba(255, 255, 255, 0.85);
+	-webkit-backdrop-filter: blur(5px);
 	backdrop-filter: blur(5px);
 	border: 1px solid #e5e5e5;
 }
@@ -112,6 +115,7 @@ html {
 #sepiaFW-main-window .chat-buttons-area button {
     color: #000;
 	background: rgba(255, 255, 255, 0.85);
+	-webkit-backdrop-filter: blur(5px);
 	backdrop-filter: blur(5px);
 }
 #sepiaFW-main-window .chat-buttons-area .my-view-custom-button {
@@ -124,12 +128,14 @@ html {
 
 .sepiaFW-menu {
 	background: rgba(255, 255, 255, 0.90) !important;
+	-webkit-backdrop-filter: blur(5px);
     backdrop-filter: blur(5px);
 	color: #000 !important;
 	border: 1px solid #eee;
 }
 #sepiaFW-chat-menu {
 	background: rgba(255, 255, 255, 1.00) !important;
+	-webkit-backdrop-filter: unset;
     backdrop-filter: unset;
 }
 .sepiaFW-menu button {
@@ -180,12 +186,14 @@ html {
 #sepiaFW-chat-output article {
     border: 1px solid #e5e5e5;
     background: rgba(235, 235, 235, 0.50);
+	-webkit-backdrop-filter: blur(5px);
     backdrop-filter: blur(5px);
 	color: #2f3035;
 	padding-left: 9px;
 }
 #sepiaFW-chat-output article.chatMe {
 	background: linear-gradient(45deg, #027bff, #3e98ff);
+	-webkit-backdrop-filter: unset;
 	backdrop-filter: unset;
     color: #fff;
     border: 0;
@@ -275,6 +283,7 @@ html {
 .sepiaFW-cards-contextMenu-single {
 	background: transparent !important;
 	border: 0;
+	-webkit-backdrop-filter: unset;
 	backdrop-filter: unset;
 }
 
@@ -283,6 +292,7 @@ html {
 	/*background: rgba(15, 230, 15, 0.55);*/
 	color: #000;
 	border: 1px solid #e5e5e5;
+	-webkit-backdrop-filter: blur(5px);
 	backdrop-filter: blur(5px);
 }
 .sepiaFW-cards-list-title.newsHeader button {
@@ -291,6 +301,7 @@ html {
 .sepiaFW-cards-list-footer {
 	background: rgba(255, 255, 255, 0.90);
 	border: 1px solid #e5e5e5;
+	-webkit-backdrop-filter: blur(5px);
 	backdrop-filter: blur(5px);
 }
 .sepiaFW-cards-list-body {
@@ -328,6 +339,7 @@ html {
 .sepiaFW-cards-list-body .newsArticle > div,
 .sepiaFW-cards-list-body .fullWidthItem .cardItemBlock {
 	border: 1px solid #e5e5e5;
+	-webkit-backdrop-filter: blur(5px);
 	backdrop-filter: blur(5px);
 }
 .sepiaFW-cards-flexSize-container .cardBodyItem.embeddedWebPlayer iframe {

@@ -1481,16 +1481,14 @@ html.dark-skin #sepiaFW-login-help-btn {
 	overflow-y: auto;
 	overflow-x: hidden;
 }
-@media screen and (min-width: 1264px) {
-	body.limit-size #sepiaFW-chat-channel-view {
-		border-radius: 3px 3px 3px 3px;
-		position: fixed;
-		left: 8px;
-		top: 60px;
-		width: calc(100%/2 - 240px - 16px);
-		max-width: 420px;
-		max-height: calc(100% - 128px);
-	}
+html.spacious-w body.limit-size #sepiaFW-chat-channel-view {
+	border-radius: 3px 3px 3px 3px;
+	position: fixed;
+	left: 8px;
+	top: 60px;
+	width: calc(100%/2 - 240px - 16px);
+	max-width: 420px;
+	max-height: calc(100% - 128px);
 }
 #sepiaFW-chat-channel-view div.left,
 #sepiaFW-chat-channel-view div.right {

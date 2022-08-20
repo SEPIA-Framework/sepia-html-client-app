@@ -58,7 +58,7 @@ html {
 #sepiaFW-sC2 { background-color: var(--scs-custom-button-back); }	/* Secondary color 2 - should be in contrast to 1 and 2 */
 #sepiaFW-asC { background-color: var(--scs-assistant); }	/* Assistant color - the signature color of the assistant */
 #sepiaFW-aC  { background-color: #ff2131; }	/* Accent color 1 - e.g. used during listening in assistant button */
-#sepiaFW-aC2 { background-color: #02b3e4; }	/* Accent color 2 - e.g. used during speaking in assistant button */
+#sepiaFW-aC2 { background-color: #1e99fe; }	/* Accent color 2 - e.g. used during speaking in assistant button */
 #sepiaFW-adC { background-color: #ffeb3b; }	/* Await-dialog color - used during "wait for interaction" in assistant button */
 #sepiaFW-lC  { background-color: #bbb; }		/* Loading color - used during loading in assistant button */
 /* #sepiaFW-navC 	{ background-color: #000; } */ 		/* Navigation bar color - can be used to overwrite color for nav-bar (depends on OS support) */
@@ -320,7 +320,7 @@ html.landscape-small #sepiaFW-chat-controls-right {
 	background: var(--scs-card-back);
 }
 .sepiaFW-cards-list-body .listElement .listLeft.inProgress {
-	background: var(--scs-assistant);
+	background: var(--scs-assistant-2);
 }
 .sepiaFW-cards-list-body .listElement .listLeft.checked {
 	background: var(--scs-app-color-accent);

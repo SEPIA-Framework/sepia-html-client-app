@@ -40,6 +40,12 @@
 			}else{
 				document.documentElement.classList.remove("edge-2-edge");
 			}
+			//spacious-w - (min-width: 1264px) - space available to split views (if single view has max-width)
+			if (window.innerWidth >= 1264){
+				document.documentElement.classList.add("spacious-w");
+			}else{
+				document.documentElement.classList.remove("spacious-w");
+			}
 		}
 		function sepiaFW_set_default_css(){
 			document.documentElement.style.setProperty("--sepia-nav-bar-height", "50px");

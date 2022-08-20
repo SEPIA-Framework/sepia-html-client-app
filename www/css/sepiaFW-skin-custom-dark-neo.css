@@ -98,7 +98,13 @@ html {
 
 #sepiaFW-chat-controls-more-menu {
 	max-width: none;
-	border-top: 1px solid rgba(128, 128, 128, 0.05);
+	border-top: 1px solid rgba(128, 128, 128, 0.15);
+}
+#sepiaFW-chat-channel-view {
+	border-bottom: 1px solid rgba(128, 128, 128, 0.15);
+}
+html.spacious-w body.limit-size #sepiaFW-chat-channel-view {
+	border: 1px solid rgba(128, 128, 128, 0.15);
 }
 #sepiaFW-chat-menu li {
     background: rgba(128, 128, 128, 0.05);

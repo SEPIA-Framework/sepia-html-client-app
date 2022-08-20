@@ -88,6 +88,7 @@ function sepiaFW_build_ui(){
 		UI.windowExpectedSize = window.innerHeight;
 		
 		//fix scroll position on window resize to better place content on soft-keyboard appearance
+		//TODO: can we replace this now with ResizeObserver?
 		if (UI.isAndroid && (windowSizeDifference < 0)){
 			setTimeout(function(){
 				$(UI.JQ_ALL_MAIN_VIEWS + ", " + UI.JQ_ALL_SETTINGS_VIEWS).each(function(){

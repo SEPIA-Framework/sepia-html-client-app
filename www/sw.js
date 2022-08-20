@@ -119,6 +119,7 @@ function handleNotificationClose(event, onCloseData, noteData){
 		//focus window?
 		if (onCloseData && onCloseData.focusApp){
 			//if (windowClient.visibilityState === 'hidden')
+			//if (windowClient.url == ...)
 			windowClient.focus();
 			delete onCloseData.focusApp;
 		}
