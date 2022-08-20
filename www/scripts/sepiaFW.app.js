@@ -416,18 +416,18 @@ function sepiaFW_build_tools(){
 		return (new URL(window.location)).searchParams.get(name);
 	}
 	Tools.getURLParameterFromUrl = function(url, name){
-		if (typeof url == "string") url = new URL(url);
+		if (typeof url == "string") url = new URL(url, window.location.href);
 		return url.searchParams.get(name);
 	}
 	//set or add a parameter of a given URL with encoding and return modified url
 	Tools.setParameterInURL = function(url, parameter, value){
-		if (typeof url == "string") url = new URL(url);
+		if (typeof url == "string") url = new URL(url, window.location.href);
 		url.searchParams.set(parameter, value);		//NOTE: this will give you "+" as space, the old one gave "%20"
 		return url.href;
 	}
 	//remove a parameter from a given URL
 	Tools.removeParameterFromURL = function(url, parameter){
-		if (typeof url == "string") url = new URL(url);
+		if (typeof url == "string") url = new URL(url), window.location.href;
 		url.searchParams.delete(parameter);
 		return url.href;
 	}
