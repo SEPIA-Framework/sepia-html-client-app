@@ -1197,6 +1197,11 @@ function sepiaFW_build_ui(){
 			backButtonPressed = 0;
 			return;
 		}
+		//pop-up or login-box open?
+		if (SepiaFW.ui.isPopupOpen() || SepiaFW.account.isLoginBoxOpen()){
+			//TODO: do something useful?
+			return;
+		}
 		//close open menus
 		if (UI.getOpenMenus().length > 0){
 			UI.closeAllMenus();
@@ -1562,6 +1567,7 @@ function sepiaFW_build_ui(){
 	//---- Pop-up messages:
 
 	var messagePopupId;
+	var messagePopupIsOpen = false;
 	var messagePopupAutoActionInterval;
 	var messagePopupAutoActionTargetTime = 31000;
 	var maxMessagePopupAutoActionTargetTime = 300000;
@@ -1674,13 +1680,18 @@ function sepiaFW_build_ui(){
 		}
 		//open
 		$('#sepiaFW-cover-layer').stop().fadeIn(200);
+		messagePopupIsOpen = true;
 		//$('#sepiaFW-popup-message').fadeIn(300);
 		return;		//TODO: nothing to return yet
 	}
 	UI.hidePopup = function(){
 		//$('#sepiaFW-popup-message').fadeOut(300);
 		$('#sepiaFW-cover-layer').fadeOut(200);
+		messagePopupIsOpen = false;
 		clearInterval(messagePopupAutoActionInterval);
+	}
+	UI.isPopupOpen = function(){
+		return messagePopupIsOpen;
 	}
 	UI.resetPopupAutoAction = function(){
 		clearInterval(messagePopupAutoActionInterval);
