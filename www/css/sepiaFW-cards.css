@@ -558,6 +558,7 @@ article + .sepiaFW-cards-flexSize-container.oneElement,
 
 .sepiaFW-cards-list-title.newsHeader {
 	background: #fcfcfc;
+	color: #000;
 	border-radius: 0;
 	font-weight: normal;
 }
@@ -593,6 +594,9 @@ article + .sepiaFW-cards-flexSize-container.oneElement,
 	margin: 0px;
 	padding: 0px;
 	font-size: 12px;
+}
+.sepiaFW-cards-list-body .newsArticle .newsCenter .newsArticleBody > ul {
+	padding-left: 16px;
 }
 .sepiaFW-cards-list-footer.newsFooter {
     border-radius: 0;

@@ -286,15 +286,19 @@
 			{name: "Default", value: ""},
 			{name: "No Image", value: 'unset'},
 			{name: "SEPIA Logo (light skin)", value: 'url("../img/SEPIA_back.png")'},
-			//{name: "SEPIA Logo (dark skin)", value: 'url("../img/SEPIA_back-w.png")'},
-			//{name: "SEPIA Tech (darkish skin)", value: 'url("../img/SEPIA_odyssey-w2.png")'},
-			{name: "Blocks (light skin)", value: 'url("../img/blocksAlpha.png")'},
+			{name: "SEPIA Logo (dark skin)", value: 'url("../img/SEPIA_back-w.png")'},
+			{name: "SEPIA Tech (darkish skin)", value: 'url("../img/SEPIA_odyssey-w2.png")'},
+			{name: "Blocks (light skin)", value: 'url("../img/blocks.svg")'},
+			{name: "Blocks (dark skin)", value: 'url("../img/blocksAlpha.png")'},
+			{name: "Blocks Rain (dark skin)", value: 'url("../img/blocks2_alpha.png")'},
 			{name: "Ink Splash (light skin)", value: 'url("../img/inkSplashAlpha.png")'},
 			{name: "Cherry Blossom (light skin)", value: 'url("../img/cherryBlossomInkAlpha.png")'},
 			{name: "Birds (light skin)", value: 'url("../img/birdsAlpha.png")'},
-			//{name: "One Bird (dark skin)", value: 'url("../img/birdAlpha.png")'},
-			{name: "Infinity Band (light skin)", value: 'url("../img/infiniBandAlpha.png")'},
-			{name: "Infinity Band 2 (light skin)", value: 'url("../img/infiniBandAlphaUD.png")'}
+			{name: "One Bird (dark skin)", value: 'url("../img/birdAlpha.png")'},
+			{name: "World Map (light skin)", value: 'url("../img/worldMapBlack.png")'},
+			{name: "World Map (dark skin)", value: 'url("../img/worldMapWhite.png")'},
+			{name: "Infinity Band (mixed skin)", value: 'url("../img/infiniBandAlpha.png")'},
+			{name: "Infinity Band 2 (mixed skin)", value: 'url("../img/infiniBandAlphaUD.png")'}
 		],
 		themeProps: [
 			{id: 0, name: "App",
@@ -622,6 +626,9 @@
 		onOpen: function(){
 			var scope = SepiaFW.frames.currentScope;
 
+			//reload active theme
+			SepiaFW.frames.currentScope.getTheme();
+
 			//set skin selector
 			var activeSkinId = SepiaFW.ui.getSkin();
 			var skinMatch = scope.getSelectedCustomSkin();
@@ -634,7 +641,7 @@
 			}
 
 			//update preview
-			scope.updateSkinPreview();
+			scope.resetUi();
 		},
 
 		onClose: function(){
@@ -657,6 +664,8 @@
 			//set
 			SepiaFW.ui.setCustomSkinTheme(themeData, false);
 			SepiaFW.frames.currentScope.currentTheme = JSON.parse(JSON.stringify(themeData));
+			//reload active theme
+			SepiaFW.frames.currentScope.getTheme();
 			//refresh stuff
 			SepiaFW.frames.currentScope.resetUi();
 			SepiaFW.ui.showPopup("Reset to last stored theme (or default).");
@@ -670,14 +679,27 @@
 			SepiaFW.ui.showPopup(SepiaFW.local.g("done"));
 		},
 		clearTheme: function(){
-			SepiaFW.ui.setCustomSkinTheme({}, false);
-			SepiaFW.frames.currentScope.currentTheme = {};
-			//reload active theme
-			SepiaFW.frames.currentScope.getTheme();
-			//refresh stuff
-			SepiaFW.frames.currentScope.resetUi();
-			SepiaFW.ui.showPopup("Reset to default. Press store button to permanently delete custom theme data." 
-				+ "<br><br>NOTE: Some visual changes will only update after the theme editor has been closed.");
+			function resetDefault(doStore, msg){
+				SepiaFW.ui.setCustomSkinTheme({}, doStore);
+				SepiaFW.frames.currentScope.currentTheme = {};
+				//reload active theme
+				SepiaFW.frames.currentScope.getTheme();
+				//refresh stuff
+				SepiaFW.frames.currentScope.resetUi();
+				setTimeout(function(){
+					SepiaFW.ui.showPopup(msg 
+						+"<br><br>NOTE: Some visual changes will only update after the theme editor has been closed.");
+				}, 0);
+			}
+			SepiaFW.ui.askForConfirmation("Do you really want to delete the current custom theme?", function(){
+				//delete and reset
+				resetDefault(true, "Reset to default and permanently deleted custom theme data.");
+			}, function(){
+				//abort
+			}, function(){
+				//just load default
+				resetDefault(false, "Loaded default settings for this theme.");
+			}, "Just load default");
 		},
 		showThemeExporter: function(){
 			var jsonBox = SepiaFW.ui.showJsonInfoPopup("Custom Theme JSON",

@@ -2,7 +2,7 @@
 html {
 	--scs-app-back: #fcfcfc;
 	--scs-app-color: #000;
-	--scs-app-color-accent: #12aec3;
+	--scs-app-color-accent: #07a4cf;
 	--scs-app-color-accent-dark: #02b3e4;
 	--scs-app-image: url("../img/SEPIA_back.png");
 	--scs-app-image-size: auto 50%;
@@ -94,6 +94,10 @@ html {
 	/*background-color: var(--scs-app-controls-back);*/
 	background: linear-gradient(to right, var(--scs-app-controls-back) 0%, var(--scs-app-controls-back-2) 100%);
 	color: var(--scs-app-controls-color);
+}
+#sepiaFW-chat-controls-more-menu {
+    border-top-left-radius: var(--scs-default-border-radius);
+    border-top-right-radius: var(--scs-default-border-radius);
 }
 html.landscape-small #sepiaFW-chat-controls {
 	background: linear-gradient(to right, var(--scs-app-controls-back) 0%, var(--scs-app-controls-back-2) 100%) !important;
@@ -250,6 +254,8 @@ html.landscape-small #sepiaFW-chat-controls-right {
 }
 .sepiaFW-cards-list-contextMenu {
     border-radius: 0 0 var(--scs-default-border-radius) var(--scs-default-border-radius);
+	background: inherit !important;
+	color: inherit !important;
 }
 .sepiaFW-cards-list-body .cardBodyItem > div,
 .sepiaFW-cards-list-body .itemLeft,
@@ -267,8 +273,9 @@ html.landscape-small #sepiaFW-chat-controls-right {
 	color: var(--scs-default-button-color);
 	/* TODO: the icon is always white! */
 }
-.sepiaFW-cards-list-body .sepiaFW-cards-list-body .weatherNowDetails li {
-	background: var(--scs-card-back-2);
+.sepiaFW-cards-list-body .weatherNowDetails li {
+	/*background: rgb(255 255 255 / 80%);*/
+	background: var(--scs-card-back);
 	color: var(--scs-card-color);
 }
 .sepiaFW-cards-list-body .weatherNowDetails li:first-of-type {
@@ -309,13 +316,14 @@ html.landscape-small #sepiaFW-chat-controls-right {
 	opacity: 0.75;
 }
 .sepiaFW-cards-list-body .listElement .listLeft.unchecked {
-	background: #fcfcfc;
+	/*background: #fcfcfc;*/
+	background: var(--scs-card-back);
 }
 .sepiaFW-cards-list-body .listElement .listLeft.inProgress {
 	background: var(--scs-assistant);
 }
 .sepiaFW-cards-list-body .listElement .listLeft.checked {
-	background: var(--scs-chat-msg-user-back);
+	background: var(--scs-app-color-accent);
 }
 .sepiaFW-notouch-device .sepiaFW-cards-list-body .listElement .listRight:hover,
 .sepiaFW-notouch-device .sepiaFW-cards-list-body .timeEvent .timeEventRight:hover {
@@ -378,13 +386,15 @@ html.landscape-small #sepiaFW-chat-controls-right {
     background: linear-gradient(to right, var(--scs-app-controls-back) 0%, var(--scs-app-controls-back-2) 100%);
 	color: var(--scs-app-controls-color);
 }
-.sepiaFW-frames-page button {
+.sepiaFW-frames-page button,
+.sepiaFW-frames-page.dark button {
 	background: linear-gradient(to right, var(--scs-default-button-back) 0%, var(--scs-default-button-back-2) 100%) !important;
 	color: var(--scs-default-button-color) !important;
 }
 .sepiaFW-frames-page a,
 .sepiaFW-frames-page a:visited,
-.sepiaFW-frames-page .info-text {
+.sepiaFW-frames-page .info-text,
+.sepiaFW-frames-page.dark .info-text {
 	color: var(--scs-app-color-accent);
 }
 /*
@@ -420,7 +430,7 @@ html.landscape-small #sepiaFW-chat-controls-right {
 }
 
 #sepiaFW-alwaysOn-stt-out {
-    color: #eee;
+    color: currentColor;
 }
 #sepiaFW-alwaysOn-tts-out {
 	color: var(--scs-assistant);
