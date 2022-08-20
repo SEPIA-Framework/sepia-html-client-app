@@ -427,7 +427,7 @@ function sepiaFW_build_tools(){
 	}
 	//remove a parameter from a given URL
 	Tools.removeParameterFromURL = function(url, parameter){
-		if (typeof url == "string") url = new URL(url), window.location.href;
+		if (typeof url == "string") url = new URL(url, window.location.href);
 		url.searchParams.delete(parameter);
 		return url.href;
 	}
