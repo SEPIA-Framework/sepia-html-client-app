@@ -182,8 +182,12 @@ function sepiaFW_build_dataService(){
 						}
 						generalSaveBufferTimer = undefined;
 					}
-				}catch (e){
-					SepiaFW.debug.err('Data: storage write error! Not available?');
+				}catch (err){
+					if (err && err.name && err.name == "SecurityError"){
+						SepiaFW.debug.error('Data: storage security error during write! Unsafe origin?');
+					}else{
+						SepiaFW.debug.error('Data: storage write error! Not available?');
+					}
 				}
 			}
 			if (permanent){
@@ -231,7 +235,8 @@ function sepiaFW_build_dataService(){
 					return data;
 				}
 			}
-		}catch (e){
+		}catch (err){
+			//NOTE: we simply ignore the error - should we log it?
 			if (permanent){
 				dataPermanent = {};
 			}else{
@@ -278,13 +283,18 @@ function sepiaFW_build_dataService(){
 	//clear all stored data (optionally keeping 'permanent') except app-cache
 	DataService.clearAll = function(keepPermanent, delayedCallback, delay){
 		var localDataStatus = "";
-		if (window.NativeStorage){
-			nativeStorageClear();
-			storageClearRequested = true;
-		}
-		if (window.localStorage){
-			window.localStorage.clear();
-			storageClearRequested = true;
+		var storageClearRequested = false;
+		try {
+			if (window.NativeStorage){
+				nativeStorageClear();
+				storageClearRequested = true;
+			}
+			if (window.localStorage){
+				window.localStorage.clear();
+				storageClearRequested = true;
+			}
+		}catch (error){
+			SepiaFW.debug.error("Data - 'clearAll' could not access storage - " + error);
 		}
 		if (storageClearRequested){
 			localDataStatus = "Storage has been cleared (request sent). Permanent data kept: " + keepPermanent + ".";
