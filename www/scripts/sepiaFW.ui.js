@@ -218,7 +218,9 @@ function sepiaFW_build_ui(){
 		}
 		if (triggerResize) $(window).trigger('resize');
 	}
-	UI.setBigScreenMode(SepiaFW.data.getPermanent('big-screen-mode') || UI.isCordova, false);
+	var storedBigScreenMode = SepiaFW.data.getPermanent('big-screen-mode');
+	UI.setBigScreenMode((storedBigScreenMode != undefined)?
+		storedBigScreenMode : (UI.isCordova || (window.innerWidth < 720 && window.innerHeight < 720)), false);
 	UI.useTouchBarControls = SepiaFW.data.getPermanent('touch-bar-controls') || false;
 	UI.hideSideSwipeForTouchBarControls = true;
 		

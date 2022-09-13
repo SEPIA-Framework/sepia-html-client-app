@@ -719,7 +719,7 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 				+ "<ul class='sepiaFW-menu-settings-list'>"
 					+ "<li id='sepiaFW-menu-select-skin-li'><span>Skin: </span><select id='sepiaFW-menu-select-skin'><option disabled selected value>- select -</option></select></li>"
 					+ "<li id='sepiaFW-menu-select-avatar-li'><span>Avatar: </span><select id='sepiaFW-menu-select-avatar'><option disabled selected value>- select -</option></select></li>"
-					+ "<li id='sepiaFW-menu-toggle-bigScreenMode-li' title='Switch big-screen mode on/off'><span>Big-screen mode: </span></li>"
+					+ "<li id='sepiaFW-menu-toggle-bigScreenMode-li' title='Toggle big-screen mode'><span>Limit screen-size: </span></li>"
 					+ "<li id='sepiaFW-menu-select-orientationMode-li' title='Set pref. screen orientation'><span>Screen orientation: </span></li>"
 					+ "<li id='sepiaFW-menu-toggle-touchBarControls-li' title='Switch new touch-bar controls mode on/off'><span>Touch-bar controls: </span></li>"
 					+ "<li class='spacer'></li>"
@@ -1307,16 +1307,6 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 			//toggle big-screen mode
 			document.getElementById('sepiaFW-menu-toggle-bigScreenMode-li').appendChild(Build.toggleButton('sepiaFW-menu-toggle-bigScreenMode', 
 				function(){
-					SepiaFW.data.setPermanent('big-screen-mode', true);
-					SepiaFW.debug.info("Big-screen mode activated, please reload client.");
-					SepiaFW.ui.showPopup("Please reload the interface to fully activate alternative controls.", {
-						buttonOneName : "Reload now",
-						buttonOneAction : function(){ setTimeout(function(){ location.reload(); }, 1000); },
-						buttonTwoName : "Later",
-						buttonTwoAction : function(){}
-					});
-					SepiaFW.ui.setBigScreenMode(true, true);
-				},function(){
 					SepiaFW.data.setPermanent('big-screen-mode', false);
 					SepiaFW.debug.info("Big-screen mode deactivated, please reload client.");
 					SepiaFW.ui.showPopup("Please reload the interface to fully activate alternative controls.", {
@@ -1326,7 +1316,17 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 						buttonTwoAction : function(){}
 					});
 					SepiaFW.ui.setBigScreenMode(false, true);
-				}, SepiaFW.ui.useBigScreenMode)
+				},function(){
+					SepiaFW.data.setPermanent('big-screen-mode', true);
+					SepiaFW.debug.info("Big-screen mode activated, please reload client.");
+					SepiaFW.ui.showPopup("Please reload the interface to fully activate alternative controls.", {
+						buttonOneName : "Reload now",
+						buttonOneAction : function(){ setTimeout(function(){ location.reload(); }, 1000); },
+						buttonTwoName : "Later",
+						buttonTwoAction : function(){}
+					});
+					SepiaFW.ui.setBigScreenMode(true, true);
+				}, !SepiaFW.ui.useBigScreenMode)
 			);
 			//set screen orientation mode
 			if (SepiaFW.ui.isScreenOrientationSupported()){
