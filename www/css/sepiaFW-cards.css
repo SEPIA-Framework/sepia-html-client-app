@@ -489,6 +489,33 @@ article + .sepiaFW-cards-flexSize-container.oneElement,
 .sepiaFW-cards-list-body .timeEvent {
 	display: flex;
 }
+.sepiaFW-cards-list-body .timeEvent.timeEventNext .timeEventCenter::after {
+	position: absolute;
+    top: 3px;
+    right: 3px;
+    font-family: 'Material Icons';
+    font-size: 13px;
+    content: "event";
+    color: currentColor;
+}
+.sepiaFW-cards-list-body .timeEvent.timeEventExpired .timeEventCenter::after {
+	position: absolute;
+    top: 3px;
+    right: 3px;
+    font-family: 'Material Icons';
+    font-size: 13px;
+    content: "hourglass_bottom";
+    color: currentColor;
+}
+.sepiaFW-cards-list-body .timeEvent.timeEventFaulty .timeEventCenter::after {
+	position: absolute;
+    top: 4px;
+    right: 4px;
+    font-family: 'Material Icons';
+    font-size: 15px;
+    content: "warning";
+    color: currentColor;
+}
 .sepiaFW-cards-list-body .timeEvent div {
 	background: #fcfcfc;
 	border-radius: 3px;
@@ -509,6 +536,7 @@ article + .sepiaFW-cards-flexSize-container.oneElement,
 	padding: 5px;
 }
 .sepiaFW-cards-list-body .timeEvent .timeEventCenter {
+	position: relative;
 	display: flex;
 	flex-direction: column;
     align-items: center;

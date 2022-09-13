@@ -473,6 +473,9 @@ function sepiaFW_build_tools(){
 			return DOMPurify.sanitize(htmlString, { ADD_ATTR: ['target'] });
 		}
 	}
+	Tools.escapeHtmlAndSanitize = function(htmlString, options){
+		return Tools.sanitizeHtml(Tools.escapeHtml(htmlString), options);
+	}
 
 	//get pure SHA256 hash
 	Tools.getSHA256Hash = function(data){
