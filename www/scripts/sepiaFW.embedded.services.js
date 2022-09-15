@@ -482,6 +482,7 @@ function sepiaFW_build_embedded_services(){
 				"date": dateString1,
 				"eventId": "alarm-1-630",
 				"lastChange": dateAdded,
+				"isNextEvent": true,
 				"time": timeString1,
 				"day": day1,
 				"targetTimeUnix": time1

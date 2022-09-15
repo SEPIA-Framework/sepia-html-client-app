@@ -5,7 +5,7 @@
 	<!-- web app settings -->
 	<meta name="apple-mobile-web-app-capable" content="yes">
 	<meta name="mobile-web-app-capable" content="yes">
-	<meta name="viewport" id="sepia-viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=0">
+	<meta name="viewport" id="sepia-viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=0, viewport-fit=cover">
 	<script>
 		function sepiaFW_scale_viewport(refSize){
 			var isTiny = (window.SepiaFW == undefined)? (window.location.href.indexOf('isTiny=true') > 0) : SepiaFW.ui.isTinyApp;
@@ -13,9 +13,9 @@
 			var mvp = document.getElementById('sepia-viewport');
 			if (window.screen.width < refSize && window.matchMedia("(orientation: portrait)").matches){
 				//mvp.setAttribute('content','initial-scale=' + screen.width/340);
-				mvp.setAttribute('content','width=' + refSize + ', initial-scale=' + window.screen.width/refSize + ', user-scalable=0');
+				mvp.setAttribute('content','width=' + refSize + ', initial-scale=' + window.screen.width/refSize + ', user-scalable=0, viewport-fit=cover');
 			}else{
-				mvp.setAttribute('content','width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=0');
+				mvp.setAttribute('content','width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=0, viewport-fit=cover');
 			}
 		}
 		function sepiaFW_landscape_check(){
@@ -62,7 +62,9 @@
 	<meta name="description" content="S.E.P.I.A. is an app and framework for your own server-based, extendable, private, intelligent assistant.">
 	<meta name="theme-color" content="#000">
 	<link rel="icon" sizes="192x192" href="img/icon.png">
-	<link rel="apple-touch-icon" href="img/icon.png">
+	<link rel="apple-touch-icon" sizes="192x192" href="img/icon.png">
+	<link rel="apple-touch-startup-image" href="img/splashscreens/iphonex_splash.png" media="(device-width: 375px) and (device-height: 812px)">
+	<link rel="apple-touch-startup-image" href="img/splashscreens/iphone12_splash.png" media="(device-width: 390px) and (device-height: 844px)">
 	
 	<!-- open graph settings -->
 	<meta property="og:title" content="S.E.P.I.A."/>
