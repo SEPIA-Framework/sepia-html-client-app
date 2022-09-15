@@ -215,6 +215,7 @@
     flex-wrap: wrap;
     justify-content: space-between;
     align-items: center;
+	max-width: 100%;
 }
 .sepiaFW-frames-page .group .entry-content input {
 	flex-grow: 1;
@@ -259,6 +260,9 @@
     min-width: 28px;
     flex: 0 0 auto;
     border-radius: 14px !important;
+}
+.sepiaFW-frames-page .group .trigger-button:last-child {
+	margin: 0 8px !important;
 }
 .sepiaFW-frames-page .group .inside-button {
 	position: absolute;

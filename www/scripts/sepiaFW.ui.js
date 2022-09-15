@@ -221,8 +221,61 @@ function sepiaFW_build_ui(){
 	var storedBigScreenMode = SepiaFW.data.getPermanent('big-screen-mode');
 	UI.setBigScreenMode((storedBigScreenMode != undefined)?
 		storedBigScreenMode : (UI.isCordova || (window.innerWidth < 720 && window.innerHeight < 720)), false);
+	
 	UI.useTouchBarControls = SepiaFW.data.getPermanent('touch-bar-controls') || false;
 	UI.hideSideSwipeForTouchBarControls = true;
+
+	UI.setScreenSafeAreas = function(data, triggerResize, remember){
+		if (remember == undefined) remember = true;
+		if (!data){
+			//remove
+			setOrRemoveCustomSkinProperty("screen-safe-area-top");
+			setOrRemoveCustomSkinProperty("screen-safe-area-right");
+			setOrRemoveCustomSkinProperty("screen-safe-area-bottom");
+			setOrRemoveCustomSkinProperty("screen-safe-area-left");
+			setOrRemoveCustomSkinProperty("screen-safe-area-background");
+			setOrRemoveCustomSkinProperty("screen-safe-area-color");
+			if (remember) SepiaFW.data.delPermanent('screen-safe-areas');
+		}else{
+			//apply
+			if (data.padding){
+				var pad = data.padding.split(/\s*(?:,| )\s*/).slice(0, 4);
+				if (pad.length < 2) return false;
+				if (pad.length < 4){
+					pad[2] = pad[0];
+					pad[3] = pad[1];
+				}
+				setOrRemoveCustomSkinProperty("screen-safe-area-top", pad[0]);
+				setOrRemoveCustomSkinProperty("screen-safe-area-right", pad[1]);
+				setOrRemoveCustomSkinProperty("screen-safe-area-bottom", pad[2]);
+				setOrRemoveCustomSkinProperty("screen-safe-area-left", pad[3]);
+			}
+			if (data.background){
+				setOrRemoveCustomSkinProperty("screen-safe-area-background", data.background);
+			}
+			if (data.color){
+				setOrRemoveCustomSkinProperty("screen-safe-area-color", data.color);
+			}
+			if (remember) SepiaFW.data.setPermanent('screen-safe-areas', data);
+			return true;
+		}
+		if (triggerResize) $(window).trigger('resize');
+	}
+	UI.getScreenSafeAreas = function(){
+		//NOTE: this only return the custom safe areas (not the ones given by OS!)
+		var pad = new Array(4);
+		pad[0] = getCustomSkinProperty("screen-safe-area-top") || "";
+		pad[1] = getCustomSkinProperty("screen-safe-area-right") || "";
+		pad[2] = getCustomSkinProperty("screen-safe-area-bottom") || "";
+		pad[3] = getCustomSkinProperty("screen-safe-area-left") || "";
+		return {
+			padding: pad.join(" ").trim(),
+			background: getCustomSkinProperty("screen-safe-area-background") || "",
+			color: getCustomSkinProperty("screen-safe-area-color") || ""
+		}
+	}
+	var storedSafeAreas = SepiaFW.data.getPermanent('screen-safe-areas');
+	UI.setScreenSafeAreas(storedSafeAreas, false, false);
 		
 	UI.isMenuOpen = false;
 	UI.lastInput = "";

@@ -150,6 +150,18 @@
 						<option value="">- Select -</option>
 					</select>
 				</div>
+				<div class="group">
+					<div class="entry-content">
+						<label>Screen safe areas:</label>
+						<div class="subgroup center fill" style="padding: 0;">
+							<input name="screen-safe-areas" style="max-width: unset; flex: 1 1 160px;" spellcheck="false" placeholder="44px 0px 34px 0px" title="Like CSS: top right bottom left">
+							<div class="subgroup center scs-prop-group" style="margin: 0; padding: 0 !important; min-width: unset !important;" title="Background color">
+								<input name="screen-safe-areas-back" type="color" style="height: 26px; width: auto !important; margin: 0 3px !important"><!--<label>Background</label>-->
+							</div>
+							<button name="screen-safe-areas-reset" class="set-button" title="Reset safe areas"><i class="material-icons md-txt">delete</i></button>
+						</div>
+					</div>
+				</div>
 				<div class="group" name="border-slider">
 					<label>Border radius (<span name="border-slider-value">0</span>px):</label>
 					<!-- slider added on start -->
@@ -159,12 +171,12 @@
 						<label>Theme image:</label>
 						<input name="back-img-value" style="max-width: 512px;" spellcheck="false">
 					</div>
-					<button name="back-img-select"><i class="material-icons md-txt">search</i></button>
+					<button name="back-img-select" class="trigger-button"><i class="material-icons md-txt">search</i></button>
 				</div>
 				<div class="group">
 					<div class="entry-content">
 						<label>Theme image size:</label>
-						<input name="back-img-size" style="max-width: 128px;" spellcheck="false">
+						<input name="back-img-size" style="max-width: 128px;" spellcheck="false" placeholder="auto 50%">
 					</div>
 				</div>
 				<div class="group">
@@ -415,6 +427,33 @@
 				function(){}
 			);
 		},
+		updateSafeAreas: function(){
+			//NOTE: safe areas are not a skin but a device property (-> NOT part of current theme)
+			var scope = SepiaFW.frames.currentScope;
+			var saPadding = scope.$screenSafeAreas.val() || "";
+			var saBackground = scope.$screenSafeAreasBack.val() || "";
+			var saColor = SepiaFW.tools.getBestContrastHexOrRgb(saBackground);
+			var success = SepiaFW.ui.setScreenSafeAreas({
+				padding: saPadding,
+				background: saBackground,
+				color: saColor
+			}, true, true);
+			if (success){
+				SepiaFW.ui.showPopup("Stored new screen safe areas and colors for this device.");
+			}else{
+				SepiaFW.ui.showPopup("Somethiing went wrong, sorry. Please check your values.");
+			}
+		},
+		resetSafeAreas: function(){
+			var scope = SepiaFW.frames.currentScope;
+			SepiaFW.ui.setScreenSafeAreas(undefined, true, true);
+			setTimeout(function(){
+				var safeAreasCurrent = SepiaFW.ui.getScreenSafeAreas();
+				scope.$screenSafeAreas.val(safeAreasCurrent.padding || "");
+				scope.$screenSafeAreasBack.val(SepiaFW.tools.hexOrRgbToNoAlphaHexColor(safeAreasCurrent.background || "#e1e2e3"));
+				SepiaFW.ui.showPopup("Reset screen safe areas and colors for this device.");
+			}, 100);
+		},
 		updateSkinPreview: function(prop){
 			var scope = SepiaFW.frames.currentScope;
 			//general look (only when all props are selected)
@@ -551,6 +590,22 @@
 					scope.getTheme();
 					scope.resetUi();
 				}, 2500);
+			});
+
+			//build screen safe area input
+			var safeAreasCurrent = SepiaFW.ui.getScreenSafeAreas();
+			scope.$screenSafeAreas = $("#sepiaFW-theme-editor-controls").find("[name='screen-safe-areas']");
+			scope.$screenSafeAreas.val(safeAreasCurrent.padding || "");
+			SepiaFW.ui.onKeyboardInput(scope.$screenSafeAreas[0], undefined, function(ele){ 
+				scope.updateSafeAreas();
+			});
+			scope.$screenSafeAreasBack = $("#sepiaFW-theme-editor-controls").find("[name='screen-safe-areas-back']");
+			scope.$screenSafeAreasBack.val(SepiaFW.tools.hexOrRgbToNoAlphaHexColor(safeAreasCurrent.background || "#e1e2e3"));
+			scope.$screenSafeAreasBack.on("change", function(){
+				scope.updateSafeAreas();
+			});
+			$("#sepiaFW-theme-editor-controls").find("[name='screen-safe-areas-reset']").on("click", function(){
+				scope.resetSafeAreas();
 			});
 
 			//build background image selector

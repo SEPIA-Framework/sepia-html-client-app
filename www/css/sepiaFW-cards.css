@@ -491,8 +491,8 @@ article + .sepiaFW-cards-flexSize-container.oneElement,
 }
 .sepiaFW-cards-list-body .timeEvent.timeEventNext .timeEventCenter::after {
 	position: absolute;
-    bottom: 4px;
-    right: 4px;
+    bottom: 5px;
+    right: 5px;
     font-family: 'Material Icons';
     font-size: 13px;
 	font-weight: normal;
@@ -501,8 +501,8 @@ article + .sepiaFW-cards-flexSize-container.oneElement,
 }
 .sepiaFW-cards-list-body .timeEvent.timeEventExpired .timeEventCenter::after {
 	position: absolute;
-    bottom: 4px;
-    right: 4px;
+    bottom: 5px;
+    right: 5px;
     font-family: 'Material Icons';
     font-size: 13px;
 	font-weight: normal;
@@ -511,8 +511,8 @@ article + .sepiaFW-cards-flexSize-container.oneElement,
 }
 .sepiaFW-cards-list-body .timeEvent.timeEventFaulty .timeEventCenter::after {
 	position: absolute;
-    bottom: 4px;
-    right: 4px;
+    bottom: 5px;
+    right: 5px;
     font-family: 'Material Icons';
     font-size: 15px;
 	font-weight: normal;
