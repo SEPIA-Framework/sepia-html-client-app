@@ -29,6 +29,10 @@ function sepiaFW_build_teach(sepiaSessionId){
 	//-----------------------------------------
 	
 	Teach.openUI = function(info){
+		$('#sepiaFW-main-window')
+			.addClass('sepiaFW-teach-mode')
+			.removeClass('sepiaFW-skin-mod');
+		
 		if (!wasLoaded){
 			Teach.setup(function(){
 				Teach.openUI(info);
@@ -86,6 +90,10 @@ function sepiaFW_build_teach(sepiaSessionId){
 		}
 	}
 	Teach.closeUI = function(){
+		$('#sepiaFW-main-window')
+			.removeClass('sepiaFW-teach-mode')
+			.addClass('sepiaFW-skin-mod');
+		
 		$('#sepiaFW-teachUI-view').slideUp(300);
 		Teach.isOpen = false;
 		SepiaFW.ui.switchSwipeBars();
