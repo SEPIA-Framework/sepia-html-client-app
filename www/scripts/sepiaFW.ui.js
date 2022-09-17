@@ -63,21 +63,101 @@ function sepiaFW_build_ui(){
 		}
 	}
 	UI.setScreenOrientation(UI.preferredScreenOrientation);
-	
-	UI.windowExpectedSize = window.innerHeight;
-	window.addEventListener('orientationchange', function(){
-		//document.getElementById('sepiaFW-chat-output').innerHTML += ('<br>orientationchange, new size: ' + window.innerHeight);
+
+	UI.windowExpectedSize = window.innerHeight;			//useful for tracking virtual keyboards etc.
+	UI.screenExpectedSize = {w: window.screen.width, h: window.screen.height,
+		iw: window.innerWidth, ih: window.innerHeight};	//useful for tracking device rotation
+	var checkOrientationAtNextResize = false;
+	UI.isScreenFree = function(){
+		return !(window.screen.availWidth == window.screen.width 
+			&& window.screen.availHeight == window.screen.height
+			&& window.screenX == 0 && window.screenY == 0);
+	}
+	UI.checkForDeviceRotation = function(){
+		//NOTE: if screen changes from portrait to landscape it's not necessarily a device rotation
+		var didDeviceRotate = false;
+		if (!UI.isScreenFree()){
+			//a strong assumption because there can be many reasons. Also note: innerHeight can change through virtual keyboard!
+			didDeviceRotate = UI.screenExpectedSize.iw != window.innerWidth;
+		}else{
+			didDeviceRotate = UI.screenExpectedSize.w != window.screen.width
+				|| UI.screenExpectedSize.h != window.screen.height;
+		}
+		//update
+		UI.screenExpectedSize = {w: window.screen.width, h: window.screen.height,
+			iw: window.innerWidth, ih: window.innerHeight};
+		return didDeviceRotate;
+	}
+	if (UI.isScreenOrientationSupported()){
+		screen.orientation.addEventListener('change', function(ev){
+			setTimeout(function(){
+				onScreenOrientationChange("screenOrientationApi", {
+					type: ev.currentTarget.type,
+					angle: screen.orientation.angle
+				});
+			}, 0);
+		});
+	}else{
+		window.addEventListener('orientationchange', function(){
+			setTimeout(function(){
+				onScreenOrientationChange("screenOrientationOld", {});
+			}, 0);
+		});
+	}
+	/* if ("ondeviceorientation" in window){
+		//TODO: on iOS we need to 'requestPermission'
+		if (typeof DeviceOrientationEvent.requestPermission === 'function'){...}
+		window.addEventListener('deviceorientation', function(ev){
+			onScreenOrientationChange("deviceOrientationApi", {
+				alpha: ev.alpha,
+				beta: ev.beta,
+				gamma: ev.gamma
+			});
+		});
+	} */
+	function onScreenOrientationChange(eventName, eventData){
+		//console.error("onScreenOrientationChange", eventName, eventData, window.innerWidth + 'x' + window.innerHeight);		//DEBUG
+		//NOTE: it is not guaranteed that the screen has been resized already at this point
+		if (UI.screenExpectedSize.iw == window.innerWidth){
+			checkOrientationAtNextResize = true;
+		}else{
+			//do direct screen format check
+			orientationAndBasicWindowSizeCheck(true, eventData);
+		}
+		//document.getElementById('sepiaFW-chat-output').innerHTML += 
+		//	('<br>' + eventName + ', new size: ' + window.innerWidth + 'x' + window.innerHeight);		//DEBUG
+		//TODO: we should identify a device rotation somehow and switch the safe-areas :-/
 		if (document.activeElement && typeof document.activeElement.blur == "function"){
 			document.activeElement.blur();
 		}
 		setTimeout(function(){
 			UI.windowExpectedSize = window.innerHeight;
 		}, 100);
-	});
+	}
+	
 	window.addEventListener('resize', function(){
-		orientationAndBasicWindowSizeCheck();
+		//NOTE1: we delay this 1 frame because devices are known to react slow on e.g. orientation change
+		//NOTE2: this means all other elements should always use a ResizeObserver e.g. applied to main view
+		setTimeout(function(){
+			//console.error("resize", window.innerWidth + 'x' + window.innerHeight, window.screen.width);	//DEBUG
+			orientationAndBasicWindowSizeCheck();
+		}, 0);
 	});
 	function orientationAndBasicWindowSizeCheck(){
+		if (checkOrientationAtNextResize){
+			checkOrientationAtNextResize = false;
+			var probablyDeviceRotation = UI.checkForDeviceRotation();
+			if (probablyDeviceRotation){
+				//adapt safe areas to device rotation
+				if (window.innerWidth > window.innerHeight){
+					UI.rotateSafeAreas("landscape");
+				}else{
+					UI.rotateSafeAreas("portrait");
+				}
+			}
+		}
+		//console.error("orientationAndBasicWindowSizeCheck", window.innerWidth + 'x' + window.innerHeight,
+		//	checkOrientationAtNextResize, probablyDeviceRotation);		//DEBUG
 		//format
 		sepiaFW_scale_viewport();
 		sepiaFW_landscape_check();
@@ -226,6 +306,7 @@ function sepiaFW_build_ui(){
 	UI.hideSideSwipeForTouchBarControls = true;
 
 	UI.setScreenSafeAreas = function(data, triggerResize, remember){
+		//NOTE: this only sets the custom safe areas (the ones given by OS can overwrite this if bigger!)
 		if (remember == undefined) remember = true;
 		if (!data){
 			//remove
@@ -274,8 +355,29 @@ function sepiaFW_build_ui(){
 			color: getCustomSkinProperty("screen-safe-area-color") || ""
 		}
 	}
-	var storedSafeAreas = SepiaFW.data.getPermanent('screen-safe-areas');
-	UI.setScreenSafeAreas(storedSafeAreas, false, false);
+	UI.rotateSafeAreas = function(orientation){
+		if (orientation != currentSafeAreaOrientation){
+			if (orientation == "landscape"){
+				//rotate
+				var pad = UI.getScreenSafeAreas().padding.split(/\s*(?:,| )\s*/).slice(0, 4);
+				if (pad.length == 4){
+					pad.push.apply(pad, pad.splice(0, 3));
+					UI.setScreenSafeAreas({padding: pad.join(" ").trim()}, false, false);
+				}
+			}else{
+				//reset
+				UI.setScreenSafeAreas(SepiaFW.data.getPermanent('screen-safe-areas'), false, false);
+			}
+			currentSafeAreaOrientation = orientation;
+		}
+	}
+	var currentSafeAreaOrientation = "portrait";	//default - only change this if rotate is called
+	UI.setScreenSafeAreas(SepiaFW.data.getPermanent('screen-safe-areas'), false, false);
+	//need initial rotation?
+	if (!UI.isScreenFree() && window.innerWidth > window.innerHeight){
+		UI.checkForDeviceRotation();	//just to update expected size
+		UI.rotateSafeAreas("landscape");
+	}
 		
 	UI.isMenuOpen = false;
 	UI.lastInput = "";
@@ -1059,10 +1161,10 @@ function sepiaFW_build_ui(){
 		}
 		UI.addResizeObserverWithBuffer(mainNavBar, function(){
 			setMainNavBarCssProps();
-		});
+		}, false);
 		UI.addResizeObserverWithBuffer(mainChatCtrls, function(){
 			setMainChatControlsCssProps();
-		});
+		}, false);
 		setMainNavBarCssProps();
 		setMainChatControlsCssProps();
 
@@ -2211,7 +2313,7 @@ function sepiaFW_build_ui(){
 			'screenY': y
 		});
 		if (!el) el = document.elementFromPoint(x, y);
-		console.log(el);
+		//console.log(el);
 		el.dispatchEvent(ev);
 	}
 
@@ -2563,6 +2665,7 @@ function sepiaFW_build_ui(){
 	//Add resize observer to element - IMPORTANT: if the element size depends on resizeCallback you are in an endless loop!
 	UI.addResizeObserverWithBuffer = function(elem, resizeCallback, bufferTime){
 		if (bufferTime && bufferTime < 200) bufferTime = 200;
+		else if (bufferTime === false) bufferTime = 0;
 		else if (!bufferTime) bufferTime = 500;
 		var roBuffer;
 		var ro = new ResizeObserver(function(entries){
@@ -2669,7 +2772,7 @@ function sepiaFW_build_ui(){
 	//----- Post Message Interface -----
 
 	var sepiaPostMessageHandlers = {
-		"test": 	console.log
+		"test": console.log
 	}
 	UI.addPostMessageHandler = function(handlerName, handlerFun){
 		sepiaPostMessageHandlers[handlerName] = handlerFun;

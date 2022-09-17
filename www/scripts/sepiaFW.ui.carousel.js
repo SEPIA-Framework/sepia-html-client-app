@@ -26,8 +26,8 @@ function sepiaFW_build_ui_carousel(){
 	var Carousel = function(carouselSelector, swipeArea1, swipeArea2, swipeArea3, swipeArea4, onPageSet) {
 		var self = this;
 		var $carousel = $(carouselSelector);
-		var $container = $('.sepiaFW-carousel-pane-container', carouselSelector);
-		var $panes = $('.sepiaFW-carousel-pane', carouselSelector);
+		var $container = $carousel.find('.sepiaFW-carousel-pane-container');
+		var $panes = $carousel.find('.sepiaFW-carousel-pane');
 
 		var paneWidth = 0;
 		var paneHeight = 0;
@@ -55,14 +55,22 @@ function sepiaFW_build_ui_carousel(){
 			paneHistory.push(current);
 			if (paneHistory.length > HISTORY_MAX_SIZE) paneHistory.shift();
 		}
+		function updateGeometry(){
+			setPaneSize();
+			//self.showPane(currentPane);
+			setContainerOffsetX(-currentPane * paneWidth, false);
+		}
 
 		self.init = function() {
 			setPaneSize();
+			SepiaFW.ui.addResizeObserverWithBuffer($carousel.get(0), function(){
+				updateGeometry();
+			}, false);
+			/*
 			$(window).on('load resize orientationchange', function() {
-				setPaneSize();
-				//self.showPane(currentPane);
-				setContainerOffsetX(-currentPane * paneWidth, false);
+				updateGeometry();
 			});
+			*/
 		}
 		self.refresh = function() {
 			setPaneSize();

@@ -439,9 +439,10 @@
 				color: saColor
 			}, true, true);
 			if (success){
-				SepiaFW.ui.showPopup("Stored new screen safe areas and colors for this device.");
+				SepiaFW.ui.showPopup("Stored new custom screen safe areas and colors for this device.<br>" 
+					+ "Please note that the hard-coded platform values will overwrite your custom values if they are too small.");
 			}else{
-				SepiaFW.ui.showPopup("Somethiing went wrong, sorry. Please check your values.");
+				SepiaFW.ui.showPopup("Something went wrong, sorry. Please check your values.");
 			}
 		},
 		resetSafeAreas: function(){
@@ -451,7 +452,8 @@
 				var safeAreasCurrent = SepiaFW.ui.getScreenSafeAreas();
 				scope.$screenSafeAreas.val(safeAreasCurrent.padding || "");
 				scope.$screenSafeAreasBack.val(SepiaFW.tools.hexOrRgbToNoAlphaHexColor(safeAreasCurrent.background || "#e1e2e3"));
-				SepiaFW.ui.showPopup("Reset screen safe areas and colors for this device.");
+				SepiaFW.ui.showPopup("Reset custom screen safe areas and colors for this device.<br>" 
+					+ "Please note that the hard-coded platform values will still apply.");
 			}, 100);
 		},
 		updateSkinPreview: function(prop){
