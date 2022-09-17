@@ -164,6 +164,7 @@
 #sepiaFW-frames-view .sepiaFW-frames-page .group label {
 	margin: 4px 8px;
 	display: flex;
+	flex-wrap: wrap;
     justify-content: flex-start;
     align-items: center;
 }
@@ -400,11 +401,11 @@ html.landscape-small #sepiaFW-main-window.sepiaFW-ao-mode ~ #sepiaFW-swipeBar-co
 
 html.landscape-small #sepiaFW-frames-nav-bar {
 	position: fixed;
-	height: 100%;
+	height: calc(100% - var(--sai-merged-top) - var(--sai-merged-bottom));
 	max-height: unset;
 	width: 55px;
-	left: 0;
-	top: 0;
+	left: var(--sai-merged-left);
+	top: var(--sai-merged-top);
 	padding: 10px 5px;
 	display: flex;
 	flex-direction: column;

@@ -7,13 +7,22 @@
 	<meta name="mobile-web-app-capable" content="yes">
 	<meta name="viewport" id="sepia-viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=0, viewport-fit=cover">
 	<script>
+		var sepiaFW_viewport_scale_factor = 1.0;
 		function sepiaFW_scale_viewport(refSize){
 			var isTiny = (window.SepiaFW == undefined)? (window.location.href.indexOf('isTiny=true') > 0) : SepiaFW.ui.isTinyApp;
 			if (!refSize) refSize = isTiny? 240 : 320;
+			var leftSA = document.getElementById("sepiaFW-screen-safe-area-left");
+			var rightSA = document.getElementById("sepiaFW-screen-safe-area-right");
+			if (leftSA && rightSA){
+				//this will only trigger after full load
+				refSize += leftSA.getBoundingClientRect().width + rightSA.getBoundingClientRect().width;
+			}
 			var mvp = document.getElementById('sepia-viewport');
+			//console.error("innerWidth org.:", window.innerWidth * sepiaFW_viewport_scale_factor);	//DEBUG
 			if (window.screen.width < refSize && window.matchMedia("(orientation: portrait)").matches){
 				//mvp.setAttribute('content','initial-scale=' + screen.width/340);
-				mvp.setAttribute('content','width=' + refSize + ', initial-scale=' + window.screen.width/refSize + ', user-scalable=0, viewport-fit=cover');
+				sepiaFW_viewport_scale_factor = window.screen.width/refSize;
+				mvp.setAttribute('content','width=' + refSize + ', initial-scale=' + sepiaFW_viewport_scale_factor + ', user-scalable=0, viewport-fit=cover');
 			}else{
 				mvp.setAttribute('content','width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=0, viewport-fit=cover');
 			}

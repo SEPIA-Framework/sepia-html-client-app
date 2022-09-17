@@ -111,26 +111,33 @@ body.limit-size {
 /* ----------------------- SAFE AREAS ---------------------------- */
 
 html {
-	--scs-screen-safe-area-top: 0;
-	--scs-screen-safe-area-bottom: 0;
-	--scs-screen-safe-area-left: 0;
-	--scs-screen-safe-area-right: 0;
+	--scs-screen-safe-area-top: 0px;
+	--scs-screen-safe-area-bottom: 0px;
+	--scs-screen-safe-area-left: 0px;
+	--scs-screen-safe-area-right: 0px;
 	--scs-screen-safe-area-background: #000;
 	--scs-screen-safe-area-color: #fff;
 }
+/* safe area merged shortcuts */
 html {
-	padding-top: env(safe-area-inset-top);
-	padding-bottom: env(safe-area-inset-bottom);
-	padding-left: env(safe-area-inset-left);
-	padding-right: env(safe-area-inset-right);
+	--sai-merged-top: env(safe-area-inset-top);
+	--sai-merged-bottom: env(safe-area-inset-bottom);
+	--sai-merged-left: env(safe-area-inset-left);
+	--sai-merged-right: env(safe-area-inset-right);
 }
 @supports(padding: max(0px)) {
 	html {
-		padding-top: max(var(--scs-screen-safe-area-top), env(safe-area-inset-top));
-		padding-bottom: max(var(--scs-screen-safe-area-bottom), env(safe-area-inset-bottom));
-		padding-left: max(var(--scs-screen-safe-area-left), env(safe-area-inset-left));
-		padding-right: max(var(--scs-screen-safe-area-right), env(safe-area-inset-right));
+		--sai-merged-top: max(var(--scs-screen-safe-area-top), env(safe-area-inset-top));
+		--sai-merged-bottom: max(var(--scs-screen-safe-area-bottom), env(safe-area-inset-bottom));
+		--sai-merged-left: max(var(--scs-screen-safe-area-left), env(safe-area-inset-left));
+		--sai-merged-right: max(var(--scs-screen-safe-area-right), env(safe-area-inset-right));
 	}
+}
+html {
+	padding-top: var(--sai-merged-top);
+	padding-bottom: var(--sai-merged-bottom);
+	padding-left: var(--sai-merged-left);
+	padding-right: var(--sai-merged-right);
 }
 
 .sepiaFW-screen-safe-area {
@@ -143,46 +150,26 @@ html {
 #sepiaFW-screen-safe-area-top {
 	top: 0;
 	left: 0;
-	height: env(safe-area-inset-top);
+	height: var(--sai-merged-top);
 	z-index: 11;
-}
-@supports(padding: max(0px)) {
-	#sepiaFW-screen-safe-area-top {
-		height: max(var(--scs-screen-safe-area-top), env(safe-area-inset-top));
-	}
 }
 #sepiaFW-screen-safe-area-bottom {
 	bottom: 0;
 	left: 0;
-	height: env(safe-area-inset-bottom);
+	height: var(--sai-merged-bottom);
 	z-index: 11;
-}
-@supports(padding: max(0px)) {
-	#sepiaFW-screen-safe-area-bottom {
-		height: max(var(--scs-screen-safe-area-bottom), env(safe-area-inset-bottom));
-	}
 }
 #sepiaFW-screen-safe-area-left {
 	top: 0;
 	left: 0;
-	width: env(safe-area-inset-left);
+	width: var(--sai-merged-left);
 	z-index: 10;
-}
-@supports(padding: max(0px)) {
-	#sepiaFW-screen-safe-area-left {
-		width: max(var(--scs-screen-safe-area-left), env(safe-area-inset-left));
-	}
 }
 #sepiaFW-screen-safe-area-right {
 	top: 0;
 	right: 0;
-	width: env(safe-area-inset-right);
+	width: var(--sai-merged-right);
 	z-index: 10;
-}
-@supports(padding: max(0px)) {
-	#sepiaFW-screen-safe-area-right {
-		width: max(var(--scs-screen-safe-area-right), env(safe-area-inset-right));
-	}
 }
 
 /* -------------------- OVERLAY ELEMENTS ------------------------- */
@@ -534,6 +521,7 @@ html {
 }
 .sepiaFW-carousel .sepiaFW-carousel-pane {
 	float: left;
+	/*transition: width .3s, height .3s;*/
 }
 .sepiaFW-carousel .sepiaFW-carousel-pane.full-screen {
 	border-top: 0px !important;
@@ -1427,7 +1415,9 @@ html.dark-skin #sepiaFW-login-help-btn {
 	padding: 8px 4px !important;
 }
 #sepiaFW-more-menu-actions > li {
-	display: inline-block;
+	display: inline-flex;
+    justify-content: center;
+    align-items: center;
 	flex: 0 0 auto;
 }
 #sepiaFW-audio-ctrls {
@@ -1644,6 +1634,7 @@ html.spacious-w body.limit-size #sepiaFW-chat-channel-view {
 	color: #ff2550;
 }
 
+/*NOTE: layer-header is actually the frames and teach-UI footer ^^ */
 .sepiaFW-layer-header,
 #sepiaFW-nav-bar {
 	position: relative;
@@ -2443,11 +2434,11 @@ html.landscape-small #sepiaFW-main-window.sepiaFW-skin-mod ~ #sepiaFW-swipeBar-c
 html.landscape-small #sepiaFW-nav-bar,
 html.landscape-small #sepiaFW-chat-controls {
 	position: fixed;
-	height: 100%;
+	height: calc(100% - var(--sai-merged-top) - var(--sai-merged-bottom));
 	max-height: unset;
 	width: 55px;
-	left: 0;
-	top: 0;
+	left: var(--sai-merged-left);
+	top: var(--sai-merged-top);
 	padding: 10px 5px;
 	display: flex;
 	flex-direction: column;
@@ -2456,7 +2447,7 @@ html.landscape-small #sepiaFW-chat-controls {
 }
 html.landscape-small #sepiaFW-chat-controls {
 	left: unset;
-	right: 0;
+	right: var(--sai-merged-right);
 	padding: 0;
 	border: 0 !important;
 	background: transparent !important;

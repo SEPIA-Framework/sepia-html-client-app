@@ -10,7 +10,7 @@
 }
 @media screen and (min-width: 480px) {
 	body.big-screen .sepiaFW-cards-flexSize-container {
-		min-width: 360px;
+		min-width: calc(360px - var(--sai-merged-left) - var(--sai-merged-right));
 	}
 	body.big-screen #sepiaFW-result-view .sepiaFW-cards-flexSize-container {
 		flex: 1 0 30%;
