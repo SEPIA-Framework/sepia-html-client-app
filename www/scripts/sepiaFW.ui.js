@@ -122,7 +122,8 @@ function sepiaFW_build_ui(){
 			checkOrientationAtNextResize = true;
 		}else{
 			//do direct screen format check
-			orientationAndBasicWindowSizeCheck(true, eventData);
+			checkOrientationAtNextResize = true;
+			orientationAndBasicWindowSizeCheck();
 		}
 		//document.getElementById('sepiaFW-chat-output').innerHTML += 
 		//	('<br>' + eventName + ', new size: ' + window.innerWidth + 'x' + window.innerHeight);		//DEBUG
@@ -144,6 +145,7 @@ function sepiaFW_build_ui(){
 		}, 0);
 	});
 	function orientationAndBasicWindowSizeCheck(){
+		//console.error("orientationAndBasicWindowSizeCheck", window.innerWidth + 'x' + window.innerHeight, checkOrientationAtNextResize);		//DEBUG
 		if (checkOrientationAtNextResize){
 			checkOrientationAtNextResize = false;
 			var probablyDeviceRotation = UI.checkForDeviceRotation();
@@ -156,8 +158,6 @@ function sepiaFW_build_ui(){
 				}
 			}
 		}
-		//console.error("orientationAndBasicWindowSizeCheck", window.innerWidth + 'x' + window.innerHeight,
-		//	checkOrientationAtNextResize, probablyDeviceRotation);		//DEBUG
 		//format
 		sepiaFW_scale_viewport();
 		sepiaFW_landscape_check();
