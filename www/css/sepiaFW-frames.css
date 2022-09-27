@@ -130,7 +130,8 @@
 	display: flex;
 	justify-content: space-between; 
 	align-items: center;
-	margin: 8px;
+	margin: 7px 8px;
+	padding: 1px 0;	/* fixes overflow hidden glitches */
 	flex: 1 0 100%;
 	max-width: 100%;
 	overflow: hidden;
