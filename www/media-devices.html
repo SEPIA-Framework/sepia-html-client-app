@@ -322,9 +322,11 @@
 		showMicTestError: function(msg){
 			$('#sepiaFW-media-devices-mic-test-state').css("color", "#f00").text(msg);
 		},
-		micTestState: {},
+		micTestState: {
+			startedRecording: false,
+			doPlot: true	//NOTE: initial state is set in HTML above
+		},
 		toggleMicPlots: function(){
-			//NOTE: initial state is set in HTML (true)
 			var doPlot = document.getElementById("sepiaFW-media-devices-mic-test-do-plot").checked;
 			var state = SepiaFW.frames.currentScope.micTestState;
 			if (doPlot){
