@@ -454,7 +454,9 @@ function sepiaFW_build_audio(){
 	//sound init - returns true if it will be executed, false everytime after first call
 	AudioPlayer.requiresInit = function(){
 		//TODO: is this still up-to-date?
-		return (!SepiaFW.ui.isStandaloneWebApp && (SepiaFW.ui.isMobile || SepiaFW.ui.isSafari) && doInitAudio);
+		//NOTE: Safari always needs init atm I guess ...
+		return (doInitAudio && !SepiaFW.ui.isCordova &&
+			((SepiaFW.ui.isMobile && !SepiaFW.ui.isStandaloneWebApp) || (SepiaFW.ui.isSafari)));
 	}
 	AudioPlayer.initAudio = function(continueCallback, noopOrContinueCallback){
 		if (noopOrContinueCallback && !continueCallback) continueCallback = noopOrContinueCallback;
