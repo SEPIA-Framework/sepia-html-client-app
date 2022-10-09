@@ -92,7 +92,7 @@ function sepiaFW_build_ui(){
 		screen.orientation.addEventListener('change', function(ev){
 			setTimeout(function(){
 				onScreenOrientationChange("screenOrientationApi", {
-					type: ev.currentTarget.type,
+					type: ev?.currentTarget?.type || "",
 					angle: screen.orientation.angle
 				});
 			}, 0);
