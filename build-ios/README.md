@@ -20,3 +20,14 @@ but the essential stuff has been fixed from time to time and should still work.
 - Load the app in Xcode and look for errors :-/
 - TBD
 
+## Known Bugs in iOS
+
+Last tested on: iOS 16.0.2
+
+- The WebSocket implementation is buggy (starting from iOS 15?) and fails during STT server close request BUT only in Cordova.
+- The Web Speech API is buggy and will sometimes return results although it was stopped already!
+- PWAs don't support Web Speech API
+- PWAs constantly ask for microphone permission
+- HTML audio volume changes after speech recognition with Web Speech API (switching to other speaker?)
+- Navigation bar will not adapt to theme color
+- iOS overscroll effect and double-tap zoom are pretty annoying
