@@ -740,9 +740,8 @@ function sepiaFW_build_speech_recognition(Speech){
 			}
 			recognition.onresult = function(event){
 				if (!isRecognizing){
-					SepiaFW.debug.err('ASR: Result came BEFORE start! Ignored event and reset recognizer.', event);
+					SepiaFW.debug.err('ASR: Result came BEFORE start! Ignored event.', event);
 					//NOTE: I've seen this BUG happening on iOS and on early Microsoft Web Speech API implementations
-					//recognition = undefined;	//NOTE: we just risk the error, its broken anyway
 					return;
 				}
 				if (!event) event = {};
