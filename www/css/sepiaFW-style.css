@@ -76,6 +76,8 @@ html {
     background-repeat: no-repeat;
 	background-position: calc(50% + 1px) center;
 	transition: background .3s, background-color .3s;
+	overflow: hidden;
+	overscroll-behavior: none;
 }
 html.dark {
 	background-color: #000;
@@ -94,6 +96,9 @@ body {
     margin: 0 auto;
 	padding: 8px 8px;
 	position: relative;
+	overflow-y: auto;
+	overflow-x: hidden;
+	overscroll-behavior: none;
 }
 body.limit-size {
 	max-width: 480px;
@@ -241,6 +246,7 @@ html {
   	user-select: none;
 	pointer-events: none;
 	overflow: hidden;
+	overscroll-behavior: contain;
 	z-index: 99;
 }
 #sepiaFW-virtual-keyboard-box {
@@ -1119,6 +1125,8 @@ html.dark-skin #sepiaFW-login-help-btn {
 	width: 100%;
 	overflow-y: auto;
 	overflow-y: overlay;
+	overscroll-behavior-x: none;
+	overscroll-behavior-y: contain;
 }
 #sepiaFW-chat-menu ul {
 	/*display: inline-block;*/
@@ -2083,6 +2091,7 @@ html.spacious-w body.limit-size #sepiaFW-chat-channel-view {
 	        flex: 1 1 auto;
 	width: 100%;
 	overflow: hidden;
+	overscroll-behavior: contain;
 	display: -webkit-flex;
 	display: -ms-flexbox;
 	display: flex;
@@ -2114,6 +2123,8 @@ html.spacious-w body.limit-size #sepiaFW-chat-channel-view {
 	overflow-y: overlay;
 	-webkit-overflow-scrolling: touch;
 	scrollbar-color: rgba(128,128,128,0.24) rgba(128,128,128,0.12);
+	overscroll-behavior-x: none;
+	overscroll-behavior-y: contain;
 }
 body.big-screen .sepiaFW-results-container {
 	display: flex;
@@ -2602,6 +2613,8 @@ html.landscape-small #sepiaFW-chat-controls .eButton {
 	height: 100%;
 	z-index: 10;
 	overflow: hidden;		/* better dont use position fixed inside */
+	overscroll-behavior-x: none;
+	overscroll-behavior-y: contain;
 }
 @media (max-width: 768px), (max-height: 768px) {
 	.sepiaFW-top-layer-view {
