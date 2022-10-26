@@ -1047,16 +1047,33 @@ function sepiaFW_build_webSocket_client(sepiaSessionId){
 			var screenBtn = document.getElementById("sepiaFW-fullsize-btn");
 			if (screenBtn){
 				$(screenBtn).off();
-				SepiaFW.ui.longPressShortPressDoubleTap(screenBtn, function(){
+				if (!SepiaFW.ui.canToggleFullscreen()){
+					$(screenBtn).hide();
+				}else{
+					SepiaFW.ui.longPressShortPressDoubleTap(screenBtn, function(){
+						//long-press
+					},'',function(){
+						//short press
+						if (SepiaFW.ui.canToggleFullscreen()) SepiaFW.ui.toggleFullscreen();
+					},function(){
+						//double-tab
+					}, true, true);
+				}
+			}
+			//-ui size
+			var uiSizeBtn = document.getElementById("sepiaFW-uisize-btn");
+			if (uiSizeBtn){
+				$(uiSizeBtn).off();
+				SepiaFW.ui.longPressShortPressDoubleTap(uiSizeBtn, function(){
 					//long-press
 				},'',function(){
 					//short press
 					SepiaFW.ui.toggleInterfaceFullscreen();
 				},function(){
 					//double-tab
-					SepiaFW.ui.toggleFullscreen();
 				}, true, true);
 			}
+
 			//-back
 			var backBtn = document.getElementById("sepiaFW-back-btn");
 			if (backBtn){
