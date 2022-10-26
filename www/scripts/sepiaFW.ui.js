@@ -457,7 +457,14 @@ function sepiaFW_build_ui(){
 			activeSkinStyle = "light";
 		}
 		//refresh theme-color
-		$('meta[name="theme-color"]').replaceWith('<meta name="theme-color" content="' + (UI.statusBarColor || UI.primaryColor) + '">');
+		UI.setThemeColorMeta(UI.statusBarColor || UI.primaryColor);
+	}
+	//set theme color
+	UI.setThemeColorMeta = function(newColor){
+		$('meta[name="theme-color"]').replaceWith('<meta name="theme-color" content="' + newColor + '">');
+	}
+	UI.resetThemeColorMeta = function(){
+		UI.setThemeColorMeta(UI.statusBarColor || UI.primaryColor);
 	}
 	
 	//set skin
@@ -2645,6 +2652,7 @@ function sepiaFW_build_ui(){
 	
 	//Use fullscreen API
 	UI.toggleFullscreen = function(elem){
+		//TODO: make use of 'document.fullscreenEnabled' and 'document.webkitFullscreenEnabled'?
 		elem = elem || document.documentElement;
 		if (!document.fullscreenElement && !document.mozFullScreenElement &&
 				!document.webkitFullscreenElement && !document.msFullscreenElement){
@@ -2660,6 +2668,9 @@ function sepiaFW_build_ui(){
 			}else if (document.webkitExitFullscreen){	document.webkitExitFullscreen();
 			}
 		}
+	}
+	UI.canToggleFullscreen = function(){
+		return document.fullscreenEnabled || document.webkitFullscreenEnabled;
 	}
 
 	//Add resize observer to element - IMPORTANT: if the element size depends on resizeCallback you are in an endless loop!
