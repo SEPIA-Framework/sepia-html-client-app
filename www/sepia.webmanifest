@@ -14,7 +14,7 @@
         }
     ],
     "start_url": "./index.html?pwa=true&isApp=true",
-    "display": "fullscreen",
+    "display": "standalone",
     "theme_color": "#000000",
     "background_color": "#000000",
 	"shortcuts": [
