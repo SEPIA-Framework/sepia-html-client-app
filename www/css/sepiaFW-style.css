@@ -79,6 +79,9 @@ html {
 	overflow: hidden;
 	overscroll-behavior: none;
 }
+html.framed-view {
+	overflow: visible;
+}
 html.dark {
 	background-color: #000;
 	background-image: none;
