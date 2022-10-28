@@ -276,7 +276,7 @@ function sepiaFW_build_audio(){
 	var mainAudioIsOnHold = false;
 	var mainAudioStopRequested = false;
 	var orgVolume = AudioPlayer.getGlobalMediaPlayerVolume() / 10.0;
-	var FADE_OUT_VOL = 0.03; 	//note: on some devices audio is actually stopped so this value does not apply
+	var FADE_OUT_VOL = 0.01; 	//note: on some devices audio is actually stopped so this value does not apply
 
 	//MediaSession Interface
 	if (isMediaSessionSupported){
