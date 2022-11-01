@@ -1,3 +1,11 @@
+html.landscape-small #sepiaFW-main-window.sepiaFW-teach-mode {
+	width: calc(100% - 55px);
+	margin-left: 55px;
+}
+html.landscape-small #sepiaFW-main-window.sepiaFW-teach-mode ~ #sepiaFW-swipeBar-container-left {
+	left: 55px;
+}
+
 #sepiaFW-teachUI-view {
 	display: flex;
     flex-direction: column;
@@ -14,6 +22,7 @@
     background: transparent !important;
 	border: 0 !important;
     border-bottom: 1px solid !important;
+	border-radius: 0;
 	border-color: inherit;
     color: inherit;
     text-align: center;
@@ -40,6 +49,17 @@
     flex-direction: row;
     justify-content: space-around;
 }
+html.landscape-small #sepiaFW-teachUI-nav-bar {
+    position: fixed;
+	flex-direction: column;
+	justify-content: space-between;
+    align-items: center;
+    top: var(--sai-merged-top);
+    left: var(--sai-merged-left);
+    height: calc(100% - var(--sai-merged-top) - var(--sai-merged-bottom));
+    width: 55px;
+	border-top: 0 !important;
+}
 #sepiaFW-teachUI-nav-bar .entry {
 	flex: 1 1 auto;
 	margin: 0px;
@@ -50,8 +70,17 @@
     justify-content: center;
     align-items: center;
 }
+html.landscape-small #sepiaFW-teachUI-nav-bar .entry {
+	max-height: 42px;
+}
 #sepiaFW-teachUI-nav-bar .entry i {
 	margin: 0 8px 0 0;
+}
+html.landscape-small #sepiaFW-teachUI-nav-bar .entry > i {
+	margin: 0;
+}
+html.landscape-small #sepiaFW-teachUI-nav-bar .entry > span {
+	display: none;
 }
 #sepiaFW-teachUI-close {
 	max-width: 80px;

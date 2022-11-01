@@ -7,6 +7,10 @@ html {
 #sepiaFW-main-window {
 	color: #F4F4F4;
 }
+.sepiaFW-standalone-app.no-size-limit #sepiaFW-main-window {
+    border-width: 4px;
+	border-color: #040404;
+}
 .sepiaFW-results-container {
 	scrollbar-color: #191919 #040404;
 }
@@ -77,6 +81,8 @@ html {
     color: #040404;
     border-radius: 28px;
     padding: 0;
+    width: 55px;
+    height: 55px;
     min-width: 55px;
     border: 3px solid #191919;
 }
@@ -172,6 +178,8 @@ html.landscape-small #sepiaFW-chat-controls-right {
 	border-radius: 18px;
 	background-color: #eded00;
 	color: #040404;
+}
+#sepiaFW-chat-menu button {
 	margin: 4px;
 }
 .sepiaFW-notouch-device #sepiaFW-chat-menu button:hover {

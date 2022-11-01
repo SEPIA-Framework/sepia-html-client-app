@@ -88,6 +88,10 @@
 	border: 1px solid #000;
 	background: #fff;
 }
+.sepiaFW-tutorial-page.dark img {
+    border: 1px solid #eee;
+    background: #000;
+}
 
 .sepiaFW-frames-page iframe {
 	border: 0;
@@ -120,16 +124,23 @@
 	display: flex; 
 	justify-content: center;
 	flex-wrap: wrap;
+	max-width: 100%;
 }
 .sepiaFW-frames-page .group {
 	display: flex;
 	justify-content: space-between; 
 	align-items: center;
-	margin: 8px;
+	margin: 7px 8px;
+	padding: 1px 0;	/* fixes overflow hidden glitches */
 	flex: 1 0 100%;
+	max-width: 100%;
+	overflow: hidden;
 }
 .sepiaFW-frames-page .group.wrap {
 	flex-wrap: wrap;
+}
+.sepiaFW-frames-page .group.limit-512 {
+	max-width: 512px;
 }
 .sepiaFW-frames-page .group.column {
 	flex-direction: column;
@@ -141,8 +152,22 @@
 	margin-top: 16px; 
 	margin-bottom: 16px;
 }
+.sepiaFW-frames-page .inner-group {
+	display: flex;
+	justify-content: space-between; 
+	align-items: center;
+	margin: 4px 0;
+	flex: 1 1 100%;
+	max-width: 100%;
+	overflow: hidden;
+	font-size: 14px;
+}
 #sepiaFW-frames-view .sepiaFW-frames-page .group label {
 	margin: 4px 8px;
+	display: flex;
+	flex-wrap: wrap;
+    justify-content: flex-start;
+    align-items: center;
 }
 .sepiaFW-frames-page .group label + * {
 	margin: 0 8px !important;
@@ -155,12 +180,14 @@
 	min-width: 50px;
 }
 .sepiaFW-frames-page .group .string-value {
-	width: 204px;
+	/*width: 204px;*/
+	width: auto;
 	padding: 4px;
     min-height: 33px;
 	display: flex;
 	justify-content: center;
 	align-items: center;
+	cursor: default;
 }
 .sepiaFW-frames-page .group.fill {
 	flex-wrap: wrap;
@@ -190,23 +217,54 @@
     flex-wrap: wrap;
     justify-content: space-between;
     align-items: center;
+	max-width: 100%;
 }
 .sepiaFW-frames-page .group .entry-content input {
 	flex-grow: 1;
 	margin: 0 8px !important;
 	width: 180px !important; /* idk why but this fixes it for <=320px width screens */
 }
+.sepiaFW-frames-page .group button {
+	min-width: 28px;
+	min-height: 28px;
+}
+.sepiaFW-frames-page .group button.round {
+	border-radius: 14px !important;
+}
+.sepiaFW-frames-page .group button.icon-only {
+	background: transparent !important;
+    color: currentColor !important;
+    padding: 0 !important;
+	font-size: 26px !important;
+}
+.sepiaFW-frames-page .group button.icon-only:hover {
+	background: transparent !important;
+    color: currentColor !important;
+}
+.sepiaFW-frames-page .group label > button.icon-only {
+	min-height: auto !important;
+	font-size: 24px !important;
+}
+.sepiaFW-frames-page .group .sepiaFW-button-inline {
+	display: flex;
+    justify-content: center;
+    align-items: center;
+	margin: 0 8px !important;
+}
 .sepiaFW-frames-page .group .set-button {
-	margin: 0 8px !important; 
+	margin: 0 8px !important;
 	min-width: 36px;
 	flex: 0 0 auto;
 }
 .sepiaFW-frames-page .group .trigger-button {
 	margin: 0 0px !important;
     padding: 5px !important;
-    min-width: 27px;
+    min-width: 28px;
     flex: 0 0 auto;
     border-radius: 14px !important;
+}
+.sepiaFW-frames-page .group .trigger-button:last-child {
+	margin: 0 8px !important;
 }
 .sepiaFW-frames-page .group .inside-button {
 	position: absolute;
@@ -220,11 +278,23 @@
 }
 
 .sepiaFW-frames-page .subgroup {
-	display: flex; 
-	justify-content: space-between; 
+	display: flex;
+	justify-content: space-between;
 	align-items: center;
 	padding: 4px;
     min-width: 160px;
+}
+.sepiaFW-frames-page .subgroup.inline {
+	display: inline-flex;
+}
+.sepiaFW-frames-page .subgroup.fill {
+	flex: 1 1 auto;
+}
+.sepiaFW-frames-page .subgroup.center {
+	justify-content: center;
+}
+.sepiaFW-frames-page .subgroup.align-start {
+	justify-content: start;
 }
 .sepiaFW-frames-page .subgroup.menu-button {
 	font-size: 21px;
@@ -254,6 +324,7 @@
 	background: transparent;
 	border: 1px solid transparent;
     border-bottom: 1px solid #000;
+	border-radius: 0;
     color: inherit;
     text-align: center;
 }
@@ -331,11 +402,11 @@ html.landscape-small #sepiaFW-main-window.sepiaFW-ao-mode ~ #sepiaFW-swipeBar-co
 
 html.landscape-small #sepiaFW-frames-nav-bar {
 	position: fixed;
-	height: 100%;
+	height: calc(100% - var(--sai-merged-top) - var(--sai-merged-bottom));
 	max-height: unset;
 	width: 55px;
-	left: 0;
-	top: 0;
+	left: var(--sai-merged-left);
+	top: var(--sai-merged-top);
 	padding: 10px 5px;
 	display: flex;
 	flex-direction: column;

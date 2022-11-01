@@ -13,8 +13,8 @@
             "type": "image/png"
         }
     ],
-    "start_url": "./index.html?pwa=true",
-    "display": "fullscreen",
+    "start_url": "./index.html?pwa=true&isApp=true",
+    "display": "standalone",
     "theme_color": "#000000",
     "background_color": "#000000",
 	"shortcuts": [
@@ -22,13 +22,13 @@
 			"name": "Always-On Avatar",
 			"short_name": "Always-On",
 			"description": "Start SEPIA in always-ON avatar mode.",
-			"url": "./index.html?pwa=true&view=aomode",
+			"url": "./index.html?pwa=true&isApp=true&view=aomode",
 			"icons": [{ "src": "./img/icon.png", "sizes": "192x192" }]
 		}, {
 			"name": "Teach Interface",
 			"short_name": "Teach-UI",
 			"description": "Teach SEPIA a new command.",
-			"url": "./index.html?pwa=true&view=teachui",
+			"url": "./index.html?pwa=true&isApp=true&view=teachui",
 			"icons": [{ "src": "./img/icon.png", "sizes": "192x192" }]
 		}
 	],

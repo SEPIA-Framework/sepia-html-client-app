@@ -205,7 +205,7 @@ function sepiaFW_build_config(){
 		SepiaFW.debug.log('Config: broadcasted host=' + hostName);
 	}
 	//add everything here that needs to be refreshed after language change
-	Config.broadcastLanguage = function(language, region){
+	Config.broadcastLanguage = function(language, region, skipSave){
 		//app
 		Config.appLanguage = language; 		//TODO: interface reload to set texts?
 		//speech
@@ -217,10 +217,10 @@ function sepiaFW_build_config(){
 		//consider regionCode change as well if you change language
 		if (region && region.indexOf(language) == 0){
 			//set region
-			Config.broadcastRegionCode(region);
+			Config.broadcastRegionCode(region, skipSave);
 		}else if (Config.appRegionCode && Config.appRegionCode.indexOf(language) != 0){
 			//reset region
-			Config.broadcastRegionCode("");
+			Config.broadcastRegionCode("", skipSave);
 		}
 		//NOTE: does this need to be somwhere else? - ps.: we need to add all IDs here manually
 		SepiaFW.ui.build.updateRegionCodeSelector("sepiaFW-menu-account-region-dropdown");
@@ -230,12 +230,14 @@ function sepiaFW_build_config(){
 			window.history.replaceState(history.state, document.title, url);
 		}
 		//log and save
-		SepiaFW.data.updateAccount('language', language);
-		SepiaFW.data.set('app-language', language);
+		if (!skipSave){
+			SepiaFW.data.updateAccount('language', language);
+			SepiaFW.data.set('app-language', language);
+		}
 		SepiaFW.debug.log('Config: broadcasted language=' + language);
 	}
 	//add everything here that needs to be refreshed after language-region change
-	Config.broadcastRegionCode = function(regionCode){
+	Config.broadcastRegionCode = function(regionCode, skipSave){
 		//app
 		Config.appRegionCode = regionCode;
 		//speech
@@ -253,8 +255,10 @@ function sepiaFW_build_config(){
 			window.history.replaceState(history.state, document.title, url);
 		}
 		//log and save
-		//SepiaFW.data.updateAccount('regionCode', regionCode);		//TODO: add?
-		SepiaFW.data.set('app-regionCode', regionCode);
+		if (!skipSave){
+			//SepiaFW.data.updateAccount('regionCode', regionCode);		//TODO: add?
+			SepiaFW.data.set('app-regionCode', regionCode);
+		}
 		SepiaFW.debug.log('Config: broadcasted regionCode=' + (regionCode || "default"));
 	}
 	//broadcast-event when userName (really the name not the id) is changed
@@ -402,6 +406,12 @@ function sepiaFW_build_config(){
 
 	Config.autoSetup = false;		//set by URL parameter 'autoSetup=true'
 	Config.isUiHeadless = false;	//set by URL parameter 'isHeadless=true'
+	Config.setupModeDelay = 10000;	//delay in ms until client jumps into setup mode (auto or headless)
+
+	//is one of the automatic setup modes enabled?
+	Config.isAutoSetupModeEnabled = function(){
+		return Config.autoSetup || Config.isUiHeadless;
+	}
 
 	//load headless settings
 	Config.loadSettingsForHeadlessMode = function(){
@@ -466,28 +476,21 @@ function sepiaFW_build_config(){
 		delete headlessConfigJson.headless.user["isDemoLogin"];
 		//... more?
 		//show
-		var msgBox = document.createElement("div");
-		var titleBox = document.createElement("div");
-		titleBox.innerHTML = "<h3>Device Settings JSON</h3><p>Download as file or copy JSON to your SEPIA client settings.js:</p>";
-		var jsonBox = document.createElement("textarea");
-		jsonBox.value = JSON.stringify(headlessConfigJson, null, 4);
-		jsonBox.style.whiteSpace = "pre";
-		msgBox.appendChild(titleBox);
-		msgBox.appendChild(jsonBox);
-		SepiaFW.ui.showPopup(msgBox, {
-			buttonOneName: "Download",
-			buttonOneAction: function(){
-				//download as file
-				JSON.parse(jsonBox.value);	//just to validate JSON
-				var blob = new Blob([jsonBox.value], {type: "application/json"});
-				var filename = "settings-export.json";
-				SepiaFW.files.saveBlobAs(filename, blob, msgBox);
-			},
-			buttonTwoName: SepiaFW.local.g("close"),
-			buttonTwoAction: function(){},
-		});
-		//adjust size
-		jsonBox.style.height = jsonBox.scrollHeight + 32 + "px";
+		var jsonBox = SepiaFW.ui.showJsonInfoPopup("Device Settings JSON",
+			"Download as file or copy JSON to your SEPIA client settings.js:",
+			headlessConfigJson, {
+				buttonOneName: "Download",
+				buttonOneAction: function(){
+					//download as file
+					JSON.parse(jsonBox.value);	//just to validate JSON
+					var blob = new Blob([jsonBox.value], {type: "application/json"});
+					var filename = "settings-export.json";
+					SepiaFW.files.saveBlobAs(filename, blob, jsonBox.parentElement);
+				},
+				buttonTwoName: SepiaFW.local.g("close"),
+				buttonTwoAction: function(){},
+			}
+		);
 	}
 	Config.showHeadlessModeSettingsImportPopup = function(){
 		var titleBox = document.createElement("div");
@@ -505,7 +508,7 @@ function sepiaFW_build_config(){
 					var parsedData = JSON.parse(readRes);
 					viewTxtArea.value = JSON.stringify(parsedData, null, 4);
 				}
-			}, function(viewTxtAreaValue){
+			}, function(viewTxtAreaValue, viewTxtArea){
 				//confirm and close
 				if (viewTxtAreaValue){
 					try {

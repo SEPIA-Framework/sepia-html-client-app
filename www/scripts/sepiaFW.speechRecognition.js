@@ -136,6 +136,15 @@ function sepiaFW_build_speech_recognition(Speech){
 			return SepiaFW.speechAudioProcessor.getRecognizer(logFunction);
 		}
 	}
+	//some fixes for the more "troubled" platforms (e.g. iOS ^^)
+	function tryToPreventRecognizerBugs(){
+		if (!SepiaFW.ui.isCordova && Speech.asrEngine == "native" && SepiaFW.ui.isSafari){
+			//iOS Safari has a lot of issues if you don't kill the recognizer instance :-(
+			//NOTE: To reproduce use "native" engine -> do recognition -> play audio -> do recognition
+			recognition = undefined;	//TODO: ocassionally check if this can be removed
+			console.warn("ASR recognizer has been reset to prevent Safari bugs.");
+		}
+	}
 	
 	var recognition = null;
 	//TODO: introduce some "onprepare" event after Speech is fully loaded?
@@ -192,31 +201,25 @@ function sepiaFW_build_speech_recognition(Speech){
 	//--------broadcast methods----------
 	
 	function broadcastRequestedAsrStart(){
-		//EXAMPLE: 
 		SepiaFW.animate.assistant.loading();
 	}
 	function broadcastAsrMicOpen(){
-		//EXAMPLE: 
 		SepiaFW.animate.assistant.listening();
 	}
 	function broadcastRequestedAsrStop(){
-		//EXAMPLE: 
 		SepiaFW.animate.assistant.loading();
 	}
 	function broadcastAsrWaitingForResult(){
-		//EXAMPLE: 
 		SepiaFW.animate.assistant.loading();
 	}
 	function broadcastAsrFinished(){
-		//EXAMPLE: 
 		SepiaFW.animate.assistant.idle('asrFinished');
+		tryToPreventRecognizerBugs();
 	}
 	function broadcastAsrNoResult(){
-		//EXAMPLE: 
 		SepiaFW.animate.assistant.idle('asrNoResult');
 	}
 	function broadcastWrongAsrSettings(isMicPermission){
-		//EXAMPLE:
 		var msg = SepiaFW.local.g(isMicPermission? 'asrMicProblem' : 'asrSettingsProblem');
 		if (!SepiaFW.ui.isSecureContext){
 			msg += " " + SepiaFW.local.g('possible_reason_origin_unsecure') 
@@ -227,7 +230,6 @@ function sepiaFW_build_speech_recognition(Speech){
 		Speech.dispatchSpeechEvent("asr_error", msg);
 	}
 	function broadcastNoAsrSupport(msg){
-		//EXAMPLE: 
 		SepiaFW.animate.assistant.idle('asrNoSupport');
 		if (!msg){
 			msg = SepiaFW.local.g('noAsrSupport');
@@ -243,13 +245,11 @@ function sepiaFW_build_speech_recognition(Speech){
 
 	//TODO: use
 	function broadcastMissingServerInfo(){
-		//EXAMPLE: 
 		SepiaFW.animate.assistant.idle('asrMissingServer');
 		SepiaFW.ui.showInfo("ASR - " + SepiaFW.local.g('asrMissingServer'));
 		Speech.dispatchSpeechEvent("asr_error", "missing server info");
 	}
 	function broadcastConnectionError(){
-		//EXAMPLE: 
 		SepiaFW.animate.assistant.idle('noConnectionToServer');
 		SepiaFW.ui.showInfo("ASR - " + SepiaFW.local.g('noConnectionToServer'));
 		Speech.dispatchSpeechEvent("asr_error", "no connection to server");
@@ -308,6 +308,7 @@ function sepiaFW_build_speech_recognition(Speech){
 			broadcastNoAsrSupport();
 			broadcastAsrNoResult();
 			error_callback("E00 - Speech recognition not supported by your client :-(");
+			return;
 		}
 		var quit_on_final_result = true;
 		if (!isRecognizing && !recognizerWaitingForResult){
@@ -668,6 +669,7 @@ function sepiaFW_build_speech_recognition(Speech){
 						if (!recognizerWaitingForResult){
 							recognizerWaitingForResult = true;
 							broadcastAsrWaitingForResult();
+							log_callback('STT REC. WAITING FOR RES. (ONEND)');
 						}
 						if ((new Date().getTime() - wait_timestamp) < maxAsrResultWait){
 							clearTimeout(waitTimeout);
@@ -737,6 +739,11 @@ function sepiaFW_build_speech_recognition(Speech){
 				recognition.onresult(event);
 			}
 			recognition.onresult = function(event){
+				if (!isRecognizing){
+					SepiaFW.debug.err('ASR: Result came BEFORE start! Ignored event.', event);
+					//NOTE: I've seen this BUG happening on iOS and on early Microsoft Web Speech API implementations
+					return;
+				}
 				if (!event) event = {};
 				resultWasNeverCalled = false;
 				var iosPlugin = (typeof event.results == "undefined")? true : false;	//TODO: move or remove
@@ -773,8 +780,11 @@ function sepiaFW_build_speech_recognition(Speech){
 								recognizerWaitingForResult = true;
 								wait_timestamp = new Date().getTime();
 								broadcastAsrWaitingForResult();
-								log_callback('STT REC. STOP REQUESTED');
-								if (recognition.continuous) recognition.stop();
+								log_callback('STT REC. WAITING FOR RES.');
+								if (recognition.continuous){
+									log_callback('STT REC. STOP REQUESTED');
+									recognition.stop();
+								}
 							}
 							return;
 						}else{

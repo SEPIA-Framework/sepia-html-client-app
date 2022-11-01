@@ -3,8 +3,8 @@ function sepiaFW_build_ui(){
 	var UI = {};
 	
 	//some constants
-	UI.version = "v0.24.2";
-	UI.requiresServerVersion = "2.6.0";
+	UI.version = "v0.25.0";
+	UI.requiresServerVersion = "2.7.0";
 	UI.JQ_RES_VIEW_IDS = "#sepiaFW-result-view, #sepiaFW-chat-output, #sepiaFW-my-view";	//a selector to get all result views e.g. $(UI.JQ_RES_VIEW_IDS).find(...) - TODO: same as $('.sepiaFW-results-container') ??
 	UI.JQ_ALL_MAIN_VIEWS = "#sepiaFW-result-view, #sepiaFW-chat-output, #sepiaFW-my-view, #sepiaFW-teachUI-editor, #sepiaFW-teachUI-manager, #sepiaFW-frame-page-0, #sepiaFW-frame-page-1, #sepiaFW-frame-page-2, #sepiaFW-frame-page-3"; 	//TODO: frames can have more ...
 	UI.JQ_ALL_SETTINGS_VIEWS = ".sepiaFW-chat-menu-list-container";
@@ -63,21 +63,101 @@ function sepiaFW_build_ui(){
 		}
 	}
 	UI.setScreenOrientation(UI.preferredScreenOrientation);
-	
-	UI.windowExpectedSize = window.innerHeight;
-	window.addEventListener('orientationchange', function(){
-		//document.getElementById('sepiaFW-chat-output').innerHTML += ('<br>orientationchange, new size: ' + window.innerHeight);
+
+	UI.windowExpectedSize = window.innerHeight;			//useful for tracking virtual keyboards etc.
+	UI.screenExpectedSize = {w: window.screen.width, h: window.screen.height,
+		iw: window.innerWidth, ih: window.innerHeight};	//useful for tracking device rotation
+	var checkOrientationAtNextResize = false;
+	UI.isScreenFree = function(){
+		return !(window.screen.availWidth == window.screen.width 
+			&& window.screen.availHeight == window.screen.height
+			&& window.screenX == 0 && window.screenY == 0);
+	}
+	UI.checkForDeviceRotation = function(){
+		//NOTE: if screen changes from portrait to landscape it's not necessarily a device rotation
+		var didDeviceRotate = false;
+		if (!UI.isScreenFree()){
+			//a strong assumption because there can be many reasons. Also note: innerHeight can change through virtual keyboard!
+			didDeviceRotate = UI.screenExpectedSize.iw != window.innerWidth;
+		}else{
+			didDeviceRotate = UI.screenExpectedSize.w != window.screen.width
+				|| UI.screenExpectedSize.h != window.screen.height;
+		}
+		//update
+		UI.screenExpectedSize = {w: window.screen.width, h: window.screen.height,
+			iw: window.innerWidth, ih: window.innerHeight};
+		return didDeviceRotate;
+	}
+	if (UI.isScreenOrientationSupported()){
+		screen.orientation.addEventListener('change', function(ev){
+			setTimeout(function(){
+				onScreenOrientationChange("screenOrientationApi", {
+					type: ev?.currentTarget?.type || "",
+					angle: screen.orientation.angle
+				});
+			}, 0);
+		});
+	}else{
+		window.addEventListener('orientationchange', function(){
+			setTimeout(function(){
+				onScreenOrientationChange("screenOrientationOld", {});
+			}, 0);
+		});
+	}
+	/* if ("ondeviceorientation" in window){
+		//TODO: on iOS we need to 'requestPermission'
+		if (typeof DeviceOrientationEvent.requestPermission === 'function'){...}
+		window.addEventListener('deviceorientation', function(ev){
+			onScreenOrientationChange("deviceOrientationApi", {
+				alpha: ev.alpha,
+				beta: ev.beta,
+				gamma: ev.gamma
+			});
+		});
+	} */
+	function onScreenOrientationChange(eventName, eventData){
+		//console.error("onScreenOrientationChange", eventName, eventData, window.innerWidth + 'x' + window.innerHeight);		//DEBUG
+		//NOTE: it is not guaranteed that the screen has been resized already at this point
+		if (UI.screenExpectedSize.iw == window.innerWidth){
+			checkOrientationAtNextResize = true;
+		}else{
+			//do direct screen format check
+			checkOrientationAtNextResize = true;
+			orientationAndBasicWindowSizeCheck();
+		}
+		//document.getElementById('sepiaFW-chat-output').innerHTML += 
+		//	('<br>' + eventName + ', new size: ' + window.innerWidth + 'x' + window.innerHeight);		//DEBUG
+		//TODO: we should identify a device rotation somehow and switch the safe-areas :-/
 		if (document.activeElement && typeof document.activeElement.blur == "function"){
 			document.activeElement.blur();
 		}
 		setTimeout(function(){
 			UI.windowExpectedSize = window.innerHeight;
 		}, 100);
-	});
+	}
+	
 	window.addEventListener('resize', function(){
-		orientationAndBasicWindowSizeCheck();
+		//NOTE1: we delay this 1 frame because devices are known to react slow on e.g. orientation change
+		//NOTE2: this means all other elements should always use a ResizeObserver e.g. applied to main view
+		setTimeout(function(){
+			//console.error("resize", window.innerWidth + 'x' + window.innerHeight, window.screen.width);	//DEBUG
+			orientationAndBasicWindowSizeCheck();
+		}, 0);
 	});
 	function orientationAndBasicWindowSizeCheck(){
+		//console.error("orientationAndBasicWindowSizeCheck", window.innerWidth + 'x' + window.innerHeight, checkOrientationAtNextResize);		//DEBUG
+		if (checkOrientationAtNextResize){
+			checkOrientationAtNextResize = false;
+			var probablyDeviceRotation = UI.checkForDeviceRotation();
+			if (probablyDeviceRotation){
+				//adapt safe areas to device rotation
+				if (window.innerWidth > window.innerHeight){
+					UI.rotateSafeAreas("landscape");
+				}else{
+					UI.rotateSafeAreas("portrait");
+				}
+			}
+		}
 		//format
 		sepiaFW_scale_viewport();
 		sepiaFW_landscape_check();
@@ -88,6 +168,7 @@ function sepiaFW_build_ui(){
 		UI.windowExpectedSize = window.innerHeight;
 		
 		//fix scroll position on window resize to better place content on soft-keyboard appearance
+		//TODO: can we replace this now with ResizeObserver?
 		if (UI.isAndroid && (windowSizeDifference < 0)){
 			setTimeout(function(){
 				$(UI.JQ_ALL_MAIN_VIEWS + ", " + UI.JQ_ALL_SETTINGS_VIEWS).each(function(){
@@ -193,11 +274,13 @@ function sepiaFW_build_ui(){
 	UI.secondaryColor2 = '#f0f0fa';
 	UI.accentColor = '#94365b';
 	UI.accentColor2 = '#16817b'; 	//'rgba(86, 47, 145, 0.95)';
-	UI.awaitDialogColor = 'gold';
+	UI.awaitDialogColor = '#ffd700';
 	UI.loadingColor = '#b4b4b4';
 	UI.assistantColor = '';
+	UI.assistantColorPlainHex = '';
+	UI.assistantColorContrast = 'black';
 	UI.micBackgroundColor = '#fff';  //reassigned during UI setup
-	UI.htmlBackgroundColor = window.getComputedStyle(document.documentElement).getPropertyValue("background-color") || "#fff";
+	UI.htmlBackgroundColor = '#fff';
 	UI.navBarColor = '';
 	UI.statusBarColor = '';
 
@@ -215,9 +298,86 @@ function sepiaFW_build_ui(){
 		}
 		if (triggerResize) $(window).trigger('resize');
 	}
-	UI.setBigScreenMode(SepiaFW.data.getPermanent('big-screen-mode') || UI.isCordova, false);
+	var storedBigScreenMode = SepiaFW.data.getPermanent('big-screen-mode');
+	UI.setBigScreenMode((storedBigScreenMode != undefined)?
+		storedBigScreenMode : (UI.isCordova || (window.innerWidth < 720 && window.innerHeight < 720)), false);
+	
 	UI.useTouchBarControls = SepiaFW.data.getPermanent('touch-bar-controls') || false;
 	UI.hideSideSwipeForTouchBarControls = true;
+
+	UI.setScreenSafeAreas = function(data, triggerResize, remember){
+		//NOTE: this only sets the custom safe areas (the ones given by OS can overwrite this if bigger!)
+		if (remember == undefined) remember = true;
+		if (!data){
+			//remove
+			setOrRemoveCustomSkinProperty("screen-safe-area-top");
+			setOrRemoveCustomSkinProperty("screen-safe-area-right");
+			setOrRemoveCustomSkinProperty("screen-safe-area-bottom");
+			setOrRemoveCustomSkinProperty("screen-safe-area-left");
+			setOrRemoveCustomSkinProperty("screen-safe-area-background");
+			setOrRemoveCustomSkinProperty("screen-safe-area-color");
+			if (remember) SepiaFW.data.delPermanent('screen-safe-areas');
+		}else{
+			//apply
+			if (data.padding){
+				var pad = data.padding.split(/\s*(?:,| )\s*/).slice(0, 4);
+				if (pad.length < 2) return false;
+				if (pad.length < 4){
+					pad[2] = pad[0];
+					pad[3] = pad[1];
+				}
+				setOrRemoveCustomSkinProperty("screen-safe-area-top", pad[0]);
+				setOrRemoveCustomSkinProperty("screen-safe-area-right", pad[1]);
+				setOrRemoveCustomSkinProperty("screen-safe-area-bottom", pad[2]);
+				setOrRemoveCustomSkinProperty("screen-safe-area-left", pad[3]);
+			}
+			if (data.background){
+				setOrRemoveCustomSkinProperty("screen-safe-area-background", data.background);
+			}
+			if (data.color){
+				setOrRemoveCustomSkinProperty("screen-safe-area-color", data.color);
+			}
+			if (remember) SepiaFW.data.setPermanent('screen-safe-areas', data);
+			return true;
+		}
+		if (triggerResize) $(window).trigger('resize');
+	}
+	UI.getScreenSafeAreas = function(){
+		//NOTE: this only return the custom safe areas (not the ones given by OS!)
+		var pad = new Array(4);
+		pad[0] = getCustomSkinProperty("screen-safe-area-top") || "";
+		pad[1] = getCustomSkinProperty("screen-safe-area-right") || "";
+		pad[2] = getCustomSkinProperty("screen-safe-area-bottom") || "";
+		pad[3] = getCustomSkinProperty("screen-safe-area-left") || "";
+		return {
+			padding: pad.join(" ").trim(),
+			background: getCustomSkinProperty("screen-safe-area-background") || "",
+			color: getCustomSkinProperty("screen-safe-area-color") || ""
+		}
+	}
+	UI.rotateSafeAreas = function(orientation){
+		if (orientation != currentSafeAreaOrientation){
+			if (orientation == "landscape"){
+				//rotate
+				var pad = UI.getScreenSafeAreas().padding.split(/\s*(?:,| )\s*/).slice(0, 4);
+				if (pad.length == 4){
+					pad.push.apply(pad, pad.splice(0, 3));
+					UI.setScreenSafeAreas({padding: pad.join(" ").trim()}, false, false);
+				}
+			}else{
+				//reset
+				UI.setScreenSafeAreas(SepiaFW.data.getPermanent('screen-safe-areas'), false, false);
+			}
+			currentSafeAreaOrientation = orientation;
+		}
+	}
+	var currentSafeAreaOrientation = "portrait";	//default - only change this if rotate is called
+	UI.setScreenSafeAreas(SepiaFW.data.getPermanent('screen-safe-areas'), false, false);
+	//need initial rotation?
+	if (!UI.isScreenFree() && window.innerWidth > window.innerHeight){
+		UI.checkForDeviceRotation();	//just to update expected size
+		UI.rotateSafeAreas("landscape");
+	}
 		
 	UI.isMenuOpen = false;
 	UI.lastInput = "";
@@ -226,7 +386,16 @@ function sepiaFW_build_ui(){
 	var activeAvatar = 0;
 	
 	//get/refresh skin colors
-	UI.refreshSkinColors = function(){
+	UI.refreshSkinColors = function(doneCallback){
+		//NOTE: this is async. because we need to wait for transition effects etc. :-/
+		//		If we can improve backgound calc. we might switch back to sync.
+		var syncDelay = 330;
+		setTimeout(function(){
+			refreshSkinColorsSync();
+			if (doneCallback) doneCallback();
+		}, syncDelay);
+	}
+	function refreshSkinColorsSync(){
 		var pC = document.getElementById('sepiaFW-pC');
 		var sC = document.getElementById('sepiaFW-sC');		var sC2 = document.getElementById('sepiaFW-sC2');
 		var aC = document.getElementById('sepiaFW-aC');		var aC2 = document.getElementById('sepiaFW-aC2');
@@ -236,63 +405,66 @@ function sepiaFW_build_ui(){
 		var statB = document.getElementById('sepiaFW-statC');
 		UI.primaryColor = 	 pC?  window.getComputedStyle(pC, null).getPropertyValue("background-color") : UI.primaryColor;
 		UI.secondaryColor =  sC?  window.getComputedStyle(sC, null).getPropertyValue("background-color") : UI.secondaryColor;
-		UI.secondaryColor2 = sC2? window.getComputedStyle(sC2, null).getPropertyValue("background-color"): UI.secondaryColor2;
+		UI.secondaryColor2 = sC2? window.getComputedStyle(sC2, null).getPropertyValue("background-color") : UI.secondaryColor2;
 		UI.accentColor = 	 aC?  window.getComputedStyle(aC, null).getPropertyValue("background-color") : UI.accentColor;
-		UI.accentColor2 = 	 aC2? window.getComputedStyle(aC2, null).getPropertyValue("background-color"): UI.accentColor2;
-		UI.awaitDialogColor = adC? window.getComputedStyle(adC, null).getPropertyValue("background-color"): 'gold';
-		UI.assistantColor =	 asC? window.getComputedStyle(asC, null).getPropertyValue("background-color"): UI.primaryColor;
-		UI.loadingColor =	 lC? window.getComputedStyle(lC, null).getPropertyValue("background-color"): 'rgba(180, 180, 180, 1.0)';
+		UI.accentColor2 = 	 aC2? window.getComputedStyle(aC2, null).getPropertyValue("background-color") : UI.accentColor2;
+		UI.awaitDialogColor = adC? window.getComputedStyle(adC, null).getPropertyValue("background-color"): '#ffd700';
+		UI.assistantColor =	 asC? window.getComputedStyle(asC, null).getPropertyValue("background-color") : UI.primaryColor;
+		UI.assistantColorPlainHex = SepiaFW.tools.hexOrRgbToNoAlphaHexColor(UI.assistantColor);
+		UI.assistantColorContrast = SepiaFW.tools.getBestContrastHexOrRgb(UI.assistantColorPlainHex);
+		UI.loadingColor =	 lC? window.getComputedStyle(lC, null).getPropertyValue("background-color") : '#b4b4b4';
 		UI.htmlBackgroundColor = window.getComputedStyle(document.documentElement).getPropertyValue("background-color") || "#fff";
 		//UI.assistantColor = $('#sepiaFW-chat-output').find('article.chatAssistant').first().css("background-color");
 		UI.navBarColor = navB?  window.getComputedStyle(navB, null).getPropertyValue("background-color") : UI.navBarColor;
+		UI.navBarColorContrast = "";
 		UI.statusBarColor = statB?  window.getComputedStyle(statB, null).getPropertyValue("background-color") : UI.statusBarColor;
+		UI.statusBarColorContrast = "";
+		//update statusbar and navbar
 		if (UI.navBarColor == "rgba(0, 0, 0, 0)" || UI.navBarColor == "transparent" || UI.navBarColor == "#00000000" || UI.navBarColor == "#0000"){
 			UI.navBarColor = "";
 		}
 		if (UI.statusBarColor == "rgba(0, 0, 0, 0)" || UI.statusBarColor == "transparent" || UI.statusBarColor == "#00000000" || UI.statusBarColor == "#0000"){
 			UI.statusBarColor = "";
 		}
-		//refresh theme-color
-		$('meta[name="theme-color"]').replaceWith('<meta name="theme-color" content="' + (UI.statusBarColor || UI.primaryColor) + '">');
-		//set general skin style
-		var backColor = UI.htmlBackgroundColor;
-		if ((backColor + '').indexOf('rgb') === 0){
-			var rgbBack = SepiaFW.tools.convertRgbColorStringToRgbArray(backColor);
-			backColor = SepiaFW.tools.rgbToHex(rgbBack[0], rgbBack[1], rgbBack[2]);
+		UI.statusBarColor = SepiaFW.tools.hexOrRgbToNoAlphaHexColor(UI.statusBarColor || UI.primaryColor);
+		UI.statusBarColorContrast = SepiaFW.tools.getBestContrast(UI.statusBarColor);
+		if ('StatusBar' in window){
+			//console.log('UI.statusBarColor: ' + UI.statusBarColor + " - contrast: " + SepiaFW.tools.getBestContrast(UI.statusBarColor));
+			if (UI.statusBarColorContrast == 'white'){
+				StatusBar.backgroundColorByHexString(UI.statusBarColor);
+				StatusBar.styleLightContent();
+			}else{
+				//if (UI.isAndroid){ StatusBar.backgroundColorByHexString('#000000'); }else{
+				StatusBar.backgroundColorByHexString(UI.statusBarColor);
+				StatusBar.styleDefault();
+			}
 		}
-		if (SepiaFW.tools.getBestContrast(backColor) === 'white'){
+		if (!UI.statusBarColorContrast && UI.statusBarColor){
+			UI.statusBarColorContrast = SepiaFW.tools.getBestContrastHexOrRgb(UI.statusBarColor);
+		}
+		UI.navBarColor = SepiaFW.tools.hexOrRgbToNoAlphaHexColor(UI.navBarColor || UI.primaryColor);
+		UI.navBarColorContrast = SepiaFW.tools.getBestContrast(UI.navBarColor);
+		if ('NavigationBar' in window){
+			//console.log('UI.navBarColor: ' + UI.navBarColor + " - contrast: " + SepiaFW.tools.getBestContrast(UI.navBarColor));
+            NavigationBar.backgroundColorByHexString(UI.navBarColor, UI.navBarColorContrast == "black");
+		}
+		//set general skin style
+		if (SepiaFW.tools.getBestContrastHexOrRgb(UI.htmlBackgroundColor || "") == 'white'){
 			$(document.documentElement).removeClass('light-skin').addClass("dark-skin");
 			activeSkinStyle = "dark";
 		}else{
 			$(document.documentElement).removeClass('dark-skin').addClass("light-skin");
 			activeSkinStyle = "light";
 		}
-		//update statusbar and navbar
-		if ('StatusBar' in window){
-			var statusBarColor = UI.statusBarColor || UI.primaryColor;
-			if ((statusBarColor + '').indexOf('rgb') === 0){
-				var rgb = SepiaFW.tools.convertRgbColorStringToRgbArray(statusBarColor);
-				statusBarColor = SepiaFW.tools.rgbToHex(rgb[0], rgb[1], rgb[2]);
-			}
-			//console.log('statusBarColor: ' + statusBarColor + " - contrast: " + SepiaFW.tools.getBestContrast(statusBarColor));
-			if (SepiaFW.tools.getBestContrast(statusBarColor) === 'white'){
-				StatusBar.backgroundColorByHexString(statusBarColor);
-				StatusBar.styleLightContent();
-			}else{
-				//if (UI.isAndroid){ StatusBar.backgroundColorByHexString('#000000'); }else{
-				StatusBar.backgroundColorByHexString(statusBarColor);
-				StatusBar.styleDefault();
-			}
-		}
-		if ('NavigationBar' in window){
-			var navBarColor =  UI.navBarColor || UI.primaryColor;
-			if ((navBarColor + '').indexOf('rgb') === 0){
-				var rgb = SepiaFW.tools.convertRgbColorStringToRgbArray(navBarColor);
-				navBarColor = SepiaFW.tools.rgbToHex(rgb[0], rgb[1], rgb[2]);
-			}
-			//console.log('navBarColor: ' + navBarColor + " - contrast: " + SepiaFW.tools.getBestContrast(navBarColor));
-            NavigationBar.backgroundColorByHexString(navBarColor);
-		}
+		//refresh theme-color
+		UI.setThemeColorMeta(UI.statusBarColor || UI.primaryColor);
+	}
+	//set theme color
+	UI.setThemeColorMeta = function(newColor){
+		$('meta[name="theme-color"]').replaceWith('<meta name="theme-color" content="' + newColor + '">');
+	}
+	UI.resetThemeColorMeta = function(){
+		UI.setThemeColorMeta(UI.statusBarColor || UI.primaryColor);
 	}
 	
 	//set skin
@@ -326,6 +498,14 @@ function sepiaFW_build_ui(){
 					SepiaFW.data.set('activeSkin', activeSkin);
 				}
 				defaultAvatar = this.dataset.avatar;
+				//custom theme?
+				var customizable = this.dataset.customizable || false;
+				if (customizable){
+					var customTheme = UI.loadCustomSkinTheme();
+					if (customTheme){
+						UI.setCustomSkinTheme(customTheme, false);
+					}
+				}
 			}else if (base && id == base){
 				$(that).prop('title', 'main');
 				$(that).prop('disabled', false);
@@ -338,12 +518,17 @@ function sepiaFW_build_ui(){
 		var avatar = SepiaFW.data.get('activeAvatar') || defaultAvatar || "0";
 		UI.setAvatar(avatar, false);
 
-		UI.refreshSkinColors();
-		$(window).trigger('resize'); 	//this might not work on IE
+		//if exists update selector
+		$('#sepiaFW-menu-select-skin').val(activeSkin);
+
+		//NOTE: this should be triggered on CSS load but onload will only ever trigger once per skin
+		UI.refreshSkinColors(function(){
+			$(window).trigger('resize');
+		});
+		//another safety refresh for slow connection, TODO: will still fail on very slow connection
 		setTimeout(function(){
-			UI.refreshSkinColors();
-			$(window).trigger('resize'); 	//this might not work on IE
-		}, 2500);		//safety refresh for slow connection, TODO: will still fail on very slow connection
+			UI.refreshSkinColors(function(){ $(window).trigger('resize'); });
+		}, 2200);
 	}
 	UI.getSkin = function(){
 		return activeSkin;
@@ -390,6 +575,124 @@ function sepiaFW_build_ui(){
 	}
 	UI.getAvatar = function(){
 		return activeAvatar;
+	}
+	UI.setCustomSkinTheme = function(theme, store){
+		if (!theme) theme = {};
+		//page
+		setOrRemoveCustomSkinProperty("app-back", theme.appBackground);
+		setOrRemoveCustomSkinProperty("app-image", theme.appImage);
+		setOrRemoveCustomSkinProperty("app-image-size", theme.appImageSize);
+		setOrRemoveCustomSkinProperty("app-color", theme.appColor);
+		setOrRemoveCustomSkinProperty("app-color-accent", theme.appColorAccent);
+		setOrRemoveCustomSkinProperty("app-controls-back", theme.appControlsBackground);
+		setOrRemoveCustomSkinProperty("app-controls-back-2", theme.appControlsBackground2 || theme.appControlsBackground);
+		setOrRemoveCustomSkinProperty("app-controls-color", theme.appControlsColor);
+		//look and style
+		setOrRemoveCustomSkinProperty("default-border-radius", theme.defaultBorderRadius);
+		//assistant
+		setOrRemoveCustomSkinProperty("assistant", theme.assistantMain);
+		setOrRemoveCustomSkinProperty("assistant-2", theme.assistantMain2 || theme.assistantMain);
+		setOrRemoveCustomSkinProperty("assistant-text", theme.assistantText);
+		//buttons
+		setOrRemoveCustomSkinProperty("default-button-back", theme.defaultButtonBackground);
+		setOrRemoveCustomSkinProperty("default-button-back-2", theme.defaultButtonBackground2 || theme.defaultButtonBackground);
+		setOrRemoveCustomSkinProperty("default-button-color", theme.defaultButtonColor);
+		setOrRemoveCustomSkinProperty("custom-button-back", theme.customButtonBackground);
+		setOrRemoveCustomSkinProperty("custom-button-back-2", theme.customButtonBackground2 || theme.customButtonBackground);
+		setOrRemoveCustomSkinProperty("custom-button-color", theme.customButtonColor);
+		//cards
+		setOrRemoveCustomSkinProperty("card-container-back", theme.cardContainerBackground);
+		setOrRemoveCustomSkinProperty("card-back", theme.cardBackground);
+		setOrRemoveCustomSkinProperty("card-back-2", theme.cardBackground2 || theme.cardBackground);
+		setOrRemoveCustomSkinProperty("card-color", theme.cardColor);
+		//chat - NOTE: last chat is 'assistant'
+		setOrRemoveCustomSkinProperty("chat-msg-back", theme.chatMsgBackground);
+		setOrRemoveCustomSkinProperty("chat-msg-back-2", theme.chatMsgBackground2 || theme.chatMsgBackground);
+		setOrRemoveCustomSkinProperty("chat-msg-color", theme.chatMsgColor);
+		setOrRemoveCustomSkinProperty("chat-msg-user-back", theme.chatMsgUserBackground);
+		setOrRemoveCustomSkinProperty("chat-msg-user-back-2", theme.chatMsgUserBackground2 || theme.chatMsgUserBackground);
+		setOrRemoveCustomSkinProperty("chat-msg-user-color", theme.chatMsgUserColor);
+		//teach.ui
+		setOrRemoveCustomSkinProperty("teach-ui-back", theme.teachUiBackground);
+		setOrRemoveCustomSkinProperty("teach-ui-color", theme.teachUiColor);
+		setOrRemoveCustomSkinProperty("teach-ui-color-accent", theme.teachUiColorAccent);
+		setOrRemoveCustomSkinProperty("teach-ui-actions-back", theme.teachUiActionsBackground);
+		setOrRemoveCustomSkinProperty("teach-ui-actions-back-2", theme.teachUiActionsBackground2 || theme.teachUiActionsBackground);
+		setOrRemoveCustomSkinProperty("teach-ui-actions-color", theme.teachUiActionsColor);
+		//store?
+		if (store){
+			//store as user-property
+			SepiaFW.data.set('customSkinTheme', theme);
+		}
+	}
+	UI.loadCustomSkinTheme = function(){
+		return SepiaFW.data.get('customSkinTheme');
+	}
+	UI.getCustomSkinTheme = function(){
+		//NOTE: we don't load 'customSkinTheme' from data here but in setSkin before
+		return {
+			//page
+			appBackground: getCustomSkinProperty("app-back"),
+			appImage: getCustomSkinProperty("app-image"),
+			appImageSize: getCustomSkinProperty("app-image-size"),
+			appColor: getCustomSkinProperty("app-color"),
+			appColorAccent: getCustomSkinProperty("app-color-accent"),
+			appControlsBackground: getCustomSkinProperty("app-controls-back"),
+			appControlsBackground2: getCustomSkinProperty("app-controls-back-2"),
+			appControlsColor: getCustomSkinProperty("app-controls-color"),
+			//look and style
+			defaultBorderRadius: getCustomSkinProperty("default-border-radius"),
+			//assistant
+			assistantMain: getCustomSkinProperty("assistant"),
+			assistantMain2: getCustomSkinProperty("assistant-2"),
+			assistantText: getCustomSkinProperty("assistant-text"),
+			//buttons
+			defaultButtonBackground: getCustomSkinProperty("default-button-back"),
+			defaultButtonBackground2: getCustomSkinProperty("default-button-back-2"),
+			defaultButtonColor: getCustomSkinProperty("default-button-color"),
+			customButtonBackground: getCustomSkinProperty("custom-button-back"),
+			customButtonBackground2: getCustomSkinProperty("custom-button-back-2"),
+			customButtonColor: getCustomSkinProperty("custom-button-color"),
+			//cards
+			cardContainerBackground: getCustomSkinProperty("card-container-back"),
+			cardBackground: getCustomSkinProperty("card-back"),
+			cardBackground2: getCustomSkinProperty("card-back-2"),
+			cardColor: getCustomSkinProperty("card-color"),
+			//chat - NOTE: last chat is 'assistant'
+			chatMsgBackground: getCustomSkinProperty("chat-msg-back"),
+			chatMsgBackground2: getCustomSkinProperty("chat-msg-back-2"),
+			chatMsgColor: getCustomSkinProperty("chat-msg-color"),
+			chatMsgUserBackground: getCustomSkinProperty("chat-msg-user-back"),
+			chatMsgUserBackground2: getCustomSkinProperty("chat-msg-user-back-2"),
+			chatMsgUserColor: getCustomSkinProperty("chat-msg-user-color"),
+			//teach-UI
+			teachUiBackground: getCustomSkinProperty("teach-ui-back"),
+			teachUiColor: getCustomSkinProperty("teach-ui-color"),
+			teachUiColorAccent: getCustomSkinProperty("teach-ui-color-accent"),
+			teachUiActionsBackground: getCustomSkinProperty("teach-ui-actions-back"),
+			teachUiActionsBackground2: getCustomSkinProperty("teach-ui-actions-back-2"),
+			teachUiActionsColor: getCustomSkinProperty("teach-ui-actions-color")
+		};
+	}
+	function setOrRemoveCustomSkinProperty(propName, propValue){
+		var fullPropName = "--scs-" + propName;
+		if (propValue != undefined){
+			document.documentElement.style.setProperty(fullPropName, propValue);
+		}else{
+			document.documentElement.style.removeProperty(fullPropName);
+		}
+	}
+	function getCustomSkinProperty(propName){
+		var fullPropName = "--scs-" + propName;
+		var propValue = document.documentElement.style.getPropertyValue(fullPropName);
+		if (propValue == ''){
+			propValue = window.getComputedStyle(document.documentElement)
+				.getPropertyValue(fullPropName);
+		}
+		if (propValue == '' && SepiaFW.tools.endsWith(propName, "-2")){
+			propValue = getCustomSkinProperty(propName.replace(/-2$/, ""));
+		}
+		return propValue.trim();
 	}
 	
 	//setup dynamic label
@@ -768,16 +1071,45 @@ function sepiaFW_build_ui(){
 		UI.isTinyApp = isTinyApp();
 
 		//Setup headless mode
-		if (SepiaFW.config.isUiHeadless || SepiaFW.config.autoSetup){
+		if (SepiaFW.config.isAutoSetupModeEnabled()){
 			SepiaFW.config.loadHeadlessModeSetup();
-			//if client not active or in demo-mode after 10s run setup
-			setTimeout(function(){
+			//modify login box
+			$('#sepiaFW-login-box').addClass("pending-setup-mode");
+			var clearSetupMode = function(){
+				$('#sepiaFW-login-box').removeClass("pending-setup-mode");
+				clearInterval(autoSetupCountdown);
+				clearTimeout(autoSetupTimer);
+				$("#sepiaFW-login-extra-info").html("");
+			}
+			//add countdown
+			var timeLeft = SepiaFW.config.setupModeDelay;
+			var setupModeInfo = document.createElement("span");
+			setupModeInfo.textContent = SepiaFW.local.g("autoSetupIn") + ' ...';
+			var setupModeAbort = document.createElement("button");
+			setupModeAbort.textContent = SepiaFW.local.g("abort");
+			setupModeAbort.onclick = function(){
+				clearSetupMode();
+			}
+			$("#sepiaFW-login-extra-info").html("").append(setupModeInfo).append(setupModeAbort);
+			var autoSetupCountdown = setInterval(function(){
+				timeLeft -= 1000;
+				if (timeLeft < 0) timeLeft = 0;
+				setupModeInfo.textContent = SepiaFW.local.g("autoSetupIn") + ' ' + Math.round(timeLeft/1000) + 's';
+			}, 1000);
+			//abort after login
+			SepiaFW.client.addOnActivePreUpdateOneTimeAction(function(){
+				clearSetupMode();
+			}, "setup-mode");
+			//if client not active or in demo-mode after N seconds run setup
+			var autoSetupTimer = setTimeout(function(){
+				setupModeAbort.onclick = function(){};	//disable to prevent spaghetti actions
 				if (!SepiaFW.client.isActive() && !SepiaFW.client.isDemoMode()){
 					if (SepiaFW.account.getUserId()){
 						//client is most likely trying to restore login and connection fails - we need to restore CLEXI connection
 						SepiaFW.debug.log("Client auto-setup was skipped because client still tries to restore old login. CLEXI connection will be restored.");
 						SepiaFW.clexi.setup(); 
 						SepiaFW.inputControls.cmdl.setup();
+						clearSetupMode();
 					}else{
 						//free for auto-setup
 						SepiaFW.data.set('isDemoLogin', 'setup');
@@ -786,8 +1118,10 @@ function sepiaFW_build_ui(){
 						}, 2000);
 						SepiaFW.debug.log("Client will restart automatically in 2s to activate settings!");
 					}
+				}else{
+					clearSetupMode();
 				}
-			}, 10000);	//NOTE: login timeout is 8s
+			}, SepiaFW.config.setupModeDelay);	//NOTE: login-call timeout is 8s (if server does not answer)
 		}
 	}
 
@@ -821,6 +1155,26 @@ function sepiaFW_build_ui(){
 		
 		//---------------------- LOAD other SETTINGS before building the UI:
 
+		//observe header and control bar size
+		var mainNavBar = document.getElementById("sepiaFW-nav-bar");
+		var mainChatCtrls = document.getElementById("sepiaFW-chat-controls");
+		function setMainNavBarCssProps(){
+			var navBarHeight = mainNavBar.getBoundingClientRect().height;
+			document.documentElement.style.setProperty("--sepia-nav-bar-height", navBarHeight + "px");
+		}
+		function setMainChatControlsCssProps(){
+			var chatControlsHeight = mainChatCtrls.getBoundingClientRect().height;
+			document.documentElement.style.setProperty("--sepia-chat-ctrl-height", chatControlsHeight + "px");
+		}
+		UI.addResizeObserverWithBuffer(mainNavBar, function(){
+			setMainNavBarCssProps();
+		}, false);
+		UI.addResizeObserverWithBuffer(mainChatCtrls, function(){
+			setMainChatControlsCssProps();
+		}, false);
+		setMainNavBarCssProps();
+		setMainChatControlsCssProps();
+
 		//load skin and avatar
 		var lastSkin = SepiaFW.tools.getURLParameter("skinId") || SepiaFW.data.get('activeSkin');
 		if (lastSkin){
@@ -830,7 +1184,7 @@ function sepiaFW_build_ui(){
 			if (UI.preferredColorScheme == "dark"){
 				UI.setSkin(2, false);
 			}
-			//get skin colors
+			//get skin colors (async)
 			UI.refreshSkinColors();
 		}
 
@@ -1006,6 +1360,11 @@ function sepiaFW_build_ui(){
 		if (SepiaFW.frames && SepiaFW.frames.isOpen){
 			SepiaFW.frames.close();
 			backButtonPressed = 0;
+			return;
+		}
+		//pop-up or login-box open?
+		if (SepiaFW.ui.isPopupOpen() || SepiaFW.account.isLoginBoxOpen()){
+			//TODO: do something useful?
 			return;
 		}
 		//close open menus
@@ -1373,6 +1732,7 @@ function sepiaFW_build_ui(){
 	//---- Pop-up messages:
 
 	var messagePopupId;
+	var messagePopupIsOpen = false;
 	var messagePopupAutoActionInterval;
 	var messagePopupAutoActionTargetTime = 31000;
 	var maxMessagePopupAutoActionTargetTime = 300000;
@@ -1447,6 +1807,9 @@ function sepiaFW_build_ui(){
 			}
 			$('#sepiaFW-popup-message-content').html(saferContent); 		//TODO: what if e.g. an error message contains stuff that disappears ?? (XSS)
 		}
+		if (config.textAlign){
+			$('#sepiaFW-popup-message-content').css({textAlign: config.textAlign});
+		}
 		//optional auto-action - NOTE: requires ID
 		if (config.popupId && config.autoAction){
 			clearInterval(messagePopupAutoActionInterval);
@@ -1482,13 +1845,18 @@ function sepiaFW_build_ui(){
 		}
 		//open
 		$('#sepiaFW-cover-layer').stop().fadeIn(200);
+		messagePopupIsOpen = true;
 		//$('#sepiaFW-popup-message').fadeIn(300);
 		return;		//TODO: nothing to return yet
 	}
 	UI.hidePopup = function(){
 		//$('#sepiaFW-popup-message').fadeOut(300);
 		$('#sepiaFW-cover-layer').fadeOut(200);
+		messagePopupIsOpen = false;
 		clearInterval(messagePopupAutoActionInterval);
+	}
+	UI.isPopupOpen = function(){
+		return messagePopupIsOpen;
 	}
 	UI.resetPopupAutoAction = function(){
 		clearInterval(messagePopupAutoActionInterval);
@@ -1618,6 +1986,32 @@ function sepiaFW_build_ui(){
 		return UI.showPopup(question, config);
 	}
 
+	//A pop-up to show JSON objects
+	UI.showJsonInfoPopup = function(titleHeadline, titleText, json, config){
+		var msgBox = document.createElement("div");
+		var titleBox = document.createElement("div");
+		if (titleHeadline){
+			var titleHeadlineEle = document.createElement("h3");
+			titleHeadlineEle.textContent = titleHeadline;
+			titleBox.appendChild(titleHeadlineEle);
+		}
+		if (titleText){
+			var titleTextEle = document.createElement("p");
+			titleTextEle.textContent = titleText;
+			titleBox.appendChild(titleTextEle);
+		}
+		var jsonBox = document.createElement("textarea");
+		jsonBox.spellcheck = false;
+		jsonBox.value = JSON.stringify(json, null, 4);
+		jsonBox.style.whiteSpace = "pre";
+		msgBox.appendChild(titleBox);
+		msgBox.appendChild(jsonBox);
+		UI.showPopup(msgBox, config);
+		//adjust size
+		jsonBox.style.height = jsonBox.scrollHeight + 32 + "px";
+		return jsonBox;
+	}
+
 	//Show pop-up to import single file (via drag n drop or input) and show content
 	UI.showFileImportAndViewPopup = function(infoTextOrEle, options, readCallback, confirmCallback, errorCallback){
 		if (!options) options = {};
@@ -1641,12 +2035,13 @@ function sepiaFW_build_ui(){
 		}
 		var txtArea = document.createElement("textarea");
 		txtArea.style.cssText = "width: 100%; height: 150px; white-space: pre; border: 1px solid;";
+		txtArea.spellcheck = false;
 		txtArea.value = options.initialPreviewValue || "- Import data -";
 		content.appendChild(txtArea);
 		var pop = UI.showPopup(content, {
 			buttonOneName: options.buttonOneName || "Import",
 			buttonOneAction: function(){
-				if (confirmCallback) confirmCallback(txtArea.value);
+				if (confirmCallback) confirmCallback(txtArea.value, txtArea);
 			},
 			buttonTwoName: options.buttonTwoName || "Abort",
 			buttonTwoAction: function(){}
@@ -1925,7 +2320,7 @@ function sepiaFW_build_ui(){
 			'screenY': y
 		});
 		if (!el) el = document.elementFromPoint(x, y);
-		console.log(el);
+		//console.log(el);
 		el.dispatchEvent(ev);
 	}
 
@@ -2229,10 +2624,10 @@ function sepiaFW_build_ui(){
 			$('#sepiaFW-main-window').removeClass('full-screen');
 			/*if ('StatusBar' in window){
                 StatusBar.show();
-            }*/
+            }
             if ('NavigationBar' in window){
                 NavigationBar.show();
-			}
+			}*/
 			UI.isInterfaceFullscreen = false;
 		}else{
 			$navBar.fadeOut(300);
@@ -2242,10 +2637,10 @@ function sepiaFW_build_ui(){
 			$('#sepiaFW-main-window').addClass('full-screen');
 			/*if ('StatusBar' in window){
                 StatusBar.hide();
-            }*/
-            if ('NavigationBar' in window){
-                NavigationBar.hide();
             }
+            if ('NavigationBar' in window){
+                NavigationBar.hide();	//TODO: is buggy?
+            }*/
 			UI.isInterfaceFullscreen = true;
 		}
 		setTimeout(function(){
@@ -2257,6 +2652,7 @@ function sepiaFW_build_ui(){
 	
 	//Use fullscreen API
 	UI.toggleFullscreen = function(elem){
+		//TODO: make use of 'document.fullscreenEnabled' and 'document.webkitFullscreenEnabled'?
 		elem = elem || document.documentElement;
 		if (!document.fullscreenElement && !document.mozFullScreenElement &&
 				!document.webkitFullscreenElement && !document.msFullscreenElement){
@@ -2273,16 +2669,20 @@ function sepiaFW_build_ui(){
 			}
 		}
 	}
+	UI.canToggleFullscreen = function(){
+		return document.fullscreenEnabled || document.webkitFullscreenEnabled;
+	}
 
 	//Add resize observer to element - IMPORTANT: if the element size depends on resizeCallback you are in an endless loop!
 	UI.addResizeObserverWithBuffer = function(elem, resizeCallback, bufferTime){
 		if (bufferTime && bufferTime < 200) bufferTime = 200;
+		else if (bufferTime === false) bufferTime = 0;
 		else if (!bufferTime) bufferTime = 500;
 		var roBuffer;
 		var ro = new ResizeObserver(function(entries){
 			clearTimeout(roBuffer);
 			roBuffer = setTimeout(function(){
-				resizeCallback();
+				resizeCallback(elem);
 			}, bufferTime);
 		});
 		ro.observe(elem);
@@ -2383,7 +2783,7 @@ function sepiaFW_build_ui(){
 	//----- Post Message Interface -----
 
 	var sepiaPostMessageHandlers = {
-		"test": 	console.log
+		"test": console.log
 	}
 	UI.addPostMessageHandler = function(handlerName, handlerFun){
 		sepiaPostMessageHandlers[handlerName] = handlerFun;

@@ -1,0 +1,162 @@
+/* Variables */
+html {
+	--scs-app-back: #001429;
+	--scs-app-color: #eee;
+	--scs-app-color-accent: #00fafc;
+	--scs-app-color-accent-dark: #02b3e4;
+	--scs-app-image: url("../img/SEPIA_back-w.png");
+	--scs-app-image-size: auto 50%;
+	--scs-default-border-radius: 12px;
+	--scs-app-controls-back: #001429;
+	--scs-app-controls-back-2: #001429;
+	--scs-app-controls-color: #eee;
+	--scs-assistant: #98ff1a;
+	--scs-assistant-2: #ceff1a;
+	--scs-assistant-text: #000;
+	--scs-default-button-back: #00ccff;
+	--scs-default-button-back-2: #00fafc;
+	--scs-default-button-color: #000;
+	--scs-custom-button-back: #98ff1a;
+	--scs-custom-button-back-2: #ceff1a;
+	--scs-custom-button-color: #000;
+	--scs-card-container-back: #102335;
+	--scs-card-back: #eee;
+	--scs-card-back-2: #f4f4f4;
+	--scs-card-color: #000;
+	--scs-chat-msg-back: #666;
+	--scs-chat-msg-back-2: #888;
+	--scs-chat-msg-color: #fff;
+	--scs-chat-msg-user-back: #172d44; /*#17314e*/
+	--scs-chat-msg-user-back-2: #22354a;
+	--scs-chat-msg-user-color: #fff;
+	--scs-teach-ui-back: #001429;
+	--scs-teach-ui-color: #eee;
+	--scs-teach-ui-color-accent: #00fafc;
+	--scs-teach-ui-actions-back: #98ff1a;
+	--scs-teach-ui-actions-back-2: #ceff1a;
+	--scs-teach-ui-actions-color: #000;
+}
+
+html {
+	background-color: var(--scs-app-back);
+	color: var(--scs-app-color);
+	background-image: var(--scs-app-image);
+	background-size: var(--scs-app-image-size);
+}
+#sepiaFW-main-window {
+	color: var(--scs-app-color);
+}
+.sepiaFW-results-container {
+	scrollbar-color: #212327 #101418;
+}
+@media (min-width: 480px) and (min-height: 481px) {
+	#sepiaFW-main-window {
+		border-color: rgba(155, 155, 155, 0.10);
+		border-width: 6px;
+		border-radius: calc(var(--scs-default-border-radius) + 5px);
+		border-style: solid;
+	}
+	#sepiaFW-main-output-carousel {
+		border-radius: 0 0 var(--scs-default-border-radius) var(--scs-default-border-radius);
+	}
+	#sepiaFW-main-window.full-screen #sepiaFW-main-output-carousel {
+		border-radius: var(--scs-default-border-radius);
+	}
+	#sepiaFW-nav-bar {
+		border-radius: var(--scs-default-border-radius) var(--scs-default-border-radius) 0 0;
+	}
+	#sepiaFW-chat-controls,
+	#sepiaFW-chat-menu {
+		border-radius: 0 0 var(--scs-default-border-radius) var(--scs-default-border-radius);
+	}
+	#sepiaFW-chat-controls-more-menu {
+		border-bottom-right-radius: var(--scs-default-border-radius);
+    	border-bottom-left-radius: var(--scs-default-border-radius);
+	}
+	.sepiaFW-top-layer-view {
+		border-radius: var(--scs-default-border-radius);
+	}
+}
+
+#sepiaFW-pC  { background-color: var(--scs-app-controls-back); }
+#sepiaFW-sC  { background-color: var(--scs-app-controls-color); }
+#sepiaFW-sC2 { background-color: var(--scs-custom-button-back); }
+#sepiaFW-asC { background-color: var(--scs-assistant); }
+#sepiaFW-aC  { background-color: #c92424; }
+#sepiaFW-aC2 { background-color: #08a0c8; }
+#sepiaFW-adC { background-color: #ffeb3b; }
+#sepiaFW-lC  { background-color: #535557; }
+/* #sepiaFW-navC 	{ background-color: #000; } */ 		/* Navigation bar color - can be used to overwrite color for nav-bar (depends on OS support) */
+/* #sepiaFW-statC 	{ background-color: #000; } */ 		/* Status bar color - can be used to overwrite color for status-bar (depends on OS support) */
+
+#sepiaFW-chat-controls {
+	background: linear-gradient(transparent 0%, var(--scs-app-back) 55%);
+}
+#sepiaFW-chat-controls.full-screen {
+	background: linear-gradient(transparent 0%, var(--scs-app-back) 80%);
+}
+
+#sepiaFW-chat-controls-more-menu {
+	max-width: none;
+	border-top: 1px solid rgba(128, 128, 128, 0.15);
+}
+#sepiaFW-chat-channel-view {
+	border-bottom: 1px solid rgba(128, 128, 128, 0.15);
+}
+html.spacious-w body.limit-size #sepiaFW-chat-channel-view {
+	border: 1px solid rgba(128, 128, 128, 0.15);
+}
+#sepiaFW-chat-menu li {
+    background: rgba(128, 128, 128, 0.05);
+}
+
+#sepiaFW-main-window #sepiaFW-assist-btn-area {
+    background: #eee;
+	border: 3px solid var(--scs-app-controls-back);
+}
+#sepiaFW-main-window #sepiaFW-assist-btn-area button {
+	background: linear-gradient(to right, var(--scs-assistant) 0%, var(--scs-assistant-2) 100%);
+	color: var(--scs-assistant-text);
+	border: 4px solid rgb(207, 207, 207);
+}
+.sepiaFW-notouch-device #sepiaFW-main-window #sepiaFW-assist-btn-area button:hover {
+	background: var(--scs-assistant-2);
+	color: var(--scs-assistant-text);
+}
+#sepiaFW-assist-btn i {
+	display: none !important;
+}
+
+#sepiaFW-main-window #sepiaFW-chat-input {
+	background: #eee;
+	color: #000;
+	border-color: transparent;
+}
+
+/* POP-UP and INDICATORS */
+
+#sepiaFW-popup-message button,
+.sepiaFW-notouch-device #sepiaFW-popup-message button:hover {
+    background: #fff !important;
+    color: #000 !important;
+	border-radius: var(--scs-default-border-radius);
+}
+
+.sepiaFW-cards-list-title.newsHeader button {
+    color: #000 !important;
+}
+.sepiaFW-cards-list-body .newsArticle .newsCenter {
+	background: #fcfcfc;
+	color: #000;
+}
+.sepiaFW-notouch-device .sepiaFW-cards-list-body .listElement .listRight:hover,
+.sepiaFW-notouch-device .sepiaFW-cards-list-body .timeEvent .timeEventRight:hover {
+    background: #c92424;
+	opacity: 1.0;
+}
+
+@keyframes sepiaFW-timeEvent-card-signal {
+    from {background: #fcfcfc; color: #000;}
+	75% {background: #c92424; color: #fff;}
+    to {background: #fcfcfc; color: #000;}
+}

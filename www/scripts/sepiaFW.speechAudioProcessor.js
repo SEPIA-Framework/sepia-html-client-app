@@ -57,11 +57,21 @@ function sepiaFW_build_speech_audio_proc(){
 	var asrModels = [];
 	var selectedAsrModelName;
 	var optimizeFinalResult = true;		//TODO: store/restore this setting
+	var useTaskSpecificModels = true;	//TODO: store/restore this setting
 
 	SpeechRecognition.refreshEngineSettings = function(asrEngine, langCode){
 		//if (asrEngine == "sepia"){}
+		//model
 		selectedAsrModelName = SepiaFW.data.getPermanent(langCode + "-asr-model") || "";
-		SepiaFW.debug.log("ASR (Socket) - Set model: " + ((selectedAsrModelName)? selectedAsrModelName : "undefined"));
+		SepiaFW.debug.log("ASR (Socket) - Set model: " + (selectedAsrModelName? selectedAsrModelName : "undefined"));
+		//optimize
+		optimizeFinalResult = SepiaFW.data.getPermanent(langCode + "-asr-optimize-result");
+		if (optimizeFinalResult == undefined) optimizeFinalResult = true;
+		SepiaFW.debug.log("ASR (Socket) - Optimize result: " + (optimizeFinalResult? "true" : "false"));
+		//tasks
+		useTaskSpecificModels = SepiaFW.data.getPermanent(langCode + "-asr-support-tasks");
+		if (useTaskSpecificModels == undefined) useTaskSpecificModels = true;
+		SepiaFW.debug.log("ASR (Socket) - Use task-specific models: " + (useTaskSpecificModels? "true" : "false"));
 	}
 
 	SpeechRecognition.getServerSettings = function(successCallback, errorCallback){
@@ -121,9 +131,18 @@ function sepiaFW_build_speech_audio_proc(){
 
 	SpeechRecognition.setOptimizeFinalResult = function(val){
 		optimizeFinalResult = val;
+		SepiaFW.data.setPermanent(SepiaFW.speech.getLanguage() + "-asr-optimize-result", optimizeFinalResult);
 	}
 	SpeechRecognition.getOptimizeFinalResult = function(){
 		return optimizeFinalResult;
+	}
+
+	SpeechRecognition.setUseTaskSpecificAsr = function(val){
+		useTaskSpecificModels = val;
+		SepiaFW.data.setPermanent(SepiaFW.speech.getLanguage() + "-asr-support-tasks", useTaskSpecificModels);
+	}
+	SpeechRecognition.getUseTaskSpecificAsr = function(){
+		return useTaskSpecificModels;
 	}
 	
 	//--------------------------------
@@ -139,7 +158,12 @@ function sepiaFW_build_speech_audio_proc(){
 		//-> speechend (client or server VAD) -> soundend -> audioend -> result (final) -> end
 
 		_asrLogCallback = logCallback || function(msg){
-			if (SepiaFW.audioRecorder.debugInterfaces) console.error("STT - LOG -", msg);
+			if (SepiaFW.audioRecorder.debugInterfaces){
+				console.log("STT - LOG -", msg);
+				if (SepiaFW.audioRecorder.debuggerLogFunction){
+					SepiaFW.audioRecorder.debuggerLogFunction(msg);
+				}
+			}
 		}
 		
 		//Common WebSpeechAPI settings
@@ -196,6 +220,14 @@ function sepiaFW_build_speech_audio_proc(){
 	//build SEPIA Web Audio module for custom socket ASR
 	function buildWebSocketAsrModule(){
 		var hasVad = !!SepiaFW.audioRecorder.getWebAudioRecorderOptions().vadModule;
+		var asrModel = SpeechRecognition.getActiveAsrModel();
+		var asrTask = SepiaFW.assistant.getCurrentTask();
+		var useTaskModels = SpeechRecognition.getUseTaskSpecificAsr();
+		if (!useTaskModels || asrTask == "default"){
+			asrTask = "";
+		}else if (asrTask){
+			asrModel = "";		//let the server choose
+		}
 		var socketAsrModule = SepiaFW.audioRecorder.createSepiaSttSocketModule(function(msg){
 			if (!msg) return;
 			if (msg.gate){
@@ -238,13 +270,14 @@ function sepiaFW_build_speech_audio_proc(){
 			clientId: SpeechRecognition.serverUser,
 			accessToken: SpeechRecognition.serverToken,
 			//ASR model
-			language: Recognizer.lang,
+			language: Recognizer.lang,		//NOTE: long lang. code
 			continuous: Recognizer.continuous,
 			engineOptions: {	//TODO: add supported for scoped options (e.g. in frames)
 				interimResults: Recognizer.interimResults,
 				alternatives: Recognizer.maxAlternatives,
-				optimizeFinalResult: optimizeFinalResult,
-				model: selectedAsrModelName
+				optimizeFinalResult: SpeechRecognition.getOptimizeFinalResult(),
+				model: asrModel,
+				task: asrTask
 			}
 		});
 		return socketAsrModule;
@@ -308,6 +341,8 @@ function sepiaFW_build_speech_audio_proc(){
 	//currently only used for debugging:
 	function onConnected(data){
 		_asrLogCallback('ASR SERVICE CONNECTED');
+		_asrLogCallback('ASR LANG.: ' + (data && data.language));
+		_asrLogCallback('ASR MODEL: ' + (data && data.model));
 	}
 	function onDisconnected(data){
 		_asrLogCallback('ASR SERVICE DISCONNECTED');

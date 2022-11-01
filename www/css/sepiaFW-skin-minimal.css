@@ -82,11 +82,11 @@ html.landscape-small #sepiaFW-main-output-carousel .sepiaFW-carousel-pane {
 	border: 1px solid #eeeeee;
 	background: #19191b;
 }
-.sepiaFW-myEvents-titleNote, 
+/*.sepiaFW-myEvents-titleNote,
 .sepiaFW-myFirstStart-titleNote,
 .sepiaFW-myCustomButtons-titleNote {
     font-weight: 300 !important;
-}
+}*/
 @media (max-width: 480px) {
 	#sepiaFW-main-output-carousel .sepiaFW-carousel-pane {
 		border-color: transparent !important;
@@ -309,6 +309,9 @@ html.landscape-small #sepiaFW-main-output-carousel .sepiaFW-carousel-pane {
 .sepiaFW-cards-list-title {
 	background: #19191b;
     color: #eeeeee;
+}
+.sepiaFW-cards-list-title.newsHeader button {
+    color: #19191b !important;
 }
 .sepiaFW-cards-list-body {
     color: #051525;

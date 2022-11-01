@@ -1,0 +1,819 @@
+<div id='sepiaFW-frame-carousel' class="sepiaFW-inner-container sepiaFW-carousel">
+	<style>
+		.scs-prop-group {
+			min-width: 100px !important;
+			padding: 2px 4px !important;
+			margin: 4px;
+			border: 1px solid currentColor;
+			border-radius: 5px;
+		}
+		.scs-demo-main,
+		.scs-demo-menu,
+		.scs-demo-teach-ui {
+			flex: 1 1 170px;
+			margin: 4px;
+			min-width: 140px;
+    		max-width: 256px;
+			border: 1px solid #000;
+    		outline: 1px solid #fff;
+			background: #fff;
+			color: #000;
+			display: flex;
+    		flex-direction: column;
+			font-size: 12px;
+		}
+		.scs-demo-main {
+			background: url("img/SEPIA_back.png");
+			background-size: auto 50%;
+			background-repeat: no-repeat;
+			background-position: center;
+		}
+		.scs-demo-main p,
+		.scs-demo-teach-ui p {
+			font-weight: bold;
+			width: 100%;
+			margin: 6px 0 0 0;
+			display: flex;
+    		justify-content: space-evenly;
+    		text-align: center;
+		}
+		.scs-demo-main p span,
+		.scs-demo-teach-ui p span {
+			flex: 1 1 50%;
+		}
+		.scs-demo-teach-ui {
+			background: #000;
+			color: #fff;
+		}
+		.scs-demo-topBar,
+		.scs-demo-controls {
+			width: 100%;
+			background: #000;
+			color: #fff;
+			padding: 6px;
+			text-align: center;
+			font-size: 14px;
+		}
+		.scs-demo-tui-navbar {
+			width: 100%;
+			background: #0ff;
+			color: #000;
+			padding: 6px;
+			text-align: center;
+			font-size: 14px;
+		}
+		.scs-demo-section {
+			width: calc(100% - 8px);
+			display: flex;
+    		justify-content: space-around;
+    		margin: 4px;
+		}
+		.scs-demo-button,
+		.scs-demo-tui-actions {
+			width: 40%;
+			background: #0ff;
+			color: #000;
+			margin: 4px;
+			padding: 2px;
+			text-align: center;
+			font-size: 11px;
+		}
+		.scs-demo-menu .scs-demo-button {
+			width: 24px;
+			height: 24px;
+			padding: 3px;
+			font-size: 12px;
+			display: flex;
+    		justify-content: center;
+    		align-items: center;
+		}
+		.scs-demo-custom-button {
+			width: 24%;
+			height: 42px;
+			background: #ceff1a;
+			color: #000;
+			margin: 4px;
+			padding: 2px;
+			text-align: center;
+			font-size: 10px;
+			display: flex;
+			flex-direction: column;
+			justify-content: center;
+			align-items: center;
+		}
+		.scs-demo-card {
+			width: calc(100% - 8px);
+			margin: 4px;
+			background: #eee;
+			display: flex;
+		}
+		.scs-demo-card-div {
+			margin: 4px;
+			padding: 4px;
+			background: #fff;
+			color: #000;
+			text-align: center;
+			font-size: 12px;
+			min-width: 26px;
+			display: flex;
+			justify-content: center;
+			align-items: center;
+		}
+		.scs-demo-chat {
+			width: calc(100% - 10px);
+			background: #eee;
+			color: #000;
+			margin: 4px;
+			padding: 6px;
+			font-size: 11px;
+		}
+		.scs-demo-chat-user {
+			background: #000;
+			color: #fff;
+			max-width: 80%;
+		}
+		.scs-demo-chat-assi {
+			background: #ceff1a;
+			color: #000;
+			max-width: 80%;
+		}
+	</style>
+	<div class='sepiaFW-carousel-pane-container'>
+		<!-- Page 1 -->
+		<div id="sepiaFW-frame-page-1" class='sepiaFW-frames-page sepiaFW-carousel-pane'>
+			<h3>Custom Theme Editor</h3>
+			<p class="info-text">The theme editor can be used to create custom designs for specific skins. You can select properties via the drop-down menu or by clicking on the preview elements.</p>
+			<div id="sepiaFW-theme-editor-controls" class="group-container">
+				<div class="group">
+					<label>Customizable skin:</label>
+					<select name="skins" style="max-width: unset;">
+						<option value="">- Select -</option>
+					</select>
+				</div>
+				<div class="group">
+					<div class="entry-content">
+						<label>Screen safe areas:</label>
+						<div class="subgroup center fill" style="padding: 0;">
+							<input name="screen-safe-areas" style="max-width: unset; flex: 1 1 160px;" spellcheck="false" placeholder="44px 0px 34px 0px" title="Like CSS: top right bottom left">
+							<div class="subgroup center scs-prop-group" style="margin: 0; padding: 0 !important; min-width: unset !important;" title="Background color">
+								<input name="screen-safe-areas-back" type="color" style="height: 26px; width: auto !important; margin: 0 3px !important"><!--<label>Background</label>-->
+							</div>
+							<button name="screen-safe-areas-reset" class="set-button" title="Reset safe areas"><i class="material-icons md-txt">delete</i></button>
+						</div>
+					</div>
+				</div>
+				<div class="group" name="border-slider">
+					<label>Border radius (<span name="border-slider-value">0</span>px):</label>
+					<!-- slider added on start -->
+				</div>
+				<div class="group">
+					<div class="entry-content">
+						<label>Theme image:</label>
+						<input name="back-img-value" style="max-width: 512px;" spellcheck="false">
+					</div>
+					<button name="back-img-select" class="trigger-button"><i class="material-icons md-txt">search</i></button>
+				</div>
+				<div class="group">
+					<div class="entry-content">
+						<label>Theme image size:</label>
+						<input name="back-img-size" style="max-width: 128px;" spellcheck="false" placeholder="auto 50%">
+					</div>
+				</div>
+				<div class="group">
+					<label>Theme property:</label>
+					<select name="properties-select" style="max-width: unset;">
+						<option value="">- Select -</option>
+					</select>
+				</div>
+				<div class="group wrap limit-512 center" name="properties-box">
+					<!-- color inputs will appear here -->
+				</div>
+				<div class="group" style="flex-wrap: wrap; justify-content: center; margin: 16px 8px;">
+					<button id="sepiaFW-theme-editor-apply" onclick="SepiaFW.frames.currentScope.applyTheme()">Apply</button>
+					<button id="sepiaFW-theme-editor-reset" onclick="SepiaFW.frames.currentScope.resetTheme()">Reset</button>
+					<button id="sepiaFW-theme-editor-store" onclick="SepiaFW.frames.currentScope.storeTheme()">Store</button>
+					<button id="sepiaFW-theme-editor-store" onclick="SepiaFW.frames.currentScope.clearTheme()"><i class="material-icons md-txt">delete</i></button>
+					<button id="sepiaFW-theme-editor-export" onclick="SepiaFW.frames.currentScope.showThemeExporter()">Export</button>
+					<button id="sepiaFW-theme-editor-import" onclick="SepiaFW.frames.currentScope.showThemeImporter()">Import</button>
+				</div>
+			</div>
+			<div id="sepiaFW-theme-editor-view" class="group-container">
+				<div class="scs-demo-main">
+					<div class="scs-demo-topBar" name="scs-prop-1">My View</div>
+					<div class="scs-demo-section" name="scs-prop-0">
+						<p><span>Header text</span><span class="scs-text-acc">Info text</span></p>
+					</div>
+					<div class="scs-demo-section" name="scs-prop-3">
+						<div class="scs-demo-button scs-look">Button A</div>
+						<div class="scs-demo-button scs-look">Button B</div>
+					</div>
+					<div class="scs-demo-section" name="scs-prop-5">
+						<div class="scs-demo-card scs-look">
+							<div class="scs-demo-card-div scs-look">&#x263C;</div>
+							<div class="scs-demo-card-div scs-look" style="flex: 1 1 auto; margin: 4px 0;">Card</div>
+							<div class="scs-demo-card-div scs-look">&#x2103;</div>
+						</div>
+					</div>
+					<div class="scs-demo-section" name="scs-prop-4">
+						<div class="scs-demo-custom-button scs-look"><span>&#x266B;</span><span>Music</span></div>
+						<div class="scs-demo-custom-button scs-look"><span>&#x260F;</span><span>Call</span></div>
+						<div class="scs-demo-custom-button scs-look"><span>&#x272A;</span><span>Chill</span></div>
+					</div>
+					<div class="scs-demo-section" style="flex: 1 1 auto;" name="scs-prop-0"></div>
+					<div class="scs-demo-controls" name="scs-prop-1">Controls</div>
+				</div>
+				<div class="scs-demo-main">
+					<div class="scs-demo-topBar" name="scs-prop-1">Chat</div>
+					<div class="scs-demo-section" name="scs-prop-6">
+						<div class="scs-demo-chat scs-demo-chat-other scs-look">
+							<span>Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy.</span>
+						</div>
+					</div>
+					<div class="scs-demo-section" style="justify-content: end;" name="scs-prop-7">
+						<div class="scs-demo-chat scs-demo-chat-user scs-look">
+							<span>At vero eos et accusam et justo duo dolores.</span>
+						</div>
+					</div>
+					<div class="scs-demo-section" style="justify-content: start;" name="scs-prop-2">
+						<div class="scs-demo-chat scs-demo-chat-assi scs-look">
+							<span>Stet clita kasd gubergren, no sea takimata.</span>
+						</div>
+					</div>
+					<div class="scs-demo-section" style="flex: 1 1 auto;" name="scs-prop-0"></div>
+					<div class="scs-demo-controls" name="scs-prop-1">Controls</div>
+				</div>
+				<div class="scs-demo-menu" name="scs-prop-1">
+					<div class="scs-demo-section" name="scs-prop-3">
+						<div class="scs-demo-button scs-look">&#x266B;</div>
+						<div class="scs-demo-button scs-look">&#x263C;</div>
+						<div class="scs-demo-button scs-look">&#x2637;</div>
+						<div class="scs-demo-button scs-look">&#x2713;</div>
+					</div>
+				</div>
+				<div class="scs-demo-teach-ui" name="scs-prop-8">
+					<div class="scs-demo-section" style="padding: 4px;">
+						<p><span>Default Text</span><span class="scs-text-acc">Info text</span></p>
+					</div>
+					<div class="scs-demo-section" name="scs-prop-9">
+						<div class="scs-demo-tui-actions scs-look">Button</div>
+					</div>
+					<div class="scs-demo-section" style="flex: 1 1 auto;" name="scs-prop-8"></div>
+					<div class="scs-demo-tui-navbar" name="scs-prop-9">Teach-UI</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+<div id="sepiaFW-frames-nav-bar" class='sepiaFW-layer-header'>
+	<button id="sepiaFW-frames-close" class='entry'>
+		<i class="material-icons md-btn2">&#xE5CD;</i>
+	</button>
+	<!--<button id="sepiaFW-frames-show-prev-page" class='entry'>
+		<i class="material-icons md-btn2">keyboard_arrow_left</i><span data-localize="back">back</span>
+	</button>
+	<button id="sepiaFW-frames-show-next-page" class='entry'>
+		<span data-localize="next">next</span><i class="material-icons md-btn2">keyboard_arrow_right</i>
+	</button>-->
+	<div id="sepiaFW-frames-nav-bar-page-indicator"><div>&nbsp;</div></div>
+</div>
+<script>
+	$('#sepiaFW-frame-carousel').find('[data-localize]').each(function(){
+		$(this).html(SepiaFW.local.g(this.dataset.localize));
+	});
+		
+	//Define scope
+	SepiaFW.frames.currentScope = {
+
+		//Data
+		previousTheme: {},
+		currentTheme: {},
+		customSkins: [],
+		$skinSelector: undefined,
+		$propSelector: undefined,
+		$propBox: undefined,
+		$backImgInput: undefined,
+		$backImgSize: undefined,
+		borderSlider: undefined,
+		knownBackgrounds: [
+			{name: "Default", value: ""},
+			{name: "No Image", value: 'unset'},
+			{name: "SEPIA Logo (light skin)", value: 'url("../img/SEPIA_back.png")'},
+			{name: "SEPIA Logo (dark skin)", value: 'url("../img/SEPIA_back-w.png")'},
+			{name: "SEPIA Tech (darkish skin)", value: 'url("../img/SEPIA_odyssey-w2.png")'},
+			{name: "Blocks (light skin)", value: 'url("../img/blocks.svg")'},
+			{name: "Blocks (dark skin)", value: 'url("../img/blocksAlpha.png")'},
+			{name: "Blocks Rain (dark skin)", value: 'url("../img/blocks2_alpha.png")'},
+			{name: "Ink Splash (light skin)", value: 'url("../img/inkSplashAlpha.png")'},
+			{name: "Cherry Blossom (light skin)", value: 'url("../img/cherryBlossomInkAlpha.png")'},
+			{name: "Birds (light skin)", value: 'url("../img/birdsAlpha.png")'},
+			{name: "One Bird (dark skin)", value: 'url("../img/birdAlpha.png")'},
+			{name: "World Map (light skin)", value: 'url("../img/worldMapBlack.png")'},
+			{name: "World Map (dark skin)", value: 'url("../img/worldMapWhite.png")'},
+			{name: "Infinity Band (mixed skin)", value: 'url("../img/infiniBandAlpha.png")'},
+			{name: "Infinity Band 2 (mixed skin)", value: 'url("../img/infiniBandAlphaUD.png")'}
+		],
+		themeProps: [
+			{id: 0, name: "App",
+				pvSelector: [".scs-demo-main"],
+				colors: [{k: "Background", v: "appBackground", p: "m1"},
+					{k: "Text", v: "appColor", p: "t1"},
+					{k: "Text accent", v: "appColorAccent", p: "a1"}]},
+			{id: 1, name: "Top/bottom controls",
+				pvSelector: [".scs-demo-topBar, .scs-demo-controls, .scs-demo-menu"],
+				colors: [{k: "Main", v: "appControlsBackground", p: "m1"},
+					{k: "Variant", v: "appControlsBackground2", p: "v1"},
+					{k: "Text", v: "appControlsColor", p: "t1"}]},
+			{id: 2, name: "Assistant",
+				pvSelector: [".scs-demo-chat-assi"],
+				colors: [{k: "Main", v: "assistantMain", p: "m1"},
+					{k: "Variant", v: "assistantMain2", p: "v1"},
+					{k: "Text", v: "assistantText", p: "t1"}]},
+			{id: 3, name: "Common buttons",
+				pvSelector: [".scs-demo-button"],
+				colors: [{k: "Main", v: "defaultButtonBackground", p: "m1"},
+					{k: "Variant", v: "defaultButtonBackground2", p: "v1"},
+					{k: "Text", v: "defaultButtonColor", p: "t1"}]},
+			{id: 4, name: "Custom buttons",
+				pvSelector: [".scs-demo-custom-button"],
+				colors: [{k: "Main", v: "customButtonBackground", p: "m1"}, 
+					{k: "Variant", v: "customButtonBackground2", p: "v1"},
+					{k: "Text", v: "customButtonColor", p: "t1"}]},
+			{id: 5, name: "Cards",
+				pvSelector: [".scs-demo-card", ".scs-demo-card-div"],
+				colors: [{k: "Container", v: "cardContainerBackground", p: "m1"}, 
+					{k: "Main", v: "cardBackground", p: "m2"},
+					{k: "Variant", v: "cardBackground2", p: "v2"},
+					{k: "Text", v: "cardColor", p: "t2"}]},
+			{id: 6, name: "Default Chat Messages",
+				pvSelector: [".scs-demo-chat-other"],
+				colors: [{k: "Default main", v: "chatMsgBackground", p: "m1"},
+					{k: "Default variant", v: "chatMsgBackground2", p: "v1"},
+					{k: "Default text", v: "chatMsgColor", p: "t1"}]},
+			{id: 7, name: "User Chat Messages",
+				pvSelector: [".scs-demo-chat-user"],
+				colors: [{k: "User main", v: "chatMsgUserBackground", p: "m1"}, 
+					{k: "User variant", v: "chatMsgUserBackground2", p: "v1"},
+					{k: "User text", v: "chatMsgUserColor", p: "t1"}]},
+			{id: 8, name: "Teach-UI View",
+				pvSelector: [".scs-demo-teach-ui"],
+				colors: [{k: "Background", v: "teachUiBackground", p: "m1"},
+					{k: "Text", v: "teachUiColor", p: "t1"},
+					{k: "Text accent", v: "teachUiColorAccent", p: "a1"}]},
+			{id: 9, name: "Teach-UI Actions",
+				pvSelector: [".scs-demo-tui-actions, .scs-demo-tui-navbar"],
+				colors: [{k: "Main", v: "teachUiActionsBackground", p: "m1"}, 
+					{k: "Variant", v: "teachUiActionsBackground2", p: "v1"},
+					{k: "Text", v: "teachUiActionsColor", p: "t1"}]}
+		],
+		getTheme: function(){
+			var themeData = SepiaFW.ui.getCustomSkinTheme();
+			SepiaFW.frames.currentScope.currentTheme = themeData;
+		},
+		colorPropBuilder: function(prop){
+			var scope = SepiaFW.frames.currentScope;
+			scope.$propBox.fadeOut(300, function(){
+				scope.$propBox.html("");
+				prop.colors.forEach(function(cp){
+					var propGroup = document.createElement("div");
+					propGroup.className = "subgroup center scs-prop-group";
+					var propIn = document.createElement("input");
+					propIn.type = "color";
+					propIn.dataset.name = cp.v;
+					var propVal = scope.currentTheme[cp.v];
+					if (propVal != undefined && propVal.length == 4){
+						//e.g.: #fff -> #ffffff
+						propVal = propVal[0] + propVal[1] + propVal[1] + propVal[2] 
+							+ propVal[2] + propVal[3] + propVal[3];
+					}
+					//console.error("propName:", cp.v, "propVal:", propVal);	//DEBUG
+					if (propVal){
+						propIn.value = propVal;
+					}
+					var propLabel = document.createElement("label");
+					propLabel.textContent = cp.k;
+					propGroup.appendChild(propIn);
+					propGroup.appendChild(propLabel);
+					scope.$propBox.append(propGroup);
+					//action
+					$(propIn).on("change", function(){
+						scope.currentTheme[cp.v] = propIn.value;
+						scope.updateSkinPreview(prop);
+					});
+				});
+				scope.$propBox.fadeIn(300);
+			});
+		},
+		showBackgroundSelectPopup: function(){
+			var scope = SepiaFW.frames.currentScope;
+			var currentVal = scope.$backImgInput.val();
+			var selectOptions = [];
+			scope.knownBackgrounds.forEach(function(bg){
+				selectOptions.push({
+					text: bg.name,
+					value: bg.value,
+					selected: (currentVal == bg.value)
+				});
+			});
+			SepiaFW.ui.showSelectPopup(
+				"Choose a background image:",
+				selectOptions, 
+				function(val, tex){
+					scope.$backImgInput.val(val);
+					scope.$backImgInput[0].title = tex;
+					//apply to preview
+					scope.currentTheme["appImage"] = val;
+					scope.updateSkinPreview();
+				}, 
+				function(){}
+			);
+		},
+		updateSafeAreas: function(){
+			//NOTE: safe areas are not a skin but a device property (-> NOT part of current theme)
+			var scope = SepiaFW.frames.currentScope;
+			var saPadding = scope.$screenSafeAreas.val() || "";
+			var saBackground = scope.$screenSafeAreasBack.val() || "";
+			var saColor = SepiaFW.tools.getBestContrastHexOrRgb(saBackground);
+			var success = SepiaFW.ui.setScreenSafeAreas({
+				padding: saPadding,
+				background: saBackground,
+				color: saColor
+			}, true, true);
+			if (success){
+				SepiaFW.ui.showPopup("Stored new custom screen safe areas and colors for this device.<br>" 
+					+ "Please note that the hard-coded platform values will overwrite your custom values if they are too small.");
+			}else{
+				SepiaFW.ui.showPopup("Something went wrong, sorry. Please check your values.");
+			}
+		},
+		resetSafeAreas: function(){
+			var scope = SepiaFW.frames.currentScope;
+			SepiaFW.ui.setScreenSafeAreas(undefined, true, true);
+			setTimeout(function(){
+				var safeAreasCurrent = SepiaFW.ui.getScreenSafeAreas();
+				scope.$screenSafeAreas.val(safeAreasCurrent.padding || "");
+				scope.$screenSafeAreasBack.val(SepiaFW.tools.hexOrRgbToNoAlphaHexColor(safeAreasCurrent.background || "#e1e2e3"));
+				SepiaFW.ui.showPopup("Reset custom screen safe areas and colors for this device.<br>" 
+					+ "Please note that the hard-coded platform values will still apply.");
+			}, 100);
+		},
+		updateSkinPreview: function(prop){
+			var scope = SepiaFW.frames.currentScope;
+			//general look (only when all props are selected)
+			if (!prop){
+				//borders
+				var br = scope.currentTheme["defaultBorderRadius"] || "0px";
+				var brScalFactor = 1.8;		//size scaling for preview-to-real
+				br = Math.round((+br.replace("px", ""))/brScalFactor) + "px";
+				$("#sepiaFW-theme-editor-view").find(".scs-look").css({"border-radius": br});
+				//background
+				var $bg = $("#sepiaFW-theme-editor-view").find(".scs-demo-main");
+				var bgImg = scope.currentTheme["appImage"];
+				if (bgImg && bgImg.indexOf('url("../') == 0){
+					//preview and stylesheets have a different folder -> fix path:
+					bgImg = bgImg.replace('url("../', 'url("');
+				}
+				$bg.css({"background-image": bgImg || ""});
+				var bgSize = scope.currentTheme["appImageSize"];
+				$bg.css({"background-size": bgSize || ""});
+				//console.error("BG:", bgImg, bgSize);	//DEBUG
+			}
+			//colors
+			var propArray = prop? [prop] : scope.themeProps;
+			propArray.forEach(function(pr){
+				var col = [], colAcc = [], back1 = [], back2 = [];
+				var parts = 0;
+				pr.colors.forEach(function(c){
+					//check available types (expect: main, variant, text, text-accent -> next)
+					if (c.p.indexOf("m") == 0){
+						parts++;
+						back1[parts-1] = c.v;
+					}else if (c.p.indexOf("v") == 0){
+						back2[parts-1] = c.v;
+					}else if (c.p.indexOf("t") == 0){
+						col[parts-1] = c.v;
+					}else if (c.p.indexOf("a") == 0){
+						colAcc[parts-1] = c.v;
+					}
+				});
+				for (let i=0; i<parts; i++){
+					let $eles = $("#sepiaFW-theme-editor-view").find(pr.pvSelector[i]);
+					let cv = col[i]? scope.currentTheme[col[i]] : undefined;
+					let cav = colAcc[i]? scope.currentTheme[colAcc[i]] : undefined;
+					let bv1 = back1[i]? scope.currentTheme[back1[i]] :undefined;
+					let bv2 = back2[i]? scope.currentTheme[back2[i]] :undefined;
+					$eles.css({"color": cv || ""});
+					$eles.find(".scs-text-acc").css({"color": cav || ""});
+					if (bv1 && bv2){
+						var lg = "linear-gradient(to right, " + bv1 + " 0%, " + bv2 + " 100%)";
+						$eles.css({"background": lg});
+					}else if (back1[i] == "appBackground"){
+						//special case background color
+						$eles.css({"background-color": bv1 || ""});
+					}else{
+						$eles.css({"background": bv1 || ""});
+					}
+				}
+			});
+		},
+		resetUi: function(){
+			var scope = SepiaFW.frames.currentScope;
+			//update border
+			var borderVal = +(scope.currentTheme["defaultBorderRadius"] || "0px").replace("px", "");
+			scope.borderSlider.setValue(borderVal);
+			$("#sepiaFW-theme-editor-controls").find("[name='border-slider-value']").text(borderVal);
+			//update background input
+			scope.$backImgInput.val(scope.currentTheme["appImage"] || "");
+			scope.$backImgSize.val(scope.currentTheme["appImageSize"] || "");
+			//reset prop selector
+			scope.$propSelector.val("");
+			scope.colorPropBuilder({colors: []});
+			//update preview
+			scope.updateSkinPreview();
+		},
+		getSelectedCustomSkin: function(){
+			var activeSkinId = SepiaFW.ui.getSkin();
+			var skinMatch = SepiaFW.frames.currentScope.customSkins
+				.filter(function(s){ return s.id == activeSkinId; });
+			if (skinMatch && skinMatch.length){
+				return skinMatch[0];
+			}else{
+				return;
+			}
+		},
+		checkSkinStyle: function(skinMatch){
+			if (skinMatch){
+				//check style
+				var skinStyle = SepiaFW.ui.getSkinStyle();
+				var matchStyle = skinMatch.skinStyle || "auto";
+				if (matchStyle != skinStyle && matchStyle != "auto"){
+					SepiaFW.ui.showPopup("Warning: The selected skin is designed for the '" + matchStyle 
+						+ "' style but your colors currently correspond to the '" + skinStyle + "' style." 
+						+ "<br><br>You might experience some irregularities.");
+				}
+			}
+		},
+
+		//Interface
+		onFinishSetup: function(){
+			var scope = SepiaFW.frames.currentScope;
+
+			//get all custom themes
+			scope.customSkins = [];
+			document.body.querySelectorAll(".sepiaFW-style-skin").forEach(function(linkEle){
+				if (linkEle.dataset.customizable == "true"){
+					scope.customSkins.push({
+						id: linkEle.dataset.id,
+						name: linkEle.dataset.name,
+						skinStyle: linkEle.dataset.skinStyle
+					});
+				}
+			});
+			//get active theme
+			scope.getTheme();
+
+			//build skin selector
+			scope.$skinSelector = $("#sepiaFW-theme-editor-controls").find("[name='skins']");
+			scope.customSkins.forEach(function(skin){
+				var opt = document.createElement("option");
+				opt.value = skin.id;
+				opt.textContent = skin.name;
+				scope.$skinSelector.append(opt);
+			});
+			scope.$skinSelector.on("change", function(opt){
+				//set skin and update preview
+				SepiaFW.ui.setSkin(scope.$skinSelector.val());
+				setTimeout(function(){
+					//try fast load
+					scope.getTheme();
+					scope.resetUi();
+				}, 100);
+				setTimeout(function(){
+					//slow load refresh
+					scope.getTheme();
+					scope.resetUi();
+				}, 2500);
+			});
+
+			//build screen safe area input
+			var safeAreasCurrent = SepiaFW.ui.getScreenSafeAreas();
+			scope.$screenSafeAreas = $("#sepiaFW-theme-editor-controls").find("[name='screen-safe-areas']");
+			scope.$screenSafeAreas.val(safeAreasCurrent.padding || "");
+			SepiaFW.ui.onKeyboardInput(scope.$screenSafeAreas[0], undefined, function(ele){ 
+				scope.updateSafeAreas();
+			});
+			scope.$screenSafeAreasBack = $("#sepiaFW-theme-editor-controls").find("[name='screen-safe-areas-back']");
+			scope.$screenSafeAreasBack.val(SepiaFW.tools.hexOrRgbToNoAlphaHexColor(safeAreasCurrent.background || "#e1e2e3"));
+			scope.$screenSafeAreasBack.on("change", function(){
+				scope.updateSafeAreas();
+			});
+			$("#sepiaFW-theme-editor-controls").find("[name='screen-safe-areas-reset']").on("click", function(){
+				scope.resetSafeAreas();
+			});
+
+			//build background image selector
+			scope.$backImgInput = $("#sepiaFW-theme-editor-controls").find("[name='back-img-value']");
+			scope.$backImgInput.val(scope.currentTheme["appImage"] || "");
+			scope.$backImgSize = $("#sepiaFW-theme-editor-controls").find("[name='back-img-size']");
+			scope.$backImgSize.val(scope.currentTheme["appImageSize"] || "");
+			var $imgSelectBtn = $("#sepiaFW-theme-editor-controls").find("[name='back-img-select']");
+			$imgSelectBtn.on("click", function(){
+				scope.showBackgroundSelectPopup();
+			});
+			SepiaFW.ui.onKeyboardInput(scope.$backImgInput[0], undefined, function(ele){
+				//apply to preview
+				scope.currentTheme["appImage"] = ele.value;
+				scope.updateSkinPreview();
+			});
+			SepiaFW.ui.onKeyboardInput(scope.$backImgSize[0], undefined, function(ele){ 
+				//apply to preview
+				scope.currentTheme["appImageSize"] = ele.value;
+				scope.updateSkinPreview();
+			});
+
+			//build "look" components
+			var borderInit = +(scope.currentTheme["defaultBorderRadius"] || "0px").replace("px", "");
+			var borderRange = [0, 18];
+			var $borderSliderVal = $("#sepiaFW-theme-editor-controls").find("[name='border-slider-value']");
+			scope.borderSlider = SepiaFW.ui.build.slider(
+					"sepiaFW-theme-editor-border-slider", function(newBorder){
+				//border radius change:
+				$borderSliderVal.text(newBorder);
+				scope.currentTheme["defaultBorderRadius"] = newBorder + "px";
+			}, function(){
+				//refresh
+				scope.updateSkinPreview();
+			}, borderInit, borderRange, 1);
+			$borderSliderVal.text(borderInit);
+			$("#sepiaFW-theme-editor-controls").find("[name='border-slider']").first()
+				.append(scope.borderSlider);
+
+			//build properties selector
+			scope.$propSelector = $("#sepiaFW-theme-editor-controls").find("[name='properties-select']");
+			scope.$propBox = $("#sepiaFW-theme-editor-controls").find("[name='properties-box']");
+			scope.themeProps.forEach(function(prop){
+				var opt = document.createElement("option");
+				opt.value = prop.id;
+				opt.textContent = prop.name;
+				scope.$propSelector.append(opt);
+			});
+			scope.$propSelector.on("change", function(opt){
+				if (opt.target.value !== ""){
+					var prop = scope.themeProps[+opt.target.value];
+					scope.colorPropBuilder(prop);
+				}else{
+					scope.colorPropBuilder({colors: []});
+				}
+			});
+
+			//build preview buttons
+			$("#sepiaFW-theme-editor-view").find("[name^='scs-prop-']").each(function(){
+				this.style.cursor = "pointer";
+				var id = +this.getAttribute("name").replace("scs-prop-", "");
+				var prop = scope.themeProps[id];
+				this.title = prop.name;
+				//action
+				$(this).on("click", function(ev){
+					ev.stopPropagation();
+					scope.$propSelector.val(prop.id);
+					scope.colorPropBuilder(prop);
+				});
+			});
+		},
+		
+		onOpen: function(){
+			var scope = SepiaFW.frames.currentScope;
+
+			//reload active theme
+			SepiaFW.frames.currentScope.getTheme();
+
+			//set skin selector
+			var activeSkinId = SepiaFW.ui.getSkin();
+			var skinMatch = scope.getSelectedCustomSkin();
+			if (skinMatch){
+				scope.$skinSelector.val(activeSkinId);
+				//check style
+				scope.checkSkinStyle(skinMatch);
+			}else{
+				scope.$skinSelector.val("");
+			}
+
+			//update preview
+			scope.resetUi();
+		},
+
+		onClose: function(){
+			//just to make sure
+			SepiaFW.ui.refreshSkinColors();
+		},
+		
+		applyTheme: function(){
+			//apply
+			var themeData = SepiaFW.frames.currentScope.currentTheme;
+			//console.log(themeData);
+			SepiaFW.ui.setCustomSkinTheme(themeData, false);
+			//refresh stuff
+			SepiaFW.frames.currentScope.resetUi();
+			SepiaFW.ui.refreshSkinColors();
+			SepiaFW.ui.showPopup("Applied current theme settings. Press store button to make changes permanent.");
+		},
+		resetTheme: function(){
+			var themeData = SepiaFW.ui.loadCustomSkinTheme() || {};
+			//set
+			SepiaFW.ui.setCustomSkinTheme(themeData, false);
+			SepiaFW.frames.currentScope.currentTheme = JSON.parse(JSON.stringify(themeData));
+			//reload active theme
+			SepiaFW.frames.currentScope.getTheme();
+			//refresh stuff
+			SepiaFW.frames.currentScope.resetUi();
+			SepiaFW.ui.showPopup("Reset to last stored theme (or default).");
+		},
+		storeTheme: function(){
+			//refresh preview once more
+			SepiaFW.frames.currentScope.updateSkinPreview();
+			//apply and store
+			var themeData = SepiaFW.frames.currentScope.currentTheme;
+			SepiaFW.ui.setCustomSkinTheme(themeData, true);
+			SepiaFW.ui.showPopup(SepiaFW.local.g("done"));
+		},
+		clearTheme: function(){
+			function resetDefault(doStore, msg){
+				SepiaFW.ui.setCustomSkinTheme({}, doStore);
+				SepiaFW.frames.currentScope.currentTheme = {};
+				//reload active theme
+				SepiaFW.frames.currentScope.getTheme();
+				//refresh stuff
+				SepiaFW.frames.currentScope.resetUi();
+				setTimeout(function(){
+					SepiaFW.ui.showPopup(msg 
+						+"<br><br>NOTE: Some visual changes will only update after the theme editor has been closed.");
+				}, 0);
+			}
+			SepiaFW.ui.askForConfirmation("Do you really want to delete the current custom theme?", function(){
+				//delete and reset
+				resetDefault(true, "Reset to default and permanently deleted custom theme data.");
+			}, function(){
+				//abort
+			}, function(){
+				//just load default
+				resetDefault(false, "Loaded default settings for this theme.");
+			}, "Just load default");
+		},
+		showThemeExporter: function(){
+			var jsonBox = SepiaFW.ui.showJsonInfoPopup("Custom Theme JSON",
+				"Download as file or copy the JSON data:",
+				SepiaFW.frames.currentScope.currentTheme, {
+					buttonOneName: "Download",
+					buttonOneAction: function(){
+						//download as file
+						JSON.parse(jsonBox.value);	//just to validate JSON
+						var blob = new Blob([jsonBox.value], {type: "application/json"});
+						var filename = "sepia-custom-theme.json";
+						SepiaFW.files.saveBlobAs(filename, blob, jsonBox.parentElement);
+					},
+					buttonTwoName: SepiaFW.local.g("close"),
+					buttonTwoAction: function(){},
+				}
+			);
+		},
+		showThemeImporter: function(){
+			var titleBox = document.createElement("div");
+			titleBox.innerHTML = "<h3>Custom Theme JSON</h3><p>Load previously exported theme files (drag & drop/select) or copy JSON data:</p>";
+			SepiaFW.ui.showFileImportAndViewPopup(titleBox, {
+					addFileSelect: true,
+					accept: ".json",
+					buttonOneName: "Import",
+					buttonTwoName: "Abort",
+					initialPreviewValue: "- Theme JSON -"
+				}, 
+				function(readRes, viewTxtArea){
+					//read
+					if (readRes){
+						var parsedData = JSON.parse(readRes);
+						viewTxtArea.value = JSON.stringify(parsedData, null, 4);
+					}
+				}, function(viewTxtAreaValue, viewTxtArea){
+					//confirm and close
+					if (viewTxtAreaValue){
+						try {
+							//set
+							SepiaFW.frames.currentScope.currentTheme = JSON.parse(viewTxtAreaValue);
+							SepiaFW.frames.currentScope.resetUi();
+							//show confirm message
+							setTimeout(function(){
+								SepiaFW.ui.showPopup("Theme imported. Press apply button to activate it.");
+							}, 300);
+						}catch(err){
+							viewTxtArea.value = "ERROR - Failed to import: " 
+								+ (err? (err.message || err.name || err) : "?");
+							throw err;
+						}
+					}
+				}, function(err, viewTxtArea){
+					//read error
+					viewTxtArea.value = "ERROR - Failed to read: " 
+						+ (err? (err.message || err.name || err) : "?");
+				}
+			);
+		}
+	}
+</script>

@@ -256,6 +256,9 @@ html {
 	border-radius: 0 !important;
 	box-shadow: 0px 2px 4px 0px rgba(0,0,0,0.4);
 }
+.chatMsg > .sepiaFW-cards-flexSize-container.oneElement + .sepiaFW-cards-flexSize-container.oneElement {
+    margin-top: -2px;
+}
 .sepiaFW-cards-flexSize-container div,
 .sepiaFW-cards-list-body .cardItemBlock {
 	border-radius: 0 !important;
@@ -276,6 +279,9 @@ html {
 .sepiaFW-cards-list-title {
 	color: #fff;
     background: #217346;
+}
+.sepiaFW-cards-list-title.newsHeader button {
+    color: #222 !important;
 }
 .sepiaFW-cards-list-body {
     color: #222;

@@ -11,6 +11,28 @@ function sepiaFW_build_assistant(sepiaSessionId){
 	Assistant.autoCloseAwaitDialog = true;
 	Assistant.autoCloseAwaitDialogDelay = 20000; 	//20s
 	var autoCloseAwaitDialogTimer;
+
+	//task tracker - can be used to tweak certain behavior and ASR model selection etc.
+	var defaultTask = "default";
+	var tasksSubmitted = ["default"];
+	Assistant.getKnownTasks = function(){
+		return tasksSubmitted;
+	}
+	Assistant.setDefaultTask = function(newDefault){
+		defaultTask = newDefault;
+		if (tasksSubmitted.indexOf(defaultTask) < 0){
+			tasksSubmitted.push(defaultTask);
+		}
+	}
+	Assistant.getDefaultTask = function(){
+		return defaultTask;
+	}
+	Assistant.resetDefaultTask = function(){
+		defaultTask = "default";
+	}
+	Assistant.getCurrentTask = function(){
+		return (!dialog_task || dialog_task == "default")? defaultTask : dialog_task;
+	}
 	
 	//set assistant info received from server
 	Assistant.updateInfo = function(info){
@@ -54,6 +76,7 @@ function sepiaFW_build_assistant(sepiaSessionId){
 	var input_type = "question";
 	var input_miss = "";
 	var dialog_stage = 0;
+	var dialog_task = "default";
 	
 	//other
 	var user_location = ""; //new: JSON, old: "<city>Berlin City<latitude>52.518616<longitude>13.404636";
@@ -123,6 +146,7 @@ function sepiaFW_build_assistant(sepiaSessionId){
 		State.input_type = input_type;
 		State.input_miss = input_miss;
 		State.dialog_stage = dialog_stage;
+		State.dialog_task = Assistant.getCurrentTask();
 
 		//custom data
 		var cd = {
@@ -145,13 +169,15 @@ function sepiaFW_build_assistant(sepiaSessionId){
 	var lastGetState = 0;
 	var getStateIsOldTime = 60000;
 
-	//get mood only
+	//get only mood
 	Assistant.getMood = function(){
 		return mood;
 	}
 	
 	//evaluate result and store states
 	Assistant.setState = function(result, returnToIdle){
+		if (!result.more) result.more = {};
+
 		//set state only when the message was intended for this user - TODO: rethink this
 		if (SepiaFW.account.getUserId() !== result.more.user 
 				&& !(SepiaFW.client.isDemoMode() && result.more.user == "username")){
@@ -187,7 +213,7 @@ function sepiaFW_build_assistant(sepiaSessionId){
 			context = "default";
 		}
 		//handle last command
-		if (result.more.cmd_summary && result.more.cmd_summary != ""){
+		if (result.more.cmd_summary){
 			if (last_command === result.more.cmd_summary){
 				last_command_N++;
 			}else{
@@ -199,7 +225,7 @@ function sepiaFW_build_assistant(sepiaSessionId){
 			last_command_N = 0;
 		}
 		//handle response type and dialogue sequence
-		if (result.response_type != undefined && (result.response_type != "" || result.response_type != "info")){
+		if (result.response_type && result.response_type != "info"){
 			//question
 			if (result.response_type == "question"){
 				input_type = "response";
@@ -226,6 +252,19 @@ function sepiaFW_build_assistant(sepiaSessionId){
 			Assistant.isWaitingForDialog = false;
 			broadcastDialogFinished(returnToIdle);
 		}
+		//set dialog task
+		if (result.more.dialog_task){
+			dialog_task = result.more.dialog_task;
+			if (!dialog_task || (dialog_task && dialog_task == "default")){
+				dialog_task = "default";
+			}else{
+				if (tasksSubmitted.indexOf(dialog_task) < 0){
+					tasksSubmitted.push(dialog_task);
+				}
+			}
+		}else{
+			dialog_task = "default";
+		}
 		
 		//time stamp last feedback to handle answer to questions 
 		Assistant.lastInteractionTS = new Date().getTime();
@@ -251,6 +290,7 @@ function sepiaFW_build_assistant(sepiaSessionId){
 		input_type = "question";
 		input_miss = "";
 		dialog_stage = 0;
+		dialog_task = "default";
 		last_command = '';
 		last_command_N = 0;
 		Assistant.isWaitingForDialog = false;

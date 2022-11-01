@@ -1,0 +1,216 @@
+<?xml version='1.0' encoding='utf-8'?>
+<widget xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0" xmlns:android="http://schemas.android.com/apk/res/android"
+		id="org.example.sepia.app.web" version="0.25.0" android-versionCode="11401">
+    <name>S.E.P.I.A.</name>
+    <description>
+        S.E.P.I.A. framework client app
+    </description>
+    <author email="sepia@example.org" href="https://sepia.example.org">
+        Florian Quirin - Bytemind.de
+    </author>
+
+    <!-- Content -->
+    <content src="start.html" />
+
+    <preference name="orientation" value="default" />
+    <preference name="BackgroundColor" value="0xff000000" />
+
+    <!--plugins-->
+    <preference name="StatusBarOverlaysWebView" value="false" />
+    <preference name="StatusBarBackgroundColor" value="#000000" />
+    <preference name="NavigationBarBackgroundColor" value="#000000" />
+	<preference name="NavigationBarLight" value="false" />
+
+    <plugin name="cordova-plugin-whitelist" spec="1" />
+    <access origin="*" />
+    <allow-intent href="http://*/*" />
+    <allow-intent href="https://*/*" />
+    <allow-intent href="tel:*" />
+    <allow-intent href="sms:*" />
+    <allow-intent href="mailto:*" />
+    <allow-intent href="geo:*" />
+    <allow-intent href="spotify:*" />
+
+    <!--platforms-->
+
+    <platform name="android">
+        <!--hooks NOTE: disabled, see below -->
+        <!--<hook type="after_platform_add" src="hooks/add-android-intent-filters.js" />-->
+        <!--<hook type="after_prepare" src="hooks/add-android-permissions.js"/>-->
+
+        <!--config stuff-->
+        <preference name="AndroidLaunchMode" value="singleTask" />
+        <!-- consider: AndroidInsecureFileModeEnabled, GradlePluginKotlinEnabled -->
+        <preference name="android-minSdkVersion" value="22" /><!-- Android 5.1+ -->
+        <preference name="android-targetSdkVersion" value="32" /><!-- Android 12.1 -->
+        <preference name="android-windowSoftInputMode" value="adjustSize" />
+        <!-- WebView host -->
+        <preference name="scheme" value="http" /><!-- skip https, localhost is always secure and can do mixed-content -->
+        <preference name="hostname" value="localhost" /><!-- this is default but just to make sure -->
+
+        <!--theme and icon resources (path relative to config.xml)-->
+        <edit-config file="AndroidManifest.xml" mode="merge" target="/manifest/application">
+            <application android:icon="@mipmap/ic_launcher" android:roundIcon="@mipmap/ic_launcher_round" />
+        </edit-config>
+        <resource-file src="resources/res/values/colors.xml" target="app/src/main/res/values/colors.xml" />
+        <resource-file src="resources/res/values/ic_launcher_background.xml" target="app/src/main/res/values/ic_launcher_background.xml" />
+        <resource-file src="resources/res/mipmap-anydpi-v26/ic_launcher.xml" target="app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml" />
+        <resource-file src="resources/res/mipmap-anydpi-v26/ic_launcher_round.xml" target="app/src/main/res/mipmap-anydpi-v26/ic_launcher_round.xml" />
+        <resource-file src="resources/res/mipmap-ldpi/ic_launcher.png" target="app/src/main/res/mipmap-ldpi/ic_launcher.png" />
+        <resource-file src="resources/res/mipmap-mdpi/ic_launcher.png" target="app/src/main/res/mipmap-mdpi/ic_launcher.png" />
+        <resource-file src="resources/res/mipmap-mdpi/ic_launcher_round.png" target="app/src/main/res/mipmap-mdpi/ic_launcher_round.png" />
+        <resource-file src="resources/res/mipmap-hdpi/ic_launcher.png" target="app/src/main/res/mipmap-hdpi/ic_launcher.png" />
+        <resource-file src="resources/res/mipmap-hdpi/ic_launcher_round.png" target="app/src/main/res/mipmap-hdpi/ic_launcher_round.png" />
+        <resource-file src="resources/res/mipmap-hdpi/ic_launcher_foreground.png" target="app/src/main/res/mipmap-hdpi/ic_launcher_foreground.png" />
+        <resource-file src="resources/res/mipmap-xhdpi/ic_launcher.png" target="app/src/main/res/mipmap-xhdpi/ic_launcher.png" />
+        <resource-file src="resources/res/mipmap-xhdpi/ic_launcher_round.png" target="app/src/main//mipmap-xhdpi/ic_launcher_round.png" />
+        <resource-file src="resources/res/mipmap-xhdpi/ic_launcher_foreground.png" target="app/src/main/res/mipmap-xhdpi/ic_launcher_foreground.png" />
+        <resource-file src="resources/res/mipmap-xxhdpi/ic_launcher.png" target="app/src/main/res/mipmap-xxhdpi/ic_launcher.png" />
+        <resource-file src="resources/res/mipmap-xxhdpi/ic_launcher_round.png" target="app/src/main/res/mipmap-xxhdpi/ic_launcher_round.png" />
+        <resource-file src="resources/res/mipmap-xxhdpi/ic_launcher_foreground.png" target="app/src/main/res/mipmap-xxhdpi/ic_launcher_foreground.png" />
+        <resource-file src="resources/res/mipmap-xxxhdpi/ic_launcher.png" target="app/src/main/res/mipmap-xxxhdpi/ic_launcher.png" />
+        <resource-file src="resources/res/mipmap-xxxhdpi/ic_launcher_round.png" target="app/src/main/res/mipmap-xxxhdpi/ic_launcher_round.png" />
+        <resource-file src="resources/res/mipmap-xxxhdpi/ic_launcher_foreground.png" target="app/src/main/res/mipmap-xxxhdpi/ic_launcher_foreground.png" />
+
+        <!--splash screen-->
+        <edit-config file="AndroidManifest.xml" mode="merge" target="/manifest/application/activity[@android:name='MainActivity']">
+            <activity android:theme="@style/Theme.App.SplashScreen" />
+        </edit-config>
+        <preference name="AndroidWindowSplashScreenAnimatedIcon" value="res/drawable/ic_sepia_col_512.xml" />
+        <preference name="AndroidWindowSplashScreenBackground" value="#000000" />
+        <preference name="AutoHideSplashScreen" value="false" /><!-- NOTE: manual hide currently only works if auto is false -->
+        <preference name="SplashScreenDelay" value="10000" /><!-- INFO: use -1 for page ready | NOTE: auto moved to index.js -->
+        <resource-file src="resources/res/drawable/ic_sepia_col_512.xml" target="app/src/main/res/drawable/ic_sepia_col_512.xml" />
+        <resource-file src="resources/res/values/themes.xml" target="app/src/main/res/values/themes.xml" /><!-- is this written automatically ? -->
+
+        <!--local notifications-->
+        <resource-file src="resources/res/drawable-mdpi/ic_popup_reminder.png" target="app/src/main/res/drawable-mdpi/ic_popup_reminder.png" />
+        <resource-file src="resources/res/drawable-hdpi/ic_popup_reminder.png" target="app/src/main/res/drawable-hdpi/ic_popup_reminder.png" />
+        <resource-file src="resources/res/drawable-xhdpi/ic_popup_reminder.png" target="app/src/main/res/drawable-xhdpi/ic_popup_reminder.png" />
+        <resource-file src="resources/res/drawable-xxhdpi/ic_popup_reminder.png" target="app/src/main/res/drawable-xxhdpi/ic_popup_reminder.png" />
+        <resource-file src="resources/res/drawable-xxxhdpi/ic_popup_reminder.png" target="app/src/main/res/drawable-xxxhdpi/ic_popup_reminder.png" />
+
+        <!--other resources and config tweaks-->
+        <resource-file src="resources/res/xml/network_security_config.xml" target="app/src/main/res/xml/network_security_config.xml" />
+		<!-- Network security config (e.g. to whitelist non-SSL domains for audio stream) -->
+		<edit-config file="AndroidManifest.xml" mode="merge" target="/manifest/application">
+            <application android:networkSecurityConfig="@xml/network_security_config" />
+        </edit-config>
+        <edit-config file="AndroidManifest.xml" mode="merge" target="/manifest/application/activity[@android:name='MainActivity']">
+            <!-- configChanges 'navigation' is for bluetooth restart! -->
+            <activity android:configChanges="orientation|keyboardHidden|keyboard|screenSize|locale|navigation" />
+        </edit-config>
+        <!-- custom manifest changes -->
+        <!--
+		<custom-preference name="android-manifest/application/activity/@android:configChanges" value="orientation|keyboardHidden|keyboard|screenSize|locale|navigation"/>
+		-->
+
+        <!--additional permissions-->
+        <!-- use hook instead to check duplicates? -->
+        <config-file target="AndroidManifest.xml" parent="/manifest">
+            <uses-permission android:name="com.android.alarm.permission.SET_ALARM" />
+            <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
+        </config-file>
+
+        <!--intent filter-->
+        <config-file target="AndroidManifest.xml" parent="/manifest/application/activity[@android:name='MainActivity']">
+            <intent-filter>
+                <action android:name="android.intent.action.ASSIST" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VOICE_COMMAND" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </config-file>
+
+        <!--intent queries-->
+        <config-file target="AndroidManifest.xml" parent="/manifest">
+            <queries>
+                <intent>
+                    <action android:name="android.speech.RecognitionService" />
+                </intent>
+                <intent>
+                    <action android:name="android.intent.action.TTS_SERVICE" />
+                </intent>
+                <intent>
+                    <action android:name="android.intent.action.MEDIA_BUTTON" />
+                </intent>
+                <intent>
+                    <action android:name="android.media.action.MEDIA_PLAY_FROM_SEARCH" />
+                </intent>
+                <intent>
+                    <action android:name="android.intent.action.SET_ALARM" />
+                </intent>
+                <intent>
+                    <action android:name="android.intent.action.SET_TIMER" />
+                </intent>
+                <intent>
+                    <action android:name="android.intent.action.INSERT" />
+                </intent>
+                <intent>
+                    <action android:name="android.intent.action.VIEW" />
+                    <data android:scheme="*" />
+                </intent>
+            </queries>
+        </config-file>
+
+        <!--intents-->
+        <allow-intent href="market:*" />
+
+    </platform>
+
+    <platform name="ios">
+        <!--hooks-->
+        <hook type="after_platform_add" src="hooks/add-swift-support.js" />
+
+        <!--icons and splash-->
+        <icon src="resources/icons/ios/icon.png" width="57" height="57" />
+        <icon src="resources/icons/ios/icon@2x.png" width="114" height="114" />
+        <icon src="resources/icons/ios/icon-40.png" width="40" height="40" />
+        <icon src="resources/icons/ios/icon-40@2x.png" width="80" height="80" />
+        <icon src="resources/icons/ios/icon-50.png" width="50" height="50" />
+        <icon src="resources/icons/ios/icon-50@2x.png" width="100" height="100" />
+        <icon src="resources/icons/ios/icon-60.png" width="60" height="60" />
+        <icon src="resources/icons/ios/icon-60@2x.png" width="120" height="120" />
+        <icon src="resources/icons/ios/icon-60@3x.png" width="180" height="180" />
+        <icon src="resources/icons/ios/icon-72.png" width="72" height="72" />
+        <icon src="resources/icons/ios/icon-72@2x.png" width="144" height="144" />
+        <icon src="resources/icons/ios/icon-76.png" width="76" height="76" />
+        <icon src="resources/icons/ios/icon-76@2x.png" width="152" height="152" />
+        <icon src="resources/icons/ios/icon-83.5@2x.png" width="167" height="167" />
+        <icon src="resources/icons/ios/icon-small.png" width="29" height="29" />
+        <icon src="resources/icons/ios/icon-small@2x.png" width="58" height="58" />
+        <icon src="resources/icons/ios/icon-small@3x.png" width="87" height="87" />
+
+        <splash src="resources/splashs/ios/Default@2x~iphone~anyany.png" />
+        <splash src="resources/splashs/ios/Default@3x~iphone~anyany.png" />
+        <splash src="resources/splashs/ios/Default@2x~ipad~anyany.png" />
+        <preference name="ShowSplashScreenSpinner" value="false" />
+        <preference name="SplashScreenDelay" value="10000" />
+
+        <!--config stuff-->
+        <preference name="deployment-target" value="15.0" /><!-- iOS 10+ -->
+        <preference name="DisallowOverscroll" value="true" />
+        <preference name="SuppressesLongPressGesture" value="true" />
+
+        <edit-config target="NSLocationWhenInUseUsageDescription" file="*-Info.plist" mode="merge">
+            <string>If you activate GPS in the app and allow access SEPIA can help you navigate and show you location based events.</string>
+        </edit-config>
+        <edit-config target="NSLocationAlwaysAndWhenInUseUsageDescription" file="*-Info.plist" mode="merge">
+            <string>If you activate GPS in the app and allow access SEPIA can help you navigate and show you location based events.</string>
+        </edit-config>
+
+        <!--intents-->
+        <allow-intent href="itms:*" />
+        <allow-intent href="itms-apps:*" />
+    </platform>
+
+    <universal-links>
+        <ios-team-id value="" />
+        <host name="b07z.net" scheme="https">
+            <path url="/dl/sepia/*" event="universalLinks" />
+        </host>
+    </universal-links>
+
+</widget>

@@ -29,6 +29,7 @@ function sepiaFW_build_always_on(){
     var mainWasVoiceDisabled = false;
     var mainEnvironment;
     var thisEnvironment = "avatar_display";
+    var mainSafeAreas = {};
     var avatarIsWaiting = false;
     var avatarIsLoading = false;
     var avatarIsAlarmed = false;
@@ -101,6 +102,11 @@ function sepiaFW_build_always_on(){
         $mainWindow.addClass('sepiaFW-ao-mode');
         $topLayer.addClass('sepiaFW-ao-mode');
         $carouselPanes.addClass('full-screen');
+        //set black theme for status-bar and nav-bar if possible
+        SepiaFW.ui.setThemeColorMeta("#000000");
+        //set black safe areas (and backup original)
+        mainSafeAreas = SepiaFW.ui.getScreenSafeAreas();
+        SepiaFW.ui.setScreenSafeAreas({background: "#000000"}, false, false);
         //show avatar and stuff
         if (openFadeTimer) clearTimeout(openFadeTimer);
         openFadeTimer = setTimeout(function(){
@@ -148,6 +154,10 @@ function sepiaFW_build_always_on(){
         if (!mainWasFullscreenOpen){
             $carouselPanes.removeClass('full-screen');
         }
+        //restore theme for status-bar and nav-bar if possible
+        SepiaFW.ui.resetThemeColorMeta();
+        //restore safe areas color
+        SepiaFW.ui.setScreenSafeAreas({background: mainSafeAreas.background}, false, false);
         //TTS is always on?
         if (SepiaFW.speech){
             var skipStore = true;

@@ -58,10 +58,15 @@
 				</div>
 			</div>
 			<div class="group-container">
-				<p style="flex: 1 0 100%; text-align: center;">Volume and Voice Activity:</p>
-				<div id="sepiaFW-media-devices-mic-test-wave" style="margin: 16px 0;"></div>
-				<div id="sepiaFW-media-devices-mic-test-plot-1" class="sepiaFW-plot-container" style="margin: 8px 0;"></div>
-				<div id="sepiaFW-media-devices-mic-test-plot-2" class="sepiaFW-plot-container" style="margin: 8px 0;"></div>
+				<p style="flex: 1 0 100%; text-align: center;">Volume and Voice Activity
+					<input id="sepiaFW-media-devices-mic-test-do-plot" type="checkbox" style="width: auto; margin: 0 8px; vertical-align: middle;" 
+						title="Show volume and VAD plots? Disable for better performance." onchange="SepiaFW.frames.currentScope.toggleMicPlots()" checked
+					>
+				</p>
+				<div id="sepiaFW-media-devices-mic-test-wave" style="margin: 16px 0; width: 100%; text-align: center;"></div>
+				<div id="sepiaFW-media-devices-mic-test-plot-1" class="sepiaFW-plot-container" style="margin: 8px 0;"><p style="text-align: center; margin-top: 8px;">- volume -</p></div>
+				<div id="sepiaFW-media-devices-mic-test-plot-2" class="sepiaFW-plot-container" style="margin: 8px 0;"><p style="text-align: center; margin-top: 8px;">- voice activity -</p></div>
+				<div id="sepiaFW-media-devices-mic-test-numbers" style="width: 100%; margin: 8px 0; display: none;"><!-- TBD --></div>
 			</div>
 		</div>
 		<!-- Page 3 -->
@@ -317,7 +322,31 @@
 		showMicTestError: function(msg){
 			$('#sepiaFW-media-devices-mic-test-state').css("color", "#f00").text(msg);
 		},
-		micTestState: {},
+		micTestState: {
+			startedRecording: false,
+			doPlot: true	//NOTE: initial state is set in HTML above
+		},
+		toggleMicPlots: function(){
+			var doPlot = document.getElementById("sepiaFW-media-devices-mic-test-do-plot").checked;
+			var state = SepiaFW.frames.currentScope.micTestState;
+			if (doPlot){
+				state.doPlot = true;
+				$("#sepiaFW-media-devices-mic-test-plot-1").show();
+				$("#sepiaFW-media-devices-mic-test-plot-2").show();
+				$('#sepiaFW-media-devices-mic-test-numbers').hide();
+				if (state.startedRecording && state.recordingDuration == undefined){
+					//add note while running
+					$("#sepiaFW-media-devices-mic-test-plot-1").html(
+						"<p style='text-align: center; margin-top: 8px;'>- please restart test to activate plots -</p>"
+					);
+				}
+			}else{
+				state.doPlot = false;
+				$("#sepiaFW-media-devices-mic-test-plot-1").hide();
+				$("#sepiaFW-media-devices-mic-test-plot-2").hide();
+				$('#sepiaFW-media-devices-mic-test-numbers').show();
+			}
+		},
 		startMicrophoneTest: function(){
 			var recLimit = 8000;
 			var state = SepiaFW.frames.currentScope.micTestState;
@@ -332,8 +361,12 @@
 			chartEle1.innerHTML = "";
 			var chartEle2 = document.getElementById("sepiaFW-media-devices-mic-test-plot-2");
 			chartEle2.innerHTML = "";
-			var volumeGraph = SepiaFW.ui.plot.createLineSeries(chartEle1, 150);
-			var vadGraph = SepiaFW.ui.plot.createLineSeries(chartEle2, 150);
+			var volumeGraph;
+			var vadGraph;
+			if (state.doPlot){
+				volumeGraph = SepiaFW.ui.plot.createLineSeries(chartEle1, 150);
+				vadGraph = SepiaFW.ui.plot.createLineSeries(chartEle2, 150);
+			}
 			//stop and release existing recorders
 			SepiaFW.audioRecorder.testMicrophone(state, recLimit, function(res){
 				//show results
@@ -353,12 +386,16 @@
 				SepiaFW.frames.currentScope.addWaveToPage(wavData);
 			}, function(rmsVol){
 				//plot volume
-				volumeGraph.addValues(rmsVol);
-				volumeGraph.draw();
+				if (volumeGraph){
+					volumeGraph.addValues(rmsVol);
+					volumeGraph.draw();
+				}
 			}, function(energy){
 				//plot VAD
-				vadGraph.addValues(energy);
-				vadGraph.draw();
+				if (vadGraph){
+					vadGraph.addValues(energy);
+					vadGraph.draw();
+				}
 			},
 				SepiaFW.frames.currentScope.showMicTestInfo, 
 				function(errName, errMessage){

@@ -1,4 +1,4 @@
-var cacheName = 'SEPIA_PWA_v0.2X.X_b003'; 		//Note: remember to clear old caches when the versioned SW cache is active
+var cacheName = 'SEPIA_PWA_v0.2X.X_b005'; 		//Note: remember to clear old caches when the versioned SW cache is active
 var ENABLE_DYNAMIC_CACHING = false;
 
 self.addEventListener('install', function(event){
@@ -70,3 +70,71 @@ self.addEventListener('fetch', function(e){
 		}
 	}());
 });
+
+//Notification listener
+self.addEventListener('notificationclick', function(event){
+	//NOTE: see sepiaFW.ui.notify for data description
+	//console.error('On notification click:', event.notification.tag, 'Data:', event.notification.data);	//DEBUG
+	var data = event.notification.data;
+	var action = event.action || "";
+	var actionDismiss = (action == "dismiss");
+	var noteData = data.noteData;
+	var onClickData = actionDismiss? undefined : data.onClickData;	//dismiss click is equal to "just" close
+	//close note?
+	if (actionDismiss || (onClickData && onClickData.closeNote)){
+		event.notification.close();
+		if (onClickData) delete onClickData.closeNote;
+	}
+	//just close?
+	if (actionDismiss){
+		handleNotificationClose(event, data.onCloseData, noteData);
+	}else{
+		handleNotificationClick(event, action, onClickData, noteData);
+	}
+});
+self.addEventListener('notificationclose', function(event){
+	//console.error('On notification close:', event.notification.tag, 'Data:', event.notification.data);	//DEBUG
+	var data = event.notification.data;
+	var noteData = data.noteData;
+	var onCloseData = data.onCloseData;
+	handleNotificationClose(event, onCloseData, noteData);
+});
+function handleNotificationClick(event, action, onClickData, noteData){
+	getPrimaryClient(event, function(windowClient){
+		//focus window?
+		if (onClickData && onClickData.focusApp){
+			//if (windowClient.visibilityState === 'hidden')
+			windowClient.focus();
+			delete onClickData.focusApp;
+		}
+		windowClient.postMessage({
+			action: action,
+			onClickData: onClickData,
+			noteData: noteData
+		});
+	});
+}
+function handleNotificationClose(event, onCloseData, noteData){
+	getPrimaryClient(event, function(windowClient){
+		//focus window?
+		if (onCloseData && onCloseData.focusApp){
+			//if (windowClient.visibilityState === 'hidden')
+			//if (windowClient.url == ...)
+			windowClient.focus();
+			delete onCloseData.focusApp;
+		}
+		windowClient.postMessage({
+			onCloseData: onCloseData,
+			noteData: noteData
+		});
+	});
+}
+function getPrimaryClient(event, successCallback){
+	event.waitUntil(clients.matchAll({
+		type: "window"
+	}).then(function(clientList){
+		if (clientList && clientList.length){
+			successCallback(clientList[0]);
+		}
+	}));
+}

@@ -146,6 +146,7 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 		sliderBox.appendChild(slider);
 		slider.type = "range";
 		slider.value = (initialValue != undefined)? initialValue : 0;
+		slider.title = slider.value;
 		if (range && range.length == 2){
 			slider.min = range[0];
 			slider.max = range[1];
@@ -161,9 +162,11 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 		}
 		if (sliderId) sliderBox.id = sliderId;
 		$(slider).on('input', function(){
+			slider.title = slider.value;
 			if (onInputCallback) onInputCallback(slider.value);
 		});
 		$(slider).on('change', function(){
+			slider.title = slider.value;
 			if (onChangeCallback) onChangeCallback(slider.value);
 		});
 		sliderBox.getValue = function(){
@@ -171,6 +174,7 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 		}
 		sliderBox.setValue = function(val){
 			slider.value = val;
+			slider.title = slider.value;
 		}
 		sliderBox.setDisabled = function(isDisabled){
 			slider.disabled = isDisabled;
@@ -188,6 +192,19 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 		if (btnId) btn.id = btnId;
 		SepiaFW.ui.onclick(btn, function(){
 			callback(this);
+		}, true);
+		return btn;
+	}
+
+	//a help-text button
+	Build.helpButton = function(helpTextOrEle){
+		var btn = document.createElement('BUTTON');
+		btn.className = "sepiaFW-button-inline round icon-only";
+		btn.innerHTML = "<i class='material-icons md-inherit'>help</i>";
+		SepiaFW.ui.onclick(btn, function(){
+			SepiaFW.ui.showPopup(helpTextOrEle, {
+				textAlign: "left"
+			});
 		}, true);
 		return btn;
 	}
@@ -393,7 +410,8 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 				if (!SepiaFW.ui.useTouchBarControls){
 					$('#sepiaFW-chat-controls-swipe-area').fadeIn(300, function(){
 						//workaround to prevent ugly glitches at the frame
-						$('#sepiaFW-chat-controls-form').css({"background-color" : $('#sepiaFW-chat-controls-swipe-area').find('.sepiaFW-swipeBar-switchable').css('background-color')});
+						var bgc = $('#sepiaFW-chat-controls-swipe-area').find('.sepiaFW-swipeBar-switchable').css('background-color');
+						$('#sepiaFW-chat-controls-form').css({"background": bgc});
 					});
 					//$('#sepiaFW-chat-controls-swipe-area').css({'background-color': SepiaFW.ui.secondaryColor}).fadeIn(300);
 				}
@@ -512,7 +530,7 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 					//TODO: make configurable?
 					SepiaFW.ui.backButtonAction();
 				}else{
-					$('#sepiaFW-chat-controls-form').css({"background-color" : ""});	//$('#sepiaFW-chat-controls-right').css('background-color')
+					$('#sepiaFW-chat-controls-form').css({"background" : ""});	//$('#sepiaFW-chat-controls-right').css('background-color')
 					$('#sepiaFW-chat-controls-swipe-area').fadeOut(300);
 				}
 			});
@@ -701,7 +719,7 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 				+ "<ul class='sepiaFW-menu-settings-list'>"
 					+ "<li id='sepiaFW-menu-select-skin-li'><span>Skin: </span><select id='sepiaFW-menu-select-skin'><option disabled selected value>- select -</option></select></li>"
 					+ "<li id='sepiaFW-menu-select-avatar-li'><span>Avatar: </span><select id='sepiaFW-menu-select-avatar'><option disabled selected value>- select -</option></select></li>"
-					+ "<li id='sepiaFW-menu-toggle-bigScreenMode-li' title='Switch big-screen mode on/off'><span>Big-screen mode: </span></li>"
+					+ "<li id='sepiaFW-menu-toggle-bigScreenMode-li' title='Toggle big-screen mode'><span>Limit screen-size: </span></li>"
 					+ "<li id='sepiaFW-menu-select-orientationMode-li' title='Set pref. screen orientation'><span>Screen orientation: </span></li>"
 					+ "<li id='sepiaFW-menu-toggle-touchBarControls-li' title='Switch new touch-bar controls mode on/off'><span>Touch-bar controls: </span></li>"
 					+ "<li class='spacer'></li>"
@@ -904,6 +922,7 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 							page1.innerHTML = "";
 							var hubIframe = document.createElement('iframe');
 							hubIframe.className = "full-size";
+							//TODO: add '<iframe src="https://example.com" allow="fullscreen; camera 'none'; microphone https://example.com"/>'
 							var triedLogin = false;
 							hubIframe.onload = function(){
 								//login - TODO: potential race condition?
@@ -944,6 +963,14 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 			$('#sepiaFW-menu-select-skin').off().on('change', function(){
 				SepiaFW.ui.setSkin($('#sepiaFW-menu-select-skin').val());
 			});
+			$('#sepiaFW-menu-select-skin-li').prepend(Build.inlineActionButton(
+				'sepiaFW-menu-theme-editor', "<i class='material-icons md-inherit'>palette</i>",
+				function(btn){
+					SepiaFW.frames.open({ 
+						pageUrl: "theme-editor.html"
+					});
+				})
+			);
 			var avatars = $('.sepiaFW-style-avatar');
 			var defaultAvatarOption = document.createElement('OPTION');
 				defaultAvatarOption.textContent = "Let skin choose";
@@ -1280,16 +1307,6 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 			//toggle big-screen mode
 			document.getElementById('sepiaFW-menu-toggle-bigScreenMode-li').appendChild(Build.toggleButton('sepiaFW-menu-toggle-bigScreenMode', 
 				function(){
-					SepiaFW.data.setPermanent('big-screen-mode', true);
-					SepiaFW.debug.info("Big-screen mode activated, please reload client.");
-					SepiaFW.ui.showPopup("Please reload the interface to fully activate alternative controls.", {
-						buttonOneName : "Reload now",
-						buttonOneAction : function(){ setTimeout(function(){ location.reload(); }, 1000); },
-						buttonTwoName : "Later",
-						buttonTwoAction : function(){}
-					});
-					SepiaFW.ui.setBigScreenMode(true, true);
-				},function(){
 					SepiaFW.data.setPermanent('big-screen-mode', false);
 					SepiaFW.debug.info("Big-screen mode deactivated, please reload client.");
 					SepiaFW.ui.showPopup("Please reload the interface to fully activate alternative controls.", {
@@ -1299,7 +1316,17 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 						buttonTwoAction : function(){}
 					});
 					SepiaFW.ui.setBigScreenMode(false, true);
-				}, SepiaFW.ui.useBigScreenMode)
+				},function(){
+					SepiaFW.data.setPermanent('big-screen-mode', true);
+					SepiaFW.debug.info("Big-screen mode activated, please reload client.");
+					SepiaFW.ui.showPopup("Please reload the interface to fully activate alternative controls.", {
+						buttonOneName : "Reload now",
+						buttonOneAction : function(){ setTimeout(function(){ location.reload(); }, 1000); },
+						buttonTwoName : "Later",
+						buttonTwoAction : function(){}
+					});
+					SepiaFW.ui.setBigScreenMode(true, true);
+				}, !SepiaFW.ui.useBigScreenMode)
 			);
 			//set screen orientation mode
 			if (SepiaFW.ui.isScreenOrientationSupported()){

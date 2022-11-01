@@ -22,12 +22,12 @@ html {
 }
 
 #sepiaFW-pC 	{ background-color: #fff; }
-#sepiaFW-sC 	{ background-color: #027BFF; }
-#sepiaFW-sC2 	{ background-color: #77b7ff; }
+#sepiaFW-sC 	{ background-color: #000; }
+#sepiaFW-sC2 	{ background-color: #027BFF; }
 #sepiaFW-aC 	{ background-color: #ff5c69; }
 #sepiaFW-aC2 	{ background-color: #7fffb5; }
-#sepiaFW-asC 	{ background-color: #000; }
-#sepiaFW-adC 	{ background-color: #fff176; }
+#sepiaFW-asC 	{ background-color: #027BFF; }
+#sepiaFW-adC 	{ background-color: #ffee00; }
 #sepiaFW-lC 	{ background-color: #e5e5e5; }
 
 #sepiaFW-navC 	{ background-color: #000; }
@@ -40,14 +40,13 @@ html {
 	background: rgba(255, 255, 255, 0.85);
 	color: #000;
 	border: 1px solid #eee;
+	-webkit-backdrop-filter: blur(5px);
+	backdrop-filter: blur(5px);
 }
 #sepiaFW-chat-controls {
 	border: 2px solid transparent;
 	border-top: 0;
 	border-bottom: 2px solid #fff;
-}
-#sepiaFW-chat-controls-form, #sepiaFW-chat-controls-right {
-	backdrop-filter: blur(5px);
 }
 #sepiaFW-nav-bar {
 	border-left: 0;
@@ -84,30 +83,27 @@ html {
 }
 #sepiaFW-assist-btn-area {
 	border-color: #027BFF;
-	background: rgba(255, 255, 255, 0.85);
+	background: rgba(255, 255, 255, 0.85) !important;
+	color: #000 !important;
+	-webkit-backdrop-filter: blur(5px);
 	backdrop-filter: blur(5px);
+}
+.sepiaFW-notouch-device #sepiaFW-assist-btn-area button:hover {
+	background: #f7f7f7 !important;
 }
 #sepiaFW-assist-btn-area.speaking button {
 	border: 4px solid #5af59b;
 }
 #sepiaFW-assist-btn-area.listening button {
 	border: 4px solid #ff282d;
-	color: #fff;
 }
 #sepiaFW-assist-btn-area.awaitDialog button {
-	border: 4px solid #f5df1e;
-}
-#sepiaFW-assist-btn-area button:hover {
-	background: linear-gradient(45deg, #027bff, #3e98ff);
-	color: #fff;
-}
-.sepiaFW-touch-device #sepiaFW-assist-btn-area button:hover {
-	background: #fff;
-	color: #000;
+	border: 4px solid #ffee00;
 }
 
 #sepiaFW-chat-controls-speech-box {
 	background: rgba(255, 255, 255, 0.85);
+	-webkit-backdrop-filter: blur(5px);
 	backdrop-filter: blur(5px);
 	border: 1px solid #e5e5e5;
 }
@@ -119,7 +115,8 @@ html {
 #sepiaFW-main-window .chat-buttons-area button {
     color: #000;
 	background: rgba(255, 255, 255, 0.85);
-	/*backdrop-filter: blur(5px);*/
+	-webkit-backdrop-filter: blur(5px);
+	backdrop-filter: blur(5px);
 }
 #sepiaFW-main-window .chat-buttons-area .my-view-custom-button {
 	background-color: rgba(255, 255, 255, 0.85);
@@ -130,10 +127,16 @@ html {
 }
 
 .sepiaFW-menu {
-	background: rgba(255, 255, 255, 1.0) !important;
-    /*backdrop-filter: blur(5px);*/
+	background: rgba(255, 255, 255, 0.90) !important;
+	-webkit-backdrop-filter: blur(5px);
+    backdrop-filter: blur(5px);
 	color: #000 !important;
 	border: 1px solid #eee;
+}
+#sepiaFW-chat-menu {
+	background: rgba(255, 255, 255, 1.00) !important;
+	-webkit-backdrop-filter: unset;
+    backdrop-filter: unset;
 }
 .sepiaFW-menu button {
 	background: linear-gradient(45deg, #027bff, #3e98ff) !important;
@@ -183,12 +186,15 @@ html {
 #sepiaFW-chat-output article {
     border: 1px solid #e5e5e5;
     background: rgba(235, 235, 235, 0.50);
-    /*backdrop-filter: blur(5px);*/
+	-webkit-backdrop-filter: blur(5px);
+    backdrop-filter: blur(5px);
 	color: #2f3035;
 	padding-left: 9px;
 }
 #sepiaFW-chat-output article.chatMe {
 	background: linear-gradient(45deg, #027bff, #3e98ff);
+	-webkit-backdrop-filter: unset;
+	backdrop-filter: unset;
     color: #fff;
     border: 0;
 }
@@ -201,7 +207,6 @@ html {
 #sepiaFW-chat-output article.chatAssistant {
 	border: 1px solid #eee;
 	background: rgba(255, 255, 255, 0.85);
-	/*backdrop-filter: blur(5px);*/
 	color: #2f3035;
 }
 #sepiaFW-chat-output article.chatAssistant b {
@@ -278,6 +283,8 @@ html {
 .sepiaFW-cards-contextMenu-single {
 	background: transparent !important;
 	border: 0;
+	-webkit-backdrop-filter: unset;
+	backdrop-filter: unset;
 }
 
 .sepiaFW-cards-list-title {
@@ -285,6 +292,8 @@ html {
 	/*background: rgba(15, 230, 15, 0.55);*/
 	color: #000;
 	border: 1px solid #e5e5e5;
+	-webkit-backdrop-filter: blur(5px);
+	backdrop-filter: blur(5px);
 }
 .sepiaFW-cards-list-title.newsHeader button {
 	color: #027BFF !important;
@@ -292,6 +301,8 @@ html {
 .sepiaFW-cards-list-footer {
 	background: rgba(255, 255, 255, 0.90);
 	border: 1px solid #e5e5e5;
+	-webkit-backdrop-filter: blur(5px);
+	backdrop-filter: blur(5px);
 }
 .sepiaFW-cards-list-body {
     padding-bottom: 4px;
@@ -328,7 +339,8 @@ html {
 .sepiaFW-cards-list-body .newsArticle > div,
 .sepiaFW-cards-list-body .fullWidthItem .cardItemBlock {
 	border: 1px solid #e5e5e5;
-	/*backdrop-filter: blur(5px);*/
+	-webkit-backdrop-filter: blur(5px);
+	backdrop-filter: blur(5px);
 }
 .sepiaFW-cards-flexSize-container .cardBodyItem.embeddedWebPlayer iframe {
 	border: 1px solid #e5e5e5;

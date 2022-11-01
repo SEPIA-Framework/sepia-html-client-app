@@ -97,7 +97,7 @@ function sepiaFW_build_events(){
 		var checkedActiveTimeEventIds = [];
 		//console.log('active Ids (is): ' + activeTimeEventIds); 		//DEBUG
 		if (SepiaFW.ui.isCordova){
-			cordova.plugins.notification.local.getScheduledIds(function (ids) {
+			cordova.plugins.notification.local.getScheduledIds(function(ids){
 				$.each(ids, function(index, id){
 					if ($.inArray(id, activeTimeEventIds) > -1){
 						checkedActiveTimeEventIds.push(id);
@@ -114,7 +114,7 @@ function sepiaFW_build_events(){
 		var checkedActiveEventIds = [];
 		//console.log('active Ids (is): ' + activeEventIds); 		//DEBUG
 		if (SepiaFW.ui.isCordova){
-			cordova.plugins.notification.local.getScheduledIds(function (ids) {
+			cordova.plugins.notification.local.getScheduledIds(function(ids){
 				$.each(ids, function(index, id){
 					if ($.inArray(id, activeEventIds) > -1){
 						checkedActiveEventIds.push(id);
@@ -164,14 +164,17 @@ function sepiaFW_build_events(){
 			Events.clearAllProActiveBackgroundNotifications(function(){
 				//load contextual events to myView
 				SepiaFW.debug.info('Events loadContextualEvents: getting new events.');
-				var options = {};
-					options.skipText = true;
-					options.skipTTS = true;
-					options.targetView = "myView";
+				var options = {
+					skipText: true,
+					skipTTS: true,
+					targetView: "myView"
 					//NOTE: we don't need 'updateMyViewEvents' here since this is done by the message handler 
-				var dataset = {};	dataset.info = "direct_cmd";
-					dataset.cmd = "events_personal;;";
-					dataset.newReceiver = SepiaFW.assistant.id;
+				};
+				var dataset = {
+					info: "direct_cmd",
+					cmd: "events_personal;;",
+					newReceiver: SepiaFW.assistant.id
+				};
 				SepiaFW.client.sendCommand(dataset, options);
 			});
 		}
@@ -191,8 +194,11 @@ function sepiaFW_build_events(){
 		{"eventId":"randomMotivationMorning","info":"entertainWhileIdle","triggerIn":-22800000, "created": 1558379918970, "text":"Ach, ich wollte noch sagen, du bist cool! :-)","type":"schedule_msg"}
 		or e.g.: "info": "proActiveNote"
 		*/
-		var noteData = {"type": action.info, "action": "triggered", "data": {"message": action.text, "eventId": action.eventId, "created": action.created}};
-
+		var noteData = {
+			type: action.info,	//e.g.: "entertainWhileIdle", "proActiveNote"
+			action: "triggered",
+			data: {"message": action.text, "eventId": action.eventId, "created": action.created}
+		};
 		if (SepiaFW.ui.isCordova){
 			var d = new Date((new Date().getTime() + action.triggerIn) + 1500);		//note: the delay is to handle the foreground activity (see below, 2nd timer)
 			var nid = getAndIncreaseNotificationId();
@@ -201,7 +207,7 @@ function sepiaFW_build_events(){
 				title: SepiaFW.assistant.name + ":",
 				text: action.text,
 				trigger: {
-					at: (d)
+					at: d
 				},
 				sound: "res://platform_default",
 				smallIcon: "res://ic_popup_reminder",
@@ -241,12 +247,18 @@ function sepiaFW_build_events(){
 			}
 			proActiveMessageTimers[action.eventId] = setTimeout(function(){
 				if (!SepiaFW.ui.isVisible()){
-					SepiaFW.ui.notification.send(action.text, SepiaFW.assistant.name, '', function(note){
-						window.focus();
-						note.close();
-						Events.handleLocalNotificationClick(noteData);
-						SepiaFW.ui.updateMyView(false, true, 'localNotificationClick');
-					});
+					var onClickData = {
+						focusApp: true,
+						closeNote: true,
+						updateMyView: {
+							forceUpdate: false,
+							checkGeolocationFirst: true,
+							updateSource: "localNotificationClick"
+						}
+					};
+					SepiaFW.ui.notification.send(action.text, SepiaFW.assistant.name, {
+						data: noteData
+					}, onClickData);
 					//trigger event
 					Events.trackLocalNotificationTrigger(noteData);
 				}else{
@@ -335,17 +347,22 @@ function sepiaFW_build_events(){
 			//clear all background notifications - then reload
 			Events.clearAllTimeEventBackgroundNotifications(function(){
 				//reload Timers
-				var options = {};
-					options.loadOnlyData = true;
-					options.updateMyViewTimers = true; 		//update my-view (but only time events) afterwards
+				var options = {
+					loadOnlyData: true,
+					updateMyViewTimers: true	//update my-view (but only time events) afterwards
 					//TODO: this will currently trigger update twice, but at least the cards already in my-view will be skipped
-				var dataset = {};	dataset.info = "direct_cmd";
-					dataset.cmd = "timer;;action=<show>;;alarm_type=<timer>;;";			//TODO: make a function for that
-					dataset.newReceiver = SepiaFW.assistant.id;
+				};
+				var dataset = {
+					info: "direct_cmd",
+					cmd: "timer;;action=<show>;;alarm_type=<timer>;;",
+					newReceiver: SepiaFW.assistant.id
+				};
 				SepiaFW.client.sendCommand(dataset, options);
-				var dataset2 = {};	dataset2.info = "direct_cmd";
-					dataset2.cmd = "timer;;action=<show>;;alarm_type=<alarmClock>;;";	//TODO: make a function for that
-					dataset2.newReceiver = SepiaFW.assistant.id;
+				var dataset2 = {
+					info: "direct_cmd",
+					cmd: "timer;;action=<show>;;alarm_type=<alarmClock>;;",	//TODO: make a function for that
+					newReceiver: SepiaFW.assistant.id
+				};
 				SepiaFW.client.sendCommand(dataset2, options);
 			});
 		}else{
@@ -706,12 +723,16 @@ function sepiaFW_build_events(){
 	
 	//Background notification 
 	Events.setTimeEventBackgroundNotification = function(Timer){
-		//console.log('setTimeEventBackgroundNotification'); 		//DEBUG
+		//console.error('setTimeEventBackgroundNotification', Timer); 		//DEBUG
 		if (!Timer || (Timer.targetTime - new Date().getTime())<0){
 			//timers of the past are rejected
 			return;
 		}
-		var noteData = {"type" : Timer.type, "action" : "triggered", "data" : Timer.data};
+		var noteData = {
+			type: Timer.type, 	//e.g.: Events.TIMER, Events.ALARM
+			action: "triggered", 
+			data: Timer.data
+		};
 		if (SepiaFW.ui.isCordova){
 			var d = new Date(Timer.targetTime + 500);
 			var nid = getAndIncreaseNotificationId();
@@ -722,7 +743,7 @@ function sepiaFW_build_events(){
 				trigger: {
 					at: (d)
 				},
-				sound: "file://sounds/alarm.mp3", 		//TODO: is this path working at all?? Its not really a typical valid path :-/
+				sound: "file://" + SepiaFW.audio.alarmSound,
 				smallIcon: "res://ic_popup_reminder",
 				color: "303030",
 				data: noteData,
@@ -813,9 +834,9 @@ function sepiaFW_build_events(){
 		if (showSimpleNote){
 			setTimeout(function(){
 				var noteData = {
-					type : "alarm",
-					onClickType : "stopAlarmSound",
-					onCloseType : "stopAlarmSound"
+					type: Events.ALARM,
+					onClickType: "stopAlarmSound",
+					onCloseType: "stopAlarmSound"
 				};
 				Events.showSimpleSilentNotification(titleS, textS, noteData);
 			}, 50);
@@ -848,33 +869,42 @@ function sepiaFW_build_events(){
 	
 	//------------- other notifications --------------
 	
-	var browserNotificationTimers = {};
 	Events.cancelSimpleNotification = function(nid){
 		if (SepiaFW.ui.isCordova){
 			cordova.plugins.notification.local.cancel([nid]);
 			
 		}else if (SepiaFW.ui.notification){
-			if (nid in browserNotificationTimers){
-				clearTimeout(browserNotificationTimers[nid]);
-				delete browserNotificationTimers[nid];
-			}
+			SepiaFW.ui.notification.cancel([nid]);
 		}
 	}
 	
 	//Simple direct notifications
-	Events.showSimpleSilentNotification = function(titleS, textS, data){
+	Events.showSimpleSilentNotification = function(titleS, textS, data, requestCallback){
 		//console.log('showSimpleSilentNotification'); 		//DEBUG
-		Events.showSimpleNotification(titleS, textS, 'null', data);
+		return Events.showSimpleNotification(titleS, textS, 'null', data, requestCallback);
 	}
-	Events.showSimpleNotification = function(titleS, textS, soundFile, data){
+	Events.showSimpleNotification = function(titleS, textS, soundFile, data, requestCallback){
 		//console.log("actions: " + JSON.stringify(data)); 		//DEBUG
-		Events.scheduleSimpleNotification(titleS, textS, soundFile, data);
+		return Events.scheduleSimpleNotification({
+			id: undefined,
+			title: titleS,
+			text: textS,
+			sound: soundFile,
+			data: data,
+			date: undefined
+		}, requestCallback);
 	}
-	Events.scheduleSimpleNotification = function(titleS, textS, soundFile, data, date, msgId){
+	Events.scheduleSimpleNotification = function(commonOptions, requestCallback){
+		var msgId = commonOptions.id;
+		var textS = commonOptions.text || "";
+		var titleS = commonOptions.title || "";
+		var soundFile = commonOptions.sound;
+		var data = commonOptions.data;
+		var date = commonOptions.date;
 		var nid = -1;
-		if (date && (date.getTime() - new Date().getTime())<0){
+		if (date && (date.getTime() - new Date().getTime()) < 0){
 			//timers of the past are rejected
-			return nid;
+			return -1;
 		}
 		nid = msgId || getAndIncreaseNotificationId();
 		if (SepiaFW.ui.isCordova){
@@ -885,7 +915,7 @@ function sepiaFW_build_events(){
 				smallIcon: "res://ic_popup_reminder",
 				color: "303030",
 				data: (data? data : {}),
-				wakeup: false
+				wakeup: false	//TODO: correct?
 			}
 			//sound
 			if (soundFile && soundFile == 'null'){
@@ -902,36 +932,80 @@ function sepiaFW_build_events(){
 			cordova.plugins.notification.local.schedule([options]);
 			
 		}else if (SepiaFW.ui.notification){
-			//schedule
-			var delay = 50;
-			if (date){
-				//TODO: convert delay
-				//delay = ???
-			}
 			var options = {
+				id: nid,
 				data: (data? data : {})
 			}
-			browserNotificationTimers[nid] = setTimeout(function(){
-				SepiaFW.ui.notification.send(textS, titleS, options, function(note){
-					window.focus();
-					note.close();
-					Events.handleLocalNotificationClick(data);
-				}, function(note){
-					Events.handleLocalNotificationClose(data);
-				});
+			//sound
+			if (soundFile && soundFile != 'null'){
+				options.sound = soundFile;
+			}
+			//schedule
+			var noteRequestCallback = undefined;
+			if (date){
+				var delay = Math.max(50, date.getTime() - new Date().getTime());
+				if (delay > 50){
+					options.triggerAt = date;
+				}
+			}
+			//return "scheduled" or "created"
+			if (!options.triggerAt){
+				noteRequestCallback = requestCallback;
+				requestCallback = undefined;
+			}
+			var onClickData = {
+				focusApp: true,
+				closeNote: true,
+				updateMyView: {
+					forceUpdate: false,
+					checkGeolocationFirst: true,
+					updateSource: "localNotificationClick"
+				}
+			};
+			var onCloseData = {};	//nothing specific yet (most is handled via options.data)
+			SepiaFW.ui.notification.schedule(textS, titleS, options, 
+					onClickData, onCloseData, function(returnCode){
 				//trigger event
 				Events.trackLocalNotificationTrigger(data);
-				//sound
-				if (soundFile && soundFile != 'null'){
-					//TODO: add sound
+				//callback
+				if (noteRequestCallback){
+					//return code 1 = success, rest is errors
+					var msg = SepiaFW.ui.notification.getReturnMessageForCode(returnCode);
+					if (returnCode == 1){
+						noteRequestCallback({message: msg});
+					}else{
+						noteRequestCallback({error: msg});
+					}
 				}
-			}, delay);
+			});
 		}
+		if (requestCallback) requestCallback({message: "note scheduled"});	//NOTE: best guess
 		return nid;
 	}
+
+	//music player notification
+	/*
+	Events.showOrUpdateMusicPlayerNotification = function(mediaText, mediaTitle, requestCallback){
+		if (SepiaFW.ui.isCordova){
+			//TODO: check https://github.com/ghenry22/cordova-plugin-music-controls2
+			Events.scheduleSimpleNotification({
+				id: mediaPlayerNotificationId,
+				title: mediaTitle || "S.E.P.I.A. Media Player",
+				text: mediaText || "Media",
+				sound: 'null',
+				data: {}
+			}, requestCallback);
+
+		}else if (SepiaFW.ui.notification){
+			//TODO: implement? - Skip for now
+		}
+	}
+	var mediaPlayerNotificationId = "sepia-media-player-note-1";
+	*/
 	
 	//handle click events on simple notifications
 	Events.handleLocalNotificationClick = function(data){
+		//console.error("handleLocalNotificationClick", data.type, data);	//DEBUG
 		//reply sender
 		if (data && data.onClickType && data.onClickType == "replySender" && data.sender){
 			var chatInput = document.getElementById("sepiaFW-chat-input");
@@ -943,13 +1017,8 @@ function sepiaFW_build_events(){
 			}
 		
 		//alarm trigger
-		}else if (data && data.type == "alarm"){
-			if (data.onClickType == "stopAlarmSound"){
-				//stop alarm
-				if (SepiaFW.audio && SepiaFW.audio.alarm.isPlaying){
-					SepiaFW.audio.stopAlarmSound("notificationClick");
-				}
-			}
+		}else if (data && (data.type == Events.ALARM || data.type == Events.TIMER)){
+			handleLocalNotificationAlarmActions(data.onClickType, "notificationClick");
 		
 		//pro-active chat message
 		}else if (data && (data.type === "entertainWhileIdle" || data.type === "proActiveNote") && data.data){
@@ -963,17 +1032,19 @@ function sepiaFW_build_events(){
 				SepiaFW.ui.showCustomChatMessage(msg, dataOut);
 			}, 300);
 		}
-		
 	}
 	//handle close events on simple notifications
 	Events.handleLocalNotificationClose = function(data){
 		//alarm trigger
-		if (data && data.type == "alarm"){
-			if (data.onCloseType == "stopAlarmSound"){
-				//stop alarm
-				if (SepiaFW.audio && SepiaFW.audio.alarm.isPlaying){
-					SepiaFW.audio.stopAlarmSound("notificationClose");
-				}
+		if (data && (data.type == Events.ALARM || data.type == Events.TIMER)){
+			handleLocalNotificationAlarmActions(data.onCloseType, "notificationClose");
+		}
+	}
+	function handleLocalNotificationAlarmActions(actionType, source){
+		if (actionType == "stopAlarmSound"){
+			//stop alarm
+			if (SepiaFW.audio && SepiaFW.audio.alarm.isPlaying){
+				SepiaFW.audio.stopAlarmSound("notificationClose");
 			}
 		}
 	}

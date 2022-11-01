@@ -15,14 +15,14 @@ html {
 	scrollbar-color: #eee #fff;
 }
 
-#sepiaFW-pC  { background-color: #000000; } 					/* Primary color - used for status bar and browser theme as well */
-#sepiaFW-sC  { background-color: #16ABC3; }						/* Secondary color - should be in contrast to primary */
-#sepiaFW-sC2 { background-color: rgba(225, 225, 245, 0.96); }	/* Secondary color 2 - should be in contrast to 1 and 2 */
-#sepiaFW-aC  { background-color: rgb(186, 42, 42); }			/* Accent color 1 - e.g. used during listening in assistant button */
-#sepiaFW-aC2 { background-color: #4ec48f; }							/* Accent color 2 - e.g. used during speaking in assistant button */
-#sepiaFW-asC { background-color: #CEFF1A; }	/*#c4ff3e, #69d177;*/	/* Assistant color - the signature color of the assistant */
-#sepiaFW-adC { background-color: #ffeb3b; }							/* Await-dialog color - used during "wait for interaction" in assistant button */
-#sepiaFW-lC  { background-color: #8e8e8e; }						/* Loading color - used during loading in assistant button */
+#sepiaFW-pC  { background-color: #000000; } 	/* Primary color - used for status bar and browser theme as well */
+#sepiaFW-sC  { background-color: #16ABC3; }	/* Secondary color - should be in contrast to primary */
+#sepiaFW-sC2 { background-color: #e3e3e9; }	/* Secondary color 2 - should be in contrast to 1 and 2 */
+#sepiaFW-aC  { background-color: #ba2a2a; }	/* Accent color 1 - e.g. used during listening in assistant button */
+#sepiaFW-aC2 { background-color: #4ec48f; }	/* Accent color 2 - e.g. used during speaking in assistant button */
+#sepiaFW-asC { background-color: #CEFF1A; }	/* Assistant color - the signature color of the assistant */
+#sepiaFW-adC { background-color: #ffeb3b; }	/* Await-dialog color - used during "wait for interaction" in assistant button */
+#sepiaFW-lC  { background-color: #8e8e8e; }	/* Loading color - used during loading in assistant button */
 
 /* #sepiaFW-navC 	{ background-color: #000; } */ 		/* Navigation bar color - can be used to overwrite color for nav-bar (depends on OS support) */
 /* #sepiaFW-statC 	{ background-color: #000; } */ 		/* Status bar color - can be used to overwrite color for status-bar (depends on OS support) */
@@ -129,11 +129,11 @@ html.landscape-small #sepiaFW-chat-controls {
 	color: #333 !important;
 }
 .sepiaFW-notouch-device #sepiaFW-myEvents-buttons button:hover {
-	background-color: rgba(225, 225, 245, 0.96) !important;
+	background-color: #e3e3e9 !important;
 	color: #000000 !important;
 }
 #sepiaFW-main-window .chat-buttons-area button {
-	background: rgba(225, 225, 245, 0.96);
+	background: #e3e3e9;
 	color: #000000;
 }
 .sepiaFW-notouch-device #sepiaFW-main-window .chat-buttons-area button:hover {
@@ -221,7 +221,7 @@ html.landscape-small #sepiaFW-chat-controls {
 }
 
 .sepiaFW-cards-list-title.newsHeader {
-    background: rgba(255, 255, 255, 0.90);
+    background: #fcfcfc;
 	color: #000;
 }
 .sepiaFW-cards-list-title.newsHeader button {

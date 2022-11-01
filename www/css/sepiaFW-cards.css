@@ -1,5 +1,5 @@
 .sepiaFW-cards-flexSize-container {
-    background: #e5e5e5; /*rgba(0, 0, 0, 0.10);*/
+    background: #e5e5e5;
 	position: relative;
 	margin: 5px 0px;
 	border-radius: 3px;
@@ -10,7 +10,7 @@
 }
 @media screen and (min-width: 480px) {
 	body.big-screen .sepiaFW-cards-flexSize-container {
-		min-width: 360px;
+		min-width: calc(360px - var(--sai-merged-left) - var(--sai-merged-right));
 	}
 	body.big-screen #sepiaFW-result-view .sepiaFW-cards-flexSize-container {
 		flex: 1 0 30%;
@@ -19,11 +19,14 @@
 }
 .sepiaFW-cards-flexSize-container.oneElement {
 	margin: 0px 0px;
-	padding: 0px 0px;
+	padding: 0px 0px 0px 0px;
 }
 article + .sepiaFW-cards-flexSize-container.oneElement,
 .sepiaFW-cards-flexSize-container.oneElement.addSpacer {
 	margin-top: 5px;
+}
+.chatMsg > .sepiaFW-cards-flexSize-container.oneElement + .sepiaFW-cards-flexSize-container.oneElement {
+	margin-top: -5px;
 }
 .sepiaFW-results-container > .addSpacer {
 	margin-bottom: 5px;
@@ -41,6 +44,22 @@ article + .sepiaFW-cards-flexSize-container.oneElement,
     	min-width: 228px;
 	}
 }
+.sepiaFW-my-view-section > .sepiaFW-cards-flexSize-container,
+#sepiaFW-my-view > .sepiaFW-cards-flexSize-container {
+	padding-bottom: 5px !important;
+}
+.sepiaFW-my-view-section > .sepiaFW-cards-flexSize-container + div:not(.sepiaFW-cards-flexSize-container),
+#sepiaFW-my-view > .sepiaFW-cards-flexSize-container + div:not(.sepiaFW-cards-flexSize-container) {
+	margin-top: 5px;
+}
+.sepiaFW-my-view-section > .sepiaFW-cards-flexSize-container > :last-child,
+#sepiaFW-my-view > .sepiaFW-cards-flexSize-container > :last-child {
+	margin-bottom: 0px !important;
+}
+.sepiaFW-my-view-section > .sepiaFW-cards-flexSize-container > :last-child:not(.sepiaFW-cards-list-footer),
+#sepiaFW-my-view > .sepiaFW-cards-flexSize-container > :last-child:not(.sepiaFW-cards-list-footer) {
+	padding-bottom: 0px !important;
+}
 /*.sepiaFW-my-view-section .sepiaFW-cards-flexSize-container:only-of-type {
 	max-width: calc(100% - 10px);
 }*/
@@ -48,6 +67,7 @@ article + .sepiaFW-cards-flexSize-container.oneElement,
 .sepiaFW-my-view-section .sepiaFW-cards-flexSize-container:nth-last-child(n+2) ~ .sepiaFW-cards-flexSize-container:last-child {
 	background: red;
 }*/
+
 .sepiaFW-cards-flexSize-container p {
 	margin: 5px 0;
     font-weight: 300;
@@ -258,7 +278,7 @@ article + .sepiaFW-cards-flexSize-container.oneElement,
 	100% {	opacity: 1.0;	}
 }
 .sepiaFW-cards-list-body .listElement div {
-	background: rgba(255, 255, 255, 0.90);
+	background: #fcfcfc;
 	border-radius: 3px;
 	display: inline-block;
 	vertical-align: top;
@@ -268,6 +288,7 @@ article + .sepiaFW-cards-flexSize-container.oneElement,
 	display: flex;
     align-items: center;
     justify-content: center;
+	flex: 0 0 auto;
 	width: 44px;
     /*border-right: 3px solid #e5e5e5;*/
 	margin: 0px 3px 0px 5px;
@@ -280,7 +301,8 @@ article + .sepiaFW-cards-flexSize-container.oneElement,
 	display: flex;
 	align-items: center;
 	justify-content: left;
-	width: calc(100% - 101px);
+	flex: 1 1 auto;
+	/*width: calc(100% - 101px);*/
 	margin: 0px 0px 0px 0px;
 	padding: 5px 8px;
 }
@@ -288,6 +310,7 @@ article + .sepiaFW-cards-flexSize-container.oneElement,
 	display: flex;
     align-items: center;
     justify-content: center;
+	flex: 0 0 auto;
 	width: 44px;
 	/*border-left: 2px solid #545454;*/
 	/*background: #bcbebe;*/
@@ -390,14 +413,11 @@ article + .sepiaFW-cards-flexSize-container.oneElement,
 
 /* --- Radio --- */
 
-.sepiaFW-cards-list-body.sepiaFW-cards-list-radioStations {
-	padding-bottom: 0px;
-}
 .sepiaFW-cards-list-body .radioStation {
 	display: flex;
 }
 .sepiaFW-cards-list-body .radioStation div {
-	background: rgba(255, 255, 255, 0.90);
+	background: #fcfcfc;
 	border-radius: 3px;
 	display: inline-block;
 	vertical-align: top;
@@ -469,8 +489,38 @@ article + .sepiaFW-cards-flexSize-container.oneElement,
 .sepiaFW-cards-list-body .timeEvent {
 	display: flex;
 }
+.sepiaFW-cards-list-body .timeEvent.timeEventNext .timeEventCenter::after {
+	position: absolute;
+    bottom: 5px;
+    right: 5px;
+    font-family: 'Material Icons';
+    font-size: 13px;
+	font-weight: normal;
+    content: "event";
+    color: currentColor;
+}
+.sepiaFW-cards-list-body .timeEvent.timeEventExpired .timeEventCenter::after {
+	position: absolute;
+    bottom: 5px;
+    right: 5px;
+    font-family: 'Material Icons';
+    font-size: 13px;
+	font-weight: normal;
+    content: "hourglass_bottom";
+    color: currentColor;
+}
+.sepiaFW-cards-list-body .timeEvent.timeEventFaulty .timeEventCenter::after {
+	position: absolute;
+    bottom: 5px;
+    right: 5px;
+    font-family: 'Material Icons';
+    font-size: 15px;
+	font-weight: normal;
+    content: "warning";
+    color: currentColor;
+}
 .sepiaFW-cards-list-body .timeEvent div {
-	background: rgba(255, 255, 255, 0.90);
+	background: #fcfcfc;
 	border-radius: 3px;
 	display: inline-block;
 	vertical-align: top;
@@ -489,6 +539,7 @@ article + .sepiaFW-cards-flexSize-container.oneElement,
 	padding: 5px;
 }
 .sepiaFW-cards-list-body .timeEvent .timeEventCenter {
+	position: relative;
 	display: flex;
 	flex-direction: column;
     align-items: center;
@@ -505,9 +556,9 @@ article + .sepiaFW-cards-flexSize-container.oneElement,
     animation: sepiaFW-timeEvent-card-signal 3s linear infinite;
 }
 @keyframes sepiaFW-timeEvent-card-signal {
-    from {background: rgba(255, 255, 255, 0.90); color: #000;}
+    from {background: #fcfcfc; color: #000;}
 	75% {background: rgba(255, 0, 0, 0.50); color: #fff;}
-    to {background: rgba(255, 255, 255, 0.90); color: #000;}
+    to {background: #fcfcfc; color: #000;}
 }
 .sepiaFW-cards-list-body .timeEvent .timeEventCenter .sepiaFW-timer-name {
 	font-weight: bold;
@@ -537,7 +588,8 @@ article + .sepiaFW-cards-flexSize-container.oneElement,
 /* ---- News ---- */
 
 .sepiaFW-cards-list-title.newsHeader {
-	background: rgba(255, 255, 255, 0.90);
+	background: #fcfcfc;
+	color: #000;
 	border-radius: 0;
 	font-weight: normal;
 }
@@ -549,7 +601,7 @@ article + .sepiaFW-cards-flexSize-container.oneElement,
 	display: flex;
 }
 .sepiaFW-cards-list-body .newsArticle .newsCenter {
-	background: rgba(255, 255, 255, 0.90);
+	background: #fcfcfc;
 	border-radius: 0px;
 	display: inline-block;
 	vertical-align: top;
@@ -574,6 +626,9 @@ article + .sepiaFW-cards-flexSize-container.oneElement,
 	padding: 0px;
 	font-size: 12px;
 }
+.sepiaFW-cards-list-body .newsArticle .newsCenter .newsArticleBody > ul {
+	padding-left: 16px;
+}
 .sepiaFW-cards-list-footer.newsFooter {
     border-radius: 0;
 }
@@ -584,7 +639,7 @@ article + .sepiaFW-cards-flexSize-container.oneElement,
 	display: flex;
 }
 .sepiaFW-cards-list-body .weatherNowSmall > div {
-	background: rgba(255, 255, 255, 0.90);
+	background: #fcfcfc;
 	border-radius: 3px;
 	display: inline-block;
 	vertical-align: top;
@@ -661,7 +716,7 @@ article + .sepiaFW-cards-flexSize-container.oneElement,
 	padding: 0px 5px;
 }
 .sepiaFW-cards-list-body .weatherNowDetails li {
-	background: rgba(255, 255, 255, 0.90);
+	background: #fcfcfc;
 	margin: 2px 0px 0px 0px;
 	padding: 0px;
 	text-align: center;
@@ -711,7 +766,7 @@ article + .sepiaFW-cards-flexSize-container.oneElement,
 	display: flex;
 }
 .sepiaFW-cards-list-body .linkCard > div {
-	background: rgba(255, 255, 255, 0.90);
+	background: #fcfcfc;
 	border-radius: 3px;
 	display: inline-block;
 	vertical-align: top;

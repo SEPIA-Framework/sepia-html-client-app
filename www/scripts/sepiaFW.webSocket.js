@@ -765,6 +765,12 @@ function sepiaFW_build_webSocket_client(sepiaSessionId){
 			}
 			var actionsArray = [];
 			actionsArray.push({type: "first_visit_info_start"});
+			if (SepiaFW.config.isAutoSetupModeEnabled()){
+				actionsArray.push({type: "button_custom_fun", title: SepiaFW.local.g('reloadApp'), fun: function(){
+					SepiaFW.account.logoutAction();
+					//TODO: replace with custom login?
+				}});
+			}
 			actionsArray.push(SepiaFW.offline.getFrameViewButtonAction("tutorial.html", SepiaFW.local.g("tutorial")));
 			actionsArray.push(SepiaFW.offline.getUrlButtonAction("https://github.com/SEPIA-Framework/sepia-docs", "S.E.P.I.A. Docs"));
 			actionsArray.push(SepiaFW.offline.getUrlButtonAction(SepiaFW.config.clientLicenseUrl, SepiaFW.local.g("license")));
@@ -1041,16 +1047,33 @@ function sepiaFW_build_webSocket_client(sepiaSessionId){
 			var screenBtn = document.getElementById("sepiaFW-fullsize-btn");
 			if (screenBtn){
 				$(screenBtn).off();
-				SepiaFW.ui.longPressShortPressDoubleTap(screenBtn, function(){
+				if (!SepiaFW.ui.canToggleFullscreen()){
+					$(screenBtn).hide();
+				}else{
+					SepiaFW.ui.longPressShortPressDoubleTap(screenBtn, function(){
+						//long-press
+					},'',function(){
+						//short press
+						if (SepiaFW.ui.canToggleFullscreen()) SepiaFW.ui.toggleFullscreen();
+					},function(){
+						//double-tab
+					}, true, true);
+				}
+			}
+			//-ui size
+			var uiSizeBtn = document.getElementById("sepiaFW-uisize-btn");
+			if (uiSizeBtn){
+				$(uiSizeBtn).off();
+				SepiaFW.ui.longPressShortPressDoubleTap(uiSizeBtn, function(){
 					//long-press
 				},'',function(){
 					//short press
 					SepiaFW.ui.toggleInterfaceFullscreen();
 				},function(){
 					//double-tab
-					SepiaFW.ui.toggleFullscreen();
 				}, true, true);
 			}
+
 			//-back
 			var backBtn = document.getElementById("sepiaFW-back-btn");
 			if (backBtn){
@@ -2699,9 +2722,9 @@ function sepiaFW_build_webSocket_client(sepiaSessionId){
 			if ($(cEntry).children().not('.chatMe').hasClass('chatPm') && (!SepiaFW.ui.isVisible() || (SepiaFW.ui.getIdleTime() > (5*60*1000)))){
 				if (SepiaFW.events){
 					var noteData = {
-						type : "chat",
-						onClickType : "replySender",
-						sender : message.sender
+						type: "chat",
+						onClickType: "replySender",
+						sender: message.sender
 					}
 					var msgTitle = SepiaFW.webSocket.client.getNameFromUserList(message.sender);
 					SepiaFW.events.showSimpleNotification(msgTitle, messageTextSpeak, 'null', noteData);
@@ -2960,6 +2983,5 @@ function sepiaFW_build_webSocket_client(sepiaSessionId){
 		}
 		return menu;
 	}
-	
 	return Client;
 }

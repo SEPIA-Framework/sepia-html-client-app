@@ -208,7 +208,7 @@ html.landscape-small #sepiaFW-chat-controls {
 	box-shadow: 0 0px 10px 0 rgba(0, 0, 0, 0.20);
 }
 .sepiaFW-cards-flexSize-container.oneElement {
-	padding-bottom: 5px;
+	padding-bottom: 2px;
 }
 .chatMsg > .sepiaFW-cards-flexSize-container.oneElement:only-of-type,
 .sepiaFW-results-container > .sepiaFW-cards-flexSize-container.oneElement {
@@ -216,9 +216,10 @@ html.landscape-small #sepiaFW-chat-controls {
 }
 .chatMsg > .sepiaFW-cards-flexSize-container.oneElement {
 	margin-top: -3px;
+	margin-bottom: 2px;
 }
 .chatMsg > .sepiaFW-cards-flexSize-container.oneElement:first-of-type {
-	margin-top: 0px;
+	margin-top: 2px;
 }
 
 .sepiaFW-cards-list-body .cardBodyItem .itemLeft,
@@ -332,6 +333,9 @@ html.landscape-small #sepiaFW-chat-controls {
 }
 .sepiaFW-cards-list-body .weatherNowSmall .weatherNowSmallImage {
 	background: #3c5573;
+}
+.sepiaFW-cards-list-body .weatherNowDetails ul {
+    margin: 3px 0px 0px 0px;
 }
 .sepiaFW-cards-list-body .weatherNowDetails li:first-of-type,
 .sepiaFW-cards-list-body .weatherNowDetails li:last-of-type {

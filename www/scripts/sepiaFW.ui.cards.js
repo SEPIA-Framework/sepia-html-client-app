@@ -132,7 +132,6 @@ function sepiaFW_build_ui_cards(){
 						//Radio
 						else if (elementType === RADIO_CARD_ELE){
 							var cardElement = buildRadioElement(cardInfoI.info[j]);
-							if (j==N-1) cardElement.style.paddingBottom = '5px'; 	//TODO: convert to CSS
 							card.dataInline.push(cardElement);
 						}
 						//News
@@ -806,9 +805,10 @@ function sepiaFW_build_ui_cards(){
 	function makeTimerElement(actionInfoI, flexCardId, cardBody, skipAdd){ 	//actionInfoI can also be the data of an list element, should be compatible (in the most important fields)!
 		var timeEvent = document.createElement('DIV');
 		timeEvent.className = 'timeEvent cardBodyItem';
+		addOptionalTimeEventClass(timeEvent, actionInfoI);
 		timeEvent.innerHTML = "<div class='itemLeft timeEventLeft'><i class='material-icons md-24'>&#xE425;</i></div>"
 							+ "<div class='itemCenter timeEventCenter'>"
-								+ "<div class='sepiaFW-timer-name' contentEditable='true'>" + SepiaFW.tools.escapeHtml(actionInfoI.name) + "</div>"
+								+ "<div class='sepiaFW-timer-name' contentEditable='true'>" + SepiaFW.tools.escapeHtmlAndSanitize(actionInfoI.name) + "</div>"
 								+ "<div class='sepiaFW-timer-indicator'>" + SepiaFW.local.g('loading') + " ..." + "</div>"
 							+ "</div>"
 							+ "<div class='itemRight timeEventRight'><i class='material-icons md-24'>&#xE15B;</i></div>";
@@ -816,6 +816,7 @@ function sepiaFW_build_ui_cards(){
 		timeEvent.setAttribute('data-id', actionInfoI.eventId);
 		//buttons
 		makeTimeEventNameEditable(timeEvent);
+		makeTimeEventStopAlarmButton(timeEvent, cardBody);
 		makeTimeEventRemoveButton(timeEvent, cardBody);
 		if (!skipAdd){
 			cardBody.appendChild(timeEvent);
@@ -826,22 +827,33 @@ function sepiaFW_build_ui_cards(){
 	function makeAlarmElement(actionInfoI, flexCardId, cardBody, skipAdd){		//actionInfoI can also be the data of an list element, should be compatible (in the most important fields)!
 		var timeEvent = document.createElement('DIV');
 		timeEvent.className = 'timeEvent cardBodyItem';
+		addOptionalTimeEventClass(timeEvent, actionInfoI);
 		timeEvent.innerHTML = "<div class='itemLeft timeEventLeft'><i class='material-icons md-24'>&#xE855;</i></div>"
 							+ "<div class='itemCenter timeEventCenter'>"
-								+ "<div class='sepiaFW-timer-name' contentEditable='true'>" + SepiaFW.tools.escapeHtml(actionInfoI.name) + "</div>"
-								+ "<div class='sepiaFW-timer-indicator'>" + SepiaFW.tools.escapeHtml(actionInfoI.date + " " + actionInfoI.time.replace(/:\d\d$/, " " + SepiaFW.local.g('oclock'))) + "</div>"
+								+ "<div class='sepiaFW-timer-name' contentEditable='true'>" + SepiaFW.tools.escapeHtmlAndSanitize(actionInfoI.name) + "</div>"
+								+ "<div class='sepiaFW-timer-indicator'>" + SepiaFW.tools.escapeHtmlAndSanitize(actionInfoI.date + " " + actionInfoI.time.replace(/:\d\d$/, " " + SepiaFW.local.g('oclock'))) + "</div>"
 							+ "</div>"
 							+ "<div class='itemRight timeEventRight'><i class='material-icons md-24'>&#xE15B;</i></div>";
 		timeEvent.setAttribute('data-element', JSON.stringify(actionInfoI));
 		timeEvent.setAttribute('data-id', actionInfoI.eventId);
 		//buttons
 		makeTimeEventNameEditable(timeEvent);
+		makeTimeEventStopAlarmButton(timeEvent, cardBody);
 		makeTimeEventRemoveButton(timeEvent, cardBody);
 		if (!skipAdd){
 			cardBody.appendChild(timeEvent);
 		}
 		makeTimeEventContextMenu(flexCardId, cardBody, timeEvent, actionInfoI, SepiaFW.events.ALARM);
 		return timeEvent;
+	}
+	function addOptionalTimeEventClass(timeEvent, actionInfoI){
+		if (actionInfoI.targetTimeUnix == -1){
+			timeEvent.classList.add("timeEventFaulty");
+		}else if (actionInfoI.targetTimeUnix - Date.now() < 0){
+			timeEvent.classList.add("timeEventExpired");
+		}else if (actionInfoI.isNextEvent){
+			timeEvent.classList.add("timeEventNext");
+		}
 	}
 	//buttons
 	function makeTimeEventNameEditable(timeEvent){
@@ -940,8 +952,20 @@ function sepiaFW_build_ui_cards(){
 			shareButton: shareButton
 		});
 	}
+	function makeTimeEventStopAlarmButton(timeEvent, cardBody){
+		var $button = $(timeEvent).find('.timeEventCenter');
+		if ($button.length > 0){
+			var that = $button[0];
+			SepiaFW.ui.onclick(that, function(){
+				//stop alarm
+				if ($button.hasClass("inThePast")){
+					SepiaFW.audio.stopAlarmSound("cardClick");
+				}
+			});
+		};
+	}
 	function makeTimeEventRemoveButton(timeEvent, cardBody){
-		$button = $(timeEvent).find('.timeEventRight');
+		var $button = $(timeEvent).find('.timeEventRight');
 		if ($button.length > 0){
 			var that = $button[0];
 			SepiaFW.ui.onclick(that, function(){

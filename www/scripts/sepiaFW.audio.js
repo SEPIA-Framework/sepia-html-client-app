@@ -17,7 +17,7 @@ function sepiaFW_build_audio(){
 
 	//Sounds
 	AudioPlayer.micConfirmSound = 'sounds/coin.mp3';	//might change for mobile (see below)
-	AudioPlayer.alarmSound = 'sounds/alarm.mp3'; 		//please NOTE: UI.events is using 'file://sounds/alarm.mp3' for 'cordova.plugins.notification' (is it wokring? Idk)
+	AudioPlayer.alarmSound = 'sounds/alarm.mp3'; 		//NOTE: UI.events is using 'file:// + AudioPlayer.alarmSound' for cordova.plugins.notification
 	AudioPlayer.setCustomSound = function(name, path){
 		//system: 'micConfirm', 'alarm'
 		var customSounds = SepiaFW.data.getPermanent("deviceSounds") || {};
@@ -276,7 +276,7 @@ function sepiaFW_build_audio(){
 	var mainAudioIsOnHold = false;
 	var mainAudioStopRequested = false;
 	var orgVolume = AudioPlayer.getGlobalMediaPlayerVolume() / 10.0;
-	var FADE_OUT_VOL = 0.03; 	//note: on some devices audio is actually stopped so this value does not apply
+	var FADE_OUT_VOL = 0.01; 	//note: on some devices audio is actually stopped so this value does not apply
 
 	//MediaSession Interface
 	if (isMediaSessionSupported){
@@ -454,7 +454,9 @@ function sepiaFW_build_audio(){
 	//sound init - returns true if it will be executed, false everytime after first call
 	AudioPlayer.requiresInit = function(){
 		//TODO: is this still up-to-date?
-		return (!SepiaFW.ui.isStandaloneWebApp && (SepiaFW.ui.isMobile || SepiaFW.ui.isSafari) && doInitAudio);
+		//NOTE: Safari always needs init atm I guess ...
+		return (doInitAudio && !SepiaFW.ui.isCordova &&
+			((SepiaFW.ui.isMobile && !SepiaFW.ui.isStandaloneWebApp) || (SepiaFW.ui.isSafari)));
 	}
 	AudioPlayer.initAudio = function(continueCallback, noopOrContinueCallback){
 		if (noopOrContinueCallback && !continueCallback) continueCallback = noopOrContinueCallback;

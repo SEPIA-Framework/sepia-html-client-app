@@ -7,6 +7,10 @@ html {
 	/*color: #F4F4F4;*/
 	color: #ffad01;
 }
+.sepiaFW-standalone-app.no-size-limit #sepiaFW-main-window {
+    border-width: 2px;
+	border-radius: 28px;
+}
 .sepiaFW-results-container {
 	scrollbar-color: #252525 #191919;
 }
@@ -83,8 +87,12 @@ html {
     top: 12px;
     right: 12px;
 }
+#sepiaFW-login-box-menu-btn {
+	top: 12px;
+	left: 12px;
+}
 #sepiaFW-login-box p {
-	color: #F4F4F4;
+	color: #fff;
 }
 #sepiaFW-login-box button {
 	background: #df616d;
@@ -264,6 +272,17 @@ html.landscape-small #sepiaFW-assist-btn-area {
     color: #111111;
 	margin: 4px;
 }
+.sepiaFW-touch-device #sepiaFW-chat-menu button:hover {
+	background-color: #df616d;
+    color: #111111;
+}
+#sepiaFW-chat-menu select,
+#sepiaFW-frames-view select {
+	border-radius: 18px;
+}
+#sepiaFW-frames-view button {
+	border-radius: 18px;
+}
 .sepiaFW-notouch-device #sepiaFW-chat-menu button:hover {
 	background-color: #292929 !important;
 	color: #F4F4F4 !important;
@@ -271,6 +290,10 @@ html.landscape-small #sepiaFW-assist-btn-area {
 .sepiaFW-notouch-device #sepiaFW-chat-controls-more-menu button:hover {
 	background-color: #F4F4F4 !important;
 	color: #111111 !important;
+}
+#sepiaFW-chat-menu .sepiaFW-toggle-btn,
+#sepiaFW-frames-view .sepiaFW-toggle-btn {
+	border-radius: 18px;
 }
 
 #sepiaFW-main-window .chat-buttons-area button {
@@ -578,6 +601,21 @@ html.landscape-small #sepiaFW-assist-btn-area {
 	border-radius: 0 28px 28px 0;
 	border: 2px solid #111;
 	border-left: 1px solid #111;
+}
+
+/*----- frames view -----*/
+
+.sepiaFW-frames-page.dark .info-text {
+    color: #b3c8fd;
+}
+.sepiaFW-frames-page a,
+.sepiaFW-frames-page a:visited {
+    color: #ffad01;
+}
+
+.sepiaFW-frames-page.dark button {
+    background: #df616d !important;
+    color: #000 !important;
 }
 
 /*----- teachUI -----*/

@@ -248,7 +248,26 @@ function sepiaFW_build_ui_actions(){
 		}
 		Actions.openUrlAutoTarget(action.url, forceExternal);
 	}
-	var inAppBrowserOptions = 'location=yes,toolbar=yes,mediaPlaybackRequiresUserAction=yes,allowInlineMediaPlayback=yes,hardwareback=yes,disableswipenavigation=no,clearsessioncache=no,clearcache=no';
+	var inAppBrowserDefaultOptions = [
+		'location=yes', 'toolbar=yes', 'hidenavigationbuttons=no', 'hardwareback=yes', 'disableswipenavigation=no',
+		'footer=no', 'mediaPlaybackRequiresUserAction=yes', 'allowInlineMediaPlayback=yes',
+		'enablethirdpartycookies=no', 'clearsessioncache=no', 'clearcache=no'
+	].join(",");
+	function getInAppBrowserOptions(){
+		//we keep a dark style because the nav-bar is dark
+		var toolbarColor = "#000000";
+		var toolbarAccent = "#ceff1a";
+		var toolbarText = "#eeeeee";
+		//we try to set a custom accent if it fits to black
+		if (SepiaFW.ui.assistantColorPlainHex && SepiaFW.ui.assistantColorContrast == "black"){
+			toolbarAccent = SepiaFW.ui.assistantColorPlainHex;
+		}else if (SepiaFW.ui.navBarColor && SepiaFW.ui.navBarColorContrast && SepiaFW.ui.navBarColorContrast == "black"){
+			toolbarAccent = SepiaFW.ui.navBarColor;
+		}
+		return [inAppBrowserDefaultOptions,
+			'toolbarcolor=' + toolbarColor, 'toolbaraccentcolor=' + toolbarAccent, 'toolbartextcolor=' + toolbarText
+		].join(",");
+	}
 	Actions.openUrlAutoTarget = function(url, forceExternal){
 		if (!url) return;
 
@@ -297,7 +316,7 @@ function sepiaFW_build_ui_actions(){
 				){
 				cordova.InAppBrowser.open(url, '_system');
 			}else{
-				cordova.InAppBrowser.open(url, '_blank', inAppBrowserOptions);
+				cordova.InAppBrowser.open(url, '_blank', getInAppBrowserOptions());
 				//some special 'links': <inappbrowser-last>, <inappbrowser-home>, search.html
 			}
 		}else{
@@ -526,10 +545,10 @@ function sepiaFW_build_ui_actions(){
 				}
 				if (foundRegion){
 					SepiaFW.debug.log("language-switch action - app lang.: " + lang + " - speech lang.: " + bcp47);
-					SepiaFW.config.broadcastLanguage(lang, bcp47);
+					SepiaFW.config.broadcastLanguage(lang, bcp47, action.skip_save);
 				}else if (foundLang){
 					SepiaFW.debug.log("language-switch action - app lang.: " + lang + " - speech lang.: default");
-					SepiaFW.config.broadcastLanguage(lang);
+					SepiaFW.config.broadcastLanguage(lang, undefined, action.skip_save);
 				}
 			}
 		}

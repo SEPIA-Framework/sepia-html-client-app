@@ -332,9 +332,9 @@ function sepiaFW_build_android(){
         }else if (info && typeof info == "string"){
             infoString = info;
         }
-        var msg = "Tried to call Android Intent '" + data.action + "' and failed with msg: " + infoString;
-        SepiaFW.debug.error(msg);
-        SepiaFW.ui.showInfo(msg);
+        var msg = "Tried to call Android Intent '" + data.action + "' and failed";
+        SepiaFW.debug.error("Android Intent Error - " + msg, info);
+        SepiaFW.ui.showInfo(msg + " with msg: " + infoString);
         if (errorCallback) errorCallback(info);
     }
 

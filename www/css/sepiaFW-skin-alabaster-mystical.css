@@ -109,7 +109,8 @@ html.landscape-small #sepiaFW-chat-controls {
 #sepiaFW-assist-btn-area {
     border: 2px solid rgb(240 240 240);	/*#dbdaea*/
 	background-color: rgb(240 240 240) !important;
-	/*backdrop-filter: unset;*/
+	/*-webkit-backdrop-filter: unset;
+	backdrop-filter: unset;*/
 	transition: border-color .75s;
 }
 #sepiaFW-assist-btn-area button {
@@ -150,6 +151,7 @@ html.landscape-small #sepiaFW-chat-controls {
 
 #sepiaFW-chat-controls-speech-box {
 	background: linear-gradient(to right, #d4deec 0%, #e1d5e8 100%);
+	-webkit-backdrop-filter: unset;
 	backdrop-filter: unset;
     border: 0;
 }

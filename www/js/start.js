@@ -121,8 +121,17 @@ var app = {
 
 //redirect to main page
 function redirect(){
-	//start 'real' app - TODO: transfer other URL parameters?
-	cordova.InAppBrowser.open("index.html?cordova=true", "_self");
+	//start 'real' app
+	//cordova.InAppBrowser.open("index.html?cordova=true", "_self");	//since Cordova 11 this breaks splash-screen!
+	if ("URLSearchParams" in window){
+		//transfer URL parameters to index.html
+		var sp = new URLSearchParams(window.location.search || "");
+		sp.set("cordova", "true");
+		window.location.assign("index.html?" + sp.toString());
+	}else{
+		//just some fallback that probably never gets used again
+		window.location.href = "index.html?cordova=true";
+	}
 }
 
 //GO

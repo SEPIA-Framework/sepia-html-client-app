@@ -37,12 +37,12 @@ html {
 
 #sepiaFW-pC 	{ background-color: #101418; }
 #sepiaFW-sC 	{ background-color: #beff1a; } 	/*note: the change from ceff1a to beff1a is intentional*/
-#sepiaFW-sC2 	{ background-color: #08a0c8; 	}
+#sepiaFW-sC2 	{ background-color: #08a0c8; }
 #sepiaFW-aC 	{ background-color: rgb(186, 42, 42); 	}
-#sepiaFW-aC2 	{ background-color: #08a0c8; 	}
-#sepiaFW-asC 	{ background-color: #beff1a; 	}
-#sepiaFW-adC 	{ background-color: #beff1a; 	}
-#sepiaFW-lC 	{ background-color: #535557; 	}
+#sepiaFW-aC2 	{ background-color: #08a0c8; }
+#sepiaFW-asC 	{ background-color: #beff1a; }
+#sepiaFW-adC 	{ background-color: #beff1a; }
+#sepiaFW-lC 	{ background-color: #535557; }
 
 #sepiaFW-login-box {
 	background: #212327;

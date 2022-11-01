@@ -1,11 +1,15 @@
 html {
-	background-image: url(../img/birds.png);
+	background-image: url("../img/birdsAlpha.png");
     background-size: auto 70%;
     background-position: 50% 50%;
     background-color: #fff;
 }
 #sepiaFW-main-window {
 	color: #000;
+}
+.sepiaFW-standalone-app.no-size-limit #sepiaFW-main-window {
+    border-width: 4px;
+	border-color: #fff;
 }
 .sepiaFW-results-container {
 	scrollbar-color: #eee #fcfcfc;
@@ -53,7 +57,7 @@ html {
 	color: #fff;
 }
 #sepiaFW-login-box p {
-	color: #000;
+	color: #ff2550;
 }
 #sepiaFW-login-box button {
 	background: linear-gradient(to right, #03a9f4 0%, #00bcd4 100%);
@@ -80,6 +84,8 @@ html {
     color: #fff;
     border-radius: 28px;
     padding: 0;
+	width: 55px;
+    height: 55px;
     min-width: 55px;
     border: 2px solid #000;
 }
@@ -154,9 +160,11 @@ html.landscape-small #sepiaFW-chat-controls .eButton {
 }
 .sepiaFW-menu input {
 	background: transparent !important;
+	border: 1px solid #000;
 }
 .sepiaFW-menu .sepiaFW-toggle-btn {
-	border: 1px solid rgba(0, 0, 0, 0.25);
+	border: 1px solid #000;
+    border-radius: 18px;
 }
 .sepiaFW-menu .sepiaFW-toggle-btn .on {
     background: #ffdd64;
@@ -204,6 +212,8 @@ html.landscape-small #sepiaFW-chat-controls .eButton {
 	border-radius: 18px;
 	background: linear-gradient(to right, #03a9f4 0%, #00bcd4 100%);
 	color: #fff;
+}
+#sepiaFW-chat-menu button {
 	margin: 4px;
 }
 .sepiaFW-notouch-device #sepiaFW-chat-menu button:hover {
@@ -378,7 +388,6 @@ html.landscape-small #sepiaFW-chat-controls .eButton {
 .sepiaFW-cards-list-body .weatherNowSmall > div,
 .sepiaFW-cards-list-body .linkCard > div,
 .sepiaFW-cards-list-body .timeEvent > div,
-.sepiaFW-cards-list-body .newsArticle .newsCenter,
 .sepiaFW-cards-list-body .radioStation > div,
 .sepiaFW-cards-list-body .listElement .listRight,
 .sepiaFW-cards-list-body .newsArticle .newsCenter {
@@ -410,6 +419,9 @@ html.landscape-small #sepiaFW-chat-controls .eButton {
 }
 .sepiaFW-cards-list-title.newsHeader button {
 	color: #000 !important;
+}
+.sepiaFW-cards-flexSize-container .cardBodyItem.embeddedWebPlayer iframe {
+    border: 2px solid #000;
 }
 
 /*----- teachUI -----*/

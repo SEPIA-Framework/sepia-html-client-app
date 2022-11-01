@@ -1,27 +1,37 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="app-loading">
 <head>
 	<meta http-equiv="content-type" content="text/html; charset=UTF-8">
 	<!-- web app settings -->
 	<meta name="apple-mobile-web-app-capable" content="yes">
 	<meta name="mobile-web-app-capable" content="yes">
-	<meta name="viewport" id="sepia-viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=0">
+	<meta name="viewport" id="sepia-viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=0, viewport-fit=cover">
 	<script>
+		var sepiaFW_viewport_scale_factor = 1.0;
 		function sepiaFW_scale_viewport(refSize){
 			var isTiny = (window.SepiaFW == undefined)? (window.location.href.indexOf('isTiny=true') > 0) : SepiaFW.ui.isTinyApp;
 			if (!refSize) refSize = isTiny? 240 : 320;
+			var leftSA = document.getElementById("sepiaFW-screen-safe-area-left");
+			var rightSA = document.getElementById("sepiaFW-screen-safe-area-right");
+			if (leftSA && rightSA){
+				//this will only trigger after full load
+				refSize += leftSA.getBoundingClientRect().width + rightSA.getBoundingClientRect().width;
+			}
 			var mvp = document.getElementById('sepia-viewport');
+			//console.error("innerWidth org.:", window.innerWidth * sepiaFW_viewport_scale_factor);	//DEBUG
 			if (window.screen.width < refSize && window.matchMedia("(orientation: portrait)").matches){
 				//mvp.setAttribute('content','initial-scale=' + screen.width/340);
-				mvp.setAttribute('content','width=' + refSize + ', initial-scale=' + window.screen.width/refSize + ', user-scalable=0');
+				sepiaFW_viewport_scale_factor = window.screen.width/refSize;
+				mvp.setAttribute('content','width=' + refSize + ', initial-scale=' + sepiaFW_viewport_scale_factor + ', user-scalable=0, viewport-fit=cover');
 			}else{
-				mvp.setAttribute('content','width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=0');
+				mvp.setAttribute('content','width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=0, viewport-fit=cover');
 			}
 		}
 		function sepiaFW_landscape_check(){
 			var isTiny = (window.SepiaFW == undefined)? (window.location.href.indexOf('isTiny=true') > 0) : SepiaFW.ui.isTinyApp;
+			var ratio = window.innerWidth/window.innerHeight;
 			//(max-height: 480px) and (min-aspect-ratio: 13 / 10) and (min-width: 380px)
-			if (!isTiny && window.innerHeight <= 480 && window.innerWidth >= 380 && (window.innerWidth/window.innerHeight > 13/10)){
+			if (!isTiny && window.innerHeight <= 480 && window.innerWidth >= 380 && ratio > 1.3){
 				document.documentElement.classList.add("landscape-small");
 			}else{
 				document.documentElement.classList.remove("landscape-small");
@@ -40,6 +50,16 @@
 			}else{
 				document.documentElement.classList.remove("edge-2-edge");
 			}
+			//spacious-w - (min-width: 1264px) - space available to split views (if single view has max-width)
+			if (window.innerWidth >= 1264){
+				document.documentElement.classList.add("spacious-w");
+			}else{
+				document.documentElement.classList.remove("spacious-w");
+			}
+		}
+		function sepiaFW_set_default_css(){
+			document.documentElement.style.setProperty("--sepia-nav-bar-height", "50px");
+			document.documentElement.style.setProperty("--sepia-chat-ctrl-height", "56px");
 		}
 		sepiaFW_scale_viewport();
 		sepiaFW_landscape_check();
@@ -51,7 +71,9 @@
 	<meta name="description" content="S.E.P.I.A. is an app and framework for your own server-based, extendable, private, intelligent assistant.">
 	<meta name="theme-color" content="#000">
 	<link rel="icon" sizes="192x192" href="img/icon.png">
-	<link rel="apple-touch-icon" href="img/icon.png">
+	<link rel="apple-touch-icon" sizes="192x192" href="img/icon.png">
+	<link rel="apple-touch-startup-image" href="img/splashscreens/iphonex_splash.png" media="(device-width: 375px) and (device-height: 812px)">
+	<link rel="apple-touch-startup-image" href="img/splashscreens/iphone12_splash.png" media="(device-width: 390px) and (device-height: 844px)">
 	
 	<!-- open graph settings -->
 	<meta property="og:title" content="S.E.P.I.A."/>
@@ -76,10 +98,26 @@
 	<!-- PWA manifest -->
 	<link rel="manifest" href="sepia.webmanifest">
 	
+	<!-- loading style -->
+	<style>
+		html.app-loading {
+			background-color: black;
+			background-image: unset;
+			width: 100%;
+			height: 100%;
+			transition: background-color 0.0s;
+		}
+		#sepiaFW-main-window.app-loading {
+			opacity: 0.0;
+		}
+		#sepiaFW-login-box.app-loading {
+			border: 1px solid #555;
+		}
+	</style>
 	<!-- imports -->
 	<link rel="stylesheet" href="css/sepiaFW-style.css" title='main'>
-	<link rel="stylesheet" href="css/sepiaFW-style-tiny.css" title='main'>	<!-- TODO: we should load this only when needed -->
-	<link rel="stylesheet" href="css/sepiaFW-style-dual-screen.css" title='main'>
+	<link rel="stylesheet" href="css/sepiaFW-style-tiny.css" title='main'><!-- TODO: we should load this only when needed... -->
+	<link rel="stylesheet" href="css/sepiaFW-style-dual-screen.css" title='main'><!-- ...maybe use 'media' property -->
 	<!-- FOR MORE STYLESHEETS SEE END-OF-BODY -->
 	<script src="scripts/sepiaFW.app.config.js"></script>
 	<script src="scripts/sepiaFW.app.js"></script>
@@ -107,17 +145,17 @@
 	<!-- Scroll-to-hide area for web-apps --><!--<div id="sepiaFW-minimal-ui-sa" style="min-height:100px; background-color:#000; color:#fff;">Scroll to hide</div>
 	-->
 	<!-- Login -->
-	<div id="sepiaFW-login-box">
+	<div id="sepiaFW-login-box" class="app-loading">
 		<div id="sepiaFW-language-selector"></div>
 		<div id="sepiaFW-login-box-menu-btn"><i class="material-icons md-18">&#xE5D2;</i></div>
 		<h2><!--Welcome--><script>SepiaFW.local.w('welcome')</script></h2>
 		<div id="sepiaFW-login-form" style="display: none">
 			<input id="sepiaFW-login-id" type="text" placeholder="Username" aria-label="Username" spellcheck="false" autocomplete="username">
 			<input id="sepiaFW-login-pwd" type="password" placeholder="Password" aria-label="Password">
-			<button id="sepiaFW-login-send"><script>SepiaFW.local.w('sendLogin')</script></button><br>
-			<button id="sepiaFW-login-create" class="extended-controls" style="display:none;"><script>SepiaFW.local.w('createAccount')</script></button><br>
-			<button id="sepiaFW-login-close" class="extended-controls" style="display:none;"><script>SepiaFW.local.w('offlineTestMode')</script></button><br>
-			<button id="sepiaFW-login-retry" style="display:none;"><script>SepiaFW.local.w('retry')</script></button><br>
+			<button id="sepiaFW-login-send"><script>SepiaFW.local.w('sendLogin')</script></button>
+			<button id="sepiaFW-login-create" class="extended-controls" style="display:none;"><script>SepiaFW.local.w('createAccount')</script></button>
+			<button id="sepiaFW-login-close" class="extended-controls" style="display:none;"><script>SepiaFW.local.w('offlineTestMode')</script></button>
+			<button id="sepiaFW-login-retry" style="display:none;"><script>SepiaFW.local.w('retry')</script></button>
 		</div>
 		<!-- Host-name pre-login box -->
 		<div id="sepiaFW-host-name-box" class="extended-controls" style="display:none;">
@@ -130,19 +168,20 @@
 			<button><script>SepiaFW.local.w('connecting')</script></button>
 		</div>
 		<p id="sepiaFW-login-status"></p>
+		<p id="sepiaFW-login-extra-info"></p>
 		<div id="sepiaFW-login-links" style="display: none">
 			<a id="sepiaFW-login-license-btn" href="license.html" target="_blank"><script>SepiaFW.local.w('license')</script></a>
 			<a id="sepiaFW-login-policy-btn" href="https://sepia-framework.github.io/privacy-policy.html" target="_blank"><script>SepiaFW.local.w('data_privacy')</script></a>
 		</div>
 		<!-- extend button -->
-		<div id="sepiaFW-login-extend-box" style="visibility: hidden;">
-			<button id="sepiaFW-login-extend-btn"><i class="material-icons md-btn2">&#xE5C5;</i></button>
+		<div id="sepiaFW-login-extend-box">
+			<button id="sepiaFW-login-extend-btn" style="display: none;"><i class="material-icons md-btn2">&#xE5C5;</i></button>
 		</div>
 		<!-- help button -->
 		<button id="sepiaFW-login-help-btn" onclick="SepiaFW.ui.actions.openUrlAutoTarget('https://github.com/SEPIA-Framework/sepia-docs#welcome-to-the-documentation-page-for-sepia');"><i class="material-icons md-inherit">help</i></button>
 	</div>
 	<!-- Main -->
-	<div id="sepiaFW-main-window" class="sepiaFW-translucent-10 no-interaction sepiaFW-skin-mod">
+	<div id="sepiaFW-main-window" class="app-loading sepiaFW-translucent-10 no-interaction sepiaFW-skin-mod">
 		<!-- Menues -->
 		<div id="sepiaFW-chat-menu" class="sepiaFW-menu" style="display:none;"><!-- Dynamic content --></div>
 		<div id="sepiaFW-chat-channel-view" class="sepiaFW-menu" style="display:none;">
@@ -204,6 +243,7 @@
 				<li id='sepiaFW-history-btn'><script>SepiaFW.local.w('clearHistory')</script>&nbsp;<i class="material-icons md-txt">&#xE889;</i></li>
 				<li id='sepiaFW-saythis-btn'>Broadcast&nbsp;<i class="material-icons md-txt">record_voice_over</i></li>
 				<li id='sepiaFW-teachUI-open'>Teach&nbsp;<i class="material-icons md-txt">&#xE87B;</i></li>
+				<li id='sepiaFW-uisize-btn'>UI&nbsp;<i class="material-icons md-txt">&#xE56B;</i></li>
 				<li id='sepiaFW-fullsize-btn'>Screen&nbsp;<i class="material-icons md-txt">&#xE56B;</i></li>
 				<li id='sepiaFW-alwaysOn-btn'>Always On&nbsp;<span class="sepia-icon-font s14 sepia-icon-sepia_bw"><span class="path1"></span><span class="path2"></span></span></li>
 				<!--<li id='sepiaFW-back-btn'><script>SepiaFW.local.w('back')</script>&nbsp;<i class="material-icons md-txt">&#xE408;</i></li>-->
@@ -318,13 +358,19 @@
 		<!-- loader -->
 		<div id='sepiaFW-loader'></div>
 	</div>
+	<!-- Safe areas -->
+	<div id='sepiaFW-screen-safe-area-top' class="sepiaFW-screen-safe-area"></div>
+	<div id='sepiaFW-screen-safe-area-bottom' class="sepiaFW-screen-safe-area"></div>
+	<div id='sepiaFW-screen-safe-area-left' class="sepiaFW-screen-safe-area"></div>
+	<div id='sepiaFW-screen-safe-area-right' class="sepiaFW-screen-safe-area"></div>
 	<!-- Audio players (invisible) -->
 	<div id='sepiaFW-audio-players-box'>
 		<audio id="sepiaFW-audio-player" src="sounds/empty.mp3" controls="controls" title="SepiaFW Sound"></audio>
 		<audio id="sepiaFW-audio-player2" src="sounds/empty.mp3" controls="controls" title="SepiaFW Sound2"></audio>
 		<audio id="sepiaFW-audio-speaker" src="sounds/empty.mp3" controls="controls" title="SepiaFW TTS"></audio>
 	</div>
-<!-- LOW PRIO STYLESHEETS -->
+<!-- UI END -->
+<!-- LOW PRIO STYLESHEETS (load before skins) -->
 <link rel="stylesheet" href="css/googleMaterialIcons.css">
 <link rel="stylesheet" href="css/sepiaFW-font.css">
 <link rel="stylesheet" href="css/sepiaFW-cards.css">
@@ -332,6 +378,7 @@
 <link rel="stylesheet" href="css/sepiaFW-frames.css">
 <link rel="stylesheet" href="css/sepiaFW-alwaysOn.css">
 <link rel="stylesheet" href="css/sepiaFW-plots.css">
+<!-- SKINS -->
 <script>
 	//Optimized skin loader
 	(function(){
@@ -357,8 +404,8 @@
 			"Vectors Reloaded":		{id: 42, css: "css/sepiaFW-skin-vectors-reloaded.css", 	avatar: "6"},
 			"Canny": 				{id: 17, css: "css/sepiaFW-skin-canny.css", 			avatar: "1"},
 			"Essential": 			{id: 18, css: "css/sepiaFW-skin-minimal.css", 			avatar: "1"},
-			"Essential Green": 			{id: 35, css: "css/sepiaFW-skin-minimal-green.css", 	avatar: "1", base: 18},
-			"Essential Orange":			{id: 36, css: "css/sepiaFW-skin-minimal-orange.css", 	avatar: "1", base: 18},
+			"Essential Green": 		{id: 35, css: "css/sepiaFW-skin-minimal-green.css", 	avatar: "1", base: 18},
+			"Essential Orange":		{id: 36, css: "css/sepiaFW-skin-minimal-orange.css", 	avatar: "1", base: 18},
 			"Study": 				{id: 19, css: "css/sepiaFW-skin-study.css", 			avatar: "1"},
 			"Professional": 		{id: 20, css: "css/sepiaFW-skin-professional.css", 		avatar: "1"},
 			"Odyssey Explorer":		{id: 21, css: "css/sepiaFW-skin-odyssey1.css", 			avatar: "3"},
@@ -374,11 +421,13 @@
 			//"Future Reloaded": 	{id: 29, css: "css/sepiaFW-skin-future-reloaded.css", avatar: "3"},
 			"Flaming Squirrel":			{id: 30, css: "css/sepiaFW-skin-flaming-squirrel.css", 		avatar: "4"},
 			"Flaming Dark Squirrel":	{id: 31, css: "css/sepiaFW-skin-flaming-squirrel-dark.css", avatar: "4", base: 30},
-			"Funky Sunrise":		{id: 38, css: "css/sepiaFW-skin-funky-sunrise.css", avatar: "6", base: 30},
+			"Funky Sunrise":		{id: 38, css: "css/sepiaFW-skin-funky-sunrise.css", 		avatar: "6", base: 30},
 			"Alabaster Mystical":	{id: 32, css: "css/sepiaFW-skin-alabaster-mystical.css",	avatar: "5"},
 			"Alabaster Motley":		{id: 33, css: "css/sepiaFW-skin-alabaster-motley.css",		avatar: "5", base: 32},
-			"Alabaster Dark":		{id: 34, css: "css/sepiaFW-skin-alabaster-dark.css",		avatar: "5", base: 32}
-			//next: 43
+			"Alabaster Dark":		{id: 34, css: "css/sepiaFW-skin-alabaster-dark.css",		avatar: "5", base: 32},
+			"Custom Light Classic": {id: 44, css: "css/sepiaFW-skin-custom-light-basic.css", avatar: "1", customizable: true, skinStyle: "light"},
+			"Custom Dark Neo": {id: 45, css: "css/sepiaFW-skin-custom-dark-neo.css", avatar: "6", base: 44, customizable: true, skinStyle: "dark"}
+			//next: 46
 		}
 		var avatars = {
 			"Classic": 				{id:  1, css: "css/sepiaFW-avatar-classic.css"},
@@ -415,8 +464,12 @@
 			var d = (askin == id || id == aSkinBase)? "" : "disabled";
 			if (askin == id) defaultAvatar = skins[skinNames[i]].avatar;
 			document.write("<link rel='" + r + "' href='" + skins[skinNames[i]].css + "' class='sepiaFW-style-skin' title='" + t + "' "
-				+ "data-id='" + id + "' " + "data-base='" + baseId + "' " + "data-name='" + skinNames[i] + "' " 
-				+ "data-avatar='" + skins[skinNames[i]].avatar + "' " + d + ">");
+				+ "data-id='" + id + "' " + "data-base='" + baseId + "' "
+				+ "data-name='" + skinNames[i] + "' "
+				+ "data-customizable='" + (skins[skinNames[i]].customizable || "false") + "' "
+				+ "data-skin-style='" + (skins[skinNames[i]].skinStyle || "auto") + "' "
+				+ "data-avatar='" + skins[skinNames[i]].avatar + "' "
+				+ d + ">");
 		}
 		var avatarNames = Object.keys(avatars);
 		var aav = SepiaFW.data.get("activeAvatar") || defaultAvatar;
@@ -770,6 +823,7 @@
 				'%3Cscript src="js/index.js"%3E%3C/script%3E'
 			));
 			//NOTE: calls 'appSetup()' via index.js
+			//TODO: use service worker for 'Web Periodic Background Synchronization API'?
 
 		}else{
 			//register service worker in non-Cordova app ONLY if pwa=true ... for now
@@ -786,6 +840,14 @@
 						.then(function(registration){ 
 							SepiaFW.debug.log('Service Worker: Registered for scope: ' + scope);
 							window.sepiaClientSwRegistration = registration;
+							//register notification listener
+							navigator.serviceWorker.addEventListener("message", function(ev){
+								if (SepiaFW.ui.notification && SepiaFW.events){
+									SepiaFW.ui.notification.handleServiceWorkerMessage(ev.data);
+								}else{
+									SepiaFW.debug.error("Service Worker: Missed notification action. App not ready yet?");
+								}
+							});
 						}, function(err){
 							SepiaFW.debug.error('Service Worker: Failed to register for scope: ' + scope, err);
 						});
@@ -816,8 +878,13 @@
 	appStart();
 
 </script>
-<!-- Resources for later -->
 <script src="css/googleMaterialIcons.js"></script> <!-- glyph table for icons -->
 <!-- Plugins -->
+<!-- Remove inline styles for loading -->
+<script>
+	document.documentElement.classList.remove("app-loading");
+	document.getElementById("sepiaFW-main-window").classList.remove("app-loading");
+	document.getElementById("sepiaFW-login-box").classList.remove("app-loading");
+</script>
 </body>
 </html>

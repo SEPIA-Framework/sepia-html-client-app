@@ -7,7 +7,7 @@ Part of the [SEPIA Framework](https://sepia-framework.github.io/).
   
 More screenshots can be found [here](screenshots).  
   
-This is the primary SEPIA client used to communicate with SEPIA assistant. It is written in modern HTML5 and runs cross-platform on any modern browser (desktop PC, Android, iOS),
+This is the primary SEPIA client used to communicate with SEPIA assistant. It is written in Javascript/HTML and runs cross-platform on any modern browser (desktop PC, Android, iOS),
 as web and mobile app or even as [smart-speaker (headless) and smart-display](https://github.com/SEPIA-Framework/sepia-installation-and-setup/tree/master/sepia-client-installation) on SBCs like the Raspberry Pi.  
   
 Features of the app are:

@@ -30,14 +30,30 @@
 					<button id="sepiaFW-stt-settings-server-info-btn" 
 						onclick="SepiaFW.frames.currentScope.showServerInfo();">Load Server Info</button>
 				</div>
-				<h3>ASR Engine</h3>
+				<h3>Active Engine Settings</h3>
 				<div class="group">
-					<label>Model for selected language (<span id="sepiaFW-stt-settings-language"></span>):</label>
-					<select id="sepiaFW-stt-settings-asr-model"></select>
+					<label>Active language:</label>
+					<span id="sepiaFW-stt-settings-language" class="string-value">---</span>
 				</div>
-				<div class="group">
+				<div class="group" data-engine="sepia">
 					<label>Optimize final result:</label>
 					<div id="sepiaFW-stt-settings-opt-fr" title="Try to convert words to numbers for example (if supported)."></div>
+				</div>
+				<div class="group" data-engine="sepia">
+					<label style="flex: 1 1 192px;">Base model for active language:</label>
+					<select style="max-width: unset;" id="sepiaFW-stt-settings-asr-model"></select>
+				</div>
+				<div class="group" data-engine="sepia">
+					<label id="sepiaFW-stt-settings-tasks-label">Use task-specific models:</label>
+					<div id="sepiaFW-stt-settings-use-tasks" title="Use task-specific models defined by services if the STT server supports it."></div>
+				</div>
+				<div id="sepiaFW-stt-settings-task-models-label" class="group" data-engine="sepia">
+					<label>Task-specific models for active language:</label>
+				</div>
+				<div id="sepiaFW-stt-settings-task-models" class="group wrap" data-engine="sepia"
+						style="border: 1px solid; border-radius: 3px; padding: 4px 0;">
+					<!-- filled dynamically -->
+					<p>No tasks found yet.</p>
 				</div>
 				<h3>Info</h3>
 				<div id="sepiaFW-stt-settings-info-msg" style="width: 100%; white-space: break-spaces; word-wrap: break-word;"></div>
@@ -46,7 +62,7 @@
 		<!-- Page 2 -->
 		<div id="sepiaFW-frame-page-2" class='sepiaFW-frames-page sepiaFW-carousel-pane'>
 			<h3>STT Debugging</h3>
-			<p class="info-text">This page is supposed to help with finding STT issues.</p>
+			<p class="info-text">This page is intended to help in finding STT issues.</p>
 			<div class="group" style="justify-content: center;">
 				<button id="sepiaFW-stt-settings-record-btn" 
 					onclick="SepiaFW.frames.currentScope.toggleRecordingWithConfirmSound();">Toggle Recording</button>
@@ -80,6 +96,99 @@
 	//Define scope
 	SepiaFW.frames.currentScope = {
 
+		tasksMapping: {},
+
+		buildTaskModelGroup: function(taskName){
+			var group = document.createElement("div");
+			group.className = "inner-group";
+			group.style.cssText = "flex: 1 1 100%;";
+			var taskLabel = document.createElement("label");
+			taskLabel.textContent = "'" + ((taskName == "default")? "Base (default)" : taskName) + "':";
+			taskLabel.cssText = "flex: 1 1 192px;"
+			group.appendChild(taskLabel);
+			//var modelElement = document.createElement("select");	//NOTE: we could support select later
+			var modelElement = document.createElement("span");
+			modelElement.textContent = "loading...";
+			modelElement.style.cssText = "max-width: unset; text-align: right;";
+			group.appendChild(modelElement);
+			return {label: taskLabel, modelElement: modelElement, group: group};
+		},
+		fillModelField: function(fieldEle, models, fieldVal){
+			if (fieldEle.tagName.toLowerCase() == "select"){
+				fieldEle.innerHTML = "<option value=''>Default</option>";
+				models.forEach(function(m){
+					var opt = document.createElement("option");
+					opt.value = m;
+					opt.textContent = m;
+					fieldEle.appendChild(opt);
+				});
+				fieldEle.value = fieldVal || "";
+			}else{
+				fieldEle.textContent = fieldVal || "default";
+			}
+		},
+		fillMultipleModelFieldsForSepiaStt: function(langCode, modelFieldByTaskName, taskModelMap){
+			SepiaFW.speechAudioProcessor.getServerSettings(function(settings){
+				var models = (settings && settings.models)? settings.models : [];
+				Object.keys(modelFieldByTaskName).forEach(function(taskName){
+					var modelField = modelFieldByTaskName[taskName];
+					var thisModel = taskModelMap[taskName];
+					if (!thisModel && settings.modelProperties){
+						//find best existing model - NOTE: according to current STT server selection criteria
+						var defaultGoodMatch, defaultBestMatch, goodMatch, bestMatch;
+						for (let i=0; i<models.length; i++){
+							let lang = settings.languages[i];
+							let prop = settings.modelProperties[i];
+							if (lang.indexOf(langCode) != 0){
+								continue;
+							}else if (prop.task != taskName){
+								if (lang == langCode && !defaultBestMatch){
+									//first perfect language match is the "best default"
+									defaultBestMatch = {language: lang, model: models[i], task: prop.task};
+								}else if (!defaultGoodMatch){
+									//first base-language match is the "good default"
+									defaultGoodMatch = {language: lang, model: models[i], task: prop.task};
+								}
+							}else{
+								if (lang == langCode){
+									bestMatch = {language: lang, model: models[i], task: prop.task};
+									break;
+								}else if (!goodMatch){
+									goodMatch = {language: lang, model: models[i], task: prop.task};
+								}
+							}
+						}
+						if (bestMatch) thisModel = bestMatch.model;
+						else if (defaultBestMatch) thisModel = defaultBestMatch.model;	//TODO: does language have indeed higher priority?
+						else if (goodMatch) thisModel = goodMatch.model;
+						else if (defaultGoodMatch) thisModel = defaultGoodMatch.model;
+						else thisModel = "";
+					}
+					SepiaFW.frames.currentScope.fillModelField(modelField, models, thisModel);
+				});
+			}, function(err){
+				Object.values(modelFieldByTaskName).forEach(function(fieldEle){
+					if (fieldEle.tagName.toLowerCase() == "select"){
+						fieldEle.innerHTML = "<option value='' disabled selected>-Not found-</option>";
+					}else{
+						fieldEle.textContent = "-Not found-";
+					}
+				});
+			});
+		},
+		setTasksSwitch: function(enable, animDelay){
+			if (animDelay == undefined) animDelay = 0;
+			var useTasksToggle = $('#sepiaFW-stt-settings-toggle-use-tasks').get(0);
+			useTasksToggle.setValue(enable);
+			if (enable){
+				$('#sepiaFW-stt-settings-task-models-label').show(animDelay);
+				$('#sepiaFW-stt-settings-task-models').show(animDelay);
+			}else{
+				$('#sepiaFW-stt-settings-task-models-label').hide(animDelay);
+				$('#sepiaFW-stt-settings-task-models').hide(animDelay);
+			}
+		},
+
 		onFinishSetup: function(){
 			SepiaFW.ui.onKeyboardInput('#sepiaFW-stt-settings-server-url', undefined, function(ele){
 				SepiaFW.speechAudioProcessor.setSocketURI(ele.value);
@@ -108,49 +217,96 @@
 					SepiaFW.debug.info("STT Server 'optimizeFinalResult' is 'false'");
 				}, SepiaFW.speechAudioProcessor.getOptimizeFinalResult()
 			));
+			var useTaskModelsToggle = document.getElementById('sepiaFW-stt-settings-use-tasks');
+			var useTaskModelsLabel = document.getElementById('sepiaFW-stt-settings-tasks-label');
+			useTaskModelsToggle.appendChild(SepiaFW.ui.build.toggleButton(
+				'sepiaFW-stt-settings-toggle-use-tasks', 
+				function(){
+					SepiaFW.speechAudioProcessor.setUseTaskSpecificAsr(true);
+					SepiaFW.debug.info("STT Server 'useTaskSpecificAsr' is 'true'");
+					SepiaFW.frames.currentScope.setTasksSwitch(true, 300);
+				},function(){
+					SepiaFW.speechAudioProcessor.setUseTaskSpecificAsr(false);
+					SepiaFW.debug.info("STT Server 'useTaskSpecificAsr' is 'false'");
+					SepiaFW.frames.currentScope.setTasksSwitch(false, 300);
+				}, SepiaFW.speechAudioProcessor.getUseTaskSpecificAsr()
+			));
+			useTaskModelsLabel.appendChild(SepiaFW.ui.build.helpButton($("<div>"
+				+ "<h3>Task-Specific Models</h3>"
+				+ "<p>If this option is enabled, task-specific ASR models can be used to tweak recognition " 
+				+ "quality for services and widgets.</p><p>To use the feature a service or widget has to define "
+				+ "a task-name and the STT server has to offer a model for the same task.<br>"
+				+ "If a task-name is given but no model is found the SEPIA STT server will currently choose "
+				+ "the fallback which can be different(!) form the selected base model.</p>"
+				+ "<p>If this option is disabled the selected base model will be used for all dialogs.</p>"
+				+ "</div>").get(0)));
 		},
 		
 		onOpen: function(){
+			var scope = SepiaFW.frames.currentScope;
 			$('#sepiaFW-stt-settings-server-engine').text(SepiaFW.speech.getAsrEngine());
 			$('#sepiaFW-stt-settings-server-url').val(SepiaFW.speechAudioProcessor.getSocketURI());
 			$('#sepiaFW-stt-settings-server-user').val(SepiaFW.speechAudioProcessor.serverUser || "");
 			$('#sepiaFW-stt-settings-server-token').val(SepiaFW.speechAudioProcessor.serverToken || "");	//TODO: replace with input only?
-			$('#sepiaFW-stt-settings-language').text(SepiaFW.speech.getLanguage());
-			//model options
-			var modelOptionsSelect = $('#sepiaFW-stt-settings-asr-model')[0];
-			SepiaFW.speechAudioProcessor.getServerSettings(function(settings){
-				modelOptionsSelect.innerHTML = "<option value=''>Default</option>";
-				var models = (settings && settings.models)? settings.models : [];
-				models.forEach(function(m){
-					var opt = document.createElement("option");
-					opt.value = m;
-					opt.textContent = m;
-					modelOptionsSelect.appendChild(opt);
-				});
-				modelOptionsSelect.value = SepiaFW.speechAudioProcessor.getActiveAsrModel() || "";
-			}, function(err){
-				modelOptionsSelect.innerHTML = "<option value='' disabled selected>-Not found-</option>";
-			});
+			var langCode = SepiaFW.speech.getLanguage();
+			var longLangCode = SepiaFW.speech.getLongLanguageCode();
+			$('#sepiaFW-stt-settings-language').text(langCode.toUpperCase() + " (" + longLangCode + ")");
 			//optimize result?
 			var optFinalResToggle = $('#sepiaFW-stt-settings-toggle-opt-fr').get(0);
 			optFinalResToggle.setValue(SepiaFW.speechAudioProcessor.getOptimizeFinalResult());
+			//use task-specific models
+			var useTasksCurrentVal = SepiaFW.speechAudioProcessor.getUseTaskSpecificAsr();
+			//build task-specific model overview
+			var taskModelFieldsByTaskName = {};
+			var fullTaskModelMap = {};
+			var storedTaskMapping = SepiaFW.data.getPermanent(langCode + "-asr-task-models") || {};		//TODO: not supported yet
+			Object.assign(fullTaskModelMap, storedTaskMapping);
+			var tasksSeenInClient = SepiaFW.assistant.getKnownTasks() || [];
+			tasksSeenInClient.forEach(function(t){
+				if (t && t != "default" && fullTaskModelMap[t] == undefined){	//skip default, it has its own selector
+					fullTaskModelMap[t] = "";
+				}
+			});
+			var $tasksBox = $("#sepiaFW-stt-settings-task-models");
+			$tasksBox.html("");		//clean-up old ones first
+			if (Object.keys(fullTaskModelMap).length){
+				Object.keys(fullTaskModelMap).forEach(function(taskName){
+					var taskModel = fullTaskModelMap[taskName];
+					var gls = scope.buildTaskModelGroup(taskName);
+					taskModelFieldsByTaskName[taskName] = gls.modelElement;
+					$tasksBox.append(gls.group);
+				});
+			}else{
+				$tasksBox.html("<span style='padding: 8px;'>No tasks found yet. " 
+					+ "If a service submits task info the model mapping will show up here automatically.</span>");
+			}
+			//add default model selector (after specific tasks have been built)
+			var baseModelSelector = document.getElementById('sepiaFW-stt-settings-asr-model');
+			var baseModelValue = SepiaFW.data.getPermanent(langCode + "-asr-model") || "";	//use active instead? //SepiaFW.speechAudioProcessor.getActiveAsrModel()
+			taskModelFieldsByTaskName["default"] = baseModelSelector;
+			fullTaskModelMap["default"] = baseModelValue;
 			//enable/disable options
 			if (SepiaFW.speech.getAsrEngine() != "sepia"){
-				SepiaFW.frames.currentScope.showInfo("Note: Most options only apply to 'sepia' engine atm.");
+				scope.fillModelField(baseModelSelector, [], "");
+				scope.showInfo("Note: Most options only apply to 'sepia' engine atm.");
+				$('#sepiaFW-frame-carousel').find('[data-engine="sepia"]').hide();
 				$('#sepiaFW-stt-settings-server-info-btn').hide();
-				optFinalResToggle.setDisabled(true);
 			}else{
-				SepiaFW.frames.currentScope.showInfo("Note: 'Optimize final result' is still experimental.");
+				//add model options
+				scope.fillMultipleModelFieldsForSepiaStt(langCode, taskModelFieldsByTaskName, fullTaskModelMap);
+				scope.showInfo("Press the load button to get detailed STT server info.");
+				$('#sepiaFW-frame-carousel').find('[data-engine="sepia"]').show();
 				$('#sepiaFW-stt-settings-server-info-btn').show();
-				optFinalResToggle.setDisabled(false);
 			}
+			//update tasks visibility
+			scope.setTasksSwitch(useTasksCurrentVal, 0);
 			//set global speech listener
 			SepiaFW.speech.setActiveGlobalSpeechEventListener(function(ev){
-				if (SepiaFW.frames.currentScope.speechEvents) SepiaFW.frames.currentScope.speechEvents(ev);
+				if (scope.speechEvents) scope.speechEvents(ev);
 			});
 			SepiaFW.audioRecorder.debugInterfaces = true;
-			SepiaFW.audioRecorder.debuggerLogFunction = SepiaFW.frames.currentScope.audioRecorderEvents;
-			SepiaFW.frames.currentScope.resetRecognizer();
+			SepiaFW.audioRecorder.debuggerLogFunction = scope.audioRecorderEvents;
+			scope.resetRecognizer();
 		},
 
 		onClose: function(){
@@ -165,11 +321,37 @@
 		showServerInfo: function(){
 			SepiaFW.frames.currentScope.showInfo("Loading server info...");
 			SepiaFW.speechAudioProcessor.getServerSettings(function(settings){
-				var msg = "Server info:\n\n";
+				var msg = "--- STT Server ---\n\n";
 				Object.keys(settings).forEach(function(k){
-					msg += k + " = " + settings[k] + "\n";
+					//show some selected info
+					if (k == "version" || k == "engine"){
+						msg += k + " = " + settings[k] + "\n\n";
+					}else if (k == "languages"){
+						var uniqueLang = settings[k].filter(function (x, i, a){ 
+    						return a.indexOf(x) === i; 
+						});
+						msg += k + " = [ " + uniqueLang.join(", ") + " ]\n\n";
+					}else if (k == "models"){
+						msg += k + " = [ " + settings[k].join(", ") + " ]\n\n";
+					}else if (k == "modelProperties"){
+						var uniqueTasks = {};
+						settings[k].forEach(function(prop){
+							if (prop.task) uniqueTasks[prop.task] = 1;
+						});
+						msg += "tasks = [ " + Object.keys(uniqueTasks).join(", ") + " ]\n\n";
+					}
 				});
 				SepiaFW.frames.currentScope.showInfo(msg);
+				var buttonBox = document.createElement("div");
+				buttonBox.style.cssText = "text-align: center; margin-bottom: 32px;";
+				var showAllButton = document.createElement("button");
+				showAllButton.textContent = "Show Full JSON Info";
+				$(showAllButton).on("click", function(){
+					SepiaFW.ui.showJsonInfoPopup("STT Server Info", undefined, settings);
+				});
+				buttonBox.appendChild(showAllButton);
+				SepiaFW.frames.currentScope.appendToInfo(buttonBox);
+				//TODO: add field updates via 'fillMultipleModelFieldsForSepiaStt' as well?
 			}, function(err){
 				SepiaFW.frames.currentScope.showError("Failed to load server info.");
 			});
@@ -180,6 +362,9 @@
 		},
 		showError: function(msg){
 			$('#sepiaFW-stt-settings-info-msg').css("color", "#f00").text(msg);
+		},
+		appendToInfo: function(content){
+			$('#sepiaFW-stt-settings-info-msg').append(content);
 		},
 
 		//Debugger page
@@ -257,7 +442,8 @@
 		},
 		resetRecognizer: function(){
 			if (!SepiaFW.speech.isSpeakingOrListening()){
-				SepiaFW.speech.resetRecognition(undefined, SepiaFW.frames.currentScope.audioRecorderEvents);
+				var logFun = undefined;		//defaults to 'SepiaFW.audioRecorder.debuggerLogFunction' (see above -> audioRecorderEvents)
+				SepiaFW.speech.resetRecognition(undefined, logFun);
 			}else{
 				SepiaFW.speech.stopRecognition();
 			}

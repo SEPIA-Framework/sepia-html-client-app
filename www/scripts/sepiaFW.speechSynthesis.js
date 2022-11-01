@@ -225,7 +225,7 @@ function sepiaFW_build_speech_synthesis(Speech, sepiaSessionId){
 
 		}else if (Speech.isTtsSupported && !SepiaFW.ui.isCordova){
 			//Web Speech API
-			voices = window.speechSynthesis.getVoices();
+			voices = window.speechSynthesis.getVoices();	//add all voices to global array
 			var option = document.createElement('option');
 			if (voices.length === 0){
 				option.value = "";
@@ -239,26 +239,65 @@ function sepiaFW_build_speech_synthesis(Speech, sepiaSessionId){
 			if (successCallback) successCallback(voices, voiceSelector);
 
 		}else if (Speech.isTtsSupported && SepiaFW.ui.isCordova){
-			//Cordova system voices not yet implemented
+			//Cordova system voices
 			var option = document.createElement('option');
 			option.value = '';
 			option.textContent = '- system -';
 			voiceSelector.appendChild(option);
-			//TODO: extend?
-			addVoicesToSelector(voices, voiceSelector);
-			if (successCallback) successCallback(voices, voiceSelector);
+			//Do we have a list?
+			if ("TTS" in window && typeof TTS.getVoices == "function"){
+				TTS.getVoices().then(function(voicesArray){
+					//add all voices to global array
+					if (voicesArray && voicesArray.length > 0){
+						//voicesArray: [{name:'', identifier: '', language: ''},..]
+						voicesArray.forEach(function(v){
+							if (v.language && v.name && v.identifier){
+								voices.push({
+									lang: v.language,
+									localService: undefined,
+									name: v.language + " - " + v.name,
+									voiceURI: v.identifier
+								});
+							}
+						});
+						//sort this mess ^^
+						if (voices.length > 1){
+							voices.sort(function(a,b){
+								if (a.name < b.name) return -1;
+								if (a.name > b.name) return 1;
+								return 0;
+							});
+						}
+					}
+					addVoicesToSelector(voices, voiceSelector);
+					if (successCallback) successCallback(voices, voiceSelector);
+				}, function(reason){
+					//error
+					SepiaFW.debug.error("Failed to get voices for '" + Speech.voiceEngine + "' - Reason:", reason);
+					var option = document.createElement('option');
+					option.value = "";
+					option.textContent = "- no voices -";
+					voiceSelector.appendChild(option);
+					addVoicesToSelector(voices, voiceSelector);
+					if (successCallback) successCallback(voices, voiceSelector);
+				});
+			}else{
+				//voices not supported but rest works ...
+				addVoicesToSelector(voices, voiceSelector);
+				if (successCallback) successCallback(voices, voiceSelector);
+			}
 		}
 	}
-	function addVoicesToSelector(voices, voiceSelector){
-		if (voices && voices.length > 0){
-			voices.forEach(function(voice){
+	function addVoicesToSelector(voicesArray, voiceSelector){
+		if (voicesArray && voicesArray.length > 0){
+			voicesArray.forEach(function(voice){
 				var option = document.createElement('option');
 				option.value = voice.name;
 				option.textContent = voice.name; //.replace(/(microsoft|google|apple)/ig, '').replace(/(\(.*?\))/g, '').trim();
 				voiceSelector.appendChild(option);
 			});
 		}
-		SepiaFW.debug.info('TTS voices available: ' + voices.length);
+		SepiaFW.debug.info('TTS voices available: ' + voicesArray.length);
 		//add button listener
 		$(voiceSelector).off().on('change', function(){
 			var newVoice = $('#sepiaFW-menu-select-voice').val();
@@ -266,7 +305,7 @@ function sepiaFW_build_speech_synthesis(Speech, sepiaSessionId){
 			Speech.setVoice(newVoice);
 		});
 
-		if (voices.length > 0){
+		if (voicesArray.length > 0){
 			setVoiceOnce();
 		}
 		//refresh selector once more?
@@ -306,6 +345,7 @@ function sepiaFW_build_speech_synthesis(Speech, sepiaSessionId){
 				});
 				//restore voice effects
 				SepiaFW.audio.tts.restoreVoiceEffect(selectedVoice, function(){});
+				return selectedVoiceObject.name;
 
 			}else if (Speech.voiceEngine == 'custom-mary-api'){
 				//custom voices
@@ -323,12 +363,32 @@ function sepiaFW_build_speech_synthesis(Speech, sepiaSessionId){
 				});
 				//restore voice effects
 				SepiaFW.audio.tts.restoreVoiceEffect(selectedVoice, function(){});
+				return selectedVoiceObject.name;
 
 			}else if (SepiaFW.ui.isCordova){
-				//TODO: implement
-
+				//native voices (Android, iOS)
+				if ("TTS" in window && typeof TTS.getVoices == "function"){
+					selectedVoice = newVoice;
+					if (selectedVoice){
+						selectedVoiceObject = voices.find(function(voice){
+							return (voice && voice.name && (voice.name === selectedVoice));
+						});
+						if (!selectedVoiceObject) selectedVoiceObject = {};
+					}else{
+						selectedVoiceObject = {};
+					}
+				}else{
+					selectedVoice = "";
+					selectedVoiceObject = {};
+				}
+				//store if deliberately empty or match
+				if (!selectedVoice || selectedVoiceObject.name){
+					$('#sepiaFW-menu-select-voice').val(selectedVoice);
+					SepiaFW.data.setPermanent(Speech.getLanguage() + "-voice", selectedVoice);
+				}
+				return selectedVoiceObject.name;
 			}else{
-				//native voices
+				//native voices (web-speech-API)
 				selectedVoice = newVoice;
 				if (selectedVoice){
 					selectedVoiceObject = window.speechSynthesis.getVoices().find(function(voice){
@@ -344,6 +404,7 @@ function sepiaFW_build_speech_synthesis(Speech, sepiaSessionId){
 					$('#sepiaFW-menu-select-voice').val(selectedVoice);
 					SepiaFW.data.setPermanent(Speech.getLanguage() + "-voice", selectedVoice);
 				}
+				return selectedVoiceObject.name;
 			}
 		}
 	}
@@ -467,17 +528,36 @@ function sepiaFW_build_speech_synthesis(Speech, sepiaSessionId){
 			speechWaitingForResult = true;
 			synthID++;
 			onTtsStart(undefined, startedCallback, errorCallback);
-			TTS.speak({			//Cordova plugin!
+			//Cordova plugin:
+			var utterance = {
 				text: text,
-				locale: Speech.getLongLanguageCode(Speech.getLanguage()),	//TODO: support one-time lang.? Check support!
-				rate: 1.00
-				
-			}, function () {
+				//locale: "",
+				//identifier: "",
+				//rate: 0.75,
+				//pitch: 0.9,
+				cancel: true	//always clear queue
+			};
+			if (options.oneTimeVoice){
+				//support for one-time language switch
+				//TODO: support one-time lang.? Check support!
+				utterance.locale = Speech.getLongLanguageCode(options.oneTimeLanguage);
+				if (options.oneTimeVoice && options.oneTimeVoice.voiceURI){
+					utterance.identifier = options.oneTimeVoice.voiceURI;
+				}
+			}else{
+				utterance.locale = Speech.getLongLanguageCode(Speech.getLanguage());
+				//set voice if valid one was selected
+				if (selectedVoiceObject && selectedVoiceObject.voiceURI){
+					utterance.identifier = selectedVoiceObject.voiceURI;
+				}
+			}
+			TTS.speak(utterance).then(function(){
+				//success
 				var event = {};
 				event.msg = "all good";
 				onTtsEnd(event, finishedCallback);
-				
-			}, function (reason) {
+			}, function(reason){
+				//error
 				var event = {};
 				event.msg = reason;		//string from plugin, e.g.: "ERR_INVALID_OPTIONS"
 				onTtsError(event, errorCallback);
@@ -604,12 +684,16 @@ function sepiaFW_build_speech_synthesis(Speech, sepiaSessionId){
 			
 			//NATIVE-TTS
 			}else if (SepiaFW.ui.isCordova){
-				TTS.speak({	text: ''}, function(){		//Cordova plugin
+				//Cordova plugin
+				TTS.speak({
+					text: '',
+					cancel: true
+				}).then(function(){
 					//TODO: onEnd might be fired twice now ...
 					if (isSpeaking){
 						onTtsEnd();
 					}
-				}, function (reason) {
+				}, function(reason){
 					var event = {};
 					event.msg = reason;		//string from plugin, e.g.: "ERR_INVALID_OPTIONS"
 					onTtsError(event);
