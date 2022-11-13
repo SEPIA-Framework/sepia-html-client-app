@@ -749,7 +749,8 @@
 				//SepiaFW.ui.showInfo(SepiaFW.local.g('demoMode'), true);
 				var demoMsg = SepiaFW.account.isSetupMode()? SepiaFW.local.g('setupMode') : SepiaFW.local.g('demoMode');
 				SepiaFW.ui.showCustomChatMessage(demoMsg, { 
-					channelId: 'info'
+					channelId: 'info',
+					timeUNIX: Date.now()
 				}, {
 					displayOptions: { beSilent: (SepiaFW.account.getTestUserType() == 2) }
 				});
