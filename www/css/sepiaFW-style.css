@@ -850,6 +850,7 @@ html.dark-skin #sepiaFW-login-help-btn {
 	background-color: #ceff1a;
 	color: #2f3035;
 	font-size: 15px;
+	line-height: 1.14;
 }
 .sepiaFW-notouch-device #sepiaFW-main-window button:hover {
 	background-color: #2f3035;
@@ -1006,6 +1007,7 @@ html.dark-skin #sepiaFW-login-help-btn {
 	overflow: hidden; /*scrolling happens inside the carousel*/
 	-webkit-overflow-scrolling: touch;
 	font-size: 21px;
+	line-height: 1.14;
 	text-align: center;
 	z-index: 5;
 }
@@ -2173,7 +2175,8 @@ body.big-screen .sepiaFW-results-container {
     word-wrap: break-word;
 	transition: all .5s;
 	text-align: left;
-	/*cursor: pointer;*/
+	line-height: 1.2;
+	font-size: 15px;
 }
 .sepiaFW-results-container .statusUpdate,
 #sepiaFW-chat-output .statusUpdate {
