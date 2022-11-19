@@ -1461,6 +1461,7 @@ html.dark-skin #sepiaFW-login-help-btn {
 	padding: 5px 22px;
 	/*max-width: 220px;*/
 	min-width: 100px;
+	min-height: 28px;
 	max-height: 50px;
 	/*white-space: nowrap;*/
 	text-align: center;

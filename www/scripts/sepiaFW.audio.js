@@ -250,7 +250,6 @@ function sepiaFW_build_audio(){
 
 	//Try to find out if any music player is active (playing or onHold and waiting to resume)
 	AudioPlayer.isAnyAudioSourceActive = function(){
-		//Stop internal player
 		var isInternalPlayerStreaming = Stream.isLoading || AudioPlayer.isMusicPlayerStreaming() || AudioPlayer.isMainOnHold() || TTS.isPlaying;
 		var emp = SepiaFW.ui.cards.embed.getActiveMediaPlayer();
 		var isEmbeddedMediaPlayerStreaming = emp && emp.isActive();
