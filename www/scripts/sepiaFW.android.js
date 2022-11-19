@@ -3,6 +3,8 @@
 function sepiaFW_build_android(){
     var Android = {};
 
+    var hasIntentInterface = ("plugins" in window) && window.plugins.intentShim;
+
     Android.lastRequestMediaAppPackage = "";
     Android.lastRequestMediaAppTS = 0;
     Android.lastReceivedMediaAppPackage = "";
@@ -51,67 +53,52 @@ function sepiaFW_build_android(){
         }
     }
     
-    //Broadcast a MEDIA_BUTTON event
-    Android.broadcastMediaButtonIntent = function(action, code, requireMediaAppPackage){
-        //Android intent broadcast to stop all media
-        var intent = {
-            action: "android.intent.action.MEDIA_BUTTON",
-            extras: {
-                "android.intent.extra.KEY_EVENT": JSON.stringify({
-                    "action": action, 
-                    "code": code
-                })
-            }
-        };
-        /*
+    //Send media player control event
+    Android.sendMediaControlEvent = function(controlAction, requireMediaAppPackage){
+        /* Old "normal" intent:
+        var intent = {action: "android.intent.action.MEDIA_BUTTON", extras: {
+            "android.intent.extra.KEY_EVENT": JSON.stringify({"action": action, "code": code})}};
         Action:
-        0: KeyEvent.ACTION_DOWN
-        1: KeyEvent.ACTION_UP
+        0: KeyEvent.ACTION_DOWN, 1: KeyEvent.ACTION_UP
         Code:
-        85: KEYCODE_MEDIA_PLAY_PAUSE
-        87: KEYCODE_MEDIA_NEXT
-        88: KEYCODE_MEDIA_PREVIOUS
-        127: KEYCODE_MEDIA_PAUSE
-        126: KEYCODE_MEDIA_PLAY
+        85: KEYCODE_MEDIA_PLAY_PAUSE, 87: KEYCODE_MEDIA_NEXT
+        88: KEYCODE_MEDIA_PREVIOUS, 127: KEYCODE_MEDIA_PAUSE, 126: KEYCODE_MEDIA_PLAY
         */
-        if (Android.lastRequestMediaAppPackage){
-            intent.package = Android.lastRequestMediaAppPackage;
+        //New audio manager intent:
+        var data = {
+            event: "mediaControl",
+            action: controlAction
         }
+        var package = Android.lastReceivedMediaAppPackage || Android.lastRequestMediaAppPackage || "";
         var tried;
-        if (requireMediaAppPackage && intent.package){
-            Android.intentBroadcast(intent);
-            tried = true;    //sent
-        }else if (!requireMediaAppPackage){
-            Android.intentBroadcast(intent);
+        //TODO: rethink 'requireMediaAppPackage'?
+        if ((requireMediaAppPackage && package) || !requireMediaAppPackage){
+            Android.audioManager(data);
             tried = true;    //sent
         }else{
             tried = false;   //not sent
         }
-        if (tried){
-            if (code == 127){
-                SepiaFW.audio.broadcastAudioEvent("android-intent", "stop", undefined);
-            }else if (code == 126 || code == 87 || code == 88){
-                SepiaFW.audio.broadcastAudioEvent("android-intent", "start", undefined);
-            }
+        switch (controlAction) {
+            case "pause":
+            case "stop":
+                SepiaFW.audio.broadcastAudioEvent("android-intent", "stop-requested", undefined);
+                break;
+            case "play":
+            case "next":
+            case "previous":
+                SepiaFW.audio.broadcastAudioEvent("android-intent", "start-requested", undefined);
+                break;
         }
         return tried;
     }
-    //Simulate donw-up key event (some apps won't accept only one event)
-    Android.broadcastMediaButtonDownUpIntent = function(code, requireMediaAppPackage){
-        var sent = Android.broadcastMediaButtonIntent(0, code, requireMediaAppPackage);
-        setTimeout(function(){
-            Android.broadcastMediaButtonIntent(1, code, requireMediaAppPackage);
-        }, 250);
-        return sent;    //if the first one was sent the 2nd will too
-    }
 
     //Receive a meta-data change BROADCAST from a music app
-    Android.receiveMusicMetadataBroadcast = function(intent){
+    Android.receiveMusicMetadataBroadcast = function(intent, package){
         /*{ -- e.g. VLC Media Player --
             "extras": {
                 "duration ": 278539,
                 "artist ": "Eric Clapton",
-                "package ": "org.videolan.vlc",
+                "package ": "org.videolan.vlc", //NOTE: only VLC?
                 "playing ": false,
                 "album ": "Unplugged",
                 "track ": "Layla"
@@ -120,8 +107,9 @@ function sepiaFW_build_android(){
             "flags ": 16
         }*/
         if (intent.extras){
-            Android.lastReceivedMediaAppPackage = intent.extras.package;
+            Android.lastReceivedMediaAppPackage = package || intent.extras.package;
             Android.lastReceivedMediaAppTS = new Date().getTime();
+            var lastPlayState = Android.lastReceivedMediaData && Android.lastReceivedMediaData.playing;
             Android.lastReceivedMediaData = {
                 duration: intent.extras.duration,
                 artist: intent.extras.artist,
@@ -129,14 +117,22 @@ function sepiaFW_build_android(){
                 track: intent.extras.track,
                 playing: intent.extras.playing
             }
-            if (intent.extras.playing){
+            if (intent.extras.playing != undefined){
                 if (intent.extras.artist && intent.extras.track){
                     SepiaFW.audio.setPlayerTitle(intent.extras.artist + " - " + intent.extras.track, 'android-intent');
                 }else if (intent.extras.track){
                     SepiaFW.audio.setPlayerTitle(intent.extras.track, 'android-intent');
+                }else{
+                    SepiaFW.audio.setPlayerTitle("Android Audio", 'android-intent');
                 }
-            }else{
-                SepiaFW.audio.setPlayerTitle('', '');
+                if (intent.extras.playing != lastPlayState){
+                    //broadcast new state once
+                    if (intent.extras.playing){
+                        SepiaFW.audio.broadcastAudioEvent("android-intent", "start", undefined);
+                    }else{
+                        SepiaFW.audio.broadcastAudioEvent("android-intent", "stop", undefined);
+                    }
+                }
             }
             //TODO: add real "player active" state? ... it is not really the same ...
         }
@@ -286,7 +282,7 @@ function sepiaFW_build_android(){
 
     //Android Intent access
     Android.intentActivity = function(data, successCallback, errorCallback){
-        if (data.action && ("plugins" in window) && window.plugins.intentShim){
+        if (data.action && hasIntentInterface){
             //TODO: what about safety here? Should we do a whitelist?
             var dataObj = {
                 action: data.action
@@ -297,16 +293,16 @@ function sepiaFW_build_android(){
             if (data.chooser) dataObj.chooser = data.chooser;       //chooser: "Select application to share"
             if (data.component) dataObj.component = data.component; //{"package": ..., "class": ...}
             if (data.flags) dataObj.flags = data.flags;             //JSON array
-            window.plugins.intentShim.startActivity(dataObj, function(intent){
-                SepiaFW.debug.log("Sent Android Activity-Intent '" + data.action);
-                if (successCallback) successCallback(intent);
+            window.plugins.intentShim.startActivity(dataObj, function(res){
+                SepiaFW.debug.log("Sent Android Activity-Intent: " + data.action);
+                if (successCallback) successCallback(res);
             }, function(info){
                 androidIntentFail(data, info, errorCallback)
             });
         }
     }
     Android.intentBroadcast = function(data, successCallback, errorCallback){
-        if (data.action && ("plugins" in window) && window.plugins.intentShim){
+        if (hasIntentInterface && data.action){
             //TODO: what about safety here? Should we do a whitelist?
             var dataObj = {
                 action: data.action
@@ -317,9 +313,23 @@ function sepiaFW_build_android(){
             if (data.chooser) dataObj.chooser = data.chooser;       //chooser: "Select application to share"
             if (data.component) dataObj.component = data.component; //{"package": ..., "class": ...}
             if (data.flags) dataObj.flags = data.flags;             //JSON array
-            window.plugins.intentShim.sendBroadcast(dataObj, function(intent){
-                SepiaFW.debug.log("Sent Android Broadcast-Intent '" + data.action);
-                if (successCallback) successCallback(intent);
+            window.plugins.intentShim.sendBroadcast(dataObj, function(res){
+                SepiaFW.debug.log("Sent Android Broadcast-Intent: " + data.action);
+                if (successCallback) successCallback(res);
+            }, function(info){
+                androidIntentFail(data, info, errorCallback)
+            });
+        }
+    }
+    Android.audioManager = function(data, successCallback, errorCallback){
+        if (hasIntentInterface && data.event && data.action){
+            var dataObj = {
+                event: data.event,      //e.g.: mediaControl
+                action: data.action     //e.g.: play, pause, next, previous
+            }
+            window.plugins.intentShim.audioManager(dataObj, function(res){
+                SepiaFW.debug.log("Sent Android Audio-Manager event: " + data.event + ", " + data.action);
+                if (successCallback) successCallback(res);
             }, function(info){
                 androidIntentFail(data, info, errorCallback)
             });

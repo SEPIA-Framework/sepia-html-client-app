@@ -93,13 +93,13 @@ function sepiaFW_build_wake_triggers() {
 					//NOTE: this can be the embedded player as well (and it could be remote actually)
 					if (WakeTriggers.useWakeWord && WakeTriggers.engineLoaded){
 						//Audio player start
-						if (e.detail.action == "prepare" || e.detail.action == "start" || e.detail.action == "resume"){
+						if (e.detail.action == "prepare" || e.detail.action == "start" || e.detail.action == "start-requested" || e.detail.action == "resume"){
 							if (!isStopping && WakeTriggers.isListening() && !WakeTriggers.allowWakeWordDuringStream){
 								SepiaFW.debug.info("WakeTriggers - Stopping wake-word listener due to audio player '" + e.detail.action + "' event");
 								WakeTriggers.stopListeningToWakeWords();	//note without 'keepalive' this is RELEASE
 							}
 						//Audio player stop
-						}else if (e.detail.action == "stop" || e.detail.action == "pause"){
+						}else if (e.detail.action == "stop" || e.detail.action == "pause"){		//TODO: add "stop-requested" ?
 							if ((SepiaFW.animate.assistant.getState() == "idle") && !WakeTriggers.isListening()){
 								SepiaFW.debug.info("WakeTriggers - Scheduling wake-word listener restart due to audio player '" + e.detail.action + "' event");
 								WakeTriggers.listenToWakeWords(undefined, undefined, true);

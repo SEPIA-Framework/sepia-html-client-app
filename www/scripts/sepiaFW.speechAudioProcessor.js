@@ -571,7 +571,7 @@ function sepiaFW_build_speech_audio_proc(){
 		//console.error("SpeechRecognition Processor - sepia_audio_player_event", data, "exists?", !!SpeechRecognition.recognitionModule);		//DEBUG
 		if (SpeechRecognition.recognitionModule){
 			//Audio player start - NOTE: this can be the embedded player as well (and it could be remote actually)
-			if (data.action == "prepare" || data.action == "start" || data.action == "resume"){
+			if (data.action == "prepare" || data.action == "start" || data.action == "start-requested" || data.action == "resume"){
 				//make sure the recorder is released when audio out is running
 				if (!SepiaFW.audioRecorder.mayMicRunParallelToAudioOut()){
 					releaseThisRecorder(function(){
