@@ -53,22 +53,24 @@ var app = {
 					console.log('window.plugins.intentShim.getIntent - Failed to get Android launch intent.');
 				}
 			);
+			app.androidBroadcastReceiverActions = {
+				//No luck so far:
+				/*
+				'com.android.music.playstatechanged',
+				'com.apple.android.music.playstatechanged',
+				'com.apple.android.music.metachanged',
+				'com.amazon.mp3.playstatechanged',
+				'com.amazon.mp3.metachanged',
+				*/
+				//Spotify
+				"com.spotify.music.metadatachanged": {package: "com.spotify.music", action: "music.metadatachanged"},
+				"com.spotify.music.playbackstatechanged": {package: "com.spotify.music", action: "music.playbackstatechanged"},
+				//Multiple (mainly VLC)
+				"com.android.music.metachanged": {package: "", action: "music.metadatachanged"}
+			}
 			window.plugins.intentShim.onIntent(app.onAndroidIntent);
 			window.plugins.intentShim.registerBroadcastReceiver({
-				filterActions: [
-					//Supposed to work but no luck so far:
-					/*
-					'com.android.music.playstatechanged',
-					'com.spotify.mobile.android.metadatachanged',
-					'com.spotify.mobile.android.playbackstatechanged',
-                    'com.apple.android.music.playstatechanged',
-					'com.apple.android.music.metachanged',
-					'com.amazon.mp3.playstatechanged',
-    				'com.amazon.mp3.metachanged',
-					*/
-					//VLC media player compatible:
-					'com.android.music.metachanged'
-				]},
+				filterActions: Object.keys(app.androidBroadcastReceiverActions)},
 				app.onAndroidBroadcast
 			);
 		}
@@ -195,8 +197,20 @@ var app = {
         activeOrLoggedInOrNothingYet(function(){
             //user active (or demo-mode)
 			//console.log(JSON.stringify(intent));
-			if (intent && intent.action && intent.action.indexOf("music.metachanged") > 0){
-				SepiaFW.android.receiveMusicMetadataBroadcast(intent);
+			if (intent && intent.action){
+				var actionData = app.androidBroadcastReceiverActions[intent.action];
+				if (actionData){
+					var package = (intent.extras && intent.extras.package) || actionData.package;
+					switch (actionData.action){
+						case "music.metadatachanged":
+						case "music.playbackstatechanged":
+							//they should be compatible
+							SepiaFW.android.receiveMusicMetadataBroadcast(intent, package);
+							break;
+						default:
+							break;
+					}
+				}
 			}
         }, function(){
             //user logged in but not active
