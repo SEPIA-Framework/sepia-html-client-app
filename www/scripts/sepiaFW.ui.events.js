@@ -1050,6 +1050,8 @@ function sepiaFW_build_events(){
 	}
 	
 	//track which notifications were triggered (received) to prevent repeated execution
+	//TODO: We can't track notifications that happened when the app was in background, only on click.
+	//		This function probably has to check scheduled and remaining IDs on start instead
 	Events.trackLocalNotificationTrigger = function(note){
 		//we are only interested in events with fix ID at the moment
 		//example eventIds: "randomMotivationMorning", "haveLunch", ...

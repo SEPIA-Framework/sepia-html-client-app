@@ -222,6 +222,7 @@ var app = {
 	//local notification triggered
 	onLocalNotificationTriggered: function(notification, state){
 		//handle local notification trigger
+		//NOTE: requires 'triggerInApp: true' when sheduled and falls back to false if app is in background
 		if (SepiaFW.events && notification && notification.data){
 			if (typeof notification.data == "string" && notification.data.indexOf("{") == 0){
 				notification.data = JSON.parse(notification.data);

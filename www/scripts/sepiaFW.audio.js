@@ -254,7 +254,7 @@ function sepiaFW_build_audio(){
 		var emp = SepiaFW.ui.cards.embed.getActiveMediaPlayer();
 		var isEmbeddedMediaPlayerStreaming = emp && emp.isActive();
 		var isAndroidPlayerStreaming = SepiaFW.ui.isAndroid && SepiaFW.android.lastReceivedMediaData && SepiaFW.android.lastReceivedMediaData.playing 
-										&& ((new Date().getTime() - SepiaFW.android.lastReceivedMediaAppTS) < (1000*60*15));		//This is pure guessing ...
+				&& ((new Date().getTime() - SepiaFW.android.lastReceivedMediaAppTS) < (1000*60*30));		//This is pure guessing ...
 		return isInternalPlayerStreaming || isEmbeddedMediaPlayerStreaming || isAndroidPlayerStreaming;			
 	}
 	AudioPlayer.getLastActiveAudioSource = function(){

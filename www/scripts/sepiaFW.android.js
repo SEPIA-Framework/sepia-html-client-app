@@ -248,10 +248,10 @@ function sepiaFW_build_android(){
 
             //Try to wait for meta-data or player-state broadcast 
             clearTimeout(musicSearchResultTimer);
-            var waitTime = 4000;
+            var waitTime = 5000;
             musicSearchResultTimer = setTimeout(function(){
                 var now = new Date().getTime();
-                if (Android.lastReceivedMediaAppTS && (now - Android.lastReceivedMediaAppTS) <=  waitTime){
+                if (Android.lastReceivedMediaAppTS && (now - Android.lastReceivedMediaAppTS) <= waitTime){
                     //there was an event
                     if (!Android.lastReceivedMediaData.playing){
                         //no media playing

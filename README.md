@@ -35,13 +35,13 @@ Features of the app are:
 ### Quick-start
 
 The latest release version is **online** at: https://sepia-framework.github.io/app/index.html  
-When you've installed **SEPIA-Home** the default link is: `http://[sepia-home-IP]:20721/app/index.html`  
-The Android app can be installed via the **Google Play Store**: [Play Store link](https://play.google.com/store/apps/details?id=de.bytemind.sepia.app.web)  
+When you've installed **SEPIA-Home** the default link is: `http://[sepia-home-IP]:20721/app/index.html` or `http[s]://[sepia-home-IP]:20726/sepia/assist/app/index.html` (if you use Nginx or Docker).  
+The **Android** app can be installed via the **Google Play Store**: [Play Store link](https://play.google.com/store/apps/details?id=de.bytemind.sepia.app.web) or directly using the [APK](https://github.com/SEPIA-Framework/sepia-installation-and-setup/releases).  
+On **iOS** please use Safari to visit the default link (see above) and put the app on your home screen as **PWA** (progressive web-app). The native app development is currently on ice due to time constraints.  
   
-Note: If you don't operate your own SEPIA server you can still open the public app in **demo-mode** (simply skip the log-in) and look around a bit though many of the features will not be available in this mode.  
-More languages for Android and an iOS app are in beta-test phase and will be release "when they are done" :-p  
+Note: If you don't operate your own SEPIA server you can still open the public app in **demo-mode** (simply skip the log-in) and look around a bit, though many of the features will not be available in this mode.  
   
-For experts only: Use the build-scripts in this repository to build your own version of the app (Android and iOS are available).
+For experts only: Use the build-scripts in this repository to build your own version of the app (Android and an iOS BETA are available).
 
 ### URL parameters
 
