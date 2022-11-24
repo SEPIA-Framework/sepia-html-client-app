@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='utf-8'?>
 <widget xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0" xmlns:android="http://schemas.android.com/apk/res/android"
-		id="org.example.sepia.app.web" version="0.25.0" android-versionCode="11401">
+		id="org.example.sepia.app.web" version="0.25.1" android-versionCode="11403">
     <name>S.E.P.I.A.</name>
     <description>
         S.E.P.I.A. framework client app
@@ -39,7 +39,7 @@
         <!--<hook type="after_prepare" src="hooks/add-android-permissions.js"/>-->
 
         <!--config stuff-->
-        <preference name="AndroidLaunchMode" value="singleTask" />
+        <preference name="AndroidLaunchMode" value="singleInstance" /><!-- previously: singleTask -->
         <!-- consider: AndroidInsecureFileModeEnabled, GradlePluginKotlinEnabled -->
         <preference name="android-minSdkVersion" value="22" /><!-- Android 5.1+ -->
         <preference name="android-targetSdkVersion" value="32" /><!-- Android 12.1 -->

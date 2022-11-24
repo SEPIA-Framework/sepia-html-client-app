@@ -1,7 +1,7 @@
 {
   "name": "org.example.sepia.app.web",
   "displayName": "S.E.P.I.A.",
-  "version": "0.25.0",
+  "version": "0.25.1",
   "description": "S.E.P.I.A. framework client app.",
   "main": "index.js",
   "scripts": {
