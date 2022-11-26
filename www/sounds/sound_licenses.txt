@@ -2,3 +2,4 @@ alarm.mp3 - Attribution License - freesound.org - B_Lamerichs - eventsounds3 - i
 coin.mp3 - Creative Commons - freesound.org - soundnimja - coin_3.wav
 bleep.mp3, blob.mp3, chirp.mp3, chirp.mp3, click.mp3 - created with Audacity / public domain
 setup.mp3 - created with espeak-ng
+blip.mp3, blip-yes.mp3, blip-no.mp3, blip-hello.mp3, blip-error.mp3, blip-up.mp3, blip-down.mp3 - Simplified Pixabay License (free) - taken from 'blippy' by 'kaboose102' on pixabay

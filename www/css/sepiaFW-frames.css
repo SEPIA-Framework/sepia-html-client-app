@@ -263,6 +263,9 @@
     flex: 0 0 auto;
     border-radius: 14px !important;
 }
+.sepiaFW-frames-page .group .trigger-button + .trigger-button {
+	margin-left: 8px !important;
+}
 .sepiaFW-frames-page .group .trigger-button:last-child {
 	margin: 0 8px !important;
 }

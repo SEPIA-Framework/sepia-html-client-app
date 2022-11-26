@@ -4,7 +4,7 @@
 		<div id="sepiaFW-frame-page-1" class='sepiaFW-frames-page sepiaFW-carousel-pane sepiaFW-wake-word-settings-page'>
 			<h3>Wake-Word Settings</h3>
 			<div style="display: flex; flex-direction: column; justify-content: center; align-items: center;">
-				<img id="sepiaFW-wake-word-indicator" src="img/icon-512-w.png" style="border-radius: 50%; overflow: hidden; max-width: 512px; max-height: 18vh;">
+				<img id="sepiaFW-wake-word-indicator" src="img/icon-512-w.png" style="border-radius: 50%; overflow: hidden; max-width: 256px; max-height: 16vh;">
 				<p>Press LOAD and say 'Hey SEPIA' to trigger a color change of the logo. Enable expert settings to choose a different wake-word. Always press RESET after you've changed anything.<br>
 				<br>Visit the <a href="https://github.com/SEPIA-Framework/sepia-html-client-app/tree/master/www/xtensions/picovoice" target=_blank>help page</a> to find out more.</p>
 			</div>
@@ -23,6 +23,16 @@
 				<div class="group">
 					<label>Allow wake-word during audio output:</label>
 					<div id="sepiaFW-wake-word-during-stream-box"></div>
+				</div>
+				<div class="group fit" id="sepiaFW-wake-word-confirm-sound">
+					<div class="entry-content">
+						<label>Confirm sound:</label>
+						<input id="sepiaFW-wake-word-confirm-sound-path" placeholder="<custom_data>/my.mp3" value="" spellcheck="false" type="url"
+							title="Some options: sounds/bleep.mp3, sounds/blob.mp3, sounds/chirp.mp3 (default: coin.mp3)">
+					</div>
+					<button class="trigger-button" onclick="SepiaFW.wakeWordSettings.testMicConfirmationSound()"><i class="material-icons md-txt">play_arrow</i></button>
+					<button class="trigger-button" onclick="SepiaFW.wakeWordSettings.confirmSoundPopup()"><i class="material-icons md-txt">search</i></button>
+					<button class="set-button" onclick="SepiaFW.wakeWordSettings.setMicConfirmationSound()"><i class="material-icons md-txt">save</i></button>
 				</div>
 				<div class="group fit" id="sepiaFW-wake-word-engine">
 					<div class="entry-content">
@@ -65,15 +75,6 @@
 						<input id="sepiaFW-wake-word-access-key" placeholder="Porcupine v2.0+ access key" title="Access key required for Porcupine 2.0 or higher" value="" type="text" spellcheck="false">
 					</div>
 					<button class="set-button" onclick="SepiaFW.wakeWordSettings.updateWakeWordAccessKey()"><i class="material-icons md-txt">save</i></button>
-				</div>
-				<div class="group fit expert-setting" id="sepiaFW-wake-word-confirm-sound" style="display: none;">
-					<div class="entry-content">
-						<label>Confirm sound:</label>
-						<input id="sepiaFW-wake-word-confirm-sound-path" placeholder="<custom_data>/my.mp3" value="" spellcheck="false" type="url"
-							title="Some options: sounds/bleep.mp3, sounds/blob.mp3, sounds/chirp.mp3 (default: coin.mp3)">
-					</div>
-					<button class="trigger-button" onclick="SepiaFW.wakeWordSettings.testMicConfirmationSound()"><i class="material-icons md-txt">play_arrow</i></button>
-					<button class="set-button" onclick="SepiaFW.wakeWordSettings.setMicConfirmationSound()"><i class="material-icons md-txt">save</i></button>
 				</div>
 				<div class="group fit hidden-expert-setting" id="sepiaFW-wake-word-buffer" style="display: none;">
 					<div class="entry-content">

@@ -55,6 +55,35 @@ function sepiaFW_build_wake_word_settings() {
     WakeWordSettings.testMicConfirmationSound = function(){
         SepiaFW.audio.playURL($("#sepiaFW-wake-word-confirm-sound-path").val(), '2');
     }
+    //Select keyword pop-up
+    WakeWordSettings.confirmSoundPopup = function(){
+        var currentVal = $("#sepiaFW-wake-word-confirm-sound-path").val();
+        var selectOptions = [
+            {text: "Default", value: ""},
+            {text: "bleep.mp3", value: "sounds/bleep.mp3"},
+            {text: "blip.mp3", value: "sounds/blip.mp3"},
+            {text: "blip-hello.mp3", value: "sounds/blip-hello.mp3"},
+            {text: "blip-up.mp3", value: "sounds/blip-up.mp3"},
+            {text: "blip-yes.mp3", value: "sounds/blip-yes.mp3"},
+            {text: "blob.mp3", value: "sounds/blob.mp3"},
+            {text: "chirp.mp3", value: "sounds/chirp.mp3"},
+            {text: "click.mp3", value: "sounds/click.mp3"},
+            {text: "coin.mp3", value: "sounds/coin.mp3"},
+            {text: "empty.mp3", value: "sounds/empty.mp3"}
+        ];
+        var selectedOpt = selectOptions.find(function(op){
+            return (op.value == currentVal);
+        });
+        if (selectedOpt) selectedOpt.selected = true;
+        SepiaFW.ui.showSelectPopup(
+            "Locally available sounds:", 
+            selectOptions, 
+            function(val, tex){
+                $("#sepiaFW-wake-word-confirm-sound-path").val(val);
+            }, 
+            function(){}
+        );
+    }
     //Change default buffer length
     WakeWordSettings.setBufferLength = function(){
         var buffLen = Number.parseInt($("#sepiaFW-wake-word-buffer-length").val());
