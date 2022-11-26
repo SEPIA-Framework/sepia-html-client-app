@@ -46,7 +46,7 @@
 input:focus,
 select:focus,
 textarea:focus,
-button:focus {
+button:focus:not(:focus-visible) {
     outline: none;
 }
 ::-moz-focus-inner {

@@ -152,7 +152,7 @@
 		<div id="sepiaFW-login-form" style="display: none">
 			<input id="sepiaFW-login-id" type="text" placeholder="Username" aria-label="Username" spellcheck="false" autocomplete="username">
 			<input id="sepiaFW-login-pwd" type="password" placeholder="Password" aria-label="Password">
-			<button id="sepiaFW-login-send"><script>SepiaFW.local.w('sendLogin')</script></button>
+			<button id="sepiaFW-login-send" aria-label="Submit"><script>SepiaFW.local.w('sendLogin')</script></button>
 			<button id="sepiaFW-login-create" class="extended-controls" style="display:none;"><script>SepiaFW.local.w('createAccount')</script></button>
 			<button id="sepiaFW-login-close" class="extended-controls" style="display:none;"><script>SepiaFW.local.w('offlineTestMode')</script></button>
 			<button id="sepiaFW-login-retry" style="display:none;"><script>SepiaFW.local.w('retry')</script></button>
@@ -208,7 +208,7 @@
 		<div id="sepiaFW-chat-controls-more-menu" class="sepiaFW-menu">
 			<div id="sepiaFW-location-ctrls">
 				<span id='sepiaFW-menue-status-text'><script>SepiaFW.local.w('locateMe')</script></span>
-				<button id='sepiaFW-geolocation-btn'><i class="material-icons md-txt">place</i></button>
+				<button id='sepiaFW-geolocation-btn' aria-label="Location"><i class="material-icons md-txt">place</i></button>
 			</div>
 			<div id='sepiaFW-audio-ctrls'>
 				<div id='sepiaFW-audio-ctrls-title-container'>
@@ -221,31 +221,31 @@
 					</div>
 				</div>
 				<div id='sepiaFW-audio-ctrls-buttons-container'>
-					<button id='sepiaFW-audio-ctrls-voldown'><i class="material-icons md-24">&#xE04D;</i><div id="sepiaFW-audio-ctrls-vol">10</div></button>
-					<button id='sepiaFW-audio-ctrls-volup'><i class="material-icons md-24">&#xE050;</i></button>
-					<button id='sepiaFW-audio-ctrls-start'><i class="material-icons md-24">&#xE037;</i></button>
-					<button id='sepiaFW-audio-ctrls-stop'><i class="material-icons md-24">&#xE034;</i></button>
-					<button id='sepiaFW-audio-ctrls-broadcast'><i class="material-icons md-24">settings_remote</i></button>
+					<button id='sepiaFW-audio-ctrls-voldown' aria-label="Volume down"><i class="material-icons md-24">&#xE04D;</i><div id="sepiaFW-audio-ctrls-vol">10</div></button>
+					<button id='sepiaFW-audio-ctrls-volup' aria-label="Volume up"><i class="material-icons md-24">&#xE050;</i></button>
+					<button id='sepiaFW-audio-ctrls-start' aria-label="Play"><i class="material-icons md-24">&#xE037;</i></button>
+					<button id='sepiaFW-audio-ctrls-stop' aria-label="Stop"><i class="material-icons md-24">&#xE034;</i></button>
+					<button id='sepiaFW-audio-ctrls-broadcast' aria-label="Broadcast"><i class="material-icons md-24">settings_remote</i></button>
 				</div>
 			</div>
 			<div id="sepiaFW-more-menu-shortcuts">
-				<button id='sepiaFW-shortcut-btn-shop'><i class="material-icons md-24">&#xE8CC;</i></button>
-				<button id='sepiaFW-shortcut-btn-todo'><i class="material-icons md-24">assignment</i></button> <!-- ballot -->
-				<button id='sepiaFW-shortcut-btn-radio'><i class="material-icons md-24">&#xE03E;</i></button>
-				<button id='sepiaFW-shortcut-btn-timer'><i class="material-icons md-24">timer</i></button> <!-- av_timer -->
-				<button id='sepiaFW-shortcut-btn-alarm'><i class="material-icons md-24">alarm</i></button>
-				<button id='sepiaFW-shortcut-btn-weather'><i class="material-icons md-24">&#xE430;</i></button>
-				<button id='sepiaFW-shortcut-btn-news'><i class="material-icons md-24">local_library</i></button>
-				<button id='sepiaFW-shortcut-btn-myEvents'><i class="material-icons md-24">&#xE55A;</i></button>
-				<button id='sepiaFW-shortcut-btn-inAppBrowser'><i class="material-icons md-24">&#xE894;</i></button>
+				<button id='sepiaFW-shortcut-btn-shop' aria-label="Shopping list"><i class="material-icons md-24">&#xE8CC;</i></button>
+				<button id='sepiaFW-shortcut-btn-todo' aria-label="To-do list"><i class="material-icons md-24">assignment</i></button> <!-- ballot -->
+				<button id='sepiaFW-shortcut-btn-radio' aria-label="Radio"><i class="material-icons md-24">&#xE03E;</i></button>
+				<button id='sepiaFW-shortcut-btn-timer' aria-label="Timers"><i class="material-icons md-24">timer</i></button> <!-- av_timer -->
+				<button id='sepiaFW-shortcut-btn-alarm' aria-label="Alarm"><i class="material-icons md-24">alarm</i></button>
+				<button id='sepiaFW-shortcut-btn-weather' aria-label="Weather"><i class="material-icons md-24">&#xE430;</i></button>
+				<button id='sepiaFW-shortcut-btn-news' aria-label="News"><i class="material-icons md-24">local_library</i></button>
+				<button id='sepiaFW-shortcut-btn-myEvents' aria-label="Refresh events"><i class="material-icons md-24">&#xE55A;</i></button>
+				<button id='sepiaFW-shortcut-btn-inAppBrowser' aria-label="Browser"><i class="material-icons md-24">&#xE894;</i></button>
 			</div>
 			<div id="sepiaFW-more-menu-actions">
-				<li id='sepiaFW-history-btn'><script>SepiaFW.local.w('clearHistory')</script>&nbsp;<i class="material-icons md-txt">&#xE889;</i></li>
-				<li id='sepiaFW-saythis-btn'>Broadcast&nbsp;<i class="material-icons md-txt">record_voice_over</i></li>
-				<li id='sepiaFW-teachUI-open'>Teach&nbsp;<i class="material-icons md-txt">&#xE87B;</i></li>
-				<li id='sepiaFW-uisize-btn'>UI&nbsp;<i class="material-icons md-txt">&#xE56B;</i></li>
-				<li id='sepiaFW-fullsize-btn'>Screen&nbsp;<i class="material-icons md-txt">&#xE56B;</i></li>
-				<li id='sepiaFW-alwaysOn-btn'>Always On&nbsp;<span class="sepia-icon-font s14 sepia-icon-sepia_bw"><span class="path1"></span><span class="path2"></span></span></li>
+				<li id='sepiaFW-history-btn' aria-label="Clear history"><script>SepiaFW.local.w('clearHistory')</script>&nbsp;<i class="material-icons md-txt">&#xE889;</i></li>
+				<li id='sepiaFW-saythis-btn' aria-label="Broadcast">Broadcast&nbsp;<i class="material-icons md-txt">record_voice_over</i></li>
+				<li id='sepiaFW-teachUI-open' aria-label="Teach UI">Teach&nbsp;<i class="material-icons md-txt">&#xE87B;</i></li>
+				<li id='sepiaFW-uisize-btn' aria-label="Screensize">UI&nbsp;<i class="material-icons md-txt">&#xE56B;</i></li>
+				<li id='sepiaFW-fullsize-btn' aria-label="Fullscreen">Screen&nbsp;<i class="material-icons md-txt">&#xE56B;</i></li>
+				<li id='sepiaFW-alwaysOn-btn' aria-label="Always on avatar">Always On&nbsp;<span class="sepia-icon-font s14 sepia-icon-sepia_bw"><span class="path1"></span><span class="path2"></span></span></li>
 				<!--<li id='sepiaFW-back-btn'><script>SepiaFW.local.w('back')</script>&nbsp;<i class="material-icons md-txt">&#xE408;</i></li>-->
 			</div>
 			<div id="sepiaFW-more-menu-input"><!-- only for landscape mode -->
@@ -255,14 +255,14 @@
 		</div>
 		<!-- Nav-Bar -->
 		<div id="sepiaFW-nav-bar">
-			<button id="sepiaFW-nav-menu-btn"><i class="material-icons md-btn2">&#xE5D2;</i></button>
-			<button id="sepiaFW-nav-menu-go-left">•</button>
+			<button id="sepiaFW-nav-menu-btn" aria-label="Settings"><i class="material-icons md-btn2">&#xE5D2;</i></button>
+			<button id="sepiaFW-nav-menu-go-left" aria-label="Previous view">•</button>
 			<div id="sepiaFW-nav-label-box">
 				<div id="sepiaFW-nav-label">S.E.P.I.A.</div><span id='sepiaFW-nav-label-note' style='display:none;'>...</span>
 				<div id="sepiaFW-nav-label-online-status" class="offline sepiaFW-ww-indicator">offline</div>
 			</div>
-			<button id="sepiaFW-nav-menu-go-right">•</button>
-			<button id="sepiaFW-nav-users-btn"><i class="material-icons md-btn2">&#xE8CD;</i></button>
+			<button id="sepiaFW-nav-menu-go-right" aria-label="Next view">•</button>
+			<button id="sepiaFW-nav-users-btn" aria-label="Users"><i class="material-icons md-btn2">&#xE8CD;</i></button>
 			<div id="sepiaFW-nav-bar-page-indicator"><div>&nbsp;</div><div>&nbsp;</div><div>&nbsp;</div></div>
 		</div>
 		<!-- Output views -->
@@ -526,6 +526,7 @@
 <script src="scripts/sepiaFW.ui.plot.js"></script>
 <script src="scripts/sepiaFW.ui.customButtons.js"></script>
 <script src="scripts/sepiaFW.ui.virtualKeyboard.js"></script>
+<script src="scripts/sepiaFW.background.js"></script>
 <script src="scripts/sepiaFW.account.js"></script>
 <script src="scripts/sepiaFW.account.contacts.js"></script>
 <script src="scripts/sepiaFW.assistant.js"></script>
