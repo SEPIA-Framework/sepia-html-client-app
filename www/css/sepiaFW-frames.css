@@ -59,6 +59,7 @@
 	padding: 8px 16px;
 	overflow-y: auto;
 	/*overflow-y: overlay;*/
+	/*scrollbar-gutter: stable both-edges;*/
 	-webkit-overflow-scrolling: touch;
 }
 .sepiaFW-frames-page.flat {

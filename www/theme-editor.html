@@ -297,20 +297,28 @@
 		knownBackgrounds: [
 			{name: "Default", value: ""},
 			{name: "No Image", value: 'unset'},
-			{name: "SEPIA Logo (light skin)", value: 'url("../img/SEPIA_back.png")'},
-			{name: "SEPIA Logo (dark skin)", value: 'url("../img/SEPIA_back-w.png")'},
-			{name: "SEPIA Tech (darkish skin)", value: 'url("../img/SEPIA_odyssey-w2.png")'},
-			{name: "Blocks (light skin)", value: 'url("../img/blocks.svg")'},
-			{name: "Blocks (dark skin)", value: 'url("../img/blocksAlpha.png")'},
-			{name: "Blocks Rain (dark skin)", value: 'url("../img/blocks2_alpha.png")'},
-			{name: "Ink Splash (light skin)", value: 'url("../img/inkSplashAlpha.png")'},
-			{name: "Cherry Blossom (light skin)", value: 'url("../img/cherryBlossomInkAlpha.png")'},
-			{name: "Birds (light skin)", value: 'url("../img/birdsAlpha.png")'},
-			{name: "One Bird (dark skin)", value: 'url("../img/birdAlpha.png")'},
-			{name: "World Map (light skin)", value: 'url("../img/worldMapBlack.png")'},
-			{name: "World Map (dark skin)", value: 'url("../img/worldMapWhite.png")'},
-			{name: "Infinity Band (mixed skin)", value: 'url("../img/infiniBandAlpha.png")'},
-			{name: "Infinity Band 2 (mixed skin)", value: 'url("../img/infiniBandAlphaUD.png")'}
+			{name: "SEPIA Logo (light skin)", value: 'url("../img/SEPIA_back.png")', skinType: 1},
+			{name: "SEPIA Logo (dark skin)", value: 'url("../img/SEPIA_back-w.png")', skinType: 2},
+			{name: "SEPIA Tech (darkish skin)", value: 'url("../img/SEPIA_odyssey-w2.png")', skinType: 2},
+			{name: "Blocks (light skin)", value: 'url("../img/blocks.svg")', skinType: 1},
+			{name: "Blocks (dark skin)", value: 'url("../img/blocksAlpha.png")', skinType: 2},
+			{name: "Blocks Rain (dark skin)", value: 'url("../img/blocks2_alpha.png")', skinType: 2},
+			{name: "Ink Splash (light skin)", value: 'url("../img/inkSplashAlpha.png")', skinType: 1},
+			{name: "Ink Splash (dark skin)", value: 'url("../img/inkSplashAlphaB.png")', skinType: 2},
+			{name: "Cherry Blossom (light skin)", value: 'url("../img/cherryBlossomInkAlpha.png")', skinType: 1},
+			{name: "Birds (light skin)", value: 'url("../img/birdsAlpha.png")', skinType: 1},
+			{name: "One Bird (dark skin)", value: 'url("../img/birdAlpha.png")', skinType: 2},
+			{name: "World Map (light skin)", value: 'url("../img/worldMapBlack.png")', skinType: 1},
+			{name: "World Map (dark skin)", value: 'url("../img/worldMapWhite.png")', skinType: 2},
+			{name: "Infinity Band (neutral)", value: 'url("../img/infiniBandAlpha.png")', skinType: 0},
+			{name: "Infinity Band 2 (neutral)", value: 'url("../img/infiniBandAlphaUD.png")', skinType: 0},
+			{name: "Mountains (neutral)", value: 'url("../img/mountainsAlpha.svg")', skinType: 0},
+			{name: "Elephant (neutral)", value: 'url("../img/elephantAlpha.svg")', skinType: 0},
+			{name: "Rhino (neutral)", value: 'url("../img/rhinoAlpha.svg")', skinType: 0},
+			{name: "Eagle (neutral)", value: 'url("../img/eagleAlpha.svg")', skinType: 0},
+			{name: "Black Cat (neutral)", value: 'url("../img/blackCatAlpha.svg")', skinType: 0},
+			{name: "Lion 1 (neutral)", value: 'url("../img/lionAlpha1.svg")', skinType: 0},
+			{name: "Lion 2 (neutral)", value: 'url("../img/lionAlpha2.svg")', skinType: 0}
 		],
 		themeProps: [
 			{id: 0, name: "App",
@@ -406,26 +414,61 @@
 		showBackgroundSelectPopup: function(){
 			var scope = SepiaFW.frames.currentScope;
 			var currentVal = scope.$backImgInput.val();
-			var selectOptions = [];
+			var selectedBg = undefined;
+			var content = document.createElement("div");
+			content.innerHTML = "<p>Choose a background image:</p>";
+			var bgSelect = document.createElement("select");
+			bgSelect.style.cssText = "margin-bottom: 16px; max-width: 100%;";
 			scope.knownBackgrounds.forEach(function(bg){
-				selectOptions.push({
-					text: bg.name,
-					value: bg.value,
-					selected: (currentVal == bg.value)
-				});
+				var opt = document.createElement("option");
+				opt.textContent = bg.name;
+				opt.value = JSON.stringify(bg);
+				if (currentVal == bg.value){
+					opt.selected = true;
+					selectedBg = bg;
+				}
+				bgSelect.appendChild(opt);
 			});
-			SepiaFW.ui.showSelectPopup(
-				"Choose a background image:",
-				selectOptions, 
-				function(val, tex){
-					scope.$backImgInput.val(val);
-					scope.$backImgInput[0].title = tex;
+			var preview = document.createElement("div");
+			preview.className = "preview-image-container";
+			if (currentVal){
+				//preview and stylesheets have a different folder -> fix path:
+				preview.style.backgroundImage = currentVal.replace(/^url\(("|'|)\.\.\//, "url($1");
+			}
+			if (SepiaFW.ui.htmlBackgroundColor){
+				preview.style.backgroundColor = SepiaFW.ui.htmlBackgroundColor;
+			}
+			$(bgSelect).on("change", function(){
+				var bg = JSON.parse(bgSelect.value);
+				//apply to pop-up preview
+				if (bg.skinType == undefined){
+					preview.style.backgroundColor = SepiaFW.ui.htmlBackgroundColor || "#fff";
+				}else if (bg.skinType == 2){
+					preview.style.backgroundColor = "#000";
+				}else{
+					preview.style.backgroundColor = "#fff";
+				}
+				if (bg.value){
+					preview.style.backgroundImage = bg.value.replace(/^url\(("|'|)\.\.\//, "url($1");
+				}else{
+					preview.style.removeProperty("background-image");
+				}
+				selectedBg = bg;
+			});
+			content.appendChild(bgSelect);
+			content.appendChild(preview);
+			SepiaFW.ui.showPopup(content, {
+				buttonOneName: "Ok",
+				buttonOneAction: function(){
+					scope.$backImgInput.val(selectedBg.value);
+					scope.$backImgInput[0].title = selectedBg.name;
 					//apply to preview
-					scope.currentTheme["appImage"] = val;
+					scope.currentTheme["appImage"] = selectedBg.value;
 					scope.updateSkinPreview();
-				}, 
-				function(){}
-			);
+				},
+				buttonTwoName: "Cancel",
+				buttonTwoAction: function(){}
+			});
 		},
 		updateSafeAreas: function(){
 			//NOTE: safe areas are not a skin but a device property (-> NOT part of current theme)
@@ -468,9 +511,9 @@
 				//background
 				var $bg = $("#sepiaFW-theme-editor-view").find(".scs-demo-main");
 				var bgImg = scope.currentTheme["appImage"];
-				if (bgImg && bgImg.indexOf('url("../') == 0){
+				if (bgImg){
 					//preview and stylesheets have a different folder -> fix path:
-					bgImg = bgImg.replace('url("../', 'url("');
+					bgImg = bgImg.replace(/^url\(("|'|)\.\.\//, "url($1");
 				}
 				$bg.css({"background-image": bgImg || ""});
 				var bgSize = scope.currentTheme["appImageSize"];
