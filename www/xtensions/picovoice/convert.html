@@ -34,7 +34,7 @@
 			font-weight: bold;
 			pointer-events: none;
 		}
-		#base64-input {
+		#file-content {
             box-sizing: border-box;
             width: 100%;
             height: 75px;
@@ -62,7 +62,7 @@
             <li>Create a new Porcupine wake-word via <a href='https://console.picovoice.ai' target=_blank>https://console.picovoice.ai</a>.</li>
             <li>Choose <b>'WebAssembly (WASM)'</b> as target platform.</li>
             <li>Download and extract the ZIP file.</li>
-			<li>Look for the file named '..._b64.txt' and drag it over the drop-zone (or copy content).</li>
+			<li>Look for the file ending with '_b64.txt' or '.ppn' and drag it over the drop-zone (or use the file picker).</li>
 			<li>Press 'Convert' to get array representation.</li>
 			<li>Check/adjust automatically generated download parameters and press 'Download as SEPIA file'.</li>
 			<li>Follow <a href='https://github.com/SEPIA-Framework/sepia-html-client-app/blob/master/www/xtensions/picovoice/README.md#adding-a-custom-wake-word' target=_blank>these instructions</a> to import the file into SEPIA.
@@ -71,7 +71,7 @@
 		<div id="drop-zone">
 			<div id="drop-zone-overlay"><span>DROP FILE HERE</span></div>
 			<label>Select:<input type="file" id="file-input" name="file-input" accept=".txt"></label>
-			<textarea id="base64-input">- base64 wake word data -</textarea>
+			<textarea id="file-content">- wake word data -</textarea>
 		</div>
 		<br>
         <div>
@@ -107,17 +107,26 @@
 		var dropZone = document.getElementById("drop-zone");
 		var dropZoneOverlay = document.getElementById("drop-zone-overlay");
 		var fileSelect = document.getElementById("file-input");
-        var base64Input = document.getElementById("base64-input");
+        var fileContent = document.getElementById("file-content");
+		var fileType = "";
 		var result = document.getElementById("result");
 		
 		function convert(){
-			var b64input = base64Input.value;
-			console.log("base64 input:", b64input);
+			var fileData = fileContent.value;
+			console.log("file data:", fileData);
 			result.value = "";
-			if (b64input){
-				var arrayAsString = convertUint8ArrayToString(convertBase64ToUint8Array(b64input));
-				console.log("array:", arrayAsString);
-				result.value = arrayAsString;
+			if (fileData){
+				if (fileType == "b64"){
+					var arrayAsString = convertUint8ArrayToString(convertBase64ToUint8Array(fileData));
+					console.log("array:", arrayAsString);
+					result.value = arrayAsString;
+				}else if (fileType == "ppn"){
+					var arrayAsString = "[" + fileData + "]";
+					result.value = arrayAsString;
+				}else{
+					console.error("Unknown file type");
+					fileContent.value = "ERROR: Unknown file type. Should be '.b64.txt' or '.ppn'.";
+				}
 			}
 		}
 		
@@ -205,27 +214,39 @@
 			var fileInfo = file.name.split(/_/g);
 			if (fileInfo.length > 4){
 				var ending = fileInfo.pop();
+				var name = fileInfo.shift().replace(/-/g, " ");
+				wwname.value = name;
+				var lang = fileInfo.shift();
+				pplang.value = lang.toLowerCase();
 				if (ending == "b64.txt"){
-					var name = fileInfo.shift().replace(/-/g, " ");
-					wwname.value = name;
-					var lang = fileInfo.shift();
-					pplang.value = lang.toLowerCase();
-					var type = fileInfo.shift();	//wasm?
-					var version = fileInfo.shift().replace("v", "") + fileInfo.shift();
-					ppversion.value = +version;
-					console.log("Info from file name:", name, lang, version);
+					fileType = "b64";
+				}else if (ending.indexOf(".ppn") > 0){
+					fileType = "ppn";
 				}
+				var type = fileInfo.shift();	//assumed to be 'wasm'
+				var version = fileInfo.shift().replace("v", "") + fileInfo.shift();
+				ppversion.value = +version;
+				console.log("Info from file name:", name, lang, version);
 			}
 			
 			//read file
 			const reader = new FileReader();
 			reader.addEventListener("load", function(){
-				base64Input.value = reader.result;
+				if (fileType == "ppn"){
+					var uint8 = new Uint8Array(reader.result);
+					fileContent.value = uint8.toString();
+				}else{
+					fileContent.value = reader.result;
+				}
 			}, false);
 			reader.addEventListener("error", function(){
-				base64Input.value = "ERROR";
+				fileContent.value = "ERROR";
 			}, false);
-			reader.readAsText(file);
+			if (fileType == "ppn"){
+				reader.readAsArrayBuffer(file);	//NOTE: alternatively use 'readAsBinaryString'
+			}else{
+				reader.readAsText(file, 'utf-8');
+			}
 		}
 
         //convert base64 to Uint8Array		
@@ -239,7 +260,7 @@
 				return bytes;
 			}catch (error){
 				console.error("Converting base64 string to Uint8Array bytes array failed", error);
-				base64Input.value = "ERROR: " + (error && error.message);
+				fileContent.value = "ERROR: " + (error && error.message);
 			}
 		}
 		//convert Uint8Array to string
