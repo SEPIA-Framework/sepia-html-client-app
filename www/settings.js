@@ -33,6 +33,8 @@ SepiaFW.settings = {
 			},
 			"wakeWordNames": "Hey SEPIA",
 			"wakeWordVersion": "1.4",
+			"wakeWordRemoteUrl": "<assist_server>/files/wake-words/porcupine/",
+			"wakeWordAccessKeyPorcupine": "",
 			"voiceEngine": "sepia",
 			"voiceCustomServerURI": "",
 			"en-voice": "",
