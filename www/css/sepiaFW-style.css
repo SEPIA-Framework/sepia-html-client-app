@@ -44,7 +44,7 @@
 }
 
 input:focus,
-select:focus,
+select:focus:not(:focus-visible),
 textarea:focus,
 button:focus:not(:focus-visible) {
     outline: none;

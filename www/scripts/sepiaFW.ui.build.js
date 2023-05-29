@@ -40,7 +40,7 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 	}
 	//build reuseable language selector
 	Build.languageSelector = function(btnId, changeAction){
-		return Build.optionSelector(btnId, 
+		var selectEle = Build.optionSelector(btnId, 
 			SepiaFW.local.getSupportedAppLanguages(), 
 			SepiaFW.config.appLanguage, 
 			function(ele){
@@ -48,15 +48,19 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 				changeAction(ele.value);
 			}
 		);
+		selectEle.ariaLabel = "Language";
+		return selectEle;
 	}
 	//build reuseable language-region selector
 	Build.regionCodeSelector = function(btnId, changeAction){
-		return Build.optionSelector(btnId, SepiaFW.local.getRegionCodesForActiveLang(), SepiaFW.config.appRegionCode, 
+		var selectEle = Build.optionSelector(btnId, SepiaFW.local.getRegionCodesForActiveLang(), SepiaFW.config.appRegionCode, 
 			function(ele){
 				SepiaFW.config.broadcastRegionCode(ele.value);
 				changeAction(ele.value);
 			}
 		);
+		selectEle.ariaLabel = "Region";
+		return selectEle;
 	}
 	Build.updateRegionCodeSelector = function(btnId){
 		var regions = SepiaFW.local.getRegionCodesForActiveLang();
