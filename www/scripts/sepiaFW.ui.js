@@ -1069,6 +1069,9 @@ function sepiaFW_build_ui(){
 			return urlParam;
 		}
 		UI.isTinyApp = isTinyApp();
+		
+		//zoom factor
+		UI.zoomFactor = +(SepiaFW.tools.getURLParameter("zoomFactor") || 1.0);
 
 		//Setup headless mode
 		if (SepiaFW.config.isAutoSetupModeEnabled()){

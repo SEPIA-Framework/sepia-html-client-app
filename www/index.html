@@ -8,8 +8,9 @@
 	<meta name="viewport" id="sepia-viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=0, viewport-fit=cover">
 	<script>
 		var sepiaFW_viewport_scale_factor = 1.0;
-		function sepiaFW_scale_viewport(refSize){
-			var isTiny = (window.SepiaFW == undefined)? (window.location.href.indexOf('isTiny=true') > 0) : SepiaFW.ui.isTinyApp;
+		function sepiaFW_scale_viewport(refSize, urlParams){
+			if (!urlParams) urlParams = new URLSearchParams(window.location.search);
+			var isTiny = (window.SepiaFW == undefined)? (urlParams.get("isTiny") == "true") : SepiaFW.ui.isTinyApp;
 			if (!refSize) refSize = isTiny? 240 : 320;
 			var leftSA = document.getElementById("sepiaFW-screen-safe-area-left");
 			var rightSA = document.getElementById("sepiaFW-screen-safe-area-right");
@@ -18,17 +19,40 @@
 				refSize += leftSA.getBoundingClientRect().width + rightSA.getBoundingClientRect().width;
 			}
 			var mvp = document.getElementById('sepia-viewport');
+			var zoomFactor = (window.SepiaFW == undefined)? urlParams.get("zoomFactor") : SepiaFW.ui.zoomFactor;
+			zoomFactor = +zoomFactor || 1.0;
+			var vpWidth = "device-width";
+			var initScale = sepiaFW_viewport_scale_factor;
 			//console.error("innerWidth org.:", window.innerWidth * sepiaFW_viewport_scale_factor);	//DEBUG
 			if (window.screen.width < refSize && window.matchMedia("(orientation: portrait)").matches){
-				//mvp.setAttribute('content','initial-scale=' + screen.width/340);
-				sepiaFW_viewport_scale_factor = window.screen.width/refSize;
-				mvp.setAttribute('content','width=' + refSize + ', initial-scale=' + sepiaFW_viewport_scale_factor + ', user-scalable=0, viewport-fit=cover');
+				//scale to minimum required size (ignore zoom)
+				vpWidth = refSize;
+				initScale = window.screen.width/refSize;
 			}else{
-				mvp.setAttribute('content','width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=0, viewport-fit=cover');
+				var targetSize = Math.round(window.screen.width / zoomFactor);
+				if (targetSize >= refSize){
+					//scale to given zoom
+					vpWidth = targetSize;
+					initScale = zoomFactor;
+				}else{
+					//scale to max. possible zoom
+					var maxZoom = window.screen.width / refSize;
+					vpWidth = refSize;
+					initScale = maxZoom;
+				}
 			}
+			var isPwa = (urlParams.get("pwa") == "true") || (urlParams.get("cordova") == "true");  //add "isApp"?
+			sepiaFW_viewport_scale_factor = initScale;
+			var minScale = Math.min(initScale, 1.0);
+			var maxScale = initScale * 3.0;
+			var userScalable = isPwa? "0" : "1";		//disable user pinch-zoom in PWA
+			mvp.setAttribute('content', 'width=' + vpWidth 
+				+ ', initial-scale=' + initScale + ', minimum-scale=' + minScale + ', maximum-scale=' + maxScale
+				+ ', user-scalable=' + userScalable + ', viewport-fit=cover');
 		}
-		function sepiaFW_landscape_check(){
-			var isTiny = (window.SepiaFW == undefined)? (window.location.href.indexOf('isTiny=true') > 0) : SepiaFW.ui.isTinyApp;
+		function sepiaFW_landscape_check(urlParams){
+			if (!urlParams) urlParams = new URLSearchParams(window.location.search);
+			var isTiny = (window.SepiaFW == undefined)? (urlParams.get("isTiny") == "true") : SepiaFW.ui.isTinyApp;
 			var ratio = window.innerWidth/window.innerHeight;
 			//(max-height: 480px) and (min-aspect-ratio: 13 / 10) and (min-width: 380px)
 			if (!isTiny && window.innerHeight <= 480 && window.innerWidth >= 380 && ratio > 1.3){
@@ -61,9 +85,13 @@
 			document.documentElement.style.setProperty("--sepia-nav-bar-height", "50px");
 			document.documentElement.style.setProperty("--sepia-chat-ctrl-height", "56px");
 		}
-		sepiaFW_scale_viewport();
-		sepiaFW_landscape_check();
-		sepiaFW_border_check();
+		function sepiaFW_screen_setup(){
+			var urlParams = new URLSearchParams(window.location.search);
+			sepiaFW_scale_viewport(undefined, urlParams);
+			sepiaFW_landscape_check(urlParams);
+			sepiaFW_border_check();
+		}
+		sepiaFW_screen_setup();
 	</script>
 	<title>S.E.P.I.A.</title>
 	<meta name="application-name" content="S.E.P.I.A."/>
@@ -147,12 +175,12 @@
 	<!-- Login -->
 	<div id="sepiaFW-login-box" class="app-loading">
 		<div id="sepiaFW-language-selector"></div>
-		<div id="sepiaFW-login-box-menu-btn"><i class="material-icons md-18">&#xE5D2;</i></div>
+		<div id="sepiaFW-login-box-menu-btn" aria-label="Menu"><i class="material-icons md-18">&#xE5D2;</i></div>
 		<h2><!--Welcome--><script>SepiaFW.local.w('welcome')</script></h2>
 		<div id="sepiaFW-login-form" style="display: none">
 			<input id="sepiaFW-login-id" type="text" placeholder="Username" aria-label="Username" spellcheck="false" autocomplete="username">
 			<input id="sepiaFW-login-pwd" type="password" placeholder="Password" aria-label="Password">
-			<button id="sepiaFW-login-send" aria-label="Submit"><script>SepiaFW.local.w('sendLogin')</script></button>
+			<button id="sepiaFW-login-send"><script>SepiaFW.local.w('sendLogin')</script></button>
 			<button id="sepiaFW-login-create" class="extended-controls" style="display:none;"><script>SepiaFW.local.w('createAccount')</script></button>
 			<button id="sepiaFW-login-close" class="extended-controls" style="display:none;"><script>SepiaFW.local.w('offlineTestMode')</script></button>
 			<button id="sepiaFW-login-retry" style="display:none;"><script>SepiaFW.local.w('retry')</script></button>
@@ -194,13 +222,13 @@
 				<ul id="sepiaFW-chat-userlist"><!-- Dynamic content --></ul>
 			</div>
 			<div id="sepiaFW-chat-channel-controls">
-				<button id="sepiaFW-chat-channel-manager-btn" class="sepiaFW-chat-channel-controls-btn">
+				<button id="sepiaFW-chat-channel-manager-btn" class="sepiaFW-chat-channel-controls-btn" aria-label="Edit">
 					<i class="material-icons md-txt">rss_feed</i>&nbsp;<script>SepiaFW.local.w('edit')</script>
 				</button>
-				<button id="sepiaFW-chat-invite-btn" class="sepiaFW-chat-channel-controls-btn contextual">
+				<button id="sepiaFW-chat-invite-btn" class="sepiaFW-chat-channel-controls-btn contextual" aria-label="Invite">
 					<i class="material-icons md-txt">person_add</i>&nbsp;<script>SepiaFW.local.w('invite')</script>
 				</button>
-				<button id="sepiaFW-chat-logout-btn" class="sepiaFW-chat-channel-controls-btn">
+				<button id="sepiaFW-chat-logout-btn" class="sepiaFW-chat-channel-controls-btn" aria-label="Sign out">
 					<i class="material-icons md-txt">person_outline</i>&nbsp;<script>SepiaFW.local.w('sign_out')</script>
 				</button>
 			</div>
@@ -281,11 +309,11 @@
 				<button id="sepiaFW-chat-controls-more-btn" class="eButton"><i class="material-icons md-btn">&#xE5C3;</i></button>
 			</div>
 			<div id="sepiaFW-assist-btn-area" class="idle">
-				<button id="sepiaFW-assist-btn"><i class="material-icons md-mic">&#xE029;</i></button>
+				<button id="sepiaFW-assist-btn" aria-label="Microphone"><i class="material-icons md-mic">&#xE029;</i></button>
 				<div id="sepiaFW-assist-btn-orbiters" class="sepiaFW-animation-rotate1 sepiaFW-animation-pause"><div id="sepiaFW-assist-btn-orbiter1"></div></div>
 			</div>
 			<div id="sepiaFW-chat-controls-form">
-				<button id="sepiaFW-chat-send" class="sButton"><i class="material-icons md-btn">&#xE163;</i></button>
+				<button id="sepiaFW-chat-send" class="sButton" aria-label="Send"><i class="material-icons md-btn">&#xE163;</i></button>
 				<input id="sepiaFW-chat-input" placeholder="" aria-label="Message" autocomplete="off">
 				<div id="sepiaFW-chat-controls-swipe-area">
 					<div id="sepiaFW-swipeBar-chat-controls" class='sepiaFW-swipeBar-switchable'><span>TOUCH BAR</span></div>
@@ -293,7 +321,7 @@
 				</div>
 			</div>
 			<div id="sepiaFW-chat-controls-vertical">
-				<button id="sepiaFW-chat-controls-vertical-btn" class="eButton"><span class="sepia-icon-font md-btn sepia-icon-sepia_bw"><span class="path1"></span><span class="path2"></span></span><span></button>
+				<button id="sepiaFW-chat-controls-vertical-btn" class="eButton"><span class="sepia-icon-font md-btn sepia-icon-sepia_bw"><span class="path1"></span><span class="path2"></span></span></button>
 			</div>
 		</div>
 		<div id="sepiaFW-chat-controls-speech-box" style="display:none;">

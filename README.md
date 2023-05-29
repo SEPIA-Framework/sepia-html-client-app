@@ -53,6 +53,7 @@ You can modify the client configuration via several URL parameters:
 * `pwa` - 'true' will put the app in a PWA (progressive web app) compatible state by enabling the service-worker.
 * `noSW` - 'true' will force disable the service-worker of the page. This might be useful to find issues related to blocked cookies etc.
 * `isTiny` - 'true' will optimize the UI and controls to support small displays (e.g. Apple Watch or 240x240px screens)
+* `zoomFactor` - Factor (usually > 1.0) to increase size of UI. If bigger than max. possible zoom it will be set to max.
 * `isHeadless` or `autoSetup` - Load client settings from file (settings.js) and trigger setup mode if no user is logged in. 'isHeadless' will set some supported client features as well (e.g. don't open browser tabs etc.).
 * `hasTouch` - 'true' will set touch-screen mode (tweaked UI hover effects etc.) if screen itself is "emulating" touch and client does not properly detect mode.
 * `virtualKeyboard` - 'true' will enable an experimental, virtual keyboard that can be used for example for DIY client "kiosk"-mode apps with touch-screen.
@@ -69,7 +70,7 @@ You can modify the client configuration via several URL parameters:
 ### Chat 'hacks'
 
 The chat input field has some direct commands that will influence the way the input is handled:
-* `i18n:[lang_code]` - This will tell the assistant to handle the input in a certain langauge, e.g.: `i18n:de Guten Tag` (assuming you are in english mode)
+* `i18n:[lang_code]` - This will tell the assistant to handle the input in a certain langauge, e.g.: `i18n:de Guten Tag` (assuming you are in English mode)
 * `linkshare [URL]` - This will generate a link card for the given URL, e.g.: `linkshare https://example.com`
 * `[URL]` - Direct input of URLs will open the URL in a new tab or in-app browser. Some URLs might be handled via widgets like YouTube.
 * `saythis [text]` - Let the assistant speak this text, e.g.: `saythis You are cool.`
