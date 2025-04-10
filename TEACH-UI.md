@@ -41,6 +41,7 @@ Android Intent (open URL): {"value": {"type": "androidActivity", "data": {"actio
 Android Intent (set alarm): {"value": {"type": "androidActivity", "data": {"action": "android.intent.action.SET_ALARM", "extras": {"android.intent.extra.alarm.HOUR": 8, "android.intent.extra.alarm.MINUTES": 30}} } }
 Android Intent (search): {"value": {"type": "androidActivity", "data": {"action": "android.intent.action.SEARCH", "extras": {"query": "Cowboy Bebob"}} } }
 Android Intent (search app): {"value": {"type": "androidActivity", "data": {"action": "android.intent.action.SEARCH", "extras": {"query": "Cowboy Bebob"}, "component": {"package": "com.netflix.mediaclient", "class": "com.netflix.mediaclient.ui.search.SearchActivity"}} } }
+Android Intent (phone call): {"value": {"type": "androidActivity", "data": {"action": "android.intent.action.DIAL", "url": "tel:+99932168"} } }
 ```
 
 ## Mesh node plugin
