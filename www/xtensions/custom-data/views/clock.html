@@ -196,6 +196,11 @@
 	SepiaFW.frames.currentScope = {
 		//Theme
 		theme: "dark flat",
+
+		//Activity
+		activitySettings: {
+			defaultTask: "schedule"
+		},
 		
 		//Load scope (default method, kind of like a 'onDocumentReady')
 		load: function(){
@@ -236,8 +241,24 @@
 				digital.textContent = d.toLocaleTimeString();
 			}, 1000);
 		},
-		onOpen: function(){
+
+		//setup, open and close
+		onFinishSetup: function(data, view, scope){
+
+		},
+		onOpen: function(data, view, scope){
 			
+		},
+		onClose: function(view, scope){
+			
+		},
+
+		//text in and out
+		onSpeechToTextInputHandler: function(msg, scope){
+
+		},
+		onMessageHandler: function(msg, scope){
+
 		},
 		
 		//Animation state "listener" (listening, speaking, loading, idle, etc.)
