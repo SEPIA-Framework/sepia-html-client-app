@@ -74,7 +74,8 @@ npx cordova plugin add phonegap-plugin-media-stream
 npx cordova plugin add cordova-plugin-insomnia
 npx cordova plugin add cordova-plugin-eddystone
 #NOTE: add before intent plugin if you use: plugin add cordova-plugin-camera
-npx cordova plugin add com-darryncampbell-cordova-plugin-intent
+#npx cordova plugin add com-darryncampbell-cordova-plugin-intent
+npx cordova plugin add https://github.com/fquirin/darryncampbell-cordova-plugin-intent
 npx cordova plugin add cordova-plugin-androidx-adapter
 #
 # add android platform

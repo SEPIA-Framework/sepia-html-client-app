@@ -434,6 +434,7 @@ function sepiaFW_build_speech_recognition(Speech){
 		var maxAsrResultWait = 5000;
 		var waitTimeout = '';
 
+		var onAudioEndTriggered = false;
 		var onAudioEndSafetyTimer;
 		var onAudioEndSafetyTime = 3000;
 		
@@ -512,6 +513,7 @@ function sepiaFW_build_speech_recognition(Speech){
 				lastResultType = '';
 				partialWasTriggered = false;
 				resultWasNeverCalled = true;
+				onAudioEndTriggered = false;
 				onEndWasAlreadyCalled = false;
 				onErrorWasAlreadyCalled = false;
 			};
@@ -637,6 +639,7 @@ function sepiaFW_build_speech_recognition(Speech){
 			recognition.onaudioend = function(e){
 				log_callback('STT REC-ONAUDIOEND');
 				//console.error("onaudioend", e); 			//DEBUG
+				onAudioEndTriggered = true;
 				onAudioEndSafetyTimer = setTimeout(function(){
 					if (recognizerWaitingForResult && recognition.onend){
 						SepiaFW.debug.error("Speech: Had to force 'onend' event via abort because it did not trigger.");
@@ -764,7 +767,7 @@ function sepiaFW_build_speech_recognition(Speech){
 				var n = 0; //(event.resultIndex || 0);	//NOTE: this should probably be 0 always
 				var N = event.results.length;		//NOTE: this will probably be required if we have multiple final res.
 				//console.log('ASR RES resultIndex: ' + event.resultIndex);			//DEBUG
-				for (var i = n; i < N; ++i){
+				for (let i = n; i < N; ++i){
 					partialWasTriggered = true;
 					//console.log('ASR RES ' + i + ":", event.results[i]);			//DEBUG
 					if (event.results[i].isFinal || event.results[i][0]['final']){
@@ -781,7 +784,7 @@ function sepiaFW_build_speech_recognition(Speech){
 								wait_timestamp = new Date().getTime();
 								broadcastAsrWaitingForResult();
 								log_callback('STT REC. WAITING FOR RES.');
-								if (recognition.continuous){
+								if (recognition.continuous || !onAudioEndTriggered){
 									log_callback('STT REC. STOP REQUESTED');
 									recognition.stop();
 								}

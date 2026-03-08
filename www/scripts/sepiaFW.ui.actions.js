@@ -251,7 +251,7 @@ function sepiaFW_build_ui_actions(){
 	var inAppBrowserDefaultOptions = [
 		'location=yes', 'toolbar=yes', 'hidenavigationbuttons=no', 'hardwareback=yes', 'disableswipenavigation=no',
 		'footer=no', 'mediaPlaybackRequiresUserAction=yes', 'allowInlineMediaPlayback=yes',
-		'enablethirdpartycookies=no', 'clearsessioncache=no', 'clearcache=no'
+		'enablethirdpartycookies=no', 'clearsessioncache=no', 'clearcache=no', 'fullscreen=no'
 	].join(",");
 	function getInAppBrowserOptions(){
 		//we keep a dark style because the nav-bar is dark

@@ -33,6 +33,11 @@ function sepiaFW_build_teach(sepiaSessionId){
 			.addClass('sepiaFW-teach-mode')
 			.removeClass('sepiaFW-skin-mod');
 		
+		//if a frame is open, the teach-ui won't be visible
+		//if (SepiaFW.frames?.isOpen) SepiaFW.debug.error("Teach-UI is hidden behind frame view.");
+		SepiaFW.ui.closeAllOpenViewsAndMenusExcept(["teach-ui"]);
+		//TODO: use this somewhere before Teach.openUI to avoid conflicts?
+
 		if (!wasLoaded){
 			Teach.setup(function(){
 				Teach.openUI(info);
@@ -86,7 +91,7 @@ function sepiaFW_build_teach(sepiaSessionId){
 				}
 			});
 			Teach.isOpen = true;
-			SepiaFW.ui.switchSwipeBars('teach');
+			SepiaFW.ui.registerScopeAndView('teach', 'teach-ui');
 		}
 	}
 	Teach.closeUI = function(){
@@ -96,7 +101,7 @@ function sepiaFW_build_teach(sepiaSessionId){
 		
 		$('#sepiaFW-teachUI-view').slideUp(300);
 		Teach.isOpen = false;
-		SepiaFW.ui.switchSwipeBars();
+		SepiaFW.ui.registerScopeAndView();
 	}
 	
 	Teach.loadServices = function(successCallback, errorCallback){
@@ -284,35 +289,6 @@ function sepiaFW_build_teach(sepiaSessionId){
 			$('#sepiaFW-teachUI-show-optionals').on('click', function(){
 				$('#sepiaFW-teach-parameters').find('.optional').fadeToggle(300);
 			});
-			//-IMPORT COMMAND
-			$('#sepiaFW-teachUI-import').on('click', function(){
-				SepiaFW.ui.showFileImportAndViewPopup(
-					"Drag & drop command file here or add data:", {
-						addFileSelect: true,
-						accept: ".json",
-						buttonOneName: "Import",
-						buttonTwoName: "Abort",
-						initialPreviewValue: "- Import data -"
-					}, 
-					function(readRes, viewTxtArea){
-						//read
-						if (readRes){
-							var parsedData = JSON.parse(readRes);
-							viewTxtArea.value = JSON.stringify(parsedData, null, 2);
-						}
-					}, function(viewTxtAreaValue, viewTxtArea){
-						//confirm and close
-						if (viewTxtAreaValue){
-							var parsedData = JSON.parse(viewTxtAreaValue);
-							loadCommandToEditor(parsedData);
-							Teach.uic.showPane(0);
-						}
-					}, function(err, viewTxtArea){
-						//read error
-						viewTxtArea.value = "- ERROR -";
-					}
-				);
-			});
 			//-SELECT SERVICE
 			$('#sepiaFW-teach-commands').on('change', function(){
 				populateParameterBox(this.value);
@@ -427,6 +403,89 @@ function sepiaFW_build_teach(sepiaSessionId){
 			}
 			$('#sepiaFW-teachUI-load-more-commands').on('click', function(){
 				loadMoreCommands();
+			});
+			
+			//-IMPORT COMMAND
+			$('#sepiaFW-teachUI-import').on('click', function(){
+				SepiaFW.ui.showFileImportAndViewPopup(
+					"Drag & drop command file here or add data:", {
+						addFileSelect: true,
+						accept: ".json",
+						buttonOneName: "Import",
+						buttonTwoName: "Abort",
+						initialPreviewValue: "- Import data -"
+					}, 
+					function(readRes, viewTxtArea){
+						//read
+						if (readRes){
+							var parsedData = JSON.parse(readRes);
+							viewTxtArea.value = JSON.stringify(parsedData, null, 2);
+						}
+					}, function(viewTxtAreaValue, viewTxtArea){
+						//confirm and close
+						if (viewTxtAreaValue){
+							var parsedData = JSON.parse(viewTxtAreaValue);
+							SepiaFW.debug.info("Teach-UI - Batch import data:", parsedData);
+							if (Array.isArray(parsedData)){
+								//batch import after confirm (NOTE: we use timeout to create new pop-up messages)
+								setTimeout(() => {
+									batchImportCommands(parsedData);
+								}, 0);
+							}else{
+								//single command
+								loadCommandToEditor(parsedData);
+								Teach.uic.showPane(0);
+							}
+						}
+					}, function(err, viewTxtArea){
+						//read error
+						viewTxtArea.value = "- ERROR -";
+					}
+				);
+			});
+			//-EXPORT ALL COMMANDS
+			function exportAllCommands(){
+				var startingFrom = 0;
+				var loadMax = 10000;	//NOTE: 10k is currently the absolute max
+				SepiaFW.debug.info("Teach-UI - Loading all personal commands for export...");
+				Teach.loadPersonalCommands(SepiaFW.account.getKey(sepiaSessionId), startingFrom, loadMax, function(data){
+					//success
+					var currentLang = SepiaFW.assistant.getState().lang;
+					if (data?.result?.length){
+						let msg = "Found " + data.result.length + " commands for language: " + currentLang.toUpperCase() + "."
+						SepiaFW.ui.showPopup(msg, {
+							buttonOneName : SepiaFW.local.g('export'),
+							buttonOneAction : function(){
+								var exportData = [];
+								data.result.forEach(function(itm){
+									if (itm.sentence?.length){
+										exportData.push(itm.sentence[0]);
+									}
+								});
+								//save file
+								SepiaFW.debug.info("Teach-UI - Export data:", exportData);	//DEBUG
+								var date = new Date().toISOString().split("T")[0];
+								var blob = new Blob([JSON.stringify(exportData, null, 2)], {type: "application/json"});
+								var filename = "personal_commands_" + SepiaFW.account.getUserId() + "_" + currentLang + "_" + date + ".json";
+								var cmdCardsBox = $('#sepiaFW-teachUI-manager').find('.sepiaFW-command-cards-container');
+								SepiaFW.files.saveBlobAs(filename, blob, cmdCardsBox[0]);
+								SepiaFW.debug.log("Teach-UI - Exported " + data.result.length + " personal commands.");
+							},
+							buttonTwoName : SepiaFW.local.g('abort'),
+							buttonTwoAction : function(){}
+						});
+					}else{
+						SepiaFW.ui.showPopup("No commands found for language: " + currentLang.toUpperCase() + ".");
+					}
+				}, function(msg){
+					//error
+					SepiaFW.ui.showPopup(msg);
+				}, '', {
+					sortByDate: true
+				});
+			}
+			$("#sepiaFW-teachUI-export-all").on('click', function(){
+				exportAllCommands();
 			});
 			
 			if (finishCallback) finishCallback();
@@ -750,12 +809,82 @@ function sepiaFW_build_teach(sepiaSessionId){
 		return newCard;
 	}
 	
+	//--Batch import of commands--
+	
+	function batchImportCommands(parsedData){
+		if (!parsedData.length){
+			SepiaFW.ui.showPopup("Sorry, but the file is empty.");
+			return;
+		}
+		if (!parsedData[0].cmd_summary || !parsedData[0].language){
+			SepiaFW.ui.showPopup("Sorry, but the file is not in the correct format.");
+			return;
+		}
+		//batch import
+		var currentLang = SepiaFW.assistant.getState().lang.toUpperCase();
+		var firstCmdLang = parsedData[0].language.toUpperCase();
+		var msg = "Are you sure you want to import " + parsedData.length + " commands for language '" 
+			+ currentLang + "'? Original file language is: " + firstCmdLang + ". " 
+			+ "Please note that existing commands with the same text will be overwritten!";
+		SepiaFW.ui.showPopup(msg, {
+			buttonOneName : SepiaFW.local.g('ok'),
+			buttonOneAction : function(){
+				setTimeout(() => {
+					SepiaFW.ui.showPopup("Importing commands...");
+					writeExportedCommandsInSeries(parsedData, {}, 0, function(step){
+						//done
+						SepiaFW.debug.info("Teach-UI - Finished import of " + step + " commands for language: " + currentLang);
+						SepiaFW.ui.showPopup("Import complete. Stored: " + step + " commands.");
+						//broadcast change (but wait a bit for DB changes)
+						setTimeout(function(){
+							broadcastPersonalCommandChange();
+						}, 3000);
+					}, function(errMsg, step){
+						//error
+						SepiaFW.ui.showPopup("Failed to import commands at index " + step + ". Error: " +errMsg);
+						//broadcast change anyway
+						setTimeout(function(){
+							broadcastPersonalCommandChange();
+						}, 3000);
+					});
+				}, 0);
+			},
+			buttonTwoName : SepiaFW.local.g('abort'),
+			buttonTwoAction : function(){}
+		});
+	}
+	function writeExportedCommandsInSeries(commandsArray, fixedOptions, step, emptyCallback, errorCallback){
+		if (!commandsArray.length){
+			emptyCallback(step);
+		}else{
+			if (!fixedOptions.language || !fixedOptions.userLocation){
+				var state = SepiaFW.assistant.getState();
+				fixedOptions.language = state.lang;
+				fixedOptions.userLocation = (state.user_location && state.user_location.latitude)? 
+					(state.user_location.latitude + ', ' + state.user_location.longitude).trim() : "";
+			}
+			step++;
+			var nextCmd = commandsArray.shift();
+			var submitData = buildSubmitData(nextCmd, fixedOptions.language, fixedOptions.userLocation);
+			Teach.submitPersonalCommand(SepiaFW.account.getKey(sepiaSessionId), submitData, function(){
+				//success
+				SepiaFW.debug.info("Teach-UI - Imported command:", submitData);
+				if (step <= 10000){
+					writeExportedCommandsInSeries(commandsArray, fixedOptions, step, emptyCallback, errorCallback);
+				}else{
+					errorCallback("Exceeded " + step + " commands and ended import process!", step);
+				}
+			}, function(msg){
+				//error
+				errorCallback(msg, step);
+			}, null, true);
+		}
+	}
+	
 	//--Build command--
 	
 	//build JSON teach string
 	function buildTeachInput(){
-		var submit = new Object();
-		
 		//get base command
 		var cmd = $('#sepiaFW-teach-commands').val();
 		if (!cmd){
@@ -789,47 +918,64 @@ function sepiaFW_build_teach(sepiaSessionId){
 			"button" : customButton
 		};
 		
-		//other stuff - TODO: make editable
-		var overwriteExisting = true; 		//check if a command exists and overwrite?
-		var env = "all";		//any specific environment?
-		var pub = "no";			//public?
-		var isLocal = "no";		//local action?
-		var explicit = "no";	//explicit content?
-		
+		//language and location		
 		var state = SepiaFW.assistant.getState();
 		var language = state.lang;
 		var userLocation = (state.user_location && state.user_location.latitude)? 
 					(state.user_location.latitude + ', ' + state.user_location.longitude).trim() : "";
-		
-		//build
-		submit.environment = env;
-		submit.language = language;
-		submit.user_location = userLocation || "";
+					
+		var sentence, tagged_sentence;
 		//Check dynamic variables: <var1>, <var2> is only for 'sentence_connect' BUT <i_raw> is ok for all!
 		if (!!txt.match(/<\w+>/)){
 			//we allow this currently only for sentence_connect - TODO: add more
 			if (cmd == "sentence_connect"){
-				submit.sentence = txt;
-				submit.tagged_sentence = txt;
+				sentence = txt;
+				tagged_sentence = txt;
 			}else{
 				SepiaFW.debug.error("Teach-UI - tried to use <...> in a command that didn't allow it.");
-				submit.sentence = '';
-				submit.tagged_sentence = txt;
+				sentence = '';
+				tagged_sentence = txt;
 			}
 		}else{
-			submit.sentence = txt;
-			submit.tagged_sentence = '';
+			sentence = txt;
+			tagged_sentence = '';
 		}
-		submit.params = JSON.stringify(parameters);
-		submit.command = cmd;
-		submit.cmd_summary = cmdSum;
+		
+		//build
+		var submit = buildSubmitData({
+			text: sentence,		//NOTE: there is an inconsistency in the naming of 'text' and 'sentence'
+			tagged_sentence: tagged_sentence,	//... and the tagged variant, which unfortunately applies here
+			params: parameters,
+			command: cmd,
+			cmd_summary: cmdSum,
+			data: data
+		}, language, userLocation);
+
+		//console.info("Submit: " + JSON.stringify(submit));		//DEBUG
+		return submit;
+	}
+	function buildSubmitData(teachData, language, userLocation){
+		//some defaults - TODO: make editable?
+		var overwriteExisting = true; 	//check if a command exists and overwrite?
+		var environment = "all";	//any specific environment?
+		var pub = "no";				//public?
+		var isLocal = "no";			//local action?
+		var explicit = "no";		//explicit content?
+		
+		var submit = new Object();
+		submit.environment = environment;
+		submit.language = language;
+		submit.user_location = userLocation || "";
+		submit.sentence = teachData.text || teachData.tagged_text;
+		submit.tagged_sentence = teachData.tagged_text || '';
+		submit.params = JSON.stringify(teachData.params || {});
+		submit.command = teachData.command || teachData.cmd_summary?.replace(/;;.*/,'').trim();
+		submit.cmd_summary = teachData.cmd_summary;
 		submit.public = pub;
 		submit.local = isLocal;
 		submit.explicit = explicit;
 		submit.overwriteExisting = overwriteExisting;
-		submit.data = JSON.stringify(data);
-		
-		//console.info("Submit: " + JSON.stringify(submit));		//DEBUG
+		submit.data = JSON.stringify(teachData.data || {});
 		return submit;
 	}
 	
@@ -900,7 +1046,7 @@ function sepiaFW_build_teach(sepiaSessionId){
 	}
 	
 	//submit new command
-	Teach.submitPersonalCommand = function(key, submitData, successCallback, errorCallback, debugCallback){
+	Teach.submitPersonalCommand = function(key, submitData, successCallback, errorCallback, debugCallback, skipChangeBroadcast){
 		SepiaFW.ui.showLoader();
 		var apiUrl = SepiaFW.config.teachAPI + "submitPersonalCommand";
 		submitData.KEY = key;
@@ -924,9 +1070,11 @@ function sepiaFW_build_teach(sepiaSessionId){
 			//--callback--
 			if (successCallback) successCallback(data);
 			//broadcast (but wait a bit for DB changes)
-			setTimeout(function(){
-				broadcastPersonalCommandChange();
-			}, 3000);
+			if (!skipChangeBroadcast){
+				setTimeout(function(){
+					broadcastPersonalCommandChange();
+				}, 3000);
+			}
 		};
 		config.error = function(data) {
 			SepiaFW.ui.hideLoader();

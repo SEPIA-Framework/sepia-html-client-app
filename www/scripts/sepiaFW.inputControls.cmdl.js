@@ -115,9 +115,14 @@ function sepiaFW_build_input_controls_cmdl() {
     }
     function loginBroadcaster(ev){
         if (Cmdl.broadcasters.login && ev.detail && ev.detail.note){
-            broadcastEvent("sepia-login", {
+            var msg = {
                 note: ev.detail.note
-            });
+            };
+            if (ev.detail.error){
+                msg.error = ev.detail.error;
+                if (msg.code != undefined) msg.code = ev.detail.code;
+            }
+            broadcastEvent("sepia-login", msg);
         }
     }
     function clientErrorBroadcaster(ev){

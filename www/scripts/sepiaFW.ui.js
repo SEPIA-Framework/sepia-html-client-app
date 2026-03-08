@@ -3,7 +3,7 @@ function sepiaFW_build_ui(){
 	var UI = {};
 	
 	//some constants
-	UI.version = "v0.25.0";
+	UI.version = "v0.25.2";
 	UI.requiresServerVersion = "2.7.0";
 	UI.JQ_RES_VIEW_IDS = "#sepiaFW-result-view, #sepiaFW-chat-output, #sepiaFW-my-view";	//a selector to get all result views e.g. $(UI.JQ_RES_VIEW_IDS).find(...) - TODO: same as $('.sepiaFW-results-container') ??
 	UI.JQ_ALL_MAIN_VIEWS = "#sepiaFW-result-view, #sepiaFW-chat-output, #sepiaFW-my-view, #sepiaFW-teachUI-editor, #sepiaFW-teachUI-manager, #sepiaFW-frame-page-0, #sepiaFW-frame-page-1, #sepiaFW-frame-page-2, #sepiaFW-frame-page-3"; 	//TODO: frames can have more ...
@@ -248,19 +248,20 @@ function sepiaFW_build_ui(){
 
 	//Open a view or frame by key (e.g. for URL parameter 'view=xy')
 	UI.openViewOrFrame = function(openView){
-		openView = openView.replace(".html", "").trim();
+		openView = openView.replace(/[.]html$/, "").trim();
 		//AO-Mode
-		if (openView == "ao" || openView == "aomode" || openView == "alwayson"){
+		if (["ao", "aomode", "alwayson", "always-on"].indexOf(openView) >= 0){
 			if (SepiaFW.alwaysOn) SepiaFW.alwaysOn.start();
 	
 		//Teach-UI
-		}else if (openView == "teach" || openView == "teachui"){
+		}else if (["teach", "teachui", "teach-ui"].indexOf(openView) >= 0){
 			if (SepiaFW.teach) SepiaFW.teach.openUI();
 		
 		//Frame
 		}else{
-			var openUrl = (openView.replace(/\.html$/, "").trim() + ".html");
+			var openUrl = (openView + ".html");
 			if (SepiaFW.frames) SepiaFW.frames.open({
+				pageName: openView,
 				pageUrl: openUrl,
 				autoFillFrameEvents: true,		//try to take scope function of same name if the event function is not defined
 				loadFrameTheme: true			//try to load theme from frame scope
@@ -789,25 +790,76 @@ function sepiaFW_build_ui(){
 			return cEntry;
 		});
 	}
-	
-	//get/switch/show/hide active swipe-bars - TODO: can we get rid of the hard-coded dom ids?
-	UI.switchSwipeBars = function(setName){
-		var hideLeftRightBars = UI.hideSideSwipeForTouchBarControls && UI.useTouchBarControls;
-		$('.sepiaFW-swipeBar-switchable').hide();
-		if (!setName){
+
+	//register scope and view (e.g to set correct swipe bars and track app state)
+	UI.registerScopeAndView = function(appScope, viewName){
+		if (!appScope){
 			if (SepiaFW.frames.isOpen){
 				//could also be: SepiaFW.alwaysOn.isOpen
-				setName = "frames";
+				appScope = "frames";
 			}else if (SepiaFW.teach.isOpen){
-				setName = "teach";
+				appScope = "teach";
 			}else if (SepiaFW.ui.isMenuOpen){
-				setName = "menu";
+				appScope = "menu";
 			}else{
-				setName = "chat";
+				appScope = "chat";
 			}
 			//return to previous - NOTE: was not reliable enough
-			//setName = lastActiveSwipeBars;
+			//appScope = lastActiveAppScope;
 		}
+		if (!viewName) viewName = lastActiveViews[appScope] || "default";
+		//set correct swipe bars for scope
+		switchSwipeBars(appScope);
+		//track state
+		lastActiveAppScope = activeAppScope;
+		lastActiveViews[lastActiveAppScope] = activeView;
+		activeAppScope = appScope;
+		activeView = viewName;
+		//console.error("scope:", appScope, "- view:", viewName);	//DEBUG
+	}
+	UI.getActiveScopeAndView = function(){
+		return {
+			appScope: activeAppScope,
+			view: activeView
+		}
+	}
+	UI.closeAllOpenViewsAndMenusExcept = function(except){
+		var closed = [];
+		//close teach UI
+		if (SepiaFW.teach?.isOpen && !except?.includes("teach-ui")){
+			SepiaFW.teach.closeUI();
+			closed.push("teach-ui");
+		}
+		//close frames
+		if (SepiaFW.alwaysOn?.isOpen){
+			if (!except?.includes("always-on")){
+				SepiaFW.alwaysOn.stop();
+				closed.push("always-on");
+			}
+		}else if (SepiaFW.frames?.isOpen){
+			if (!except?.includes("frame")){
+				SepiaFW.frames.close();
+				closed.push("frame");
+			}
+		}
+		//close open menus
+		let openMenusN = UI.getOpenMenus().length;
+		if (openMenusN > 0  && !except?.includes("menus")){
+			UI.closeAllMenus();
+			closed.push("menus[" + openMenusN + "]");
+		}
+		return closed;
+	}
+	var activeAppScope = "chat";
+	var lastActiveAppScope = "chat";
+	var activeView = "chat";
+	var lastActiveViews = {chat: "default"};
+	
+	//get/switch/show/hide active swipe-bars
+	function switchSwipeBars(setName){
+		var hideLeftRightBars = UI.hideSideSwipeForTouchBarControls && UI.useTouchBarControls;
+		$('.sepiaFW-swipeBar-switchable').hide();
+		//TODO: can we get rid of the hard-coded dom ids?
 		if (setName == "chat"){
 			if (!hideLeftRightBars){
 				$('#sepiaFW-swipeBar-chat-left').show();
@@ -830,8 +882,9 @@ function sepiaFW_build_ui(){
 				$('#sepiaFW-swipeBar-frames-left').show();
 				$('#sepiaFW-swipeBar-frames-right').show();
 			}
+		}else{
+			SepiaFW.debug.error("UI swipe bars 'setName' was undefined or unknown:", setName);
 		}
-		lastActiveSwipeBars = activeSwipeBars;
 		activeSwipeBars = setName;
 	}
 	UI.getActiveSwipeBars = function(){
@@ -846,7 +899,6 @@ function sepiaFW_build_ui(){
 		$('#sepiaFW-swipeBar-container-right').show();
 	}
 	var activeSwipeBars = "chat";
-	var lastActiveSwipeBars = "chat";
 	
 	//clear all views
 	UI.clearAllOutputViews = function(){
@@ -960,19 +1012,7 @@ function sepiaFW_build_ui(){
 		}
 	}
 	UI.showAndClearMissedMessages = function(){
-		//close teach UI
-		if (SepiaFW.teach && SepiaFW.teach.isOpen){
-			SepiaFW.teach.closeUI();
-		}
-		//close frames
-		if (SepiaFW.frames && SepiaFW.frames.isOpen){
-			SepiaFW.frames.close();
-		}
-		//close open menus
-		if (UI.getOpenMenus().length > 0){
-			UI.closeAllMenus();
-		}
-		//UI.closeAllMenus();
+		UI.closeAllOpenViewsAndMenusExcept();
 		UI.moc.showPane(1);
 		UI.clearMissedMessages();
 	}
@@ -1069,6 +1109,9 @@ function sepiaFW_build_ui(){
 			return urlParam;
 		}
 		UI.isTinyApp = isTinyApp();
+		
+		//zoom factor
+		UI.zoomFactor = +(SepiaFW.tools.getURLParameter("zoomFactor") || 1.0);
 
 		//Setup headless mode
 		if (SepiaFW.config.isAutoSetupModeEnabled()){
@@ -1253,7 +1296,7 @@ function sepiaFW_build_ui(){
 			});
 		UI.moc.init();
 		UI.moc.showPane(0);
-		UI.switchSwipeBars('chat'); 		//use this to switch the swipe-bars depending on the open window
+		UI.registerScopeAndView('chat'); 		//use this to switch the swipe-bars depending on the open window
 		
 		//-- up till here every saved setting must be loaded to show up in menue properly --
 		

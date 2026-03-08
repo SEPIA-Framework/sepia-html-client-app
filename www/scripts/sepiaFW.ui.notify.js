@@ -1,6 +1,6 @@
 //NOTIFICATIONS (WEB API)
 function sepiaFW_build_ui_notifications(){
-	var Notify = {};
+	var Notify = {};	//registered as '.notification'
 
 	var userHasBeenAsked = false;
 	

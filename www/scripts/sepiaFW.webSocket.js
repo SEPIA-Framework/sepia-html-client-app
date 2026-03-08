@@ -2177,12 +2177,7 @@ function sepiaFW_build_webSocket_client(sepiaSessionId){
 							var thisDay = d.getDay();
 							if (thisDay != day){
 								day = thisDay;
-								var customTag = "weekday-note-" + SepiaFW.tools.getLocalDateWithCustomSeparator("-", msg.timeUNIX);
-								//... but only if we haven't already
-								if ($("#sepiaFW-chat-output").find('[data-channel-id=' + message.data.channelId + ']').filter('[data-msg-custom-tag=' + customTag + ']').length == 0){
-									var weekdayName = SepiaFW.local.getWeekdayName(day) + " " + d.toLocaleDateString(SepiaFW.config.appLanguage);
-									SepiaFW.ui.showInfo(weekdayName, false, customTag, true, message.data.channelId);	//SepiaFW.local.g('history')
-								}
+								Client.showWeekdayLabelMessage(message.data.channelId, d);
 							}
 							//add unread note
 							isNew = (!lastMsgTS || msg.timeUNIX > lastMsgTS);		//TODO: I think due to some ms time difference in server and client this can fail sometimes
@@ -2560,12 +2555,7 @@ function sepiaFW_build_webSocket_client(sepiaSessionId){
 		//add a "today" info block?
 		var d = new Date();
 		if (message.channelId && (d.getTime() - message.timeUNIX) < 30000){
-			var customTag = "weekday-note-" + SepiaFW.tools.getLocalDateWithCustomSeparator("-");
-			var $todayNote = $("#sepiaFW-chat-output").find('[data-channel-id=' + message.channelId + ']').filter('[data-msg-custom-tag=' + customTag + ']');
-			if ($todayNote.length == 0){
-				var weekdayName = SepiaFW.local.getWeekdayName(d.getDay()) + " " + d.toLocaleDateString(SepiaFW.config.appLanguage);
-				SepiaFW.ui.showInfo(weekdayName, false, customTag, true, message.channelId);
-			}
+			Client.showWeekdayLabelMessage(message.channelId, d);
 		}
 
 		//TODO: check for language and set 'oneTimeLanguage'?
@@ -2599,6 +2589,19 @@ function sepiaFW_build_webSocket_client(sepiaSessionId){
 			};
 			var isSafe = true;
 			SepiaFW.ui.actions.handle(deepLinkActionData, chatMessageEntry, message.sender, options, isSafe);
+		}
+	}
+
+	Client.showWeekdayLabelMessage = function(channelId, date){
+		var timeUNIX = date.getTime();
+		var dateDay = date.getDay();
+		//console.error("Client.showWeekdayLabelMessage", channelId, dateDay, timeUNIX);	//DEBUG
+		var customTag = "weekday-note-" + SepiaFW.tools.getLocalDateWithCustomSeparator("-", timeUNIX);
+		var $labelMsg = $("#sepiaFW-chat-output").find('[data-channel-id=' + channelId + ']').filter('[data-msg-custom-tag=' + customTag + ']');
+		//check if we haven't added it already
+		if ($labelMsg.length == 0){
+			var weekdayName = SepiaFW.local.getWeekdayName(dateDay) + " " + date.toLocaleDateString(SepiaFW.config.appLanguage);
+			SepiaFW.ui.showInfo(weekdayName, false, customTag, true, channelId);
 		}
 	}
 

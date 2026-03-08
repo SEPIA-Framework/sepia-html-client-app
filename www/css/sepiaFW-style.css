@@ -44,9 +44,9 @@
 }
 
 input:focus,
-select:focus,
+select:focus:not(:focus-visible),
 textarea:focus,
-button:focus {
+button:focus:not(:focus-visible) {
     outline: none;
 }
 ::-moz-focus-inner {
@@ -461,6 +461,18 @@ html {
 	background-color: #888 !important;
 	color: #fff !important;
 }
+.sepiaFW-input-popup .preview-image-container {
+    height: 150px;
+    border: 8px solid transparent;
+    outline: 1px solid currentColor;
+    outline-offset: -1px;
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: contain;
+    background-color: rgb(0, 0, 0);
+    background-image: url("../img/SEPIA_back-w.png");
+    border-radius: 3px;
+}
 .sepiaFW-input-popup .file-input-box {
 	display: flex;
     justify-content: center;
@@ -850,6 +862,7 @@ html.dark-skin #sepiaFW-login-help-btn {
 	background-color: #ceff1a;
 	color: #2f3035;
 	font-size: 15px;
+	line-height: 1.14;
 }
 .sepiaFW-notouch-device #sepiaFW-main-window button:hover {
 	background-color: #2f3035;
@@ -1006,6 +1019,7 @@ html.dark-skin #sepiaFW-login-help-btn {
 	overflow: hidden; /*scrolling happens inside the carousel*/
 	-webkit-overflow-scrolling: touch;
 	font-size: 21px;
+	line-height: 1.14;
 	text-align: center;
 	z-index: 5;
 }
@@ -1246,35 +1260,31 @@ html.dark-skin #sepiaFW-login-help-btn {
     margin: 0px 0px 0px 0px;
     padding: 0px;
 	cursor: pointer;
+	display: grid;
+    justify-items: flex-start;
 }
 .sepiaFW-toggle-btn.disabled {
 	cursor: not-allowed;
 }
-.sepiaFW-toggle-btn .on {
-	-webkit-user-select: none;
-  	-ms-user-select: none;
-  	user-select: none;
-    pointer-events: none;
-	background: rgba(0, 255, 0, 0.55);
-	border: 0px;
-	height: 100%;
-    width: 50%;
-    margin: 0px;
-    padding: 0px;
-	float: right;
-}
+.sepiaFW-toggle-btn .on,
 .sepiaFW-toggle-btn .off {
 	-webkit-user-select: none;
   	-ms-user-select: none;
   	user-select: none;
     pointer-events: none;
-	background: rgba(72, 72, 72, 0.33);
 	border: 0px;
 	height: 100%;
     width: 50%;
     margin: 0px;
     padding: 0px;
-	float: left;
+}
+.sepiaFW-toggle-btn .on {
+	background: rgba(0, 255, 0, 0.55);
+	justify-self: flex-end;
+}
+.sepiaFW-toggle-btn .off {
+	background: rgba(72, 72, 72, 0.33);
+	justify-self: flex-start;
 }
 .sepiaFW-value-slider {
 	display: inline-flex;
@@ -1459,6 +1469,7 @@ html.dark-skin #sepiaFW-login-help-btn {
 	padding: 5px 22px;
 	/*max-width: 220px;*/
 	min-width: 100px;
+	min-height: 28px;
 	max-height: 50px;
 	/*white-space: nowrap;*/
 	text-align: center;
@@ -2173,7 +2184,8 @@ body.big-screen .sepiaFW-results-container {
     word-wrap: break-word;
 	transition: all .5s;
 	text-align: left;
-	/*cursor: pointer;*/
+	line-height: 1.2;
+	font-size: 15px;
 }
 .sepiaFW-results-container .statusUpdate,
 #sepiaFW-chat-output .statusUpdate {

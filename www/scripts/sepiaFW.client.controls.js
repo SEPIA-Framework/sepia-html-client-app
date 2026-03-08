@@ -246,8 +246,7 @@ function sepiaFW_build_client_controls(sepiaSessionId){
                     //we do this only if we have a recent Android media event - otherwhise it will activate all music apps
                     var requireMediaAppPackage = true;
                     SepiaFW.debug.info("Client controls - Media: trying to stop Android media player");
-                    sentAdditionalEvent = SepiaFW.android.broadcastMediaButtonDownUpIntent(127, requireMediaAppPackage) || sentAdditionalEvent;
-                    //127: KEYCODE_MEDIA_PAUSE
+                    sentAdditionalEvent = SepiaFW.android.sendMediaControlEvent("pause", requireMediaAppPackage) || sentAdditionalEvent;
                 }
                 //TODO: add iOS and Windows?
                 //TODO: we could use a Mesh-Node and the sendMessage API in Windows
@@ -294,8 +293,7 @@ function sepiaFW_build_client_controls(sepiaSessionId){
                         //we do this only if we have a recent Android media event - otherwhise it will activate all music apps
                         SepiaFW.debug.info("Client controls - Media: trying to resume Android media player");
                         var requireMediaAppPackage = true;
-                        sentEvent = SepiaFW.android.broadcastMediaButtonDownUpIntent(126, requireMediaAppPackage);  
-                        //126: KEYCODE_MEDIA_PLAY
+                        sentEvent = SepiaFW.android.sendMediaControlEvent("play", requireMediaAppPackage);
                     }
                 }
                 //TODO: add iOS and Windows?
@@ -338,8 +336,8 @@ function sepiaFW_build_client_controls(sepiaSessionId){
                     //we do this only if we have a recent Android media event - otherwhise it will activate all music apps
                     SepiaFW.debug.info("Client controls - Media: trying to trigger '" + (isNext? "next" : "previous") + "' via Android media player");
                     var requireMediaAppPackage = true;
-                    var keyCode = isNext? 87 : 88;      //87: KEYCODE_MEDIA_NEXT, 88: KEYCODE_MEDIA_PREVIOUS
-                    sentEvent = SepiaFW.android.broadcastMediaButtonDownUpIntent(keyCode, requireMediaAppPackage);
+                    var controlAction = isNext? "next" : "previous";
+                    sentEvent = SepiaFW.android.sendMediaControlEvent(controlAction, requireMediaAppPackage);
                 }
                 //TODO: add iOS and Windows?
                 //TODO: we could use a Mesh-Node and the sendMessage API in Windows
@@ -492,6 +490,8 @@ function sepiaFW_build_client_controls(sepiaSessionId){
                     SepiaFW.android.intentActivity(req.data);
                 }else if (req.type == "androidBroadcast"){
                     SepiaFW.android.intentBroadcast(req.data);
+                }else if (req.type == "audioManager"){
+                    SepiaFW.android.audioManager(req.data);
                 }else{
                     SepiaFW.debug.error("Missing 'platformFunction' support for type: " + req.type);
                 }

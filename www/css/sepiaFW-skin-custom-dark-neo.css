@@ -133,6 +133,11 @@ html.spacious-w body.limit-size #sepiaFW-chat-channel-view {
 	border-color: transparent;
 }
 
+#sepiaFW-chat-output .statusUpdate {
+    background: rgba(255, 255, 255, 0.05);
+    color: currentColor;
+}
+
 /* POP-UP and INDICATORS */
 
 #sepiaFW-popup-message button,

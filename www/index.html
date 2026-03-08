@@ -8,8 +8,9 @@
 	<meta name="viewport" id="sepia-viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=0, viewport-fit=cover">
 	<script>
 		var sepiaFW_viewport_scale_factor = 1.0;
-		function sepiaFW_scale_viewport(refSize){
-			var isTiny = (window.SepiaFW == undefined)? (window.location.href.indexOf('isTiny=true') > 0) : SepiaFW.ui.isTinyApp;
+		function sepiaFW_scale_viewport(refSize, urlParams){
+			if (!urlParams) urlParams = new URLSearchParams(window.location.search);
+			var isTiny = (window.SepiaFW == undefined)? (urlParams.get("isTiny") == "true") : SepiaFW.ui.isTinyApp;
 			if (!refSize) refSize = isTiny? 240 : 320;
 			var leftSA = document.getElementById("sepiaFW-screen-safe-area-left");
 			var rightSA = document.getElementById("sepiaFW-screen-safe-area-right");
@@ -18,17 +19,40 @@
 				refSize += leftSA.getBoundingClientRect().width + rightSA.getBoundingClientRect().width;
 			}
 			var mvp = document.getElementById('sepia-viewport');
+			var zoomFactor = (window.SepiaFW == undefined)? urlParams.get("zoomFactor") : SepiaFW.ui.zoomFactor;
+			zoomFactor = +zoomFactor || 1.0;
+			var vpWidth = "device-width";
+			var initScale = sepiaFW_viewport_scale_factor;
 			//console.error("innerWidth org.:", window.innerWidth * sepiaFW_viewport_scale_factor);	//DEBUG
 			if (window.screen.width < refSize && window.matchMedia("(orientation: portrait)").matches){
-				//mvp.setAttribute('content','initial-scale=' + screen.width/340);
-				sepiaFW_viewport_scale_factor = window.screen.width/refSize;
-				mvp.setAttribute('content','width=' + refSize + ', initial-scale=' + sepiaFW_viewport_scale_factor + ', user-scalable=0, viewport-fit=cover');
+				//scale to minimum required size (ignore zoom)
+				vpWidth = refSize;
+				initScale = window.screen.width/refSize;
 			}else{
-				mvp.setAttribute('content','width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=0, viewport-fit=cover');
+				var targetSize = Math.round(window.screen.width / zoomFactor);
+				if (targetSize >= refSize){
+					//scale to given zoom
+					vpWidth = targetSize;
+					initScale = zoomFactor;
+				}else{
+					//scale to max. possible zoom
+					var maxZoom = window.screen.width / refSize;
+					vpWidth = refSize;
+					initScale = maxZoom;
+				}
 			}
+			var isPwa = (urlParams.get("pwa") == "true") || (urlParams.get("cordova") == "true");  //add "isApp"?
+			sepiaFW_viewport_scale_factor = initScale;
+			var minScale = Math.min(initScale, 1.0);
+			var maxScale = initScale * 3.0;
+			var userScalable = isPwa? "0" : "1";		//disable user pinch-zoom in PWA
+			mvp.setAttribute('content', 'width=' + vpWidth 
+				+ ', initial-scale=' + initScale + ', minimum-scale=' + minScale + ', maximum-scale=' + maxScale
+				+ ', user-scalable=' + userScalable + ', viewport-fit=cover');
 		}
-		function sepiaFW_landscape_check(){
-			var isTiny = (window.SepiaFW == undefined)? (window.location.href.indexOf('isTiny=true') > 0) : SepiaFW.ui.isTinyApp;
+		function sepiaFW_landscape_check(urlParams){
+			if (!urlParams) urlParams = new URLSearchParams(window.location.search);
+			var isTiny = (window.SepiaFW == undefined)? (urlParams.get("isTiny") == "true") : SepiaFW.ui.isTinyApp;
 			var ratio = window.innerWidth/window.innerHeight;
 			//(max-height: 480px) and (min-aspect-ratio: 13 / 10) and (min-width: 380px)
 			if (!isTiny && window.innerHeight <= 480 && window.innerWidth >= 380 && ratio > 1.3){
@@ -61,14 +85,18 @@
 			document.documentElement.style.setProperty("--sepia-nav-bar-height", "50px");
 			document.documentElement.style.setProperty("--sepia-chat-ctrl-height", "56px");
 		}
-		sepiaFW_scale_viewport();
-		sepiaFW_landscape_check();
-		sepiaFW_border_check();
+		function sepiaFW_screen_setup(){
+			var urlParams = new URLSearchParams(window.location.search);
+			sepiaFW_scale_viewport(undefined, urlParams);
+			sepiaFW_landscape_check(urlParams);
+			sepiaFW_border_check();
+		}
+		sepiaFW_screen_setup();
 	</script>
 	<title>S.E.P.I.A.</title>
 	<meta name="application-name" content="S.E.P.I.A."/>
 	<meta name="apple-mobile-web-app-title" content="S.E.P.I.A.">
-	<meta name="description" content="S.E.P.I.A. is an app and framework for your own server-based, extendable, private, intelligent assistant.">
+	<meta name="description" content="S.E.P.I.A. is an app and framework for your own self-hosted, extendable, private, intelligent assistant.">
 	<meta name="theme-color" content="#000">
 	<link rel="icon" sizes="192x192" href="img/icon.png">
 	<link rel="apple-touch-icon" sizes="192x192" href="img/icon.png">
@@ -79,7 +107,7 @@
 	<meta property="og:title" content="S.E.P.I.A."/>
 	<meta property="og:determiner" content="the" />
 	<meta property="og:url" content="https://sepia-framework.github.io/app/"/>
-	<meta property="og:description" content="S.E.P.I.A. is an app and framework for your own server-based, extendable, private, intelligent assistant.">
+	<meta property="og:description" content="S.E.P.I.A. is an app and framework for your own self-hosted, extendable, private, intelligent assistant.">
 	<meta property="og:image" content="https://sepia-framework.github.io/img/logo.png"/>
 	<meta property="og:image:width" content="960"/>
 	<meta property="og:image:height" content="960"/>
@@ -147,7 +175,7 @@
 	<!-- Login -->
 	<div id="sepiaFW-login-box" class="app-loading">
 		<div id="sepiaFW-language-selector"></div>
-		<div id="sepiaFW-login-box-menu-btn"><i class="material-icons md-18">&#xE5D2;</i></div>
+		<div id="sepiaFW-login-box-menu-btn" aria-label="Menu"><i class="material-icons md-18">&#xE5D2;</i></div>
 		<h2><!--Welcome--><script>SepiaFW.local.w('welcome')</script></h2>
 		<div id="sepiaFW-login-form" style="display: none">
 			<input id="sepiaFW-login-id" type="text" placeholder="Username" aria-label="Username" spellcheck="false" autocomplete="username">
@@ -194,13 +222,13 @@
 				<ul id="sepiaFW-chat-userlist"><!-- Dynamic content --></ul>
 			</div>
 			<div id="sepiaFW-chat-channel-controls">
-				<button id="sepiaFW-chat-channel-manager-btn" class="sepiaFW-chat-channel-controls-btn">
+				<button id="sepiaFW-chat-channel-manager-btn" class="sepiaFW-chat-channel-controls-btn" aria-label="Edit">
 					<i class="material-icons md-txt">rss_feed</i>&nbsp;<script>SepiaFW.local.w('edit')</script>
 				</button>
-				<button id="sepiaFW-chat-invite-btn" class="sepiaFW-chat-channel-controls-btn contextual">
+				<button id="sepiaFW-chat-invite-btn" class="sepiaFW-chat-channel-controls-btn contextual" aria-label="Invite">
 					<i class="material-icons md-txt">person_add</i>&nbsp;<script>SepiaFW.local.w('invite')</script>
 				</button>
-				<button id="sepiaFW-chat-logout-btn" class="sepiaFW-chat-channel-controls-btn">
+				<button id="sepiaFW-chat-logout-btn" class="sepiaFW-chat-channel-controls-btn" aria-label="Sign out">
 					<i class="material-icons md-txt">person_outline</i>&nbsp;<script>SepiaFW.local.w('sign_out')</script>
 				</button>
 			</div>
@@ -208,7 +236,7 @@
 		<div id="sepiaFW-chat-controls-more-menu" class="sepiaFW-menu">
 			<div id="sepiaFW-location-ctrls">
 				<span id='sepiaFW-menue-status-text'><script>SepiaFW.local.w('locateMe')</script></span>
-				<button id='sepiaFW-geolocation-btn'><i class="material-icons md-txt">place</i></button>
+				<button id='sepiaFW-geolocation-btn' aria-label="Location"><i class="material-icons md-txt">place</i></button>
 			</div>
 			<div id='sepiaFW-audio-ctrls'>
 				<div id='sepiaFW-audio-ctrls-title-container'>
@@ -221,31 +249,31 @@
 					</div>
 				</div>
 				<div id='sepiaFW-audio-ctrls-buttons-container'>
-					<button id='sepiaFW-audio-ctrls-voldown'><i class="material-icons md-24">&#xE04D;</i><div id="sepiaFW-audio-ctrls-vol">10</div></button>
-					<button id='sepiaFW-audio-ctrls-volup'><i class="material-icons md-24">&#xE050;</i></button>
-					<button id='sepiaFW-audio-ctrls-start'><i class="material-icons md-24">&#xE037;</i></button>
-					<button id='sepiaFW-audio-ctrls-stop'><i class="material-icons md-24">&#xE034;</i></button>
-					<button id='sepiaFW-audio-ctrls-broadcast'><i class="material-icons md-24">settings_remote</i></button>
+					<button id='sepiaFW-audio-ctrls-voldown' aria-label="Volume down"><i class="material-icons md-24">&#xE04D;</i><div id="sepiaFW-audio-ctrls-vol">10</div></button>
+					<button id='sepiaFW-audio-ctrls-volup' aria-label="Volume up"><i class="material-icons md-24">&#xE050;</i></button>
+					<button id='sepiaFW-audio-ctrls-start' aria-label="Play"><i class="material-icons md-24">&#xE037;</i></button>
+					<button id='sepiaFW-audio-ctrls-stop' aria-label="Stop"><i class="material-icons md-24">&#xE034;</i></button>
+					<button id='sepiaFW-audio-ctrls-broadcast' aria-label="Broadcast"><i class="material-icons md-24">settings_remote</i></button>
 				</div>
 			</div>
 			<div id="sepiaFW-more-menu-shortcuts">
-				<button id='sepiaFW-shortcut-btn-shop'><i class="material-icons md-24">&#xE8CC;</i></button>
-				<button id='sepiaFW-shortcut-btn-todo'><i class="material-icons md-24">assignment</i></button> <!-- ballot -->
-				<button id='sepiaFW-shortcut-btn-radio'><i class="material-icons md-24">&#xE03E;</i></button>
-				<button id='sepiaFW-shortcut-btn-timer'><i class="material-icons md-24">timer</i></button> <!-- av_timer -->
-				<button id='sepiaFW-shortcut-btn-alarm'><i class="material-icons md-24">alarm</i></button>
-				<button id='sepiaFW-shortcut-btn-weather'><i class="material-icons md-24">&#xE430;</i></button>
-				<button id='sepiaFW-shortcut-btn-news'><i class="material-icons md-24">local_library</i></button>
-				<button id='sepiaFW-shortcut-btn-myEvents'><i class="material-icons md-24">&#xE55A;</i></button>
-				<button id='sepiaFW-shortcut-btn-inAppBrowser'><i class="material-icons md-24">&#xE894;</i></button>
+				<button id='sepiaFW-shortcut-btn-shop' aria-label="Shopping list"><i class="material-icons md-24">&#xE8CC;</i></button>
+				<button id='sepiaFW-shortcut-btn-todo' aria-label="To-do list"><i class="material-icons md-24">assignment</i></button> <!-- ballot -->
+				<button id='sepiaFW-shortcut-btn-radio' aria-label="Radio"><i class="material-icons md-24">&#xE03E;</i></button>
+				<button id='sepiaFW-shortcut-btn-timer' aria-label="Timers"><i class="material-icons md-24">timer</i></button> <!-- av_timer -->
+				<button id='sepiaFW-shortcut-btn-alarm' aria-label="Alarm"><i class="material-icons md-24">alarm</i></button>
+				<button id='sepiaFW-shortcut-btn-weather' aria-label="Weather"><i class="material-icons md-24">&#xE430;</i></button>
+				<button id='sepiaFW-shortcut-btn-news' aria-label="News"><i class="material-icons md-24">local_library</i></button>
+				<button id='sepiaFW-shortcut-btn-myEvents' aria-label="Refresh events"><i class="material-icons md-24">&#xE55A;</i></button>
+				<button id='sepiaFW-shortcut-btn-inAppBrowser' aria-label="Browser"><i class="material-icons md-24">&#xE894;</i></button>
 			</div>
 			<div id="sepiaFW-more-menu-actions">
-				<li id='sepiaFW-history-btn'><script>SepiaFW.local.w('clearHistory')</script>&nbsp;<i class="material-icons md-txt">&#xE889;</i></li>
-				<li id='sepiaFW-saythis-btn'>Broadcast&nbsp;<i class="material-icons md-txt">record_voice_over</i></li>
-				<li id='sepiaFW-teachUI-open'>Teach&nbsp;<i class="material-icons md-txt">&#xE87B;</i></li>
-				<li id='sepiaFW-uisize-btn'>UI&nbsp;<i class="material-icons md-txt">&#xE56B;</i></li>
-				<li id='sepiaFW-fullsize-btn'>Screen&nbsp;<i class="material-icons md-txt">&#xE56B;</i></li>
-				<li id='sepiaFW-alwaysOn-btn'>Always On&nbsp;<span class="sepia-icon-font s14 sepia-icon-sepia_bw"><span class="path1"></span><span class="path2"></span></span></li>
+				<li id='sepiaFW-history-btn' aria-label="Clear history"><script>SepiaFW.local.w('clearHistory')</script>&nbsp;<i class="material-icons md-txt">&#xE889;</i></li>
+				<li id='sepiaFW-saythis-btn' aria-label="Broadcast">Broadcast&nbsp;<i class="material-icons md-txt">record_voice_over</i></li>
+				<li id='sepiaFW-teachUI-open' aria-label="Teach UI">Teach&nbsp;<i class="material-icons md-txt">&#xE87B;</i></li>
+				<li id='sepiaFW-uisize-btn' aria-label="Screensize">UI&nbsp;<i class="material-icons md-txt">&#xE56B;</i></li>
+				<li id='sepiaFW-fullsize-btn' aria-label="Fullscreen">Screen&nbsp;<i class="material-icons md-txt">&#xE56B;</i></li>
+				<li id='sepiaFW-alwaysOn-btn' aria-label="Always on avatar">Always On&nbsp;<span class="sepia-icon-font s14 sepia-icon-sepia_bw"><span class="path1"></span><span class="path2"></span></span></li>
 				<!--<li id='sepiaFW-back-btn'><script>SepiaFW.local.w('back')</script>&nbsp;<i class="material-icons md-txt">&#xE408;</i></li>-->
 			</div>
 			<div id="sepiaFW-more-menu-input"><!-- only for landscape mode -->
@@ -255,14 +283,14 @@
 		</div>
 		<!-- Nav-Bar -->
 		<div id="sepiaFW-nav-bar">
-			<button id="sepiaFW-nav-menu-btn"><i class="material-icons md-btn2">&#xE5D2;</i></button>
-			<button id="sepiaFW-nav-menu-go-left">•</button>
+			<button id="sepiaFW-nav-menu-btn" aria-label="Settings"><i class="material-icons md-btn2">&#xE5D2;</i></button>
+			<button id="sepiaFW-nav-menu-go-left" aria-label="Previous view">•</button>
 			<div id="sepiaFW-nav-label-box">
 				<div id="sepiaFW-nav-label">S.E.P.I.A.</div><span id='sepiaFW-nav-label-note' style='display:none;'>...</span>
 				<div id="sepiaFW-nav-label-online-status" class="offline sepiaFW-ww-indicator">offline</div>
 			</div>
-			<button id="sepiaFW-nav-menu-go-right">•</button>
-			<button id="sepiaFW-nav-users-btn"><i class="material-icons md-btn2">&#xE8CD;</i></button>
+			<button id="sepiaFW-nav-menu-go-right" aria-label="Next view">•</button>
+			<button id="sepiaFW-nav-users-btn" aria-label="Users"><i class="material-icons md-btn2">&#xE8CD;</i></button>
 			<div id="sepiaFW-nav-bar-page-indicator"><div>&nbsp;</div><div>&nbsp;</div><div>&nbsp;</div></div>
 		</div>
 		<!-- Output views -->
@@ -281,11 +309,11 @@
 				<button id="sepiaFW-chat-controls-more-btn" class="eButton"><i class="material-icons md-btn">&#xE5C3;</i></button>
 			</div>
 			<div id="sepiaFW-assist-btn-area" class="idle">
-				<button id="sepiaFW-assist-btn"><i class="material-icons md-mic">&#xE029;</i></button>
+				<button id="sepiaFW-assist-btn" aria-label="Microphone"><i class="material-icons md-mic">&#xE029;</i></button>
 				<div id="sepiaFW-assist-btn-orbiters" class="sepiaFW-animation-rotate1 sepiaFW-animation-pause"><div id="sepiaFW-assist-btn-orbiter1"></div></div>
 			</div>
 			<div id="sepiaFW-chat-controls-form">
-				<button id="sepiaFW-chat-send" class="sButton"><i class="material-icons md-btn">&#xE163;</i></button>
+				<button id="sepiaFW-chat-send" class="sButton" aria-label="Send"><i class="material-icons md-btn">&#xE163;</i></button>
 				<input id="sepiaFW-chat-input" placeholder="" aria-label="Message" autocomplete="off">
 				<div id="sepiaFW-chat-controls-swipe-area">
 					<div id="sepiaFW-swipeBar-chat-controls" class='sepiaFW-swipeBar-switchable'><span>TOUCH BAR</span></div>
@@ -293,7 +321,7 @@
 				</div>
 			</div>
 			<div id="sepiaFW-chat-controls-vertical">
-				<button id="sepiaFW-chat-controls-vertical-btn" class="eButton"><span class="sepia-icon-font md-btn sepia-icon-sepia_bw"><span class="path1"></span><span class="path2"></span></span><span></button>
+				<button id="sepiaFW-chat-controls-vertical-btn" class="eButton"><span class="sepia-icon-font md-btn sepia-icon-sepia_bw"><span class="path1"></span><span class="path2"></span></span></button>
 			</div>
 		</div>
 		<div id="sepiaFW-chat-controls-speech-box" style="display:none;">
@@ -408,9 +436,10 @@
 			"Essential Orange":		{id: 36, css: "css/sepiaFW-skin-minimal-orange.css", 	avatar: "1", base: 18},
 			"Study": 				{id: 19, css: "css/sepiaFW-skin-study.css", 			avatar: "1"},
 			"Professional": 		{id: 20, css: "css/sepiaFW-skin-professional.css", 		avatar: "1"},
-			"Odyssey Explorer":		{id: 21, css: "css/sepiaFW-skin-odyssey1.css", 			avatar: "3"},
-			"Odyssey Conqueror":	{id: 22, css: "css/sepiaFW-skin-odyssey2.css", 			avatar: "10"},
+			"Odyssey Alliance":		{id: 21, css: "css/sepiaFW-skin-odyssey1.css", 			avatar: "3"},
+			"Odyssey Dominion":		{id: 22, css: "css/sepiaFW-skin-odyssey2.css", 			avatar: "10"},
 			"Odyssey AI":			{id: 41, css: "css/sepiaFW-skin-odyssey3.css", 			avatar: "11"},
+			//"Odyssey Traders Guild":			{id: 47, css: "css/sepiaFW-skin-odyssey4.css", 			avatar: "11"},
 			"Malachite": 			{id: 23, css: "css/sepiaFW-skin-malachite.css", 		avatar: "1"},
 			"Nightlife": 			{id: 24, css: "css/sepiaFW-skin-neon.css", 				avatar: "1"},
 			"Spots": 				{id: 25, css: "css/sepiaFW-skin-spot.css", 				avatar: "1"},
@@ -425,9 +454,10 @@
 			"Alabaster Mystical":	{id: 32, css: "css/sepiaFW-skin-alabaster-mystical.css",	avatar: "5"},
 			"Alabaster Motley":		{id: 33, css: "css/sepiaFW-skin-alabaster-motley.css",		avatar: "5", base: 32},
 			"Alabaster Dark":		{id: 34, css: "css/sepiaFW-skin-alabaster-dark.css",		avatar: "5", base: 32},
+			"Earth (Dawn)":			{id: 46, css: "css/sepiaFW-skin-earth.css",		avatar: "1", base: 40},
 			"Custom Light Classic": {id: 44, css: "css/sepiaFW-skin-custom-light-basic.css", avatar: "1", customizable: true, skinStyle: "light"},
 			"Custom Dark Neo": {id: 45, css: "css/sepiaFW-skin-custom-dark-neo.css", avatar: "6", base: 44, customizable: true, skinStyle: "dark"}
-			//next: 46
+			//next: 48
 		}
 		var avatars = {
 			"Classic": 				{id:  1, css: "css/sepiaFW-avatar-classic.css"},
@@ -526,6 +556,7 @@
 <script src="scripts/sepiaFW.ui.plot.js"></script>
 <script src="scripts/sepiaFW.ui.customButtons.js"></script>
 <script src="scripts/sepiaFW.ui.virtualKeyboard.js"></script>
+<script src="scripts/sepiaFW.background.js"></script>
 <script src="scripts/sepiaFW.account.js"></script>
 <script src="scripts/sepiaFW.account.contacts.js"></script>
 <script src="scripts/sepiaFW.assistant.js"></script>
@@ -587,6 +618,7 @@
 		}
 		//Open view or frame (view)
 		if (openView){
+			SepiaFW.debug.log("Requested view via URL parameter:", openView);
 			SepiaFW.ui.openViewOrFrame(openView);
 		}
 		//NOTE: compare to deeplinks in index.js
@@ -711,10 +743,18 @@
 
 		//add one-time onActive actions (actions triggered after client is ready, e.g. user has chat-channel)
         SepiaFW.client.addOnActiveOneTimeAction(function(){
+			//Check for default start-up view
+			var startUpView = SepiaFW.data.get('defaultStartUpView');
+			if (startUpView && startUpView != "default"){
+				//NOTE: this can be overwritten right away by URL parameter or deeplinks (see below)
+				SepiaFW.debug.log("Requested view via start-up setting:", startUpView);
+				SepiaFW.ui.openViewOrFrame(startUpView);
+			}
 			//Url actions
 			handleUrlParameterActions(SepiaFW.client.isDemoMode());
 			//Deeplinks and local notifications
 			handleDeeplinksIntentsAndNotifications(SepiaFW.client.isDemoMode());
+			
 			//check server version
 			SepiaFW.client.getServerInfo(function(info){
 				if (!SepiaFW.client.checkServerVersion(info)){
@@ -749,7 +789,8 @@
 				//SepiaFW.ui.showInfo(SepiaFW.local.g('demoMode'), true);
 				var demoMsg = SepiaFW.account.isSetupMode()? SepiaFW.local.g('setupMode') : SepiaFW.local.g('demoMode');
 				SepiaFW.ui.showCustomChatMessage(demoMsg, { 
-					channelId: 'info'
+					channelId: 'info',
+					timeUNIX: Date.now()
 				}, {
 					displayOptions: { beSilent: (SepiaFW.account.getTestUserType() == 2) }
 				});

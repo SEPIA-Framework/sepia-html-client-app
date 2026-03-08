@@ -381,14 +381,36 @@ function sepiaFW_build_always_on(){
     }
     var alarmTriggerTimer;
 
+    //wake lock API
+    var isWakeLockSupported = false;
+    var screenWakeLock = undefined;
+    if ("wakeLock" in navigator){
+        isWakeLockSupported = true;
+        SepiaFW.debug.log("Screen Wake-Lock: Is supported.");
+    }else{
+        SepiaFW.debug.log("Screen Wake-Lock: Is NOT supported.");
+    }
+    AlwaysOn.isScreenWakeLockActive = function(){
+        //NOTE: assuming there is no other WakeLockSentinel
+        return (screenWakeLock && !screenWakeLock.released);
+    }
+
     //Control screen sleep on mobile
     AlwaysOn.preventSleep = function(){
+        if (isWakeLockSupported){
+            if (!screenWakeLock || screenWakeLock.released){
+                navigator.wakeLock.request("screen").then(function(wls){
+                    //console.log('----------- WAKE-LOCK TRIGGERED -----------');
+                    screenWakeLock = wls;
+                    screenWakeLock.addEventListener("release", function(){
+                        //console.log('----------- WAKE-LOCK RELEASED -----------');
+                        screenWakeLock = undefined;
+                    });
+                });
+            }
+        }
         if (SepiaFW.ui.isCordova){
             //check for plugins
-            if ('plugins' in window && window.plugins.insomnia){
-                //console.log('----------- INSOMNIA TRIGGERED -----------');
-                window.plugins.insomnia.keepAwake();
-            }
             if ('StatusBar' in window){
                 //console.log('----------- STATUSBAR TRIGGERED -----------');
                 StatusBar.hide();
@@ -400,12 +422,11 @@ function sepiaFW_build_always_on(){
         }
     }
     AlwaysOn.allowSleep = function(){
+        if (isWakeLockSupported && screenWakeLock){
+            screenWakeLock.release();
+        }
         if (SepiaFW.ui.isCordova){
             //check for plugins
-            if ('plugins' in window && window.plugins.insomnia){
-                //console.log('----------- INSOMNIA TRIGGERED -----------');
-                window.plugins.insomnia.allowSleepAgain();
-            }
             if (!mainWasFullscreenOpen){
                 if ('StatusBar' in window){
                     //console.log('----------- STATUSBAR TRIGGERED -----------');

@@ -25,7 +25,7 @@
 	input:focus,
 	select:focus,
 	textarea:focus,
-	button:focus {
+	button:focus:not(:focus-visible) {
 		outline: none;
 	}
 	::-moz-focus-inner {
@@ -133,6 +133,7 @@
 			<button id="duckduck">DuckDuck</button>
 			<button id="qwant">Qwant</button>
 			<button id="ecosia">Ecosia</button>
+			<button id="perplexity">Perplexity</button>
 		</div>
 	</section>
 <!-- START JS -->
@@ -192,6 +193,13 @@ function ready(){
 			location.href = "https://www.ecosia.org/search?q=" + encodeURIComponent(q.value);
 		}else{
 			location.href = "https://www.ecosia.org";
+		}
+	});
+	document.getElementById('perplexity').addEventListener("click", function(){
+		if(q.value){
+			location.href = "https://www.perplexity.ai/search?q=" + encodeURIComponent(q.value);
+		}else{
+			location.href = "https://www.perplexity.ai";
 		}
 	});
 	document.getElementById('q').addEventListener("keydown", function(e){

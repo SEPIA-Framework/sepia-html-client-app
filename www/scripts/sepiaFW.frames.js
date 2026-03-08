@@ -5,9 +5,12 @@ function sepiaFW_build_frames(){
 	//some states
 	var isActive = "";
 	Frames.getActiveFrameName = function(){
+		//NOTE: this is actually pageUrl not pageName and its set BEFORE loading is finished
 		return isActive;
 	}
 	Frames.isOpen = false;
+	var loadingRequestId = 0;	//used to prevent conflict with multiple pending requests
+	var isLoading = false;
 
 	//callbacks
 	var onFinishSetup = undefined;
@@ -52,7 +55,9 @@ function sepiaFW_build_frames(){
 	}
 	
 	Frames.open = function(info){
-		var isThisFrameActive = (isActive == info.pageUrl);
+		var thisRequestId = ++loadingRequestId;
+		var isThisFrameActive = (isActive == info.pageUrl && !isLoading);
+		var pageName = info.pageName || (info.pageUrl.replace(/[.]html$/, "").trim());
 		
 		//callbacks?
 		if (info.autoFillFrameEvents == undefined) info.autoFillFrameEvents = true;		//NOTE: default is true and should probably be fixed
@@ -110,7 +115,7 @@ function sepiaFW_build_frames(){
 			//SETUP: load frame and make active
 			Frames.setup(info, function(){
 				Frames.open(info);
-			});
+			}, thisRequestId);
 			isActive = info.pageUrl;
 			return;
 		
@@ -120,7 +125,7 @@ function sepiaFW_build_frames(){
 				Frames.uic.refresh();
 			});
 			Frames.isOpen = true;
-			SepiaFW.ui.switchSwipeBars('frames');
+			SepiaFW.ui.registerScopeAndView('frames', pageName);
 		}
 		//theme (part 2 - window)
 		if (info.theme){
@@ -155,9 +160,9 @@ function sepiaFW_build_frames(){
 		var $framesView = $('#sepiaFW-frames-view');
 		$framesView.slideUp(300);
 		Frames.isOpen = false;
-		SepiaFW.ui.switchSwipeBars();
+		SepiaFW.ui.registerScopeAndView();
 		//on close
-		if(onClose) onClose($framesView.get(0), Frames.currentScope);	//view, scope
+		if(onClose) onClose($framesView.get(0), Frames.currentScope);	//view, frame-scope
 		//callbacks reset
 		onFinishSetup = undefined;
 		onOpen = undefined;
@@ -172,7 +177,9 @@ function sepiaFW_build_frames(){
 		activitySettingsBackup = {};
 	}
 		
-	Frames.setup = function(info, finishCallback){
+	Frames.setup = function(info, finishCallback, requestId){
+		//console.error("frames.setup:", info?.pageUrl, " - requestId:", requestId);	//DEBUG
+		isLoading = true;
 		//get HTML - is there a language dependent version?
 		var framePage = Frames.getLocalOrDefaultPage(info.pageUrl, SepiaFW.config.appLanguage).trim();
 		var isValidLocalURL = SepiaFW.tools.isRelativeFileUrl(framePage, "html");
@@ -185,6 +192,12 @@ function sepiaFW_build_frames(){
 
 		//$.get(framePage, function(frameHtml){
         SepiaFW.files.fetch(framePage, function(frameHtml){
+			//stop if we got a new request in the meantime
+			if (requestId !== loadingRequestId){
+				SepiaFW.debug.error("WARNING: Frame setup was called again BEFORE initial request was finished! Old request was dropped - URL: " + framePage);
+				return;
+			}
+
 			if (!isTrusted){
 				SepiaFW.debug.error("WARNING: Frame page has remote location and was BLOCKED due to security restrictions! - URL: " + framePage);
 				SepiaFW.ui.showSafeWarningPopup("Warning", [
@@ -236,6 +249,8 @@ function sepiaFW_build_frames(){
 				$('#sepiaFW-frames-show-prev-page').hide();
 			}
 
+			isLoading = false;
+
 			//on finish setup
 			onFinishSetup = getFunctionOrScopeEntry(info.onFinishSetup, "onFinishSetup", info.autoFillFrameEvents);
 			if(onFinishSetup) onFinishSetup(info.data, $framesView.get(0), Frames.currentScope);	//data, view, scope
@@ -244,6 +259,14 @@ function sepiaFW_build_frames(){
         
 		//Error
 		}, function(){
+			isLoading = false;
+
+			//stop if we got a new request in the meantime
+			if (requestId !== loadingRequestId){
+				SepiaFW.debug.error("WARNING: Frame setup was called again BEFORE initial request was finished! Old request was dropped - URL: " + framePage);
+				return;
+			}
+
 			$framesView.html("Error - could not load page");
 			SepiaFW.ui.showInfo("Custom view failed to load. URL: " + framePage, true);
 		});
