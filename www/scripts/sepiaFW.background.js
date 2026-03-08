@@ -16,6 +16,7 @@ function sepiaFW_build_background(){
 
 	//Notifications permission checks
 	//TBD
+	//TODO: use 'cordova.plugins.notification.local.hasPermission' / 'requestPermission'
 	//TODO: use 'cordova.plugins.notification.local.isIgnoringBatteryOptimizations' / 'requestIgnoreBatteryOptimizations'
 	//TODO: maybe check 'hasDoNotDisturbPermissions'
 
