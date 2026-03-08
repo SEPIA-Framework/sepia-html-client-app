@@ -721,8 +721,12 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 			centerPage2.className = "sepiaFW-chat-menu-list-container sepiaFW-carousel-pane";
 			centerPage2.innerHTML = ""
 				+ "<ul class='sepiaFW-menu-settings-list'>"
-					+ "<li id='sepiaFW-menu-select-skin-li'><span>Skin: </span><select id='sepiaFW-menu-select-skin'><option disabled selected value>- select -</option></select></li>"
-					+ "<li id='sepiaFW-menu-select-avatar-li'><span>Avatar: </span><select id='sepiaFW-menu-select-avatar'><option disabled selected value>- select -</option></select></li>"
+					+ "<li id='sepiaFW-menu-select-skin-li'>" 
+						+ "<span>Skin: </span><select id='sepiaFW-menu-select-skin'><option disabled selected value>- select -</option></select></li>"
+					+ "<li id='sepiaFW-menu-select-avatar-li'>" 
+						+ "<span>Avatar: </span><select id='sepiaFW-menu-select-avatar'><option disabled selected value>- select -</option></select></li>"
+					+ "<li id='sepiaFW-menu-select-start-view-li' title='Set a default view that will be opened after login (e.g. always-on)'>" 
+						+ "<span>Start-up view: </span><input id='sepiaFW-menu-select-start-view' type='text' maxlength='128' placeholder='always-on, <custom_data>...'></li>"
 					+ "<li id='sepiaFW-menu-toggle-bigScreenMode-li' title='Toggle big-screen mode'><span>Limit screen-size: </span></li>"
 					+ "<li id='sepiaFW-menu-select-orientationMode-li' title='Set pref. screen orientation'><span>Screen orientation: </span></li>"
 					+ "<li id='sepiaFW-menu-toggle-touchBarControls-li' title='Switch new touch-bar controls mode on/off'><span>Touch-bar controls: </span></li>"
@@ -992,6 +996,14 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 			}
 			$('#sepiaFW-menu-select-avatar').off().on('change', function(){
 				SepiaFW.ui.setAvatar($('#sepiaFW-menu-select-avatar').val());
+			});
+			//start-up view
+			var defaultStartUpView = SepiaFW.data.get('defaultStartUpView');
+			if (defaultStartUpView != undefined){
+				$('#sepiaFW-menu-select-start-view').val(defaultStartUpView);
+			}
+			$('#sepiaFW-menu-select-start-view').off().on('change', function(ev){
+				SepiaFW.data.set('defaultStartUpView', ev.target.value);
 			});
 			//server access
 			var serverAccess = document.getElementById('sepiaFW-menu-server-access-li');

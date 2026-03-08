@@ -618,6 +618,7 @@
 		}
 		//Open view or frame (view)
 		if (openView){
+			SepiaFW.debug.log("Requested view via URL parameter:", openView);
 			SepiaFW.ui.openViewOrFrame(openView);
 		}
 		//NOTE: compare to deeplinks in index.js
@@ -742,10 +743,18 @@
 
 		//add one-time onActive actions (actions triggered after client is ready, e.g. user has chat-channel)
         SepiaFW.client.addOnActiveOneTimeAction(function(){
+			//Check for default start-up view
+			var startUpView = SepiaFW.data.get('defaultStartUpView');
+			if (startUpView && startUpView != "default"){
+				//NOTE: this can be overwritten right away by URL parameter or deeplinks (see below)
+				SepiaFW.debug.log("Requested view via start-up setting:", startUpView);
+				SepiaFW.ui.openViewOrFrame(startUpView);
+			}
 			//Url actions
 			handleUrlParameterActions(SepiaFW.client.isDemoMode());
 			//Deeplinks and local notifications
 			handleDeeplinksIntentsAndNotifications(SepiaFW.client.isDemoMode());
+			
 			//check server version
 			SepiaFW.client.getServerInfo(function(info){
 				if (!SepiaFW.client.checkServerVersion(info)){

@@ -81,6 +81,7 @@ var app = {
 		cordova.plugins.notification.local.setDefaults({
 			group: "sepia-open-assistant",
 			wakeup: false
+			//TODO: add 'channelId' and 'channelName' (fixed per app?)
 		});
 
 		//disable splash-screen after certain time (if setup does not)
@@ -125,6 +126,7 @@ var app = {
 			}
 			//Open view or frame (view)
 			if (openView){
+				SepiaFW.debug.log("Requested view via universal link:", openView);
 				SepiaFW.ui.openViewOrFrame(openView);
 			}
 			//NOTE: compare to URL parameter actions in index.html

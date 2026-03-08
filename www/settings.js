@@ -91,6 +91,7 @@ SepiaFW.settings = {
 			"allowWakeWordDuringStream": false,
 			"activeSkin": "2",
 			"activeAvatar": "0",
+			"defaultStartUpView": "",
 			"proactiveNotes": false,
 			"autoGPS": false,
 			"embeddedPlayerSettings": {
