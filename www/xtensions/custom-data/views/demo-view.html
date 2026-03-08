@@ -69,11 +69,18 @@
 			$('#sepiaFW-frames-mic').attr('class', 'entry icon-button');
 		},
 		onOpen: function(data, view, scope){
+			var frameScope = SepiaFW.frames.currentScope;
+			var nluPrefix = frameScope.nluPrefix;
+			var lang = frameScope.activitySettings.language;
+			var task = frameScope.activitySettings.defaultTask;
 			//we use '$('#sepiaFW-frame-page-...')' to avoid conflicts with global ID:
 			$('#sepiaFW-frame-page-1 #sepiaFW-frame-c-hello').html(
 				"<p>Welcome to the Demo-View frame.</p>" 
 				+ "<p>This frame runs inside the scope of the SEPIA client and has open access to all features.</p>"
-				+ "<p>This type of frames can only be used when loaded from safe origins (e.g. app folder, or SEPIA server).</p>"
+				+ "<p>This type of frame can only be used when loaded from safe origins (e.g. app folder, or SEPIA server).</p>"
+				+ "<p>The input example will automatically add the defined prefix (" + nluPrefix + "), so that the command " 
+					+ "can be routed properly on the server.<br>"
+					+ "In addition, this frame demonstrates switching to a pre-defined language (" + lang + ") and default task (" + task + ").</p>"
 			);
 		},
 		onClose: function(view, scope){
@@ -118,6 +125,7 @@
 			}
 			if (text){
 				text = text.trim();
+				//add NLU-prefix automatically, if defined and not already included
 				if (SepiaFW.frames.currentScope.nluPrefix && text.indexOf(SepiaFW.frames.currentScope.nluPrefix) != 0){
 					text = SepiaFW.frames.currentScope.nluPrefix + " " + text;
 				}
