@@ -326,7 +326,7 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 			onMainMenuClose();
 		});
 		function onMainMenuOpen(){
-			SepiaFW.ui.switchSwipeBars('menu');
+			SepiaFW.ui.registerScopeAndView("menu");
 			$('#sepiaFW-chat-controls').addClass('chat-menu');
 			SepiaFW.ui.isMenuOpen = true;
 			if (SepiaFW.ui.soc) SepiaFW.ui.soc.refresh();
@@ -336,7 +336,7 @@ function sepiaFW_build_ui_build(sepiaSessionId){
 			});
 		}
 		function onMainMenuClose(){
-			SepiaFW.ui.switchSwipeBars("chat");		//we force "chat" here because its the only way to reset properly 
+			SepiaFW.ui.registerScopeAndView("chat");		//we force "chat" here because its the only way to reset properly 
 			$('#sepiaFW-chat-controls').removeClass('chat-menu');
 			SepiaFW.ui.isMenuOpen = false;
 			//close actions (unsorted)

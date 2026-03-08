@@ -33,6 +33,11 @@ function sepiaFW_build_teach(sepiaSessionId){
 			.addClass('sepiaFW-teach-mode')
 			.removeClass('sepiaFW-skin-mod');
 		
+		//if a frame is open, the teach-ui won't be visible
+		//if (SepiaFW.frames?.isOpen) SepiaFW.debug.error("Teach-UI is hidden behind frame view.");
+		SepiaFW.ui.closeAllOpenViewsAndMenusExcept(["teach-ui"]);
+		//TODO: use this somewhere before Teach.openUI to avoid conflicts?
+
 		if (!wasLoaded){
 			Teach.setup(function(){
 				Teach.openUI(info);
@@ -86,7 +91,7 @@ function sepiaFW_build_teach(sepiaSessionId){
 				}
 			});
 			Teach.isOpen = true;
-			SepiaFW.ui.switchSwipeBars('teach');
+			SepiaFW.ui.registerScopeAndView('teach', 'teach-ui');
 		}
 	}
 	Teach.closeUI = function(){
@@ -96,7 +101,7 @@ function sepiaFW_build_teach(sepiaSessionId){
 		
 		$('#sepiaFW-teachUI-view').slideUp(300);
 		Teach.isOpen = false;
-		SepiaFW.ui.switchSwipeBars();
+		SepiaFW.ui.registerScopeAndView();
 	}
 	
 	Teach.loadServices = function(successCallback, errorCallback){

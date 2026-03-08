@@ -53,6 +53,7 @@ function sepiaFW_build_frames(){
 	
 	Frames.open = function(info){
 		var isThisFrameActive = (isActive == info.pageUrl);
+		var pageName = info.pageName || (info.pageUrl.replace(/[.]html$/, "").trim());
 		
 		//callbacks?
 		if (info.autoFillFrameEvents == undefined) info.autoFillFrameEvents = true;		//NOTE: default is true and should probably be fixed
@@ -120,7 +121,7 @@ function sepiaFW_build_frames(){
 				Frames.uic.refresh();
 			});
 			Frames.isOpen = true;
-			SepiaFW.ui.switchSwipeBars('frames');
+			SepiaFW.ui.registerScopeAndView('frames', pageName);
 		}
 		//theme (part 2 - window)
 		if (info.theme){
@@ -155,9 +156,9 @@ function sepiaFW_build_frames(){
 		var $framesView = $('#sepiaFW-frames-view');
 		$framesView.slideUp(300);
 		Frames.isOpen = false;
-		SepiaFW.ui.switchSwipeBars();
+		SepiaFW.ui.registerScopeAndView();
 		//on close
-		if(onClose) onClose($framesView.get(0), Frames.currentScope);	//view, scope
+		if(onClose) onClose($framesView.get(0), Frames.currentScope);	//view, frame-scope
 		//callbacks reset
 		onFinishSetup = undefined;
 		onOpen = undefined;
