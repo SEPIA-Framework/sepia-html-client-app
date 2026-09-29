@@ -25,7 +25,7 @@ echo "Downloading $GRADLE_FILE ..."
 if [ -f "$GRADLE_FILE" ]; then
 	echo "File already exists"
 else
-	wget "https://services.gradle.org/distributions/${GRADLE_FILE}"
+	wget "https://downloads.gradle.org/distributions/${GRADLE_FILE}"
 fi
 GRADLE_FOLDER="gradle-${GRADLE_VERSION}"
 echo "Removing old Gradle folder(s) ..."

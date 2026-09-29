@@ -35,7 +35,7 @@ if [ -z "$autoconfirm" ]; then
 fi
 #
 # get Cordova
-CORDOVA_VERSION="11.0.0"
+CORDOVA_VERSION="11.1.0"
 CORDOVA_ANDROID="11.0.0"
 echo ""
 echo "Loading the right Cordova version ..."
@@ -68,10 +68,10 @@ npx cordova plugin add https://github.com/fquirin/cordova-plugin-local-notificat
 npx cordova plugin add cordova-plugin-file
 npx cordova plugin add cordova-plugin-nativestorage
 #npx cordova plugin add cordova-android-support-gradle-release
-npx cordova plugin add phonegap-plugin-media-stream
+#we should be able to remove this now: npx cordova plugin add phonegap-plugin-media-stream
 #npx cordova plugin add https://github.com/EddyVerbruggen/Insomnia-PhoneGap-Plugin.git
 #npx cordova plugin add https://github.com/tombolaltd/cordova-plugin-insomnia.git
-npx cordova plugin add cordova-plugin-insomnia
+#we should be able to remove this now: npx cordova plugin add cordova-plugin-insomnia
 npx cordova plugin add cordova-plugin-eddystone
 #NOTE: add before intent plugin if you use: plugin add cordova-plugin-camera
 #npx cordova plugin add com-darryncampbell-cordova-plugin-intent
