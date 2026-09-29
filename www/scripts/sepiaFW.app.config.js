@@ -335,7 +335,8 @@ function sepiaFW_build_config(){
 		"yahoo": {name: "Yahoo"},
 		"duck duck go": {name: "Duck Duck Go"},
 		"qwant": {name: "Qwant"},
-		"ecosia": {name: "Ecosia"}
+		"ecosia": {name: "Ecosia"},
+		"perplexity": {name: "Perplexity"}
 	}
 	Config.getPreferredSearchEngine = function(){
 		return prefSearchEngine;

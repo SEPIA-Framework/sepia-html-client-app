@@ -9,8 +9,10 @@
 
 ## Build App
 
-- Edit `package.json` to add correct package and author name
+- Go to `build-android` folder and run `bash prepare.sh` to setup a build folder (optionally edit script first)
+- Enter the new build folder (depending on your prepare script)
 - Edit `config.xml` to add correct package and author name
+- Edit `package.json` to add correct package and author name
 - Adjust 'universal-links' section and `assetlinks.json` ([universal links](https://developer.android.com/training/app-links/verify-site-associations))
 - Run the build script `bash build.sh`
 - Fix the build with the info below
