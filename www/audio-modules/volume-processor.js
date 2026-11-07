@@ -8,16 +8,36 @@ class VolumeProcessor extends AudioWorkletProcessor {
 		
 		//read ctxInfo and optional processor options
 		this.sourceSamplerate = options.processorOptions.ctxInfo.sampleRate;
+		this.channelCount = 1; //options.processorOptions.channels || 1;		//TODO: supports ONLY MONO atm
 		this.gain = options.processorOptions.gain || 1.0;
 		
 		let fpsMax = (this.sourceSamplerate/this.EXPECTED_SAMPLE_SIZE);
 		this.fps = options.processorOptions.fps || fpsMax;
+		this.calculateDbVolume = !!options.processorOptions.calculateDbVolume;
+		this.dbVolumeRmsCutoff = options.processorOptions.dbVolumeRmsCutoff || 0.001; //0.0001 = -80db, 0.001 = -60db
+		this.sendReferenceFrame = !!options.processorOptions.sendReferenceFrame;	//e.g. for jitter measurements
 		
-		this._binSize = Math.round(fpsMax/this.fps);
+		this._binSize = 0;
 		this._rmsSum = 0;
 		this._simpleSum = 0;
 		this._framesRecorded = 0;
+		this._samplesRecorded = 0;
 		this._isClipped = false;
+		this._lastProcessTime = 0;
+		this._expectedProcessTime = 0;
+
+		function init(){
+			that._binSize = Math.round(fpsMax/that.fps);
+			that._rmsSum = 0;
+			that._simpleSum = 0;
+			that._framesRecorded = 0;
+			that._samplesRecorded = 0;
+			that._isClipped = false;
+			that._lastProcessTime = 0;
+			that._hasGain = (that.gain < 1 || that.gain > 1);
+			that._expectedProcessTime = (that.EXPECTED_SAMPLE_SIZE / that.sourceSamplerate) * 1000;
+		}
+		init();
 		
 		//ready
 		function ready(){
@@ -25,9 +45,14 @@ class VolumeProcessor extends AudioWorkletProcessor {
 				moduleState: 1,		//1=ready, 2=changed, 9=read for termination
 				moduleInfo: {
 					sourceSamplerate: that.sourceSamplerate,
-					fps: that.fps,
+					channelCount: that.channelCount,
 					gain: that.gain,
-					binSize: that._binSize
+					fps: that.fps,
+					frameTimeMs: that._expectedProcessTime,
+					binSize: that._binSize,
+					calculateDbVolume: that.calculateDbVolume,
+					dbVolumeRmsCutoff: that.dbVolumeRmsCutoff,
+					sendReferenceFrame: that.sendReferenceFrame
 				}
 			});
 		}
@@ -37,33 +62,29 @@ class VolumeProcessor extends AudioWorkletProcessor {
 		}
 		//stop
 		function stop(options){
-			that._rmsSum = 0;
-			that._simpleSum = 0;
-			that._framesRecorded = 0;
-			that._isClipped = false;
+			//reset processor
+			init();
+			//send last data?
 		}
 		//reset
 		function reset(options){
 			//reset processor
-			that._binSize = Math.round(fpsMax/that.fps);
-			that._rmsSum = 0;
-			that._simpleSum = 0;
-			that._framesRecorded = 0;
-			that._isClipped = false;
+			init();
+		}
+		//release (alias: close)
+		function release(options){
+			//clean-up processor
+			//tbd
 			//notify processor that we can terminate now
 			that.port.postMessage({
 				moduleState: 9
 			});
 		}
-		//release (alias: close)
-		function release(options){
-			//clean-up processor
-		}
 		
 		//Control interface
 		this.port.onmessage = function(e){
 			if (e.data.ctrl){
-				console.error("Controls", e.data.ctrl);			//DEBUG
+				//console.error("Controls", e.data.ctrl);			//DEBUG
 				switch (e.data.ctrl.action) {
 					case "start":
 						start(e.data.ctrl.options);
@@ -85,7 +106,7 @@ class VolumeProcessor extends AudioWorkletProcessor {
 						//handleEvent(e.data.ctrl.data);
 						break;
 					default:
-						console.error("Unknown control message:", e.data);
+						console.error("VolumeProcessor - Unknown control message:", e.data);
 						break;
 				}
 			}
@@ -121,6 +142,22 @@ class VolumeProcessor extends AudioWorkletProcessor {
 		ready();
 	}
 
+	calculateRms() {
+		return Math.sqrt(this._rmsSum / this._samplesRecorded);
+	}
+	calculateAvg() {
+		return Math.sqrt(this._simpleSum / this._samplesRecorded);
+	}
+	calculateDbFromRms(rms) {
+		if (this.calculateDbVolume){
+			//RMS to Decibel (dBFS) + prevent log10(0)
+			const db = 20 * Math.log10(Math.max(rms, this.dbVolumeRmsCutoff));
+			return db;
+		}else{
+			return null;
+		}
+	}
+
 	process(inputs, outputs, parameters) {
 		//Use 1st input and output only - TODO: supports only mono atm
 		let input = inputs[0];
@@ -128,38 +165,51 @@ class VolumeProcessor extends AudioWorkletProcessor {
 
 		if (input.length > 0){
 			//apply gain and calculate sums
-			for (let i = 0; i < input[0].length; ++i){
-				let sampleVal = this.gain * input[0][i];	//TODO: ONLY MONO!
+			let samples = input[0].length;
+			for (let i = 0; i < samples; ++i){
+				let sampleVal = input[0][i];	//TODO: ONLY MONO!
+				if (this._hasGain) sampleVal = sampleVal * this.gain;
 				if (sampleVal > 1 || sampleVal < -1){
 					this._isClipped = true;		//stays true until next bin
 					sampleVal = Math.max(-1, Math.min(1, sampleVal));
 				}
 				
-				//pass through
+				//pass through - mono
 				output[0][i] = sampleVal;
 				
 				//rms and simple sum
 				this._simpleSum += sampleVal;
 				this._rmsSum += sampleVal ** 2;
 			}
+			this._samplesRecorded += samples;
 		}
 		//fps check
 		this._framesRecorded++;
 		if (this._framesRecorded >= this._binSize){
-			let rms = Math.sqrt(this._rmsSum / this._framesRecorded);
-			let avg = Math.sqrt(this._simpleSum / this._framesRecorded);
+			let rms = this.calculateRms();
+			let avg = this.calculateAvg();
+			let db = this.calculateDbFromRms(rms);
 			
 			//Send info
 			this.port.postMessage({
 				rms: rms,
 				avg: avg,
+				db: db,
 				isClipped: this._isClipped
 			});
 			
 			this._rmsSum = 0;
 			this._simpleSum = 0;
 			this._framesRecorded = 0;
+			this._samplesRecorded = 0;
 			this._isClipped = false;
+		}else{
+			//reference frame?
+			if (this.sendReferenceFrame){
+				this.port.postMessage({
+					isRef: true
+				});
+			}
 		}
 		return true;
 	}
