@@ -62,7 +62,6 @@ let encoderBitDepth = 16;
 let _bytesPerSample = encoderBitDepth/8;
 
 let lookbackBufferMs;
-let lookbackBufferIsBlocked;
 let _lookbackBufferSize;
 let _lookbackRingBuffer;
 let recordedBuffers;
@@ -80,7 +79,6 @@ let _isFirstValidProcess = true;
 function init(){
 	recordedBuffers = null;
 	_lookbackRingBuffer = null;
-	lookbackBufferIsBlocked = false;
 	if (lookbackBufferMs){
 		_lookbackBufferSize = Math.round((lookbackBufferMs/1000) * inputSampleRate);
 		if (isFloat32Input){
@@ -115,6 +113,7 @@ function gateControl(open, gateOptions, triggeredOnError){
 		_sentBuffers = 0;
 		_shiftedBuffers = 0;
 		_gateOpenTS = Date.now();
+		_gateCloseTS = 0;		//a close time left from the last recording would request the final result after every chunk
 		gateIsOpen = true;
 		msg.gate.isOpen = true;
 		msg.gate.openedAt = _gateOpenTS;
@@ -123,6 +122,8 @@ function gateControl(open, gateOptions, triggeredOnError){
 			sttServer.openConnection();
 		}
 	}else{
+		//A second close would request the final result and send the WAV again.
+		if (!gateIsOpen) return;
 		_gateCloseTS = Date.now();
 		gateIsOpen = false;
 		msg.gate.isOpen = false;
@@ -333,8 +334,8 @@ function process(data){
 		if (gateIsOpen){
 			buildPcmChunks(data);
 			
-		}else if (lookbackBufferMs && !lookbackBufferIsBlocked){
-			//do this only until gate was opened .. then wait for buffer export/clear
+		}else if (_lookbackRingBuffer){
+			//only while closed: the recording itself is not lookback for the next one
 			_lookbackRingBuffer.push(data.samples);
 		}
 	}
@@ -383,7 +384,6 @@ function buildPcmChunks(data){
 	if (recordBufferMaxN && recordedBuffers.length >= recordBufferMaxN){
 		maxLengthReached();
 	}
-	if (!lookbackBufferIsBlocked) lookbackBufferIsBlocked = true;
 }
 
 function startOrContinueStream(){
@@ -442,15 +442,18 @@ function checkIfBufferLimitWasReached(){
 	return reachedBufferLimit;
 }
 
+//Unused: nothing calls it, the worker has no request for it yet. Kept for a planned
+//interface like the wave-encoder's {request: {clear: "buffer"}}.
+/*
 function clearBuffer(){
 	if (_lookbackRingBuffer && _lookbackRingBuffer.framesAvailable){
 		_lookbackRingBuffer = new RingBuffer(_lookbackBufferSize, channelCount, isFloat32Input? "Float32" : "Int16");
 	}
-	lookbackBufferIsBlocked = false;
 	recordedBuffers = [];
 	_sentBuffers = 0;
 	_shiftedBuffers = 0;
 }
+*/
 
 //reached max recording length
 function maxLengthReached(){

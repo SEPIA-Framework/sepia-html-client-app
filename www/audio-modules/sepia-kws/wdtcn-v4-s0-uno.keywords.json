@@ -1,0 +1,21 @@
+{
+ "model_name": "wdtcn-v4-s0-uno",
+ "build": 19,
+ "keywords": [
+  {
+   "name": "computer",
+   "file": "wdtcn-v4-s0-uno.computer.kwsp"
+  },
+  {
+   "name": "hey_jarvis",
+   "file": "wdtcn-v4-s0-uno.hey_jarvis.kwsp"
+  },
+  {
+   "name": "hey_sepia",
+   "file": "wdtcn-v4-s0-uno.hey_sepia.kwsp"
+  }
+ ],
+ "default": [
+  "hey_sepia"
+ ]
+}

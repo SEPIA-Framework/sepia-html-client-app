@@ -4,7 +4,7 @@ function sepiaFW_build_web_audio(){
 	
 	//--- START: Copy of SEPIA Web-Audio Lib --->
 	
-	WebAudio.version = "0.9.12";
+	WebAudio.version = "0.10.0";
 	
 	//Preparations
 	var AudioContext = window.AudioContext || window.webkitAudioContext;

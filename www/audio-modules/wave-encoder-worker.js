@@ -55,7 +55,7 @@ onmessage = function(e) {
 		}else if (e.data.request.clear){
 			switch (e.data.request.clear){
 				case "buffer":
-					//TODO: clear buffer and release lookback lock
+					clearBuffer();
 					break;
 				default:
 					console.log("WaveEncoderWorker - Unknown request message:", e.data);
@@ -81,7 +81,7 @@ let encoderBitDepth = 16;
 let _bytesPerSample = encoderBitDepth/8;
 
 let lookbackBufferMs;
-let lookbackBufferNeedsReset;
+let recordedLookback;		//lookback taken when the gate opened, part of the recording
 let _lookbackBufferSize;
 let _lookbackRingBuffer;
 let recordedBuffers;
@@ -96,7 +96,7 @@ let _isFirstValidProcess = true;
 function init(){
 	recordedBuffers = null;
 	_lookbackRingBuffer = null;
-	lookbackBufferNeedsReset = false;
+	recordedLookback = null;
 	if (lookbackBufferMs){
 		_lookbackBufferSize = Math.round((lookbackBufferMs/1000) * inputSampleRate);
 		if (isFloat32Input){
@@ -164,22 +164,30 @@ function encodeInterface(e){
 }
 
 function gateControl(open, gateOptions){
-	if (!gateOptions) gateOptions = {}; 		//TODO: use e.g. for (lookbackBufferNeedsReset = false)
+	if (!gateOptions) gateOptions = {};
 	var msg = {
 		moduleEvent: true,		//use 'moduleEvent' to distinguish from normal processing result
 		gate: {}
 	};
 	if (open){
 		//TODO: we should reset some stuff here, for now:
+		//taken in every case: what the ring holds while appending is the gap
+		//between two parts and must not end up in a later recording
+		var lookback = takeLookback();
 		if (!gateOptions.appendAudio){
 			recordedBuffers = [];		//NOTE: by default we reset the buffer
+			recordedLookback = lookback;
 		}else if (recordBufferMaxN && recordedBuffers.length >= recordBufferMaxN){
 			recordedBuffers = [];
+			recordedLookback = lookback;
 		}
 		_gateOpenTS = Date.now();
 		gateIsOpen = true;
 		msg.gate.openedAt = _gateOpenTS;
 	}else{
+		//A second close would report the same recording again, and a host
+		//that fetches the WAV on close would get it twice.
+		if (!gateIsOpen) return;
 		_gateCloseTS = Date.now();
 		gateIsOpen = false;
 		msg.gate.openedAt = _gateOpenTS;
@@ -272,10 +280,8 @@ function process(data){
 				gateControl(false);
 				//TODO: after this has triggered the next record sounds distorted???
 			}
-			if (!lookbackBufferNeedsReset) lookbackBufferNeedsReset = true;
-			
-		}else if (lookbackBufferMs && !lookbackBufferNeedsReset){
-			//do this only until gate was opened .. then wait for buffer export/clear
+		}else if (_lookbackRingBuffer){
+			//only while closed: the recording itself is not lookback for the next one
 			_lookbackRingBuffer.push(data.samples);
 		}
 	}
@@ -323,23 +329,15 @@ function ArrayTypeException(message) {
 
 function buildBuffer(start, end){
 	//TODO: use start, end
-	var isFloat32;
-	if (recordedBuffers[0]){
-		isFloat32 = (recordedBuffers[0] && recordedBuffers[0].constructor.name.indexOf("Float32") >= 0);
-		if (doDebug) console.error("WaveEncoderWorker - DEBUG - isFloat32", isFloat32, recordedBuffers[0].constructor.name);
+	var isFloat32 = isFloat32Input;		//'process' refuses samples of another type
+	var lookbackSamples = recordedLookback;
+	//chunks can be shorter than 'inputSampleSize', e.g. the last one before a stop
+	var dataLength = (lookbackSamples? lookbackSamples[0].length : 0);
+	for (let j = 0; j < recordedBuffers.length; j++){
+		dataLength += recordedBuffers[j].length;
 	}
-	var lookbackSamples;
-	if (_lookbackRingBuffer && _lookbackRingBuffer.framesAvailable){
-		if (isFloat32Input){
-			lookbackSamples = [new Float32Array(_lookbackRingBuffer.framesAvailable)];
-		}else{
-			lookbackSamples = [new Int16Array(_lookbackRingBuffer.framesAvailable)];
-		}
-		_lookbackRingBuffer.pull(lookbackSamples);
-	}
-	var dataLength = recordedBuffers.length * inputSampleSize + (lookbackSamples? lookbackSamples[0].length : 0);
 	//TODO: any chance to allocate 'collectBuffer' in advance and keep it? (max. rec + lookback maybe?)
-	var collectBuffer = isFloat32? new Float32Array(dataLength) : new Int16Array(dataLength); 	//TODO: this is usually too big because the last buffer is not full ...
+	var collectBuffer = isFloat32? new Float32Array(dataLength) : new Int16Array(dataLength);
 	var n = 0;
 	if (lookbackSamples){
 		for (let i = 0; i < lookbackSamples[0].length; i++) {
@@ -353,10 +351,6 @@ function buildBuffer(start, end){
 			n++;
 		}
 	}
-	if (doDebug) console.error("WaveEncoderWorker - DEBUG - buffer mismatch", n, dataLength);	//TODO: why does this always match?
-	//TODO: we clear lookback buffer here ... so we should clear everything
-	lookbackBufferNeedsReset = false;
-	
 	return {
 		buffer: collectBuffer,
 		isFloat32: isFloat32
@@ -367,8 +361,18 @@ function clearBuffer(){
 	if (_lookbackRingBuffer && _lookbackRingBuffer.framesAvailable){
 		_lookbackRingBuffer = new RingBuffer(_lookbackBufferSize, channelCount, isFloat32Input? "Float32" : "Int16");
 	}
-	lookbackBufferNeedsReset = false;
+	recordedLookback = null;
 	recordedBuffers = [];
+}
+//Takes what the lookback ring holds right before a recording starts. The ring
+//is only filled while the gate is closed, so it refills for the next recording
+//whether or not this one was exported.
+function takeLookback(){
+	if (!_lookbackRingBuffer || !_lookbackRingBuffer.framesAvailable) return null;
+	var n = _lookbackRingBuffer.framesAvailable;
+	var lookbackSamples = [isFloat32Input? new Float32Array(n) : new Int16Array(n)];
+	_lookbackRingBuffer.pull(lookbackSamples);
+	return lookbackSamples;
 }
 
 function encodeWAV(samples, sampleRate, numChannels, convertFromFloat32){

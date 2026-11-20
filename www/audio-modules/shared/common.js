@@ -72,7 +72,7 @@ CommonConverters.singleSampleInt16ToFloat32BitAudio = function(s){
 }
 CommonConverters.int16ToFloat32BitAudio = function(output, input){
 	for (let i = 0; i < input.length; i++) {
-		return CommonConverters.singleSampleInt16ToFloat32BitAudio(input[i]);
+		output[i] = CommonConverters.singleSampleInt16ToFloat32BitAudio(input[i]);
 	}
 }
 CommonConverters.uint8ArrayToBase64String = function(uint8Array){
