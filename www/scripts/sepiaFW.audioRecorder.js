@@ -522,6 +522,8 @@ function sepiaFW_build_audio_recorder(){
 		//Note: you can request a WAV via 'module.handle.sendToModule({request: {get: "wave"}});'
 	}
 
+	var SILERO_VAD_MODEL = "silero-vad-16k-f16";		//the only weights shipped with the client
+
 	AudioRecorder.createDefaultVadModule = function(voiceActivityCallback, voiceEnergyCallback, 
 			onVoiceStart, onSequenceStart, onVoiceFinish, onMaxVoice, onSequenceComplete, options){
 		if (!options) options = {};
@@ -529,11 +531,18 @@ function sepiaFW_build_audio_recorder(){
 		if (!moduleName){
 			return false;	//disabled
 		}
-		var defaultVadBuffer = (moduleName == 'webrtc-vad-worker')? (480*2) : (512*1);	//480 is the 30ms window for WebRTC VAD 16k, SEPIA VAD needs power of 2 value
-		var defaultVadMode = (moduleName == 'webrtc-vad-worker')? 3 : 2;
+		var defaultVadBuffer = (moduleName == 'webrtc-vad-worker')? (480*2) : (512*1);	//480 is the 30ms window for WebRTC VAD 16k, SEPIA and Silero VAD need 512
+		var defaultVadMode = (moduleName == 'webrtc-vad-worker')? 3 : 2;		//Silero has no mode but a threshold, see 'vadThreshold'
+		var preLoad = {};
+		if (moduleName == 'silero-vad-worker'){
+			//the weights go into the library's pre-load cache, so a new recorder per utterance does not fetch them again
+			var moduleFolder = SepiaFW.webAudio.defaultProcessorOptions.moduleFolder.replace(/\/$/, "");
+			preLoad.modelFile = {type: 2, path: moduleFolder + "/silero-vad/" + SILERO_VAD_MODEL + ".bin"};
+		}
 		return {
 			name: moduleName,
 			type: 'worker',
+			preLoad: preLoad,
 			settings: {
 				onmessage: function(data){
 					if (data.voiceActivity != undefined){
@@ -565,6 +574,8 @@ function sepiaFW_build_audio_recorder(){
 						inputSampleSize: options.inputSampleSize || micAudioRecorderOptions.processorBufferSize,
 						bufferSize: options.vadBufferSize || defaultVadBuffer,
 						vadMode: options.vadMode || defaultVadMode,
+						vadThreshold: options.vadThreshold,		//Silero only, speech probability 0-1, worker default 0.5
+						model: (moduleName == 'silero-vad-worker')? SILERO_VAD_MODEL : undefined,
 						//voiceEnergyCap: 50,
 						//voiceEnergyDropRate: 2,
 						sequence: {

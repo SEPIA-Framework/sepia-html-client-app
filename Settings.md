@@ -17,6 +17,8 @@ Adjust the gain as needed, but start with 1.0, leave `autoGainControl` off and t
 
 `noiseSuppression` and `voiceIsolation` are done by the browser. Their effect depends on the browser's algorithm and can change wake-word and speech recognition results in unpredictable ways. If detection gets worse, try turning them off. Not every browser supports `voiceIsolation`. The microphone test on the 'Media Devices' page shows what the browser actually applied.
 
+`vadModule` is the voice activity detection that decides when you started and stopped speaking, used with the SEPIA speech recognition server and in the microphone test: `webrtc-vad-worker` (default), `silero-vad-worker` (Silero VAD, a small neural network), `sepia-vad-worker` (beta) or `""` to switch it off (recordings then stop after a fixed time).
+
 ```
 device: {
 	...
@@ -27,7 +29,8 @@ device: {
 		"echoCancellation": true,
 		"voiceIsolation": false,
 		"resamplerQuality": 7,
-		"captureSampleRate": 48000
+		"captureSampleRate": 48000,
+		"vadModule": "webrtc-vad-worker"
 	},
 	...
 },

@@ -27,7 +27,8 @@ SepiaFW.settings = {
 				"voiceIsolation": false,
 				"resamplerQuality": 7,
 				//"tryNativeResampling": false, //NOTE: legacy setting, removed!
-				"captureSampleRate": 48000
+				"captureSampleRate": 48000,
+				"vadModule": "webrtc-vad-worker"
 			},
 			"deviceSounds": {
 				"micConfirm": "sounds/coin.mp3",
