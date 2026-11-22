@@ -20,7 +20,12 @@ function sepiaFW_build_wake_word_settings() {
     WakeWordSettings.storeWakeWordSensitivity = function(){
         var sensitivityEle = document.getElementById('sepiaFW-wake-word-sensitivity');
         if (sensitivityEle.value != undefined){
-            SepiaFW.wakeTriggers.setWakeWordSensitivities([sensitivityEle.value]);
+            if (SepiaFW.wakeTriggers.engine == "sepia"){
+                //one level for all keywords, empty for the engine's default
+                SepiaFW.wakeTriggers.setWakeWordSensitivities((sensitivityEle.value === "")? undefined : Number(sensitivityEle.value));
+            }else{
+                SepiaFW.wakeTriggers.setWakeWordSensitivities([sensitivityEle.value]);
+            }
         }
         SepiaFW.ui.showPopup("Make sure to reset the engine to load a new wake-word sensitivity!");
     }
@@ -91,7 +96,7 @@ function sepiaFW_build_wake_word_settings() {
         SepiaFW.ui.showPopup("This feature is read-only and has currently no effect. Please use audio-recorder buffer-size settings for now.");     //TODO: update
     }
     //Release engine (to start new)
-    WakeWordSettings.releaseEngine = function(){
+    WakeWordSettings.releaseEngine = function(onReleased, onFailed){
         $('#sepiaFW-wake-word-toggle').html("Releasing...");
         SepiaFW.wakeTriggers.stopListeningToWakeWords(function(){
             WakeWordSettings.debugLog("Stopped listening to wake-words.");
@@ -99,15 +104,38 @@ function sepiaFW_build_wake_word_settings() {
             SepiaFW.wakeTriggers.unloadEngine(function(){
                 //unloaded
                 onEngineUnloaded();
+                if (onReleased) onReleased();
             }, function(err){
                 WakeWordSettings.debugLog("ERROR: " + (err? err.message : "unknown"));
                 $('#sepiaFW-wake-word-toggle').html("LOAD");
+                if (onFailed) onFailed(err);
             });
         }, function(err){
             isListening = false;
             WakeWordSettings.debugLog("ERROR: " + (err? err.message : "unknown"));
             $('#sepiaFW-wake-word-toggle').html("LOAD");
+            if (onFailed) onFailed(err);
         });
+    }
+    //Switch engine (releases a loaded one, the new one loads on next LOAD)
+    WakeWordSettings.changeEngine = function(newEngine){
+        var currentEngine = SepiaFW.wakeTriggers.getSelectedEngine();
+        if (newEngine == currentEngine) return;
+        var restoreSelection = function(){
+            $('#sepiaFW-wake-word-engine-select').val(currentEngine);
+        };
+        SepiaFW.ui.askForConfirmation("Wake-word, version and sensitivity will be reset to the defaults of the new engine. Continue?", function(){
+            var switchEngine = function(){
+                SepiaFW.wakeTriggers.setEngine(newEngine);
+                WakeWordSettings.debugLog("Engine set to: " + newEngine);
+                WakeWordSettings.refreshUi("Engine");
+            };
+            if (SepiaFW.wakeTriggers.engineLoaded){
+                WakeWordSettings.releaseEngine(switchEngine, restoreSelection);
+            }else{
+                switchEngine();
+            }
+        }, restoreSelection);
     }
     function onEngineUnloaded(){
         $('#sepiaFW-wake-word-toggle').html("LOAD");
@@ -178,7 +206,7 @@ function sepiaFW_build_wake_word_settings() {
             var kwClean = kw.replace(/\(.*?\)/, "").trim();
             var version = akw[kw];
             selectOptions.push({
-                text: (kwClean + " (v" + version + ")"), 
+                text: (kwClean + ((SepiaFW.wakeTriggers.engine == "sepia")? (" (" + version + ")") : (" (v" + version + ")"))), 
                 value: JSON.stringify({v: version, kw: kwClean}),
                 selected: (currentVal == kwClean && currentVers == version)
             });
@@ -217,9 +245,7 @@ function sepiaFW_build_wake_word_settings() {
         var toggleButton = document.getElementById('sepiaFW-wake-word-toggle');
         //toggleButton.innerHTML = "Loading...";
         
-        var sensitivityEle = document.getElementById('sepiaFW-wake-word-sensitivity');
-        sensitivityEle.value = Math.round(SepiaFW.wakeTriggers.getWakeWordSensitivities()[0] *10)/10;
-        sensitivityEle.title = SepiaFW.wakeTriggers.getWakeWordSensitivities();
+        showSensitivity();
 
         //build toggles
         var wakeWordAllow = document.getElementById('sepiaFW-wake-word-allow-box');
@@ -365,9 +391,8 @@ function sepiaFW_build_wake_word_settings() {
     WakeWordSettings.refreshUi = function(info){
         if (WakeWordSettings.isOpen){
             //Update stuff
-            var sensitivityEle = document.getElementById('sepiaFW-wake-word-sensitivity');
-            sensitivityEle.value = Math.round(SepiaFW.wakeTriggers.getWakeWordSensitivities()[0] *10)/10;
-            sensitivityEle.title = SepiaFW.wakeTriggers.getWakeWordSensitivities();
+            showEngineSettings();
+            showSensitivity();
 
             //check button states
             checkButtonState();
@@ -392,6 +417,26 @@ function sepiaFW_build_wake_word_settings() {
 
             WakeWordSettings.debugLog("UPDATED " + info);
         }
+    }
+    function showSensitivity(){
+        var sensitivityEle = document.getElementById('sepiaFW-wake-word-sensitivity');
+        var values = SepiaFW.wakeTriggers.getWakeWordSensitivities();
+        sensitivityEle.value = (values.length && values[0] != undefined)? (Math.round(values[0] *10)/10) : "";
+        sensitivityEle.title = values;
+    }
+    //what differs between the engines
+    function showEngineSettings(){
+        var engine = SepiaFW.wakeTriggers.engine;
+        var isSepia = (engine == "sepia");
+        $('.sepiaFW-wake-word-settings-page').attr("data-engine", engine);      //hides '.porcupine-only'
+        $('#sepiaFW-wake-word-engine-select').val(engine);
+        $('#sepiaFW-wake-word-sensitivity-label').attr("title", isSepia? 
+            "1 (harder to trigger) - 5 (easier to trigger), empty for default" : "0.1 (harder to trigger) - 1.0 (easier to trigger)");
+        $('#sepiaFW-wake-word-sensitivity').attr("placeholder", isSepia? "default" : "");
+        $('#sepiaFW-wake-word-switcher-label').text(isSepia? "Wake-word (model + name):" : "Wake-word (version + name):");
+        //model names are longer than Porcupine versions
+        document.getElementById('sepiaFW-wake-word-version').style.setProperty("max-width", isSepia? "140px" : "60px", "important");
+        document.getElementById('sepiaFW-wake-word-name').style.setProperty("max-width", isSepia? "calc(100% - 164px)" : "calc(100% - 84px)");
     }
     function checkButtonState(){
         if (SepiaFW.wakeTriggers.engineLoaded){

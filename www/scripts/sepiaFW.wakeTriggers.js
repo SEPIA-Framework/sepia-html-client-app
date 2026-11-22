@@ -83,6 +83,8 @@ function sepiaFW_build_wake_triggers() {
 		WakeTriggers.allowWakeWordDuringStream = SepiaFW.data.get('allowWakeWordDuringStream');
 		if (typeof WakeTriggers.allowWakeWordDuringStream == 'undefined') WakeTriggers.allowWakeWordDuringStream = false;
 		SepiaFW.debug.info("Wake-word during audio streaming is " + ((WakeTriggers.allowWakeWordDuringStream)? "ALLOWED" : "NOT ALLOWED"));
+		//engine
+		WakeTriggers.engine = WakeTriggers.getSelectedEngine();
 
 		//Add onActive action:
 		SepiaFW.client.addOnActiveOneTimeAction(wakeTriggersOnActiveAction);		//Note: we reset this to 'addOnActive' after setup (below)
@@ -254,7 +256,8 @@ function sepiaFW_build_wake_triggers() {
 			if (onFinishCallback) onFinishCallback();
 			return;
 		}
-		WakeTriggers.engine = (SepiaFW.data.getPermanent('wakeWordEngine') || "porcupine").toLowerCase();
+		WakeTriggers.engine = WakeTriggers.getSelectedEngine();
+		WakeTriggers.engineModuleInfo = undefined;
 		//load Porcupine engine to JS
 		if (WakeTriggers.engine == "porcupine"){
 			SepiaFW.tools.loadJS(PORCUPINE_FOLDER + "wakeWords.js", function(){
@@ -369,9 +372,7 @@ function sepiaFW_build_wake_triggers() {
 			var keywords = toKeywordNames(SepiaFW.data.getPermanent('wakeWordNames'));
 			if (!keywords.length) keywords = list["default"] || Object.keys(WakeTriggers.sepiaAvailableKeywords);
 			WakeTriggers.sepiaWakeWords = keywords;
-			var sensitivity = SepiaFW.data.getPermanent('wakeWordSensitivity');
-			if (sensitivity != undefined && typeof sensitivity == "object") sensitivity = sensitivity[0];		//arrays as Porcupine stores them
-			if (sensitivity === "") sensitivity = undefined;
+			var sensitivity = getStoredSepiaKwsSensitivity();
 			WakeTriggers.sepiaSensitivity = sensitivity;
 			//build module
 			WakeTriggers.engineModule = buildSepiaKwsWebAudioModule(model, keywords, sensitivity);
@@ -383,6 +384,13 @@ function sepiaFW_build_wake_triggers() {
 		}, function(err){
 			reportEngineError("Failed to load keyword list of model '" + model + "' from: " + listUrl);
 		});
+	}
+	//one level, or undefined for the worker's calibrated default
+	function getStoredSepiaKwsSensitivity(){
+		var sensitivity = SepiaFW.data.getPermanent('wakeWordSensitivity');
+		if (sensitivity != undefined && typeof sensitivity == "object") sensitivity = sensitivity[0];		//arrays as Porcupine stores them
+		if (sensitivity === "" || sensitivity === null) sensitivity = undefined;
+		return sensitivity;
 	}
 	//names as stored: a string (comma separated), an array or an object with names as keys
 	function toKeywordNames(stored){
@@ -435,10 +443,15 @@ function sepiaFW_build_wake_triggers() {
 			if (!SepiaFW.audioRecorder.existsWebAudioRecorder() && triedToRecreate <= 3){
 				logInfo('CREATING Wake-Word listener...');
 				triedToRecreate++;
+				var wakeWordModuleName = WakeTriggers.engineModule.name;
 				SepiaFW.audioRecorder.createWebAudioRecorder({
 					wakeWordModule: WakeTriggers.engineModule,		//NOTE: we could leave this empty to use default (same atm.)
 					speechRecognitionModule: false
 				}, function(sepiaWebAudioProcessor, info){
+					//what the module reports when ready, e.g. the sensitivity the SEPIA KWS runs at
+					var moduleInit = (info && info.modulesInfo || []).find(function(m){ return m && m.moduleName == wakeWordModuleName; });
+					WakeTriggers.engineModuleInfo = moduleInit && moduleInit.moduleInfo;
+					SepiaFW.wakeWordSettings.refreshUi("Engine");
 					WakeTriggers.listenToWakeWords(onSuccessCallback, onErrorCallback, doDelayAndCheck, triedToRecreate);
 				}, function(err){
 					//'onProcessorInitError'
@@ -622,12 +635,21 @@ function sepiaFW_build_wake_triggers() {
 	}
 	
 	WakeTriggers.setWakeWordSensitivities = function(newValues){
-		SepiaFW.data.setPermanent('wakeWordSensitivity', newValues);
+		if (newValues == undefined || newValues === ""){
+			SepiaFW.data.delPermanent('wakeWordSensitivity');		//engine default
+		}else{
+			SepiaFW.data.setPermanent('wakeWordSensitivity', newValues);
+		}
 		//TODO: reload module
 	}
 	WakeTriggers.getWakeWordSensitivities = function(){
+		if (WakeTriggers.engine == "sepia"){
+			//stored level, else the one the running worker reports
+			var level = getStoredSepiaKwsSensitivity();
+			if (level == undefined && WakeTriggers.engineModuleInfo) level = WakeTriggers.engineModuleInfo.sensitivity;
+			return (level != undefined)? [level] : [];
+		}
 		if (!WakeTriggers.engineLoaded) return new Float32Array([0.0]);
-		if (WakeTriggers.engine == "sepia") return (WakeTriggers.sepiaSensitivity != undefined)? [WakeTriggers.sepiaSensitivity] : [];
 		//Porcupine integration
 		if (typeof WakeTriggers.porcupineSensitivities == "number"){
 			return [WakeTriggers.porcupineSensitivities];
@@ -636,13 +658,23 @@ function sepiaFW_build_wake_triggers() {
 		}
 	}
 
+	WakeTriggers.getSelectedEngine = function(){
+		return (SepiaFW.data.getPermanent('wakeWordEngine') || "porcupine").toLowerCase();
+	}
+	//NOTE: unload a loaded engine first, the new one is used on next setup
 	WakeTriggers.setEngine = function(engineName){
+		var newEngine = (engineName || "porcupine").toLowerCase();
+		if (newEngine != WakeTriggers.getSelectedEngine()){
+			//the engines share these keys, but not the meaning of their values
+			WakeTriggers.setWakeWord();
+			WakeTriggers.setWakeWordSensitivities();
+		}
 		if (!engineName){
 			SepiaFW.data.delPermanent('wakeWordEngine');
 		}else{
-			SepiaFW.data.setPermanent('wakeWordEngine', engineName.toLowerCase());
+			SepiaFW.data.setPermanent('wakeWordEngine', newEngine);
 		}
-		//TODO: reload module
+		if (!WakeTriggers.engineLoaded) WakeTriggers.engine = newEngine;
 	}
 
 	WakeTriggers.getEngineInfo = function(){
