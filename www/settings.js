@@ -31,6 +31,7 @@ SepiaFW.settings = {
 				"micConfirm": "sounds/coin.mp3",
 				"alarm": "sounds/alarm.mp3"
 			},
+			"wakeWordEngine": "porcupine",
 			"wakeWordNames": "Hey SEPIA",
 			"wakeWordVersion": "1.4",
 			"wakeWordRemoteUrl": "<assist_server>/files/wake-words/porcupine/",

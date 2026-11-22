@@ -5,7 +5,7 @@ function sepiaFW_build_wake_triggers() {
 	WakeTriggers.useWakeWord = false;		//allows to use client side and remote wake-word trigger
 	WakeTriggers.autoLoadWakeWord = false;	//load wake-word on app start?
 	WakeTriggers.allowWakeWordDuringStream = false;		//activate wake-word during audio streaming (e.g. music)?
-	WakeTriggers.engine = "Porcupine";		//active engine
+	WakeTriggers.engine = "porcupine";		//active engine: "porcupine" or "sepia", read from 'wakeWordEngine' during setup
 	WakeTriggers.engineLoaded = false;
 	WakeTriggers.engineModule;
 
@@ -58,6 +58,11 @@ function sepiaFW_build_wake_triggers() {
 		}});
 		document.dispatchEvent(event);
 		logInfo('ERROR: ' + error, true);
+	}
+	function reportEngineError(errMsg){
+		SepiaFW.debug.error("WakeTriggers - " + WakeTriggers.engine + ": " + errMsg);
+		SepiaFW.ui.showPopup("Wake-word error (" + WakeTriggers.engine + "): " + errMsg);
+		broadcastWakeWordError(errMsg);
 	}
 	//NOTE: active, inactive: see ui.animate.wakeWord...
 	
@@ -157,13 +162,7 @@ function sepiaFW_build_wake_triggers() {
 						broadcastWakeWordTrigger(msg.keyword);
 					}
 				},
-				onerror: function(err){
-					var errMsg = (err && err.message? err.message : "?");
-					SepiaFW.debug.error("Porcupine: " + errMsg);
-					SepiaFW.ui.showPopup("Porcupine error: " + errMsg);
-					broadcastWakeWordError(errMsg);
-					WakeTriggers.stopListeningToWakeWords();
-				},
+				onerror: onWakeWordModuleError,
 				//sendToModules: (doUseWaveEncoder? [waveEncoderIndex] : []),
 				options: {
 					setup: {
@@ -191,6 +190,57 @@ function sepiaFW_build_wake_triggers() {
 		return porcupineWorker;
 	}
 
+	//build SEPIA Web Audio module for the SEPIA KWS
+	function buildSepiaKwsWebAudioModule(model, keywordsArray, sensitivity){
+		//the worker gets what the resampler in front of it delivers
+		var recorderOptions = SepiaFW.audioRecorder.getWebAudioRecorderOptions();
+		var setup = {
+			inputSampleRate: recorderOptions.targetSampleRate,
+			inputSampleSize: recorderOptions.processorBufferSize,
+			bufferSize: recorderOptions.processorBufferSize,
+			channelCount: 1,
+			isFloat32: false,			//the resamplers deliver 16-bit PCM
+			model: model,				//e.g. "wdtcn-v4-s0-uno"
+			keywords: keywordsArray,	//e.g. ["hey_sepia"], names are matched case-insensitive with '_' for spaces
+			sendClips: false,
+			useRing: true
+		};
+		if (sensitivity != undefined) setup.sensitivity = sensitivity;		//1 (strictest) to 5 (loosest), worker default if missing
+		var kwsWorker = {
+			name: 'sepia-keyword-worker',
+			type: 'worker',
+			preLoad: {
+				//the model is the big file, so it goes into the library's pre-load cache; the worker fetches WASM and keyword files itself
+				modelFile: {type: 2, path: SEPIA_KWS_FOLDER + model + ".kws"}
+			},
+			settings: {
+				onmessage: function(msg){
+					if (msg && msg.keyword){
+						broadcastWakeWordTrigger(msg.keyword);
+					}
+				},
+				onerror: onWakeWordModuleError,
+				options: {
+					setup: setup
+				}
+			}
+		};
+		logInfo('CREATED SEPIA Web Audio SEPIA KWS module');
+		logInfo('inputSampleRate: ' + setup.inputSampleRate);
+		logInfo('inputSampleSize: ' + setup.inputSampleSize);
+
+		rebuildPreviousSepiaWebAudioModule = function(){
+			return buildSepiaKwsWebAudioModule(model, keywordsArray, sensitivity);
+		}
+		return kwsWorker;
+	}
+
+	function onWakeWordModuleError(err){
+		var errMsg = (err && err.message? err.message : "?");
+		reportEngineError(errMsg);
+		WakeTriggers.stopListeningToWakeWords();
+	}
+
 	//open/close wake-word module gate
 	function setWakeWordModuleGateState(state){
 		if (!WakeTriggers.engineModule) return;
@@ -200,8 +250,13 @@ function sepiaFW_build_wake_triggers() {
 	}
 	
 	WakeTriggers.setupWakeWords = function(onFinishCallback, skipAutostart, customAutostartDelay){
+		if (WakeTriggers.engineLoaded){
+			if (onFinishCallback) onFinishCallback();
+			return;
+		}
+		WakeTriggers.engine = (SepiaFW.data.getPermanent('wakeWordEngine') || "porcupine").toLowerCase();
 		//load Porcupine engine to JS
-		if (!WakeTriggers.engineLoaded && WakeTriggers.engine == "Porcupine"){
+		if (WakeTriggers.engine == "porcupine"){
 			SepiaFW.tools.loadJS(PORCUPINE_FOLDER + "wakeWords.js", function(){
 				//restore from client storage (higher priority)
 				var porcupineVersion = SepiaFW.data.getPermanent('wakeWordVersion');
@@ -263,28 +318,85 @@ function sepiaFW_build_wake_triggers() {
 						WakeTriggers.porcupineVersion, wasmFile, WakeTriggers.porcupineWakeWords, keywordsData, WakeTriggers.porcupineSensitivities, WakeTriggers.porcupineAccessKey
 					);
 					//DONE
-					WakeTriggers.engineLoaded = true; 	//TODO: This doesn't mean the 'wasmFile' is in cache yet ... the rest can still timeout!
 					SepiaFW.debug.log("WakeTriggers - Picovoice Porcupine engine module setup complete.");
 					SepiaFW.debug.log("WakeTriggers - Set wake words: " + JSON.stringify(WakeTriggers.porcupineWakeWords));
 					SepiaFW.debug.log("WakeTriggers - Wake word sensitivities: [" + WakeTriggers.porcupineSensitivities.toString() + "]");
-					SepiaFW.wakeWordSettings.refreshUi("Engine");
-					//start listening?
-					if (!skipAutostart){
-						setTimeout(function(){
-							if (WakeTriggers.useWakeWord){
-								SepiaFW.debug.log("WakeTriggers - Starting wake-word listener.");
-								WakeTriggers.listenToWakeWords();
-							}
-						}, customAutostartDelay || 3000);
-						if (onFinishCallback) onFinishCallback();	//NOTE: this will trigger BEFORE auto-start
-					}else{
-						if (onFinishCallback) onFinishCallback();
-					}
+					finishEngineSetup(onFinishCallback, skipAutostart, customAutostartDelay);
 				}
 			});
+		//load SEPIA KWS keyword list
+		}else if (WakeTriggers.engine == "sepia"){
+			setupSepiaKwsEngine(function(){
+				finishEngineSetup(onFinishCallback, skipAutostart, customAutostartDelay);
+			});
 		}else{
-			if (onFinishCallback) onFinishCallback();
+			reportEngineError("Unknown wake-word engine '" + WakeTriggers.engine + "', use 'porcupine' or 'sepia'.");
 		}
+	}
+	function finishEngineSetup(onFinishCallback, skipAutostart, customAutostartDelay){
+		WakeTriggers.engineLoaded = true; 	//TODO: This doesn't mean the engine files are in cache yet ... the rest can still timeout!
+		SepiaFW.wakeWordSettings.refreshUi("Engine");
+		//start listening?
+		if (!skipAutostart){
+			setTimeout(function(){
+				if (WakeTriggers.useWakeWord){
+					SepiaFW.debug.log("WakeTriggers - Starting wake-word listener.");
+					WakeTriggers.listenToWakeWords();
+				}
+			}, customAutostartDelay || 3000);
+		}
+		if (onFinishCallback) onFinishCallback();	//NOTE: with auto-start this will trigger BEFORE it
+	}
+
+	//SEPIA KWS: model, keywords and sensitivity share the storage keys of Porcupine, their values differ per engine
+	function setupSepiaKwsEngine(onEngineReady){
+		var model = SepiaFW.data.getPermanent('wakeWordVersion') || SEPIA_KWS_DEFAULT_MODEL;
+		var listUrl = SEPIA_KWS_FOLDER + model + ".keywords.json";
+		SepiaFW.files.fetch(listUrl, function(data){
+			var list;
+			try {
+				list = (typeof data == "string")? JSON.parse(data) : data;		//jQuery may have parsed it already
+				if (!list || !Array.isArray(list.keywords)) throw new Error("no 'keywords' array");
+			}catch (err){
+				reportEngineError("Keyword list of model '" + model + "' is invalid: " + (err.message || err));
+				return;
+			}
+			WakeTriggers.sepiaModel = model;
+			WakeTriggers.sepiaAvailableKeywords = {};
+			list.keywords.forEach(function(kw){
+				WakeTriggers.sepiaAvailableKeywords[kw.name] = model;
+			});
+			var keywords = toKeywordNames(SepiaFW.data.getPermanent('wakeWordNames'));
+			if (!keywords.length) keywords = list["default"] || Object.keys(WakeTriggers.sepiaAvailableKeywords);
+			WakeTriggers.sepiaWakeWords = keywords;
+			var sensitivity = SepiaFW.data.getPermanent('wakeWordSensitivity');
+			if (sensitivity != undefined && typeof sensitivity == "object") sensitivity = sensitivity[0];		//arrays as Porcupine stores them
+			if (sensitivity === "") sensitivity = undefined;
+			WakeTriggers.sepiaSensitivity = sensitivity;
+			//build module
+			WakeTriggers.engineModule = buildSepiaKwsWebAudioModule(model, keywords, sensitivity);
+			//DONE
+			SepiaFW.debug.log("WakeTriggers - SEPIA KWS engine module setup complete, model: " + model);
+			SepiaFW.debug.log("WakeTriggers - Set wake words: " + JSON.stringify(keywords));
+			SepiaFW.debug.log("WakeTriggers - Wake word sensitivity: " + ((sensitivity != undefined)? sensitivity : "worker default"));
+			onEngineReady();
+		}, function(err){
+			reportEngineError("Failed to load keyword list of model '" + model + "' from: " + listUrl);
+		});
+	}
+	//names as stored: a string (comma separated), an array or an object with names as keys
+	function toKeywordNames(stored){
+		var names;
+		if (!stored){
+			names = [];
+		}else if (typeof stored == "string"){
+			names = stored.split(/\s*,\s*/);
+		}else if (Array.isArray(stored)){
+			names = stored;
+		}else{
+			names = Object.keys(stored);
+		}
+		return names.filter(function(n){ return !!n; });
 	}
 	
 	WakeTriggers.listenToWakeWords = function(onSuccessCallback, onErrorCallback, doDelayAndCheck, triedToRecreate){
@@ -476,6 +588,7 @@ function sepiaFW_build_wake_triggers() {
 	
 	WakeTriggers.getWakeWords = function(){
 		if (!WakeTriggers.engineLoaded) return [];
+		if (WakeTriggers.engine == "sepia") return WakeTriggers.sepiaWakeWords;
 		//Porcupine integration
 		if (typeof WakeTriggers.porcupineWakeWords == "string"){
 			return [WakeTriggers.porcupineWakeWords];
@@ -486,11 +599,13 @@ function sepiaFW_build_wake_triggers() {
 		}
 	}
 	WakeTriggers.getAvailableWakeWords = function(){
+		if (WakeTriggers.engine == "sepia") return WakeTriggers.sepiaAvailableKeywords;		//name: model
 		//Porcupine integration
 		return WakeTriggers.porcupineAvailableKeywords;
 	}
 	WakeTriggers.getWakeWordVersion = function(){
 		if (!WakeTriggers.engineLoaded) return "";
+		if (WakeTriggers.engine == "sepia") return WakeTriggers.sepiaModel;
 		//Porcupine integration
 		return WakeTriggers.porcupineVersion;
 	}
@@ -512,12 +627,22 @@ function sepiaFW_build_wake_triggers() {
 	}
 	WakeTriggers.getWakeWordSensitivities = function(){
 		if (!WakeTriggers.engineLoaded) return new Float32Array([0.0]);
+		if (WakeTriggers.engine == "sepia") return (WakeTriggers.sepiaSensitivity != undefined)? [WakeTriggers.sepiaSensitivity] : [];
 		//Porcupine integration
 		if (typeof WakeTriggers.porcupineSensitivities == "number"){
 			return [WakeTriggers.porcupineSensitivities];
 		}else{
 			return WakeTriggers.porcupineSensitivities;
 		}
+	}
+
+	WakeTriggers.setEngine = function(engineName){
+		if (!engineName){
+			SepiaFW.data.delPermanent('wakeWordEngine');
+		}else{
+			SepiaFW.data.setPermanent('wakeWordEngine', engineName.toLowerCase());
+		}
+		//TODO: reload module
 	}
 
 	WakeTriggers.getEngineInfo = function(){
@@ -577,7 +702,13 @@ function sepiaFW_build_wake_triggers() {
 	//some defaults
 	var PORCUPINE_FOLDER = "xtensions/picovoice/";
 	var PORCUPINE_DEFAULT_VERSION = "1.4";
-	
+
+	//------ SEPIA KWS ------
+
+	//beside sepia-keyword-worker.js, which loads its other files from there
+	var SEPIA_KWS_FOLDER = "audio-modules/sepia-kws/";
+	var SEPIA_KWS_DEFAULT_MODEL = "wdtcn-v4-s0-uno";
+
 	//-------------------------------------------------
 
 	//start inactive
