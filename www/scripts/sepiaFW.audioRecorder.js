@@ -729,9 +729,11 @@ function sepiaFW_build_audio_recorder(){
 	//Rates and what the browser applied to the microphone track
 	function getRecorderAudioInfo(audioProcessor, info){
 		if (!info) info = {};
-		var trackSettings;
+		var trackSettings, trackConstraints;
 		try {
-			trackSettings = audioProcessor.source.mediaStream.getAudioTracks()[0].getSettings();
+			var track = audioProcessor.source.mediaStream.getAudioTracks()[0];
+			trackSettings = track.getSettings();
+			trackConstraints = track.getConstraints? track.getConstraints() : undefined;
 		}catch(e){
 			//e.g. a custom source without media stream
 		}
@@ -745,7 +747,8 @@ function sepiaFW_build_audio_recorder(){
 			noiseSuppression: applied.noiseSuppression,
 			echoCancellation: applied.echoCancellation,
 			autoGainControl: applied.autoGainControl,
-			voiceIsolation: applied.voiceIsolation
+			voiceIsolation: applied.voiceIsolation,
+			requested: trackConstraints || {}		//what was asked for, a browser can ignore it
 		};
 	}
 

@@ -356,13 +356,23 @@
 			function onOff(val){
 				return (val == undefined)? "n/a" : (val? "on" : "off");
 			}
-			var rate = "Sample rate: microphone " + (info.trackSampleRate || "n/a") + " Hz, context " + info.contextSampleRate + " Hz";
+			function appliedAndRequested(key){
+				var applied = info[key];
+				var requested = info.requested && info.requested[key];
+				if (requested && typeof requested == "object") requested = requested.exact != undefined? requested.exact : requested.ideal;
+				var text = onOff(applied);
+				if (requested != undefined && applied != undefined && !!requested != !!applied){
+					text += " (requested: " + onOff(requested) + ")";
+				}
+				return text;
+			}
+			var rate = "Sample rate: microphone " + (info.trackSampleRate? (info.trackSampleRate + " Hz") : "n/a") + ", context " + info.contextSampleRate + " Hz";
 			if (info.contextSampleRate != info.targetSampleRate){
 				rate += " → " + info.targetSampleRate + " Hz (resampler quality " + info.resamplerQuality + ")";
 			}
 			var msg = rate + "\n"
-				+ "Applied by browser: noise suppression " + onOff(info.noiseSuppression) + ", echo cancellation " + onOff(info.echoCancellation)
-				+ ", auto gain " + onOff(info.autoGainControl) + ", voice isolation " + onOff(info.voiceIsolation);
+				+ "Applied by browser: noise suppression " + appliedAndRequested("noiseSuppression") + ", echo cancellation " + appliedAndRequested("echoCancellation")
+				+ ", auto gain " + appliedAndRequested("autoGainControl") + ", voice isolation " + appliedAndRequested("voiceIsolation");
 			if (info.contextSampleRate && info.contextSampleRate < 44100){
 				msg += "\nNote: the browser converts to " + info.contextSampleRate + " Hz ('Capture Sample-Rate'), echo cancellation may break down.";
 			}else if (info.trackSampleRate && info.trackSampleRate != info.contextSampleRate){
