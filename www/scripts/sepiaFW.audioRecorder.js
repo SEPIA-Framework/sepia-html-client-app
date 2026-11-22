@@ -120,7 +120,7 @@ function sepiaFW_build_audio_recorder(){
 		targetSampleRate: webAudioOptions.targetSampleRate || 16000,
 		processorBufferSize: webAudioOptions.processorBufferSize || 512,
 		gain: webAudioOptions.gain || 1.0,
-		resamplerQuality: webAudioOptions.resamplerQuality || 3,
+		resamplerQuality: webAudioOptions.resamplerQuality || 7,
 		tryNativeResampling: (webAudioOptions.tryNativeResampling != undefined)? webAudioOptions.tryNativeResampling : false,
 		//selected modules
 		vadModule: (webAudioOptions.vadModule != undefined)? webAudioOptions.vadModule : "webrtc-vad-worker"
