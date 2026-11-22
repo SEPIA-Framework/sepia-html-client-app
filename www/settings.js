@@ -26,7 +26,8 @@ SepiaFW.settings = {
 				"echoCancellation": false,
 				"voiceIsolation": false,
 				"resamplerQuality": 7,
-				"tryNativeResampling": false
+				//"tryNativeResampling": false, //NOTE: legacy setting, removed!
+				"captureSampleRate": 48000
 			},
 			"deviceSounds": {
 				"micConfirm": "sounds/coin.mp3",

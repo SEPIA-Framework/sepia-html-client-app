@@ -86,7 +86,7 @@ function sepiaFW_build_audio_recorder(){
 			processorBufferSize: micAudioRecorderOptions.processorBufferSize,
 			gain: micAudioRecorderOptions.gain,
 			resamplerQuality: micAudioRecorderOptions.resamplerQuality,
-			tryNativeResampling: micAudioRecorderOptions.tryNativeResampling,
+			captureSampleRate: micAudioRecorderOptions.captureSampleRate,
 			//selected modules
 			vadModule: micAudioRecorderOptions.vadModule
 		});
@@ -123,7 +123,8 @@ function sepiaFW_build_audio_recorder(){
 		processorBufferSize: webAudioOptions.processorBufferSize || 512,
 		gain: webAudioOptions.gain || 1.0,
 		resamplerQuality: webAudioOptions.resamplerQuality || 7,
-		tryNativeResampling: (webAudioOptions.tryNativeResampling != undefined)? webAudioOptions.tryNativeResampling : false,
+		//the rate the browser is asked for, for the audio context and the microphone track; 16000 replaces the old 'tryNativeResampling: true'
+		captureSampleRate: webAudioOptions.captureSampleRate || (webAudioOptions.tryNativeResampling? 16000 : 48000),
 		//selected modules
 		vadModule: (webAudioOptions.vadModule != undefined)? webAudioOptions.vadModule : "webrtc-vad-worker"
 	}
@@ -231,7 +232,7 @@ function sepiaFW_build_audio_recorder(){
 		});
 		
 		//--- Resampler
-		SepiaFW.webAudio.tryNativeStreamResampling = micAudioRecorderOptions.tryNativeResampling;
+		SepiaFW.webAudio.tryNativeStreamResampling = true;		//the audio context is asked for 'captureSampleRate' too
 		var resampler;
 		var resamplerQuality = micAudioRecorderOptions.resamplerQuality;
 		var resamplerBufferSize = micAudioRecorderOptions.processorBufferSize;
@@ -412,7 +413,7 @@ function sepiaFW_build_audio_recorder(){
 				dispatchRecorderEvent({ event: "error", error: err });
 			},
 			debugLog: processorDebugLog,
-			targetSampleRate: micAudioRecorderOptions.targetSampleRate,		//NOTE: we use native resampling here if possible and allowed
+			targetSampleRate: getCaptureSampleRate(),
 			modules: activeAudioModules,
 			destinationNode: undefined,		//defaults to: new "blind" destination (mic) or audioContext.destination (stream)
 			startSuspended: true,
@@ -442,14 +443,20 @@ function sepiaFW_build_audio_recorder(){
 	function createLegacyScriptProcessorSource(){
 		return SepiaFW.webAudio.createLegacyMicrophoneScriptProcessor({
 			startSuspended: true,
-			targetSampleRate: micAudioRecorderOptions.targetSampleRate,		//NOTE: we use native resampling here if possible and allowed
+			targetSampleRate: getCaptureSampleRate(),
 			bufferSize: micAudioRecorderOptions.processorBufferSize
 		});	//Note: Promise
 	}
 	function createFileSource(fileUrl){
 		return SepiaFW.webAudio.createFileSource(fileUrl, {
-			targetSampleRate: micAudioRecorderOptions.targetSampleRate
+			targetSampleRate: getCaptureSampleRate()
 		});	//Note: Promise
+	}
+	//The processor and its sources ask the browser for this rate, for the audio context and the microphone track,
+	//so it is set here and not left to the library's default. The resampler module converts it to 'targetSampleRate'.
+	//The modules get their input rate explicitly, so they do not depend on it.
+	function getCaptureSampleRate(){
+		return micAudioRecorderOptions.captureSampleRate;
 	}
 	function processorDebugLog(){
 		if (AudioRecorder.debugInterfaces){
@@ -733,7 +740,7 @@ function sepiaFW_build_audio_recorder(){
 		return {
 			trackSampleRate: trackSettings? trackSettings.sampleRate : undefined,
 			contextSampleRate: info.inputSampleRate,
-			targetSampleRate: info.targetSampleRate,
+			targetSampleRate: micAudioRecorderOptions.targetSampleRate,		//the resampler's, not the processor's
 			resamplerQuality: micAudioRecorderOptions.resamplerQuality,
 			noiseSuppression: applied.noiseSuppression,
 			echoCancellation: applied.echoCancellation,

@@ -290,17 +290,25 @@
 			);
 			vadOpt.setValue(activeOptions.vadModule);
 			micOptionsBox.appendChild(vadOpt.element);
-			//resampler opt.
-			var nativeResamplerOpt = SepiaFW.frames.build.inputGroup(
-				"Try Native Resampling", false, "checkbox", false, 
-				"sepiaFW-media-devices-mic-options-tryNativeResampling", function(val){
-					SepiaFW.audioRecorder.setMicrophoneOption("tryNativeResampling", val, "processor");
+			//capture rate
+			var captureRates = [
+				{value: "48000", name: "48000 (recommended)"},
+				{value: "16000", name: "16000"}
+			];
+			var activeCaptureRate = String(activeOptions.captureSampleRate);
+			if (!captureRates.find(function(r){ return r.value == activeCaptureRate; })){
+				captureRates.push({value: activeCaptureRate, name: activeCaptureRate});		//e.g. set via settings.js
+			}
+			var captureRateOpt = SepiaFW.frames.build.inputGroup(
+				"Capture Sample-Rate", captureRates, "select", false, 
+				"sepiaFW-media-devices-mic-options-captureSampleRate", function(val){
+					SepiaFW.audioRecorder.setMicrophoneOption("captureSampleRate", +val, "processor");
 				}
 			);
-			nativeResamplerOpt.setValue(activeOptions.tryNativeResampling);
-			nativeResamplerOpt.label.title = "Ask the browser for 16 kHz directly instead of the device rate (usually 48 kHz). "
-				+ "Can save some CPU, but echo cancellation tends to break down at 16 kHz.";
-			micOptionsBox.appendChild(nativeResamplerOpt.element);
+			captureRateOpt.setValue(activeCaptureRate);
+			captureRateOpt.label.title = "The rate the browser is asked for, for audio context and microphone. "
+				+ "16000 can save some CPU, but echo cancellation tends to break down at 16 kHz.";
+			micOptionsBox.appendChild(captureRateOpt.element);
 			//resampler quality
 			var resamplerQualityOpt = SepiaFW.frames.build.inputGroup(
 				"Resampler Quality", activeOptions.resamplerQuality, "number", false, 
@@ -356,7 +364,7 @@
 				+ "Applied by browser: noise suppression " + onOff(info.noiseSuppression) + ", echo cancellation " + onOff(info.echoCancellation)
 				+ ", auto gain " + onOff(info.autoGainControl) + ", voice isolation " + onOff(info.voiceIsolation);
 			if (info.contextSampleRate && info.contextSampleRate < 44100){
-				msg += "\nNote: the browser converts to " + info.contextSampleRate + " Hz ('Try Native Resampling'), echo cancellation may break down.";
+				msg += "\nNote: the browser converts to " + info.contextSampleRate + " Hz ('Capture Sample-Rate'), echo cancellation may break down.";
 			}else if (info.trackSampleRate && info.trackSampleRate != info.contextSampleRate){
 				msg += "\nNote: the microphone delivers " + info.trackSampleRate + " Hz, the browser converts it to " + info.contextSampleRate + " Hz.";
 			}

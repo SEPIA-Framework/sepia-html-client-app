@@ -13,7 +13,7 @@ Adjust the gain as needed, but start with 1.0, leave `autoGainControl` off and t
 
 `resamplerQuality` sets how well the microphone signal is converted from the device's rate (usually 48 kHz) to the 16 kHz that wake-word and speech recognition use. It can be between 1 (worst, but fast) and 10 (best, but slow). Use 7: it is the lowest quality the SEPIA wake-word engine was tested with, and speech recognition profits from it as well. Note: a value you saved before on the 'Media Devices' page or put into your own `settings.js` stays until you change it, a new default does not replace it.
 
-`tryNativeResampling` asks the browser for 16 kHz directly, so the browser converts instead of the resampler above. This can save some CPU, but echo cancellation tends to break down at 16 kHz and the quality of the browser's converter is unknown. Leave it off unless performance is a problem. In the app you find it on the 'Media Devices' page.
+`captureSampleRate` is the rate the browser is asked for, for the audio context and the microphone: 48000 (default) or 16000. With 48000 the resampler above converts to 16 kHz. With 16000 the browser converts instead: this can save some CPU, but echo cancellation tends to break down at 16 kHz and the quality of the browser's converter is unknown, so use it only if performance is a problem. In the app you find it on the 'Media Devices' page. It replaces `tryNativeResampling`, an old `"tryNativeResampling": true` becomes 16000.
 
 `noiseSuppression` and `voiceIsolation` are done by the browser. Their effect depends on the browser's algorithm and can change wake-word and speech recognition results in unpredictable ways. If detection gets worse, try turning them off. Not every browser supports `voiceIsolation`. The microphone test on the 'Media Devices' page shows what the browser actually applied.
 
@@ -27,7 +27,7 @@ device: {
 		"echoCancellation": true,
 		"voiceIsolation": false,
 		"resamplerQuality": 7,
-		"tryNativeResampling": false
+		"captureSampleRate": 48000
 	},
 	...
 },
