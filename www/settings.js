@@ -24,6 +24,7 @@ SepiaFW.settings = {
 				"noiseSuppression": true,
 				"autoGainControl": false,
 				"echoCancellation": false,
+				"voiceIsolation": false,
 				"resamplerQuality": 7,
 				"tryNativeResampling": false
 			},

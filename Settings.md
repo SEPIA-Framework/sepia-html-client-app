@@ -15,6 +15,8 @@ Adjust the gain as needed, but start with 1.0, leave `autoGainControl` off and t
 
 `tryNativeResampling` asks the browser for 16 kHz directly, so the browser converts instead of the resampler above. This can save some CPU, but echo cancellation tends to break down at 16 kHz and the quality of the browser's converter is unknown. Leave it off unless performance is a problem. In the app you find it on the 'Media Devices' page.
 
+`noiseSuppression` and `voiceIsolation` are done by the browser. Their effect depends on the browser's algorithm and can change wake-word and speech recognition results in unpredictable ways. If detection gets worse, try turning them off. Not every browser supports `voiceIsolation`. The microphone test on the 'Media Devices' page shows what the browser actually applied.
+
 ```
 device: {
 	...
@@ -23,6 +25,7 @@ device: {
 		"noiseSuppression": true,
 		"autoGainControl": false,
 		"echoCancellation": true,
+		"voiceIsolation": false,
 		"resamplerQuality": 7,
 		"tryNativeResampling": false
 	},

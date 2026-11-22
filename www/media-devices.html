@@ -50,6 +50,9 @@
 				<div class="group" style="justify-content: center;">
 					<p id="sepiaFW-media-devices-mic-test-state" class="info-text" style="white-space: break-spaces;">Press 'Start Test' to begin recording</p>
 				</div>
+				<div class="group" style="justify-content: center;">
+					<p id="sepiaFW-media-devices-mic-test-audio-info" class="info-text" style="white-space: break-spaces;"></p>
+				</div>
 				<div class="group" style="justify-content: center; flex-wrap: wrap;">
 					<button id="SepiaFW-media-devices-mic-test" onclick="SepiaFW.frames.currentScope.startMicrophoneTest()">Start Test</button>
 					<button id="SepiaFW-media-devices-mic-test-stop" onclick="SepiaFW.frames.currentScope.stopMicrophoneTest()">Abort Test</button>
@@ -259,6 +262,7 @@
 				else if (co == "noiseSuppression") buildConstraintOption(co, "Noise Suppression", "checkbox", false);
 				else if (co == "autoGainControl") buildConstraintOption(co, "Auto Gain", "checkbox", false);
 				else if (co == "echoCancellation") buildConstraintOption(co, "Echo Cancellation (AEC)", "checkbox", false);
+				else if (co == "voiceIsolation") buildConstraintOption(co, "Voice Isolation", "checkbox", false);
 				//Skipped, unknown or handled elsewhere:
 				else SepiaFW.debug.log("Media-Devices - Skipped media constraint option: " + co);
 			});
@@ -294,7 +298,21 @@
 				}
 			);
 			nativeResamplerOpt.setValue(activeOptions.tryNativeResampling);
+			nativeResamplerOpt.label.title = "Ask the browser for 16 kHz directly instead of the device rate (usually 48 kHz). "
+				+ "Can save some CPU, but echo cancellation tends to break down at 16 kHz.";
 			micOptionsBox.appendChild(nativeResamplerOpt.element);
+			//resampler quality
+			var resamplerQualityOpt = SepiaFW.frames.build.inputGroup(
+				"Resampler Quality", activeOptions.resamplerQuality, "number", false, 
+				"sepiaFW-media-devices-mic-options-resamplerQuality", function(val){
+					SepiaFW.audioRecorder.setMicrophoneOption("resamplerQuality", +val, "processor");
+				}
+			);
+			resamplerQualityOpt.input.min = 1;
+			resamplerQualityOpt.input.max = 10;
+			resamplerQualityOpt.input.step = 1;
+			resamplerQualityOpt.label.title = "1 (fast) to 10 (best), 7 recommended for wake-word and speech recognition.";
+			micOptionsBox.appendChild(resamplerQualityOpt.element);
 			//audio source type
 			var typeOpt = SepiaFW.frames.build.inputGroup(
 				"Source Processor", [
@@ -325,6 +343,24 @@
 		},
 		showMicTestError: function(msg){
 			$('#sepiaFW-media-devices-mic-test-state').css("color", "#f00").text(msg);
+		},
+		showMicTestAudioInfo: function(info){
+			function onOff(val){
+				return (val == undefined)? "n/a" : (val? "on" : "off");
+			}
+			var rate = "Sample rate: microphone " + (info.trackSampleRate || "n/a") + " Hz, context " + info.contextSampleRate + " Hz";
+			if (info.contextSampleRate != info.targetSampleRate){
+				rate += " → " + info.targetSampleRate + " Hz (resampler quality " + info.resamplerQuality + ")";
+			}
+			var msg = rate + "\n"
+				+ "Applied by browser: noise suppression " + onOff(info.noiseSuppression) + ", echo cancellation " + onOff(info.echoCancellation)
+				+ ", auto gain " + onOff(info.autoGainControl) + ", voice isolation " + onOff(info.voiceIsolation);
+			if (info.contextSampleRate && info.contextSampleRate < 44100){
+				msg += "\nNote: the browser converts to " + info.contextSampleRate + " Hz ('Try Native Resampling'), echo cancellation may break down.";
+			}else if (info.trackSampleRate && info.trackSampleRate != info.contextSampleRate){
+				msg += "\nNote: the microphone delivers " + info.trackSampleRate + " Hz, the browser converts it to " + info.contextSampleRate + " Hz.";
+			}
+			$('#sepiaFW-media-devices-mic-test-audio-info').text(msg);
 		},
 		micTestState: {
 			startedRecording: false,
@@ -365,6 +401,7 @@
 			chartEle1.innerHTML = "";
 			var chartEle2 = document.getElementById("sepiaFW-media-devices-mic-test-plot-2");
 			chartEle2.innerHTML = "";
+			$("#sepiaFW-media-devices-mic-test-audio-info").text("");
 			var volumeGraph;
 			var vadGraph;
 			if (state.doPlot){
@@ -409,7 +446,8 @@
 						SepiaFW.debug.error("Media-Devices - Microphone test runtime error:", runtimeErr);
 					}
 					SepiaFW.frames.currentScope.showMicTestError(errMessage);
-				}
+				},
+				SepiaFW.frames.currentScope.showMicTestAudioInfo
 			);
 		},
 		stopMicrophoneTest: function(){

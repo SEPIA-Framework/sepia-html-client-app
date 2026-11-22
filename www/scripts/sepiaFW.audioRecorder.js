@@ -79,6 +79,7 @@ function sepiaFW_build_audio_recorder(){
 			noiseSuppression: micAudioConstraintOptions.noiseSuppression,
 			autoGainControl: micAudioConstraintOptions.autoGainControl,
 			echoCancellation: micAudioConstraintOptions.echoCancellation,
+			voiceIsolation: micAudioConstraintOptions.voiceIsolation,
 			//options
 			sourceType: micAudioRecorderOptions.sourceType,
 			targetSampleRate: micAudioRecorderOptions.targetSampleRate,
@@ -106,6 +107,7 @@ function sepiaFW_build_audio_recorder(){
 	if (webAudioOptions.noiseSuppression != undefined) micAudioConstraintOptions.noiseSuppression = webAudioOptions.noiseSuppression;
 	if (webAudioOptions.autoGainControl != undefined) micAudioConstraintOptions.autoGainControl = webAudioOptions.autoGainControl;
 	if (webAudioOptions.echoCancellation != undefined) micAudioConstraintOptions.echoCancellation = webAudioOptions.echoCancellation;
+	if (webAudioOptions.voiceIsolation != undefined) micAudioConstraintOptions.voiceIsolation = webAudioOptions.voiceIsolation;
 	//set/get
 	AudioRecorder.setWebAudioConstraint = function(optionName, value){
 		micAudioConstraintOptions[optionName] = value;
@@ -574,7 +576,7 @@ function sepiaFW_build_audio_recorder(){
 
 	//---- TEST METHODS ----
 
-	AudioRecorder.testMicrophone = function(state, recLimit, resultHandler, wavDataHandler, volumeHandler, vadDataHandler, logFun, errorLog){
+	AudioRecorder.testMicrophone = function(state, recLimit, resultHandler, wavDataHandler, volumeHandler, vadDataHandler, logFun, errorLog, audioInfoHandler){
 		if (!recLimit) recLimit = 8000;
 		if (recLimit < 4000) recLimit = 4000;
 		if (!state) state = {};
@@ -690,6 +692,7 @@ function sepiaFW_build_audio_recorder(){
 				//on init
 				procInfo = info;
 				//console.log("procInfo", procInfo);				//DEBUG
+				if (audioInfoHandler) audioInfoHandler(getRecorderAudioInfo(audioProcessor, info));
 				logFun("Recorder ready. Recording starts in 3s.");
 				//start
 				state.micStartTimer = setTimeout(function(){
@@ -714,6 +717,29 @@ function sepiaFW_build_audio_recorder(){
 				return true;
 			});
 		});
+	}
+
+	//Rates and what the browser applied to the microphone track
+	function getRecorderAudioInfo(audioProcessor, info){
+		if (!info) info = {};
+		var trackSettings;
+		try {
+			trackSettings = audioProcessor.source.mediaStream.getAudioTracks()[0].getSettings();
+		}catch(e){
+			//e.g. a custom source without media stream
+		}
+		//the library reports the context rate as 'settings.sampleRate', so the track's own rate comes from the track
+		var applied = trackSettings || (info.sourceInfo && info.sourceInfo.settings) || {};
+		return {
+			trackSampleRate: trackSettings? trackSettings.sampleRate : undefined,
+			contextSampleRate: info.inputSampleRate,
+			targetSampleRate: info.targetSampleRate,
+			resamplerQuality: micAudioRecorderOptions.resamplerQuality,
+			noiseSuppression: applied.noiseSuppression,
+			echoCancellation: applied.echoCancellation,
+			autoGainControl: applied.autoGainControl,
+			voiceIsolation: applied.voiceIsolation
+		};
 	}
 
 	return AudioRecorder;
