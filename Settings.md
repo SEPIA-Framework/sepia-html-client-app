@@ -9,7 +9,11 @@ NOTE: You can view your current client setup via settings page `Account -> App s
 
 Something you can try if you want to use the wake-word and music at the same time is `echoCancellation`. It will try to filter out output audio from input.
 It's not supported on every device and on mobile you might get problems with audio distortion or nasty glitches but on Raspberry Pi 4 DIY client it's worth a try ^^.
-Adjust the gain as needed, but start with 1.0, leave `autoGainControl` off and try to tune it via `pulsemixer` first (DIY client setup). `resamplerQuality` can be between 1 (worst, but fast) to 10 (best but slow).
+Adjust the gain as needed, but start with 1.0, leave `autoGainControl` off and try to tune it via `pulsemixer` first (DIY client setup).
+
+`resamplerQuality` sets how well the microphone signal is converted from the device's rate (usually 48 kHz) to the 16 kHz that wake-word and speech recognition use. It can be between 1 (worst, but fast) and 10 (best, but slow). Use 7: it is the lowest quality the SEPIA wake-word engine was tested with, and speech recognition profits from it as well. Note: a value you saved before on the 'Media Devices' page or put into your own `settings.js` stays until you change it, a new default does not replace it.
+
+`tryNativeResampling` asks the browser for 16 kHz directly, so the browser converts instead of the resampler above. This can save some CPU, but echo cancellation tends to break down at 16 kHz and the quality of the browser's converter is unknown. Leave it off unless performance is a problem. In the app you find it on the 'Media Devices' page.
 
 ```
 device: {
@@ -19,7 +23,8 @@ device: {
 		"noiseSuppression": true,
 		"autoGainControl": false,
 		"echoCancellation": true,
-		"resamplerQuality": 3
+		"resamplerQuality": 7,
+		"tryNativeResampling": false
 	},
 	...
 },
@@ -34,11 +39,31 @@ user: {
 
 ### Recommendations
 
-- IQAudio Codec Zero: `"noiseSuppression": false`, `"autoGainControl": false`, `"echoCancellation": false`, `"gain": 2.0`, `"resamplerQuality": 4`
-- Respeaker Mic Array v2.0 USB: `"noiseSuppression": false`, `"autoGainControl": false`, `"echoCancellation": false`, `"gain": 1.0`, `"resamplerQuality": 5`
+- IQAudio Codec Zero: `"noiseSuppression": false`, `"autoGainControl": false`, `"echoCancellation": false`, `"gain": 2.0`
+- Respeaker Mic Array v2.0 USB: `"noiseSuppression": false`, `"autoGainControl": false`, `"echoCancellation": false`, `"gain": 1.0`
 
 
 ## Wake-Word Settings
+
+The client has two wake-word engines: Porcupine (`"wakeWordEngine": "porcupine"`, the default) and the SEPIA engine (`"wakeWordEngine": "sepia"`, beta). Both use the same keys for wake-word, version and sensitivity, but the values mean different things for each engine, so change them all when you switch. The examples after the SEPIA one are for Porcupine.
+
+### SEPIA Wake-Word Engine (beta)
+
+- `wakeWordVersion` is the model. Leave it empty for the default model (`wdtcn-v4-s0-uno`).
+- `wakeWordNames` are the keywords, as the model's list names them: `www/audio-modules/sepia-kws/<model>.keywords.json` (e.g. `hey_sepia`, `hey_jarvis`, `computer`). Case and spaces don't matter, "Hey SEPIA" finds `hey_sepia`. Leave it empty for the list's default.
+- `wakeWordSensitivity` is one level for all keywords, from 1 (harder to trigger) to 5 (easier to trigger). Leave it empty for the calibrated default, which is level 4. For Porcupine the same key holds one value between 0 and 1 per wake-word.
+- Your own keyword: put the `.kwsp` file you got from enrollment into `www/audio-modules/sepia-kws/` as `<model>.<name>.kwsp` and add `<name>` to `wakeWordNames`.
+
+```
+device: {
+	...
+	"wakeWordEngine": "sepia",
+	"wakeWordNames": "hey_sepia",
+	"wakeWordVersion": "",
+	"wakeWordSensitivity": 4,
+	...
+}
+```
 
 ### Two Wake-Words Example
 
