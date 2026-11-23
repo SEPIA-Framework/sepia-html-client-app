@@ -28,16 +28,17 @@ function sepiaFW_build_wake_triggers() {
 
 	//Broadcasting
 
-	function broadcastWakeWordTrigger(keyword){
+	function broadcastWakeWordTrigger(keyword, uiName){
 		//TODO: check assistant state before
 
-		//dispatch event
+		//dispatch event - 'keyword' is the name the engine knows, 'uiName' (if given) what a person reads
 		var event = new CustomEvent('sepia_wake_word', { detail: {
 			keyword: keyword,
+			uiName: uiName,
 			state: "triggered"
 		}});
 		document.dispatchEvent(event);
-		logInfo('KEYWORD: ' + keyword);
+		logInfo('KEYWORD: ' + (uiName || keyword));
 		
 		//trigger mic?
 		if (WakeTriggers.useWakeWord){ 		// && keyword == "hey sepia"
@@ -218,7 +219,7 @@ function sepiaFW_build_wake_triggers() {
 			settings: {
 				onmessage: function(msg){
 					if (msg && msg.keyword){
-						broadcastWakeWordTrigger(msg.keyword);
+						broadcastWakeWordTrigger(msg.keyword, msg.uiName);		//uiName since worker 0.1.3
 					}
 				},
 				onerror: onWakeWordModuleError,
@@ -366,8 +367,10 @@ function sepiaFW_build_wake_triggers() {
 			}
 			WakeTriggers.sepiaModel = model;
 			WakeTriggers.sepiaAvailableKeywords = {};
+			WakeTriggers.sepiaKeywordUiNames = {};
 			list.keywords.forEach(function(kw){
 				WakeTriggers.sepiaAvailableKeywords[kw.name] = model;
+				WakeTriggers.sepiaKeywordUiNames[kw.name] = kw.ui_name || kw.name;		//the list carries ui names since 0.1.3
 			});
 			var keywords = toKeywordNames(SepiaFW.data.getPermanent('wakeWordNames'));
 			if (!keywords.length) keywords = list["default"] || Object.keys(WakeTriggers.sepiaAvailableKeywords);
@@ -615,6 +618,13 @@ function sepiaFW_build_wake_triggers() {
 		if (WakeTriggers.engine == "sepia") return WakeTriggers.sepiaAvailableKeywords;		//name: model
 		//Porcupine integration
 		return WakeTriggers.porcupineAvailableKeywords;
+	}
+	//What a person reads for a keyword, if the engine knows it (SEPIA KWS), else the name itself
+	WakeTriggers.getWakeWordUiName = function(keyword){
+		if (WakeTriggers.engine == "sepia" && WakeTriggers.sepiaKeywordUiNames && WakeTriggers.sepiaKeywordUiNames[keyword]){
+			return WakeTriggers.sepiaKeywordUiNames[keyword];
+		}
+		return keyword;
 	}
 	WakeTriggers.getWakeWordVersion = function(){
 		if (!WakeTriggers.engineLoaded) return "";

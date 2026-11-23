@@ -206,7 +206,7 @@ function sepiaFW_build_wake_word_settings() {
             var kwClean = kw.replace(/\(.*?\)/, "").trim();
             var version = akw[kw];
             selectOptions.push({
-                text: (kwClean + ((SepiaFW.wakeTriggers.engine == "sepia")? (" (" + version + ")") : (" (v" + version + ")"))), 
+                text: ((SepiaFW.wakeTriggers.engine == "sepia")? (SepiaFW.wakeTriggers.getWakeWordUiName(kw) + " (" + version + ")") : (kwClean + " (v" + version + ")")), 
                 value: JSON.stringify({v: version, kw: kwClean}),
                 selected: (currentVal == kwClean && currentVers == version)
             });
@@ -228,7 +228,7 @@ function sepiaFW_build_wake_word_settings() {
     var isListening = false;
     function wakeWordTest(e){
         if (e.detail && e.detail.keyword){
-            WakeWordSettings.debugLog("Detected: " + e.detail.keyword);
+            WakeWordSettings.debugLog("Detected: " + (e.detail.uiName || e.detail.keyword));
             if (isWhite){
                 isWhite = false;
                 document.querySelector("#sepiaFW-wake-word-indicator").setAttribute("src", "img/icon-512.png");

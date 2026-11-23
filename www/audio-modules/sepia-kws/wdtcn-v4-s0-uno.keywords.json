@@ -4,14 +4,20 @@
  "keywords": [
   {
    "name": "computer",
+   "ui_name": "Computer",
+   "speaker": "m1",
    "file": "wdtcn-v4-s0-uno.computer.kwsp"
   },
   {
    "name": "hey_jarvis",
+   "ui_name": "Hey Jarvis",
+   "speaker": "m1",
    "file": "wdtcn-v4-s0-uno.hey_jarvis.kwsp"
   },
   {
    "name": "hey_sepia",
+   "ui_name": "Hey SEPIA",
+   "speaker": "m1",
    "file": "wdtcn-v4-s0-uno.hey_sepia.kwsp"
   }
  ],

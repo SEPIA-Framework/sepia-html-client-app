@@ -14,7 +14,7 @@
 /* The release this file belongs to. The worker, this file and the .wasm
  * are copied into SEPIA together and carry one number, from VERSION; the
  * worker reads it and refuses a copy it cannot work with. */
-var KWS_DECISION_VERSION = "0.1.2";
+var KWS_DECISION_VERSION = "0.1.4";
 
 /* The decision layer is detector.py's, transcribed. The numbers in it
  * were measured and the reasons are worth carrying across: two

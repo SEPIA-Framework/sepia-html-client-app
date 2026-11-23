@@ -35,7 +35,7 @@
  * side, reported in moduleInfo.version and not refused. A file with no
  * number predates them and is reported as null.
  */
-const KWS_VERSION = "0.1.2";
+const KWS_VERSION = "0.1.4";
 let versions = null;            // {worker, decision, wasm}, once loaded
 
 /* The decision layer lives in sepia-kws/kws-decision.js, because the
@@ -255,10 +255,11 @@ const MODEL_FIELDS = {
     centre: 11, projection: 12
 };
 /* And keyword_text()'s: what each keyword's enrollment said about it. A
- * keyword can come from a file of its own, so this is per keyword. */
+ * keyword can come from a file of its own, so this is per keyword. The
+ * last two are for people: what to show for it and whose voice it is. */
 const KEYWORD_FIELDS = [
     "thresholdSource", "thresholdNote", "enrolledBy", "enrolledAt",
-    "requiresClassifier", "pairingNote"
+    "requiresClassifier", "pairingNote", "uiName", "speaker"
 ];
 
 const METER_FIELDS = [
@@ -345,6 +346,10 @@ function readIdentity() {
             k[name] = decodeText(api.kws_keyword_text_ptr(i, field),
                                  api.kws_keyword_text_len(i, field));
         });
+        // A file that does not say, or a module from before the fields,
+        // which reads them as "".
+        if (!k.uiName) k.uiName = k.name;
+        if (!k.speaker) k.speaker = "unknown";
         identity.keywords.push(k);
     }
     KEYWORD_FIELDS.forEach(function (name) {
@@ -1704,8 +1709,11 @@ function recordScores(windowEnd, count) {
         // The detection goes out now, not when the clip is complete. A
         // wake word that arrives a second late is not a wake word.
         if (over) {
+            const who = identity.keywords[i] || {};
             emit({
                 keyword: keywords[i],
+                uiName: who.uiName || keywords[i],
+                speaker: who.speaker || "unknown",
                 score: Math.round(scores[i] * 1e4) / 1e4,
                 threshold: thresholds[i],
                 scores: named,
